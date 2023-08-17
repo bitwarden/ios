@@ -3,7 +3,6 @@ configs:
   Debug: debug
   Release: release
 options:
-  bundleIdPrefix: com.8bit
   createIntermediateGroups: true
   deploymentTarget:
     iOS: 15.0
@@ -91,6 +90,11 @@ targets:
   Bitwarden:
     type: application
     platform: iOS
+    configFiles:
+      Debug: Configs/Bitwarden-Debug.xcconfig
+      Release: Configs/Bitwarden-Release.xcconfig
+    settings:
+      INFOPLIST_FILE: Bitwarden/Application/Support/Info.plist
     sources:
       - path: Bitwarden
         excludes:
@@ -116,11 +120,6 @@ targets:
       - target: BitwardenShareExtension
       - package: Firebase
         product: FirebaseCrashlytics
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.8bit.bitwarden
-        INFOPLIST_FILE: Bitwarden/Application/Support/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Bitwarden/Application/Support/Bitwarden.entitlements
     preBuildScripts:
       - path: Scripts/update_acknowledgements.sh
         name: "Settings.bundle: Update Acknowledgements"
@@ -161,11 +160,12 @@ targets:
   BitwardenActionExtension:
     type: app-extension
     platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenActionExtension.xcconfig
+      Release: Configs/BitwardenActionExtension.xcconfig
     settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.8bit.bitwarden.find-login-action-extension
-        INFOPLIST_FILE: BitwardenActionExtension/Application/Support/Info.plist
-        CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
+      CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
+      INFOPLIST_FILE: BitwardenActionExtension/Application/Support/Info.plist
     sources:
       - path: BitwardenActionExtension
         excludes:
@@ -195,11 +195,12 @@ targets:
   BitwardenAutoFillExtension:
     type: app-extension
     platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenAutoFillExtension.xcconfig
+      Release: Configs/BitwardenAutoFillExtension.xcconfig
     settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.8bit.bitwarden.autofill
-        INFOPLIST_FILE: BitwardenAutoFillExtension/Application/Support/Info.plist
-        CODE_SIGN_ENTITLEMENTS: BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
+      CODE_SIGN_ENTITLEMENTS: BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
+      INFOPLIST_FILE: BitwardenAutoFillExtension/Application/Support/Info.plist
     sources:
       - path: BitwardenAutoFillExtension
         excludes:
@@ -229,11 +230,12 @@ targets:
   BitwardenShareExtension:
     type: app-extension
     platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenShareExtension.xcconfig
+      Release: Configs/BitwardenShareExtension.xcconfig
     settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.8bit.bitwarden.share-extension
-        INFOPLIST_FILE: BitwardenShareExtension/Application/Support/Info.plist
-        CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
+      CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
+      INFOPLIST_FILE: BitwardenShareExtension/Application/Support/Info.plist
     sources:
       - path: BitwardenShareExtension
         excludes:
@@ -263,6 +265,9 @@ targets:
   BitwardenShared:
     type: framework
     platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenShared.xcconfig
+      Release: Configs/BitwardenShared.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
