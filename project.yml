@@ -94,7 +94,8 @@ targets:
       Debug: Configs/Bitwarden-Debug.xcconfig
       Release: Configs/Bitwarden-Release.xcconfig
     settings:
-      INFOPLIST_FILE: Bitwarden/Application/Support/Info.plist
+      base:
+        INFOPLIST_FILE: Bitwarden/Application/Support/Info.plist
     sources:
       - path: Bitwarden
         excludes:
@@ -164,8 +165,9 @@ targets:
       Debug: Configs/BitwardenActionExtension.xcconfig
       Release: Configs/BitwardenActionExtension.xcconfig
     settings:
-      CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
-      INFOPLIST_FILE: BitwardenActionExtension/Application/Support/Info.plist
+      base:
+        CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
+        INFOPLIST_FILE: BitwardenActionExtension/Application/Support/Info.plist
     sources:
       - path: BitwardenActionExtension
         excludes:
@@ -199,8 +201,9 @@ targets:
       Debug: Configs/BitwardenAutoFillExtension.xcconfig
       Release: Configs/BitwardenAutoFillExtension.xcconfig
     settings:
-      CODE_SIGN_ENTITLEMENTS: BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
-      INFOPLIST_FILE: BitwardenAutoFillExtension/Application/Support/Info.plist
+      base:
+        CODE_SIGN_ENTITLEMENTS: BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
+        INFOPLIST_FILE: BitwardenAutoFillExtension/Application/Support/Info.plist
     sources:
       - path: BitwardenAutoFillExtension
         excludes:
@@ -234,8 +237,9 @@ targets:
       Debug: Configs/BitwardenShareExtension.xcconfig
       Release: Configs/BitwardenShareExtension.xcconfig
     settings:
-      CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
-      INFOPLIST_FILE: BitwardenShareExtension/Application/Support/Info.plist
+      base:
+        CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
+        INFOPLIST_FILE: BitwardenShareExtension/Application/Support/Info.plist
     sources:
       - path: BitwardenShareExtension
         excludes:
