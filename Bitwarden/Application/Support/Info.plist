@@ -18,6 +18,8 @@
 	<string>1</string>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
