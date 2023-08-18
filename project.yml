@@ -18,6 +18,8 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.13.0
+  Networking:
+    path: Networking
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     exactVersion: 1.11.1
@@ -40,6 +42,7 @@ schemes:
         - BitwardenAutoFillExtensionTests
         - BitwardenShareExtensionTests
         - BitwardenSharedTests
+        - package: Networking/NetworkingTests
   BitwardenActionExtension:
     build:
       targets:
@@ -258,10 +261,11 @@ targets:
     randomExecutionOrder: true
 
   BitwardenShared:
-    type: library.static
+    type: framework
     platform: iOS
     settings:
       base:
+        APPLICATION_EXTENSION_API_ONLY: true
         INFOPLIST_FILE: BitwardenShared/Application/Support/Info.plist
     sources:
       - path: BitwardenShared
@@ -269,8 +273,7 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
     dependencies:
-      - package: Firebase
-        product: FirebaseCrashlytics
+      - package: Networking
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
