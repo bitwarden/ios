@@ -1,0 +1,15 @@
+# format options
+--indent 4
+--ifdef noindent
+--swiftversion 5.8.1
+--header strip
+--funcattributes prev-line
+--typeattributes prev-line
+--varattributes same-line
+
+# file options
+--exclude **/Generated
+
+# rules
+--disable elseOnSameLine,semicolons,unusedArguments,opaqueGenericParameters
+--enable blankLineAfterImports,isEmpty,blockComments,docComments,sortedSwitchCases
