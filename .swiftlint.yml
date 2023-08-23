@@ -3,6 +3,7 @@ analyzer_rules:
   - unused_import
 
 opt_in_rules:
+  - anonymous_argument_in_multiline_closure
   - attributes
   - closure_end_indentation
   - closure_spacing
