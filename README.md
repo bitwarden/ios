@@ -34,6 +34,7 @@ The following dependencies are used in the development environment only. They ar
 - [SwiftGen](https://github.com/SwiftGen/SwiftGen) (MIT License) - A tool to automatically generate Swift code for project resources (like images, localized strings, etc), to make them type-safe to use.
 - [SwiftFormat](https://github.com/nicklockwood/SwiftFormat) (MIT License) - A tool used to reformat Swift code to automatically adjust for some style conventions.
 - [SwiftLint](https://github.com/realm/SwiftLint) (MIT License) - A tool to enforce Swift style and conventions.
+- [ViewInspector](https://github.com/nalexn/ViewInspector) (MIT License) - A tool used to unit test SwiftUI views.
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) (MIT License) - Generates the Xcode project using the folder structure and a project spec.
 
 ## Setup
