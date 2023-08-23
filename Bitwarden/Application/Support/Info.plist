@@ -122,7 +122,7 @@
 	<key>ITSEncryptionExportComplianceCode</key>
 	<string>ecf076d3-4824-4d7b-b716-2a9a47d7d296</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app does not require access to the photo library.</string>
+	<string>This app requires access to the photo library in order to share files.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan QR codes</string>
 	<key>NSFaceIDUsageDescription</key>
