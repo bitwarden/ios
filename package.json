@@ -14,7 +14,7 @@
   "homepage": "https://bitwarden.com",
   "devDependencies": {
     "husky": "8.0.3",
-    "lint-staged": "13.2.3",
+    "lint-staged": "13.3.0",
     "prettier": "2.8.8"
   },
   "lint-staged": {
