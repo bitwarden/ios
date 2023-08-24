@@ -60,8 +60,6 @@
 	<string>XPC!</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIRequiredDeviceCapabilities</key>

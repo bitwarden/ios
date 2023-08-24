@@ -131,20 +131,6 @@ open class BitwardenTestCase: XCTestCase {
         window.makeKeyAndVisible()
     }
 
-    /// This is a work around for async Tasks that deadlock during tasks. You can call this
-    /// to "unstick" the deadlocked tasks. This may be fixed in XCode 14.3 using
-    /// `await fulfillment`, but we're not on that version yet.
-    ///
-    open func unlockConcurrentTasks() async {
-        let exp = expectation(description: "Unlock deadlocked Tasks")
-        let task = Task {
-            exp.fulfill()
-        }
-
-        await task.value
-        await fulfillment(of: [exp], timeout: 1)
-    }
-
     /// Wait for a condition to be true. The test will fail if the condition isn't met before the
     /// specified timeout.
     ///

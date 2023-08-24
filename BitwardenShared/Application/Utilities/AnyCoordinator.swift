@@ -18,7 +18,9 @@ open class AnyCoordinator<Route>: Coordinator {
     /// - Parameter coordinator: The coordinator to wrap.
     ///
     public init<C: Coordinator>(_ coordinator: C) where C.Route == Route {
-        doNavigate = { coordinator.navigate(to: $0, context: $1) }
+        doNavigate = { route, context in
+            coordinator.navigate(to: route, context: context)
+        }
         doStart = { coordinator.start() }
     }
 
