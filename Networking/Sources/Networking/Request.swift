@@ -25,6 +25,9 @@ public protocol Request {
     var query: [URLQueryItem] { get }
 }
 
+/// This extension provides default values for the `Request` methods, which can be overridden in a
+/// type conforming to the `Request` protocol.
+///
 public extension Request {
     /// The HTTP method for the request.
     var method: HTTPMethod { .get }
