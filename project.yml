@@ -1,0 +1,285 @@
+name: Bitwarden
+configs:
+  Debug: debug
+  Release: release
+options:
+  bundleIdPrefix: com.8bit
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: 15.0
+  groupSortPosition: top
+  usesTabs: false
+  indentWidth: 4
+  tabWidth: 4
+settings:
+  MARKETING_VERSION: 2023.7.1    # Bump this for a new version update.
+  CURRENT_PROJECT_VERSION: 1
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    exactVersion: 10.13.0
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    exactVersion: 1.11.1
+  ViewInspector:
+    url: https://github.com/nalexn/ViewInspector
+    exactVersion: 0.9.7
+schemes:
+  Bitwarden:
+    build:
+      targets:
+        Bitwarden: all
+        BitwardenTests: [test]
+    test:
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      targets:
+        - BitwardenTests
+        - BitwardenActionExtensionTests
+        - BitwardenAutoFillExtensionTests
+        - BitwardenShareExtensionTests
+        - BitwardenSharedTests
+  BitwardenActionExtension:
+    build:
+      targets:
+        BitwardenActionExtension: all
+        BitwardenActionExtensionTests: [test]
+    test:
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      targets:
+        - BitwardenActionExtensionTests
+  BitwardenAutoFillExtension:
+    build:
+      targets:
+        BitwardenAutoFillExtension: all
+        BitwardenAutoFillExtensionTests: [test]
+    test:
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      targets:
+        - BitwardenAutoFillExtensionTests
+  BitwardenShareExtension:
+    build:
+      targets:
+        BitwardenShareExtension: all
+        BitwardenShareExtensionTests: [test]
+    test:
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      targets:
+        - BitwardenShareExtensionTests
+  BitwardenShared:
+    build:
+      targets:
+        BitwardenShared: all
+        BitwardenSharedTests: [test]
+    test:
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      targets:
+        - BitwardenSharedTests
+targets:
+  Bitwarden:
+    type: application
+    platform: iOS
+    sources:
+      - path: Bitwarden
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+          - "**/swiftgen.yml"
+          - "**/GoogleService-Info.*.plist"
+      - path: Bitwarden
+        includes:
+          - "**/__Snapshots__/*"
+          - "**/GoogleService-Info.*.plist"
+        buildPhase: none
+      - path: Bitwarden/Application/Support/GoogleService-Info.plist
+        buildPhase: resources
+      - path: README.md
+        buildPhase: none
+      - path: swiftgen.yml
+        buildPhase: none
+    dependencies:
+      - target: BitwardenShared
+      - target: BitwardenActionExtension
+      - target: BitwardenAutoFillExtension
+      - target: BitwardenShareExtension
+      - package: Firebase
+        product: FirebaseCrashlytics
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.8bit.bitwarden
+        INFOPLIST_FILE: Bitwarden/Application/Support/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Bitwarden/Application/Support/Bitwarden.entitlements
+    postCompileScripts:
+      - script: mint run swiftlint
+        name: Swiftlint
+        basedOnDependencyAnalysis: false
+      - script: mint run swiftformat --lint --lenient .
+        name: SwiftFormat Lint
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: Scripts/update_settings_version_number.sh
+        name: "Settings.bundle: Update Version Number"
+        basedOnDependencyAnalysis: false
+  BitwardenTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: Bitwarden/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: Bitwarden
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+      - path: GlobalTestHelpers
+    dependencies:
+      - target: Bitwarden
+      - target: BitwardenShared
+      - package: SnapshotTesting
+      - package: ViewInspector
+    randomExecutionOrder: true
+
+  BitwardenActionExtension:
+    type: app-extension
+    platform: iOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.8bit.bitwarden.find-login-action-extension
+        INFOPLIST_FILE: BitwardenActionExtension/Application/Support/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
+    sources:
+      - path: BitwardenActionExtension
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+    dependencies:
+      - target: BitwardenShared
+  BitwardenActionExtensionTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenActionExtension/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenActionExtension
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+      - path: GlobalTestHelpers
+    dependencies:
+      - target: BitwardenActionExtension
+      - target: BitwardenShared
+      - package: SnapshotTesting
+      - package: ViewInspector
+    randomExecutionOrder: true
+
+  BitwardenAutoFillExtension:
+    type: app-extension
+    platform: iOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.8bit.bitwarden.autofill
+        INFOPLIST_FILE: BitwardenAutoFillExtension/Application/Support/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
+    sources:
+      - path: BitwardenAutoFillExtension
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+    dependencies:
+      - target: BitwardenShared
+  BitwardenAutoFillExtensionTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenAutoFillExtension/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenAutoFillExtension
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+      - path: GlobalTestHelpers
+    dependencies:
+      - target: BitwardenAutoFillExtension
+      - target: BitwardenShared
+      - package: SnapshotTesting
+      - package: ViewInspector
+    randomExecutionOrder: true
+
+  BitwardenShareExtension:
+    type: app-extension
+    platform: iOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.8bit.bitwarden.share-extension
+        INFOPLIST_FILE: BitwardenShareExtension/Application/Support/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
+    sources:
+      - path: BitwardenShareExtension
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+    dependencies:
+      - target: BitwardenShared
+  BitwardenShareExtensionTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenShareExtension/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenShareExtension
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+      - path: GlobalTestHelpers
+    dependencies:
+      - target: BitwardenShareExtension
+      - target: BitwardenShared
+      - package: SnapshotTesting
+      - package: ViewInspector
+    randomExecutionOrder: true
+
+  BitwardenShared:
+    type: library.static
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenShared/Application/Support/Info.plist
+    sources:
+      - path: BitwardenShared
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+    dependencies:
+      - package: Firebase
+        product: FirebaseCrashlytics
+  BitwardenSharedTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Bitwarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Bitwarden"
+        INFOPLIST_FILE: BitwardenShared/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenShared
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+      - path: GlobalTestHelpers
+    dependencies:
+      - target: BitwardenShared
+      - package: SnapshotTesting
+      - package: ViewInspector
+    randomExecutionOrder: true
