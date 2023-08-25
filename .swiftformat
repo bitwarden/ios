@@ -8,7 +8,7 @@
 --varattributes same-line
 
 # file options
---exclude **/Generated
+--exclude **/Generated,build,vendor/bundle
 
 # rules
 --disable elseOnSameLine,semicolons,unusedArguments,opaqueGenericParameters

@@ -38,6 +38,8 @@ opt_in_rules:
 
 excluded:
   - BitwardenShared/UI/Platform/Application/Support/Generated
+  - build
+  - vendor/bundle
 
 cyclomatic_complexity:
   ignores_case_statements: true
