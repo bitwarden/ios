@@ -1,0 +1,39 @@
+name: LicensePlist, nameSpecified: , owner: mono0926, version: 3.24.10, source: https://github.com/mono0926/LicensePlist
+
+name: SwiftFormat, nameSpecified: , owner: nicklockwood, version: 0.51.13, source: https://github.com/nicklockwood/SwiftFormat
+
+name: SwiftGen, nameSpecified: , owner: SwiftGen, version: 6.6.2, source: https://github.com/SwiftGen/SwiftGen
+
+name: SwiftLint, nameSpecified: , owner: realm, version: 0.52.4, source: https://github.com/realm/SwiftLint
+
+name: xcodegen, nameSpecified: , owner: yonaskolb, version: 2.36.0, source: https://github.com/yonaskolb/xcodegen
+
+name: abseil-cpp-binary, nameSpecified: abseil, owner: google, version: 1.2022062300.0, source: https://github.com/google/abseil-cpp-binary
+
+name: firebase-ios-sdk, nameSpecified: Firebase, owner: firebase, version: 10.13.0, source: https://github.com/firebase/firebase-ios-sdk
+
+name: GoogleAppMeasurement, nameSpecified: GoogleAppMeasurement, owner: google, version: 10.13.0, source: https://github.com/google/GoogleAppMeasurement
+
+name: GoogleDataTransport, nameSpecified: GoogleDataTransport, owner: google, version: 9.2.5, source: https://github.com/google/GoogleDataTransport
+
+name: GoogleUtilities, nameSpecified: GoogleUtilities, owner: google, version: 7.11.5, source: https://github.com/google/GoogleUtilities
+
+name: grpc-binary, nameSpecified: gRPC, owner: google, version: 1.50.2, source: https://github.com/google/grpc-binary
+
+name: gtm-session-fetcher, nameSpecified: gtm-session-fetcher, owner: google, version: 3.1.1, source: https://github.com/google/gtm-session-fetcher
+
+name: leveldb, nameSpecified: leveldb, owner: firebase, version: 1.22.2, source: https://github.com/firebase/leveldb
+
+name: nanopb, nameSpecified: nanopb, owner: firebase, version: 2.30909.0, source: https://github.com/firebase/nanopb
+
+name: promises, nameSpecified: Promises, owner: google, version: 2.3.1, source: https://github.com/google/promises
+
+name: swift-protobuf, nameSpecified: SwiftProtobuf, owner: apple, version: 1.22.1, source: https://github.com/apple/swift-protobuf
+
+name: swift-snapshot-testing, nameSpecified: swift-snapshot-testing, owner: pointfreeco, version: 1.11.1, source: https://github.com/pointfreeco/swift-snapshot-testing
+
+name: ViewInspector, nameSpecified: ViewInspector, owner: nalexn, version: 0.9.7, source: https://github.com/nalexn/ViewInspector
+
+add-version-numbers: false
+
+LicensePlist Version: 3.24.10

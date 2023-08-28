@@ -118,6 +118,13 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.8bit.bitwarden
         INFOPLIST_FILE: Bitwarden/Application/Support/Info.plist
         CODE_SIGN_ENTITLEMENTS: Bitwarden/Application/Support/Bitwarden.entitlements
+    preBuildScripts:
+      - path: Scripts/update_acknowledgements.sh
+        name: "Settings.bundle: Update Acknowledgements"
+        outputFiles:
+          - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements.plist
+          - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements.latest_results.txt
+          - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements
     postCompileScripts:
       - script: mint run swiftlint
         name: Swiftlint
