@@ -11,9 +11,7 @@
 .github/workflows @bitwarden/dept-devops
 
 # Auth
-BitwardenShared/Core/Models/Auth @bitwarden/team-auth-dev
-BitwardenShared/Core/Repositories/Auth @bitwarden/team-auth-dev
-BitwardenShared/Core/Services/Auth @bitwarden/team-auth-dev
+BitwardenShared/Core/Auth @bitwarden/team-auth-dev
 BitwardenShared/UI/Auth @bitwarden/team-auth-dev
 
 # AutoFill
@@ -23,19 +21,13 @@ BitwardenAutoFillExtension @bitwarden/team-autofill-dev
 Bitwarden @bitwarden/team-platform-dev
 BitwardenActionExtension @bitwarden/team-platform-dev
 BitwardenShareExtension @bitwarden/team-platform-dev
-BitwardenShared/Core/Models/Platform @bitwarden/team-platform-dev
-BitwardenShared/Core/Repositories/Platform @bitwarden/team-platform-dev
-BitwardenShared/Core/Services/Platform @bitwarden/team-platform-dev
+BitwardenShared/Core/Platform @bitwarden/team-platform-dev
 BitwardenShared/UI/Platform @bitwarden/team-platform-dev
 
 # Tools
-BitwardenShared/Core/Models/Tools @bitwarden/team-tools-dev
-BitwardenShared/Core/Repositories/Tools @bitwarden/team-tools-dev
-BitwardenShared/Core/Services/Tools @bitwarden/team-tools-dev
+BitwardenShared/Core/Tools @bitwarden/team-tools-dev
 BitwardenShared/UI/Tools @bitwarden/team-tools-dev
 
 # Vault
-BitwardenShared/Core/Models/Vault @bitwarden/team-vault-dev
-BitwardenShared/Core/Repositories/Vault @bitwarden/team-vault-dev
-BitwardenShared/Core/Services/Vault @bitwarden/team-vault-dev
+BitwardenShared/Core/Vault @bitwarden/team-vault-dev
 BitwardenShared/UI/Vault @bitwarden/team-vault-dev
