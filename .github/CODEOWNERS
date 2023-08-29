@@ -5,7 +5,29 @@
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
 # Default file owners.
-* @bitwarden/team-leads-eng
+* @bitwarden/tech-leads
 
 # DevOps for Actions and other workflow changes.
 .github/workflows @bitwarden/dept-devops
+
+# Auth
+BitwardenShared/Core/Auth @bitwarden/team-auth-dev
+BitwardenShared/UI/Auth @bitwarden/team-auth-dev
+
+# AutoFill
+BitwardenAutoFillExtension @bitwarden/team-autofill-dev
+
+# Platform
+Bitwarden @bitwarden/team-platform-dev
+BitwardenActionExtension @bitwarden/team-platform-dev
+BitwardenShareExtension @bitwarden/team-platform-dev
+BitwardenShared/Core/Platform @bitwarden/team-platform-dev
+BitwardenShared/UI/Platform @bitwarden/team-platform-dev
+
+# Tools
+BitwardenShared/Core/Tools @bitwarden/team-tools-dev
+BitwardenShared/UI/Tools @bitwarden/team-tools-dev
+
+# Vault
+BitwardenShared/Core/Vault @bitwarden/team-vault-dev
+BitwardenShared/UI/Vault @bitwarden/team-vault-dev
