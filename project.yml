@@ -266,7 +266,7 @@ targets:
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
-        INFOPLIST_FILE: BitwardenShared/Application/Support/Info.plist
+        INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/Support/Info.plist
     sources:
       - path: BitwardenShared
         excludes:
@@ -281,7 +281,7 @@ targets:
       base:
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Bitwarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Bitwarden"
-        INFOPLIST_FILE: BitwardenShared/Application/TestHelpers/Support/Info.plist
+        INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/TestHelpers/Support/Info.plist
     sources:
       - path: BitwardenShared
         includes:
