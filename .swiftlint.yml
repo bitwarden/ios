@@ -37,7 +37,7 @@ opt_in_rules:
   - yoda_condition
 
 excluded:
-  - BitwardenShared/Application/Support/Generated
+  - BitwardenShared/UI/Platform/Application/Support/Generated
 
 cyclomatic_complexity:
   ignores_case_statements: true
