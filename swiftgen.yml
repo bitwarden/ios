@@ -1,1 +1,9 @@
 output_dir: BitwardenShared/UI/Platform/Application/Support/Generated/
+strings:
+  inputs: BitwardenShared/UI/Platform/Application/Support/Localizations/en.lproj
+  outputs:
+    - templateName: structured-swift5
+      output: Localizations.swift
+      params:
+        enumName: Localizations
+        publicAccess: true

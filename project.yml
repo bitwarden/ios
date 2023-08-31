@@ -282,6 +282,8 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
+      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
+        optional: true
     dependencies:
       - package: Networking
   BitwardenSharedTests:
