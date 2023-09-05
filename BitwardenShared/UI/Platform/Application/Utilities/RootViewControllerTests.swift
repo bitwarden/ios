@@ -54,4 +54,12 @@ class RootViewControllerTests: BitwardenTestCase {
         subject.childViewController = viewController
         XCTAssertIdentical(subject.rootViewController, subject)
     }
+
+    /// `show(child:)` sets `childViewController` to the `rootViewController` on the child navigator.
+    func test_show() {
+        let navigator = MockStackNavigator()
+        navigator.rootViewController = UIViewController()
+        subject.show(child: navigator)
+        XCTAssertIdentical(subject.childViewController, navigator.rootViewController)
+    }
 }
