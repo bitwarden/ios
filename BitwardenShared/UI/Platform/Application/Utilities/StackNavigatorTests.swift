@@ -3,9 +3,15 @@ import XCTest
 
 @testable import BitwardenShared
 
+// MARK: - StackNavigatorTests
+
 @MainActor
 class StackNavigatorTests: BitwardenTestCase {
+    // MARK: Properties
+
     var subject: UINavigationController!
+
+    // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
@@ -13,14 +19,24 @@ class StackNavigatorTests: BitwardenTestCase {
         setKeyWindowRoot(viewController: subject)
     }
 
+    // MARK: Tests
+
     /// `present(_:animated:)` presents the hosted view.
-    func testPresent() {
+    func test_present() {
         subject.present(EmptyView(), animated: false)
         XCTAssertTrue(subject.presentedViewController is UIHostingController<EmptyView>)
     }
 
+    /// `present(_:animated:)` presents the hosted view.
+    func test_present_overFullscreen() {
+        subject.present(EmptyView(), animated: false, overFullscreen: true)
+        XCTAssertEqual(subject.presentedViewController?.modalPresentationStyle, .overFullScreen)
+        XCTAssertEqual(subject.presentedViewController?.view.backgroundColor, .clear)
+        XCTAssertTrue(subject.presentedViewController is UIHostingController<EmptyView>)
+    }
+
     /// `present(_:animated:)` presents the hosted view on existing presented views.
-    func testPresentOnPresentedView() {
+    func test_present_onPresentedView() {
         subject.present(EmptyView(), animated: false)
         subject.present(ScrollView<EmptyView> {}, animated: false)
         XCTAssertTrue(subject.presentedViewController is UIHostingController<EmptyView>)
@@ -32,20 +48,20 @@ class StackNavigatorTests: BitwardenTestCase {
     }
 
     /// `dismiss(animated:)` dismisses the hosted view.
-    func testDismiss() {
+    func test_dismiss() {
         subject.present(EmptyView(), animated: false)
         subject.dismiss(animated: false)
         waitFor(subject.presentedViewController == nil)
     }
 
     /// `push(_:animated:)` pushes the hosted view.
-    func testPush() {
+    func test_push() {
         subject.push(EmptyView(), animated: false)
         XCTAssertTrue(subject.topViewController is UIHostingController<EmptyView>)
     }
 
     /// `pop(animated:)` pops the hosted view.
-    func testPop() {
+    func test_pop() {
         subject.push(EmptyView(), animated: false)
         subject.push(EmptyView(), animated: false)
         subject.pop(animated: false)
@@ -53,8 +69,18 @@ class StackNavigatorTests: BitwardenTestCase {
         XCTAssertTrue(subject.topViewController is UIHostingController<EmptyView>)
     }
 
+    /// `popToRoot(animated:)` pops to the root hosted view.
+    func test_popToRoot() {
+        subject.push(EmptyView(), animated: false)
+        subject.push(EmptyView(), animated: false)
+        subject.push(EmptyView(), animated: false)
+        subject.popToRoot(animated: false)
+        XCTAssertEqual(subject.viewControllers.count, 1)
+        XCTAssertTrue(subject.topViewController is UIHostingController<EmptyView>)
+    }
+
     /// `replace(_:animated:)` replaces the hosted view.
-    func testReplace() {
+    func test_replace() {
         subject.push(EmptyView(), animated: false)
         subject.replace(Text("replaced"), animated: false)
         XCTAssertEqual(subject.viewControllers.count, 1)

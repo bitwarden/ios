@@ -3,10 +3,16 @@ import XCTest
 
 @testable import BitwardenShared
 
+// MARK: - StoreTests
+
 @MainActor
 class StoreTests: XCTestCase {
+    // MARK: Properties
+
     var processor: MockProcessor<TestState, TestAction, TestEffect>!
     var subject: Store<TestState, TestAction, TestEffect>!
+
+    // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
@@ -15,8 +21,10 @@ class StoreTests: XCTestCase {
         subject = Store(processor: processor)
     }
 
+    // MARK: Tests
+
     /// `send(_:)` forwards the action to the processor for processing.
-    func testSendAction() {
+    func test_send_action() {
         subject.send(.increment)
         XCTAssertEqual(processor.dispatchedActions, [.increment])
         processor.dispatchedActions.removeAll()
@@ -26,13 +34,13 @@ class StoreTests: XCTestCase {
     }
 
     /// `perform(_:)` forwards the effect to the processor for performing.
-    func testPerformEffect() async {
+    func test_perform_effect() async {
         await subject.perform(.something)
         XCTAssertEqual(processor.effects, [.something])
     }
 
     /// `child(_:)` creates a child store that maps actions, state, and effects from its parent.
-    func testChildStore() async {
+    func test_child() async {
         let childStore = subject.child(state: { $0.child }, mapAction: { .child($0) }, mapEffect: { .child($0) })
 
         XCTAssertEqual(childStore.state.value, "🐣")
@@ -49,7 +57,7 @@ class StoreTests: XCTestCase {
 
     /// `binding(get:send:)` creates a binding from a value in the state and sends an action to the
     /// processor when the binding's value changes.
-    func testBinding() {
+    func test_binding() {
         let binding = subject.binding(get: { $0.counter }, send: { .counterChanged($0) })
 
         XCTAssertEqual(binding.wrappedValue, 0)
@@ -64,7 +72,7 @@ class StoreTests: XCTestCase {
 
     /// `binding(get:)` creates a binding from a value in the state that does not update the state when the binding's
     /// value is changed.
-    func testBindingGetOnly() {
+    func test_binding_getOnly() {
         let binding = subject.binding(get: { $0.counter })
 
         XCTAssertEqual(binding.wrappedValue, 0)
