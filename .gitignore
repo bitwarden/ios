@@ -70,3 +70,6 @@ fastlane/README.md
 
 # XcodeGen
 /*.xcodeproj
+
+# Local xcconfig
+Configs/Local.xcconfig
