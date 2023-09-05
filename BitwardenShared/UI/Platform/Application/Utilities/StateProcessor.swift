@@ -4,7 +4,7 @@ import Combine
 
 /// A generic `Processor` which may be subclassed to easily build a `Processor` with the typical
 /// properties, connections, and behaviors.
-open class StateProcessor<Action: Sendable, State: Sendable, Effect: Sendable>: Processor {
+open class StateProcessor<State: Sendable, Action: Sendable, Effect: Sendable>: Processor {
     // MARK: Properties
 
     /// The processor's current state.

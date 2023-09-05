@@ -4,4 +4,9 @@ import SwiftUI
 
 /// A protocol for an object that can navigate between screens and show alerts.
 @MainActor
-public protocol Navigator: AnyObject {}
+public protocol Navigator: AnyObject {
+    // MARK: Properties
+
+    /// The root view controller of this `Navigator`.
+    var rootViewController: UIViewController? { get }
+}

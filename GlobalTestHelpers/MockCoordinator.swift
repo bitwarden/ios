@@ -1,11 +1,11 @@
 @testable import BitwardenShared
 
-class MockCoordinator<T>: Coordinator {
+class MockCoordinator<Route>: Coordinator {
     var contexts: [AnyObject?] = []
     var isStarted: Bool = false
-    var routes: [T] = []
+    var routes: [Route] = []
 
-    func navigate(to route: T, context: AnyObject?) {
+    func navigate(to route: Route, context: AnyObject?) {
         routes.append(route)
         contexts.append(context)
     }

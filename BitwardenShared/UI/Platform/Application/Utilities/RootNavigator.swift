@@ -11,3 +11,15 @@ public protocol RootNavigator: Navigator {
     /// - Parameter child: The navigator to show.
     func show(child: Navigator?)
 }
+
+// MARK: - RootViewController
+
+extension RootViewController: RootNavigator {
+    public var rootViewController: UIViewController? {
+        self
+    }
+
+    public func show(child: Navigator?) {
+        childViewController = child?.rootViewController
+    }
+}

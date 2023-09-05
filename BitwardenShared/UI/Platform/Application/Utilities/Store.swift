@@ -32,7 +32,7 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     /// - Parameter processor: The `Processor` that will receive actions from the store and update
     ///     the store's state.
     ///
-    public init<P: Processor>(processor: P) where P.Action == Action, P.State == State, P.Effect == Effect {
+    public init<P: Processor>(processor: P) where P.Action == Action, P.Effect == Effect, P.State == State {
         state = processor.state
         receive = { processor.receive($0) }
         perform = { await processor.perform($0) }

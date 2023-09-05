@@ -19,7 +19,7 @@ class APIServiceTests: BitwardenTestCase {
     }
 
     /// `init(client:)` sets the default base URLs for the HTTP services.
-    func testInitDefaultURLs() {
+    func test_init_defaultURLs() {
         let apiServiceBaseURL = subject.apiService.baseURL
         XCTAssertEqual(apiServiceBaseURL, URL(string: "https://vault.bitwarden.com/api")!)
 

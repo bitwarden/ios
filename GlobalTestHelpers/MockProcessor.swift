@@ -1,25 +1,25 @@
 import BitwardenShared
 import Combine
 
-class MockProcessor<StateType: Sendable, ActionType: Sendable, Effect: Sendable>: Processor {
-    var dispatchedActions = [ActionType]()
+class MockProcessor<State: Sendable, Action: Sendable, Effect: Sendable>: Processor {
+    var dispatchedActions = [Action]()
     var effects: [Effect] = []
-    let stateSubject: CurrentValueSubject<StateType, Never>
+    let stateSubject: CurrentValueSubject<State, Never>
 
-    var state: StateType {
+    var state: State {
         get { stateSubject.value }
         set { stateSubject.value = newValue }
     }
 
-    var statePublisher: AnyPublisher<StateType, Never> {
+    var statePublisher: AnyPublisher<State, Never> {
         stateSubject.eraseToAnyPublisher()
     }
 
-    init(state: StateType) {
+    init(state: State) {
         stateSubject = CurrentValueSubject(state)
     }
 
-    func receive(_ action: ActionType) {
+    func receive(_ action: Action) {
         dispatchedActions.append(action)
     }
 

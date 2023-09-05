@@ -6,9 +6,9 @@ import Foundation
 ///
 @MainActor
 public protocol Processor: AnyObject, Sendable {
-    associatedtype State: Sendable
     associatedtype Action: Sendable
     associatedtype Effect: Sendable
+    associatedtype State: Sendable
 
     /// The processor's current state.
     var state: State { get }
