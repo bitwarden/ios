@@ -9,7 +9,7 @@ protocol DeviceAPIService {
     ///   - email: The email being used to log into the app.
     ///   - deviceIdentifier: The unique identifier for this device.
     ///
-    /// - Returns: `true` if this device has been associated with this device, `false` otherwise.
+    /// - Returns: `true` if this email has been associated with this device, `false` otherwise.
     ///
     func knownDevice(email: String, deviceIdentifier: String) async throws -> Bool
 }
