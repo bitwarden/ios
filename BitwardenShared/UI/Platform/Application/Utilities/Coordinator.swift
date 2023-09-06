@@ -1,6 +1,6 @@
 /// A protocol for an object that performs navigation via routes.
 @MainActor
-public protocol Coordinator: AnyObject {
+public protocol Coordinator<Route>: AnyObject {
     associatedtype Route
 
     /// Navigate to the screen associated with the given `Route` with the given context.
