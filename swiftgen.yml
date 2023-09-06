@@ -1,1 +1,10 @@
 output_dir: BitwardenShared/UI/Platform/Application/Support/Generated/
+xcassets:
+  inputs:
+    - BitwardenShared/UI/Platform/Application/Support/Colors.xcassets
+    - BitwardenShared/UI/Platform/Application/Support/Images.xcassets
+  outputs:
+    - templateName: swift5
+      output: Assets.swift
+      params:
+        publicAccess: true
