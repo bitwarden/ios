@@ -3,8 +3,8 @@
 ## Contents
 
 - [Compatibility](#compatibility)
-- [Dependencies](#dependencies)
 - [Setup](#setup)
+- [Dependencies](#dependencies)
 - [Project Structure](#project-structure)
 
 ## Compatibility
@@ -14,28 +14,6 @@
 - **Device Types Supported**: iPhone
 - **Screen Sizes Supported**: iPhone SE to iPhone 14 Pro Max
 - **Orientations Supported**: Portrait, Landscape
-
-## Dependencies
-
-### Icons
-- The icons used in the app are all custom. No additional licensing is required.
-
-### App Dependencies
-
-- [Firebase Crashlytics](https://github.com/firebase/firebase-ios-sdk) (Apache License) - SDK for crash and non-fatal error reporting.
-
-### Development Dependencies
-
-The following dependencies are used in the development environment only. They are not present in deployed code.
-
-- [LicensePlist](https://github.com/mono0926/LicensePlist) (MIT License) - A tool to generate a list of third-party software licenses displayed in app settings.
-- [Mint](https://github.com/yonaskolb/mint) (MIT License) - A package manager that installs and runs Swift command line tool packages.
-- [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) (MIT License) - Allow a snapshot test case which renders a UI component, takes a snapshot, then compares it to a reference snapshot file stored alongside the test.
-- [SwiftGen](https://github.com/SwiftGen/SwiftGen) (MIT License) - A tool to automatically generate Swift code for project resources (like images, localized strings, etc), to make them type-safe to use.
-- [SwiftFormat](https://github.com/nicklockwood/SwiftFormat) (MIT License) - A tool used to reformat Swift code to automatically adjust for some style conventions.
-- [SwiftLint](https://github.com/realm/SwiftLint) (MIT License) - A tool to enforce Swift style and conventions.
-- [ViewInspector](https://github.com/nalexn/ViewInspector) (MIT License) - A tool used to unit test SwiftUI views.
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen) (MIT License) - Generates the Xcode project using the folder structure and a project spec.
 
 ## Setup
 
@@ -101,6 +79,55 @@ Additionally, if you would like SwiftFormat to autocorrect any issues before eve
 ```sh
 $ cp Scripts/pre-commit .git/hooks/
 ```
+
+## Dependencies
+
+### Icons
+- The icons used in the app are all custom. No additional licensing is required.
+
+### App Dependencies
+
+- **Firebase Crashlytics**
+    - https://github.com/firebase/firebase-ios-sdk
+    - Purpose: SDK for crash and non-fatal error reporting.
+    - License: Apache 2.0
+
+### Development Dependencies
+
+The following dependencies are used in the development environment only. They are not present in deployed code.
+
+- **LicensePlist**
+    - https://github.com/mono0926/LicensePlist
+    - Purpose: A tool to generate a list of third-party software licenses displayed in app settings.
+    - License: MIT
+- **Mint**
+    - https://github.com/yonaskolb/mint
+    - Purpose: A package manager that installs and runs Swift command line tool packages.
+    - License: MIT
+- **SnapshotTesting**
+    - https://github.com/pointfreeco/swift-snapshot-testing
+    - Purpose: Allow a snapshot test case which renders a UI component, takes a snapshot, then compares it to a reference snapshot file stored alongside the test.
+    - License: MIT
+- **SwiftGen**
+    - https://github.com/SwiftGen/SwiftGen
+    - Purpose: A tool to automatically generate Swift code for project resources (like images, localized strings, etc), to make them type-safe to use.
+    - License: MIT
+- **SwiftFormat**
+    - https://github.com/nicklockwood/SwiftFormat
+    - Purpose: A tool used to reformat Swift code to automatically adjust for some style conventions.
+    - License: MIT
+- **SwiftLint**
+    - https://github.com/realm/SwiftLint
+    - Purpose: A tool to enforce Swift style and conventions.
+    - License: MIT
+- **ViewInspector**
+    - https://github.com/nalexn/ViewInspector
+    - Purpose: A tool used to unit test SwiftUI views.
+    - License: MIT
+- **XcodeGen**
+    - https://github.com/yonaskolb/XcodeGen
+    - Purpose: Generates the Xcode project using the folder structure and a project spec.
+    - License: MIT
 
 ## Project Structure
 
