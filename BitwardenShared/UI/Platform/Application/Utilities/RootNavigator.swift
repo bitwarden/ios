@@ -23,15 +23,3 @@ extension RootViewController: RootNavigator {
         childViewController = child.rootViewController
     }
 }
-
-// MARK: - RootViewController
-
-extension RootViewController: RootNavigator {
-    public var rootViewController: UIViewController? {
-        self
-    }
-
-    public func show(child: Navigator?) {
-        childViewController = child?.rootViewController
-    }
-}
