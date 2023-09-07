@@ -63,6 +63,19 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 
+    /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.
+    func test_rootNavigator_resetWeakReference() {
+        var rootNavigator: MockRootNavigator? = MockRootNavigator()
+        subject = AuthCoordinator(
+            rootNavigator: rootNavigator,
+            stackNavigator: stackNavigator
+        )
+        XCTAssertNotNil(subject.rootNavigator)
+
+        rootNavigator = nil
+        XCTAssertNil(subject.rootNavigator)
+    }
+
     /// `start()` presents the stack navigator within the root navigator.
     func test_start() {
         subject.start()

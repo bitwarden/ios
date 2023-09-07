@@ -9,10 +9,10 @@ internal final class AuthCoordinator: Coordinator {
     // MARK: Properties
 
     /// The root navigator used to display this coordinator's interface.
-    private weak var rootNavigator: (any RootNavigator)?
+    weak var rootNavigator: (any RootNavigator)?
 
     /// The stack navigator that is managed by this coordinator.
-    private var stackNavigator: StackNavigator
+    var stackNavigator: StackNavigator
 
     // MARK: Initialization
 
