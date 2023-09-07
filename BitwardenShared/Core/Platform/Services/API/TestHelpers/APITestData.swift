@@ -16,6 +16,10 @@ struct APITestData {
             fatalError("Unable to load data from \(resource).\(`extension`) in the bundle. Error: \(error)")
         }
     }
+
+    static func loadFromJsonBundle(resource: String) -> APITestData {
+        loadFromBundle(resource: resource, extension: "json")
+    }
 }
 
 extension APITestData {
