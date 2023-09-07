@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -euo pipefail
+
 mint bootstrap
 
 mint run swiftgen config run --config "swiftgen.yml"
