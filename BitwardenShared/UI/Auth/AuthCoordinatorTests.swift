@@ -67,7 +67,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     func test_rootNavigator_resetWeakReference() {
         var rootNavigator: MockRootNavigator? = MockRootNavigator()
         subject = AuthCoordinator(
-            rootNavigator: rootNavigator,
+            rootNavigator: rootNavigator!,
             stackNavigator: stackNavigator
         )
         XCTAssertNotNil(subject.rootNavigator)

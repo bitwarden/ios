@@ -13,7 +13,7 @@ class MockAppModule: AppModule, AuthModule {
     }
 
     func makeAuthCoordinator(
-        rootNavigator: RootNavigator?,
+        rootNavigator: RootNavigator,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<AuthRoute> {
         authCoordinator.asAnyCoordinator()

@@ -23,7 +23,7 @@ internal final class AuthCoordinator: Coordinator {
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
-        rootNavigator: RootNavigator?,
+        rootNavigator: RootNavigator,
         stackNavigator: StackNavigator
     ) {
         self.rootNavigator = rootNavigator
