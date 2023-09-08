@@ -36,10 +36,22 @@ internal final class AuthCoordinator: Coordinator {
         switch route {
         case .createAccount:
             showCreateAccount()
+        case .enterpriseSingleSignOn:
+            showEnterpriseSingleSignOn()
         case .landing:
             showLanding()
-        case .login:
-            showLogin()
+        case let .login(username, region, isLoginWithDeviceEnabled):
+            showLogin(
+                username: username,
+                region: region,
+                isLoginWithDeviceEnabled: isLoginWithDeviceEnabled
+            )
+        case .loginOptions:
+            showLoginOptions()
+        case .loginWithDevice:
+            showLoginWithDevice()
+        case .masterPasswordHint:
+            showMasterPasswordHint()
         case .regionSelection:
             showRegionSelection()
         }
@@ -57,20 +69,61 @@ internal final class AuthCoordinator: Coordinator {
         stackNavigator.push(view, animated: UI.animated)
     }
 
-    /// Shows the landing screen.
-    private func showLanding() {
-        let processor = LandingProcessor(
-            coordinator: asAnyCoordinator(),
-            state: LandingState()
-        )
-        let store = Store(processor: processor)
-        let view = LandingView(store: store)
+    private func showEnterpriseSingleSignOn() {
+        let view = Text("Enterprise Single Sign-On")
         stackNavigator.push(view, animated: UI.animated)
     }
 
+    /// Shows the landing screen.
+    private func showLanding() {
+        if stackNavigator.popToRoot(animated: UI.animated).isEmpty {
+            let processor = LandingProcessor(
+                coordinator: asAnyCoordinator(),
+                state: LandingState()
+            )
+            let store = Store(processor: processor)
+            let view = LandingView(store: store)
+            stackNavigator.push(view, animated: UI.animated)
+        }
+//        stackNavigator.pop(animated: UI.animated)
+//        if let view = stackNavigator.pop<any View>(animated: UI.animated) {
+//        } else {
+//            stackNavigator.push(view, animated: UI.animated)
+//        }
+    }
+
     /// Shows the login screen.
-    private func showLogin() {
-        let view = Text("Login")
+    private func showLogin(
+        username: String,
+        region: String,
+        isLoginWithDeviceEnabled: Bool
+    ) {
+        let processor = LoginProcessor(
+            coordinator: asAnyCoordinator(),
+            state: LoginState(
+                isLoginWithDeviceEnabled: isLoginWithDeviceEnabled,
+                username: username,
+                region: region
+            )
+        )
+        let store = Store(processor: processor)
+        let view = LoginView(store: store)
+        stackNavigator.push(view, animated: UI.animated)
+//        stackNavigator.present(view, animated: UI.animated, overFullscreen: true)
+    }
+
+    private func showLoginOptions() {
+        let view = Text("Login Options")
+        stackNavigator.push(view, animated: UI.animated)
+    }
+
+    private func showLoginWithDevice() {
+        let view = Text("Login With Device")
+        stackNavigator.push(view, animated: UI.animated)
+    }
+
+    private func showMasterPasswordHint() {
+        let view = Text("Master Password Hint")
         stackNavigator.push(view, animated: UI.animated)
     }
 

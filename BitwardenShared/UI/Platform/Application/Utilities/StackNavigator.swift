@@ -21,12 +21,18 @@ public protocol StackNavigator: Navigator {
     /// Pops a view off the navigator's stack.
     ///
     /// - Parameter animated: Whether the transition should be animated.
-    func pop(animated: Bool)
+    /// - Returns: The `UIViewController` that was popped off the navigator's stack.
+    ///
+    @discardableResult
+    func pop(animated: Bool) -> UIViewController?
 
     /// Pops all the view controllers on the stack except the root view controller.
     ///
     /// - Parameter animated: Whether the transition should be animated.
-    func popToRoot(animated: Bool)
+    /// - Returns: An array of `UIViewController`s that were popped of the navigator's stack.
+    ///
+    @discardableResult
+    func popToRoot(animated: Bool) -> [UIViewController]
 
     /// Presents a view modally.
     ///
@@ -82,12 +88,14 @@ extension UINavigationController: StackNavigator {
         dismiss(animated: animated, completion: nil)
     }
 
-    public func pop(animated: Bool) {
+    @discardableResult
+    public func pop(animated: Bool) -> UIViewController? {
         popViewController(animated: animated)
     }
 
-    public func popToRoot(animated: Bool) {
-        popToRootViewController(animated: animated)
+    @discardableResult
+    public func popToRoot(animated: Bool) -> [UIViewController] {
+        popToRootViewController(animated: animated) ?? []
     }
 
     public func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {

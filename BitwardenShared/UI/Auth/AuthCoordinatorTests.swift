@@ -41,17 +41,55 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 
+    func test_navigate_enterpriseSingleSignOn() {
+        subject.navigate(to: .enterpriseSingleSignOn)
+        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
+    }
+
     /// `navigate(to:)` with `.landing` pushes the landing view onto the stack navigator.
     func test_navigate_landing() {
         subject.navigate(to: .landing)
         XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
     }
 
-    /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator.
-    func test_navigate_login() {
-        subject.navigate(to: .login)
+    /// `navigate(to:)` with `.landing` from `.login` pops back to the landing view.
+    func test_navigate_landing_fromLogin() {
+        stackNavigator.viewControllersToPop = [
+            UIViewController(),
+        ]
+        subject.navigate(to: .landing)
 
-        // Placeholder assertion until the login screen is added: BIT-83
+        XCTAssertEqual(stackNavigator.actions.last?.type, .poppedToRoot)
+    }
+
+    /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator.
+    func test_navigate_login() throws {
+        subject.navigate(to: .login(
+            username: "username",
+            region: "region",
+            isLoginWithDeviceEnabled: true
+        ))
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+        let view = try XCTUnwrap(stackNavigator.actions.last?.view as? LoginView)
+        let state = view.store.state
+        XCTAssertEqual(state.username, "username")
+        XCTAssertEqual(state.region, "region")
+        XCTAssertTrue(state.isLoginWithDeviceEnabled)
+    }
+
+    func test_navigate_loginOptions() {
+        subject.navigate(to: .loginOptions)
+        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
+    }
+
+    func test_navigate_loginWithDevice() {
+        subject.navigate(to: .loginWithDevice)
+        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
+    }
+
+    func test_navigate_masterPasswordHint() {
+        subject.navigate(to: .masterPasswordHint)
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 
