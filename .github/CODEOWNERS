@@ -32,4 +32,8 @@ BitwardenShared/UI/Tools @bitwarden/team-tools-dev
 
 # Vault
 BitwardenShared/Core/Vault @bitwarden/team-vault-dev
+<<<<<<< HEAD
 BitwardenShared/UI/Vault @bitwarden/team-vault-dev
+=======
+BitwardenShared/UI/Vault @bitwarden/team-vault-dev
+>>>>>>> a1efb71 (BIT-104: Create the register account API request)
