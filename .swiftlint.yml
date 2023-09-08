@@ -71,3 +71,7 @@ type_contents_order:
 identifier_name:
   excluded:
     - id
+
+inclusive_language:
+  override_allowed_terms:
+    - masterPassword
