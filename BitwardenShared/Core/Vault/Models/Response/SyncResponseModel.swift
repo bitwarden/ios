@@ -17,9 +17,6 @@ struct SyncResponseModel: JSONResponse, Equatable {
     /// The user's list of folders.
     let folders: [FolderResponseModel]?
 
-    /// The response object type.
-    let object: String?
-
     /// Policies that apply to the user.
     let policies: [PolicyResponseModel]?
 

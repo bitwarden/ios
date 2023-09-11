@@ -12,9 +12,6 @@ struct AttachmentResponseModel: Codable, Equatable {
     /// The key used to decrypt the attachment.
     let key: String?
 
-    /// The response object type.
-    let object: String?
-
     /// The attachment's size.
     let size: String?
 

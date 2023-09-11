@@ -41,9 +41,6 @@ struct SendResponseModel: Codable, Equatable {
     /// Notes about the send.
     let notes: String?
 
-    /// The response object type.
-    let object: String?
-
     /// An optional password used to access the send.
     let password: String?
 

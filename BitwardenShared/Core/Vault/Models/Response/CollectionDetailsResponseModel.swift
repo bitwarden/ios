@@ -17,9 +17,6 @@ struct CollectionDetailsResponseModel: Codable, Equatable {
     /// The collection's name.
     let name: String?
 
-    /// The response object type.
-    let object: String?
-
     /// The organization ID of the collection.
     let organizationId: String
 

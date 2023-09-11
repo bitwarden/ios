@@ -53,9 +53,6 @@ struct ProfileOrganizationResponseModel: Codable, Equatable {
     /// The profile organization's name.
     let name: String?
 
-    /// The response object type.
-    let object: String?
-
     /// The profile organization's permissions.
     let permissions: Permissions?
 

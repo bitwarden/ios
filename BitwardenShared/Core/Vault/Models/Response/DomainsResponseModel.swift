@@ -8,7 +8,4 @@ struct DomainsResponseModel: Codable, Equatable {
 
     /// A list of global equivalent domains.
     let globalEquivalentDomains: [GlobalDomains]?
-
-    /// The response object type.
-    let object: String?
 }

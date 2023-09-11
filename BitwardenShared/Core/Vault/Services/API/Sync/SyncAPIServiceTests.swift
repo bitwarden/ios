@@ -50,7 +50,6 @@ class SyncAPIServiceTests: BitwardenTestCase {
                             username: "encrypted username"
                         ),
                         name: "encrypted name",
-                        object: "cipherDetails",
                         reprompt: CipherRepromptType.none,
                         revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                         type: .login,
@@ -59,7 +58,6 @@ class SyncAPIServiceTests: BitwardenTestCase {
                 ],
                 collections: [],
                 folders: [],
-                object: "sync",
                 policies: [],
                 sends: []
             )
@@ -78,14 +76,12 @@ class SyncAPIServiceTests: BitwardenTestCase {
                 ciphers: [],
                 collections: [],
                 folders: [],
-                object: "sync",
                 policies: [],
                 profile: .fixture(
                     culture: "en-US",
                     email: "user@bitwarden.com",
                     id: "c8aa1e36-4427-11ee-be56-0242ac120002",
                     key: "key",
-                    object: "profile",
                     organizations: [],
                     privateKey: "private key",
                     securityStamp: "security stamp"
@@ -107,7 +103,6 @@ class SyncAPIServiceTests: BitwardenTestCase {
                 ciphers: [],
                 collections: [],
                 folders: [],
-                object: "sync",
                 policies: [],
                 profile: nil,
                 sends: [
@@ -117,7 +112,6 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "fc483c22-443c-11ee-be56-0242ac120002",
                         key: "encrypted key",
                         name: "encrypted name",
-                        object: "send",
                         revisionDate: Date(timeIntervalSince1970: 1_690_925_611.636),
                         text: SendTextModel(
                             hidden: false,
@@ -137,7 +131,6 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "d7a7e48c-443f-11ee-be56-0242ac120002",
                         key: "encrypted key",
                         name: "encrypted name",
-                        object: "send",
                         revisionDate: Date(timeIntervalSince1970: 1_691_625_600),
                         type: .file
                     ),

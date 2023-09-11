@@ -11,9 +11,6 @@ struct FolderResponseModel: Codable, Equatable {
     /// The folder's name.
     let name: String?
 
-    /// The response object type.
-    let object: String?
-
     /// The date of the folder's last revision.
     let revisionDate: Date
 }

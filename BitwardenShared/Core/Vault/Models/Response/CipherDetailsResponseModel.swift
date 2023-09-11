@@ -47,9 +47,6 @@ struct CipherDetailsResponseModel: Codable, Equatable {
     /// Notes containing within the cipher.
     let notes: String?
 
-    /// The response object type.
-    let object: String?
-
     /// The organization identifier for the cipher.
     let organizationId: String?
 

@@ -32,9 +32,6 @@ struct ProfileResponseModel: Codable, Equatable {
     /// The user's name.
     let name: String?
 
-    /// The response object type.
-    let object: String?
-
     /// A list of organizations that the user belongs to.
     let organizations: [ProfileOrganizationResponseModel]?
 

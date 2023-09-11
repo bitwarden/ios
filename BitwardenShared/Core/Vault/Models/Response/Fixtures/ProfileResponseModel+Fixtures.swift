@@ -13,7 +13,6 @@ extension ProfileResponseModel {
         key: String? = nil,
         masterPasswordHint: String? = nil, // swiftlint:disable:this inclusive_language
         name: String? = nil,
-        object: String? = nil,
         organizations: [ProfileOrganizationResponseModel]? = nil,
         premium: Bool = false,
         premiumFromOrganization: Bool = false,
@@ -32,7 +31,6 @@ extension ProfileResponseModel {
             key: key,
             masterPasswordHint: masterPasswordHint,
             name: name,
-            object: object,
             organizations: organizations,
             premium: premium,
             premiumFromOrganization: premiumFromOrganization,

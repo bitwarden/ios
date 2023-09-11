@@ -11,9 +11,6 @@ struct PolicyResponseModel: Codable, Equatable {
     /// The policy's identifier.
     let id: String
 
-    /// The response object type.
-    let object: String?
-
     /// The organization identifier for the policy.
     let organizationId: String
 
