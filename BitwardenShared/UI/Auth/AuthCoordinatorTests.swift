@@ -41,6 +41,8 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 
+    /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack
+    /// navigator.
     func test_navigate_enterpriseSingleSignOn() {
         subject.navigate(to: .enterpriseSingleSignOn)
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
@@ -78,16 +80,19 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(state.isLoginWithDeviceEnabled)
     }
 
+    /// `navigate(to:)` with `.loginOptions` pushes the login options view onto the stack navigator.
     func test_navigate_loginOptions() {
         subject.navigate(to: .loginOptions)
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 
+    /// `navigate(to:)` with `.loginWithDevice` pushes the login with device view onto the stack navigator.
     func test_navigate_loginWithDevice() {
         subject.navigate(to: .loginWithDevice)
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 
+    /// `navigate(to:)` with `.masterPasswordHint` pushes the master password hint view onto the stack navigator.
     func test_navigate_masterPasswordHint() {
         subject.navigate(to: .masterPasswordHint)
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)

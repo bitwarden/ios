@@ -69,6 +69,7 @@ internal final class AuthCoordinator: Coordinator {
         stackNavigator.push(view, animated: UI.animated)
     }
 
+    /// Shows the enterprise single sign-on screen.
     private func showEnterpriseSingleSignOn() {
         let view = Text("Enterprise Single Sign-On")
         stackNavigator.push(view, animated: UI.animated)
@@ -85,11 +86,6 @@ internal final class AuthCoordinator: Coordinator {
             let view = LandingView(store: store)
             stackNavigator.push(view, animated: UI.animated)
         }
-//        stackNavigator.pop(animated: UI.animated)
-//        if let view = stackNavigator.pop<any View>(animated: UI.animated) {
-//        } else {
-//            stackNavigator.push(view, animated: UI.animated)
-//        }
     }
 
     /// Shows the login screen.
@@ -109,19 +105,21 @@ internal final class AuthCoordinator: Coordinator {
         let store = Store(processor: processor)
         let view = LoginView(store: store)
         stackNavigator.push(view, animated: UI.animated)
-//        stackNavigator.present(view, animated: UI.animated, overFullscreen: true)
     }
 
+    /// Shows the login options screen.
     private func showLoginOptions() {
         let view = Text("Login Options")
         stackNavigator.push(view, animated: UI.animated)
     }
 
+    /// Shows the login with device screen.
     private func showLoginWithDevice() {
         let view = Text("Login With Device")
         stackNavigator.push(view, animated: UI.animated)
     }
 
+    /// Shows the master password hint screen.
     private func showMasterPasswordHint() {
         let view = Text("Master Password Hint")
         stackNavigator.push(view, animated: UI.animated)
