@@ -61,7 +61,7 @@ struct CipherDetailsResponseModel: Codable, Equatable {
 
     /// Whether the user needs to be re-prompted for their master password prior to autofilling the
     /// cipher's password.
-    let reprompt: CipherRepromptType?
+    let reprompt: CipherRepromptType
 
     /// The date the cipher was last updated.
     let revisionDate: Date
@@ -70,7 +70,7 @@ struct CipherDetailsResponseModel: Codable, Equatable {
     let secureNote: CipherSecureNoteModel?
 
     /// The type of the cipher.
-    let type: CipherType?
+    let type: CipherType
 
     /// Whether the password can be viewed.
     let viewPassword: Bool

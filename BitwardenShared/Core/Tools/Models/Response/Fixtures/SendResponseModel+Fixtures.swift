@@ -20,7 +20,7 @@ extension SendResponseModel {
         password: String? = nil,
         revisionDate: Date,
         text: SendTextModel? = nil,
-        type: SendType? = nil
+        type: SendType = .text
     ) -> SendResponseModel {
         self.init(
             accessCount: accessCount,

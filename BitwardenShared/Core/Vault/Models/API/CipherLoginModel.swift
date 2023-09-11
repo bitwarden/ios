@@ -17,9 +17,6 @@ struct CipherLoginModel: Codable, Equatable {
     /// The login's TOTP details.
     let totp: String?
 
-    /// The login's URI.
-    let uri: String?
-
     /// The login's list of URI details.
     let uris: [CipherLoginUriModel]?
 

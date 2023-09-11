@@ -44,7 +44,6 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "3792af7a-4441-11ee-be56-0242ac120002",
                         login: .fixture(
                             password: "encrypted password",
-                            uri: "encrypted uri",
                             uris: [
                                 CipherLoginUriModel(match: nil, uri: "encrypted uri"),
                             ],
@@ -132,7 +131,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         file: SendFileModel(
                             fileName: "test.txt",
                             id: "1",
-                            size: 123,
+                            size: "123",
                             sizeName: nil
                         ),
                         id: "d7a7e48c-443f-11ee-be56-0242ac120002",

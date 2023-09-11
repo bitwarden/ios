@@ -37,7 +37,7 @@
       "file": {
         "fileName": "test.txt",
         "id": "1",
-        "size": 123,
+        "size": "123",
         "sizeName": null
       },
       "key": "encrypted key",

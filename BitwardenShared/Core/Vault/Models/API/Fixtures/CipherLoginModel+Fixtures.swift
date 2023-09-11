@@ -8,7 +8,6 @@ extension CipherLoginModel {
         password: String? = nil,
         passwordRevisionDate: Date? = nil,
         totp: String? = nil,
-        uri: String? = nil,
         uris: [CipherLoginUriModel]? = nil,
         username: String? = nil
     ) -> CipherLoginModel {
@@ -17,7 +16,6 @@ extension CipherLoginModel {
             password: password,
             passwordRevisionDate: passwordRevisionDate,
             totp: totp,
-            uri: uri,
             uris: uris,
             username: username
         )

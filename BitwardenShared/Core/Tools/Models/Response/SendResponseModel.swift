@@ -24,7 +24,7 @@ struct SendResponseModel: Codable, Equatable {
     let file: SendFileModel?
 
     /// Whether the user's email address should be hidden from recipients.
-    let hideEmail: Bool
+    let hideEmail: Bool?
 
     /// The send's identifier.
     let id: String
@@ -54,5 +54,5 @@ struct SendResponseModel: Codable, Equatable {
     let text: SendTextModel?
 
     /// The type of data in the send.
-    let type: SendType?
+    let type: SendType
 }

@@ -22,10 +22,10 @@ extension CipherDetailsResponseModel {
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
         passwordHistory: [CipherPasswordHistoryModel]? = nil,
-        reprompt: CipherRepromptType? = nil,
+        reprompt: CipherRepromptType = .none,
         revisionDate: Date,
         secureNote: CipherSecureNoteModel? = nil,
-        type: CipherType? = nil,
+        type: CipherType = .login,
         viewPassword: Bool = false
     ) -> CipherDetailsResponseModel {
         self.init(

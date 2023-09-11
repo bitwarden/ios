@@ -10,5 +10,5 @@ struct GlobalDomains: Codable, Equatable {
     let excluded: Bool
 
     /// The domain type identifier.
-    let type: Int?
+    let type: Int
 }

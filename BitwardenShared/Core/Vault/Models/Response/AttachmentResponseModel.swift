@@ -16,9 +16,9 @@ struct AttachmentResponseModel: Codable, Equatable {
     let object: String?
 
     /// The attachment's size.
-    let size: Int
+    let size: String?
 
-    ///
+    /// The human-readable string of the file size.
     let sizeName: String?
 
     /// The attachment's URL.
