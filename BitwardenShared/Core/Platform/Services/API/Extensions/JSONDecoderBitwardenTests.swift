@@ -42,34 +42,31 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
     func test_decode_invalidDateThrowsError() {
         let subject = JSONDecoder.defaultDecoder
 
-        XCTAssertThrowsError(
-            try subject.decode(Date.self, from: Data(#""2023-08-23""#.utf8))
-        ) { error in
-            XCTAssertTrue(error is DecodingError)
-            guard case let .dataCorrupted(context) = error as? DecodingError else {
-                return XCTFail("Expected error to be DecodingError.dataCorrupted")
+        func assertThrowsDataCorruptedError(
+            dateString: String,
+            file: StaticString = #filePath,
+            line: UInt = #line
+        ) {
+            XCTAssertThrowsError(
+                try subject.decode(Date.self, from: Data(#""\#(dateString)""#.utf8)),
+                file: file,
+                line: line
+            ) { error in
+                XCTAssertTrue(error is DecodingError, file: file, line: line)
+                guard case let .dataCorrupted(context) = error as? DecodingError else {
+                    return XCTFail("Expected error to be DecodingError.dataCorrupted")
+                }
+                XCTAssertEqual(
+                    context.debugDescription,
+                    "Unable to decode date with value '\(dateString)'",
+                    file: file,
+                    line: line
+                )
             }
-            XCTAssertEqual(context.debugDescription, "Unable to decode date with value '2023-08-23'")
         }
 
-        XCTAssertThrowsError(
-            try subject.decode(Date.self, from: Data(#""🔒""#.utf8))
-        ) { error in
-            XCTAssertTrue(error is DecodingError)
-            guard case let .dataCorrupted(context) = error as? DecodingError else {
-                return XCTFail("Expected error to be DecodingError.dataCorrupted")
-            }
-            XCTAssertEqual(context.debugDescription, "Unable to decode date with value '🔒'")
-        }
-
-        XCTAssertThrowsError(
-            try subject.decode(Date.self, from: Data(#""date""#.utf8))
-        ) { error in
-            XCTAssertTrue(error is DecodingError)
-            guard case let .dataCorrupted(context) = error as? DecodingError else {
-                return XCTFail("Expected error to be DecodingError.dataCorrupted")
-            }
-            XCTAssertEqual(context.debugDescription, "Unable to decode date with value 'date'")
-        }
+        assertThrowsDataCorruptedError(dateString: "2023-08-23")
+        assertThrowsDataCorruptedError(dateString: "🔒")
+        assertThrowsDataCorruptedError(dateString: "date")
     }
 }
