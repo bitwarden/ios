@@ -7,3 +7,12 @@ strings:
       params:
         enumName: Localizations
         publicAccess: true
+xcassets:
+  inputs:
+    - BitwardenShared/UI/Platform/Application/Support/Colors.xcassets
+    - BitwardenShared/UI/Platform/Application/Support/Images.xcassets
+  outputs:
+    - templateName: swift5
+      output: Assets.swift
+      params:
+        publicAccess: true
