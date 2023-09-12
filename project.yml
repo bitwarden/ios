@@ -281,6 +281,7 @@ targets:
         excludes:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
+          - "**/Fixtures/*"
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
     dependencies:
@@ -305,6 +306,7 @@ targets:
         includes:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
+          - "**/Fixtures/*"
       - path: GlobalTestHelpers
     dependencies:
       - target: Bitwarden
