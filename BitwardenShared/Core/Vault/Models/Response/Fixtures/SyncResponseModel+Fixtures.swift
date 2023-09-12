@@ -2,13 +2,13 @@
 
 extension SyncResponseModel {
     static func fixture(
-        ciphers: [CipherDetailsResponseModel]? = nil,
-        collections: [CollectionDetailsResponseModel]? = nil,
+        ciphers: [CipherDetailsResponseModel] = [],
+        collections: [CollectionDetailsResponseModel] = [],
         domains: DomainsResponseModel? = nil,
-        folders: [FolderResponseModel]? = nil,
-        policies: [PolicyResponseModel]? = nil,
+        folders: [FolderResponseModel] = [],
+        policies: [PolicyResponseModel] = [],
         profile: ProfileResponseModel? = nil,
-        sends: [SendResponseModel]? = nil
+        sends: [SendResponseModel] = []
     ) -> SyncResponseModel {
         self.init(
             ciphers: ciphers,
