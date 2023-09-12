@@ -282,8 +282,17 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
+      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
+        optional: true
     dependencies:
       - package: Networking
+    preBuildScripts:
+      - name: SwiftGen
+        script: |
+            mint run swiftgen config run --config "swiftgen.yml"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
