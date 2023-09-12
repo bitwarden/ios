@@ -20,7 +20,7 @@ struct LoginView: View {
 
                 HStack {
                     if store.state.isMasterPasswordRevealed {
-                        TextField("", text: store.binding(
+                        TextField("Master Password", text: store.binding(
                             get: { $0.masterPassword },
                             send: { .masterPasswordChanged($0) }
                         ))
@@ -28,7 +28,7 @@ struct LoginView: View {
                         .autocorrectionDisabled(true)
                         .textContentType(.password)
                     } else {
-                        SecureField("", text: store.binding(
+                        SecureField("Master Password", text: store.binding(
                             get: { $0.masterPassword },
                             send: { .masterPasswordChanged($0) }
                         ))
@@ -39,6 +39,7 @@ struct LoginView: View {
                     } label: {
                         Image(systemName: store.state.isMasterPasswordRevealed ? "eye.slash" : "eye")
                     }
+                    .id("revealMasterPassword")
                 }
 
                 Button("Get master password hint") {

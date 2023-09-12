@@ -5,6 +5,7 @@
 class LoginProcessor: StateProcessor<LoginState, LoginAction, Void> {
     // MARK: Private Properties
 
+    /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<AuthRoute>
 
     // MARK: Initialization

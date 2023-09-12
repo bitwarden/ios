@@ -1,7 +1,7 @@
 // MARK: - LoginAction
 
 /// Actions that can be processed by a `LoginProcessor`.
-enum LoginAction {
+enum LoginAction: Equatable {
     /// The get master password hint button was pressed.
     case getMasterPasswordHintPressed
 
