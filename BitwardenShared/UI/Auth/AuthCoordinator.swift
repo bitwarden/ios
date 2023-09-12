@@ -66,13 +66,13 @@ internal final class AuthCoordinator: Coordinator {
     /// Shows the create account screen.
     private func showCreateAccount() {
         let view = Text("Create Account")
-        stackNavigator.push(view, animated: UI.animated)
+        stackNavigator.push(view)
     }
 
     /// Shows the enterprise single sign-on screen.
     private func showEnterpriseSingleSignOn() {
         let view = Text("Enterprise Single Sign-On")
-        stackNavigator.push(view, animated: UI.animated)
+        stackNavigator.push(view)
     }
 
     /// Shows the landing screen.
@@ -84,7 +84,7 @@ internal final class AuthCoordinator: Coordinator {
             )
             let store = Store(processor: processor)
             let view = LandingView(store: store)
-            stackNavigator.push(view, animated: UI.animated)
+            stackNavigator.push(view)
         }
     }
 
@@ -104,30 +104,30 @@ internal final class AuthCoordinator: Coordinator {
         )
         let store = Store(processor: processor)
         let view = LoginView(store: store)
-        stackNavigator.push(view, animated: UI.animated)
+        stackNavigator.push(view)
     }
 
     /// Shows the login options screen.
     private func showLoginOptions() {
         let view = Text("Login Options")
-        stackNavigator.push(view, animated: UI.animated)
+        stackNavigator.push(view)
     }
 
     /// Shows the login with device screen.
     private func showLoginWithDevice() {
         let view = Text("Login With Device")
-        stackNavigator.push(view, animated: UI.animated)
+        stackNavigator.push(view)
     }
 
     /// Shows the master password hint screen.
     private func showMasterPasswordHint() {
         let view = Text("Master Password Hint")
-        stackNavigator.push(view, animated: UI.animated)
+        stackNavigator.push(view)
     }
 
     /// Shows the region selection screen.
     private func showRegionSelection() {
         let view = Text("Region")
-        stackNavigator.push(view, animated: UI.animated)
+        stackNavigator.push(view)
     }
 }
