@@ -15,7 +15,7 @@ struct CreateAccountRequestModel: Equatable {
     let email: String
 
     /// The type of kdf for this request.
-    let kdf: KdfTypeRequestModel? = nil
+    let kdf: KdfType? = nil
 
     /// The number of kdf iterations performed in this request.
     let kdfIterations: Int? = nil

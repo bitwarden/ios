@@ -12,7 +12,4 @@ struct CreateAccountResponseModel: JSONResponse {
 
     /// The captcha bypass token returned in this response.
     var captchaBypassToken: String?
-
-    /// An optional object returned in this response.
-    var object: String?
 }

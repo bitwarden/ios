@@ -7,9 +7,8 @@ import XCTest
 class CreateAccountResponseModelTests: BitwardenTestCase {
     /// Tests that a response is initialized correctly.
     func test_init() {
-        let subject = CreateAccountResponseModel(captchaBypassToken: "captchaBypassToken", object: "object")
+        let subject = CreateAccountResponseModel(captchaBypassToken: "captchaBypassToken")
         XCTAssertEqual(subject.captchaBypassToken, "captchaBypassToken")
-        XCTAssertEqual(subject.object, "object")
     }
 
     /// Tests the successful decoding of a JSON response.
@@ -18,6 +17,5 @@ class CreateAccountResponseModelTests: BitwardenTestCase {
         let decoder = JSONDecoder()
         let subject = try decoder.decode(CreateAccountResponseModel.self, from: json)
         XCTAssertEqual(subject.captchaBypassToken, "captchaBypassToken")
-        XCTAssertEqual(subject.object, "object")
     }
 }

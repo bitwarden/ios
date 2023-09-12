@@ -1,4 +1,4 @@
-// MARK: - KdfTypeRequestModel
+// MARK: - KdfType
 
 /// The type of key derivation function.
 ///

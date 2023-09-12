@@ -17,7 +17,6 @@ protocol AccountAPIService {
 extension APIService: AccountAPIService {
     func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel {
         let request = CreateAccountRequest(body: body)
-        let response = try await apiService.send(request)
-        return response
+        return try await apiService.send(request)
     }
 }

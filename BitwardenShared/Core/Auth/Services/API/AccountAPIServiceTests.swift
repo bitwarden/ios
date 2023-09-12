@@ -69,7 +69,6 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(request.method, .post)
         XCTAssertEqual(request.url.relativePath, "/api/accounts/register")
         XCTAssertEqual(successfulResponse.captchaBypassToken, "captchaBypassToken")
-        XCTAssertEqual(successfulResponse.object, "object")
         XCTAssertNotNil(request.body)
     }
 }
