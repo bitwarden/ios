@@ -1,0 +1,20 @@
+{
+  "access_token": "ACCESS_TOKEN",
+  "expires_in": 3600,
+  "token_type": "Bearer",
+  "refresh_token": "REFRESH_TOKEN",
+  "scope": "api offline_access",
+  "PrivateKey": "PRIVATE_KEY",
+  "Key": "KEY",
+  "MasterPasswordPolicy": null,
+  "ForcePasswordReset": false,
+  "ResetMasterPassword": false,
+  "Kdf": 0,
+  "KdfIterations": 600000,
+  "KdfMemory": null,
+  "KdfParallelism": null,
+  "UserDecryptionOptions": {
+    "HasMasterPassword": true,
+    "Object": "userDecryptionOptions"
+  }
+}
