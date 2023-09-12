@@ -42,9 +42,11 @@ internal final class AuthCoordinator: Coordinator {
             showLanding()
         case let .login(username, region, isLoginWithDeviceEnabled):
             showLogin(
-                username: username,
-                region: region,
-                isLoginWithDeviceEnabled: isLoginWithDeviceEnabled
+                state: LoginState(
+                    isLoginWithDeviceEnabled: isLoginWithDeviceEnabled,
+                    username: username,
+                    region: region
+                )
             )
         case .loginOptions:
             showLoginOptions()
@@ -89,18 +91,13 @@ internal final class AuthCoordinator: Coordinator {
     }
 
     /// Shows the login screen.
-    private func showLogin(
-        username: String,
-        region: String,
-        isLoginWithDeviceEnabled: Bool
-    ) {
+    ///
+    /// - Parameter state: The `LoginState` to initialize the login screen with.
+    ///
+    private func showLogin(state: LoginState) {
         let processor = LoginProcessor(
             coordinator: asAnyCoordinator(),
-            state: LoginState(
-                isLoginWithDeviceEnabled: isLoginWithDeviceEnabled,
-                username: username,
-                region: region
-            )
+            state: state
         )
         let store = Store(processor: processor)
         let view = LoginView(store: store)
