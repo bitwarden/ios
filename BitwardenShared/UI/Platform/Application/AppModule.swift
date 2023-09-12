@@ -22,7 +22,9 @@ public class DefaultAppModule {
 
 extension DefaultAppModule: AppModule {
     public func makeAppCoordinator(navigator: RootNavigator) -> AnyCoordinator<AppRoute> {
-        AppCoordinator(navigator: navigator)
-            .asAnyCoordinator()
+        AppCoordinator(
+            module: self,
+            navigator: navigator
+        ).asAnyCoordinator()
     }
 }

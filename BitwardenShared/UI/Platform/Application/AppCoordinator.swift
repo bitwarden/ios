@@ -5,7 +5,20 @@ import UIKit
 /// A coordinator that manages the app's top-level navigation.
 ///
 public class AppCoordinator: Coordinator {
+    // MARK: Types
+
+    /// The types of modules used by this coordinator.
+    public typealias Module = AuthModule
+
+    // MARK: Private Properties
+
+    /// The coordinator currently being displayed.
+    private var childCoordinator: AnyObject?
+
     // MARK: Properties
+
+    /// The module to use for creating child coordinators.
+    public let module: Module
 
     /// The navigator to use for presenting screens.
     public let navigator: RootNavigator
@@ -14,9 +27,12 @@ public class AppCoordinator: Coordinator {
 
     /// Creates a new `AppCoordinator`.
     ///
-    /// - Parameter navigator: The navigator to use for presenting screens.
+    /// - Parameters:
+    ///   - module: The module to use for creating child coordinators.
+    ///   - navigator: The navigator to use for presenting screens.
     ///
-    public init(navigator: RootNavigator) {
+    public init(module: Module, navigator: RootNavigator) {
+        self.module = module
         self.navigator = navigator
     }
 
@@ -24,23 +40,33 @@ public class AppCoordinator: Coordinator {
 
     public func navigate(to route: AppRoute, context: AnyObject?) {
         switch route {
-        case .onboarding:
-            showOnboarding()
+        case let .auth(authRoute):
+            showAuth(route: authRoute)
         }
     }
 
     public func start() {
-        showOnboarding()
+        showAuth(route: .landing)
     }
 
     // MARK: Private Methods
 
-    /// Shows the onboarding navigator.
-    private func showOnboarding() {
-        // Temporary view controller for testing purposes. Will be replaced with real functionality in BIT-155
-        let viewController = UIViewController()
-        viewController.view.backgroundColor = .systemBlue
-        let navController = UINavigationController(rootViewController: viewController)
-        navigator.show(child: navController)
+    /// Shows the auth route.
+    ///
+    /// - Parameter route: The auth route to show.
+    ///
+    private func showAuth(route: AuthRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<AuthRoute> {
+            coordinator.navigate(to: route)
+        } else {
+            let navigationController = UINavigationController()
+            let coordinator = module.makeAuthCoordinator(
+                rootNavigator: navigator,
+                stackNavigator: navigationController
+            )
+            coordinator.start()
+            coordinator.navigate(to: route)
+            childCoordinator = coordinator
+        }
     }
 }

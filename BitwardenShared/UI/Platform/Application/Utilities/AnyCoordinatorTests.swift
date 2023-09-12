@@ -35,8 +35,8 @@ class AnyCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:context:)` calls the `navigate(to:context:)` method on the wrapped coordinator.
     func test_navigate_onboarding() {
-        subject.navigate(to: .onboarding, context: "🤖" as NSString)
+        subject.navigate(to: .auth(.landing), context: "🤖" as NSString)
         XCTAssertEqual(coordinator.contexts as? [NSString], ["🤖" as NSString])
-        XCTAssertEqual(coordinator.routes, [.onboarding])
+        XCTAssertEqual(coordinator.routes, [.auth(.landing)])
     }
 }
