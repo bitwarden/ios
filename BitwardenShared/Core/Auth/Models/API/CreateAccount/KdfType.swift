@@ -2,7 +2,7 @@
 
 /// The type of key derivation function.
 ///
-enum KdfTypeRequestModel: Int, Codable, Equatable {
+enum KdfType: Int, Codable, Equatable {
     /// The PBKDF2 SHA256 type.
     case pbkdf2sha256 = 0
 
