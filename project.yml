@@ -284,6 +284,8 @@ targets:
           - "**/Fixtures/*"
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
+      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
+        optional: true
     dependencies:
       - package: Networking
     preBuildScripts:
@@ -293,6 +295,7 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
+          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
