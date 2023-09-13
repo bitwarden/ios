@@ -24,28 +24,28 @@ public enum TabRoute: Int, Equatable, Hashable {
 extension TabRoute: TabRepresentable {
     public var image: UIImage? {
         switch self {
-        case .generator: return UIImage(systemName: "arrow.triangle.2.circlepath")
-        case .send: return UIImage(systemName: "paperplane")
-        case .settings: return UIImage(systemName: "gearshape")
-        case .vault: return UIImage(systemName: "lock")
+        case .generator: return Asset.Images.restart.image
+        case .send: return Asset.Images.send.image
+        case .settings: return Asset.Images.gear.image
+        case .vault: return Asset.Images.locked.image
         }
     }
 
     public var selectedImage: UIImage? {
         switch self {
-        case .generator: return UIImage(systemName: "arrow.triangle.2.circlepath.circle.fill")
-        case .send: return UIImage(systemName: "paperplane.fill")
-        case .settings: return UIImage(systemName: "gearshape.fill")
-        case .vault: return UIImage(systemName: "lock.fill")
+        case .generator: return Asset.Images.restartFilled.image
+        case .send: return Asset.Images.sendFilled.image
+        case .settings: return Asset.Images.gearFilled.image
+        case .vault: return Asset.Images.lockedFilled.image
         }
     }
 
     public var title: String {
         switch self {
-        case .generator: return "Generator"
-        case .send: return "Send"
-        case .settings: return "Settings"
-        case .vault: return "My Vault"
+        case .generator: return Localizations.generator
+        case .send: return Localizations.send
+        case .settings: return Localizations.settings
+        case .vault: return Localizations.myVault
         }
     }
 }
