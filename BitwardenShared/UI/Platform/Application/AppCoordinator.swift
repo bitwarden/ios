@@ -4,11 +4,12 @@ import UIKit
 
 /// A coordinator that manages the app's top-level navigation.
 ///
-public class AppCoordinator: Coordinator {
+class AppCoordinator: Coordinator {
     // MARK: Types
 
     /// The types of modules used by this coordinator.
-    public typealias Module = AuthModule
+    typealias Module = AuthModule
+        & TabModule
 
     // MARK: Private Properties
 
@@ -18,10 +19,10 @@ public class AppCoordinator: Coordinator {
     // MARK: Properties
 
     /// The module to use for creating child coordinators.
-    public let module: Module
+    let module: Module
 
     /// The navigator to use for presenting screens.
-    public let navigator: RootNavigator
+    let navigator: RootNavigator
 
     // MARK: Initialization
 
@@ -31,21 +32,23 @@ public class AppCoordinator: Coordinator {
     ///   - module: The module to use for creating child coordinators.
     ///   - navigator: The navigator to use for presenting screens.
     ///
-    public init(module: Module, navigator: RootNavigator) {
+    init(module: Module, navigator: RootNavigator) {
         self.module = module
         self.navigator = navigator
     }
 
     // MARK: Methods
 
-    public func navigate(to route: AppRoute, context: AnyObject?) {
+    func navigate(to route: AppRoute, context: AnyObject?) {
         switch route {
         case let .auth(authRoute):
             showAuth(route: authRoute)
+        case let .tab(tabRoute):
+            showTab(route: tabRoute)
         }
     }
 
-    public func start() {
+    func start() {
         showAuth(route: .landing)
     }
 
@@ -61,6 +64,7 @@ public class AppCoordinator: Coordinator {
         } else {
             let navigationController = UINavigationController()
             let coordinator = module.makeAuthCoordinator(
+                delegate: self,
                 rootNavigator: navigator,
                 stackNavigator: navigationController
             )
@@ -68,5 +72,30 @@ public class AppCoordinator: Coordinator {
             coordinator.navigate(to: route)
             childCoordinator = coordinator
         }
+    }
+
+    /// Shows the tab route.
+    ///
+    /// - Parameter route: The tab route to show.
+    ///
+    private func showTab(route: TabRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<TabRoute> {
+            coordinator.navigate(to: route)
+        } else {
+            let coordinator = module.makeTabCoordinator(
+                rootNavigator: navigator
+            )
+            coordinator.start()
+            coordinator.navigate(to: route)
+            childCoordinator = coordinator
+        }
+    }
+}
+
+// MARK: - AuthCoordinatorDelegate
+
+extension AppCoordinator: AuthCoordinatorDelegate {
+    func didCompleteAuth() {
+        showTab(route: .vault)
     }
 }

@@ -1,12 +1,26 @@
 import SwiftUI
 import UIKit
 
+// MARK: - AuthCoordinatorDelegate
+
+/// An object that is signaled when specific circumstances in the auth flow have been encountered.
+///
+@MainActor
+public protocol AuthCoordinatorDelegate: AnyObject {
+    /// Called when the auth flow has been completed.
+    ///
+    func didCompleteAuth()
+}
+
 // MARK: - AuthCoordinator
 
 /// A coordinator that manages navigation in the authentication flow.
 ///
 internal final class AuthCoordinator: Coordinator {
     // MARK: Properties
+
+    /// The delegate for this coordinator. Used to signal when auth has been completed.
+    weak var delegate: (any AuthCoordinatorDelegate)?
 
     /// The root navigator used to display this coordinator's interface.
     weak var rootNavigator: (any RootNavigator)?
@@ -19,13 +33,16 @@ internal final class AuthCoordinator: Coordinator {
     /// Creates a new `AuthCoordinator`.
     ///
     /// - Parameters:
+    ///   - delegate: The delegate for this coordinator. Used to signal when auth has been completed.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        delegate: AuthCoordinatorDelegate,
         rootNavigator: RootNavigator,
         stackNavigator: StackNavigator
     ) {
+        self.delegate = delegate
         self.rootNavigator = rootNavigator
         self.stackNavigator = stackNavigator
     }
@@ -34,6 +51,8 @@ internal final class AuthCoordinator: Coordinator {
 
     func navigate(to route: AuthRoute, context: AnyObject?) {
         switch route {
+        case .complete:
+            delegate?.didCompleteAuth()
         case .createAccount:
             showCreateAccount()
         case .enterpriseSingleSignOn:

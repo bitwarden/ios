@@ -8,6 +8,7 @@ import XCTest
 class AuthCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var authDelegate: MockAuthDelegate!
     var rootNavigator: MockRootNavigator!
     var stackNavigator: MockStackNavigator!
     var subject: AuthCoordinator!
@@ -16,9 +17,11 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        authDelegate = MockAuthDelegate()
         rootNavigator = MockRootNavigator()
         stackNavigator = MockStackNavigator()
         subject = AuthCoordinator(
+            delegate: authDelegate,
             rootNavigator: rootNavigator,
             stackNavigator: stackNavigator
         )
@@ -26,12 +29,19 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        authDelegate = nil
         rootNavigator = nil
         stackNavigator = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `navigate(to:)` with `.complete` notifies the delegate that auth has completed.
+    func test_navigate_complete() {
+        subject.navigate(to: .complete)
+        XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+    }
 
     /// `navigate(to:)` with `.createAccount` pushes the create account view onto the stack navigator.
     func test_navigate_createAccount() {
@@ -110,6 +120,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     func test_rootNavigator_resetWeakReference() {
         var rootNavigator: MockRootNavigator? = MockRootNavigator()
         subject = AuthCoordinator(
+            delegate: authDelegate,
             rootNavigator: rootNavigator!,
             stackNavigator: stackNavigator
         )
@@ -123,5 +134,15 @@ class AuthCoordinatorTests: BitwardenTestCase {
     func test_start() {
         subject.start()
         XCTAssertIdentical(rootNavigator.navigatorShown, stackNavigator)
+    }
+}
+
+// MARK: - MockAuthDelegate
+
+class MockAuthDelegate: AuthCoordinatorDelegate {
+    var didCompleteAuthCalled = false
+
+    func didCompleteAuth() {
+        didCompleteAuthCalled = true
     }
 }

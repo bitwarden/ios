@@ -33,6 +33,13 @@ class AppCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `didCompleteAuth()` starts the tab coordinator and navigates to the proper tab route.
+    func test_didCompleteAuth() {
+        subject.didCompleteAuth()
+        XCTAssertTrue(module.tabCoordinator.isStarted)
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault])
+    }
+
     /// `navigate(to:)` with `.onboarding` starts the auth coordinator and navigates to the proper auth route.
     func test_navigateTo_auth() throws {
         subject.navigate(to: .auth(.landing))
@@ -49,16 +56,25 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.authCoordinator.routes, [.landing, .landing])
     }
 
+    /// `navigate(to:)` with `.tab(.vault)` starts the tab coordinator and navigates to the proper tab route.
+    func test_navigateTo_tab() {
+        subject.navigate(to: .tab(.vault))
+        XCTAssertTrue(module.tabCoordinator.isStarted)
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault])
+    }
+
+    /// `navigate(to:)` with `.tab(.vault)` twice uses the existing coordinator, rather than creating a new one.
+    func test_navigateTo_tabTwice() {
+        subject.navigate(to: .tab(.vault))
+        subject.navigate(to: .tab(.vault))
+
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault, .vault])
+    }
+
     /// `start()` initializes the interface correctly.
     func test_start() {
         subject.start()
 
         XCTAssertTrue(module.authCoordinator.isStarted)
-    }
-
-    /// `navigate(to:)` with `.auth(.landing)` presents the correct navigator.
-    func test_navigateTo_onboarding() throws {
-        subject.navigate(to: .auth(.landing))
-        XCTAssertEqual(module.authCoordinator.routes, [.landing])
     }
 }

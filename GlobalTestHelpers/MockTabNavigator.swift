@@ -12,8 +12,14 @@ final class MockTabNavigator: TabNavigator {
         self.navigators = navigators
     }
 
-    func navigator<Tab>(for tab: Tab) -> Navigator? where Tab: RawRepresentable, Tab.RawValue == Int {
-        navigatorForTabValue = tab.rawValue
+    func navigator<Tab: TabRepresentable>(for tab: Tab) -> Navigator? {
+        navigatorForTabValue = tab.index
         return navigatorForTabReturns
+    }
+
+    func setNavigators<Tab: Hashable & TabRepresentable>(_ tabs: [Tab: Navigator]) {
+        navigators = tabs
+            .sorted { $0.key.index < $1.key.index }
+            .map(\.value)
     }
 }
