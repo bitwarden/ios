@@ -19,7 +19,7 @@ public protocol TabNavigator: Navigator {
 // MARK: - UITabBarController
 
 extension UITabBarController: TabNavigator {
-    public var rootViewController: UIViewController? {
+    public var rootViewController: UIViewController {
         self
     }
 

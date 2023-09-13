@@ -20,7 +20,7 @@ final class MockStackNavigator: StackNavigator {
     }
 
     var actions: [NavigationAction] = []
-    var rootViewController: UIViewController?
+    var rootViewController = UIViewController()
 
     var viewControllersToPop: [UIViewController] = []
 

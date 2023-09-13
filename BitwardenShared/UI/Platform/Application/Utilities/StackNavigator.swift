@@ -130,7 +130,7 @@ extension StackNavigator {
 // MARK: - UINavigationController
 
 extension UINavigationController: StackNavigator {
-    public var rootViewController: UIViewController? {
+    public var rootViewController: UIViewController {
         self
     }
 
