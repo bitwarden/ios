@@ -1,4 +1,4 @@
-// MARK: LoginProcessor
+// MARK: - LoginProcessor
 
 /// The processor used to manage state and handle actions for the login screen.
 ///
@@ -34,6 +34,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, Void> {
         case .loginWithMasterPasswordPressed:
             // Add login functionality here: BIT-132
             print("login with master password")
+            coordinator.navigate(to: .complete)
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
         case .morePressed:

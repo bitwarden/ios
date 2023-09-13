@@ -6,7 +6,7 @@ import UIKit
 /// An object that is signaled when specific circumstances in the auth flow have been encountered.
 ///
 @MainActor
-public protocol AuthCoordinatorDelegate: AnyObject {
+protocol AuthCoordinatorDelegate: AnyObject {
     /// Called when the auth flow has been completed.
     ///
     func didCompleteAuth()
