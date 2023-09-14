@@ -33,10 +33,10 @@ struct CreateAccountRequestModel: Equatable {
     let keys: KeysRequestModel? = nil
 
     /// The master password hash used to authenticate a user.
-    let masterPasswordHash: String // swiftlint:disable:this inclusive_language
+    let masterPasswordHash: String
 
     /// The master password hint.
-    let masterPasswordHint: String? = nil // swiftlint:disable:this inclusive_language
+    let masterPasswordHint: String? = nil
 
     /// The user's name.
     let name: String? = nil
