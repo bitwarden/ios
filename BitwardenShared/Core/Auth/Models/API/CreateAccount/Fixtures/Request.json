@@ -1,0 +1,23 @@
+{
+    "name": "name",
+    "email": "email",
+    "masterPasswordHash": "masterPasswordHash",
+    "masterPasswordHint": "masterPasswordHint",
+    "captchaResponse": "captchaResponse",
+    "key": "key",
+    "keys": {
+        "publicKey": "publicKey",
+        "encryptedPrivateKey": "encryptedPrivateKey"
+    },
+    "token": "token",
+    "organizationUserId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "kdf": 0,
+    "kdfIterations": 0,
+    "kdfMemory": 0,
+    "kdfParallelism": 0,
+    "referenceData": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+    }
+}
