@@ -14,12 +14,10 @@ struct DescriptiveToggleStyle<Content: View>: ToggleStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         HStack {
-            VStack {
-                Toggle(configuration)
-                    .labelsHidden()
-                    .tint(Color(asset: Asset.Colors.primaryBitwarden))
-            }
-            .padding(.trailing, 4)
+            Toggle(configuration)
+                .labelsHidden()
+                .tint(Color(asset: Asset.Colors.primaryBitwarden))
+                .padding(.trailing, 4)
 
             description()
 

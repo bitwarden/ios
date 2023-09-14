@@ -17,7 +17,7 @@ struct CreateAccountView: View {
             VStack {
                 emailAndPassword
 
-                passwordStrengthIndicator
+                PasswordStrengthIndicator(minimumPasswordLength: Constants.defaultMinimumPasswordCharacters)
 
                 VStack(spacing: 16) {
                     retypePassword
@@ -35,7 +35,7 @@ struct CreateAccountView: View {
     private var emailAndPassword: some View {
         VStack(spacing: 16) {
             BitwardenTextField(
-                title: "Email address",
+                title: Localizations.emailAddress,
                 contentType: .emailAddress,
                 text: store.binding(
                     get: { $0.emailText },
@@ -44,7 +44,7 @@ struct CreateAccountView: View {
             )
 
             BitwardenTextField(
-                title: "Master password",
+                title: Localizations.masterPassword,
                 icon: Image(asset: Asset.Images.eye),
                 contentType: .password,
                 text: store.binding(
@@ -55,28 +55,10 @@ struct CreateAccountView: View {
         }
     }
 
-    /// The password strength indicator and label indicating the importance of remembering the master password.
-    private var passwordStrengthIndicator: some View {
-        VStack {
-            HStack {
-                Text("Important: Your master password cannot be recovered if you forget it! 12 characters minimum.")
-                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                    .font(.system(.footnote))
-
-                Spacer()
-            }
-
-            RoundedRectangle(cornerRadius: 2)
-                .frame(height: 8)
-                .foregroundColor(Color(asset: Asset.Colors.separatorOpaque))
-        }
-        .padding(.bottom, 16)
-    }
-
     /// The text field for re-typing the master password.
     private var retypePassword: some View {
         BitwardenTextField(
-            title: "Re-type master password",
+            title: Localizations.retypeMasterPassword,
             icon: Image(asset: Asset.Images.eye),
             contentType: .password,
             text: store.binding(
@@ -90,7 +72,7 @@ struct CreateAccountView: View {
     private var passwordHint: some View {
         VStack(alignment: .leading) {
             BitwardenTextField(
-                title: "Master password hint (optional)",
+                title: Localizations.masterPasswordHint,
                 contentType: .name,
                 text: store.binding(
                     get: { $0.passwordHintText },
@@ -98,7 +80,7 @@ struct CreateAccountView: View {
                 )
             )
 
-            Text("A master password hint can help you remember your password if you forget it.")
+            Text(Localizations.masterPasswordHintDescription)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                 .font(.system(.footnote))
         }
@@ -121,7 +103,7 @@ struct CreateAccountView: View {
         )) {}
             .toggleStyle(
                 DescriptiveToggleStyle(description: {
-                    Text("Check known data breaches for this password")
+                    Text(Localizations.checkKnownDataBreachesForThisPassword)
                         .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                         .font(.system(.footnote))
                 })
@@ -138,7 +120,7 @@ struct CreateAccountView: View {
                 DescriptiveToggleStyle(
                     description: {
                         VStack(alignment: .leading) {
-                            Text("By activating this switch you agree to the following:")
+                            Text(Localizations.acceptPolicies)
                                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                                 .font(.system(.footnote))
 
