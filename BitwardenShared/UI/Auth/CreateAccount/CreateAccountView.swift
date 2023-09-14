@@ -17,7 +17,7 @@ struct CreateAccountView: View {
             VStack {
                 emailAndPassword
 
-                PasswordStrengthIndicator(minimumPasswordLength: Constants.defaultMinimumPasswordCharacters)
+                PasswordStrengthIndicator(minimumPasswordLength: Constants.minimumPasswordCharacters)
 
                 VStack(spacing: 16) {
                     retypePassword

@@ -4,5 +4,5 @@
 ///
 enum Constants {
     /// A default value for the minimum number of characters required when creating a password.
-    static let defaultMinimumPasswordCharacters: Int = 12
+    static let minimumPasswordCharacters: Int = 12
 }
