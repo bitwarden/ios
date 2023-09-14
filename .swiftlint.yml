@@ -2,6 +2,9 @@ analyzer_rules:
   - unused_declaration
   - unused_import
 
+disabled_rules:
+  - todo
+
 opt_in_rules:
   - anonymous_argument_in_multiline_closure
   - attributes
@@ -71,3 +74,12 @@ type_contents_order:
 identifier_name:
   excluded:
     - id
+
+custom_rules:
+  todo_without_jira:
+    name: "TODO without JIRA"
+    regex: "(TODO|TO DO|FIX|FIXME|FIX ME|todo)(?!: BIT-[0-9]{1,})" # "TODO: BIT-123"
+    message: "All TODOs must be followed by a JIRA reference, for example: \"TODO: BIT-123\""
+    match_kinds:
+      - comment
+    severity: warning
