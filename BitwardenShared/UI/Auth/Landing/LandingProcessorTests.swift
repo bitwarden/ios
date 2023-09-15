@@ -33,8 +33,14 @@ class LandingProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.continuePressed` navigates to the login screen.
     func test_receive_continuePressed() {
+        subject.state.email = "email@example.com"
+
         subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .login)
+        XCTAssertEqual(coordinator.routes.last, .login(
+            username: "email@example.com",
+            region: "region",
+            isLoginWithDeviceVisible: false
+        ))
     }
 
     /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen.

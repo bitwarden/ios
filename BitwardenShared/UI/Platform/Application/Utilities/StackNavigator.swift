@@ -3,11 +3,13 @@ import SwiftUI
 // MARK: - StackNavigator
 
 /// An object used to navigate between views in a stack interface.
+///
 @MainActor
 public protocol StackNavigator: Navigator {
     /// Dismisses the view that was presented modally by the navigator.
     ///
     /// - Parameter animated: Whether the transition should be animated.
+    ///
     func dismiss(animated: Bool)
 
     /// Pushes a view onto the navigator's stack.
@@ -16,17 +18,24 @@ public protocol StackNavigator: Navigator {
     ///   - view: The view to push onto the stack.
     ///   - animated: Whether the transition should be animated.
     ///   - hidesBottomBar: Whether the bottom bar should be hidden when the view is pushed.
+    ///
     func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool)
 
     /// Pops a view off the navigator's stack.
     ///
     /// - Parameter animated: Whether the transition should be animated.
-    func pop(animated: Bool)
+    /// - Returns: The `UIViewController` that was popped off the navigator's stack.
+    ///
+    @discardableResult
+    func pop(animated: Bool) -> UIViewController?
 
     /// Pops all the view controllers on the stack except the root view controller.
     ///
     /// - Parameter animated: Whether the transition should be animated.
-    func popToRoot(animated: Bool)
+    /// - Returns: An array of `UIViewController`s that were popped of the navigator's stack.
+    ///
+    @discardableResult
+    func popToRoot(animated: Bool) -> [UIViewController]
 
     /// Presents a view modally.
     ///
@@ -34,6 +43,7 @@ public protocol StackNavigator: Navigator {
     ///   - view: The view to present.
     ///   - animated: Whether the transition should be animated.
     ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
+    ///
     func present<Content: View>(_ view: Content, animated: Bool, overFullscreen: Bool)
 
     /// Presents a view controller modally. Supports presenting on top of presented modals if necessary.
@@ -41,6 +51,7 @@ public protocol StackNavigator: Navigator {
     /// - Parameters:
     ///   - viewController: The view controller to present.
     ///   - animated: Whether the transition should be animated.
+    ///
     func present(_ viewController: UIViewController, animated: Bool)
 
     /// Replaces the stack with the specified view.
@@ -48,26 +59,71 @@ public protocol StackNavigator: Navigator {
     /// - Parameters:
     ///   - view: The view that will replace the stack.
     ///   - animated: Whether the transition should be animated.
+    ///
     func replace<Content: View>(_ view: Content, animated: Bool)
 }
 
 extension StackNavigator {
+    /// Dismisses the view that was presented modally by the navigator. Animation is controlled by `UI.animated`.
+    ///
+    func dismiss() {
+        dismiss(animated: UI.animated)
+    }
+
     /// Pushes a view onto the navigator's stack.
     ///
     /// - Parameters:
     ///   - view: The view to push onto the stack.
-    ///   - animated: Whether the transition should be animated.
-    func push<Content: View>(_ view: Content, animated: Bool) {
+    ///   - animated: Whether the transition should be animated. Defaults to `UI.animated`.
+    ///
+    func push<Content: View>(_ view: Content, animated: Bool = UI.animated) {
         push(view, animated: animated, hidesBottomBar: false)
+    }
+
+    /// Pops a view off the navigator's stack. Animation is controlled by `UI.animated`.
+    ///
+    /// - Returns: The `UIViewController` that was popped off the navigator's stack.
+    ///
+    @discardableResult
+    func pop() -> UIViewController? {
+        pop(animated: UI.animated)
+    }
+
+    /// Pops all the view controllers on the stack except the root view controller. Animation is controlled by
+    /// `UI.animated`.
+    ///
+    /// - Returns: An array of `UIViewController`s that were popped of the navigator's stack.
+    ///
+    @discardableResult
+    func popToRoot() -> [UIViewController] {
+        popToRoot(animated: UI.animated)
     }
 
     /// Presents a view modally.
     ///
     /// - Parameters:
     ///   - view: The view to present.
-    ///   - animated: Whether the transition should be animated.
-    func present<Content: View>(_ view: Content, animated: Bool) {
+    ///   - animated: Whether the transition should be animated. Defaults to `UI.animated`.
+    ///
+    func present<Content: View>(_ view: Content, animated: Bool = UI.animated) {
         present(view, animated: animated, overFullscreen: false)
+    }
+
+    /// Presents a view controller modally. Supports presenting on top of presented modals if necessary. Animation is
+    /// controlled by `UI.animated`.
+    ///
+    /// - Parameter viewController: The view controller to present.
+    ///
+    func present(_ viewController: UIViewController) {
+        present(viewController, animated: UI.animated)
+    }
+
+    /// Replaces the stack with the specified view. Animation is controlled by `UI.animated`.
+    ///
+    /// - Parameter view: The view that will replace the stack.
+    ///
+    func replace<Content: View>(_ view: Content) {
+        replace(view, animated: UI.animated)
     }
 }
 
@@ -82,12 +138,14 @@ extension UINavigationController: StackNavigator {
         dismiss(animated: animated, completion: nil)
     }
 
-    public func pop(animated: Bool) {
+    @discardableResult
+    public func pop(animated: Bool) -> UIViewController? {
         popViewController(animated: animated)
     }
 
-    public func popToRoot(animated: Bool) {
-        popToRootViewController(animated: animated)
+    @discardableResult
+    public func popToRoot(animated: Bool) -> [UIViewController] {
+        popToRootViewController(animated: animated) ?? []
     }
 
     public func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {

@@ -36,10 +36,24 @@ internal final class AuthCoordinator: Coordinator {
         switch route {
         case .createAccount:
             showCreateAccount()
+        case .enterpriseSingleSignOn:
+            showEnterpriseSingleSignOn()
         case .landing:
             showLanding()
-        case .login:
-            showLogin()
+        case let .login(username, region, isLoginWithDeviceVisible):
+            showLogin(
+                state: LoginState(
+                    isLoginWithDeviceVisible: isLoginWithDeviceVisible,
+                    username: username,
+                    region: region
+                )
+            )
+        case .loginOptions:
+            showLoginOptions()
+        case .loginWithDevice:
+            showLoginWithDevice()
+        case .masterPasswordHint:
+            showMasterPasswordHint()
         case .regionSelection:
             showRegionSelection()
         }
@@ -61,29 +75,63 @@ internal final class AuthCoordinator: Coordinator {
                 )
             )
         )
-        stackNavigator.push(view, animated: UI.animated)
+        stackNavigator.push(view)
+    }
+
+    /// Shows the enterprise single sign-on screen.
+    private func showEnterpriseSingleSignOn() {
+        let view = Text("Enterprise Single Sign-On")
+        stackNavigator.push(view)
     }
 
     /// Shows the landing screen.
     private func showLanding() {
-        let processor = LandingProcessor(
-            coordinator: asAnyCoordinator(),
-            state: LandingState()
-        )
-        let store = Store(processor: processor)
-        let view = LandingView(store: store)
-        stackNavigator.push(view, animated: UI.animated)
+        if stackNavigator.popToRoot(animated: UI.animated).isEmpty {
+            let processor = LandingProcessor(
+                coordinator: asAnyCoordinator(),
+                state: LandingState()
+            )
+            let store = Store(processor: processor)
+            let view = LandingView(store: store)
+            stackNavigator.push(view)
+        }
     }
 
     /// Shows the login screen.
-    private func showLogin() {
-        let view = Text("Login")
-        stackNavigator.push(view, animated: UI.animated)
+    ///
+    /// - Parameter state: The `LoginState` to initialize the login screen with.
+    ///
+    private func showLogin(state: LoginState) {
+        let processor = LoginProcessor(
+            coordinator: asAnyCoordinator(),
+            state: state
+        )
+        let store = Store(processor: processor)
+        let view = LoginView(store: store)
+        stackNavigator.push(view)
+    }
+
+    /// Shows the login options screen.
+    private func showLoginOptions() {
+        let view = Text("Login Options")
+        stackNavigator.push(view)
+    }
+
+    /// Shows the login with device screen.
+    private func showLoginWithDevice() {
+        let view = Text("Login With Device")
+        stackNavigator.push(view)
+    }
+
+    /// Shows the master password hint screen.
+    private func showMasterPasswordHint() {
+        let view = Text("Master Password Hint")
+        stackNavigator.push(view)
     }
 
     /// Shows the region selection screen.
     private func showRegionSelection() {
         let view = Text("Region")
-        stackNavigator.push(view, animated: UI.animated)
+        stackNavigator.push(view)
     }
 }
