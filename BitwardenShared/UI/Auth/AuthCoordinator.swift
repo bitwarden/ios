@@ -40,10 +40,10 @@ internal final class AuthCoordinator: Coordinator {
             showEnterpriseSingleSignOn()
         case .landing:
             showLanding()
-        case let .login(username, region, isLoginWithDeviceEnabled):
+        case let .login(username, region, isLoginWithDeviceVisible):
             showLogin(
                 state: LoginState(
-                    isLoginWithDeviceVisible: isLoginWithDeviceEnabled,
+                    isLoginWithDeviceVisible: isLoginWithDeviceVisible,
                     username: username,
                     region: region
                 )

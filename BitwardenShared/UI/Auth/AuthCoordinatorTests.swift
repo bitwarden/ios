@@ -69,7 +69,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .login(
             username: "username",
             region: "region",
-            isLoginWithDeviceEnabled: true
+            isLoginWithDeviceVisible: true
         ))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)

@@ -39,7 +39,7 @@ class LandingProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .login(
             username: "email@example.com",
             region: "region",
-            isLoginWithDeviceEnabled: false
+            isLoginWithDeviceVisible: false
         ))
     }
 

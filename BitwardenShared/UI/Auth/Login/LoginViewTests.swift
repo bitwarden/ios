@@ -65,13 +65,13 @@ class LoginViewTests: BitwardenTestCase {
     }
 
     /// The login with device button should not be visible when `isLoginWithDeviceVisible` is `false`.
-    func test_loginWithDeviceButton_isLoginWithDeviceEnabled_false() {
+    func test_loginWithDeviceButton_isLoginWithDeviceVisible_false() {
         processor.state.isLoginWithDeviceVisible = false
         XCTAssertThrowsError(try subject.inspect().find(button: Localizations.logInWithDevice))
     }
 
     /// The login with device button should be visible when `isLoginWithDeviceVisible` is `true`.
-    func test_loginWithDeviceButton_isLoginWithDeviceEnabled_true() {
+    func test_loginWithDeviceButton_isLoginWithDeviceVisible_true() {
         processor.state.isLoginWithDeviceVisible = true
         XCTAssertNoThrow(try subject.inspect().find(button: Localizations.logInWithDevice))
     }

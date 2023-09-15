@@ -32,7 +32,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
             coordinator.navigate(to: .login(
                 username: state.email,
                 region: "region",
-                isLoginWithDeviceEnabled: false
+                isLoginWithDeviceVisible: false
             ))
         case .createAccountPressed:
             coordinator.navigate(to: .createAccount)

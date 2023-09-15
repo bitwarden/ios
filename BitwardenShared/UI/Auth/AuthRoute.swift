@@ -16,9 +16,9 @@ public enum AuthRoute: Equatable {
     /// - Parameters:
     ///   - username: The username to display on the login screen.
     ///   - region: The region the user has selected for login.
-    ///   - isLoginWithDeviceEnabled: A flag indicating if the "Login with device" button should be displayed in the
+    ///   - isLoginWithDeviceVisible: A flag indicating if the "Login with device" button should be displayed in the
     ///                               login screen.
-    case login(username: String, region: String, isLoginWithDeviceEnabled: Bool)
+    case login(username: String, region: String, isLoginWithDeviceVisible: Bool)
 
     /// A route to the login options screen.
     case loginOptions
