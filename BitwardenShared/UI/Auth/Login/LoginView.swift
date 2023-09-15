@@ -15,34 +15,17 @@ struct LoginView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                Text("Master Password")
-                    .font(.system(.footnote))
+                BitwardenTextField(
+                    title: Localizations.masterPassword,
+                    icon: Image(asset: Asset.Images.eye),
+                    contentType: .password,
+                    text: store.binding(
+                        get: { $0.masterPassword },
+                        send: { .masterPasswordChanged($0) }
+                    )
+                )
 
-                HStack {
-                    if store.state.isMasterPasswordRevealed {
-                        TextField("Master Password", text: store.binding(
-                            get: { $0.masterPassword },
-                            send: { .masterPasswordChanged($0) }
-                        ))
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled(true)
-                        .textContentType(.password)
-                    } else {
-                        SecureField("Master Password", text: store.binding(
-                            get: { $0.masterPassword },
-                            send: { .masterPasswordChanged($0) }
-                        ))
-                    }
-
-                    Button {
-                        store.send(.revealMasterPasswordFieldPressed)
-                    } label: {
-                        Image(systemName: store.state.isMasterPasswordRevealed ? "eye.slash" : "eye")
-                    }
-                    .id("revealMasterPassword")
-                }
-
-                Button("Get master password hint") {
+                Button(Localizations.getMasterPasswordwordHint) {
                     store.send(.getMasterPasswordHintPressed)
                 }
                 .font(.system(.footnote))
@@ -50,7 +33,7 @@ struct LoginView: View {
                 Button {
                     store.send(.loginWithMasterPasswordPressed)
                 } label: {
-                    Text("Log in with master password")
+                    Text(Localizations.logInWithMasterPassword)
                         .bold()
                         .foregroundColor(.white)
                         .padding(12)
@@ -63,7 +46,7 @@ struct LoginView: View {
                     Button {
                         store.send(.loginWithDevicePressed)
                     } label: {
-                        Text("Login with device")
+                        Text(Localizations.logInWithDevice)
                             .foregroundColor(.gray)
                             .padding(12)
                             .frame(maxWidth: .infinity)
@@ -77,7 +60,7 @@ struct LoginView: View {
                 Button {
                     store.send(.enterpriseSingleSignOnPressed)
                 } label: {
-                    Text("Enterprise single sign-on")
+                    Text(Localizations.logInSso)
                         .foregroundColor(.gray)
                         .padding(12)
                         .frame(maxWidth: .infinity)
@@ -90,21 +73,25 @@ struct LoginView: View {
                 Spacer()
                     .frame(height: 12)
 
-                Text("Logging in as \(store.state.username) on \(store.state.region)")
-                Button("Not you?") {
+                Text(Localizations.loggedInAsOn(store.state.username, store.state.region))
+                Button(Localizations.notYou) {
                     store.send(.notYouPressed)
                 }
             }
             .padding(.horizontal)
             .frame(maxWidth: .infinity)
-            .navigationTitle("Bitwarden")
+            .navigationTitle(Localizations.bitwarden)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         store.send(.morePressed)
                     } label: {
-                        Label("Options", systemImage: "ellipsis")
+                        Label {
+                            Text(Localizations.options)
+                        } icon: {
+                            Asset.Images.moreVert.swiftUIImage
+                        }
                     }
                 }
             }
