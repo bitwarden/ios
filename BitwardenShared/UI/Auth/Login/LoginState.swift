@@ -12,7 +12,7 @@ struct LoginState: Equatable {
     var isMasterPasswordRevealed: Bool = false
 
     /// A flag indicating if the login with device button should be displayed or not.
-    var isLoginWithDeviceEnabled: Bool = false
+    var isLoginWithDeviceVisible: Bool = false
 
     /// The username provided by the user on the landing screen.
     var username: String = ""

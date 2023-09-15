@@ -42,7 +42,7 @@ struct LoginView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
 
-                if store.state.isLoginWithDeviceEnabled {
+                if store.state.isLoginWithDeviceVisible {
                     Button {
                         store.send(.loginWithDevicePressed)
                     } label: {
@@ -119,7 +119,7 @@ struct LoginView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: LoginState(
-                            isLoginWithDeviceEnabled: true
+                            isLoginWithDeviceVisible: true
                         )
                     )
                 )

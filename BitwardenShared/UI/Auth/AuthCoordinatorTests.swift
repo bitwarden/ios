@@ -77,7 +77,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         let state = view.store.state
         XCTAssertEqual(state.username, "username")
         XCTAssertEqual(state.region, "region")
-        XCTAssertTrue(state.isLoginWithDeviceEnabled)
+        XCTAssertTrue(state.isLoginWithDeviceVisible)
     }
 
     /// `navigate(to:)` with `.loginOptions` pushes the login options view onto the stack navigator.

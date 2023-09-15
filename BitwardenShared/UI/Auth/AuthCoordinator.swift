@@ -43,7 +43,7 @@ internal final class AuthCoordinator: Coordinator {
         case let .login(username, region, isLoginWithDeviceEnabled):
             showLogin(
                 state: LoginState(
-                    isLoginWithDeviceEnabled: isLoginWithDeviceEnabled,
+                    isLoginWithDeviceVisible: isLoginWithDeviceEnabled,
                     username: username,
                     region: region
                 )
