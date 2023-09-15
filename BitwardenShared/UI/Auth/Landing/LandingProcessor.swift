@@ -28,7 +28,12 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
     override func receive(_ action: LandingAction) {
         switch action {
         case .continuePressed:
-            coordinator.navigate(to: .login)
+            // Region placeholder until region selection support is added: BIT-268
+            coordinator.navigate(to: .login(
+                username: state.email,
+                region: "region",
+                isLoginWithDeviceVisible: false
+            ))
         case .createAccountPressed:
             coordinator.navigate(to: .createAccount)
         case let .emailChanged(newValue):

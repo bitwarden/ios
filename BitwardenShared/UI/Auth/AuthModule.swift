@@ -7,6 +7,7 @@ import UIKit
 public protocol AuthModule {
     /// Initializes a coordinator for navigating between `AuthRoute`s.
     ///
+    /// - Parameters:
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
     ///   - stackNavigator: The stack navigator that will be used to navigate between routes.
     /// - Returns: A coordinator that can navigate to `AuthRoute`s.

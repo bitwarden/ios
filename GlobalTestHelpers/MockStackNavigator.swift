@@ -22,6 +22,8 @@ final class MockStackNavigator: StackNavigator {
     var actions: [NavigationAction] = []
     var rootViewController: UIViewController?
 
+    var viewControllersToPop: [UIViewController] = []
+
     func dismiss(animated: Bool) {
         actions.append(NavigationAction(type: .dismissed, animated: animated))
     }
@@ -30,12 +32,16 @@ final class MockStackNavigator: StackNavigator {
         actions.append(NavigationAction(type: .pushed, view: view, animated: animated))
     }
 
-    func pop(animated: Bool) {
+    @discardableResult
+    func pop(animated: Bool) -> UIViewController? {
         actions.append(NavigationAction(type: .popped, animated: animated))
+        return viewControllersToPop.last
     }
 
-    func popToRoot(animated: Bool) {
+    @discardableResult
+    func popToRoot(animated: Bool) -> [UIViewController] {
         actions.append(NavigationAction(type: .poppedToRoot, animated: animated))
+        return viewControllersToPop
     }
 
     func present<Content: View>(_ view: Content, animated: Bool, overFullscreen: Bool) {

@@ -75,6 +75,10 @@ identifier_name:
   excluded:
     - id
 
+inclusive_language:
+  override_allowed_terms:
+    - masterPassword
+
 custom_rules:
   todo_without_jira:
     name: "TODO without JIRA"

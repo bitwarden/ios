@@ -1,0 +1,54 @@
+---
+name: Cache Dependencies
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_14.3.1.app/Contents/Developer
+  MINT_LINK_PATH: .mint/bin
+  MINT_PATH: .mint/lib
+
+jobs:
+  cache-dependencies:
+    name: Cache Dependencies
+    runs-on: macos-13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@250fcd6a742febb1123a77a841497ccaa8b9e939 # v1.152.0
+        with:
+          bundler-cache: true
+          ruby-version: 3.2.2
+
+      - name: Cache Mint Packages
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          restore-keys: |
+            ${{ runner.os }}-mint-
+
+      - name: Cache SPM Packages
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+        with:
+          path: build/DerivedData/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Setup
+        run: |
+          brew install mint xcbeautify
+          ./Scripts/bootstrap.sh
+
+      - name: Update Xcode Dependencies
+        run: |
+          set -o pipefail && \
+            xcodebuild -resolvePackageDependencies \
+            -project Bitwarden.xcodeproj \
+            -clonedSourcePackagesDirPath build/DerivedData/SourcePackages

@@ -64,7 +64,8 @@ class StackNavigatorTests: BitwardenTestCase {
     func test_pop() {
         subject.push(EmptyView(), animated: false)
         subject.push(EmptyView(), animated: false)
-        subject.pop(animated: false)
+        let viewController = subject.pop(animated: false)
+        XCTAssertTrue(viewController is UIHostingController<EmptyView>)
         XCTAssertEqual(subject.viewControllers.count, 1)
         XCTAssertTrue(subject.topViewController is UIHostingController<EmptyView>)
     }
@@ -74,7 +75,8 @@ class StackNavigatorTests: BitwardenTestCase {
         subject.push(EmptyView(), animated: false)
         subject.push(EmptyView(), animated: false)
         subject.push(EmptyView(), animated: false)
-        subject.popToRoot(animated: false)
+        let viewControllers = subject.popToRoot(animated: false)
+        XCTAssertEqual(viewControllers.count, 2)
         XCTAssertEqual(subject.viewControllers.count, 1)
         XCTAssertTrue(subject.topViewController is UIHostingController<EmptyView>)
     }
