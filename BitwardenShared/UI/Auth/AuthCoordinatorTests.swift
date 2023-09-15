@@ -38,7 +38,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .createAccount)
 
         // Placeholder assertion until the create account screen is added: BIT-157
-        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
+        XCTAssertTrue(stackNavigator.actions.last?.view is CreateAccountView)
     }
 
     /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack

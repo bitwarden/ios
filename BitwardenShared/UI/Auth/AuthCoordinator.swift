@@ -67,7 +67,14 @@ internal final class AuthCoordinator: Coordinator {
 
     /// Shows the create account screen.
     private func showCreateAccount() {
-        let view = Text("Create Account")
+        let view = CreateAccountView(
+            store: Store(
+                processor: CreateAccountProcessor(
+                    coordinator: asAnyCoordinator(),
+                    state: CreateAccountState()
+                )
+            )
+        )
         stackNavigator.push(view)
     }
 
