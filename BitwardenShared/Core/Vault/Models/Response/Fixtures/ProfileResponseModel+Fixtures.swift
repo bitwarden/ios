@@ -11,7 +11,7 @@ extension ProfileResponseModel {
         forcePasswordReset: Bool = false,
         id: String = UUID().uuidString,
         key: String? = nil,
-        masterPasswordHint: String? = nil, // swiftlint:disable:this inclusive_language
+        masterPasswordHint: String? = nil,
         name: String? = nil,
         organizations: [ProfileOrganizationResponseModel]? = nil,
         premium: Bool = false,

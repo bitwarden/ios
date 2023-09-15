@@ -27,7 +27,7 @@ struct ProfileResponseModel: Codable, Equatable {
     let key: String?
 
     /// The user's master password hint.
-    let masterPasswordHint: String? // swiftlint:disable:this inclusive_language
+    let masterPasswordHint: String?
 
     /// The user's name.
     let name: String?

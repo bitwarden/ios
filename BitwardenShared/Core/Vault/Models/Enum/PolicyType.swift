@@ -5,7 +5,7 @@ enum PolicyType: Int, Codable {
     case twoFactorAuthentication = 0
 
     /// Sets minimum requirements for master password complexity.
-    case masterPassword = 1 // swiftlint:disable:this inclusive_language
+    case masterPassword = 1
 
     /// Sets minimum requirements/default type for generated passwords/passphrases.
     case passwordGenerator = 2
