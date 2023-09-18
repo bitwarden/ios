@@ -15,7 +15,7 @@ public class AlertAction {
     let style: UIAlertAction.Style
 
     /// The title of the alert action to display in the alert.
-    let title: String?
+    let title: String
 
     // MARK: Initialization
 
@@ -27,7 +27,7 @@ public class AlertAction {
     ///   - handler: The handler that is called when the user taps on the action in the alert.
     ///
     public init(
-        title: String?,
+        title: String,
         style: UIAlertAction.Style,
         handler: ((AlertAction) -> Void)? = nil
     ) {
