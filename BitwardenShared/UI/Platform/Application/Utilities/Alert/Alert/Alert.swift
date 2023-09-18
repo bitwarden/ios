@@ -21,7 +21,7 @@ public class Alert {
     let preferredStyle: UIAlertController.Style
 
     /// The title of the message that is displayed at the top of the alert.
-    let title: String?
+    let title: String
 
     // MARK: Initialization
 
@@ -34,7 +34,7 @@ public class Alert {
     ///   - alertActions: A list of actions that the user can tap on in the alert.
     ///
     public init(
-        title: String?,
+        title: String,
         message: String?,
         preferredStyle: UIAlertController.Style = .alert,
         alertActions: [AlertAction] = []
@@ -99,7 +99,7 @@ public class Alert {
 extension Alert: CustomDebugStringConvertible {
     public var debugDescription: String {
         """
-        Alert(title: \(title ?? "nil"), message: \(message ?? "nil"), alertActions: \(alertActions))
+        Alert(title: \(title), message: \(message ?? "nil"), alertActions: \(alertActions))
         """
     }
 }
