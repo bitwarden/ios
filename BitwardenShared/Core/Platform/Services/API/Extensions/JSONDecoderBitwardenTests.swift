@@ -92,4 +92,22 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
 
         XCTAssertEqual(casing, Casing(camelCase: "camel", pascalCase: "pascal", snakeCase: "snake"))
     }
+
+    /// `JSONDecoder.snakeCaseDecoder` handles decoding keys that use snake case.
+    func test_snakeCaseDecoder() throws {
+        let json = """
+        {
+            "snake_case": "snake"
+        }
+        """
+
+        struct Casing: Codable, Equatable {
+            let snakeCase: String
+        }
+
+        let subject = JSONDecoder.snakeCaseDecoder
+        let casing = try subject.decode(Casing.self, from: Data(json.utf8))
+
+        XCTAssertEqual(casing, Casing(snakeCase: "snake"))
+    }
 }

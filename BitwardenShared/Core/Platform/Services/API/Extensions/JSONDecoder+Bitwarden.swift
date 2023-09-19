@@ -74,4 +74,11 @@ extension JSONDecoder {
         }
         return decoder
     }()
+
+    /// A `JSONDecoder` instance that handles decoding JSON with snake_case keys.
+    static let snakeCaseDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }()
 }
