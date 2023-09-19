@@ -82,8 +82,10 @@ class AppCoordinator: Coordinator {
         if let coordinator = childCoordinator as? AnyCoordinator<TabRoute> {
             coordinator.navigate(to: route)
         } else {
+            let tabNavigator = UITabBarController()
             let coordinator = module.makeTabCoordinator(
-                rootNavigator: navigator
+                rootNavigator: navigator,
+                tabNavigator: tabNavigator
             )
             coordinator.start()
             coordinator.navigate(to: route)

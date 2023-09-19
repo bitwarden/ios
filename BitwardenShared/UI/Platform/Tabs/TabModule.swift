@@ -7,11 +7,14 @@ import UIKit
 public protocol TabModule: AnyObject {
     /// Initializes a coordinator for navigating to `TabRoute`s.
     ///
-    /// - Parameter rootNavigator: The navigator used by the coordinator to navigate between routes.
+    /// - Parameter:
+    ///   - rootNavigator: The root navigator used to display this coordinator's interface.
+    ///   - tabNavigator: The navigator used by the coordinator to navigate between routes.
     /// - Returns: A new coordinator that can navigate to any `TabRoute`.
     ///
     func makeTabCoordinator(
-        rootNavigator: RootNavigator
+        rootNavigator: RootNavigator,
+        tabNavigator: TabNavigator
     ) -> AnyCoordinator<TabRoute>
 }
 
@@ -19,12 +22,12 @@ public protocol TabModule: AnyObject {
 
 extension DefaultAppModule: TabModule {
     public func makeTabCoordinator(
-        rootNavigator: RootNavigator
+        rootNavigator: RootNavigator,
+        tabNavigator: TabNavigator
     ) -> AnyCoordinator<TabRoute> {
-        let tabController = UITabBarController()
         return TabCoordinator(
             rootNavigator: rootNavigator,
-            tabNavigator: tabController
+            tabNavigator: tabNavigator
         ).asAnyCoordinator()
     }
 }
