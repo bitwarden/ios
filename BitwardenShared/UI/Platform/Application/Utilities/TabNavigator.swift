@@ -30,7 +30,7 @@ public protocol TabNavigator: Navigator {
 // MARK: - UITabBarController
 
 extension UITabBarController: TabNavigator {
-    public var rootViewController: UIViewController {
+    public var rootViewController: UIViewController? {
         self
     }
 
@@ -41,11 +41,11 @@ extension UITabBarController: TabNavigator {
     public func setNavigators<Tab: Hashable & TabRepresentable>(_ tabs: [Tab: Navigator]) {
         viewControllers = tabs
             .sorted { $0.key.index < $1.key.index }
-            .map { tab in
+            .compactMap { tab in
                 let viewController = tab.value.rootViewController
-                viewController.tabBarItem.title = tab.key.title
-                viewController.tabBarItem.image = tab.key.image
-                viewController.tabBarItem.selectedImage = tab.key.selectedImage
+                viewController?.tabBarItem.title = tab.key.title
+                viewController?.tabBarItem.image = tab.key.image
+                viewController?.tabBarItem.selectedImage = tab.key.selectedImage
                 return viewController
             }
     }

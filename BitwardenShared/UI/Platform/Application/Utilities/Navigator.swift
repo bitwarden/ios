@@ -9,5 +9,5 @@ public protocol Navigator: AlertPresentable, AnyObject {
     // MARK: Properties
 
     /// The root view controller of this `Navigator`.
-    var rootViewController: UIViewController { get }
+    var rootViewController: UIViewController? { get }
 }

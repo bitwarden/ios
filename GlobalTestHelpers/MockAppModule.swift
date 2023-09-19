@@ -22,7 +22,8 @@ class MockAppModule: AppModule, AuthModule, TabModule {
     }
 
     func makeTabCoordinator(
-        rootNavigator: RootNavigator
+        rootNavigator: RootNavigator,
+        tabNavigator: TabNavigator
     ) -> AnyCoordinator<TabRoute> {
         tabCoordinator.asAnyCoordinator()
     }

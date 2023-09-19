@@ -15,7 +15,7 @@ public protocol RootNavigator: Navigator {
 // MARK: - RootViewController
 
 extension RootViewController: RootNavigator {
-    public var rootViewController: UIViewController {
+    public var rootViewController: UIViewController? {
         self
     }
 
