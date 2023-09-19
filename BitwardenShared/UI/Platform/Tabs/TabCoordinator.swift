@@ -37,7 +37,9 @@ internal final class TabCoordinator: Coordinator {
     }
 
     func start() {
-        rootNavigator?.show(child: tabNavigator)
+        guard let rootNavigator else { return }
+
+        rootNavigator.show(child: tabNavigator)
 
         let vaultNavigator = UINavigationController()
         vaultNavigator.push(Text("My Vault"))
