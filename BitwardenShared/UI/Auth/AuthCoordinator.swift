@@ -17,7 +17,10 @@ protocol AuthCoordinatorDelegate: AnyObject {
 /// A coordinator that manages navigation in the authentication flow.
 ///
 internal final class AuthCoordinator: Coordinator {
-    typealias Services = HasAuthAPIService
+    // MARK: Types
+    
+    typealias Services = HasAPIService
+        & HasAuthAPIService
 
     // MARK: Properties
 
@@ -131,6 +134,7 @@ internal final class AuthCoordinator: Coordinator {
     private func showLogin(state: LoginState) {
         let processor = LoginProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: state
         )
         let store = Store(processor: processor)
