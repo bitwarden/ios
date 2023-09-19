@@ -6,17 +6,17 @@ import UIKit
 /// displayed within a tab bar controller.
 ///
 public enum TabRoute: Int, Equatable, Hashable {
-    /// The generator tab.
-    case generator = 2
+    /// The vault tab.
+    case vault
 
     /// The send tab.
-    case send = 1
+    case send
+
+    /// The generator tab.
+    case generator
 
     /// The settings tab.
-    case settings = 3
-
-    /// The vault tab.
-    case vault = 0
+    case settings 
 }
 
 // MARK: - TabRepresentable
