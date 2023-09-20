@@ -23,13 +23,13 @@ protocol AccountAPIService {
 extension APIService: AccountAPIService {
     func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel {
         let request = CreateAccountRequest(body: body)
-        return try await apiService.send(request)
+        return try await identityService.send(request)
     }
 
     func preLogin(email: String) async throws -> PreLoginResponseModel {
         let body = PreLoginRequestBodyModel(email: email)
         let request = PreLoginRequest(body: body)
-        let response = try await apiService.send(request)
+        let response = try await identityService.send(request)
         return response
     }
 }
