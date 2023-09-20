@@ -10,6 +10,8 @@ class AccountAPIServiceTests: BitwardenTestCase {
     var client: MockHTTPClient!
     var subject: APIService!
 
+    // MARK: Setup & Teardown
+
     override func setUp() {
         super.setUp()
         client = MockHTTPClient()
@@ -22,7 +24,7 @@ class AccountAPIServiceTests: BitwardenTestCase {
         subject = nil
     }
 
-    // MARK: Account creation
+    // MARK: Tests
 
     /// `createNewAccount(email:masterPasswordHash)` throws an error if the request fails.
     func test_create_account_httpFailure() async {
@@ -67,8 +69,27 @@ class AccountAPIServiceTests: BitwardenTestCase {
 
         let request = try XCTUnwrap(client.requests.first)
         XCTAssertEqual(request.method, .post)
-        XCTAssertEqual(request.url.relativePath, "/api/accounts/register")
+        XCTAssertEqual(request.url.relativePath, "/identity/accounts/register")
         XCTAssertEqual(successfulResponse.captchaBypassToken, "captchaBypassToken")
         XCTAssertNotNil(request.body)
+    }
+
+    func test_preLogin_httpFailure() async throws {
+        client.result = .httpFailure(BitwardenTestError.example)
+
+        await assertAsyncThrows {
+            _ = try await subject.preLogin(email: "email@example.com")
+        }
+    }
+
+    /// `preLogin(email:)` returns the correct value from the API with a successful request.
+    func test_preLogin_success() async throws {
+        client.result = .httpSuccess(testData: .preLoginSuccess)
+
+        let response = try await subject.preLogin(email: "email@example.com")
+        XCTAssertEqual(response.kdf, .pbkdf2sha256)
+        XCTAssertEqual(response.kdfIterations, 600_000)
+        XCTAssertNil(response.kdfMemory)
+        XCTAssertNil(response.kdfParallelism)
     }
 }
