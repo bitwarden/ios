@@ -19,7 +19,7 @@ protocol AuthCoordinatorDelegate: AnyObject {
 internal final class AuthCoordinator: Coordinator {
     // MARK: Types
     
-    typealias Services = HasAPIService
+    typealias Services = HasAccountAPIService
         & HasAuthAPIService
 
     // MARK: Properties

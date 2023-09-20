@@ -1,8 +1,16 @@
 /// The services provided by the `ServiceContainer`.
-typealias Services = HasAPIService
+typealias Services = HasAccountAPIService
+    & HasAPIService
     & HasAppIdService
     & HasAppSettingsStore
     & HasAuthAPIService
+
+/// Protocol for an object that provides an `AccountAPIService`.
+///
+protocol HasAccountAPIService {
+    /// The services used by the application to make account related API requests.
+    var accountAPIService: AccountAPIService { get }
+}
 
 /// Protocol for an object that provides an `APIService`.
 ///

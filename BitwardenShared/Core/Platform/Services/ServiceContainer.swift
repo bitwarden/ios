@@ -52,6 +52,10 @@ public class ServiceContainer: Services {
 }
 
 extension ServiceContainer {
+    var accountAPIService: AccountAPIService {
+        apiService
+    }
+
     var authAPIService: AuthAPIService {
         apiService
     }
