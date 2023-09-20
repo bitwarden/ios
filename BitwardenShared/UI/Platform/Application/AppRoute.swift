@@ -5,4 +5,7 @@
 public enum AppRoute: Equatable {
     /// A route to the authentication flow.
     case auth(AuthRoute)
+
+    /// A route to the tab interface.
+    case tab(TabRoute)
 }
