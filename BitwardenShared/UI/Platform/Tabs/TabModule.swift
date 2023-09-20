@@ -25,7 +25,7 @@ extension DefaultAppModule: TabModule {
         rootNavigator: RootNavigator,
         tabNavigator: TabNavigator
     ) -> AnyCoordinator<TabRoute> {
-        return TabCoordinator(
+        TabCoordinator(
             rootNavigator: rootNavigator,
             tabNavigator: tabNavigator
         ).asAnyCoordinator()
