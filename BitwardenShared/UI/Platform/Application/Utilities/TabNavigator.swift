@@ -42,10 +42,10 @@ extension UITabBarController: TabNavigator {
         viewControllers = tabs
             .sorted { $0.key.index < $1.key.index }
             .compactMap { tab in
-                let viewController = tab.value.rootViewController
-                viewController?.tabBarItem.title = tab.key.title
-                viewController?.tabBarItem.image = tab.key.image
-                viewController?.tabBarItem.selectedImage = tab.key.selectedImage
+                guard let viewController = tab.value.rootViewController else { return nil }
+                viewController.tabBarItem.title = tab.key.title
+                viewController.tabBarItem.image = tab.key.image
+                viewController.tabBarItem.selectedImage = tab.key.selectedImage
                 return viewController
             }
     }
