@@ -90,17 +90,16 @@ class LoginViewTests: BitwardenTestCase {
     }
 
     /// The text field is visible when `isMasterPasswordRevealed` is `true`.
-    func test_isMasterPasswordRevealed_true() throws {
+    func test_isMasterPasswordRevealed_true() {
         processor.state.isMasterPasswordRevealed = true
-        let textField = try subject.inspect().find(textField: "")
-        XCTAssertTrue(textField.isHidden())
-        XCTAssertNoThrow(try subject.inspect().find(secureField: ""))
+        XCTAssertNoThrow(try subject.inspect().find(textField: ""))
+        XCTAssertThrowsError(try subject.inspect().find(secureField: ""))
     }
 
     /// Updating the text field dispatches the `.masterPasswordChanged()` action.
     func test_textField_updateValue() throws {
         processor.state.isMasterPasswordRevealed = true
-        let textField = try subject.inspect().find(secureField: "")
+        let textField = try subject.inspect().find(textField: "")
         try textField.setInput("text")
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordChanged("text"))
     }

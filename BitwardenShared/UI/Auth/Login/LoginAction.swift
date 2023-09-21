@@ -24,5 +24,5 @@ enum LoginAction: Equatable {
     case notYouPressed
 
     /// The reveal master password field button was pressed.
-    case revealMasterPasswordFieldPressed
+    case revealMasterPasswordFieldPressed(Bool)
 }

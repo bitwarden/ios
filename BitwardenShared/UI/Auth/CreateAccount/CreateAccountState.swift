@@ -29,7 +29,7 @@ struct CreateAccountState: Equatable {
     var retypePasswordText: String = ""
 
     /// The password visibility icon used in the view's text fields.
-    var passwordVisibleIcon: Image {
-        arePasswordsVisible ? Image(asset: Asset.Images.eyeSlash) : Image(asset: Asset.Images.eye)
+    var passwordVisibleIcon: ImageAsset {
+        arePasswordsVisible ? Asset.Images.eyeSlash : Asset.Images.eye
     }
 }

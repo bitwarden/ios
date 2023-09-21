@@ -11,7 +11,7 @@ struct BitwardenTextField: View {
     let contentType: UITextContentType
 
     /// An optional trailing icon.
-    let icon: Image?
+    let icon: ImageAsset?
 
     /// Whether a password in this text field is visible.
     @Binding var isPasswordVisible: Bool
@@ -73,7 +73,7 @@ struct BitwardenTextField: View {
             Button {
                 isPasswordVisible.toggle()
             } label: {
-                icon
+                Image(asset: icon)
                     .resizable()
                     .frame(width: 24, height: 24)
                     .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
@@ -106,7 +106,7 @@ struct BitwardenTextField: View {
     ///
     init(
         title: String? = nil,
-        icon: Image? = nil,
+        icon: ImageAsset? = nil,
         contentType: UITextContentType,
         isPasswordVisible: Binding<Bool>? = nil,
         text: Binding<String>
@@ -126,7 +126,7 @@ struct BitwardenTextField_Previews: PreviewProvider {
     static var previews: some View {
         BitwardenTextField(
             title: "Title",
-            icon: Image(asset: Asset.Images.eye),
+            icon: Asset.Images.eye,
             contentType: .emailAddress,
             isPasswordVisible: .constant(false),
             text: .constant("Text field text")
