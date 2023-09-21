@@ -1,0 +1,5 @@
+{
+    "error": "invalid_grant",
+    "error_description": "Captcha required.",
+    "HCaptcha_SiteKey": "1234"
+}

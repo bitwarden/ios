@@ -63,4 +63,27 @@ class AuthAPIServiceTests: BitwardenTestCase {
             )
         )
     }
+
+    /// `getIdentityToken()` throws a `.captchaRequired` error when a `400` http response with the correct data
+    /// is returned.
+    func test_getIdentityToken_captchaError() async throws {
+        client.result = .httpFailure(
+            statusCode: 400,
+            data: APITestData.identityTokenCaptchaError.data
+        )
+
+        do {
+            _ = try await subject.getIdentityToken(
+                IdentityTokenRequestModel(
+                    authenticationMethod: .password(username: "username", password: "password"),
+                    captchaToken: nil,
+                    clientType: .mobile,
+                    deviceInfo: .fixture()
+                )
+            )
+            XCTFail("`getIdentityToken(_:)` should have thrown a captcha error.")
+        } catch {
+            XCTAssertEqual(error as? IdentityTokenRequestError, .captchaRequired(hCaptchaSiteCode: "1234"))
+        }
+    }
 }

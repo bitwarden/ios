@@ -1,3 +1,4 @@
+import Networking
 import XCTest
 
 @testable import BitwardenShared
@@ -91,5 +92,46 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     func test_query() {
         XCTAssertTrue(subjectAuthorizationCode.query.isEmpty)
         XCTAssertTrue(subjectPassword.query.isEmpty)
+    }
+
+    /// `validate(_:)` with a `400` status code and captcha error in the response body throws a `.captchaRequired` error.
+    func test_validate_with400CaptchaError() {
+        let response = HTTPResponse(
+            url: URL(string: "example.com")!,
+            statusCode: 400,
+            headers: [:],
+            body: APITestData.identityTokenCaptchaError.data,
+            requestID: UUID()
+        )
+
+        XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
+            XCTAssertEqual(error as? IdentityTokenRequestError, .captchaRequired(hCaptchaSiteCode: "1234"))
+        }
+    }
+
+    /// `validate(_:)` with a `400` status code but no captcha error does not throw a validation error.
+    func test_validate_with400NonCaptchaError() {
+        let response = HTTPResponse(
+            url: URL(string: "example.com")!,
+            statusCode: 400,
+            headers: [:],
+            body: Data("example data".utf8),
+            requestID: UUID()
+        )
+
+        XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))
+    }
+
+    /// `validate(_:)` with a valid response does not throw a validation error.
+    func test_validate_with200() {
+        let response = HTTPResponse(
+            url: URL(string: "example.com")!,
+            statusCode: 200,
+            headers: [:],
+            body: APITestData.identityToken.data,
+            requestID: UUID()
+        )
+
+        XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))
     }
 }
