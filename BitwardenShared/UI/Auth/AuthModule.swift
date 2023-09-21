@@ -31,6 +31,7 @@ extension DefaultAppModule: AuthModule {
         AuthCoordinator(
             delegate: delegate,
             rootNavigator: rootNavigator,
+            services: services,
             stackNavigator: stackNavigator
         ).asAnyCoordinator()
     }

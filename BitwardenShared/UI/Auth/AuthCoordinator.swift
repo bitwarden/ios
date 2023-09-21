@@ -17,6 +17,8 @@ protocol AuthCoordinatorDelegate: AnyObject {
 /// A coordinator that manages navigation in the authentication flow.
 ///
 internal final class AuthCoordinator: Coordinator {
+    typealias Services = HasAuthAPIService
+
     // MARK: Properties
 
     /// The delegate for this coordinator. Used to signal when auth has been completed.
@@ -24,6 +26,9 @@ internal final class AuthCoordinator: Coordinator {
 
     /// The root navigator used to display this coordinator's interface.
     weak var rootNavigator: (any RootNavigator)?
+
+    /// The services used by this coordinator.
+    let services: Services
 
     /// The stack navigator that is managed by this coordinator.
     var stackNavigator: StackNavigator
@@ -35,15 +40,18 @@ internal final class AuthCoordinator: Coordinator {
     /// - Parameters:
     ///   - delegate: The delegate for this coordinator. Used to signal when auth has been completed.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
+    ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
         delegate: AuthCoordinatorDelegate,
         rootNavigator: RootNavigator,
+        services: Services,
         stackNavigator: StackNavigator
     ) {
         self.delegate = delegate
         self.rootNavigator = rootNavigator
+        self.services = services
         self.stackNavigator = stackNavigator
     }
 

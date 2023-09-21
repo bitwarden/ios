@@ -49,7 +49,8 @@ class AppCoordinator: Coordinator {
     }
 
     func start() {
-        showAuth(route: .landing)
+        // Nothing to do here - the initial route is specified by `AppProcessor` and this
+        // coordinator doesn't need to navigate within the `Navigator` since it's the root.
     }
 
     // MARK: Private Methods
