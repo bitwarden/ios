@@ -76,10 +76,10 @@ class LoginProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.revealMasterPasswordFieldPressed` updates the state to reflect the changes.
     func test_receive_revealMasterPasswordFieldPressed() {
         subject.state.isMasterPasswordRevealed = false
-        subject.receive(.revealMasterPasswordFieldPressed)
+        subject.receive(.revealMasterPasswordFieldPressed(true))
         XCTAssertTrue(subject.state.isMasterPasswordRevealed)
 
-        subject.receive(.revealMasterPasswordFieldPressed)
+        subject.receive(.revealMasterPasswordFieldPressed(false))
         XCTAssertFalse(subject.state.isMasterPasswordRevealed)
     }
 }

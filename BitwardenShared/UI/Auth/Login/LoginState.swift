@@ -14,6 +14,11 @@ struct LoginState: Equatable {
     /// A flag indicating if the login with device button should be displayed or not.
     var isLoginWithDeviceVisible: Bool = false
 
+    /// The password visibility icon used in the view's text field.
+    var passwordVisibleIcon: ImageAsset {
+        isMasterPasswordRevealed ? Asset.Images.eyeSlash : Asset.Images.eye
+    }
+
     /// The username provided by the user on the landing screen.
     var username: String = ""
 
