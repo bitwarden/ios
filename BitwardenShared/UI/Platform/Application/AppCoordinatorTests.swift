@@ -71,10 +71,10 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.tabCoordinator.routes, [.vault, .vault])
     }
 
-    /// `start()` initializes the interface correctly.
+    /// `start()` doesn't navigate anywhere (first route is managed by AppProcessor).
     func test_start() {
         subject.start()
 
-        XCTAssertTrue(module.authCoordinator.isStarted)
+        XCTAssertFalse(module.authCoordinator.isStarted)
     }
 }

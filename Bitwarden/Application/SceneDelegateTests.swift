@@ -1,7 +1,7 @@
-import BitwardenShared
 import XCTest
 
 @testable import Bitwarden
+@testable import BitwardenShared
 
 // MARK: - SceneDelegateTests
 
@@ -17,7 +17,6 @@ class SceneDelegateTests: BitwardenTestCase {
         super.setUp()
         appModule = MockAppModule()
         subject = SceneDelegate()
-        subject.appModule = appModule
     }
 
     override func tearDown() {
@@ -30,6 +29,9 @@ class SceneDelegateTests: BitwardenTestCase {
 
     /// `scene(_:willConnectTo:options:)` with a `UIWindowScene` creates the app's UI.
     func test_sceneWillConnectTo_withWindowScene() throws {
+        let appProcessor = AppProcessor(appModule: appModule, services: ServiceContainer())
+        (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
+
         let session = TestInstanceFactory.create(UISceneSession.self)
         let scene = TestInstanceFactory.create(UIWindowScene.self, properties: [
             "session": session,
@@ -37,13 +39,16 @@ class SceneDelegateTests: BitwardenTestCase {
         let options = TestInstanceFactory.create(UIScene.ConnectionOptions.self)
         subject.scene(scene, willConnectTo: session, options: options)
 
-        XCTAssertNotNil(subject.appCoordinator)
+        XCTAssertNotNil(appProcessor.coordinator)
         XCTAssertNotNil(subject.window)
         XCTAssertTrue(appModule.appCoordinator.isStarted)
     }
 
     /// `scene(_:willConnectTo:options:)` without a `UIWindowScene` fails to create the app's UI.
     func test_sceneWillConnectTo_withNonWindowScene() throws {
+        let appProcessor = AppProcessor(appModule: appModule, services: ServiceContainer())
+        (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
+
         let session = TestInstanceFactory.create(UISceneSession.self)
         let scene = TestInstanceFactory.create(UIScene.self, properties: [
             "session": session,
@@ -51,7 +56,7 @@ class SceneDelegateTests: BitwardenTestCase {
         let options = TestInstanceFactory.create(UIScene.ConnectionOptions.self)
         subject.scene(scene, willConnectTo: session, options: options)
 
-        XCTAssertNil(subject.appCoordinator)
+        XCTAssertNil(appProcessor.coordinator)
         XCTAssertNil(subject.window)
         XCTAssertFalse(appModule.appCoordinator.isStarted)
     }

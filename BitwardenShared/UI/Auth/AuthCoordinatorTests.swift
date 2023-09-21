@@ -23,6 +23,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         subject = AuthCoordinator(
             delegate: authDelegate,
             rootNavigator: rootNavigator,
+            services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
     }
@@ -122,6 +123,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         subject = AuthCoordinator(
             delegate: authDelegate,
             rootNavigator: rootNavigator!,
+            services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
         XCTAssertNotNil(subject.rootNavigator)
