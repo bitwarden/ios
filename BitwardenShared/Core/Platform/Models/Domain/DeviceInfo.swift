@@ -10,5 +10,5 @@ struct DeviceInfo {
     let name: String
 
     /// The device's type.
-    let type: DeviceType
+    let type: DeviceType = Constants.deviceType
 }

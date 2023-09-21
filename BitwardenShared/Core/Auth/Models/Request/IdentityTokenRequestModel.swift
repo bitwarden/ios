@@ -23,9 +23,6 @@ struct IdentityTokenRequestModel {
     /// The response token returned from the captcha provider.
     let captchaToken: String?
 
-    /// The client type.
-    let clientType: ClientType
-
     /// The device's details.
     let deviceInfo: DeviceInfo
 }
@@ -36,11 +33,11 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
 
         queryItems.append(contentsOf: [
             URLQueryItem(name: "scope", value: "api offline_access"),
-            URLQueryItem(name: "client_id", value: clientType.stringValue),
+            URLQueryItem(name: "client_id", value: Constants.clientType),
 
             URLQueryItem(name: "deviceIdentifier", value: deviceInfo.identifier),
             URLQueryItem(name: "deviceName", value: deviceInfo.name),
-            URLQueryItem(name: "deviceType", value: String(deviceInfo.type.rawValue)),
+            URLQueryItem(name: "deviceType", value: String(deviceInfo.type)),
         ])
 
         switch authenticationMethod {

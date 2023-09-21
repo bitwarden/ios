@@ -21,7 +21,6 @@ class IdentityTokenRequestTests: BitwardenTestCase {
                     redirectUri: "redirectUri"
                 ),
                 captchaToken: "captchaToken",
-                clientType: .mobile,
                 deviceInfo: .fixture()
             )
         )
@@ -30,7 +29,6 @@ class IdentityTokenRequestTests: BitwardenTestCase {
             requestModel: IdentityTokenRequestModel(
                 authenticationMethod: .password(username: "user@example.com", password: "password"),
                 captchaToken: "captchaToken",
-                clientType: .mobile,
                 deviceInfo: .fixture()
             )
         )

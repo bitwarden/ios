@@ -3,13 +3,11 @@
 extension DeviceInfo {
     static func fixture(
         identifier: String = "1234",
-        name: String = "iPhone 14",
-        type: DeviceType = .iOS
+        name: String = "iPhone 14"
     ) -> DeviceInfo {
         DeviceInfo(
             identifier: identifier,
-            name: name,
-            type: type
+            name: name
         )
     }
 }

@@ -20,14 +20,12 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 redirectUri: "redirectUri"
             ),
             captchaToken: "captchaToken",
-            clientType: .mobile,
             deviceInfo: .fixture()
         )
 
         subjectPassword = IdentityTokenRequestModel(
             authenticationMethod: .password(username: "user@example.com", password: "password"),
             captchaToken: "captchaToken",
-            clientType: .mobile,
             deviceInfo: .fixture()
         )
     }
@@ -85,7 +83,6 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         let subject = IdentityTokenRequestModel(
             authenticationMethod: .password(username: "user@example.com", password: "password"),
             captchaToken: nil,
-            clientType: .mobile,
             deviceInfo: .fixture()
         )
         let valuesByKey = valuesByKey(subject.values)
