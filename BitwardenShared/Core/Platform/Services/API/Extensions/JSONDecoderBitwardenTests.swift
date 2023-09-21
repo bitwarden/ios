@@ -6,7 +6,7 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `JSONDecoder.defaultDecoder` can decode ISO8601 dates with fractional seconds.
-    func test_decode_iso8601DateWithFractionalSeconds() {
+    func test_defaultDecoder_decodesISO8601DateWithFractionalSeconds() {
         let subject = JSONDecoder.defaultDecoder
 
         XCTAssertEqual(
@@ -22,7 +22,7 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
     }
 
     /// `JSONDecoder.defaultDecoder` can decode ISO8601 dates without fractional seconds.
-    func test_decode_iso8601DateWithoutFractionalSeconds() {
+    func test_defaultDecoder_decodesISO8601DateWithoutFractionalSeconds() {
         let subject = JSONDecoder.defaultDecoder
 
         XCTAssertEqual(
@@ -39,7 +39,7 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
 
     /// `JSONDecoder.defaultDecoder` will throw an error if an invalid or unsupported date format is
     /// encountered.
-    func test_decode_invalidDateThrowsError() {
+    func test_defaultDecoder_decodesInvalidDateThrowsError() {
         let subject = JSONDecoder.defaultDecoder
 
         func assertThrowsDataCorruptedError(
@@ -68,5 +68,28 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
         assertThrowsDataCorruptedError(dateString: "2023-08-23")
         assertThrowsDataCorruptedError(dateString: "🔒")
         assertThrowsDataCorruptedError(dateString: "date")
+    }
+
+    /// `JSONDecoder.pascalOrSnakeCaseDecoder` handles decoding keys that use pascal, snake or
+    /// camel case.
+    func test_pascalOrSnakeCaseDecoder() throws {
+        let json = """
+        {
+            "camelCase": "camel",
+            "PascalCase": "pascal",
+            "snake_case": "snake"
+        }
+        """
+
+        struct Casing: Codable, Equatable {
+            let camelCase: String
+            let pascalCase: String
+            let snakeCase: String
+        }
+
+        let subject = JSONDecoder.pascalOrSnakeCaseDecoder
+        let casing = try subject.decode(Casing.self, from: Data(json.utf8))
+
+        XCTAssertEqual(casing, Casing(camelCase: "camel", pascalCase: "pascal", snakeCase: "snake"))
     }
 }

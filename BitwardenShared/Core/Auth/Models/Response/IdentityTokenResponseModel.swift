@@ -4,43 +4,7 @@ import Networking
 /// API response model for the identity token request.
 ///
 struct IdentityTokenResponseModel: JSONResponse, Equatable {
-    static var decoder: JSONDecoder = {
-        struct AnyKey: CodingKey {
-            var stringValue: String
-            var intValue: Int?
-
-            init(stringValue: String) {
-                self.stringValue = stringValue
-                intValue = nil
-            }
-
-            init(intValue: Int) {
-                stringValue = String(intValue)
-                self.intValue = intValue
-            }
-        }
-
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .custom { keys in
-            // A custom key decoding strategy that handles snake_case, PascalCase or camelCase.
-
-            let key = keys.last!.stringValue
-            let camelCaseKey: String
-            if key.contains("_") {
-                // Handle snake_case.
-                camelCaseKey = key.lowercased()
-                    .split(separator: "_")
-                    .enumerated()
-                    .map { $0.offset > 0 ? $0.element.capitalized : $0.element.lowercased() }
-                    .joined()
-            } else {
-                // Handle PascalCase or camelCase.
-                camelCaseKey = key.prefix(1).lowercased() + key.dropFirst()
-            }
-            return AnyKey(stringValue: camelCaseKey)
-        }
-        return decoder
-    }()
+    static var decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 
     // MARK: Account Properties
 
