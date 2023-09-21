@@ -45,14 +45,13 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
     func test_values_authorizationCode() {
         let valuesByKey = valuesByKey(subjectAuthorizationCode.values)
 
-        XCTAssertEqual(valuesByKey.count, 11)
+        XCTAssertEqual(valuesByKey.count, 10)
 
         XCTAssertEqual(valuesByKey["scope"], "api offline_access")
         XCTAssertEqual(valuesByKey["client_id"], "mobile")
 
         XCTAssertEqual(valuesByKey["deviceIdentifier"], "1234")
         XCTAssertEqual(valuesByKey["deviceName"], "iPhone 14")
-        XCTAssertEqual(valuesByKey["devicePushToken"], "pushToken")
         XCTAssertEqual(valuesByKey["deviceType"], "1")
 
         XCTAssertEqual(valuesByKey["grant_type"], "authorization_code")
@@ -65,14 +64,13 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
     func test_values_password() {
         let valuesByKey = valuesByKey(subjectPassword.values)
 
-        XCTAssertEqual(valuesByKey.count, 10)
+        XCTAssertEqual(valuesByKey.count, 9)
 
         XCTAssertEqual(valuesByKey["scope"], "api offline_access")
         XCTAssertEqual(valuesByKey["client_id"], "mobile")
 
         XCTAssertEqual(valuesByKey["deviceIdentifier"], "1234")
         XCTAssertEqual(valuesByKey["deviceName"], "iPhone 14")
-        XCTAssertEqual(valuesByKey["devicePushToken"], "pushToken")
         XCTAssertEqual(valuesByKey["deviceType"], "1")
 
         XCTAssertEqual(valuesByKey["grant_type"], "password")

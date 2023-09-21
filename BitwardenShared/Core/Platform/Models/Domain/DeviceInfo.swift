@@ -9,9 +9,6 @@ struct DeviceInfo {
     /// The device's name.
     let name: String
 
-    /// The device's push token.
-    let pushToken: String?
-
     /// The device's type.
     let type: DeviceType
 }

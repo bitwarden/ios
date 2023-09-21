@@ -51,9 +51,8 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         XCTAssertEqual(
             String(data: bodyData, encoding: .utf8),
             "scope=api%20offline%5Faccess&client%5Fid=mobile&deviceIdentifier=1234&" +
-                "deviceName=iPhone%2014&devicePushToken=pushToken&deviceType=1&" +
-                "grant%5Ftype=authorization%5Fcode&code=code&code%5Fverifier=codeVerifier&" +
-                "redirect%5Furi=redirectUri&captchaResponse=captchaToken"
+                "deviceName=iPhone%2014&deviceType=1&grant%5Ftype=authorization%5Fcode&code=code&" +
+                "code%5Fverifier=codeVerifier&redirect%5Furi=redirectUri&captchaResponse=captchaToken"
         )
     }
 
@@ -63,9 +62,8 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         XCTAssertEqual(
             String(data: bodyData, encoding: .utf8),
             "scope=api%20offline%5Faccess&client%5Fid=mobile&deviceIdentifier=1234&" +
-                "deviceName=iPhone%2014&devicePushToken=pushToken&deviceType=1&" +
-                "grant%5Ftype=password&username=user%40example%2Ecom&password=password&" +
-                "captchaResponse=captchaToken"
+                "deviceName=iPhone%2014&deviceType=1&grant%5Ftype=password&" +
+                "username=user%40example%2Ecom&password=password&captchaResponse=captchaToken"
         )
     }
 
