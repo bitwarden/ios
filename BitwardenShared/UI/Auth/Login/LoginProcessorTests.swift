@@ -50,9 +50,7 @@ class LoginProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password.
     func test_receive_loginWithMasterPasswordPressed() {
         subject.receive(.loginWithMasterPasswordPressed)
-
-        // Temporary assertion until login functionality is added: BIT-132
-        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertEqual(coordinator.routes.last, .complete)
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.

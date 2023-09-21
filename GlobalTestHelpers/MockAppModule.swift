@@ -1,10 +1,11 @@
-import BitwardenShared
+@testable import BitwardenShared
 
 // MARK: - MockAppModule
 
-class MockAppModule: AppModule, AuthModule {
+class MockAppModule: AppModule, AuthModule, TabModule {
     var appCoordinator = MockCoordinator<AppRoute>()
     var authCoordinator = MockCoordinator<AuthRoute>()
+    var tabCoordinator = MockCoordinator<TabRoute>()
 
     func makeAppCoordinator(
         navigator: RootNavigator
@@ -13,9 +14,17 @@ class MockAppModule: AppModule, AuthModule {
     }
 
     func makeAuthCoordinator(
+        delegate: AuthCoordinatorDelegate,
         rootNavigator: RootNavigator,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<AuthRoute> {
         authCoordinator.asAnyCoordinator()
+    }
+
+    func makeTabCoordinator(
+        rootNavigator: RootNavigator,
+        tabNavigator: TabNavigator
+    ) -> AnyCoordinator<TabRoute> {
+        tabCoordinator.asAnyCoordinator()
     }
 }

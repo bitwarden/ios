@@ -4,12 +4,6 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     // MARK: Properties
 
-    /// The root module to use to create sub-coordinators.
-    var appModule: AppModule = DefaultAppModule()
-
-    /// The root coordinator of this scene.
-    var appCoordinator: AnyCoordinator<AppRoute>?
-
     /// The main window for this scene.
     var window: UIWindow?
 
@@ -20,18 +14,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        guard let windowScene = (scene as? UIWindowScene) else {
+        guard let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor,
+              let windowScene = scene as? UIWindowScene
+        else {
             return
         }
 
         let appWindow = UIWindow(windowScene: windowScene)
         let rootViewController = RootViewController()
-        let coordinator = appModule.makeAppCoordinator(navigator: rootViewController)
-        coordinator.start()
+        appProcessor.start(navigator: rootViewController)
 
         appWindow.rootViewController = rootViewController
         appWindow.makeKeyAndVisible()
-        appCoordinator = coordinator
         window = appWindow
     }
 }
