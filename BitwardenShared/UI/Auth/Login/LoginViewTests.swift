@@ -85,8 +85,11 @@ class LoginViewTests: BitwardenTestCase {
     }
 
     /// The secure field is visible when `isMasterPasswordRevealed` is `false`.
-    func test_isMasterPasswordRevealed_false() {
+    func test_isMasterPasswordRevealed_false() throws {
         processor.state.isMasterPasswordRevealed = false
+        XCTAssertNoThrow(try subject.inspect().find(secureField: ""))
+        let textField = try subject.inspect().find(textField: "")
+        XCTAssertTrue(textField.isHidden())
     }
 
     /// The text field is visible when `isMasterPasswordRevealed` is `true`.
