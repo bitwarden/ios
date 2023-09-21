@@ -19,7 +19,7 @@ protocol TokenService: AnyObject {
     ///   - accessToken: The account's updated access token.
     ///   - refreshToken: The account's updated refresh token.
     ///
-    func setTokens(accessToken: String, refreshToken: String) async
+    func setTokens(accessToken: String, refreshToken: String) async throws
 }
 
 // MARK: - TokenServiceError
@@ -38,26 +38,46 @@ enum TokenServiceError: Error {
 actor DefaultTokenService: TokenService {
     // MARK: Properties
 
-    /// The account's access token.
-    var accessToken: String?
+    /// The service that persists app settings.
+    let appSettingsStore: AppSettingsStore
 
-    /// The account's refresh token.
-    var refreshToken: String?
+    // MARK: Initialization
+
+    /// Initialize a `DefaultTokenService`.
+    ///
+    /// - Parameter appSettingsStore: The service that persists app settings.
+    ///
+    init(appSettingsStore: AppSettingsStore) {
+        self.appSettingsStore = appSettingsStore
+    }
 
     // MARK: Methods
 
     func getAccessToken() async throws -> String {
-        guard let accessToken else { throw TokenServiceError.noActiveAccount }
-        return accessToken
+        guard let account = appSettingsStore.state?.activeAccount else {
+            throw TokenServiceError.noActiveAccount
+        }
+        return account.tokens.accessToken
     }
 
     func getRefreshToken() async throws -> String {
-        guard let refreshToken else { throw TokenServiceError.noActiveAccount }
-        return refreshToken
+        guard let account = appSettingsStore.state?.activeAccount else {
+            throw TokenServiceError.noActiveAccount
+        }
+        return account.tokens.refreshToken
     }
 
-    func setTokens(accessToken: String, refreshToken: String) async {
-        self.accessToken = accessToken
-        self.refreshToken = refreshToken
+    func setTokens(accessToken: String, refreshToken: String) async throws {
+        guard var state = appSettingsStore.state,
+              let activeUserId = state.activeUserId
+        else {
+            throw TokenServiceError.noActiveAccount
+        }
+
+        state.accounts[activeUserId]?.tokens = Account.AccountTokens(
+            accessToken: accessToken,
+            refreshToken: refreshToken
+        )
+        appSettingsStore.state = state
     }
 }
