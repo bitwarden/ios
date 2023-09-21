@@ -105,6 +105,25 @@ class HTTPServiceTests: XCTestCase {
             XCTAssertTrue(error is RequestError)
         }
     }
+
+    /// `send(_:)` throws the error encountered when validating the response.
+    func test_sendRequest_validatesResponse() async {
+        let response = HTTPResponse(
+            url: URL(string: "example.com")!,
+            statusCode: 400,
+            headers: [:],
+            body: Data(),
+            requestID: UUID()
+        )
+        client.result = .success(response)
+
+        do {
+            _ = try await subject.send(TestRequest())
+            XCTFail("Expected send(_:) to throw an error")
+        } catch {
+            XCTAssertEqual(error as? TestError, .invalidResponse)
+        }
+    }
 }
 
 private struct RequestError: Error {}

@@ -65,6 +65,8 @@ public class HTTPService {
 
         var httpResponse = try await client.send(httpRequest)
 
+        try request.validate(httpResponse)
+
         logger.logResponse(httpResponse)
         for handler in responseHandlers {
             httpResponse = try await handler.handle(&httpResponse)

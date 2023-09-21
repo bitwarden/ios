@@ -5,6 +5,15 @@ import Foundation
 struct TestRequest: Request {
     typealias Response = TestResponse
     let path = "/test"
+
+    func validate(_ response: HTTPResponse) throws {
+        switch response.statusCode {
+        case 400:
+            throw TestError.invalidResponse
+        default:
+            return
+        }
+    }
 }
 
 struct TestResponse: Response {
