@@ -37,6 +37,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             state.retypePasswordText = text
         case let .toggleCheckDataBreaches(isOn: isToggleOn):
             state.isCheckDataBreachesToggleOn = isToggleOn
+        case .togglePasswordVisibility:
+            state.arePasswordsVisible.toggle()
         case let .toggleTermsAndPrivacy(isOn: isToggleOn):
             state.isTermsAndPrivacyToggleOn = isToggleOn
         }

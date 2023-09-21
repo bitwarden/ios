@@ -18,6 +18,9 @@ enum CreateAccountAction: Equatable {
     /// An action to toggle the data breach check.
     case toggleCheckDataBreaches(Bool)
 
+    /// An action to toggle whether passwords in text fields are visible.
+    case togglePasswordVisibility(Bool)
+
     /// An action to toggle the terms and privacy agreement.
     case toggleTermsAndPrivacy(Bool)
 }

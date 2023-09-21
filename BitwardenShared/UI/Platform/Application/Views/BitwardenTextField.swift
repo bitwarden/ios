@@ -8,65 +8,88 @@ struct BitwardenTextField: View {
     // MARK: Properties
 
     /// The text content type used for the text field.
-    var contentType: UITextContentType
+    let contentType: UITextContentType
 
     /// An optional trailing icon.
-    var icon: Image?
+    let icon: Image?
+
+    /// Whether a password in this text field is visible.
+    @Binding var isPasswordVisible: Bool
 
     /// The text entered into the text field.
     @Binding var text: String
 
     /// The title of the text field.
-    var title: String?
+    let title: String?
 
     // MARK: View
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                if let title {
-                    Text(title)
-                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                        .font(.system(.footnote))
-                }
+                textFieldTitle
 
-                ZStack {
-                    if contentType == .password {
-                        SecureField("", text: $text)
-                    } else {
-                        TextField("", text: $text)
-                            .textContentType(contentType)
-                    }
-
-                    HStack {
-                        Spacer()
-
-                        if !text.isEmpty {
-                            Button {
-                                text = ""
-                            } label: {
-                                Image(asset: Asset.Images.delete)
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                    }
-                }
+                textField
 
                 Divider()
             }
 
             Spacer()
 
-            VStack {
-                if let icon {
+            textFieldIcon
+        }
+    }
+
+    // MARK: Private views
+
+    /// The text field.
+    private var textField: some View {
+        ZStack {
+            TextField("", text: $text)
+                .textContentType(contentType)
+                .hidden(!isPasswordVisible && contentType == .password)
+            if contentType == .password, !isPasswordVisible {
+                SecureField("", text: $text)
+            }
+
+            HStack {
+                Spacer()
+
+                if !text.isEmpty {
                     Button {
-                        // Handled in BIT-272
+                        text = ""
                     } label: {
-                        icon
-                            .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
+                        Image(asset: Asset.Images.delete)
+                            .foregroundColor(.gray)
                     }
                 }
             }
+        }
+    }
+
+    /// The text field's trailing icon.
+    @ViewBuilder private var textFieldIcon: some View {
+        if let icon {
+            Button {
+                isPasswordVisible.toggle()
+            } label: {
+                icon
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
+                    .transaction { transaction in
+                        transaction.animation = nil
+                    }
+            }
+        }
+    }
+
+    /// The title of the text field.
+    @ViewBuilder private var textFieldTitle: some View {
+        if let title {
+            Text(title)
+                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                .font(.system(.footnote))
         }
     }
 
@@ -78,16 +101,19 @@ struct BitwardenTextField: View {
     ///   - title: The title of the text field.
     ///   - icon: The text field's icon.
     ///   - contentType: The text content type used for the text field.
+    ///   - isPasswordVisible: Whether or not the password in the text field is visible.
     ///   - text: The text entered into the text field.
     ///
     init(
         title: String? = nil,
         icon: Image? = nil,
         contentType: UITextContentType,
+        isPasswordVisible: Binding<Bool>? = nil,
         text: Binding<String>
     ) {
         self.contentType = contentType
         self.icon = icon
+        _isPasswordVisible = isPasswordVisible ?? .constant(false)
         _text = text
         self.title = title
     }
@@ -102,6 +128,7 @@ struct BitwardenTextField_Previews: PreviewProvider {
             title: "Title",
             icon: Image(asset: Asset.Images.eye),
             contentType: .emailAddress,
+            isPasswordVisible: .constant(false),
             text: .constant("Text field text")
         )
         .padding()
@@ -110,6 +137,7 @@ struct BitwardenTextField_Previews: PreviewProvider {
         BitwardenTextField(
             title: "Title",
             contentType: .emailAddress,
+            isPasswordVisible: .constant(true),
             text: .constant("Text field text")
         )
         .padding()
