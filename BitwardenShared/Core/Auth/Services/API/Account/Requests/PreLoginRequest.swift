@@ -7,7 +7,7 @@ import Networking
 struct PreLoginRequest: Request {
     typealias Response = PreLoginResponseModel
 
-    let body: PreLoginRequestBodyModel?
+    let body: PreLoginRequestModel?
 
     let method = HTTPMethod.post
 
@@ -17,7 +17,7 @@ struct PreLoginRequest: Request {
     ///
     /// - Parameter body: The body of this request.
     ///
-    init(body: PreLoginRequestBodyModel) {
+    init(body: PreLoginRequestModel) {
         self.body = body
     }
 }

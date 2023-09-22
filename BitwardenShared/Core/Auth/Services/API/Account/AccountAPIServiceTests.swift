@@ -74,6 +74,7 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertNotNil(request.body)
     }
 
+    /// `preLogin(email:)` throws an error is the request fails.
     func test_preLogin_httpFailure() async throws {
         client.result = .httpFailure(BitwardenTestError.example)
 

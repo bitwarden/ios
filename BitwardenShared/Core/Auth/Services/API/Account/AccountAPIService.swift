@@ -27,7 +27,7 @@ extension APIService: AccountAPIService {
     }
 
     func preLogin(email: String) async throws -> PreLoginResponseModel {
-        let body = PreLoginRequestBodyModel(email: email)
+        let body = PreLoginRequestModel(email: email)
         let request = PreLoginRequest(body: body)
         let response = try await identityService.send(request)
         return response

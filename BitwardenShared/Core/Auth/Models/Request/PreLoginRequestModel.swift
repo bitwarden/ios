@@ -5,7 +5,7 @@ import Networking
 
 /// The request body for a pre login request.
 ///
-struct PreLoginRequestBodyModel: JSONRequestBody, Equatable {
+struct PreLoginRequestModel: JSONRequestBody, Equatable {
     // MARK: Static Properties
 
     static let encoder = JSONEncoder()
