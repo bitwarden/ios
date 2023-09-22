@@ -26,10 +26,13 @@ class APIService {
     ///   - baseUrlService: The service to get base urls used for all requests in this service.
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
+    ///   - tokenService: The `TokenService` which manages accessing and updating the active
+    ///     account's tokens.
     ///
     init(
         baseUrlService: BaseUrlService,
-        client: HTTPClient = URLSession.shared
+        client: HTTPClient = URLSession.shared,
+        tokenService: TokenService
     ) {
         let defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
             appName: Bundle.main.appName,
@@ -38,10 +41,20 @@ class APIService {
             systemDevice: UIDevice.current
         )
 
+        let accountTokenProvider = AccountTokenProvider(
+            httpService: HTTPService(
+                baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/identity") },
+                client: client,
+                requestHandlers: [defaultHeadersRequestHandler]
+            ),
+            tokenService: tokenService
+        )
+
         apiService = HTTPService(
             baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/api") },
             client: client,
-            requestHandlers: [defaultHeadersRequestHandler]
+            requestHandlers: [defaultHeadersRequestHandler],
+            tokenProvider: accountTokenProvider
         )
         eventsService = HTTPService(
             baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/events") },
