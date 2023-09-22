@@ -7,6 +7,7 @@ import XCTest
 class LoginProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var client: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute>!
     var subject: LoginProcessor!
 
@@ -15,19 +16,32 @@ class LoginProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        client = MockHTTPClient()
         subject = LoginProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(httpClient: client),
             state: LoginState()
         )
     }
 
     override func tearDown() {
         super.tearDown()
+        client = nil
         coordinator = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password.
+    func test_perform_loginWithMasterPasswordPressed() async {
+        client.result = .httpSuccess(testData: .preLoginSuccess)
+        subject.state.username = "email@example.com"
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests.first?.body, Data("{\"email\":\"email@example.com\"}".utf8))
+    }
 
     /// `receive(_:)` with `.enterpriseSingleSignOnPressed` navigates to the enterprise single sign-on screen.
     func test_receive_enterpriseSingleSignOnPressed() {
@@ -45,12 +59,6 @@ class LoginProcessorTests: BitwardenTestCase {
     func test_receive_loginWithDevicePressed() {
         subject.receive(.loginWithDevicePressed)
         XCTAssertEqual(coordinator.routes.last, .loginWithDevice)
-    }
-
-    /// `receive(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password.
-    func test_receive_loginWithMasterPasswordPressed() {
-        subject.receive(.loginWithMasterPasswordPressed)
-        XCTAssertEqual(coordinator.routes.last, .complete)
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.

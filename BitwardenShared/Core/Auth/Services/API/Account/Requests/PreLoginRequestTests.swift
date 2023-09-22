@@ -7,14 +7,14 @@ import XCTest
 class PreLoginRequestTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `body` is `nil`.
+    /// `body` is the value passed into the initializer.
     func test_body() {
         let body = PreLoginRequestBodyModel(email: "email@example.com")
         let subject = PreLoginRequest(body: body)
         XCTAssertEqual(body, subject.body)
     }
 
-    /// `method` is `.get`.
+    /// `method` is `.post`.
     func test_method() {
         let subject = PreLoginRequest(body: PreLoginRequestBodyModel(email: ""))
         XCTAssertEqual(subject.method, .post)
@@ -23,7 +23,7 @@ class PreLoginRequestTests: BitwardenTestCase {
     /// `path` is the correct value.
     func test_path() {
         let subject = PreLoginRequest(body: PreLoginRequestBodyModel(email: ""))
-        XCTAssertEqual(subject.path, "/account/prelogin")
+        XCTAssertEqual(subject.path, "/accounts/prelogin")
     }
 
     /// `query` is empty.

@@ -2,7 +2,7 @@
 
 /// The processor used to manage state and handle actions for the login screen.
 ///
-class LoginProcessor: StateProcessor<LoginState, LoginAction, Void> {
+class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -35,6 +35,13 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, Void> {
 
     // MARK: Methods
 
+    override func perform(_ effect: LoginEffect) async {
+        switch effect {
+        case .loginWithMasterPasswordPressed:
+            await loginWithMasterPassword()
+        }
+    }
+
     override func receive(_ action: LoginAction) {
         switch action {
         case .enterpriseSingleSignOnPressed:
@@ -43,10 +50,6 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, Void> {
             coordinator.navigate(to: .masterPasswordHint)
         case .loginWithDevicePressed:
             coordinator.navigate(to: .loginWithDevice)
-        case .loginWithMasterPasswordPressed:
-            Task {
-                await loginWithMasterPassword()
-            }
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
         case .morePressed:
@@ -60,6 +63,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, Void> {
 
     // MARK: Private Methods
 
+    /// Attempts to log the user in with the email address and password values found in `state`.
+    ///
     private func loginWithMasterPassword() async {
         do {
             let response = try await services.apiService.preLogin(email: state.username)
