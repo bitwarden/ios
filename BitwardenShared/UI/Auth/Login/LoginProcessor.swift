@@ -2,11 +2,18 @@
 
 /// The processor used to manage state and handle actions for the login screen.
 ///
-class LoginProcessor: StateProcessor<LoginState, LoginAction, Void> {
+class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
+    // MARK: Types
+
+    typealias Services = HasAccountAPIService
+
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<AuthRoute>
+
+    /// The services used by this processor.
+    private var services: Services
 
     // MARK: Initialization
 
@@ -16,12 +23,24 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, Void> {
     ///   - coordinator: The coordinator that handles navigation.
     ///   - state: The initial state of the processor.
     ///
-    init(coordinator: AnyCoordinator<AuthRoute>, state: LoginState) {
+    init(
+        coordinator: AnyCoordinator<AuthRoute>,
+        services: Services,
+        state: LoginState
+    ) {
         self.coordinator = coordinator
+        self.services = services
         super.init(state: state)
     }
 
     // MARK: Methods
+
+    override func perform(_ effect: LoginEffect) async {
+        switch effect {
+        case .loginWithMasterPasswordPressed:
+            await loginWithMasterPassword()
+        }
+    }
 
     override func receive(_ action: LoginAction) {
         switch action {
@@ -31,10 +50,6 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, Void> {
             coordinator.navigate(to: .masterPasswordHint)
         case .loginWithDevicePressed:
             coordinator.navigate(to: .loginWithDevice)
-        case .loginWithMasterPasswordPressed:
-            // Add login functionality here: BIT-132
-            print("login with master password")
-            coordinator.navigate(to: .complete)
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
         case .morePressed:
@@ -43,6 +58,20 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, Void> {
             coordinator.navigate(to: .landing)
         case .revealMasterPasswordFieldPressed:
             state.isMasterPasswordRevealed.toggle()
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// Attempts to log the user in with the email address and password values found in `state`.
+    ///
+    private func loginWithMasterPassword() async {
+        do {
+            let response = try await services.accountAPIService.preLogin(email: state.username)
+            coordinator.navigate(to: .complete)
+            // Encrypt the password with the kdf algorithm and send it to the server for verification: BIT-420
+        } catch {
+            // Error handling will be added in BIT-387
         }
     }
 }

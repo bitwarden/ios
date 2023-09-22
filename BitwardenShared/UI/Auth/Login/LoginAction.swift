@@ -11,9 +11,6 @@ enum LoginAction: Equatable {
     /// The login with device button was pressed.
     case loginWithDevicePressed
 
-    /// The login with master password button was pressed.
-    case loginWithMasterPasswordPressed
-
     /// The value for the master password was changed.
     case masterPasswordChanged(String)
 

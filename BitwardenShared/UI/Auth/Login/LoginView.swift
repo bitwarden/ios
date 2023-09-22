@@ -10,7 +10,7 @@ struct LoginView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<LoginState, LoginAction, Void>
+    @ObservedObject var store: Store<LoginState, LoginAction, LoginEffect>
 
     var body: some View {
         ScrollView {
@@ -35,7 +35,9 @@ struct LoginView: View {
                 .font(.system(.footnote))
 
                 Button {
-                    store.send(.loginWithMasterPasswordPressed)
+                    Task {
+                        await store.perform(.loginWithMasterPasswordPressed)
+                    }
                 } label: {
                     Text(Localizations.logInWithMasterPassword)
                         .bold()

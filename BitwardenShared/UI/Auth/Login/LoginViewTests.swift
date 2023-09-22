@@ -9,7 +9,7 @@ import XCTest
 class LoginViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<LoginState, LoginAction, Void>!
+    var processor: MockProcessor<LoginState, LoginAction, LoginEffect>!
     var subject: LoginView!
 
     // MARK: Setup & Teardown
@@ -33,7 +33,8 @@ class LoginViewTests: BitwardenTestCase {
     func test_loginButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.logInWithMasterPassword)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .loginWithMasterPasswordPressed)
+        waitFor(!processor.effects.isEmpty)
+        XCTAssertEqual(processor.effects.last, .loginWithMasterPasswordPressed)
     }
 
     /// Tapping the enterprise single sign-on button dispatches the `.enterpriseSingleSignOnPressed` action.
