@@ -1,9 +1,18 @@
+GIT
+  remote: https://github.com/BrunoMazzo/Danger-Slather.git
+  revision: 24bc70c35832874812e7f67e07e593c4b80358a6
+  ref: 24bc70c
+  specs:
+    danger-slather (0.0.6)
+      danger-plugin-api (~> 1.0)
+      slather (~> 2.3)
+
 GEM
   remote: https://rubygems.org/
   specs:
     CFPropertyList (3.0.6)
       rexml
-    activesupport (7.0.7.2)
+    activesupport (7.0.8)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -36,9 +45,6 @@ GEM
       terminal-table (>= 1, < 4)
     danger-plugin-api (1.0.0)
       danger (> 2.0)
-    danger-slather (0.0.6)
-      danger-plugin-api (~> 1.0)
-      slather (~> 2.3)
     danger-xcode_summary (1.2.0)
       danger-plugin-api (~> 1.0)
       xcresult (~> 0.2)
@@ -57,7 +63,7 @@ GEM
       rexml
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
-    minitest (5.19.0)
+    minitest (5.20.0)
     nanaimo (0.3.0)
     nap (1.1.0)
     no_proxy_fix (0.1.2)
@@ -103,7 +109,7 @@ PLATFORMS
 
 DEPENDENCIES
   danger
-  danger-slather
+  danger-slather!
   danger-xcode_summary
 
 BUNDLED WITH

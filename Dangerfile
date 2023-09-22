@@ -10,6 +10,7 @@ slather.configure(
       'BitwardenAutoFillExtension',
       'BitwardenShareExtension',
       'BitwardenShared',
+      'Networking',
     ],
     build_directory: 'build/DerivedData',
     # Ignore Swift Packages
