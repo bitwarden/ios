@@ -1,5 +1,5 @@
-import Foundation
 import Networking
+import UIKit
 
 /// A service used by the application to make API requests.
 ///
@@ -23,8 +23,27 @@ class APIService {
     ///     to `URLSession.shared`.
     ///
     init(client: HTTPClient = URLSession.shared) {
-        apiService = HTTPService(baseURL: URL(string: "https://vault.bitwarden.com/api")!, client: client)
-        eventsService = HTTPService(baseURL: URL(string: "https://vault.bitwarden.com/events")!, client: client)
-        identityService = HTTPService(baseURL: URL(string: "https://vault.bitwarden.com/identity")!, client: client)
+        let defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
+            appName: Bundle.main.appName,
+            appVersion: Bundle.main.appVersion,
+            buildNumber: Bundle.main.buildNumber,
+            systemDevice: UIDevice.current
+        )
+
+        apiService = HTTPService(
+            baseURL: URL(string: "https://vault.bitwarden.com/api")!,
+            client: client,
+            requestHandlers: [defaultHeadersRequestHandler]
+        )
+        eventsService = HTTPService(
+            baseURL: URL(string: "https://vault.bitwarden.com/events")!,
+            client: client,
+            requestHandlers: [defaultHeadersRequestHandler]
+        )
+        identityService = HTTPService(
+            baseURL: URL(string: "https://vault.bitwarden.com/identity")!,
+            client: client,
+            requestHandlers: [defaultHeadersRequestHandler]
+        )
     }
 }

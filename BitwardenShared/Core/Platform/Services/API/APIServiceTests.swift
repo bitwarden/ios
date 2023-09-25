@@ -22,11 +22,20 @@ class APIServiceTests: BitwardenTestCase {
     func test_init_defaultURLs() {
         let apiServiceBaseURL = subject.apiService.baseURL
         XCTAssertEqual(apiServiceBaseURL, URL(string: "https://vault.bitwarden.com/api")!)
+        XCTAssertTrue(
+            subject.apiService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
+        )
 
         let eventsServiceBaseURL = subject.eventsService.baseURL
         XCTAssertEqual(eventsServiceBaseURL, URL(string: "https://vault.bitwarden.com/events")!)
+        XCTAssertTrue(
+            subject.eventsService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
+        )
 
         let identityServiceBaseURL = subject.identityService.baseURL
         XCTAssertEqual(identityServiceBaseURL, URL(string: "https://vault.bitwarden.com/identity")!)
+        XCTAssertTrue(
+            subject.identityService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
+        )
     }
 }

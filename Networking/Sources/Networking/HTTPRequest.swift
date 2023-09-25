@@ -6,19 +6,19 @@ public struct HTTPRequest: Equatable {
     // MARK: Properties
 
     /// Data to be sent in the body of the request.
-    public let body: Data?
+    public var body: Data?
 
     /// Headers to be included in the request.
-    public let headers: [String: String]
+    public var headers: [String: String]
 
     /// The HTTP method of the request.
-    public let method: HTTPMethod
+    public var method: HTTPMethod
 
     /// A unique identifier for the request.
     public let requestID: UUID
 
     /// The URL for the request.
-    public let url: URL
+    public var url: URL
 
     // MARK: Initialization
 
