@@ -72,7 +72,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
             data: APITestData.identityTokenCaptchaError.data
         )
 
-        do {
+        await assertAsyncThrows(error: IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "1234")) {
             _ = try await subject.getIdentityToken(
                 IdentityTokenRequestModel(
                     authenticationMethod: .password(username: "username", password: "password"),
@@ -81,9 +81,6 @@ class AuthAPIServiceTests: BitwardenTestCase {
                     deviceInfo: .fixture()
                 )
             )
-            XCTFail("`getIdentityToken(_:)` should have thrown a captcha error.")
-        } catch {
-            XCTAssertEqual(error as? IdentityTokenRequestError, .captchaRequired(hCaptchaSiteCode: "1234"))
         }
     }
 }
