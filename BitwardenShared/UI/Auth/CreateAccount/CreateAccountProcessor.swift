@@ -4,7 +4,7 @@ import Combine
 
 /// The processor used to manage state and handle actions for the create account screen.
 ///
-class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAction, Void> {
+class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAction, CreateAccountEffect> {
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
@@ -25,8 +25,18 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
     // MARK: Methods
 
+    override func perform(_ effect: CreateAccountEffect) async {
+        switch effect {
+        case .createAccount:
+            // TODO: BIT-104
+            break
+        }
+    }
+
     override func receive(_ action: CreateAccountAction) {
         switch action {
+        case .dismiss:
+            coordinator.navigate(to: .dismiss)
         case let .emailTextChanged(text):
             state.emailText = text
         case let .passwordHintTextChanged(text):

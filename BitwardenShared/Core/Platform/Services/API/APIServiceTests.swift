@@ -32,6 +32,9 @@ class APIServiceTests: BitwardenTestCase {
             subject.eventsService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
         )
 
+        let hibpServiceBaseURL = subject.hibpService.baseURL
+        XCTAssertEqual(hibpServiceBaseURL, URL(string: "https://api.pwnedpasswords.com")!)
+
         let identityServiceBaseURL = subject.identityService.baseURL
         XCTAssertEqual(identityServiceBaseURL, URL(string: "https://vault.bitwarden.com/identity")!)
         XCTAssertTrue(

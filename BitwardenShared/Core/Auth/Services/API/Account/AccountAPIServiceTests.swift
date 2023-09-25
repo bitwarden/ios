@@ -74,6 +74,37 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertNotNil(request.body)
     }
 
+    /// `checkDataBreaches(password:)` returns the correct value from the API when the password
+    /// has been found in data breaches.
+    func test_password_foundInBreaches() async throws {
+        let resultData = APITestData.hibpLeakedPasswords
+        client.result = .httpSuccess(testData: resultData)
+
+        let password = "12345abcde"
+        let successfulResponse = try await subject.checkDataBreaches(password: password)
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .get)
+        XCTAssertEqual(request.url.relativePath, "/range/dec7d")
+        XCTAssertEqual(successfulResponse, 33288)
+    }
+
+    /// `checkDataBreaches(password:)` returns the correct value from the API when the password
+    /// has not been found in data breaches.
+    func test_password_notFoundInBreaches() async throws {
+        let resultData = APITestData.hibpLeakedPasswords
+        client.result = .httpSuccess(testData: resultData)
+
+        // Password that has not been found in breach.
+        let password = "iqpeor,kmn!JO8932jldfasd"
+        let successfulResponse = try await subject.checkDataBreaches(password: password)
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .get)
+        XCTAssertEqual(request.url.relativePath, "/range/c3ed8")
+        XCTAssertEqual(successfulResponse, 0)
+    }
+
     /// `preLogin(email:)` throws an error is the request fails.
     func test_preLogin_httpFailure() async throws {
         client.result = .httpFailure(BitwardenTestError.example)

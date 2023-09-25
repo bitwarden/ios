@@ -8,6 +8,9 @@ public enum AuthRoute: Equatable {
     /// A route to the create account screen.
     case createAccount
 
+    /// A route that dismisses a presented sheet.
+    case dismiss
+
     /// A route to the enterprise single sign-on screen.
     case enterpriseSingleSignOn
 
