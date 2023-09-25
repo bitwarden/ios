@@ -108,13 +108,7 @@ class HTTPServiceTests: XCTestCase {
 
     /// `send(_:)` throws the error encountered when validating the response.
     func test_sendRequest_validatesResponse() async {
-        let response = HTTPResponse(
-            url: URL(string: "example.com")!,
-            statusCode: 400,
-            headers: [:],
-            body: Data(),
-            requestID: UUID()
-        )
+        let response = HTTPResponse.failure(statusCode: 400)
         client.result = .success(response)
 
         do {
