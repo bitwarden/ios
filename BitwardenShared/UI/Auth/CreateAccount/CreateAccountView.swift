@@ -12,12 +12,12 @@ struct CreateAccountView: View {
 
     /// The privacy policy attributed string used in navigating to Bitwarden's Privacy Policy website.
     let privacyPolicyString: AttributedString? = try? AttributedString(
-        markdown: "[Privacy Policy](https://bitwarden.com/privacy/)"
+        markdown: ExternalLinksConstants.privacyPolicy
     )
 
     /// The terms of service attributed string used in navigating to Bitwarden's Terms of Service website.
     let termsOfServiceString: AttributedString? = try? AttributedString(
-        markdown: "[Terms of Service](https://bitwarden.com/terms/)"
+        markdown: ExternalLinksConstants.termsOfService
     )
 
     // MARK: View
