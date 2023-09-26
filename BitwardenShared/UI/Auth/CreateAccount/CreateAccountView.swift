@@ -10,6 +10,16 @@ struct CreateAccountView: View {
     /// The store used to render the view.
     @ObservedObject var store: Store<CreateAccountState, CreateAccountAction, Void>
 
+    /// The privacy policy attributed string used in navigating to Bitwarden's Privacy Policy website.
+    let privacyPolicyString: AttributedString? = try? AttributedString(
+        markdown: ExternalLinksConstants.privacyPolicy
+    )
+
+    /// The terms of service attributed string used in navigating to Bitwarden's Terms of Service website.
+    let termsOfServiceString: AttributedString? = try? AttributedString(
+        markdown: ExternalLinksConstants.termsOfService
+    )
+
     // MARK: View
 
     var body: some View {
@@ -127,14 +137,12 @@ struct CreateAccountView: View {
             .toggleStyle(
                 DescriptiveToggleStyle(
                     description: {
-                        VStack(alignment: .leading) {
-                            Text(Localizations.acceptPolicies)
-                                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                                .font(.system(.footnote))
-
-                            Text("Terms of Service, Privacy Policy")
-                                .font(.system(.footnote))
-                        }
+                        Text("\(Localizations.acceptPolicies)\n")
+                            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                            .font(.system(.footnote)) +
+                            Text("\(termsOfServiceString ?? ""), \(privacyPolicyString ?? "")")
+                            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                            .font(.system(.footnote))
                     }
                 )
             )
