@@ -1,3 +1,21 @@
+// MARK: - LoginProcessorDelegate
+
+/// An object that is signaled when specific circumstances in the captcha flow have been encountered.
+///
+protocol CaptchaFlowDelegate: AnyObject {
+    /// Called when the captcha flow has been completed successfully.
+    ///
+    /// - Parameter token: The token that was returned by hCaptcha.
+    ///
+    func captchaCompleted(token: String)
+
+    /// Called when the captcha flow encounters an error.
+    ///
+    /// - Parameter error: The error that was encountered.
+    ///
+    func captchaErrored(error: Error)
+}
+
 // MARK: - LoginProcessor
 
 /// The processor used to manage state and handle actions for the login screen.
@@ -6,6 +24,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     // MARK: Types
 
     typealias Services = HasAccountAPIService
+        & HasCaptchaService
 
     // MARK: Private Properties
 
@@ -63,6 +82,28 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
     // MARK: Private Methods
 
+    /// Generates the items needed and authenticates with the captcha flow.
+    ///
+    /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
+    ///   with hCaptcha.
+    ///
+    private func launchCaptchaFlow(with siteKey: String) async {
+        do {
+            let callbackUrlScheme = services.captchaService.callbackUrlScheme
+            let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
+            coordinator.navigate(
+                to: .captcha(
+                    url: url,
+                    callbackUrlScheme: callbackUrlScheme
+                ),
+                context: self
+            )
+        } catch {
+            // Error handling will be added in BIT-549
+            print(error)
+        }
+    }
+
     /// Attempts to log the user in with the email address and password values found in `state`.
     ///
     private func loginWithMasterPassword() async {
@@ -72,6 +113,24 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             // Encrypt the password with the kdf algorithm and send it to the server for verification: BIT-420
         } catch {
             // Error handling will be added in BIT-387
+
+            // Replace the siteKey with the actual siteKey if a captcha error is detected.
+            let siteKey = ""
+            await launchCaptchaFlow(with: siteKey)
         }
+    }
+}
+
+// MARK: CaptchaFlowDelegate
+
+extension LoginProcessor: CaptchaFlowDelegate {
+    func captchaCompleted(token: String) {
+        // Actually do something with the captcha token here, send the identity token request: BIT-420
+        print(token)
+    }
+
+    func captchaErrored(error: Error) {
+        // Error handling will be added in BIT-549
+        print(error)
     }
 }

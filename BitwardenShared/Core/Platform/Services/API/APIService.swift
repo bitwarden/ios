@@ -9,6 +9,9 @@ class APIService {
     /// The API service that is used for general requests.
     let apiService: HTTPService
 
+    /// The base url used for all requests in this service.
+    let baseUrl: URL
+
     /// The API service used for logging events.
     let eventsService: HTTPService
 
@@ -22,10 +25,16 @@ class APIService {
 
     /// Initialize an `APIService` used to make API requests.
     ///
-    /// - Parameter client: The underlying `HTTPClient` that performs the network request. Defaults
+    /// - Parameters:
+    ///   - baseUrl: The base url used for all requests in this service.
+    ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///
-    init(client: HTTPClient = URLSession.shared) {
+    init(
+        baseUrl: URL,
+        client: HTTPClient = URLSession.shared
+    ) {
+        self.baseUrl = baseUrl
         let defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
             appName: Bundle.main.appName,
             appVersion: Bundle.main.appVersion,
@@ -34,12 +43,12 @@ class APIService {
         )
 
         apiService = HTTPService(
-            baseURL: URL(string: "https://vault.bitwarden.com/api")!,
+            baseURL: baseUrl.appendingPathComponent("/api"),
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )
         eventsService = HTTPService(
-            baseURL: URL(string: "https://vault.bitwarden.com/events")!,
+            baseURL: baseUrl.appendingPathComponent("/events"),
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )
@@ -49,7 +58,7 @@ class APIService {
             requestHandlers: [defaultHeadersRequestHandler]
         )
         identityService = HTTPService(
-            baseURL: URL(string: "https://vault.bitwarden.com/identity")!,
+            baseURL: baseURL: baseUrl.appendingPathComponent("/identity"),
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )

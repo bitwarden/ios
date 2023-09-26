@@ -1,7 +1,12 @@
+import Foundation
+
 // MARK: - AuthRoute
 
 /// A route to a specific screen in the authentication flow.
 public enum AuthRoute: Equatable {
+    /// A route to the captcha screen.
+    case captcha(url: URL, callbackUrlScheme: String)
+
     /// Dismisses the auth flow.
     case complete
 

@@ -23,6 +23,8 @@ public class ServiceContainer: Services {
     /// The service used by the application to persist app setting values.
     let appSettingsStore: AppSettingsStore
 
+    let captchaService: CaptchaService
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -33,10 +35,12 @@ public class ServiceContainer: Services {
     ///
     init(
         apiService: APIService,
-        appSettingsStore: AppSettingsStore
+        appSettingsStore: AppSettingsStore,
+        captchaService: CaptchaService
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
+        self.captchaService = captchaService
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
     }
@@ -44,9 +48,12 @@ public class ServiceContainer: Services {
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
     public convenience init() {
+        let baseUrl = URL(string: "https://vault.bitwarden.com")!
+        let callbackUrlScheme = "bitwarden"
         self.init(
-            apiService: APIService(),
-            appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard)
+            apiService: APIService(baseUrl: baseUrl),
+            appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),
+            captchaService: DefaultCaptchaService(baseUrl: baseUrl, callbackUrlScheme: callbackUrlScheme)
         )
     }
 }

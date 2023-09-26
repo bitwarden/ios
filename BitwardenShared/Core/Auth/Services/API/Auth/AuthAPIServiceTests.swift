@@ -15,7 +15,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
 
         client = MockHTTPClient()
 
-        subject = APIService(client: client)
+        subject = APIService(baseUrl: .example, client: client)
     }
 
     override func tearDown() {

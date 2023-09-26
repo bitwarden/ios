@@ -4,6 +4,7 @@ typealias Services = HasAccountAPIService
     & HasAppIdService
     & HasAppSettingsStore
     & HasAuthAPIService
+    & HasCaptchaService
 
 /// Protocol for an object that provides an `AccountAPIService`.
 ///
@@ -38,4 +39,11 @@ protocol HasAppSettingsStore {
 protocol HasAuthAPIService {
     /// The service used by the application to make auth-related API requests.
     var authAPIService: AuthAPIService { get }
+}
+
+/// Protocol for an object that provides a `CaptchaService`.
+///
+protocol HasCaptchaService {
+    /// The service used by the application to generate captcha related artifacts.
+    var captchaService: CaptchaService { get }
 }
