@@ -28,8 +28,6 @@ name: nanopb, nameSpecified: nanopb, owner: firebase, version: 2.30909.0, source
 
 name: promises, nameSpecified: Promises, owner: google, version: 2.3.1, source: https://github.com/google/promises
 
-name: sdk-swift, nameSpecified: sdk-swift, owner: bitwarden, version: , source: https://github.com/bitwarden/sdk-swift
-
 name: swift-protobuf, nameSpecified: SwiftProtobuf, owner: apple, version: 1.22.1, source: https://github.com/apple/swift-protobuf
 
 name: swift-snapshot-testing, nameSpecified: swift-snapshot-testing, owner: pointfreeco, version: 1.11.1, source: https://github.com/pointfreeco/swift-snapshot-testing

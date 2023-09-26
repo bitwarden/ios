@@ -6,6 +6,5 @@ set -euo pipefail
 
 if [ "$CONFIGURATION" = "Debug" ]; then
     mint run LicensePlist license-plist \
-        --output-path "$SRCROOT/$PRODUCT_NAME/Application/Support/Settings.bundle" \
-        --prefix Acknowledgements
+        --config-path .license_plist.yml
 fi
