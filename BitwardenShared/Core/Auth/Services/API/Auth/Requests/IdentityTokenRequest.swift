@@ -17,7 +17,7 @@ enum IdentityTokenRequestError: Error, Equatable {
 ///
 struct IdentityTokenRequest: Request {
     // MARK: Types
-    
+
     typealias Response = IdentityTokenResponseModel
 
     // MARK: Properties
