@@ -77,7 +77,6 @@ class AuthAPIServiceTests: BitwardenTestCase {
                 IdentityTokenRequestModel(
                     authenticationMethod: .password(username: "username", password: "password"),
                     captchaToken: nil,
-                    clientType: .mobile,
                     deviceInfo: .fixture()
                 )
             )
