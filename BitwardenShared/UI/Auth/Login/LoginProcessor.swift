@@ -67,7 +67,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     ///
     private func loginWithMasterPassword() async {
         do {
-            let response = try await services.accountAPIService.preLogin(email: state.username)
+            _ = try await services.accountAPIService.preLogin(email: state.username)
             coordinator.navigate(to: .complete)
             // Encrypt the password with the kdf algorithm and send it to the server for verification: BIT-420
         } catch {

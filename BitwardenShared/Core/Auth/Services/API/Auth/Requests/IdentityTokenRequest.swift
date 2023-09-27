@@ -1,9 +1,23 @@
 import Foundation
 import Networking
 
+// MARK: - IdentityTokenRequestError
+
+/// Errors that can occur when sending an `IdentityTokenRequest`.
+enum IdentityTokenRequestError: Error, Equatable {
+    /// Captcha is required for this login attempt.
+    ///
+    /// - Parameter hCaptchaSiteCode: The site code to use when authenticating with hCaptcha.
+    case captchaRequired(hCaptchaSiteCode: String)
+}
+
+// MARK: - IdentityTokenRequest
+
 /// Data model for performing a identity token request.
 ///
 struct IdentityTokenRequest: Request {
+    // MARK: Types
+
     typealias Response = IdentityTokenResponseModel
 
     // MARK: Properties
@@ -38,5 +52,22 @@ struct IdentityTokenRequest: Request {
     ///
     init(requestModel: IdentityTokenRequestModel) {
         self.requestModel = requestModel
+    }
+
+    // MARK: Methods
+
+    func validate(_ response: HTTPResponse) throws {
+        switch response.statusCode {
+        case 400:
+            guard let object = try? JSONSerialization.jsonObject(with: response.body) as? [String: Any],
+                  let siteCode = object["HCaptcha_SiteKey"] as? String
+            else { return }
+
+            // Only throw the captcha error if the captcha site key can be found. Otherwise, this must be
+            // some other type of error.
+            throw IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
+        default:
+            return
+        }
     }
 }

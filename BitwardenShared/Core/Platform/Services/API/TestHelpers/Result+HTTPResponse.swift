@@ -3,12 +3,8 @@ import Networking
 
 extension Result where Success == HTTPResponse, Error: Error {
     static func httpSuccess(testData: APITestData) -> Result<HTTPResponse, Error> {
-        let response = HTTPResponse(
-            url: URL(string: "https://example.com")!,
-            statusCode: 200,
-            headers: [:],
-            body: testData.data,
-            requestID: UUID()
+        let response = HTTPResponse.success(
+            body: testData.data
         )
         return .success(response)
     }
@@ -18,12 +14,10 @@ extension Result where Success == HTTPResponse, Error: Error {
         headers: [String: String] = [:],
         data: Data = Data()
     ) -> Result<HTTPResponse, Error> {
-        let response = HTTPResponse(
-            url: URL(string: "https://example.com")!,
+        let response = HTTPResponse.failure(
             statusCode: statusCode,
             headers: headers,
-            body: data,
-            requestID: UUID()
+            body: data
         )
         return .success(response)
     }
