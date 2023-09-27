@@ -16,4 +16,17 @@ struct State: Codable, Equatable {
         guard let activeUserId else { return nil }
         return accounts[activeUserId]
     }
+
+    // MARK: Initialization
+
+    /// Initialize a `State`.
+    ///
+    /// - Parameters:
+    ///   - accounts: The list of the accounts on the device, keyed by the user's ID.
+    ///   - activeUserId: The user ID for the active account.
+    ///
+    init(accounts: [String: Account] = [:], activeUserId: String? = nil) {
+        self.accounts = accounts
+        self.activeUserId = activeUserId
+    }
 }
