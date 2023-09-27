@@ -9,7 +9,9 @@ class APIServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        subject = APIService(baseUrl: .example)
+        subject = APIService(
+            baseUrlService: DefaultBaseUrlService(baseUrl: .example)
+        )
     }
 
     override func tearDown() {

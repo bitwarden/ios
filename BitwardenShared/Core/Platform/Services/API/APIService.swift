@@ -9,9 +9,6 @@ class APIService {
     /// The API service that is used for general requests.
     let apiService: HTTPService
 
-    /// The base url used for all requests in this service.
-    let baseUrl: URL
-
     /// The API service used for logging events.
     let eventsService: HTTPService
 
@@ -31,10 +28,9 @@ class APIService {
     ///     to `URLSession.shared`.
     ///
     init(
-        baseUrl: URL,
+        baseUrlService: BaseUrlService,
         client: HTTPClient = URLSession.shared
     ) {
-        self.baseUrl = baseUrl
         let defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
             appName: Bundle.main.appName,
             appVersion: Bundle.main.appVersion,
@@ -43,12 +39,12 @@ class APIService {
         )
 
         apiService = HTTPService(
-            baseURL: baseUrl.appendingPathComponent("/api"),
+            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/api") },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )
         eventsService = HTTPService(
-            baseURL: baseUrl.appendingPathComponent("/events"),
+            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/events") },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )
@@ -58,7 +54,7 @@ class APIService {
             requestHandlers: [defaultHeadersRequestHandler]
         )
         identityService = HTTPService(
-            baseURL: baseURL: baseUrl.appendingPathComponent("/identity"),
+            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/identity") },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )

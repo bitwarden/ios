@@ -36,12 +36,10 @@ protocol CaptchaService {
 /// The default implementation of `CaptchaService`.
 ///
 class DefaultCaptchaService: CaptchaService {
-    // MARK: Private Properties
-
-    /// The base url for all requests in this service.
-    private let baseUrl: URL
-
     // MARK: Properties
+
+    /// A service for retrieving the base url for all requests in this service.
+    let baseUrlService: BaseUrlService
 
     let callbackUrlScheme: String
 
@@ -52,8 +50,9 @@ class DefaultCaptchaService: CaptchaService {
     /// - Parameters:
     ///   - baseUrl: The base url for all requests in this service.
     ///   - callbackUrlScheme: The callback url scheme for this application. E.g. `"bitwarden"`.
-    init(baseUrl: URL, callbackUrlScheme: String) {
-        self.baseUrl = baseUrl
+    ///
+    init(baseUrlService: BaseUrlService, callbackUrlScheme: String) {
+        self.baseUrlService = baseUrlService
         self.callbackUrlScheme = callbackUrlScheme
     }
 
@@ -86,7 +85,7 @@ class DefaultCaptchaService: CaptchaService {
 
         // Using URLComponents until iOS 16 is our base, since that's when `.appending(queryItems:)` was added
         var components = URLComponents(
-            url: baseUrl.appendingPathComponent("/captcha-mobile-connector.html"),
+            url: baseUrlService.baseUrl.appendingPathComponent("/captcha-mobile-connector.html"),
             resolvingAgainstBaseURL: false
         )
         components?.queryItems = queryItems

@@ -14,7 +14,7 @@ class CaptchaServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         subject = DefaultCaptchaService(
-            baseUrl: .example,
+            baseUrlService: DefaultBaseUrlService(baseUrl: .example),
             callbackUrlScheme: "example"
         )
     }

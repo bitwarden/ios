@@ -5,15 +5,17 @@ import Networking
 extension ServiceContainer {
     static func withMocks(
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
+        baseUrlService: BaseUrlService = DefaultBaseUrlService(baseUrl: .example),
         captchaService: CaptchaService = MockCaptchaService(),
         httpClient: HTTPClient = MockHTTPClient()
     ) -> ServiceContainer {
         ServiceContainer(
             apiService: APIService(
-                baseUrl: .example,
+                baseUrlService: baseUrlService,
                 client: httpClient
             ),
             appSettingsStore: appSettingsStore,
+            baseUrlService: baseUrlService,
             captchaService: captchaService
         )
     }

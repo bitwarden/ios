@@ -6,7 +6,10 @@ public class HTTPService {
     // MARK: Properties
 
     /// The URL against which requests are resolved.
-    let baseURL: URL
+    var baseURL: URL { baseUrlGetter() }
+
+    /// A getter function for dynamically retrieving the base url against which requests are resolved.
+    let baseUrlGetter: () -> URL
 
     /// The underlying `HTTPClient` that performs the network request.
     let client: HTTPClient
@@ -41,7 +44,22 @@ public class HTTPService {
         requestHandlers: [RequestHandler] = [],
         responseHandlers: [ResponseHandler] = []
     ) {
-        self.baseURL = baseURL
+        baseUrlGetter = { baseURL }
+        self.client = client
+    }
+
+    /// Initialize a `HTTPService`.
+    ///
+    /// - Parameters:
+    ///   - baseUrlGetter: A getter function for dynamically retrieving the base url against which
+    ///     requests are resolved.
+    ///   - client: The underlying `HTTPClient` that performs the network request.
+    ///
+    public init(
+        baseUrlGetter: @escaping () -> URL,
+        client: HTTPClient = URLSession.shared
+    ) {
+        self.baseUrlGetter = baseUrlGetter
         self.client = client
         self.requestHandlers = requestHandlers
         self.responseHandlers = responseHandlers

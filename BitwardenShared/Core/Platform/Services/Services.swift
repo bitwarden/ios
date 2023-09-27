@@ -41,6 +41,13 @@ protocol HasAuthAPIService {
     var authAPIService: AuthAPIService { get }
 }
 
+/// Protocol for an object that provides a `BaseUrlService`.
+///
+protocol HasBaseUrlService {
+    /// The service used by the application to retrieve the current base url for API requests.
+    var baseUrlService: BaseUrlService { get }
+}
+
 /// Protocol for an object that provides a `CaptchaService`.
 ///
 protocol HasCaptchaService {
