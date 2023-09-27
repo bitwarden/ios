@@ -2,11 +2,11 @@ import CryptoKit
 import Foundation
 
 extension Data {
-    /// Generates a `SHA1` hash for the provided data.
+    /// Generates a hash value for the provided data.
     ///
     /// - Parameter using: The type of cryptographically secure hashing being performed.
     ///
-    /// - Returns: The data as a `SHA1` hash.
+    /// - Returns: The data as a hash value.
     ///
     func generatedHash(
         using hashFunction: any HashFunction.Type
