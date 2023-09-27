@@ -7,11 +7,26 @@ protocol StateService: AnyObject {
     ///
     func addAccount(_ account: Account) async
 
+    /// Gets the account encryptions keys for the specified user ID.
+    ///
+    /// - Parameter userId: The user ID used to look up the account encryption keys.
+    /// - Returns: The account encryption keys.
+    ///
+    func getAccountEncryptionKeys(_ userId: String) async -> AccountEncryptionKeys?
+
     /// Logs the user out of the account with the specified user ID.
     ///
     /// - Parameter userId: The user ID of the account to log out of.
     ///
     func logoutAccount(_ userId: String) async
+
+    /// Sets the account encryption keys for the specified user ID.
+    ///
+    /// - Parameters:
+    ///   - encryptionKeys: The account encryption keys.
+    ///   - userId: The user ID associated with the account encryption keys.
+    ///
+    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String) async
 }
 
 // MARK: - DefaultStateService
@@ -44,6 +59,18 @@ actor DefaultStateService: StateService {
         state.activeUserId = account.profile.userId
     }
 
+    func getAccountEncryptionKeys(_ userId: String) async -> AccountEncryptionKeys? {
+        guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId),
+              let encryptedUserKey = appSettingsStore.encryptedUserKey(userId: userId)
+        else {
+            return nil
+        }
+        return AccountEncryptionKeys(
+            encryptedPrivateKey: encryptedPrivateKey,
+            encryptedUserKey: encryptedUserKey
+        )
+    }
+
     func logoutAccount(_ userId: String) async {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
@@ -53,5 +80,10 @@ actor DefaultStateService: StateService {
             // Find the next account to make the active account.
             state.activeUserId = state.accounts.first?.key
         }
+    }
+
+    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String) async {
+        appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
+        appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
     }
 }

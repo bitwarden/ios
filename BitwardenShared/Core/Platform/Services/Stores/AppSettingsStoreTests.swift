@@ -17,9 +17,12 @@ class AppSettingsStoreTests: BitwardenTestCase {
 
         userDefaults = UserDefaults(suiteName: "AppSettingsStoreTests")
 
-        for key in DefaultAppSettingsStore.Keys.allCases {
-            userDefaults.removeObject(forKey: key.storageKey)
-        }
+        userDefaults.dictionaryRepresentation()
+            .keys
+            .filter { $0.hasPrefix("bwPreferencesStorage:") }
+            .forEach { key in
+                userDefaults.removeObject(forKey: key)
+            }
 
         subject = DefaultAppSettingsStore(userDefaults: userDefaults)
     }
@@ -51,6 +54,78 @@ class AppSettingsStoreTests: BitwardenTestCase {
         subject.appId = nil
         XCTAssertNil(subject.appId)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appId"))
+    }
+
+    /// `encryptedPrivateKey(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_encryptedPrivateKey_isInitiallyNil() {
+        XCTAssertNil(subject.encryptedPrivateKey(userId: "-1"))
+    }
+
+    /// `encryptedPrivateKey(userId:)` can be used to get the encrypted private key for a user.
+    func test_encryptedPrivateKey_withValue() {
+        subject.setEncryptedPrivateKey(key: "1:PRIVATE_KEY", userId: "1")
+        subject.setEncryptedPrivateKey(key: "2:PRIVATE_KEY", userId: "2")
+
+        XCTAssertEqual(subject.encryptedPrivateKey(userId: "1"), "1:PRIVATE_KEY")
+        XCTAssertEqual(subject.encryptedPrivateKey(userId: "2"), "2:PRIVATE_KEY")
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"),
+            "1:PRIVATE_KEY"
+        )
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_2"),
+            "2:PRIVATE_KEY"
+        )
+
+        subject.setEncryptedPrivateKey(key: "1:PRIVATE_KEY_NEW", userId: "1")
+        subject.setEncryptedPrivateKey(key: "2:PRIVATE_KEY_NEW", userId: "2")
+
+        XCTAssertEqual(subject.encryptedPrivateKey(userId: "1"), "1:PRIVATE_KEY_NEW")
+        XCTAssertEqual(subject.encryptedPrivateKey(userId: "2"), "2:PRIVATE_KEY_NEW")
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"),
+            "1:PRIVATE_KEY_NEW"
+        )
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_2"),
+            "2:PRIVATE_KEY_NEW"
+        )
+    }
+
+    /// `encryptedUserKey(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_encryptedUserKey_isInitiallyNil() {
+        XCTAssertNil(subject.encryptedUserKey(userId: "-1"))
+    }
+
+    /// `encryptedUserKey(userId:)` can be used to get the encrypted user key for a user.
+    func test_encryptedUserKey_withValue() {
+        subject.setEncryptedUserKey(key: "1:USER_KEY", userId: "1")
+        subject.setEncryptedUserKey(key: "2:USER_KEY", userId: "2")
+
+        XCTAssertEqual(subject.encryptedUserKey(userId: "1"), "1:USER_KEY")
+        XCTAssertEqual(subject.encryptedUserKey(userId: "2"), "2:USER_KEY")
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_1"),
+            "1:USER_KEY"
+        )
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
+            "2:USER_KEY"
+        )
+
+        subject.setEncryptedUserKey(key: "1:USER_KEY_NEW", userId: "1")
+        subject.setEncryptedUserKey(key: "2:USER_KEY_NEW", userId: "2")
+
+        XCTAssertEqual(subject.encryptedUserKey(userId: "1"), "1:USER_KEY_NEW")
+        XCTAssertEqual(subject.encryptedUserKey(userId: "2"), "2:USER_KEY_NEW")
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_1"),
+            "1:USER_KEY_NEW"
+        )
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
+            "2:USER_KEY_NEW"
+        )
     }
 
     /// `rememberedEmail` returns `nil` if there isn't a previously stored value.

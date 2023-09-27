@@ -51,6 +51,35 @@ class StateServiceTests: BitwardenTestCase {
         XCTAssertEqual(state.activeUserId, "2")
     }
 
+    /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
+    func test_getAccountEncryptionKeys() async {
+        appSettingsStore.encryptedPrivateKeys["1"] = "1:PRIVATE_KEY"
+        appSettingsStore.encryptedPrivateKeys["2"] = "2:PRIVATE_KEY"
+        appSettingsStore.encryptedUserKeys["1"] = "1:USER_KEY"
+        appSettingsStore.encryptedUserKeys["2"] = "2:USER_KEY"
+
+        let noKeys = await subject.getAccountEncryptionKeys("-1")
+        XCTAssertNil(noKeys)
+
+        let accountKeys = await subject.getAccountEncryptionKeys("1")
+        XCTAssertEqual(
+            accountKeys,
+            AccountEncryptionKeys(
+                encryptedPrivateKey: "1:PRIVATE_KEY",
+                encryptedUserKey: "1:USER_KEY"
+            )
+        )
+
+        let otherAccountKeys = await subject.getAccountEncryptionKeys("2")
+        XCTAssertEqual(
+            otherAccountKeys,
+            AccountEncryptionKeys(
+                encryptedPrivateKey: "2:PRIVATE_KEY",
+                encryptedUserKey: "2:USER_KEY"
+            )
+        )
+    }
+
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to
     /// `nil` if there are no other accounts.
     func test_logoutAccount_singleAccount() async throws {
@@ -94,5 +123,35 @@ class StateServiceTests: BitwardenTestCase {
         let state = try XCTUnwrap(appSettingsStore.state)
         XCTAssertEqual(state.accounts, ["2": secondAccount])
         XCTAssertEqual(state.activeUserId, "2")
+    }
+
+    /// `setAccountEncryptionKeys(_:userId:)` sets the encryption keys for the user account.
+    func test_setAccountEncryptionKeys() async {
+        let encryptionKeys = AccountEncryptionKeys(
+            encryptedPrivateKey: "1:PRIVATE_KEY",
+            encryptedUserKey: "1:USER_KEY"
+        )
+        await subject.setAccountEncryptionKeys(encryptionKeys, userId: "1")
+
+        let otherEncryptionKeys = AccountEncryptionKeys(
+            encryptedPrivateKey: "2:PRIVATE_KEY",
+            encryptedUserKey: "2:USER_KEY"
+        )
+        await subject.setAccountEncryptionKeys(otherEncryptionKeys, userId: "2")
+
+        XCTAssertEqual(
+            appSettingsStore.encryptedPrivateKeys,
+            [
+                "1": "1:PRIVATE_KEY",
+                "2": "2:PRIVATE_KEY",
+            ]
+        )
+        XCTAssertEqual(
+            appSettingsStore.encryptedUserKeys,
+            [
+                "1": "1:USER_KEY",
+                "2": "2:USER_KEY",
+            ]
+        )
     }
 }
