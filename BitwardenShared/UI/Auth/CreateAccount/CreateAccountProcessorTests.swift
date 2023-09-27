@@ -32,6 +32,12 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `receive(_:)` with `.dismiss` dismisses the view.
+    func test_dismiss() {
+        subject.receive(.dismiss)
+        XCTAssertTrue(coordinator.routes.last == .dismiss)
+    }
+
     /// `receive(_:)` with `.emailTextChanged(_:)` updates the state to reflect the change.
     func test_receive_emailTextChanged() {
         subject.state.emailText = ""

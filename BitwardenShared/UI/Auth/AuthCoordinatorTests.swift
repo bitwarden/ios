@@ -52,6 +52,14 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is CreateAccountView)
     }
 
+    /// Tests that `navigate(to:)` with `.dismiss` dismisses the view.
+    func test_navigate_dismiss() {
+        subject.navigate(to: .createAccount)
+        subject.navigate(to: .dismiss)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .dismissed)
+    }
+
     /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack
     /// navigator.
     func test_navigate_enterpriseSingleSignOn() {

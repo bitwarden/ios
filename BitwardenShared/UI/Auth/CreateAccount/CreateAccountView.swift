@@ -8,7 +8,7 @@ struct CreateAccountView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<CreateAccountState, CreateAccountAction, Void>
+    @ObservedObject var store: Store<CreateAccountState, CreateAccountAction, CreateAccountEffect>
 
     /// The privacy policy attributed string used in navigating to Bitwarden's Privacy Policy website.
     let privacyPolicyString: AttributedString? = try? AttributedString(
@@ -23,22 +23,60 @@ struct CreateAccountView: View {
     // MARK: View
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack {
-                emailAndPassword
+        NavigationView {
+            ScrollView(showsIndicators: false) {
+                VStack {
+                    emailAndPassword
 
-                PasswordStrengthIndicator(minimumPasswordLength: Constants.minimumPasswordCharacters)
+                    PasswordStrengthIndicator(minimumPasswordLength: Constants.minimumPasswordCharacters)
 
-                VStack(spacing: 16) {
-                    retypePassword
+                    VStack(spacing: 16) {
+                        retypePassword
 
-                    passwordHint
+                        passwordHint
+                    }
+
+                    VStack(spacing: 24) {
+                        toggles
+
+                        submitButton
+                    }
+                    .padding(.top, 8)
                 }
-
-                toggles
+                .padding(.horizontal, 12)
             }
-            .padding(.horizontal, 12)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(Localizations.createAccount)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        store.send(.dismiss)
+                    } label: {
+                        Image(asset: Asset.Images.cancel)
+                            .resizable()
+                            .foregroundColor(Color(asset: Asset.Colors.textPrimary))
+                            .frame(width: 24, height: 24)
+                    }
+                }
+            }
         }
+    }
+
+    // MARK: Private views
+
+    /// A toggle to check the user's password for security breaches.
+    private var checkBreachesToggle: some View {
+        Toggle(isOn: store.binding(
+            get: \.isCheckDataBreachesToggleOn,
+            send: CreateAccountAction.toggleCheckDataBreaches
+        )) {}
+            .toggleStyle(
+                DescriptiveToggleStyle(description: {
+                    Text(Localizations.checkKnownDataBreachesForThisPassword)
+                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                        .font(.system(.footnote))
+                })
+            )
     }
 
     /// The text fields for the user's email and password.
@@ -69,23 +107,6 @@ struct CreateAccountView: View {
         }
     }
 
-    /// The text field for re-typing the master password.
-    private var retypePassword: some View {
-        BitwardenTextField(
-            title: Localizations.retypeMasterPassword,
-            icon: store.state.passwordVisibleIcon,
-            contentType: .password,
-            isPasswordVisible: store.binding(
-                get: \.arePasswordsVisible,
-                send: CreateAccountAction.togglePasswordVisibility
-            ),
-            text: store.binding(
-                get: { $0.retypePasswordText },
-                send: { .retypePasswordTextChanged($0) }
-            )
-        )
-    }
-
     /// The master password hint.
     private var passwordHint: some View {
         VStack(alignment: .leading) {
@@ -104,28 +125,38 @@ struct CreateAccountView: View {
         }
     }
 
-    /// Toggles for checking data breaches and agreeing to the terms of service & privacy policy.
-    private var toggles: some View {
-        VStack(spacing: 24) {
-            checkBreachesToggle
-            termsAndPrivacyToggle
-        }
-        .padding(.top, 8)
+    /// The text field for re-typing the master password.
+    private var retypePassword: some View {
+        BitwardenTextField(
+            title: Localizations.retypeMasterPassword,
+            icon: store.state.passwordVisibleIcon,
+            contentType: .password,
+            isPasswordVisible: store.binding(
+                get: \.arePasswordsVisible,
+                send: CreateAccountAction.togglePasswordVisibility
+            ),
+            text: store.binding(
+                get: { $0.retypePasswordText },
+                send: { .retypePasswordTextChanged($0) }
+            )
+        )
     }
 
-    /// A toggle to check the user's password for security breaches.
-    private var checkBreachesToggle: some View {
-        Toggle(isOn: store.binding(
-            get: \.isCheckDataBreachesToggleOn,
-            send: CreateAccountAction.toggleCheckDataBreaches
-        )) {}
-            .toggleStyle(
-                DescriptiveToggleStyle(description: {
-                    Text(Localizations.checkKnownDataBreachesForThisPassword)
-                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                        .font(.system(.footnote))
-                })
-            )
+    /// The button pressed when the user attempts to create the account.
+    private var submitButton: some View {
+        Button {
+            Task {
+                await store.perform(.createAccount)
+            }
+        } label: {
+            Text(Localizations.submit)
+                .bold()
+                .foregroundColor(.white)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
     }
 
     /// A toggle for the terms and privacy agreement.
@@ -146,6 +177,12 @@ struct CreateAccountView: View {
                     }
                 )
             )
+    }
+
+    /// Toggles for checking data breaches and agreeing to the terms of service & privacy policy.
+    @ViewBuilder private var toggles: some View {
+        checkBreachesToggle
+        termsAndPrivacyToggle
     }
 }
 
