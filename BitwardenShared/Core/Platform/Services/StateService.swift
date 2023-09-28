@@ -14,6 +14,12 @@ protocol StateService: AnyObject {
     ///
     func getAccountEncryptionKeys(_ userId: String) async -> AccountEncryptionKeys?
 
+    /// Gets the active account.
+    ///
+    /// - Returns: The active user account.
+    ///
+    func getActiveAccount() async -> Account?
+
     /// Logs the user out of the account with the specified user ID.
     ///
     /// - Parameter userId: The user ID of the account to log out of.
@@ -69,6 +75,10 @@ actor DefaultStateService: StateService {
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: encryptedUserKey
         )
+    }
+
+    func getActiveAccount() async -> Account? {
+        appSettingsStore.state?.activeAccount
     }
 
     func logoutAccount(_ userId: String) async {

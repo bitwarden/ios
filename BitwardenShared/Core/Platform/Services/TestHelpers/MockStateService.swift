@@ -4,6 +4,7 @@ class MockStateService: StateService {
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountsAdded = [Account]()
     var accountsLoggedOut = [String]()
+    var activeAccount: Account?
 
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
@@ -11,6 +12,10 @@ class MockStateService: StateService {
 
     func getAccountEncryptionKeys(_ userId: String) async -> AccountEncryptionKeys? {
         accountEncryptionKeys[userId]
+    }
+
+    func getActiveAccount() async -> Account? {
+        activeAccount
     }
 
     func logoutAccount(_ userId: String) async {

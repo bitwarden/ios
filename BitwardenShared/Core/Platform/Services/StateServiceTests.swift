@@ -80,6 +80,36 @@ class StateServiceTests: BitwardenTestCase {
         )
     }
 
+    /// `getActiveAccount()` returns the active account.
+    func test_getActiveAccount() async {
+        let account = Account.fixture(profile: .fixture(userId: "2"))
+        appSettingsStore.state = State.fixture(
+            accounts: [
+                "1": Account.fixture(),
+                "2": account,
+            ],
+            activeUserId: "2"
+        )
+
+        let activeAccount = await subject.getActiveAccount()
+        XCTAssertEqual(activeAccount, account)
+    }
+
+    /// `getActiveAccount()` returns `nil` if there aren't any accounts.
+    func test_getActiveAccount_noAccounts() async {
+        let activeAccount = await subject.getActiveAccount()
+        XCTAssertNil(activeAccount)
+    }
+
+    /// `getActiveAccount()` returns the active account when there are multiple accounts.
+    func test_getActiveAccount_singleAccount() async {
+        let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
+        await subject.addAccount(account)
+
+        let activeAccount = await subject.getActiveAccount()
+        XCTAssertEqual(activeAccount, account)
+    }
+
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to
     /// `nil` if there are no other accounts.
     func test_logoutAccount_singleAccount() async throws {
