@@ -30,8 +30,8 @@ public class ServiceContainer: Services {
     /// The service used by the application to generate captcha related artifacts.
     let captchaService: CaptchaService
 
-    /// The client used by the application to handle auth related encryption and decryption tasks.
-    let clientAuth: ClientAuthProtocol
+    /// The service used by the application to handle encryption and decryption tasks.
+    let clientService: ClientService
 
     /// The service used by the application to manage account state.
     let stateService: StateService
@@ -54,7 +54,7 @@ public class ServiceContainer: Services {
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
-    ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
+    ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - stateService: The service used by the application to manage account state.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - tokenService: The service used by the application to manage account access tokens.
@@ -64,7 +64,7 @@ public class ServiceContainer: Services {
         appSettingsStore: AppSettingsStore,
         baseUrlService: BaseUrlService,
         captchaService: CaptchaService,
-        clientAuth: ClientAuthProtocol,
+        clientService: ClientService,
         stateService: StateService,
         systemDevice: SystemDevice,
         tokenService: TokenService
@@ -73,13 +73,16 @@ public class ServiceContainer: Services {
         self.appSettingsStore = appSettingsStore
         self.baseUrlService = baseUrlService
         self.captchaService = captchaService
-        self.clientAuth = clientAuth
+        self.clientService = clientService
         self.stateService = stateService
         self.systemDevice = systemDevice
         self.tokenService = tokenService
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
-        vaultRepository = DefaultVaultRepository(syncAPIService: apiService)
+        vaultRepository = DefaultVaultRepository(
+            clientVault: clientService.clientVault(),
+            syncAPIService: apiService
+        )
     }
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
@@ -92,7 +95,7 @@ public class ServiceContainer: Services {
             baseUrl: URL(string: "https://vault.bitwarden.com")!
         )
 
-        let client = BitwardenSdk.Client(settings: nil)
+        let clientService = DefaultClientService()
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
         let tokenService = DefaultTokenService(stateService: stateService)
         self.init(
@@ -100,7 +103,7 @@ public class ServiceContainer: Services {
             appSettingsStore: appSettingsStore,
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
-            clientAuth: client.auth(),
+            clientService: clientService,
             stateService: stateService,
             systemDevice: UIDevice.current,
             tokenService: tokenService
@@ -119,5 +122,13 @@ extension ServiceContainer {
 
     var deviceAPIService: DeviceAPIService {
         apiService
+    }
+
+    var clientAuth: ClientAuthProtocol {
+        clientService.clientAuth()
+    }
+
+    var clientCrypto: ClientCryptoProtocol {
+        clientService.clientCrypto()
     }
 }

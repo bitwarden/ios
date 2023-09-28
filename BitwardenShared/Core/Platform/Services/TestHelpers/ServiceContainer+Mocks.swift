@@ -8,7 +8,7 @@ extension ServiceContainer {
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         baseUrlService: BaseUrlService = DefaultBaseUrlService(baseUrl: .example),
         captchaService: CaptchaService = MockCaptchaService(),
-        clientAuth: ClientAuthProtocol = MockClientAuth(),
+        clientService: ClientService = MockClientService(),
         systemDevice: SystemDevice = MockSystemDevice(),
         httpClient: HTTPClient = MockHTTPClient(),
         stateService: StateService = MockStateService(),
@@ -22,7 +22,7 @@ extension ServiceContainer {
             appSettingsStore: appSettingsStore,
             baseUrlService: baseUrlService,
             captchaService: captchaService,
-            clientAuth: clientAuth,
+            clientService: clientService,
             stateService: stateService,
             systemDevice: systemDevice,
             tokenService: tokenService

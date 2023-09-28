@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 /// An enumeration of groups of items displayed in the vault list.
 ///
 enum VaultListGroup: Equatable, Hashable {
@@ -18,7 +20,7 @@ enum VaultListGroup: Equatable, Hashable {
     // MARK: Folders
 
     /// A group of ciphers within a folder.
-    case folder(FolderResponseModel)
+    case folder(FolderView)
 
     // MARK: Trash
 
