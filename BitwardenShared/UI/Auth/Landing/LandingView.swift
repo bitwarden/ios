@@ -14,58 +14,65 @@ struct LandingView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Log in or create a new account to access your secure vault.")
+                Asset.Images.logo.swiftUIImage
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 45)
+
+                Text(Localizations.loginOrCreateNewAccount)
+                    .font(.system(.title2))
                     .multilineTextAlignment(.center)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .frame(maxWidth: .infinity)
 
-                TextField("Email", text: store.binding(
-                    get: { $0.email },
-                    send: { .emailChanged($0) }
-                ))
-                .keyboardType(.emailAddress)
+                BitwardenTextField(
+                    title: Localizations.emailAddress,
+                    contentType: .emailAddress,
+                    text: store.binding(
+                        get: \.email,
+                        send: LandingAction.emailChanged
+                    )
+                )
                 .textInputAutocapitalization(.never)
 
                 Button {
                     store.send(.regionPressed)
                 } label: {
                     HStack(spacing: 4) {
-                        Text("Region:")
-                            .foregroundColor(.primary)
-                        Text("US")
-                            .foregroundColor(.blue)
-                        Image(systemName: "chevron.down")
+                        Text("\(Localizations.region):")
+                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        Text(Localizations.us)
+                            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                     }
-                    .font(.system(.footnote))
+                    .font(.system(.subheadline))
                 }
 
-                Toggle("Remember me", isOn: store.binding(
+                Toggle(Localizations.rememberMe, isOn: store.binding(
                     get: { $0.isRememberMeOn },
                     send: { .rememberMeChanged($0) }
                 ))
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
-                Button {
+                BitwardenButton(
+                    title: Localizations.continue,
+                    shouldFillWidth: true
+                ) {
                     store.send(.continuePressed)
-                } label: {
-                    Text("Continue")
-                        .bold()
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
 
                 HStack(spacing: 4) {
-                    Text("New around here?")
-                    Button("Create account") {
+                    Text(Localizations.newAroundHere)
+                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    Button(Localizations.createAccount) {
                         store.send(.createAccountPressed)
                     }
+                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                 }
                 .font(.system(.footnote))
             }
             .padding(.horizontal)
         }
-        .navigationBarTitle("Bitwarden", displayMode: .inline)
+        .background(Asset.Colors.backgroundGroupedPrimary.swiftUIColor.ignoresSafeArea())
+        .navigationBarTitle(Localizations.bitwarden, displayMode: .inline)
     }
 }
 

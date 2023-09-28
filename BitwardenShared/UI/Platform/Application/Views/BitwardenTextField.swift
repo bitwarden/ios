@@ -1,23 +1,34 @@
 import SwiftUI
 
-struct BitwardenTextFieldButton {
-    var accessibilityLabel: String
-    var action: () -> Void
-    var icon: ImageAsset
-}
-
 // MARK: - BitwardenTextField
 
-/// A text field containing an optional trailing icon.
+/// The standard text field used within this application. The text field can be
+/// configured act as a password field with visibility toggling, and supports
+/// displaying configurable buttons on the trailing edge of the text field.
 ///
 struct BitwardenTextField: View {
+    // MARK: Types
+
+    /// A type of button that is displayed within a `BitwardenTextField`.
+    ///
+    struct AccessoryButton {
+        /// The accessibility label for this button.
+        var accessibilityLabel: String
+
+        /// The action that is executed when this button is tapped.
+        var action: () -> Void
+
+        /// The icon to display in this button.
+        var icon: ImageAsset
+    }
+
     // MARK: Properties
+
+    /// A list of additional buttons that appear on the trailing edge of a textfield.
+    let buttons: [AccessoryButton]
 
     /// The text content type used for the text field.
     let contentType: UITextContentType
-
-    /// A list of additional buttons that appear on the trailing edge of a textfield.
-    let buttons: [BitwardenTextFieldButton]
 
     /// Whether a password in this text field is visible.
     let isPasswordVisible: Binding<Bool>?
@@ -75,31 +86,14 @@ struct BitwardenTextField: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-//    /// The text field's trailing icon.
-//    @ViewBuilder private var textFieldIcon: some View {
-//        if let icon {
-//            Button {
-//                isPasswordVisible.toggle()
-//            } label: {
-//                Image(asset: icon)
-//                    .resizable()
-//                    .frame(width: 24, height: 24)
-//                    .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
-//                    .transaction { transaction in
-//                        transaction.animation = nil
-//                    }
-//            }
-//        }
-//    }
-
     @ViewBuilder private var textFieldButtons: some View {
         if isPasswordVisible == nil, buttons.isEmpty {
             EmptyView()
         } else {
             HStack(spacing: 8) {
                 if let isPasswordVisible {
-                    textFieldButton(
-                        BitwardenTextFieldButton(
+                    accessoryButton(
+                        AccessoryButton(
                             accessibilityLabel: isPasswordVisible.wrappedValue
                                 ? Localizations.passwordIsVisibleTapToHide
                                 : Localizations.passwordIsNotVisibleTapToShow,
@@ -114,7 +108,7 @@ struct BitwardenTextField: View {
                 }
 
                 ForEach(buttons, id: \.icon.name) { button in
-                    textFieldButton(button)
+                    accessoryButton(button)
                 }
             }
         }
@@ -124,8 +118,9 @@ struct BitwardenTextField: View {
     @ViewBuilder private var textFieldTitle: some View {
         if let title {
             Text(title)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .font(.system(.footnote))
+                .font(.system(.subheadline))
+                .bold()
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
         }
     }
 
@@ -142,7 +137,7 @@ struct BitwardenTextField: View {
     ///
     init(
         title: String? = nil,
-        buttons: [BitwardenTextFieldButton] = [],
+        buttons: [AccessoryButton] = [],
         contentType: UITextContentType,
         isPasswordVisible: Binding<Bool>? = nil,
         placeholder: String? = nil,
@@ -159,7 +154,7 @@ struct BitwardenTextField: View {
     // MARK: Methods
 
     @ViewBuilder
-    private func textFieldButton(_ button: BitwardenTextFieldButton) -> some View {
+    private func accessoryButton(_ button: AccessoryButton) -> some View {
         Button(action: button.action) {
             button.icon.swiftUIImage
                 .resizable()
@@ -208,10 +203,10 @@ struct BitwardenTextField_Previews: PreviewProvider {
             BitwardenTextField(
                 title: "Title",
                 buttons: [
-                    BitwardenTextFieldButton(
+                    BitwardenTextField.AccessoryButton(
                         accessibilityLabel: "",
                         action: {},
-                        icon: Asset.Images.clock
+                        icon: Asset.Images.cog
                     ),
                 ],
                 contentType: .password,
