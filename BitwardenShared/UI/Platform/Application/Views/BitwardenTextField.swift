@@ -61,12 +61,14 @@ struct BitwardenTextField: View {
     private var textField: some View {
         HStack(spacing: 8) {
             ZStack {
+                let isPassword = contentType == .password
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
                 TextField(placeholder, text: $text)
                     .textContentType(contentType)
+                    .font(.system(.body, design: isPassword ? .monospaced : .default))
                     .hidden(!isPasswordVisible && contentType == .password)
-                if contentType == .password, !isPasswordVisible {
+                if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
                 }
             }
@@ -203,6 +205,18 @@ struct BitwardenTextField_Previews: PreviewProvider {
         }
         .background(Color(.systemGroupedBackground))
         .previewDisplayName("Password button")
+
+        VStack {
+            BitwardenTextField(
+                title: "Title",
+                contentType: .password,
+                isPasswordVisible: .constant(true),
+                text: .constant("Password")
+            )
+            .padding()
+        }
+        .background(Color(.systemGroupedBackground))
+        .previewDisplayName("Password revealed")
 
         VStack {
             BitwardenTextField(
