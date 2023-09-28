@@ -12,15 +12,15 @@ struct CaptchaRequestModel: JSONRequestBody {
 
     // MARK: Properties
 
-    /// The token used to authenticate with hCaptcha.
-    let siteKey: String
-
-    /// A string representation of the user's locale.
-    let locale: String
-
     /// The callback URL scheme. This url is opened once the captcha flow has completed (successfully or with an error).
     let callbackUri: String
 
     /// A localized string used as the web page's title.
     let captchaRequiredText: String
+
+    /// A string representation of the user's locale.
+    let locale: String
+
+    /// The token used to authenticate with hCaptcha.
+    let siteKey: String
 }

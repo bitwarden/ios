@@ -23,8 +23,10 @@ public class ServiceContainer: Services {
     /// The service used by the application to persist app setting values.
     let appSettingsStore: AppSettingsStore
 
+    /// The service used by the application to retrieve the current base url for API requests.
     let baseUrlService: BaseUrlService
 
+    /// The service used by the application to generate captcha related artifacts.
     let captchaService: CaptchaService
 
     // MARK: Initialization
@@ -34,6 +36,8 @@ public class ServiceContainer: Services {
     /// - Parameters:
     ///   - apiService: The service used by the application to make API requests.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
+    ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
+    ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///
     init(
         apiService: APIService,
@@ -55,12 +59,11 @@ public class ServiceContainer: Services {
         let baseUrlService = DefaultBaseUrlService(
             baseUrl: URL(string: "https://vault.bitwarden.com")!
         )
-        let callbackUrlScheme = "bitwarden"
         self.init(
             apiService: APIService(baseUrlService: baseUrlService),
             appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),
             baseUrlService: baseUrlService,
-            captchaService: DefaultCaptchaService(baseUrlService: baseUrlService, callbackUrlScheme: callbackUrlScheme)
+            captchaService: DefaultCaptchaService(baseUrlService: baseUrlService)
         )
     }
 }

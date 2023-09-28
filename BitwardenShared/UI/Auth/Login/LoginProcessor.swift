@@ -1,4 +1,4 @@
-// MARK: - LoginProcessorDelegate
+// MARK: - CaptchaFlowDelegate
 
 /// An object that is signaled when specific circumstances in the captcha flow have been encountered.
 ///

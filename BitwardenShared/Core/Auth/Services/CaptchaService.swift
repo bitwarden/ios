@@ -51,20 +51,22 @@ class DefaultCaptchaService: CaptchaService {
     ///   - baseUrl: The base url for all requests in this service.
     ///   - callbackUrlScheme: The callback url scheme for this application. E.g. `"bitwarden"`.
     ///
-    init(baseUrlService: BaseUrlService, callbackUrlScheme: String) {
+    init(baseUrlService: BaseUrlService) {
         self.baseUrlService = baseUrlService
-        self.callbackUrlScheme = callbackUrlScheme
+        callbackUrlScheme = "bitwarden"
     }
 
     // MARK: Methods
 
     func generateCaptchaUrl(with siteKey: String) throws -> URL {
         let callbackUrl = "\(callbackUrlScheme)://captcha-callback"
+        // TODO: BIT-689 Dynamically retrieve the user's locale
+        let locale = "en"
         let request = CaptchaRequestModel(
-            siteKey: siteKey,
-            locale: "en",
             callbackUri: callbackUrl,
-            captchaRequiredText: Localizations.captchaRequired
+            captchaRequiredText: Localizations.captchaRequired,
+            locale: locale,
+            siteKey: siteKey
         )
 
         guard let requestEncoded = try request

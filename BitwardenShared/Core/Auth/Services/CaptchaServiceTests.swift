@@ -14,8 +14,7 @@ class CaptchaServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         subject = DefaultCaptchaService(
-            baseUrlService: DefaultBaseUrlService(baseUrl: .example),
-            callbackUrlScheme: "example"
+            baseUrlService: DefaultBaseUrlService(baseUrl: .example)
         )
     }
 
@@ -27,7 +26,7 @@ class CaptchaServiceTests: BitwardenTestCase {
     // MARK: Tests
 
     func test_callbackUrlScheme() {
-        XCTAssertEqual(subject.callbackUrlScheme, "example")
+        XCTAssertEqual(subject.callbackUrlScheme, "bitwarden")
     }
 
     func test_generateCaptchaUrl() throws {
@@ -37,9 +36,9 @@ class CaptchaServiceTests: BitwardenTestCase {
         correctUrlComponents?.queryItems = [
             URLQueryItem(
                 name: "data",
-                value: "eyJsb2NhbGUiOiJlbiIsImNhbGxiYWNrVXJpIjoiZXhhbXBsZTpcL1wvY2FwdGNoYS1jYWxsYmFjayIsInNpdGVLZXkiOiIxMjM0NSIsImNhcHRjaGFSZXF1aXJlZFRleHQiOiJDYXB0Y2hhIHJlcXVpcmVkIn0="
+                value: "eyJsb2NhbGUiOiJlbiIsImNhbGxiYWNrVXJpIjoiYml0d2FyZGVuOlwvXC9jYXB0Y2hhLWNhbGxiYWNrIiwiY2FwdGNoYVJlcXVpcmVkVGV4dCI6IkNhcHRjaGEgcmVxdWlyZWQiLCJzaXRlS2V5IjoiMTIzNDUifQ==" // swiftlint:disable:this line_length
             ),
-            URLQueryItem(name: "parent", value: "example://captcha-callback"),
+            URLQueryItem(name: "parent", value: "bitwarden://captcha-callback"),
             URLQueryItem(name: "v", value: "1"),
         ]
         XCTAssertEqual(URLComponents(url: url, resolvingAgainstBaseURL: false), correctUrlComponents)
