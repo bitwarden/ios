@@ -86,6 +86,7 @@ struct BitwardenTextField: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
+    /// The buttons displayed on the trailing edge of the text field.
     @ViewBuilder private var textFieldButtons: some View {
         if isPasswordVisible == nil, buttons.isEmpty {
             EmptyView()
@@ -130,9 +131,11 @@ struct BitwardenTextField: View {
     ///
     /// - Parameters:
     ///   - title: The title of the text field.
-    ///   - icon: The text field's icon.
+    ///   - buttons: A list of additional buttons that appear on the trailing edge of a textfield.
     ///   - contentType: The text content type used for the text field.
-    ///   - isPasswordVisible: Whether or not the password in the text field is visible.
+    ///   - isPasswordVisible: Whether or not the password in the text field is visible. If `false`, the password
+    ///     visibility button will not be shown.
+    ///   - placeholder: An optional placeholder to display in the text field.
     ///   - text: The text entered into the text field.
     ///
     init(
@@ -153,6 +156,10 @@ struct BitwardenTextField: View {
 
     // MARK: Methods
 
+    /// Creates an accessory button.
+    ///
+    /// - Parameter button: The button information needed to create the accessory button.
+    ///
     @ViewBuilder
     private func accessoryButton(_ button: AccessoryButton) -> some View {
         Button(action: button.action) {
