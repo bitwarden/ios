@@ -4,17 +4,17 @@ import Foundation
 
 extension SendResponseModel {
     static func fixture(
-        accessCount: Int = 0,
-        accessId: String? = nil,
+        accessCount: UInt32 = 0,
+        accessId: String = "ACCESS_ID",
         deletionDate: Date,
         disabled: Bool = false,
         expirationDate: Date? = nil,
         file: SendFileModel? = nil,
         hideEmail: Bool = false,
         id: String = UUID().uuidString,
-        key: String? = nil,
-        maxAccessCount: Int? = nil,
-        name: String? = nil,
+        key: String = "KEY",
+        maxAccessCount: UInt32? = nil,
+        name: String = "Test Send",
         notes: String? = nil,
         password: String? = nil,
         revisionDate: Date,

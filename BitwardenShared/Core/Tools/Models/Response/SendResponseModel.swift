@@ -6,10 +6,10 @@ struct SendResponseModel: Codable, Equatable {
     // MARK: Properties
 
     /// The number of times the send has been accessed.
-    let accessCount: Int
+    let accessCount: UInt32
 
     /// The identifier used to access the send.
-    let accessId: String?
+    let accessId: String
 
     /// The deletion date of the send.
     let deletionDate: Date
@@ -24,19 +24,19 @@ struct SendResponseModel: Codable, Equatable {
     let file: SendFileModel?
 
     /// Whether the user's email address should be hidden from recipients.
-    let hideEmail: Bool?
+    let hideEmail: Bool
 
     /// The send's identifier.
     let id: String
 
     /// The key used to decrypt the send.
-    let key: String?
+    let key: String
 
     /// The maximum number of times the send can be accessed.
-    let maxAccessCount: Int?
+    let maxAccessCount: UInt32?
 
     /// The name of the send.
-    let name: String?
+    let name: String
 
     /// Notes about the send.
     let notes: String?

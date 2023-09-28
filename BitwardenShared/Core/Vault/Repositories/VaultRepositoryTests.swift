@@ -126,7 +126,7 @@ class VaultRepositoryTests: BitwardenTestCase {
         return items.reduce(into: "") { result, item in
             switch item.itemType {
             case let .cipher(cipher):
-                result.append(indent + "- Cipher: \(cipher.name ?? "(empty)")")
+                result.append(indent + "- Cipher: \(cipher.name)")
             case let .group(group, count):
                 result.append(indent + "- Group: \(group.name) (\(count))")
             }

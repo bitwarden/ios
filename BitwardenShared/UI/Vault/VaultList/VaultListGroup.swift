@@ -33,7 +33,7 @@ extension VaultListGroup {
         case .card:
             return Localizations.typeCard
         case let .folder(folder):
-            return folder.name ?? ""
+            return folder.name
         case .identity:
             return Localizations.typeIdentity
         case .login:

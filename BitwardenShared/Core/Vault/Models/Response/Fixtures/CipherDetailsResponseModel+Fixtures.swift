@@ -6,7 +6,7 @@ extension CipherDetailsResponseModel {
     static func fixture(
         attachments: [AttachmentResponseModel]? = nil,
         card: CipherCardModel? = nil,
-        collectionIds: [String]? = nil,
+        collectionIds: [String] = [],
         creationDate: Date,
         deletedDate: Date? = nil,
         edit: Bool = false,
@@ -16,7 +16,7 @@ extension CipherDetailsResponseModel {
         id: String = UUID().uuidString,
         identity: CipherIdentityModel? = nil,
         login: CipherLoginModel? = nil,
-        name: String? = nil,
+        name: String = "Test Cipher",
         notes: String? = nil,
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
