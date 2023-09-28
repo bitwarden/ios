@@ -167,7 +167,7 @@ struct BitwardenTextField: View {
                 .resizable()
                 .frame(width: 14, height: 14)
                 .padding(10)
-                .foregroundColor(.white)
+                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                 .background(Asset.Colors.fillTertiary.swiftUIColor)
                 .clipShape(Circle())
                 .transaction { transaction in
