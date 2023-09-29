@@ -62,6 +62,10 @@ internal final class AuthCoordinator: NSObject, Coordinator {
 
     // MARK: Methods
 
+    func hideLoadingOverlay() {
+        stackNavigator.hideLoadingOverlay()
+    }
+
     func navigate(to route: AuthRoute, context: AnyObject?) {
         switch route {
         case let .captcha(url, callbackUrlScheme):
@@ -97,6 +101,10 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         case .regionSelection:
             showRegionSelection()
         }
+    }
+
+    func showLoadingOverlay(_ state: LoadingOverlayState) {
+        stackNavigator.showLoadingOverlay(state)
     }
 
     func start() {

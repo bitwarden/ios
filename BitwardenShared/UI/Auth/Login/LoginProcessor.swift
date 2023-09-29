@@ -107,6 +107,9 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// Attempts to log the user in with the email address and password values found in `state`.
     ///
     private func loginWithMasterPassword() async {
+        coordinator.showLoadingOverlay(title: Localizations.loggingIn)
+        defer { coordinator.hideLoadingOverlay() }
+
         do {
             _ = try await services.accountAPIService.preLogin(email: state.username)
             coordinator.navigate(to: .complete)

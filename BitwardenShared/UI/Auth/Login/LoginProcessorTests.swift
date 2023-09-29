@@ -41,6 +41,8 @@ class LoginProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests.first?.body, Data("{\"email\":\"email@example.com\"}".utf8))
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
     }
 
     /// `receive(_:)` with `.enterpriseSingleSignOnPressed` navigates to the enterprise single sign-on screen.
