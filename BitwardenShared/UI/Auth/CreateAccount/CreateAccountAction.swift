@@ -3,6 +3,9 @@
 /// Actions that can be processed by a `CreateAccountProcessor`.
 ///
 enum CreateAccountAction: Equatable {
+    /// The cancel button was pressed.
+    case dismiss
+
     /// The user edited the email text field.
     case emailTextChanged(String)
 

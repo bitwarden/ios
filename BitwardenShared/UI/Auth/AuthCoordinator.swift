@@ -18,7 +18,7 @@ protocol AuthCoordinatorDelegate: AnyObject {
 ///
 internal final class AuthCoordinator: Coordinator {
     // MARK: Types
-    
+
     typealias Services = HasAccountAPIService
         & HasAuthAPIService
 
@@ -66,6 +66,8 @@ internal final class AuthCoordinator: Coordinator {
             delegate?.didCompleteAuth()
         case .createAccount:
             showCreateAccount()
+        case .dismiss:
+            stackNavigator.dismiss(animated: true)
         case .enterpriseSingleSignOn:
             showEnterpriseSingleSignOn()
         case .landing:
@@ -105,7 +107,7 @@ internal final class AuthCoordinator: Coordinator {
                 )
             )
         )
-        stackNavigator.push(view)
+        stackNavigator.present(view, animated: UI.animated, overFullscreen: true)
     }
 
     /// Shows the enterprise single sign-on screen.

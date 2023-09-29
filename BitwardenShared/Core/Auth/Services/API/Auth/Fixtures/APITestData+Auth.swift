@@ -1,3 +1,6 @@
 extension APITestData {
-    static let identityToken = loadFromJsonBundle(resource: "identityToken")
+    // MARK: Identity Token
+
+    static let identityToken = loadFromJsonBundle(resource: "IdentityTokenSuccess")
+    static let identityTokenCaptchaError = loadFromJsonBundle(resource: "IdentityTokenCaptchaFailure")
 }

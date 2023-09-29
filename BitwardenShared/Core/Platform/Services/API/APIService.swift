@@ -12,6 +12,9 @@ class APIService {
     /// The API service used for logging events.
     let eventsService: HTTPService
 
+    /// The API service used for HIBP requests.
+    let hibpService: HTTPService
+
     /// The API service used for user identity requests.
     let identityService: HTTPService
 
@@ -37,6 +40,11 @@ class APIService {
         )
         eventsService = HTTPService(
             baseURL: URL(string: "https://vault.bitwarden.com/events")!,
+            client: client,
+            requestHandlers: [defaultHeadersRequestHandler]
+        )
+        hibpService = HTTPService(
+            baseURL: URL(string: "https://api.pwnedpasswords.com")!,
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )

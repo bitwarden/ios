@@ -1,0 +1,6 @@
+options:
+  outputPath: Bitwarden/Application/Support/Settings.bundle
+  prefix: Acknowledgements
+
+exclude:
+  - owner: bitwarden

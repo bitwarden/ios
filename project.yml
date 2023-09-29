@@ -14,6 +14,9 @@ settings:
   MARKETING_VERSION: 2023.7.1    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
 packages:
+  BitwardenSdk:
+    url: https://github.com/bitwarden/sdk-swift
+    revision: e280feb3bdfa6a13ab7f8cef6a000a83f76fceb3
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.13.0
@@ -287,6 +290,7 @@ targets:
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
     dependencies:
+      - package: BitwardenSdk
       - package: Networking
     preBuildScripts:
       - name: SwiftGen
