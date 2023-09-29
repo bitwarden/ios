@@ -46,6 +46,8 @@ public class HTTPService {
     ) {
         baseUrlGetter = { baseURL }
         self.client = client
+        self.requestHandlers = requestHandlers
+        self.responseHandlers = responseHandlers
     }
 
     /// Initialize a `HTTPService`.
@@ -54,10 +56,16 @@ public class HTTPService {
     ///   - baseUrlGetter: A getter function for dynamically retrieving the base url against which
     ///     requests are resolved.
     ///   - client: The underlying `HTTPClient` that performs the network request.
+    ///   - requestHandlers: A list of `RequestHandler`s that have the option to view or modify the
+    ///     request prior to it being sent.
+    ///   - responseHandlers: A list of `ResponseHandler`s that have the option to view or modify
+    ///     the response prior to it being parsed and returned to the caller.   
     ///
     public init(
         baseUrlGetter: @escaping () -> URL,
-        client: HTTPClient = URLSession.shared
+        client: HTTPClient = URLSession.shared,
+        requestHandlers: [RequestHandler] = [],
+        responseHandlers: [ResponseHandler] = []
     ) {
         self.baseUrlGetter = baseUrlGetter
         self.client = client
