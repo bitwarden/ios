@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - BitwardenTextField
 
 /// The standard text field used within this application. The text field can be
-/// configured act as a password field with visibility toggling, and supports
+/// configured to act as a password field with visibility toggling, and supports
 /// displaying configurable buttons on the trailing edge of the text field.
 ///
 struct BitwardenTextField: View {
@@ -88,9 +88,7 @@ struct BitwardenTextField: View {
 
     /// The buttons displayed on the trailing edge of the text field.
     @ViewBuilder private var textFieldButtons: some View {
-        if isPasswordVisible == nil, buttons.isEmpty {
-            EmptyView()
-        } else {
+        if isPasswordVisible != nil || buttons.isEmpty {
             HStack(spacing: 8) {
                 if let isPasswordVisible {
                     accessoryButton(
