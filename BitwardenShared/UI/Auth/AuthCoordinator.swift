@@ -21,6 +21,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
     // MARK: Types
 
     typealias Services = HasAccountAPIService
+        & HasAppIdService
         & HasAuthAPIService
         & HasCaptchaService
         & HasClientAuth

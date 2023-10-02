@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 // MARK: - CaptchaFlowDelegate
 
 /// An object that is signaled when specific circumstances in the captcha flow have been encountered.
@@ -24,6 +26,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     // MARK: Types
 
     typealias Services = HasAccountAPIService
+        & HasAppIdService
+        & HasAuthAPIService
         & HasCaptchaService
         & HasClientAuth
         & HasSystemDevice
@@ -110,9 +114,39 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     ///
     private func loginWithMasterPassword() async {
         do {
-            _ = try await services.accountAPIService.preLogin(email: state.username)
-            coordinator.navigate(to: .complete)
-            // Encrypt the password with the kdf algorithm and send it to the server for verification: BIT-420
+            let response = try await services.accountAPIService.preLogin(email: state.username)
+
+            let kdf: Kdf
+            switch response.kdf {
+            case .argon2id:
+                kdf = .argon2id(
+                    iterations: NonZeroU32(response.kdfIterations),
+                    memory: NonZeroU32(response.kdfMemory ?? 1),
+                    parallelism: NonZeroU32(response.kdfParallelism ?? 1)
+                )
+            case .pbkdf2sha256:
+                kdf = .pbkdf2(iterations: NonZeroU32(response.kdfIterations))
+            }
+
+            let hashedPassword = try await services.clientAuth.hashPassword(
+                email: state.username,
+                password: state.masterPassword,
+                kdfParams: kdf
+            )
+
+            let appID = await services.appIdService.getOrCreateAppId()
+            let identityTokenRequest = IdentityTokenRequestModel(
+                authenticationMethod: .password(
+                    username: state.username,
+                    password: hashedPassword
+                ),
+                captchaToken: nil,
+                deviceInfo: DeviceInfo(
+                    identifier: appID,
+                    name: services.systemDevice.modelIdentifier
+                )
+            )
+            let identityToken = try await services.authAPIService.getIdentityToken(identityTokenRequest)
         } catch {
             // Error handling will be added in BIT-387
 
