@@ -25,6 +25,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
     typealias Services = HasAccountAPIService
         & HasCaptchaService
+        & HasClientAuth
         & HasSystemDevice
 
     // MARK: Private Properties
