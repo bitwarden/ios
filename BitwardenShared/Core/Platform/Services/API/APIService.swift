@@ -23,7 +23,7 @@ class APIService {
     /// Initialize an `APIService` used to make API requests.
     ///
     /// - Parameters:
-    ///   - baseUrl: The base url used for all requests in this service.
+    ///   - baseUrlService: The service to get base urls used for all requests in this service.
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///
