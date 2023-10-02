@@ -82,4 +82,21 @@ class AuthAPIServiceTests: BitwardenTestCase {
             )
         }
     }
+
+    /// `refreshIdentityToken()` successfully decodes the identity token refresh response.
+    func test_refreshIdentityToken() async throws {
+        client.result = .httpSuccess(testData: .identityTokenRefresh)
+
+        let response = try await subject.refreshIdentityToken(refreshToken: "REFRESH_TOKEN")
+
+        XCTAssertEqual(
+            response,
+            IdentityTokenRefreshResponseModel(
+                accessToken: "ACCESS_TOKEN",
+                expiresIn: 3600,
+                tokenType: "Bearer",
+                refreshToken: "REFRESH_TOKEN"
+            )
+        )
+    }
 }
