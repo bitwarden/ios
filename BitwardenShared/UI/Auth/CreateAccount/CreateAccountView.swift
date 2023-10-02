@@ -93,15 +93,14 @@ struct CreateAccountView: View {
 
             BitwardenTextField(
                 title: Localizations.masterPassword,
-                icon: store.state.passwordVisibleIcon,
                 contentType: .password,
                 isPasswordVisible: store.binding(
                     get: \.arePasswordsVisible,
                     send: CreateAccountAction.togglePasswordVisibility
                 ),
                 text: store.binding(
-                    get: { $0.passwordText },
-                    send: { .passwordTextChanged($0) }
+                    get: \.passwordText,
+                    send: CreateAccountAction.passwordTextChanged
                 )
             )
         }
@@ -129,7 +128,6 @@ struct CreateAccountView: View {
     private var retypePassword: some View {
         BitwardenTextField(
             title: Localizations.retypeMasterPassword,
-            icon: store.state.passwordVisibleIcon,
             contentType: .password,
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,

@@ -17,7 +17,6 @@ struct LoginView: View {
             VStack(alignment: .leading) {
                 BitwardenTextField(
                     title: Localizations.masterPassword,
-                    icon: store.state.passwordVisibleIcon,
                     contentType: .password,
                     isPasswordVisible: store.binding(
                         get: { $0.isMasterPasswordRevealed },

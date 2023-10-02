@@ -1,7 +1,7 @@
 // MARK: - LandingAction
 
 /// Actions that can be processed by a `LandingProcessor`.
-enum LandingAction {
+enum LandingAction: Equatable {
     /// The continue button was pressed.
     case continuePressed
 
