@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 /// The `ServiceContainer` contains the list of services used by the app. This can be injected into
 /// `Coordinator`s throughout the app which build processors. A `Processor` can define which
@@ -29,6 +29,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to generate captcha related artifacts.
     let captchaService: CaptchaService
 
+    /// The object used by the application to retrieve information about this device.
+    let systemDevice: SystemDevice
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -38,17 +41,20 @@ public class ServiceContainer: Services {
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
+    ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///
     init(
         apiService: APIService,
         appSettingsStore: AppSettingsStore,
         baseUrlService: BaseUrlService,
-        captchaService: CaptchaService
+        captchaService: CaptchaService,
+        systemDevice: SystemDevice
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
         self.baseUrlService = baseUrlService
         self.captchaService = captchaService
+        self.systemDevice = systemDevice
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
     }
@@ -63,7 +69,8 @@ public class ServiceContainer: Services {
             apiService: APIService(baseUrlService: baseUrlService),
             appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),
             baseUrlService: baseUrlService,
-            captchaService: DefaultCaptchaService(baseUrlService: baseUrlService)
+            captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
+            systemDevice: UIDevice.current
         )
     }
 }

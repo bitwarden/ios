@@ -54,3 +54,9 @@ protocol HasCaptchaService {
     /// The service used by the application to generate captcha related artifacts.
     var captchaService: CaptchaService { get }
 }
+
+/// Protocol for an object that provides a `SystemDevice`.
+protocol HasSystemDevice {
+    /// The object used by the application to retrieve information about this device.
+    var systemDevice: SystemDevice { get }
+}
