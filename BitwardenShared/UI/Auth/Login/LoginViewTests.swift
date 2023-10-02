@@ -1,3 +1,4 @@
+import SnapshotTesting
 import SwiftUI
 import ViewInspector
 import XCTest
@@ -114,5 +115,28 @@ class LoginViewTests: BitwardenTestCase {
         let secureField = try subject.inspect().find(secureField: "")
         try secureField.setInput("text")
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordChanged("text"))
+    }
+
+    // MARK: Snapshots
+
+    func test_snapshot_empty() {
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_passwordHidden() {
+        processor.state.masterPassword = "Password"
+        processor.state.isMasterPasswordRevealed = false
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_passwordRevealed() {
+        processor.state.masterPassword = "Password"
+        processor.state.isMasterPasswordRevealed = true
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_withDevice() {
+        processor.state.isLoginWithDeviceVisible = true
+        assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 }
