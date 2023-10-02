@@ -120,7 +120,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     /// `validate(_:)` with a valid response does not throw a validation error.
     func test_validate_with200() {
         let response = HTTPResponse.success(
-            body: APITestData.identityToken.data
+            body: APITestData.identityTokenSuccess.data
         )
 
         XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))

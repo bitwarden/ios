@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -7,40 +8,170 @@ import XCTest
 class LoginProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appSettingsStore: MockAppSettingsStore!
+    var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
+    var clientAuth: MockClientAuth!
     var coordinator: MockCoordinator<AuthRoute>!
     var subject: LoginProcessor!
+    var systemDevice: MockSystemDevice!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        coordinator = MockCoordinator()
+        appSettingsStore = MockAppSettingsStore()
+        captchaService = MockCaptchaService()
         client = MockHTTPClient()
+        clientAuth = MockClientAuth()
+        coordinator = MockCoordinator()
+        systemDevice = MockSystemDevice()
         subject = LoginProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(httpClient: client),
+            services: ServiceContainer.withMocks(
+                appSettingsStore: appSettingsStore,
+                captchaService: captchaService,
+                clientAuth: clientAuth,
+                systemDevice: systemDevice,
+                httpClient: client
+            ),
             state: LoginState()
         )
     }
 
     override func tearDown() {
         super.tearDown()
+        appSettingsStore = nil
+        captchaService = nil
         client = nil
+        clientAuth = nil
         coordinator = nil
         subject = nil
+        systemDevice = nil
     }
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password.
-    func test_perform_loginWithMasterPasswordPressed() async {
-        client.result = .httpSuccess(testData: .preLoginSuccess)
+    func test_captchaCompleted() {
+        appSettingsStore.appId = "App id"
+        systemDevice.modelIdentifier = "Model id"
+        clientAuth.hashPasswordValue = "hashed password"
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
         subject.state.username = "email@example.com"
+        subject.state.masterPassword = "Password1234!"
+
+        subject.captchaCompleted(token: "token")
+
+        let preLoginRequest = PreLoginRequestModel(
+            email: "email@example.com"
+        )
+        let tokenRequest = IdentityTokenRequestModel(
+            authenticationMethod: .password(
+                username: "email@example.com",
+                password: "hashed password"
+            ),
+            captchaToken: "token",
+            deviceInfo: DeviceInfo(
+                identifier: "App id",
+                name: "Model id"
+            )
+        )
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
+        XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
+
+        XCTAssertEqual(clientAuth.hashPasswordEmail, "email@example.com")
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
+        XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+
+        XCTAssertEqual(coordinator.routes.last, .complete)
+    }
+
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password.
+    func test_perform_loginWithMasterPasswordPressed_success() async throws {
+        appSettingsStore.appId = "App id"
+        systemDevice.modelIdentifier = "Model id"
+        clientAuth.hashPasswordValue = "hashed password"
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        subject.state.username = "email@example.com"
+        subject.state.masterPassword = "Password1234!"
+
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        let preLoginRequest = PreLoginRequestModel(
+            email: "email@example.com"
+        )
+        let tokenRequest = IdentityTokenRequestModel(
+            authenticationMethod: .password(
+                username: "email@example.com",
+                password: "hashed password"
+            ),
+            captchaToken: nil,
+            deviceInfo: DeviceInfo(
+                identifier: "App id",
+                name: "Model id"
+            )
+        )
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
+        XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
+
+        XCTAssertEqual(clientAuth.hashPasswordEmail, "email@example.com")
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
+        XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+
+        XCTAssertEqual(coordinator.routes.last, .complete)
+    }
+
+    func test_perform_loginWithMasterPasswordPressed_captchaError() async {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "token")),
+        ]
+        captchaService.generateCaptchaUrlValue = .example
+        subject.state.username = "email@example.com"
+        subject.state.masterPassword = "Password1234!"
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(captchaService.callbackUrlSchemeGets, 1)
+        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
+        XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
+    }
+
+    func test_perform_loginWithMasterPasswordPressed_preLoginError() async {
+        client.results = [
+            .httpFailure(BitwardenTestError.example),
+        ]
+        subject.state.username = "email@example.com"
+        subject.state.masterPassword = "Password1234!"
         await subject.perform(.loginWithMasterPasswordPressed)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests.first?.body, Data("{\"email\":\"email@example.com\"}".utf8))
+        // TODO: BIT-709 Add an assertion for the error alert.
+    }
+
+    func test_perform_loginWithMasterPasswordPressed_identityTokenError() async {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(BitwardenTestError.example),
+        ]
+        subject.state.username = "email@example.com"
+        subject.state.masterPassword = "Password1234!"
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(client.requests.count, 2)
+        // TODO: BIT-709 Add an assertion for the error alert.
     }
 
     /// `receive(_:)` with `.enterpriseSingleSignOnPressed` navigates to the enterprise single sign-on screen.
