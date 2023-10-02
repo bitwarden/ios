@@ -15,7 +15,10 @@ class DeviceAPIServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         client = MockHTTPClient()
-        subject = APIService(client: client)
+        subject = APIService(
+            baseUrlService: DefaultBaseUrlService(baseUrl: .example),
+            client: client
+        )
     }
 
     override func tearDown() {

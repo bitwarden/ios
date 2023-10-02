@@ -1,3 +1,4 @@
+import AuthenticationServices
 import SwiftUI
 import UIKit
 
@@ -16,11 +17,12 @@ protocol AuthCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the authentication flow.
 ///
-internal final class AuthCoordinator: Coordinator {
+internal final class AuthCoordinator: NSObject, Coordinator {
     // MARK: Types
 
     typealias Services = HasAccountAPIService
         & HasAuthAPIService
+        & HasCaptchaService
 
     // MARK: Properties
 
@@ -62,6 +64,12 @@ internal final class AuthCoordinator: Coordinator {
 
     func navigate(to route: AuthRoute, context: AnyObject?) {
         switch route {
+        case let .captcha(url, callbackUrlScheme):
+            showCaptcha(
+                url: url,
+                callbackUrlScheme: callbackUrlScheme,
+                delegate: context as? CaptchaFlowDelegate
+            )
         case .complete:
             delegate?.didCompleteAuth()
         case .createAccount:
@@ -96,6 +104,39 @@ internal final class AuthCoordinator: Coordinator {
     }
 
     // MARK: Private Methods
+
+    /// Shows the captcha screen.
+    ///
+    /// - Parameters:
+    ///   - url: The URL for the captcha screen.
+    ///   - callbackUrlScheme: The callback url scheme for this application.
+    ///   - delegate: A `CaptchaFlowDelegate` object that is notified when the captcha flow succeeds or fails.
+    ///
+    private func showCaptcha(
+        url: URL,
+        callbackUrlScheme: String,
+        delegate: CaptchaFlowDelegate?
+    ) {
+        let session = ASWebAuthenticationSession(
+            url: url,
+            callbackURLScheme: callbackUrlScheme
+        ) { url, error in
+            if let url,
+               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+               let queryItem = components.queryItems?.first(where: { $0.name == "token" }),
+               let token = queryItem.value {
+                delegate?.captchaCompleted(token: token)
+            } else if let error {
+                delegate?.captchaErrored(error: error)
+            }
+        }
+
+        // prefersEphemeralWebBrowserSession should be false to allow access to the hCaptcha accessibility
+        // cookie set in the default browser: https://www.hcaptcha.com/accessibility
+        session.prefersEphemeralWebBrowserSession = false
+        session.presentationContextProvider = self
+        session.start()
+    }
 
     /// Shows the create account screen.
     private func showCreateAccount() {
@@ -166,5 +207,13 @@ internal final class AuthCoordinator: Coordinator {
     private func showRegionSelection() {
         let view = Text("Region")
         stackNavigator.push(view)
+    }
+}
+
+// MARK: ASWebAuthenticationPresentationContextProviding
+
+extension AuthCoordinator: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        stackNavigator.rootViewController?.view.window ?? UIWindow()
     }
 }

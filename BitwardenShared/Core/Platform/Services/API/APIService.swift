@@ -22,10 +22,15 @@ class APIService {
 
     /// Initialize an `APIService` used to make API requests.
     ///
-    /// - Parameter client: The underlying `HTTPClient` that performs the network request. Defaults
+    /// - Parameters:
+    ///   - baseUrlService: The service to get base urls used for all requests in this service.
+    ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///
-    init(client: HTTPClient = URLSession.shared) {
+    init(
+        baseUrlService: BaseUrlService,
+        client: HTTPClient = URLSession.shared
+    ) {
         let defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
             appName: Bundle.main.appName,
             appVersion: Bundle.main.appVersion,
@@ -34,12 +39,12 @@ class APIService {
         )
 
         apiService = HTTPService(
-            baseURL: URL(string: "https://vault.bitwarden.com/api")!,
+            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/api") },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )
         eventsService = HTTPService(
-            baseURL: URL(string: "https://vault.bitwarden.com/events")!,
+            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/events") },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )
@@ -49,7 +54,7 @@ class APIService {
             requestHandlers: [defaultHeadersRequestHandler]
         )
         identityService = HTTPService(
-            baseURL: URL(string: "https://vault.bitwarden.com/identity")!,
+            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/identity") },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )

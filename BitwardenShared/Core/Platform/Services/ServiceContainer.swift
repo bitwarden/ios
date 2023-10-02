@@ -23,6 +23,12 @@ public class ServiceContainer: Services {
     /// The service used by the application to persist app setting values.
     let appSettingsStore: AppSettingsStore
 
+    /// The service used by the application to retrieve the current base url for API requests.
+    let baseUrlService: BaseUrlService
+
+    /// The service used by the application to generate captcha related artifacts.
+    let captchaService: CaptchaService
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -30,13 +36,19 @@ public class ServiceContainer: Services {
     /// - Parameters:
     ///   - apiService: The service used by the application to make API requests.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
+    ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
+    ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///
     init(
         apiService: APIService,
-        appSettingsStore: AppSettingsStore
+        appSettingsStore: AppSettingsStore,
+        baseUrlService: BaseUrlService,
+        captchaService: CaptchaService
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
+        self.baseUrlService = baseUrlService
+        self.captchaService = captchaService
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
     }
@@ -44,9 +56,14 @@ public class ServiceContainer: Services {
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
     public convenience init() {
+        let baseUrlService = DefaultBaseUrlService(
+            baseUrl: URL(string: "https://vault.bitwarden.com")!
+        )
         self.init(
-            apiService: APIService(),
-            appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard)
+            apiService: APIService(baseUrlService: baseUrlService),
+            appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),
+            baseUrlService: baseUrlService,
+            captchaService: DefaultCaptchaService(baseUrlService: baseUrlService)
         )
     }
 }
