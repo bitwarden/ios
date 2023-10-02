@@ -93,7 +93,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
     ///   with hCaptcha.
     ///
-    private func launchCaptchaFlow(with siteKey: String) async {
+    private func launchCaptchaFlow(with siteKey: String) {
         do {
             let callbackUrlScheme = services.captchaService.callbackUrlScheme
             let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
@@ -105,14 +105,14 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 context: self
             )
         } catch {
-            // Error handling will be added in BIT-549
+            // TODO: BIT-709 Add proper error handling
             print(error)
         }
     }
 
     /// Attempts to log the user in with the email address and password values found in `state`.
     ///
-    private func loginWithMasterPassword() async {
+    private func loginWithMasterPassword(captchaToken: String? = nil) async {
         do {
             let response = try await services.accountAPIService.preLogin(email: state.username)
 
@@ -140,19 +140,26 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                     username: state.username,
                     password: hashedPassword
                 ),
-                captchaToken: nil,
+                captchaToken: captchaToken,
                 deviceInfo: DeviceInfo(
                     identifier: appID,
                     name: services.systemDevice.modelIdentifier
                 )
             )
             let identityToken = try await services.authAPIService.getIdentityToken(identityTokenRequest)
-        } catch {
-            // Error handling will be added in BIT-387
+            print("TOKEN: \(identityToken)")
 
-            // Replace the siteKey with the actual siteKey if a captcha error is detected.
-            let siteKey = ""
-            await launchCaptchaFlow(with: siteKey)
+            // TODO: BIT-165 Store the access token.
+            coordinator.navigate(to: .complete)
+        } catch {
+            if let error = error as? IdentityTokenRequestError {
+                switch error {
+                case let .captchaRequired(hCaptchaSiteCode):
+                    launchCaptchaFlow(with: hCaptchaSiteCode)
+                }
+            } else {
+                // TODO: BIT-709 Add proper error handling for non-captcha errors.
+            }
         }
     }
 }
@@ -161,12 +168,13 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
 extension LoginProcessor: CaptchaFlowDelegate {
     func captchaCompleted(token: String) {
-        // Actually do something with the captcha token here, send the identity token request: BIT-420
-        print(token)
+        Task {
+            await loginWithMasterPassword(captchaToken: token)
+        }
     }
 
     func captchaErrored(error: Error) {
-        // Error handling will be added in BIT-549
+        // TODO: BIT-709 Add proper error handling.
         print(error)
     }
 }

@@ -7,6 +7,8 @@ typealias Services = HasAccountAPIService
     & HasAppSettingsStore
     & HasAuthAPIService
     & HasCaptchaService
+    & HasClientAuth
+    & HasSystemDevice
 
 /// Protocol for an object that provides an `AccountAPIService`.
 ///
