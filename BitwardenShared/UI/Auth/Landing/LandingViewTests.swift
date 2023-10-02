@@ -30,8 +30,21 @@ class LandingViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    func test_continueButton_disabled() throws {
+        processor.state.isContinueButtonEnabled = false
+        let button = try subject.inspect().find(button: Localizations.continue)
+        XCTAssertTrue(button.isDisabled())
+    }
+
+    func test_continueButton_enabled() throws {
+        processor.state.isContinueButtonEnabled = true
+        let button = try subject.inspect().find(button: Localizations.continue)
+        XCTAssertFalse(button.isDisabled())
+    }
+
     /// Tapping the continue button dispatches the `.continuePressed` action.
     func test_continueButton_tap() throws {
+        processor.state.isContinueButtonEnabled = true
         let button = try subject.inspect().find(button: Localizations.continue)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .continuePressed)
@@ -78,6 +91,17 @@ class LandingViewTests: BitwardenTestCase {
     /// Check the snapshot when the email text field has a value.
     func test_snapshot_email_value() {
         processor.state.email = "email@example.com"
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_isContinueButtonEnabled_true() {
+        processor.state.isContinueButtonEnabled = true
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_emailValue_isContinueButtonEnabledTrue() {
+        processor.state.email = "email@example.com"
+        processor.state.isContinueButtonEnabled = true
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
