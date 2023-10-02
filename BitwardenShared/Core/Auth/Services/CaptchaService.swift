@@ -85,14 +85,10 @@ class DefaultCaptchaService: CaptchaService {
             URLQueryItem(name: "v", value: "1"),
         ]
 
-        // Using URLComponents until iOS 16 is our base, since that's when `.appending(queryItems:)` was added
-        var components = URLComponents(
-            url: baseUrlService.baseUrl.appendingPathComponent("/captcha-mobile-connector.html"),
-            resolvingAgainstBaseURL: false
-        )
-        components?.queryItems = queryItems
-
-        guard let url = components?.url else { throw CaptchaURLError.unableToGenerateUrl }
+        guard let url = baseUrlService.baseUrl
+            .appendingPathComponent("/captcha-mobile-connector.html")
+            .appending(queryItems: queryItems)
+        else { throw CaptchaURLError.unableToGenerateUrl }
 
         return url
     }
