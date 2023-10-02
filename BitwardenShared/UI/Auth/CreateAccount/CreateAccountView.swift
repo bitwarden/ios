@@ -76,7 +76,7 @@ struct CreateAccountView: View {
         )) {
             Text(Localizations.checkKnownDataBreachesForThisPassword)
                 .foregroundColor(Color(asset: Asset.Colors.textPrimary))
-                .font(.system(.footnote))
+                .font(.styleGuide(.footnote))
         }
         .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.checkBreaches)
@@ -126,7 +126,7 @@ struct CreateAccountView: View {
 
             Text(Localizations.masterPasswordHintDescription)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .font(.system(.footnote))
+                .font(.styleGuide(.footnote))
         }
     }
 
@@ -183,7 +183,7 @@ struct CreateAccountView: View {
             openURL(ExternalLinksConstants.privacyPolicy)
         }
         .foregroundColor(Color(asset: Asset.Colors.textPrimary))
-        .font(.system(.footnote))
+        .font(.styleGuide(.footnote))
         .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.termsAndPrivacy)
     }

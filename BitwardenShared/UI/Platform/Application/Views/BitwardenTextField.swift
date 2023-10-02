@@ -67,15 +67,17 @@ struct BitwardenTextField: View {
     private var textField: some View {
         HStack(spacing: 8) {
             ZStack {
+                let isPassword = contentType == .password
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
                 TextField(placeholder, text: $text)
+                    .font(.styleGuide(isPassword ? .bodyMonospaced : .body))
                     .hidden(!isPasswordVisible && contentType == .password)
                     .id(title)
                     .keyboardType(keyboardType)
                     .textContentType(contentType)
                     .textInputAutocapitalization(autoCaptializationType)
-                if contentType == .password, !isPasswordVisible {
+                if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
                         .id(title)
                 }
@@ -127,7 +129,7 @@ struct BitwardenTextField: View {
     @ViewBuilder private var textFieldTitle: some View {
         if let title {
             Text(title)
-                .font(.system(.subheadline))
+                .font(.styleGuide(.subheadline))
                 .bold()
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
         }

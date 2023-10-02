@@ -84,6 +84,13 @@ inclusive_language:
     - masterPassword
 
 custom_rules:
+  style_guide_font:
+    name: "Style Guide Font"
+    regex: "(.font\\(.system)"
+    message: "Prefer using a style guide font over the system fonts, for example: \".font(.styleGuide(.body))\""
+    match_kinds:
+      - identifier
+    severity: warning
   todo_without_jira:
     name: "TODO without JIRA"
     regex: "(TODO|TO DO|FIX|FIXME|FIX ME|todo)(?!: BIT-[0-9]{1,})" # "TODO: BIT-123"
