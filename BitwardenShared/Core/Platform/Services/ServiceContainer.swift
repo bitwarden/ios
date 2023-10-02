@@ -60,7 +60,7 @@ public class ServiceContainer: Services {
             baseUrl: URL(string: "https://vault.bitwarden.com")!
         )
         self.init(
-            apiService: APIService(baseUrlService: baseUrlService),
+            apiService: APIService(baseUrlService: baseUrlService, tokenService: DefaultTokenService()),
             appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService)

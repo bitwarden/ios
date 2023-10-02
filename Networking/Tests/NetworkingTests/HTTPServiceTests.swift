@@ -106,6 +106,123 @@ class HTTPServiceTests: XCTestCase {
         }
     }
 
+    /// `send(_:)` applies the access token from the token provider to requests.
+    func test_sendRequest_tokenProvider_appliesAccessToken() async throws {
+        let tokenProvider = MockTokenProvider()
+        subject = HTTPService(
+            baseURL: URL(string: "https://example.com")!,
+            client: client,
+            tokenProvider: tokenProvider
+        )
+
+        client.result = .success(.success())
+
+        _ = try await subject.send(TestRequest())
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].headers, ["Authorization": "Bearer ACCESS_TOKEN"])
+        XCTAssertEqual(tokenProvider.getTokenCallCount, 1)
+        XCTAssertEqual(tokenProvider.refreshTokenCallCount, 0)
+    }
+
+    /// `send(_:)` throws an error if refreshing the access token results in an error.
+    func test_sendRequest_tokenProvider_refreshAccessTokenError() async {
+        let tokenProvider = MockTokenProvider()
+        subject = HTTPService(
+            baseURL: URL(string: "https://example.com")!,
+            client: client,
+            tokenProvider: tokenProvider
+        )
+
+        client.results = [
+            .success(.failure(statusCode: 401)),
+        ]
+
+        tokenProvider.tokenResults = [
+            .success("ACCESS_TOKEN"),
+        ]
+        tokenProvider.refreshTokenResult = .failure(RequestError())
+
+        do {
+            _ = try await subject.send(TestRequest())
+        } catch {
+            XCTAssertTrue(error is RequestError)
+        }
+    }
+
+    /// `send(_:)` doesn't keep trying to refresh the access token if 401 Unauthorized is received
+    /// after refreshing the token.
+    func test_sendRequest_tokenProvider_refreshAccessTokenUnauthorized() async throws {
+        let tokenProvider = MockTokenProvider()
+        subject = HTTPService(
+            baseURL: URL(string: "https://example.com")!,
+            client: client,
+            tokenProvider: tokenProvider
+        )
+
+        client.results = [
+            .success(.failure(statusCode: 401)),
+            .success(.failure(statusCode: 401)),
+        ]
+
+        tokenProvider.tokenResults = [
+            .success("ACCESS_TOKEN"),
+            .success("REFRESHED_ACCESS_TOKEN"),
+        ]
+
+        let response = try await subject.send(TestRequest())
+
+        XCTAssertEqual(response.httpResponse.statusCode, 401)
+        XCTAssertEqual(tokenProvider.getTokenCallCount, 2)
+        XCTAssertEqual(tokenProvider.refreshTokenCallCount, 1)
+    }
+
+    /// `send(_:)` doesn't refresh the access token for non-401 status codes.
+    func test_sendRequest_tokenProvider_doesNotRefreshTokenForNon401Statuses() async throws {
+        let tokenProvider = MockTokenProvider()
+        subject = HTTPService(
+            baseURL: URL(string: "https://example.com")!,
+            client: client,
+            tokenProvider: tokenProvider
+        )
+
+        client.result = .success(.failure(statusCode: 500))
+
+        let response = try await subject.send(TestRequest())
+
+        XCTAssertEqual(response.httpResponse.statusCode, 500)
+        XCTAssertEqual(tokenProvider.getTokenCallCount, 1)
+        XCTAssertEqual(tokenProvider.refreshTokenCallCount, 0)
+    }
+
+    /// `send(_:)` refreshes the access token if a 401 Unauthorized error occurs.
+    func test_sendRequest_tokenProvider_refreshesAccessToken() async throws {
+        let tokenProvider = MockTokenProvider()
+        subject = HTTPService(
+            baseURL: URL(string: "https://example.com")!,
+            client: client,
+            tokenProvider: tokenProvider
+        )
+
+        client.results = [
+            .success(.failure(statusCode: 401)),
+            .success(.success()),
+        ]
+
+        tokenProvider.tokenResults = [
+            .success("ACCESS_TOKEN"),
+            .success("REFRESHED_ACCESS_TOKEN"),
+        ]
+
+        _ = try await subject.send(TestRequest())
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].headers, ["Authorization": "Bearer ACCESS_TOKEN"])
+        XCTAssertEqual(client.requests[1].headers, ["Authorization": "Bearer REFRESHED_ACCESS_TOKEN"])
+        XCTAssertEqual(tokenProvider.getTokenCallCount, 2)
+        XCTAssertEqual(tokenProvider.refreshTokenCallCount, 1)
+    }
+
     /// `send(_:)` throws the error encountered when validating the response.
     func test_sendRequest_validatesResponse() async {
         let response = HTTPResponse.failure(statusCode: 400)
