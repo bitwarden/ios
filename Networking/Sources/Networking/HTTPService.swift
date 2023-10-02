@@ -59,7 +59,7 @@ public class HTTPService {
     ///   - requestHandlers: A list of `RequestHandler`s that have the option to view or modify the
     ///     request prior to it being sent.
     ///   - responseHandlers: A list of `ResponseHandler`s that have the option to view or modify
-    ///     the response prior to it being parsed and returned to the caller.   
+    ///     the response prior to it being parsed and returned to the caller.
     ///
     public init(
         baseUrlGetter: @escaping () -> URL,

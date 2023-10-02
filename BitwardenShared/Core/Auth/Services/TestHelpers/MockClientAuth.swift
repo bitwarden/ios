@@ -32,7 +32,7 @@ class MockClientAuth: ClientAuthProtocol {
     var hashPasswordPassword: String?
     var hashPasswordKdfParams: Kdf?
 
-    func makeRegisterKeys(email: String, password: String, kdf: BitwardenSdk.Kdf) async throws -> RegisterKeyResponse {
+    func makeRegisterKeys(email: String, password: String, kdf: Kdf) async throws -> RegisterKeyResponse {
         makeRegisterKeysEmail = email
         makeRegisterKeysPassword = password
         makeRegisterKeysKdf = kdf
@@ -51,7 +51,7 @@ class MockClientAuth: ClientAuthProtocol {
         return passwordStrengthValue
     }
 
-    func satisfiesPolicy(password: String, strength: UInt8, policy: BitwardenSdk.MasterPasswordPolicyOptions) async -> Bool {
+    func satisfiesPolicy(password: String, strength: UInt8, policy: MasterPasswordPolicyOptions) async -> Bool {
         satisfiesPolicyPassword = password
         satisfiesPolicyStrength = strength
         satisfiesPolicyPolicy = policy
