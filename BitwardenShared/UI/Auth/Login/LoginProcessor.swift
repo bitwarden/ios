@@ -121,6 +121,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
     /// Attempts to log the user in with the email address and password values found in `state`.
     ///
+    /// - Parameter captchaToken: An optional captcha token value to add to the token request.
+    ///
     private func loginWithMasterPassword(captchaToken: String? = nil) async {
         coordinator.showLoadingOverlay(title: Localizations.loggingIn)
         defer {

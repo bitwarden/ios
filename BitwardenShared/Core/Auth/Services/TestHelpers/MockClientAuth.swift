@@ -4,17 +4,18 @@ import Foundation
 @testable import BitwardenShared
 
 class MockClientAuth: ClientAuthProtocol {
-    var hashPasswordValue = "hash password"
-    var satisfiesPolicyValue = true
-    var passwordStrengthValue = UInt8(2)
-    var makeRegisterKeysValue = RegisterKeyResponse(
+    var hashPasswordResult: Result<String, Error> = .success("hash password")
+    var makeRegisterKeysResult: Result<RegisterKeyResponse, Error> = .success(RegisterKeyResponse(
         masterPasswordHash: "masterPasswordHash",
         encryptedUserKey: "encryptedUserKey",
         keys: RsaKeyPair(public: "public", private: "private")
-    )
+    ))
+    var satisfiesPolicyResult = true
+    var passwordStrengthResult = UInt8(2)
 
-    var hashPasswordError: Error?
-    var makeRegisterKeysError: Error?
+    var hashPasswordEmail: String?
+    var hashPasswordPassword: String?
+    var hashPasswordKdfParams: Kdf?
 
     var makeRegisterKeysEmail: String?
     var makeRegisterKeysPassword: String?
@@ -28,19 +29,20 @@ class MockClientAuth: ClientAuthProtocol {
     var satisfiesPolicyStrength: UInt8?
     var satisfiesPolicyPolicy: MasterPasswordPolicyOptions?
 
-    var hashPasswordEmail: String?
-    var hashPasswordPassword: String?
-    var hashPasswordKdfParams: Kdf?
+    func hashPassword(email: String, password: String, kdfParams: Kdf) async throws -> String {
+        hashPasswordEmail = email
+        hashPasswordPassword = password
+        hashPasswordKdfParams = kdfParams
+
+        return try hashPasswordResult.get()
+    }
 
     func makeRegisterKeys(email: String, password: String, kdf: Kdf) async throws -> RegisterKeyResponse {
         makeRegisterKeysEmail = email
         makeRegisterKeysPassword = password
         makeRegisterKeysKdf = kdf
 
-        if let makeRegisterKeysError {
-            throw makeRegisterKeysError
-        }
-        return makeRegisterKeysValue
+        return try makeRegisterKeysResult.get()
     }
 
     func passwordStrength(password: String, email: String, additionalInputs: [String]) async -> UInt8 {
@@ -48,7 +50,7 @@ class MockClientAuth: ClientAuthProtocol {
         passwordStrengthEmail = email
         passwordStrengthAdditionalInputs = additionalInputs
 
-        return passwordStrengthValue
+        return passwordStrengthResult
     }
 
     func satisfiesPolicy(password: String, strength: UInt8, policy: MasterPasswordPolicyOptions) async -> Bool {
@@ -56,17 +58,6 @@ class MockClientAuth: ClientAuthProtocol {
         satisfiesPolicyStrength = strength
         satisfiesPolicyPolicy = policy
 
-        return satisfiesPolicyValue
-    }
-
-    func hashPassword(email: String, password: String, kdfParams: Kdf) async throws -> String {
-        hashPasswordEmail = email
-        hashPasswordPassword = password
-        hashPasswordKdfParams = kdfParams
-
-        if let hashPasswordError {
-            throw hashPasswordError
-        }
-        return hashPasswordValue
+        return satisfiesPolicyResult
     }
 }

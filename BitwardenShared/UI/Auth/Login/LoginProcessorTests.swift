@@ -56,7 +56,7 @@ class LoginProcessorTests: BitwardenTestCase {
     func test_captchaCompleted() {
         appSettingsStore.appId = "App id"
         systemDevice.modelIdentifier = "Model id"
-        clientAuth.hashPasswordValue = "hashed password"
+        clientAuth.hashPasswordResult = .success("hashed password")
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
             .httpSuccess(testData: .identityTokenSuccess),
@@ -151,7 +151,7 @@ class LoginProcessorTests: BitwardenTestCase {
     func test_perform_loginWithMasterPasswordPressed_success() async throws {
         appSettingsStore.appId = "App id"
         systemDevice.modelIdentifier = "Model id"
-        clientAuth.hashPasswordValue = "hashed password"
+        clientAuth.hashPasswordResult = .success("hashed password")
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
             .httpSuccess(testData: .identityTokenSuccess),
