@@ -175,12 +175,12 @@ struct CreateAccountView: View {
             send: CreateAccountAction.toggleTermsAndPrivacy
         )) {
             Text("\(Localizations.acceptPolicies)\n\(termsOfServiceString ?? "") \(privacyPolicyString ?? "")")
-                .accessibilityAction(named: Localizations.termsOfService) {
-                    openURL(ExternalLinksConstants.termsOfService)
-                }
-                .accessibilityAction(named: Localizations.privacyPolicy) {
-                    openURL(ExternalLinksConstants.privacyPolicy)
-                }
+        }
+        .accessibilityAction(named: Localizations.termsOfService) {
+            openURL(ExternalLinksConstants.termsOfService)
+        }
+        .accessibilityAction(named: Localizations.privacyPolicy) {
+            openURL(ExternalLinksConstants.privacyPolicy)
         }
         .foregroundColor(Color(asset: Asset.Colors.textPrimary))
         .font(.system(.footnote))
