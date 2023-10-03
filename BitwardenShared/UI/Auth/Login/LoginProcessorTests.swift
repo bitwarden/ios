@@ -52,6 +52,7 @@ class LoginProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `captchaCompleted()` makes the login requests again, this time with a captcha token.
     func test_captchaCompleted() {
         appSettingsStore.appId = "App id"
         systemDevice.modelIdentifier = "Model id"
@@ -178,6 +179,8 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .complete)
     }
 
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha error occurs navigates to the `.captcha`
+    /// route.
     func test_perform_loginWithMasterPasswordPressed_captchaError() async {
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
@@ -194,6 +197,8 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
     }
 
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` and an error with the pre-login request displays an error
+    /// alert.
     func test_perform_loginWithMasterPasswordPressed_preLoginError() async {
         client.results = [
             .httpFailure(BitwardenTestError.example),
@@ -206,6 +211,8 @@ class LoginProcessorTests: BitwardenTestCase {
         // TODO: BIT-709 Add an assertion for the error alert.
     }
 
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` and an error with the identity token request displays an
+    /// error alert.
     func test_perform_loginWithMasterPasswordPressed_identityTokenError() async {
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
