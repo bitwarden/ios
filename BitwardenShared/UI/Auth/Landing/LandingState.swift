@@ -9,7 +9,9 @@ struct LandingState: Equatable {
     var email: String
 
     /// A flag indicating if the continue button is enabled.
-    var isContinueButtonEnabled: Bool
+    var isContinueButtonEnabled: Bool {
+        !email.isEmpty
+    }
 
     /// A flag indicating if the "Remember Me" toggle is on.
     var isRememberMeOn: Bool
@@ -24,11 +26,9 @@ struct LandingState: Equatable {
     ///
     init(
         email: String = "",
-        isContinueButtonEnabled: Bool = false,
         isRememberMeOn: Bool = false
     ) {
         self.email = email
-        self.isContinueButtonEnabled = isContinueButtonEnabled
         self.isRememberMeOn = isRememberMeOn
     }
 }

@@ -87,7 +87,6 @@ struct LandingView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: LandingState(
                             email: "",
-                            isContinueButtonEnabled: false,
                             isRememberMeOn: false
                         )
                     )
@@ -102,7 +101,6 @@ struct LandingView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: LandingState(
                             email: "email@example.com",
-                            isContinueButtonEnabled: true,
                             isRememberMeOn: true
                         )
                     )

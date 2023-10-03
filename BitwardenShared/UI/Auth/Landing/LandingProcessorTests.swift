@@ -52,7 +52,6 @@ class LandingProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.emailChanged` and an empty value updates the state to reflect the changes.
     func test_receive_emailChanged_empty() {
         subject.state.email = "email@example.com"
-        subject.state.isContinueButtonEnabled = true
 
         subject.receive(.emailChanged(""))
         XCTAssertEqual(subject.state.email, "")

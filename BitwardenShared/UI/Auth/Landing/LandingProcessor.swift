@@ -37,7 +37,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
         case .createAccountPressed:
             coordinator.navigate(to: .createAccount)
         case let .emailChanged(newValue):
-            state.isContinueButtonEnabled = !newValue.isEmpty
             state.email = newValue
         case .regionPressed:
             coordinator.navigate(to: .regionSelection)
