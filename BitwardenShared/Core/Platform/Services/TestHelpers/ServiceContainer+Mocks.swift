@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Networking
 
 @testable import BitwardenShared
@@ -7,6 +8,7 @@ extension ServiceContainer {
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         baseUrlService: BaseUrlService = DefaultBaseUrlService(baseUrl: .example),
         captchaService: CaptchaService = MockCaptchaService(),
+        clientAuth: ClientAuthProtocol = MockClientAuth(),
         httpClient: HTTPClient = MockHTTPClient()
     ) -> ServiceContainer {
         ServiceContainer(
@@ -16,7 +18,8 @@ extension ServiceContainer {
             ),
             appSettingsStore: appSettingsStore,
             baseUrlService: baseUrlService,
-            captchaService: captchaService
+            captchaService: captchaService,
+            clientAuth: clientAuth
         )
     }
 }

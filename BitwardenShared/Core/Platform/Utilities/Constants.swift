@@ -16,4 +16,7 @@ enum Constants {
 
     /// A default value for the minimum number of characters required when creating a password.
     static let minimumPasswordCharacters: Int = 12
+
+    /// The default number of KDF iterations to perform.
+    static let pbkdf2Iterations: Int = 600_000
 }

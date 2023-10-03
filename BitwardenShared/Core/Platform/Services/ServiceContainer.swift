@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 /// The `ServiceContainer` contains the list of services used by the app. This can be injected into
@@ -29,6 +30,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to generate captcha related artifacts.
     let captchaService: CaptchaService
 
+    /// The client used by the application to handle auth related encryption and decryption tasks.
+    let clientAuth: ClientAuthProtocol
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -38,17 +42,20 @@ public class ServiceContainer: Services {
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
+    ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///
     init(
         apiService: APIService,
         appSettingsStore: AppSettingsStore,
         baseUrlService: BaseUrlService,
-        captchaService: CaptchaService
+        captchaService: CaptchaService,
+        clientAuth: ClientAuthProtocol
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
         self.baseUrlService = baseUrlService
         self.captchaService = captchaService
+        self.clientAuth = clientAuth
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
     }
@@ -59,11 +66,14 @@ public class ServiceContainer: Services {
         let baseUrlService = DefaultBaseUrlService(
             baseUrl: URL(string: "https://vault.bitwarden.com")!
         )
+
+        let client = BitwardenSdk.Client(settings: nil)
         self.init(
             apiService: APIService(baseUrlService: baseUrlService, tokenService: DefaultTokenService()),
             appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),
             baseUrlService: baseUrlService,
-            captchaService: DefaultCaptchaService(baseUrlService: baseUrlService)
+            captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
+            clientAuth: client.auth()
         )
     }
 }

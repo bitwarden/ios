@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasAccountAPIService
     & HasAPIService
@@ -5,6 +7,7 @@ typealias Services = HasAccountAPIService
     & HasAppSettingsStore
     & HasAuthAPIService
     & HasCaptchaService
+    & HasClientAuth
 
 /// Protocol for an object that provides an `AccountAPIService`.
 ///
@@ -53,4 +56,11 @@ protocol HasBaseUrlService {
 protocol HasCaptchaService {
     /// The service used by the application to generate captcha related artifacts.
     var captchaService: CaptchaService { get }
+}
+
+/// Protocol for an object that provides a `ClientAuth`.
+///
+protocol HasClientAuth {
+    /// The client used by the application to handle auth related encryption and decryption tasks.
+    var clientAuth: ClientAuthProtocol { get }
 }

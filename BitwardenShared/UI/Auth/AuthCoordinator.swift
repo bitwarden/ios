@@ -23,6 +23,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
     typealias Services = HasAccountAPIService
         & HasAuthAPIService
         & HasCaptchaService
+        & HasClientAuth
 
     // MARK: Properties
 
@@ -144,6 +145,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             store: Store(
                 processor: CreateAccountProcessor(
                     coordinator: asAnyCoordinator(),
+                    services: services,
                     state: CreateAccountState()
                 )
             )

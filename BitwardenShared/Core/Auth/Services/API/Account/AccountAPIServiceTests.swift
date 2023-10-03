@@ -37,7 +37,11 @@ class AccountAPIServiceTests: BitwardenTestCase {
             _ = try await subject.createNewAccount(
                 body: CreateAccountRequestModel(
                     email: "example@email.com",
-                    masterPasswordHash: "1234"
+                    kdfConfig: KdfConfig(),
+                    key: "key",
+                    keys: KeysRequestModel(encryptedPrivateKey: "private"),
+                    masterPasswordHash: "1a2b3c",
+                    masterPasswordHint: "hint"
                 )
             )
         }
@@ -52,7 +56,11 @@ class AccountAPIServiceTests: BitwardenTestCase {
             _ = try await subject.createNewAccount(
                 body: CreateAccountRequestModel(
                     email: "example@email.com",
-                    masterPasswordHash: "1234"
+                    kdfConfig: KdfConfig(),
+                    key: "key",
+                    keys: KeysRequestModel(encryptedPrivateKey: "private"),
+                    masterPasswordHash: "1a2b3c",
+                    masterPasswordHint: "hint"
                 )
             )
         }
@@ -60,13 +68,17 @@ class AccountAPIServiceTests: BitwardenTestCase {
 
     /// `createNewAccount(email:masterPasswordHash)` returns the correct value from the API with a successful request.
     func test_create_account_success() async throws {
-        let resultData = APITestData.createAccountResponse
+        let resultData = APITestData.createAccountSuccess
         client.result = .httpSuccess(testData: resultData)
 
         let successfulResponse = try await subject.createNewAccount(
             body: CreateAccountRequestModel(
                 email: "example@email.com",
-                masterPasswordHash: "1234"
+                kdfConfig: KdfConfig(),
+                key: "key",
+                keys: KeysRequestModel(encryptedPrivateKey: "private"),
+                masterPasswordHash: "1a2b3c",
+                masterPasswordHint: "hint"
             )
         )
 
