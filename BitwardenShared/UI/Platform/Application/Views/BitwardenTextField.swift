@@ -183,9 +183,7 @@ struct BitwardenTextField: View {
                 .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                 .background(Asset.Colors.fillTertiary.swiftUIColor)
                 .clipShape(Circle())
-                .transaction { transaction in
-                    transaction.animation = nil
-                }
+                .animation(nil, value: button.icon.swiftUIImage)
         }
         .accessibilityLabel(button.accessibilityLabel)
     }

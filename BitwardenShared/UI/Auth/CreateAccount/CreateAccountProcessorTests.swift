@@ -81,6 +81,31 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.passwordText == "updated password")
     }
 
+    /// `receive(_:)` with `.passwordTextChanged(_:)` updates the password strength score based on
+    /// the entered password.
+    func test_receive_passwordTextChanged_updatesPasswordStrength() {
+        subject.receive(.passwordTextChanged(""))
+        XCTAssertNil(subject.state.passwordStrengthScore)
+
+        subject.receive(.passwordTextChanged("T"))
+        XCTAssertEqual(subject.state.passwordStrengthScore, 0)
+
+        subject.receive(.passwordTextChanged("Test"))
+        XCTAssertEqual(subject.state.passwordStrengthScore, 1)
+
+        subject.receive(.passwordTextChanged("TestPass"))
+        XCTAssertEqual(subject.state.passwordStrengthScore, 2)
+
+        subject.receive(.passwordTextChanged("TestPasswo"))
+        XCTAssertEqual(subject.state.passwordStrengthScore, 3)
+
+        subject.receive(.passwordTextChanged("TestPassword123"))
+        XCTAssertEqual(subject.state.passwordStrengthScore, 4)
+
+        subject.receive(.passwordTextChanged("TestPassword1234567890!@#"))
+        XCTAssertEqual(subject.state.passwordStrengthScore, 4)
+    }
+
     /// `receive(_:)` with `.retypePasswordTextChanged(_:)` updates the state to reflect the change.
     func test_receive_retypePasswordTextChanged() {
         subject.state.retypePasswordText = ""

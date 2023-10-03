@@ -104,6 +104,7 @@ class CreateAccountViewTests: BitwardenTestCase {
         processor.state.passwordText = "12345"
         processor.state.retypePasswordText = "12345"
         processor.state.passwordHintText = "wink wink"
+        processor.state.passwordStrengthScore = 0
 
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
@@ -115,6 +116,7 @@ class CreateAccountViewTests: BitwardenTestCase {
         processor.state.passwordText = "12345"
         processor.state.retypePasswordText = "12345"
         processor.state.passwordHintText = "wink wink"
+        processor.state.passwordStrengthScore = 0
 
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
