@@ -78,7 +78,7 @@ struct CreateAccountView: View {
                 .foregroundColor(Color(asset: Asset.Colors.textPrimary))
                 .font(.system(.footnote))
         }
-        .toggleStyle(BitwardenToggleStyle())
+        .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.checkBreaches)
     }
 
@@ -184,7 +184,7 @@ struct CreateAccountView: View {
         }
         .foregroundColor(Color(asset: Asset.Colors.textPrimary))
         .font(.system(.footnote))
-        .toggleStyle(BitwardenToggleStyle())
+        .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.termsAndPrivacy)
     }
 }

@@ -52,7 +52,7 @@ struct LandingView: View {
                     send: { .rememberMeChanged($0) }
                 ))
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .toggleStyle(BitwardenToggleStyle())
+                .toggleStyle(.bitwarden)
 
                 Button(Localizations.continue) {
                     store.send(.continuePressed)
