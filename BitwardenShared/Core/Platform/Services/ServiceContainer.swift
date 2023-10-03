@@ -93,4 +93,8 @@ extension ServiceContainer {
     var authAPIService: AuthAPIService {
         apiService
     }
+
+    var deviceAPIService: DeviceAPIService {
+        apiService
+    }
 }

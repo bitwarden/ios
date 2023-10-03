@@ -30,12 +30,19 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         & HasAuthAPIService
         & HasCaptchaService
         & HasClientAuth
+        & HasDeviceAPIService
         & HasSystemDevice
 
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<AuthRoute>
+
+    /// A flag indicating if this is the first time that the view has appeared.
+    ///
+    /// This flag keeps us from making the known device call multiple times as the user navigates away from,
+    /// and back to the same instance of `LoginView`.
+    private var isFirstAppeared = true
 
     /// The services used by this processor.
     private var services: Services
@@ -62,6 +69,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
     override func perform(_ effect: LoginEffect) async {
         switch effect {
+        case .appeared:
+            await refreshKnownDevice()
         case .loginWithMasterPasswordPressed:
             await loginWithMasterPassword()
         }
@@ -160,6 +169,26 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             } else {
                 // TODO: BIT-709 Add proper error handling for non-captcha errors.
             }
+        }
+    }
+
+    /// Refreshes the value for known device from the API, and then updates the state to show or hide the
+    /// "Login with known device" button based on that value.
+    ///
+    private func refreshKnownDevice() async {
+        guard isFirstAppeared else { return }
+        defer { isFirstAppeared = false }
+
+        do {
+            let deviceIdentifier = await services.appIdService.getOrCreateAppId()
+            let isKnownDevice = try await services.deviceAPIService.knownDevice(
+                email: state.username,
+                deviceIdentifier: deviceIdentifier
+            )
+            state.isLoginWithDeviceVisible = isKnownDevice
+        } catch {
+            // TODO: BIT-709 Add proper error handling
+            print(error)
         }
     }
 }

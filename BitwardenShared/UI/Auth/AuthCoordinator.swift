@@ -25,6 +25,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         & HasAuthAPIService
         & HasCaptchaService
         & HasClientAuth
+        & HasDeviceAPIService
         & HasSystemDevice
 
     // MARK: Properties

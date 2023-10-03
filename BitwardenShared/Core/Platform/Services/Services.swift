@@ -8,6 +8,7 @@ typealias Services = HasAccountAPIService
     & HasAuthAPIService
     & HasCaptchaService
     & HasClientAuth
+    & HasDeviceAPIService
     & HasSystemDevice
 
 /// Protocol for an object that provides an `AccountAPIService`.
@@ -63,6 +64,12 @@ protocol HasCaptchaService {
 protocol HasClientAuth {
     /// The client used by the application to handle auth related encryption and decryption tasks.
     var clientAuth: ClientAuthProtocol { get }
+}
+
+/// Protocol for an object that provides a `DeviceAPIService`.
+protocol HasDeviceAPIService {
+    /// The service used by the application to make device-related API requests.
+    var deviceAPIService: DeviceAPIService { get }
 }
 
 /// Protocol for an object that provides a `SystemDevice`.

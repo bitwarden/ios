@@ -101,6 +101,9 @@ struct LoginView: View {
                 }
             }
         }
+        .task {
+            await store.perform(.appeared)
+        }
     }
 }
 

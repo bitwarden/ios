@@ -4,4 +4,7 @@
 enum LoginEffect: Equatable {
     /// The login with master password button was pressed.
     case loginWithMasterPasswordPressed
+
+    /// The login view appeared on screen.
+    case appeared
 }

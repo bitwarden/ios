@@ -93,6 +93,51 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .complete)
     }
 
+    /// `perform(_:)` with `.appeared` and an error occurs does not update the login with button visibility.
+    func test_perform_appeared_failure() async throws {
+        subject.state.isLoginWithDeviceVisible = false
+        client.results = [
+            .httpFailure(BitwardenTestError.example),
+        ]
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.isLoginWithDeviceVisible)
+        // TODO: BIT-709 Add assertion for error state.
+    }
+
+    /// `perform(_:)` with `.appeared` and a true result shows the login with device button.
+    func test_perform_appeared_success_true() async throws {
+        client.results = [
+            .httpSuccess(testData: .knownDeviceTrue),
+        ]
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isLoginWithDeviceVisible)
+    }
+
+    /// `perform(_:)` with `.appeared` and a false result hides the login with device button.
+    func test_perform_appeared_success_false() async throws {
+        client.results = [
+            .httpSuccess(testData: .knownDeviceFalse),
+        ]
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.isLoginWithDeviceVisible)
+    }
+
+    /// `perform(_:)` with `.appeared` twice in a row only makes the API call once.
+    func test_perform_appeared_twice() async throws {
+        client.results = [
+            .httpSuccess(testData: .knownDeviceTrue),
+            .httpSuccess(testData: .knownDeviceTrue),
+        ]
+        await subject.perform(.appeared)
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isLoginWithDeviceVisible)
+        XCTAssertEqual(client.requests.count, 1)
+    }
+
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password.
     func test_perform_loginWithMasterPasswordPressed_success() async throws {
         appSettingsStore.appId = "App id"
