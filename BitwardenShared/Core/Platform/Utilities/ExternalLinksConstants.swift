@@ -6,8 +6,8 @@ enum ExternalLinksConstants {
     // MARK: Properties
 
     /// A markdown link to Bitwarden's privacy policy.
-    static let privacyPolicy = "[\(Localizations.privacyPolicy)](https://bitwarden.com/privacy/)"
+    static let privacyPolicy = "https://bitwarden.com/privacy/"
 
     /// A markdown link to Bitwarden's terms of service.
-    static let termsOfService = "[\(Localizations.termsOfService)](https://bitwarden.com/terms/)"
+    static let termsOfService = "https://bitwarden.com/terms/"
 }

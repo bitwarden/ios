@@ -75,7 +75,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         case .createAccount:
             showCreateAccount()
         case .dismiss:
-            stackNavigator.dismiss(animated: true)
+            stackNavigator.dismiss()
         case .enterpriseSingleSignOn:
             showEnterpriseSingleSignOn()
         case .landing:
@@ -148,7 +148,8 @@ internal final class AuthCoordinator: NSObject, Coordinator {
                 )
             )
         )
-        stackNavigator.present(view, animated: UI.animated, overFullscreen: true)
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
     }
 
     /// Shows the enterprise single sign-on screen.
