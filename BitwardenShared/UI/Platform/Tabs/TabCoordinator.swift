@@ -32,8 +32,16 @@ internal final class TabCoordinator: Coordinator {
 
     // MARK: Methods
 
+    func hideLoadingOverlay() {
+        tabNavigator.hideLoadingOverlay()
+    }
+
     func navigate(to route: TabRoute, context: AnyObject?) {
         tabNavigator.selectedIndex = route.rawValue
+    }
+
+    func showLoadingOverlay(_ state: LoadingOverlayState) {
+        tabNavigator.showLoadingOverlay(state)
     }
 
     func start() {

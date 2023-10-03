@@ -44,6 +44,10 @@ excluded:
   - build
   - vendor/bundle
 
+attributes:
+  always_on_same_line:
+    - "@Environment"
+
 cyclomatic_complexity:
   ignores_case_statements: true
 

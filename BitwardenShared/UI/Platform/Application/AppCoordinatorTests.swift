@@ -71,6 +71,21 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.tabCoordinator.routes, [.vault, .vault])
     }
 
+    /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
+    func test_show_hide_loadingOverlay() throws {
+        navigator.rootViewController = UIViewController()
+        try setKeyWindowRoot(viewController: XCTUnwrap(subject.navigator.rootViewController))
+
+        XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
+
+        subject.showLoadingOverlay(LoadingOverlayState(title: "Loading..."))
+        XCTAssertNotNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
+
+        subject.hideLoadingOverlay()
+        waitFor { window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag) == nil }
+        XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
+    }
+
     /// `start()` doesn't navigate anywhere (first route is managed by AppProcessor).
     func test_start() {
         subject.start()
