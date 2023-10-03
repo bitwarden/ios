@@ -106,6 +106,7 @@ targets:
           - "**/TestHelpers/*"
           - "**/swiftgen.yml"
           - "**/GoogleService-Info.*.plist"
+          - "**/__Snapshots__/*"
       - path: Bitwarden
         includes:
           - "**/__Snapshots__/*"
@@ -285,6 +286,11 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
+          - "**/__Snapshots__/*"
+      - path: BitwardenShared
+        includes:
+          - "**/__Snapshots__/*"
+        buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift

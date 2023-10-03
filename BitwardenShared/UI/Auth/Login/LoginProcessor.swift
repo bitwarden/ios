@@ -122,6 +122,9 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// Attempts to log the user in with the email address and password values found in `state`.
     ///
     private func loginWithMasterPassword(captchaToken: String? = nil) async {
+        coordinator.showLoadingOverlay(title: Localizations.loggingIn)
+        defer { coordinator.hideLoadingOverlay() }
+
         do {
             let response = try await services.accountAPIService.preLogin(email: state.username)
 

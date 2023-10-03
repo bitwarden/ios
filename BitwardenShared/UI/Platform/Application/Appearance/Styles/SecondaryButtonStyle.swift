@@ -1,20 +1,20 @@
 import SwiftUI
 
-// MARK: - PrimaryButtonStyle
+// MARK: - SecondaryButtonStyle
 
-/// The style for all primary buttons in this application.
+/// The style for all secondary buttons in this application.
 ///
-struct PrimaryButtonStyle: ButtonStyle {
+struct SecondaryButtonStyle: ButtonStyle {
     /// If this button should fill to take up as much width as possible.
     var shouldFillWidth = true
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .foregroundColor(Asset.Colors.primaryContrastBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
             .padding(.vertical, 14)
             .padding(.horizontal, 20)
             .frame(maxWidth: shouldFillWidth ? .infinity : nil)
-            .background(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .background(Asset.Colors.primaryBitwarden.swiftUIColor.opacity(0.08))
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .opacity(configuration.isPressed ? 0.5 : 1)
     }
@@ -22,12 +22,12 @@ struct PrimaryButtonStyle: ButtonStyle {
 
 // MARK: ButtonStyle
 
-extension ButtonStyle where Self == PrimaryButtonStyle {
-    /// The style for all primary buttons in this application.
+extension ButtonStyle where Self == SecondaryButtonStyle {
+    /// The style for all secondary buttons in this application.
     ///
     /// - Parameter shouldFillWidth: A flag indicating if this button should fill all available space.
     ///
-    static func primary(shouldFillWidth: Bool = true) -> PrimaryButtonStyle {
-        PrimaryButtonStyle(shouldFillWidth: shouldFillWidth)
+    static func secondary(shouldFillWidth: Bool = true) -> SecondaryButtonStyle {
+        SecondaryButtonStyle(shouldFillWidth: shouldFillWidth)
     }
 }

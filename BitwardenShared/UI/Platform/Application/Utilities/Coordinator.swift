@@ -3,6 +3,10 @@
 public protocol Coordinator<Route>: AnyObject {
     associatedtype Route
 
+    /// Hides the loading overlay view.
+    ///
+    func hideLoadingOverlay()
+
     /// Navigate to the screen associated with the given `Route` with the given context.
     ///
     /// - Parameters:
@@ -10,6 +14,12 @@ public protocol Coordinator<Route>: AnyObject {
     ///     - context: An object representing the context where the navigation occurred.
     ///
     func navigate(to route: Route, context: AnyObject?)
+
+    /// Shows the loading overlay view.
+    ///
+    /// - Parameter state: The state for configuring the loading overlay.
+    ///
+    func showLoadingOverlay(_ state: LoadingOverlayState)
 
     /// Starts the coordinator, displaying its content.
     ///

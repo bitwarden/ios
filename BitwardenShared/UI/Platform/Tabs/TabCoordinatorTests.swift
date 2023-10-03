@@ -70,6 +70,21 @@ class TabCoordinatorTests: BitwardenTestCase {
         XCTAssertNil(subject.rootNavigator)
     }
 
+    /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
+    func test_show_hide_loadingOverlay() throws {
+        tabNavigator.rootViewController = UIViewController()
+        try setKeyWindowRoot(viewController: XCTUnwrap(subject.tabNavigator.rootViewController))
+
+        XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
+
+        subject.showLoadingOverlay(LoadingOverlayState(title: "Loading..."))
+        XCTAssertNotNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
+
+        subject.hideLoadingOverlay()
+        waitFor { window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag) == nil }
+        XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
+    }
+
     /// `start()` presents the tab navigator within the root navigator and starts the child-coordinators.
     func test_start() {
         subject.start()

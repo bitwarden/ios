@@ -75,7 +75,7 @@ public class ServiceContainer: Services {
 
         let client = BitwardenSdk.Client(settings: nil)
         self.init(
-            apiService: APIService(baseUrlService: baseUrlService),
+            apiService: APIService(baseUrlService: baseUrlService, tokenService: DefaultTokenService()),
             appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),

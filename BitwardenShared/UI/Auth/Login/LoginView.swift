@@ -14,96 +14,108 @@ struct LoginView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading) {
-                BitwardenTextField(
-                    title: Localizations.masterPassword,
-                    contentType: .password,
-                    isPasswordVisible: store.binding(
-                        get: { $0.isMasterPasswordRevealed },
-                        send: { .revealMasterPasswordFieldPressed($0) }
-                    ),
-                    text: store.binding(
-                        get: { $0.masterPassword },
-                        send: { .masterPasswordChanged($0) }
-                    )
-                )
+            VStack(alignment: .leading, spacing: 24) {
+                textField
 
-                Button(Localizations.getMasterPasswordwordHint) {
-                    store.send(.getMasterPasswordHintPressed)
-                }
-                .font(.system(.footnote))
+                loginButtons
 
-                Button {
-                    Task {
-                        await store.perform(.loginWithMasterPasswordPressed)
-                    }
-                } label: {
-                    Text(Localizations.logInWithMasterPassword)
-                        .bold()
-                        .foregroundColor(.white)
-                        .padding(12)
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-
-                if store.state.isLoginWithDeviceVisible {
-                    Button {
-                        store.send(.loginWithDevicePressed)
-                    } label: {
-                        Text(Localizations.logInWithDevice)
-                            .foregroundColor(.gray)
-                            .padding(12)
-                            .frame(maxWidth: .infinity)
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(.gray)
-                            }
-                    }
-                }
-
-                Button {
-                    store.send(.enterpriseSingleSignOnPressed)
-                } label: {
-                    Text(Localizations.logInSso)
-                        .foregroundColor(.gray)
-                        .padding(12)
-                        .frame(maxWidth: .infinity)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(.gray)
-                        }
-                }
-
-                Spacer()
-                    .frame(height: 12)
-
-                Text(Localizations.loggedInAsOn(store.state.username, store.state.region))
-                Button(Localizations.notYou) {
-                    store.send(.notYouPressed)
-                }
+                loggingInAs
             }
             .padding(.horizontal)
             .frame(maxWidth: .infinity)
-            .navigationTitle(Localizations.bitwarden)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        store.send(.morePressed)
-                    } label: {
-                        Label {
-                            Text(Localizations.options)
-                        } icon: {
-                            Asset.Images.moreVert.swiftUIImage
-                        }
+        }
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .navigationTitle(Localizations.bitwarden)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    store.send(.morePressed)
+                } label: {
+                    Label {
+                        Text(Localizations.options)
+                    } icon: {
+                        Asset.Images.moreVert.swiftUIImage
                     }
                 }
+                .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
             }
         }
         .task {
             await store.perform(.appeared)
         }
+    }
+
+    /// The text field along with the master password hint button.
+    @ViewBuilder var textField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            BitwardenTextField(
+                title: Localizations.masterPassword,
+                contentType: .password,
+                isPasswordVisible: store.binding(
+                    get: \.isMasterPasswordRevealed,
+                    send: LoginAction.revealMasterPasswordFieldPressed
+                ),
+                text: store.binding(
+                    get: \.masterPassword,
+                    send: LoginAction.masterPasswordChanged
+                )
+            )
+
+            Button(Localizations.getMasterPasswordwordHint) {
+                store.send(.getMasterPasswordHintPressed)
+            }
+            .font(.system(.subheadline))
+            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+        }
+    }
+
+    /// The set of login option buttons.
+    @ViewBuilder var loginButtons: some View {
+        VStack(alignment: .center, spacing: 12) {
+            Button(Localizations.logInWithMasterPassword) {
+                Task {
+                    await store.perform(.loginWithMasterPasswordPressed)
+                }
+            }
+            .buttonStyle(.primary())
+
+            if store.state.isLoginWithDeviceVisible {
+                Button {
+                    store.send(.loginWithDevicePressed)
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(decorative: Asset.Images.mobile)
+                        Text(Localizations.logInWithDevice)
+                    }
+                }
+                .buttonStyle(.secondary())
+            }
+
+            Button {
+                store.send(.enterpriseSingleSignOnPressed)
+            } label: {
+                HStack(spacing: 8) {
+                    Image(decorative: Asset.Images.briefcase)
+                    Text(Localizations.logInSso)
+                }
+            }
+            .buttonStyle(.secondary())
+        }
+    }
+
+    /// The "logging in as..." text along with the not you button.
+    @ViewBuilder var loggingInAs: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(Localizations.loggedInAsOn(store.state.username, store.state.region))
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+            Button(Localizations.notYou) {
+                store.send(.notYouPressed)
+            }
+            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+        }
+        .font(.system(.footnote))
     }
 }
 
