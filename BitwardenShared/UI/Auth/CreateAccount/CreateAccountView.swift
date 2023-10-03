@@ -7,6 +7,10 @@ import SwiftUI
 struct CreateAccountView: View {
     // MARK: Properties
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private
+    var openURL
+
     /// The store used to render the view.
     @ObservedObject var store: Store<CreateAccountState, CreateAccountAction, CreateAccountEffect>
 
@@ -66,21 +70,16 @@ struct CreateAccountView: View {
 
     /// A toggle to check the user's password for security breaches.
     private var checkBreachesToggle: some View {
-        HStack {
+        Toggle(isOn: store.binding(
+            get: \.isCheckDataBreachesToggleOn,
+            send: CreateAccountAction.toggleCheckDataBreaches
+        )) {
             Text(Localizations.checkKnownDataBreachesForThisPassword)
                 .foregroundColor(Color(asset: Asset.Colors.textPrimary))
                 .font(.system(.footnote))
-
-            Spacer()
-
-            Toggle(isOn: store.binding(
-                get: \.isCheckDataBreachesToggleOn,
-                send: CreateAccountAction.toggleCheckDataBreaches
-            )) {}
-                .tint(Color(asset: Asset.Colors.primaryBitwarden))
-                .labelsHidden()
-                .id(ViewIdentifier.CreateAccount.checkBreaches)
         }
+        .toggleStyle(BitwardenToggleStyle())
+        .id(ViewIdentifier.CreateAccount.checkBreaches)
     }
 
     /// The text fields for the user's email and password.
@@ -171,23 +170,22 @@ struct CreateAccountView: View {
 
     /// A toggle for the terms and privacy agreement.
     private var termsAndPrivacyToggle: some View {
-        HStack {
-            Text("\(Localizations.acceptPolicies)\n")
-                .foregroundColor(Color(asset: Asset.Colors.textPrimary))
-                .font(.system(.footnote)) +
-            Text("\(termsOfServiceString ?? "") \(privacyPolicyString ?? "")")
-                .font(.system(.footnote))
-
-            Spacer()
-
-            Toggle(isOn: store.binding(
-                get: \.isTermsAndPrivacyToggleOn,
-                send: CreateAccountAction.toggleTermsAndPrivacy
-            )) {}
-                .tint(Color(asset: Asset.Colors.primaryBitwarden))
-                .labelsHidden()
-                .id(ViewIdentifier.CreateAccount.termsAndPrivacy)
+        Toggle(isOn: store.binding(
+            get: \.isTermsAndPrivacyToggleOn,
+            send: CreateAccountAction.toggleTermsAndPrivacy
+        )) {
+            Text("\(Localizations.acceptPolicies)\n\(termsOfServiceString ?? "") \(privacyPolicyString ?? "")")
+                .accessibilityAction(named: Localizations.termsOfService) {
+                    openURL(ExternalLinksConstants.termsOfService)
+                }
+                .accessibilityAction(named: Localizations.privacyPolicy) {
+                    openURL(ExternalLinksConstants.privacyPolicy)
+                }
         }
+        .foregroundColor(Color(asset: Asset.Colors.textPrimary))
+        .font(.system(.footnote))
+        .toggleStyle(BitwardenToggleStyle())
+        .id(ViewIdentifier.CreateAccount.termsAndPrivacy)
     }
 }
 

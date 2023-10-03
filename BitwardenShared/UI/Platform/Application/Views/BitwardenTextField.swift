@@ -104,14 +104,14 @@ struct BitwardenTextField: View {
                     accessoryButton(
                         AccessoryButton(
                             accessibilityLabel: isPasswordVisible.wrappedValue
-                            ? Localizations.passwordIsVisibleTapToHide
-                            : Localizations.passwordIsNotVisibleTapToShow,
+                                ? Localizations.passwordIsVisibleTapToHide
+                                : Localizations.passwordIsNotVisibleTapToShow,
                             action: {
                                 isPasswordVisible.wrappedValue.toggle()
                             },
                             icon: isPasswordVisible.wrappedValue
-                            ? Asset.Images.eyeSlash
-                            : Asset.Images.eye
+                                ? Asset.Images.eyeSlash
+                                : Asset.Images.eye
                         )
                     )
                 }
