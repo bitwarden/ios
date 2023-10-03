@@ -57,6 +57,7 @@ struct LandingView: View {
                 Button(Localizations.continue) {
                     store.send(.continuePressed)
                 }
+                .disabled(!store.state.isContinueButtonEnabled)
                 .buttonStyle(.primary())
 
                 HStack(spacing: 4) {
