@@ -123,7 +123,10 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     ///
     private func loginWithMasterPassword(captchaToken: String? = nil) async {
         coordinator.showLoadingOverlay(title: Localizations.loggingIn)
-        defer { coordinator.hideLoadingOverlay() }
+        defer {
+            // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
+            coordinator.hideLoadingOverlay()
+        }
 
         do {
             let response = try await services.accountAPIService.preLogin(email: state.username)
@@ -162,6 +165,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             print("TOKEN: \(identityToken)")
 
             // TODO: BIT-165 Store the access token.
+            coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .complete)
         } catch {
             if let error = error as? IdentityTokenRequestError {
@@ -180,7 +184,11 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     ///
     private func refreshKnownDevice() async {
         guard isFirstAppeared else { return }
-        defer { isFirstAppeared = false }
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+        defer {
+            isFirstAppeared = false
+            coordinator.hideLoadingOverlay()
+        }
 
         do {
             let deviceIdentifier = await services.appIdService.getOrCreateAppId()

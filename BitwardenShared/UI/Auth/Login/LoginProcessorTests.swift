@@ -102,6 +102,8 @@ class LoginProcessorTests: BitwardenTestCase {
         ]
         await subject.perform(.appeared)
 
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loading)])
         XCTAssertFalse(subject.state.isLoginWithDeviceVisible)
         // TODO: BIT-709 Add assertion for error state.
     }
@@ -114,6 +116,8 @@ class LoginProcessorTests: BitwardenTestCase {
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.isLoginWithDeviceVisible)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loading)])
     }
 
     /// `perform(_:)` with `.appeared` and a false result hides the login with device button.
@@ -124,6 +128,8 @@ class LoginProcessorTests: BitwardenTestCase {
         await subject.perform(.appeared)
 
         XCTAssertFalse(subject.state.isLoginWithDeviceVisible)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loading)])
     }
 
     /// `perform(_:)` with `.appeared` twice in a row only makes the API call once.
@@ -137,6 +143,8 @@ class LoginProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(subject.state.isLoginWithDeviceVisible)
         XCTAssertEqual(client.requests.count, 1)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loading)])
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password.
@@ -177,6 +185,8 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
 
         XCTAssertEqual(coordinator.routes.last, .complete)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha error occurs navigates to the `.captcha`
@@ -195,6 +205,8 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(captchaService.callbackUrlSchemeGets, 1)
         XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
         XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` and an error with the pre-login request displays an error
@@ -208,6 +220,8 @@ class LoginProcessorTests: BitwardenTestCase {
         await subject.perform(.loginWithMasterPasswordPressed)
 
         XCTAssertEqual(client.requests.count, 1)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
         // TODO: BIT-709 Add an assertion for the error alert.
     }
 
@@ -223,6 +237,8 @@ class LoginProcessorTests: BitwardenTestCase {
         await subject.perform(.loginWithMasterPasswordPressed)
 
         XCTAssertEqual(client.requests.count, 2)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
         // TODO: BIT-709 Add an assertion for the error alert.
     }
 
