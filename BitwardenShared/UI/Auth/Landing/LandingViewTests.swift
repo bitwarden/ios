@@ -53,7 +53,9 @@ class LandingViewTests: BitwardenTestCase {
 
     /// Tapping the region button dispatches the `.regionPressed` action.
     func test_regionButton_tap() throws {
-        let button = try subject.inspect().find(button: "\(Localizations.region): \(Localizations.us)")
+        let button = try subject.inspect().find(
+            button: "\(Localizations.loggingInOn): \(RegionType.unitedStates.baseUrlDescription)"
+        )
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .regionPressed)
     }

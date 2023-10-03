@@ -87,7 +87,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     func test_navigate_login() throws {
         subject.navigate(to: .login(
             username: "username",
-            region: "region",
+            region: .unitedStates,
             isLoginWithDeviceVisible: true
         ))
 
@@ -95,7 +95,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         let view = try XCTUnwrap(stackNavigator.actions.last?.view as? LoginView)
         let state = view.store.state
         XCTAssertEqual(state.username, "username")
-        XCTAssertEqual(state.region, "region")
+        XCTAssertEqual(state.region, .unitedStates)
         XCTAssertTrue(state.isLoginWithDeviceVisible)
     }
 
@@ -117,12 +117,35 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 
-    /// `navigate(to:)` with `.regionSelection` pushes the region selection view onto the stack navigator.
-    func test_navigate_regionSelection() {
+    /// `navigate(to:)` with `.regionSelection` and no delegate has no effect.
+    func test_navigate_regionSelection_withoutDelegate() throws {
         subject.navigate(to: .regionSelection)
 
-        // Placeholder assertion until the region selection screen is added: BIT-268
-        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
+        XCTAssertEqual(stackNavigator.alerts.count, 0)
+    }
+
+    /// `navigate(to:)` with `.regionSelection` and a delegate presents the region selection alert.
+    func test_navigate_regionSelection_withDelegate() throws {
+        let delegate = MockRegionSelectionDelegate()
+        subject.navigate(to: .regionSelection, context: delegate)
+
+        XCTAssertEqual(stackNavigator.alerts.count, 1)
+        let alert = try XCTUnwrap(stackNavigator.alerts.last)
+        XCTAssertEqual(alert.title, Localizations.loggingInOn)
+        XCTAssertNil(alert.message)
+        XCTAssertEqual(alert.alertActions.count, 4)
+
+        XCTAssertEqual(alert.alertActions[0].title, "bitwarden.com")
+        alert.alertActions[0].handler?(alert.alertActions[0])
+        XCTAssertEqual(delegate.regions.last, .unitedStates)
+
+        XCTAssertEqual(alert.alertActions[1].title, "bitwarden.eu")
+        alert.alertActions[1].handler?(alert.alertActions[1])
+        XCTAssertEqual(delegate.regions.last, .europe)
+
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
+        alert.alertActions[2].handler?(alert.alertActions[2])
+        XCTAssertEqual(delegate.regions.last, .selfHosted)
     }
 
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.

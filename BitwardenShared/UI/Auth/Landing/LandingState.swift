@@ -11,6 +11,9 @@ struct LandingState: Equatable {
     /// A flag indicating if the "Remember Me" toggle is on.
     var isRememberMeOn: Bool
 
+    /// The region selected by the user.
+    var region: RegionType
+
     // MARK: Initialization
 
     /// Creates a new `LandingState`.
@@ -21,9 +24,11 @@ struct LandingState: Equatable {
     ///
     init(
         email: String = "",
-        isRememberMeOn: Bool = false
+        isRememberMeOn: Bool = false,
+        region: RegionType = .unitedStates
     ) {
         self.email = email
         self.isRememberMeOn = isRememberMeOn
+        self.region = region
     }
 }
