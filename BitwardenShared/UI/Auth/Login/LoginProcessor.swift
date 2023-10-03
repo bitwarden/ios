@@ -136,10 +136,9 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             let kdf: Kdf
             switch response.kdf {
             case .argon2id:
-                let memory = (response.kdfMemory ?? Constants.kdfArgonMemoryInMB) * Constants.kdfArgonMemoryMultiplier
                 kdf = .argon2id(
                     iterations: NonZeroU32(response.kdfIterations),
-                    memory: NonZeroU32(memory),
+                    memory: NonZeroU32(response.kdfMemory ?? Constants.kdfArgonMemory),
                     parallelism: NonZeroU32(response.kdfParallelism ?? Constants.kdfArgonParallelism)
                 )
             case .pbkdf2sha256:

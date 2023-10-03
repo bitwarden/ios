@@ -15,10 +15,7 @@ enum Constants {
     static let deviceType: DeviceType = 1
 
     /// A default value for the argon memory argument in the KDF algorithm.
-    static let kdfArgonMemoryInMB = 64
-
-    /// The memory multiplier for the argon memory argument in the KDF algorithm.
-    static let kdfArgonMemoryMultiplier = 1024
+    static let kdfArgonMemory = 64
 
     /// A default value for the argon parallelism argument in the KDF algorithm.
     static let kdfArgonParallelism = 4
