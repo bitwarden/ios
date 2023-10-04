@@ -1,15 +1,15 @@
 // MARK: - RegionType
 
 /// A region that the user can select when creating or signing into their account.
-public enum RegionType {
+public enum RegionType: CaseIterable {
+    /// The United States region.
+    case unitedStates
+
     /// The European region.
     case europe
 
     /// A self-hosted instance.
     case selfHosted
-
-    /// The United States region.
-    case unitedStates
 
     /// The name for this region, localized.
     var localizedName: String {
@@ -20,6 +20,7 @@ public enum RegionType {
         }
     }
 
+    /// A description of the base url for this region.
     var baseUrlDescription: String {
         switch self {
         case .europe: return "bitwarden.eu"

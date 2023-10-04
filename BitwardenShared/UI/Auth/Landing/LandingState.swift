@@ -21,6 +21,7 @@ struct LandingState: Equatable {
     /// - Parameters:
     ///   - email: The email address provided by the user.
     ///   - isRememberMeOn: A flag indicating if the "Remember Me" toggle is on.
+    ///   - region: The region selected by the user.
     ///
     init(
         email: String = "",

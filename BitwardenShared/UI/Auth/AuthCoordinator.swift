@@ -214,8 +214,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
 
     /// Shows the region selection screen.
     private func showRegionSelection(delegate: RegionSelectionDelegate) {
-        let regions: [RegionType] = [.unitedStates, .europe, .selfHosted]
-        let actions = regions.map { region in
+        let actions = RegionType.allCases.map { region in
             AlertAction(title: region.baseUrlDescription, style: .default) { _ in
                 delegate.regionSelected(region)
             }
