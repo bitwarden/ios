@@ -30,6 +30,8 @@ public class AppProcessor {
     ) {
         self.appModule = appModule
         self.services = services
+
+        UI.applyDefaultAppearances()
     }
 
     // MARK: Methods
