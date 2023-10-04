@@ -23,8 +23,22 @@ public extension AlertPresentable {
     ///
     func present(_ alert: Alert) {
         let alertController = alert.createAlertController()
-        let parent = rootViewController?.topmostViewController()
-        parent?.present(alertController, animated: UI.animated)
+        guard let parent = rootViewController?.topmostViewController() else { return }
+
+        if alert.preferredStyle == .actionSheet {
+            // iPadOS requires an anchor for action sheets. This solution keeps the iPad app from crashing, and centers
+            // the presentation of the action sheet.
+            alertController.popoverPresentationController?.sourceView = parent.view
+            alertController.popoverPresentationController?.sourceRect = CGRect(
+                x: parent.view.bounds.midX,
+                y: parent.view.bounds.midY,
+                width: 0,
+                height: 0
+            )
+            alertController.popoverPresentationController?.permittedArrowDirections = []
+        }
+
+        parent.present(alertController, animated: UI.animated)
     }
 }
 
