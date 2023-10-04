@@ -49,12 +49,22 @@ class LandingProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .createAccount)
     }
 
-    /// `receive(_:)` with `.emailChanged` updates the state to reflect the changes.
-    func test_receive_emailChanged() {
+    /// `receive(_:)` with `.emailChanged` and an empty value updates the state to reflect the changes.
+    func test_receive_emailChanged_empty() {
+        subject.state.email = "email@example.com"
+
+        subject.receive(.emailChanged(""))
+        XCTAssertEqual(subject.state.email, "")
+        XCTAssertFalse(subject.state.isContinueButtonEnabled)
+    }
+
+    /// `receive(_:)` with `.emailChanged` and an email value updates the state to reflect the changes.
+    func test_receive_emailChanged_value() {
         XCTAssertEqual(subject.state.email, "")
 
         subject.receive(.emailChanged("email@example.com"))
         XCTAssertEqual(subject.state.email, "email@example.com")
+        XCTAssertTrue(subject.state.isContinueButtonEnabled)
     }
 
     /// `receive(_:)` with `.regionPressed` navigates to the region selection screen.
