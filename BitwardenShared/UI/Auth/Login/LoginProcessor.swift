@@ -133,22 +133,10 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         do {
             let response = try await services.accountAPIService.preLogin(email: state.username)
 
-            let kdf: Kdf
-            switch response.kdf {
-            case .argon2id:
-                kdf = .argon2id(
-                    iterations: NonZeroU32(response.kdfIterations),
-                    memory: NonZeroU32(response.kdfMemory ?? Constants.kdfArgonMemory),
-                    parallelism: NonZeroU32(response.kdfParallelism ?? Constants.kdfArgonParallelism)
-                )
-            case .pbkdf2sha256:
-                kdf = .pbkdf2(iterations: NonZeroU32(response.kdfIterations))
-            }
-
             let hashedPassword = try await services.clientAuth.hashPassword(
                 email: state.username,
                 password: state.masterPassword,
-                kdfParams: kdf
+                kdfParams: response.sdkKdf
             )
 
             let appID = await services.appIdService.getOrCreateAppId()
@@ -164,9 +152,9 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 )
             )
             let identityToken = try await services.authAPIService.getIdentityToken(identityTokenRequest)
-            print("TOKEN: \(identityToken)")
 
             // TODO: BIT-165 Store the access token.
+            print("TOKEN: \(identityToken)")
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .complete)
         } catch {

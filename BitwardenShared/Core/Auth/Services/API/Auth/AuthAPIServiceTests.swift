@@ -48,7 +48,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
                 forcePasswordReset: false,
                 kdf: .pbkdf2sha256,
                 kdfIterations: 600_000,
-                kdkMemory: nil,
+                kdfMemory: nil,
                 kdfParallelism: nil,
                 key: "KEY",
                 masterPasswordPolicy: nil,
