@@ -45,19 +45,20 @@ class AuthCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.createAccount` pushes the create account view onto the stack navigator.
-    func test_navigate_createAccount() {
+    func test_navigate_createAccount() throws {
         subject.navigate(to: .createAccount)
 
-        // Placeholder assertion until the create account screen is added: BIT-157
-        XCTAssertTrue(stackNavigator.actions.last?.view is CreateAccountView)
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<CreateAccountView>)
     }
 
-    /// Tests that `navigate(to:)` with `.dismiss` dismisses the view.
-    func test_navigate_dismiss() {
+    /// `navigate(to:)` with `.dismiss` dismisses the presented view.
+    func test_navigate_dismiss() throws {
         subject.navigate(to: .createAccount)
         subject.navigate(to: .dismiss)
-
-        XCTAssertEqual(stackNavigator.actions.last?.type, .dismissed)
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .dismissed)
     }
 
     /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack

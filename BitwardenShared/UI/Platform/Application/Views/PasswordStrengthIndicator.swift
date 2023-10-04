@@ -13,23 +13,20 @@ struct PasswordStrengthIndicator: View {
     // MARK: View
 
     var body: some View {
-        VStack {
-            HStack {
-                Text(
-                    Localizations.important +
-                        Localizations.yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(
-                            minimumPasswordLength
-                        )
-                )
+        VStack(alignment: .leading) {
+            Text(Localizations.important + ": ")
+                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                .font(.system(.footnote).bold()) +
+                Text(Localizations.yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(
+                    minimumPasswordLength
+                ))
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                 .font(.system(.footnote))
 
-                Spacer()
-            }
-
             RoundedRectangle(cornerRadius: 2)
-                .frame(height: 8)
+                .frame(height: 4)
                 .foregroundColor(Color(asset: Asset.Colors.separatorOpaque))
+                .padding(.top, 4)
         }
         .padding(.bottom, 16)
     }
