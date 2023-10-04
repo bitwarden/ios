@@ -31,8 +31,22 @@ class LandingProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `receive(_:)` with `.continuePressed` navigates to the login screen.
-    func test_receive_continuePressed() {
+    /// `receive(_:)` with `.continuePressed` and an invalid email navigates to the `.alert` route.
+    func test_receive_continuePressed_withInvalidEmail() {
+        subject.state.email = "email"
+
+        subject.receive(.continuePressed)
+        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.invalidEmail,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )))
+    }
+
+    /// `receive(_:)` with `.continuePressed` and a valid email navigates to the login screen.
+    func test_receive_continuePressed_withValidEmail() {
         subject.state.email = "email@example.com"
 
         subject.receive(.continuePressed)
