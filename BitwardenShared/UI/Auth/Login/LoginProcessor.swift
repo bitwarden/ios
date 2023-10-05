@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 // MARK: - CaptchaFlowDelegate
 
 /// An object that is signaled when specific circumstances in the captcha flow have been encountered.
@@ -24,12 +26,23 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     // MARK: Types
 
     typealias Services = HasAccountAPIService
+        & HasAppIdService
+        & HasAuthAPIService
         & HasCaptchaService
+        & HasClientAuth
+        & HasDeviceAPIService
+        & HasSystemDevice
 
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<AuthRoute>
+
+    /// A flag indicating if this is the first time that the view has appeared.
+    ///
+    /// This flag keeps us from making the known device call multiple times as the user navigates away from,
+    /// and back to the same instance of `LoginView`.
+    private var isFirstAppeared = true
 
     /// The services used by this processor.
     private var services: Services
@@ -56,6 +69,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
     override func perform(_ effect: LoginEffect) async {
         switch effect {
+        case .appeared:
+            await refreshKnownDevice()
         case .loginWithMasterPasswordPressed:
             await loginWithMasterPassword()
         }
@@ -87,7 +102,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
     ///   with hCaptcha.
     ///
-    private func launchCaptchaFlow(with siteKey: String) async {
+    private func launchCaptchaFlow(with siteKey: String) {
         do {
             let callbackUrlScheme = services.captchaService.callbackUrlScheme
             let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
@@ -99,27 +114,82 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 context: self
             )
         } catch {
-            // Error handling will be added in BIT-549
+            // TODO: BIT-709 Add proper error handling
             print(error)
         }
     }
 
     /// Attempts to log the user in with the email address and password values found in `state`.
     ///
-    private func loginWithMasterPassword() async {
+    /// - Parameter captchaToken: An optional captcha token value to add to the token request.
+    ///
+    private func loginWithMasterPassword(captchaToken: String? = nil) async {
         coordinator.showLoadingOverlay(title: Localizations.loggingIn)
-        defer { coordinator.hideLoadingOverlay() }
+        defer {
+            // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
+            coordinator.hideLoadingOverlay()
+        }
 
         do {
-            _ = try await services.accountAPIService.preLogin(email: state.username)
-            coordinator.navigate(to: .complete)
-            // Encrypt the password with the kdf algorithm and send it to the server for verification: BIT-420
-        } catch {
-            // Error handling will be added in BIT-387
+            let response = try await services.accountAPIService.preLogin(email: state.username)
 
-            // Replace the siteKey with the actual siteKey if a captcha error is detected.
-            let siteKey = ""
-            await launchCaptchaFlow(with: siteKey)
+            let hashedPassword = try await services.clientAuth.hashPassword(
+                email: state.username,
+                password: state.masterPassword,
+                kdfParams: response.sdkKdf
+            )
+
+            let appID = await services.appIdService.getOrCreateAppId()
+            let identityTokenRequest = IdentityTokenRequestModel(
+                authenticationMethod: .password(
+                    username: state.username,
+                    password: hashedPassword
+                ),
+                captchaToken: captchaToken,
+                deviceInfo: DeviceInfo(
+                    identifier: appID,
+                    name: services.systemDevice.modelIdentifier
+                )
+            )
+            let identityToken = try await services.authAPIService.getIdentityToken(identityTokenRequest)
+
+            // TODO: BIT-165 Store the access token.
+            print("TOKEN: \(identityToken)")
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .complete)
+        } catch {
+            if let error = error as? IdentityTokenRequestError {
+                switch error {
+                case let .captchaRequired(hCaptchaSiteCode):
+                    launchCaptchaFlow(with: hCaptchaSiteCode)
+                }
+            } else {
+                // TODO: BIT-709 Add proper error handling for non-captcha errors.
+            }
+        }
+    }
+
+    /// Refreshes the value for known device from the API, and then updates the state to show or hide the
+    /// "Login with known device" button based on that value.
+    ///
+    private func refreshKnownDevice() async {
+        guard isFirstAppeared else { return }
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+        defer {
+            isFirstAppeared = false
+            coordinator.hideLoadingOverlay()
+        }
+
+        do {
+            let deviceIdentifier = await services.appIdService.getOrCreateAppId()
+            let isKnownDevice = try await services.deviceAPIService.knownDevice(
+                email: state.username,
+                deviceIdentifier: deviceIdentifier
+            )
+            state.isLoginWithDeviceVisible = isKnownDevice
+        } catch {
+            // TODO: BIT-709 Add proper error handling
+            print(error)
         }
     }
 }
@@ -128,12 +198,13 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
 extension LoginProcessor: CaptchaFlowDelegate {
     func captchaCompleted(token: String) {
-        // Actually do something with the captcha token here, send the identity token request: BIT-420
-        print(token)
+        Task {
+            await loginWithMasterPassword(captchaToken: token)
+        }
     }
 
     func captchaErrored(error: Error) {
-        // Error handling will be added in BIT-549
+        // TODO: BIT-709 Add proper error handling.
         print(error)
     }
 }

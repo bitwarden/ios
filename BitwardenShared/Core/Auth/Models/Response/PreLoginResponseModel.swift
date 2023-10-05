@@ -7,7 +7,7 @@ import Networking
 ///
 /// Contains information necessary for encrypting the user's password for login.
 ///
-struct PreLoginResponseModel: JSONResponse {
+struct PreLoginResponseModel: Equatable, JSONResponse, KdfConfigProtocol {
     // MARK: Static Properties
 
     static let decoder = JSONDecoder()
