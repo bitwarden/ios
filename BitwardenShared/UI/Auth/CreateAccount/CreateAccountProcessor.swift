@@ -72,6 +72,11 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     ///
     private func createAccount() async {
         do {
+            guard state.isTermsAndPrivacyToggleOn else {
+                // TODO: BIT-681
+                return
+            }
+
             let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
 
             let keys = try await services.clientAuth.makeRegisterKeys(
@@ -90,21 +95,19 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 _ = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
             }
 
-            if state.isTermsAndPrivacyToggleOn {
-                _ = try await services.accountAPIService.createNewAccount(
-                    body: CreateAccountRequestModel(
-                        email: state.emailText,
-                        kdfConfig: KdfConfig(),
-                        key: keys.encryptedUserKey,
-                        keys: KeysRequestModel(
-                            publicKey: keys.keys.public,
-                            encryptedPrivateKey: keys.keys.private
-                        ),
-                        masterPasswordHash: hashedPassword,
-                        masterPasswordHint: state.passwordHintText
-                    )
+            _ = try await services.accountAPIService.createNewAccount(
+                body: CreateAccountRequestModel(
+                    email: state.emailText,
+                    kdfConfig: KdfConfig(),
+                    key: keys.encryptedUserKey,
+                    keys: KeysRequestModel(
+                        publicKey: keys.keys.public,
+                        encryptedPrivateKey: keys.keys.private
+                    ),
+                    masterPasswordHash: hashedPassword,
+                    masterPasswordHint: state.passwordHintText
                 )
-            }
+            )
         } catch {
             // TODO: BIT-681
         }
