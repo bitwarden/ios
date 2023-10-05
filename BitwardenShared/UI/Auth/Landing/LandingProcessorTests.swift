@@ -68,9 +68,12 @@ class LandingProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.regionPressed` navigates to the region selection screen.
-    func test_receive_regionPressed() {
+    func test_receive_regionPressed() throws {
         subject.receive(.regionPressed)
         XCTAssertEqual(coordinator.routes.last, .regionSelection)
+        let context = try XCTUnwrap(coordinator.contexts.last)
+        XCTAssertTrue(context is RegionSelectionDelegate)
+        XCTAssertIdentical(context, subject)
     }
 
     /// `receive(_:)` with `.emailChanged` updates the state to reflect the changes.
