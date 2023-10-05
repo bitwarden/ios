@@ -191,7 +191,12 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         )
         let store = Store(processor: processor)
         let view = LoginView(store: store)
-        stackNavigator.push(view)
+        let viewController = UIHostingController(rootView: view)
+
+        // When hiding the back button, we need to use both SwiftUI's method alongside UIKit's, otherwise the
+        // back button might flash on screen while the screen is being pushed.
+        viewController.navigationItem.hidesBackButton = true
+        stackNavigator.push(viewController)
     }
 
     /// Shows the login options screen.

@@ -84,7 +84,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.actions.last?.type, .poppedToRoot)
     }
 
-    /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator.
+    /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator and hides the back button.
     func test_navigate_login() throws {
         subject.navigate(to: .login(
             username: "username",
@@ -93,7 +93,12 @@ class AuthCoordinatorTests: BitwardenTestCase {
         ))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
-        let view = try XCTUnwrap(stackNavigator.actions.last?.view as? LoginView)
+        let viewController = try XCTUnwrap(
+            stackNavigator.actions.last?.viewController as? UIHostingController<LoginView>
+        )
+        XCTAssertTrue(viewController.navigationItem.hidesBackButton)
+
+        let view = viewController.rootView
         let state = view.store.state
         XCTAssertEqual(state.username, "username")
         XCTAssertEqual(state.region, "region")

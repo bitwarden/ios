@@ -5,7 +5,9 @@ final class MockStackNavigator: StackNavigator {
     struct NavigationAction {
         var type: NavigationType
         var view: Any?
+        var viewController: UIViewController?
         var animated: Bool
+        var hidesBottomBar: Bool?
         var overFullscreen: Bool?
     }
 
@@ -29,7 +31,20 @@ final class MockStackNavigator: StackNavigator {
     }
 
     func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {
-        actions.append(NavigationAction(type: .pushed, view: view, animated: animated))
+        actions.append(NavigationAction(
+            type: .pushed,
+            view: view,
+            animated: animated,
+            hidesBottomBar: hidesBottomBar
+        ))
+    }
+
+    func push(_ viewController: UIViewController, animated: Bool) {
+        actions.append(NavigationAction(
+            type: .pushed,
+            viewController: viewController,
+            animated: animated
+        ))
     }
 
     @discardableResult
