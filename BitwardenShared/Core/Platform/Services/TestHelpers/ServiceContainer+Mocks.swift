@@ -9,6 +9,7 @@ extension ServiceContainer {
         baseUrlService: BaseUrlService = DefaultBaseUrlService(baseUrl: .example),
         captchaService: CaptchaService = MockCaptchaService(),
         clientAuth: ClientAuthProtocol = MockClientAuth(),
+        systemDevice: SystemDevice = MockSystemDevice(),
         httpClient: HTTPClient = MockHTTPClient()
     ) -> ServiceContainer {
         ServiceContainer(
@@ -19,7 +20,8 @@ extension ServiceContainer {
             appSettingsStore: appSettingsStore,
             baseUrlService: baseUrlService,
             captchaService: captchaService,
-            clientAuth: clientAuth
+            clientAuth: clientAuth,
+            systemDevice: systemDevice
         )
     }
 }

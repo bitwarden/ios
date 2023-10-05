@@ -8,6 +8,11 @@ struct LandingState: Equatable {
     /// The email address provided by the user.
     var email: String
 
+    /// A flag indicating if the continue button is enabled.
+    var isContinueButtonEnabled: Bool {
+        !email.isEmpty
+    }
+
     /// A flag indicating if the "Remember Me" toggle is on.
     var isRememberMeOn: Bool
 

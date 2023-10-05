@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import UIKit
 
 // swiftlint:disable type_name
@@ -40,6 +41,15 @@ public enum UI {
     ///
     public static func after(_ after: TimeInterval) -> DispatchTime {
         animated ? .now() + after : .now()
+    }
+
+    /// Sets up the default global appearances used throughout the app.
+    ///
+    public static func applyDefaultAppearances() {
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.backgroundColor = UIColor(asset: Asset.Colors.primaryContrastBitwarden)
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
     }
 }
 

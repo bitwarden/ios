@@ -30,8 +30,23 @@ class LandingViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// The continue button should be disabled when there is no value in the email field.
+    func test_continueButton_disabled() throws {
+        processor.state.email = ""
+        let button = try subject.inspect().find(button: Localizations.continue)
+        XCTAssertTrue(button.isDisabled())
+    }
+
+    /// The continue button should be enabled when there is a value in the email field.
+    func test_continueButton_enabled() throws {
+        processor.state.email = "email@example.com"
+        let button = try subject.inspect().find(button: Localizations.continue)
+        XCTAssertFalse(button.isDisabled())
+    }
+
     /// Tapping the continue button dispatches the `.continuePressed` action.
     func test_continueButton_tap() throws {
+        processor.state.email = "email@example.com"
         let button = try subject.inspect().find(button: Localizations.continue)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .continuePressed)

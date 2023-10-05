@@ -3,7 +3,7 @@ import Networking
 
 /// API response model for the identity token request.
 ///
-struct IdentityTokenResponseModel: JSONResponse, Equatable {
+struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol {
     static var decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 
     // MARK: Account Properties
@@ -18,7 +18,7 @@ struct IdentityTokenResponseModel: JSONResponse, Equatable {
     let kdfIterations: Int
 
     /// The amount of memory to use when calculating a password hash.
-    let kdkMemory: Int?
+    let kdfMemory: Int?
 
     /// The number of threads to use when calculating a password hash.
     let kdfParallelism: Int?

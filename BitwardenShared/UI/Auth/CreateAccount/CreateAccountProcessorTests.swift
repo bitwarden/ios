@@ -35,9 +35,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
-    func test_dismiss() {
+    func test_receive_dismiss() {
         subject.receive(.dismiss)
-        XCTAssertTrue(coordinator.routes.last == .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// `perform(_:)` with `.createAccount` creates the user's account.

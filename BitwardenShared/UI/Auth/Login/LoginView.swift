@@ -41,6 +41,9 @@ struct LoginView: View {
                 .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
             }
         }
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     /// The text field along with the master password hint button.
@@ -49,6 +52,7 @@ struct LoginView: View {
             BitwardenTextField(
                 title: Localizations.masterPassword,
                 contentType: .password,
+                autoCapitalizationType: .never,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: LoginAction.revealMasterPasswordFieldPressed

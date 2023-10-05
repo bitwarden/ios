@@ -21,9 +21,12 @@ internal final class AuthCoordinator: NSObject, Coordinator {
     // MARK: Types
 
     typealias Services = HasAccountAPIService
+        & HasAppIdService
         & HasAuthAPIService
         & HasCaptchaService
         & HasClientAuth
+        & HasDeviceAPIService
+        & HasSystemDevice
 
     // MARK: Properties
 
@@ -63,6 +66,10 @@ internal final class AuthCoordinator: NSObject, Coordinator {
 
     // MARK: Methods
 
+    func hideLoadingOverlay() {
+        stackNavigator.hideLoadingOverlay()
+    }
+
     func navigate(to route: AuthRoute, context: AnyObject?) {
         switch route {
         case let .captcha(url, callbackUrlScheme):
@@ -76,7 +83,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         case .createAccount:
             showCreateAccount()
         case .dismiss:
-            stackNavigator.dismiss(animated: true)
+            stackNavigator.dismiss()
         case .enterpriseSingleSignOn:
             showEnterpriseSingleSignOn()
         case .landing:
@@ -98,6 +105,10 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         case .regionSelection:
             showRegionSelection()
         }
+    }
+
+    func showLoadingOverlay(_ state: LoadingOverlayState) {
+        stackNavigator.showLoadingOverlay(state)
     }
 
     func start() {
@@ -150,7 +161,8 @@ internal final class AuthCoordinator: NSObject, Coordinator {
                 )
             )
         )
-        stackNavigator.present(view, animated: UI.animated, overFullscreen: true)
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
     }
 
     /// Shows the enterprise single sign-on screen.

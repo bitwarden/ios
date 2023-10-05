@@ -1,5 +1,5 @@
 import BitwardenSdk
-import Foundation
+import UIKit
 
 /// The `ServiceContainer` contains the list of services used by the app. This can be injected into
 /// `Coordinator`s throughout the app which build processors. A `Processor` can define which
@@ -33,6 +33,9 @@ public class ServiceContainer: Services {
     /// The client used by the application to handle auth related encryption and decryption tasks.
     let clientAuth: ClientAuthProtocol
 
+    /// The object used by the application to retrieve information about this device.
+    let systemDevice: SystemDevice
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -43,19 +46,22 @@ public class ServiceContainer: Services {
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
+    ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///
     init(
         apiService: APIService,
         appSettingsStore: AppSettingsStore,
         baseUrlService: BaseUrlService,
         captchaService: CaptchaService,
-        clientAuth: ClientAuthProtocol
+        clientAuth: ClientAuthProtocol,
+        systemDevice: SystemDevice
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
         self.baseUrlService = baseUrlService
         self.captchaService = captchaService
         self.clientAuth = clientAuth
+        self.systemDevice = systemDevice
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
     }
@@ -73,7 +79,8 @@ public class ServiceContainer: Services {
             appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
-            clientAuth: client.auth()
+            clientAuth: client.auth(),
+            systemDevice: UIDevice.current
         )
     }
 }
@@ -84,6 +91,10 @@ extension ServiceContainer {
     }
 
     var authAPIService: AuthAPIService {
+        apiService
+    }
+
+    var deviceAPIService: DeviceAPIService {
         apiService
     }
 }

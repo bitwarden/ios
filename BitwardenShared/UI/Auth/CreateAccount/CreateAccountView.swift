@@ -7,56 +7,60 @@ import SwiftUI
 struct CreateAccountView: View {
     // MARK: Properties
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private
+    var openURL
+
     /// The store used to render the view.
     @ObservedObject var store: Store<CreateAccountState, CreateAccountAction, CreateAccountEffect>
 
     /// The privacy policy attributed string used in navigating to Bitwarden's Privacy Policy website.
     let privacyPolicyString: AttributedString? = try? AttributedString(
-        markdown: ExternalLinksConstants.privacyPolicy
+        markdown: "[\(Localizations.privacyPolicy)](\(ExternalLinksConstants.privacyPolicy))"
     )
 
     /// The terms of service attributed string used in navigating to Bitwarden's Terms of Service website.
     let termsOfServiceString: AttributedString? = try? AttributedString(
-        markdown: ExternalLinksConstants.termsOfService
+        markdown: "[\(Localizations.termsOfService),](\(ExternalLinksConstants.termsOfService))"
     )
 
     // MARK: View
 
     var body: some View {
-        NavigationView {
-            ScrollView(showsIndicators: false) {
-                VStack {
-                    emailAndPassword
+        ScrollView(showsIndicators: false) {
+            VStack {
+                emailAndPassword
 
-                    PasswordStrengthIndicator(minimumPasswordLength: Constants.minimumPasswordCharacters)
+                PasswordStrengthIndicator(minimumPasswordLength: Constants.minimumPasswordCharacters)
 
-                    VStack(spacing: 16) {
-                        retypePassword
+                VStack(spacing: 16) {
+                    retypePassword
 
-                        passwordHint
-                    }
-
-                    VStack(spacing: 24) {
-                        toggles
-
-                        submitButton
-                    }
-                    .padding(.top, 8)
+                    passwordHint
                 }
-                .padding(.horizontal, 12)
+
+                VStack(spacing: 24) {
+                    toggles
+
+                    submitButton
+                }
+                .padding(.top, 8)
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(Localizations.createAccount)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        store.send(.dismiss)
-                    } label: {
-                        Image(asset: Asset.Images.cancel)
-                            .resizable()
-                            .foregroundColor(Color(asset: Asset.Colors.textPrimary))
-                            .frame(width: 24, height: 24)
-                    }
+            .padding(.horizontal, 12)
+            .padding([.top, .bottom], 16)
+        }
+        .background(Color(asset: Asset.Colors.backgroundSecondary))
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(Localizations.createAccount)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    store.send(.dismiss)
+                } label: {
+                    Image(asset: Asset.Images.cancel)
+                        .resizable()
+                        .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
+                        .frame(width: 24, height: 24)
                 }
             }
         }
@@ -69,14 +73,13 @@ struct CreateAccountView: View {
         Toggle(isOn: store.binding(
             get: \.isCheckDataBreachesToggleOn,
             send: CreateAccountAction.toggleCheckDataBreaches
-        )) {}
-            .toggleStyle(
-                DescriptiveToggleStyle(description: {
-                    Text(Localizations.checkKnownDataBreachesForThisPassword)
-                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                        .font(.system(.footnote))
-                })
-            )
+        )) {
+            Text(Localizations.checkKnownDataBreachesForThisPassword)
+                .foregroundColor(Color(asset: Asset.Colors.textPrimary))
+                .font(.system(.footnote))
+        }
+        .toggleStyle(.bitwarden)
+        .id(ViewIdentifier.CreateAccount.checkBreaches)
     }
 
     /// The text fields for the user's email and password.
@@ -85,15 +88,18 @@ struct CreateAccountView: View {
             BitwardenTextField(
                 title: Localizations.emailAddress,
                 contentType: .emailAddress,
+                autoCapitalizationType: .never,
+                keyboardType: .emailAddress,
                 text: store.binding(
-                    get: { $0.emailText },
-                    send: { .emailTextChanged($0) }
+                    get: \.emailText,
+                    send: CreateAccountAction.emailTextChanged
                 )
             )
 
             BitwardenTextField(
                 title: Localizations.masterPassword,
                 contentType: .password,
+                autoCapitalizationType: .never,
                 isPasswordVisible: store.binding(
                     get: \.arePasswordsVisible,
                     send: CreateAccountAction.togglePasswordVisibility
@@ -113,8 +119,8 @@ struct CreateAccountView: View {
                 title: Localizations.masterPasswordHint,
                 contentType: .name,
                 text: store.binding(
-                    get: { $0.passwordHintText },
-                    send: { .passwordHintTextChanged($0) }
+                    get: \.passwordHintText,
+                    send: CreateAccountAction.passwordHintTextChanged
                 )
             )
 
@@ -129,13 +135,14 @@ struct CreateAccountView: View {
         BitwardenTextField(
             title: Localizations.retypeMasterPassword,
             contentType: .password,
+            autoCapitalizationType: .never,
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,
                 send: CreateAccountAction.togglePasswordVisibility
             ),
             text: store.binding(
-                get: { $0.retypePasswordText },
-                send: { .retypePasswordTextChanged($0) }
+                get: \.retypePasswordText,
+                send: CreateAccountAction.retypePasswordTextChanged
             )
         )
     }
@@ -144,17 +151,21 @@ struct CreateAccountView: View {
     private var submitButton: some View {
         Button {
             Task {
-                await store.perform(.createAccount)
+                // TODO: BIT-104
             }
         } label: {
             Text(Localizations.submit)
-                .bold()
-                .foregroundColor(.white)
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.blue)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
+        .buttonStyle(.primary())
+    }
+
+    /// Toggles for checking data breaches and agreeing to the terms of service & privacy policy.
+    private var toggles: some View {
+        VStack(spacing: 24) {
+            checkBreachesToggle
+            termsAndPrivacyToggle
+        }
+        .padding(.top, 8)
     }
 
     /// A toggle for the terms and privacy agreement.
@@ -162,25 +173,19 @@ struct CreateAccountView: View {
         Toggle(isOn: store.binding(
             get: \.isTermsAndPrivacyToggleOn,
             send: CreateAccountAction.toggleTermsAndPrivacy
-        )) {}
-            .toggleStyle(
-                DescriptiveToggleStyle(
-                    description: {
-                        Text("\(Localizations.acceptPolicies)\n")
-                            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                            .font(.system(.footnote)) +
-                            Text("\(termsOfServiceString ?? ""), \(privacyPolicyString ?? "")")
-                            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                            .font(.system(.footnote))
-                    }
-                )
-            )
-    }
-
-    /// Toggles for checking data breaches and agreeing to the terms of service & privacy policy.
-    @ViewBuilder private var toggles: some View {
-        checkBreachesToggle
-        termsAndPrivacyToggle
+        )) {
+            Text("\(Localizations.acceptPolicies)\n\(termsOfServiceString ?? "") \(privacyPolicyString ?? "")")
+        }
+        .accessibilityAction(named: Localizations.termsOfService) {
+            openURL(ExternalLinksConstants.termsOfService)
+        }
+        .accessibilityAction(named: Localizations.privacyPolicy) {
+            openURL(ExternalLinksConstants.privacyPolicy)
+        }
+        .foregroundColor(Color(asset: Asset.Colors.textPrimary))
+        .font(.system(.footnote))
+        .toggleStyle(.bitwarden)
+        .id(ViewIdentifier.CreateAccount.termsAndPrivacy)
     }
 }
 
