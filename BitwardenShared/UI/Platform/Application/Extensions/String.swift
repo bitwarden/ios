@@ -23,11 +23,12 @@ extension String {
 
     /// A flag indicating if this string is considered a valid email address or not.
     var isValidEmail: Bool {
+        let regexPattern = "^.+@.+\\..+$"
         if #available(iOS 16, *) {
-            let emailRegex = /^.+@.+\..+$/
+            guard let emailRegex = try? Regex(regexPattern) else { return false }
             return wholeMatch(of: emailRegex) != nil
         } else {
-            guard let emailRegex = try? NSRegularExpression(pattern: "^.+@.+\\..+$") else { return false }
+            guard let emailRegex = try? NSRegularExpression(pattern: regexPattern) else { return false }
             return emailRegex.firstMatch(in: self, range: NSRange(startIndex..., in: self)) != nil
         }
     }
