@@ -156,6 +156,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             store: Store(
                 processor: CreateAccountProcessor(
                     coordinator: asAnyCoordinator(),
+                    services: services,
                     state: CreateAccountState()
                 )
             )
