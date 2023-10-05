@@ -22,6 +22,7 @@ struct LoginView: View {
                 loggingInAs
             }
             .padding(.horizontal)
+            .padding(.top, 16)
             .frame(maxWidth: .infinity)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
