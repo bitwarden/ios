@@ -20,6 +20,7 @@ final class MockStackNavigator: StackNavigator {
     }
 
     var actions: [NavigationAction] = []
+    var alerts: [BitwardenShared.Alert] = []
     var rootViewController: UIViewController?
 
     var viewControllersToPop: [UIViewController] = []
@@ -42,6 +43,10 @@ final class MockStackNavigator: StackNavigator {
     func popToRoot(animated: Bool) -> [UIViewController] {
         actions.append(NavigationAction(type: .poppedToRoot, animated: animated))
         return viewControllersToPop
+    }
+
+    func present(_ alert: BitwardenShared.Alert) {
+        alerts.append(alert)
     }
 
     func present<Content: View>(_ view: Content, animated: Bool, overFullscreen: Bool) {
