@@ -47,9 +47,24 @@ public enum UI {
     ///
     public static func applyDefaultAppearances() {
         let navigationBarAppearance = UINavigationBarAppearance()
-        navigationBarAppearance.backgroundColor = UIColor(asset: Asset.Colors.primaryContrastBitwarden)
+        navigationBarAppearance.backgroundColor = Asset.Colors.primaryContrastBitwarden.color
         UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
         UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+
+        UIBarButtonItem.appearance().tintColor = Asset.Colors.primaryBitwarden.color
+
+        let tabBarAppearance = UITabBarAppearance()
+        let selectedIconColor = Asset.Colors.primaryBitwarden.color
+        let textAttributes = [NSAttributedString.Key.foregroundColor: Asset.Colors.primaryBitwarden.color]
+
+        tabBarAppearance.compactInlineLayoutAppearance.selected.iconColor = selectedIconColor
+        tabBarAppearance.compactInlineLayoutAppearance.selected.titleTextAttributes = textAttributes
+        tabBarAppearance.inlineLayoutAppearance.selected.iconColor = selectedIconColor
+        tabBarAppearance.inlineLayoutAppearance.selected.titleTextAttributes = textAttributes
+        tabBarAppearance.stackedLayoutAppearance.selected.iconColor = selectedIconColor
+        tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = textAttributes
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
 }
 
