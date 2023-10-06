@@ -104,8 +104,6 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             showLoginWithDevice()
         case .masterPasswordHint:
             showMasterPasswordHint()
-        case .regionSelection:
-            showRegionSelection()
         }
     }
 
@@ -224,12 +222,6 @@ internal final class AuthCoordinator: NSObject, Coordinator {
     /// Shows the master password hint screen.
     private func showMasterPasswordHint() {
         let view = Text("Master Password Hint")
-        stackNavigator.push(view)
-    }
-
-    /// Shows the region selection screen.
-    private func showRegionSelection() {
-        let view = Text("Region")
         stackNavigator.push(view)
     }
 }

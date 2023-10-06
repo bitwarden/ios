@@ -106,7 +106,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     func test_navigate_login() throws {
         subject.navigate(to: .login(
             username: "username",
-            region: "region",
+            region: .unitedStates,
             isLoginWithDeviceVisible: true
         ))
 
@@ -114,7 +114,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         let view = try XCTUnwrap(stackNavigator.actions.last?.view as? LoginView)
         let state = view.store.state
         XCTAssertEqual(state.username, "username")
-        XCTAssertEqual(state.region, "region")
+        XCTAssertEqual(state.region, .unitedStates)
         XCTAssertTrue(state.isLoginWithDeviceVisible)
     }
 
@@ -133,14 +133,6 @@ class AuthCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.masterPasswordHint` pushes the master password hint view onto the stack navigator.
     func test_navigate_masterPasswordHint() {
         subject.navigate(to: .masterPasswordHint)
-        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
-    }
-
-    /// `navigate(to:)` with `.regionSelection` pushes the region selection view onto the stack navigator.
-    func test_navigate_regionSelection() {
-        subject.navigate(to: .regionSelection)
-
-        // Placeholder assertion until the region selection screen is added: BIT-268
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 

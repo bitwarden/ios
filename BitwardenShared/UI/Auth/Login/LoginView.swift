@@ -108,7 +108,7 @@ struct LoginView: View {
     /// The "logging in as..." text along with the not you button.
     @ViewBuilder var loggingInAs: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(Localizations.loggedInAsOn(store.state.username, store.state.region))
+            Text(Localizations.loggedInAsOn(store.state.username, store.state.region.baseUrlDescription))
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
             Button(Localizations.notYou) {

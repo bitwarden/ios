@@ -34,7 +34,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
         case let .emailChanged(newValue):
             state.email = newValue
         case .regionPressed:
-            coordinator.navigate(to: .regionSelection)
+            presentRegionSelectionAlert()
         case let .rememberMeChanged(newValue):
             state.isRememberMeOn = newValue
         }
@@ -60,8 +60,26 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
         // Region placeholder until region selection support is added: BIT-268
         coordinator.navigate(to: .login(
             username: state.email,
-            region: "region",
+            region: state.region,
             isLoginWithDeviceVisible: false
         ))
+    }
+
+    /// Builds an alert for region selection and navigates to the alert.
+    ///
+    private func presentRegionSelectionAlert() {
+        let actions = RegionType.allCases.map { region in
+            AlertAction(title: region.baseUrlDescription, style: .default) { [weak self] _ in
+                self?.state.region = region
+            }
+        }
+        let cancelAction = AlertAction(title: Localizations.cancel, style: .cancel)
+        let alert = Alert(
+            title: Localizations.loggingInOn,
+            message: nil,
+            preferredStyle: .actionSheet,
+            alertActions: actions + [cancelAction]
+        )
+        coordinator.navigate(to: .alert(alert))
     }
 }
