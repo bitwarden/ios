@@ -92,6 +92,7 @@ class AppCoordinator: Coordinator {
             coordinator.navigate(to: route)
         } else {
             let tabNavigator = UITabBarController()
+            tabNavigator.tabBar.tintColor = Asset.Colors.primaryBitwarden.color
             let coordinator = module.makeTabCoordinator(
                 rootNavigator: navigator,
                 tabNavigator: tabNavigator

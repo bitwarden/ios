@@ -47,9 +47,11 @@ public enum UI {
     ///
     public static func applyDefaultAppearances() {
         let navigationBarAppearance = UINavigationBarAppearance()
-        navigationBarAppearance.backgroundColor = UIColor(asset: Asset.Colors.primaryContrastBitwarden)
+        navigationBarAppearance.backgroundColor = Asset.Colors.primaryContrastBitwarden.color
         UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
         UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+
+        UIBarButtonItem.appearance().tintColor = Asset.Colors.primaryBitwarden.color
     }
 }
 
