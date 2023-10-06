@@ -35,7 +35,7 @@ extension Account {
         let hasPremiumPersonally: Bool?
 
         /// The number of iterations to use when calculating a password hash.
-        let kdfIterations: Int
+        let kdfIterations: Int?
 
         /// The amount of memory to use when calculating a password hash.
         let kdfMemory: Int?
@@ -44,7 +44,7 @@ extension Account {
         let kdfParallelism: Int?
 
         /// The type of KDF algorithm to use.
-        let kdfType: KdfType
+        let kdfType: KdfType?
 
         /// The account's name.
         let name: String?
