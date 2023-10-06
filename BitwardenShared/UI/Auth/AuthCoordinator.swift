@@ -22,6 +22,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
 
     typealias Services = HasAccountAPIService
         & HasAppIdService
+        & HasAppSettingsStore
         & HasAuthAPIService
         & HasCaptchaService
         & HasClientAuth
@@ -184,6 +185,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         if stackNavigator.popToRoot(animated: UI.animated).isEmpty {
             let processor = LandingProcessor(
                 coordinator: asAnyCoordinator(),
+                services: services,
                 state: LandingState()
             )
             let store = Store(processor: processor)

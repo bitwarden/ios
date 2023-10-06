@@ -5,6 +5,9 @@ import Foundation
 protocol AppSettingsStore: AnyObject {
     /// The app's unique identifier.
     var appId: String? { get set }
+
+    /// The email being remembered on the landing screen.
+    var rememberedEmail: String? { get set }
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -54,6 +57,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     ///
     private enum Keys: String {
         case appId
+        case rememberedEmail
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -64,5 +68,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appId: String? {
         get { fetch(for: .appId) }
         set { store(newValue, for: .appId) }
+    }
+
+    var rememberedEmail: String? {
+        get { fetch(for: .rememberedEmail) }
+        set { store(newValue, for: .rememberedEmail) }
     }
 }
