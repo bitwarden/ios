@@ -22,11 +22,13 @@ struct LoginView: View {
                 loggingInAs
             }
             .padding(.horizontal)
+            .padding(.top, 16)
             .frame(maxWidth: .infinity)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.bitwarden)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -108,7 +110,7 @@ struct LoginView: View {
     /// The "logging in as..." text along with the not you button.
     @ViewBuilder var loggingInAs: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(Localizations.loggedInAsOn(store.state.username, store.state.region))
+            Text(Localizations.loggedInAsOn(store.state.username, store.state.region.baseUrlDescription))
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
             Button(Localizations.notYou) {

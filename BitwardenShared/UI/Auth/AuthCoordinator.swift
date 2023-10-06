@@ -72,6 +72,8 @@ internal final class AuthCoordinator: NSObject, Coordinator {
 
     func navigate(to route: AuthRoute, context: AnyObject?) {
         switch route {
+        case let .alert(alert):
+            showAlert(alert)
         case let .captcha(url, callbackUrlScheme):
             showCaptcha(
                 url: url,
@@ -102,8 +104,6 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             showLoginWithDevice()
         case .masterPasswordHint:
             showMasterPasswordHint()
-        case .regionSelection:
-            showRegionSelection()
         }
     }
 
@@ -116,6 +116,14 @@ internal final class AuthCoordinator: NSObject, Coordinator {
     }
 
     // MARK: Private Methods
+
+    /// Shows the provided alert on the `stackNavigator`.
+    ///
+    /// - Parameter alert: The alert to show.
+    ///
+    private func showAlert(_ alert: Alert) {
+        stackNavigator.present(alert)
+    }
 
     /// Shows the captcha screen.
     ///
@@ -156,6 +164,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             store: Store(
                 processor: CreateAccountProcessor(
                     coordinator: asAnyCoordinator(),
+                    services: services,
                     state: CreateAccountState()
                 )
             )
@@ -195,7 +204,12 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         )
         let store = Store(processor: processor)
         let view = LoginView(store: store)
-        stackNavigator.push(view)
+        let viewController = UIHostingController(rootView: view)
+
+        // When hiding the back button, we need to use both SwiftUI's method alongside UIKit's, otherwise the
+        // back button might flash on screen while the screen is being pushed.
+        viewController.navigationItem.hidesBackButton = true
+        stackNavigator.push(viewController)
     }
 
     /// Shows the login options screen.
@@ -213,12 +227,6 @@ internal final class AuthCoordinator: NSObject, Coordinator {
     /// Shows the master password hint screen.
     private func showMasterPasswordHint() {
         let view = Text("Master Password Hint")
-        stackNavigator.push(view)
-    }
-
-    /// Shows the region selection screen.
-    private func showRegionSelection() {
-        let view = Text("Region")
         stackNavigator.push(view)
     }
 }

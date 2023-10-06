@@ -9,8 +9,12 @@ class CreateAccountRequestTests: BitwardenTestCase {
     func test_method() {
         let subject = CreateAccountRequest(
             body: CreateAccountRequestModel(
-                email: "email@example.com",
-                masterPasswordHash: "1234"
+                email: "example@email.com",
+                kdfConfig: KdfConfig(),
+                key: "key",
+                keys: KeysRequestModel(encryptedPrivateKey: "private"),
+                masterPasswordHash: "1a2b3c",
+                masterPasswordHint: "hint"
             )
         )
         XCTAssertEqual(subject.method, .post)
@@ -20,8 +24,12 @@ class CreateAccountRequestTests: BitwardenTestCase {
     func test_path() {
         let subject = CreateAccountRequest(
             body: CreateAccountRequestModel(
-                email: "email@example.com",
-                masterPasswordHash: "1234"
+                email: "example@email.com",
+                kdfConfig: KdfConfig(),
+                key: "key",
+                keys: KeysRequestModel(encryptedPrivateKey: "private"),
+                masterPasswordHash: "1a2b3c",
+                masterPasswordHint: "hint"
             )
         )
         XCTAssertEqual(subject.path, "/accounts/register")
@@ -31,8 +39,12 @@ class CreateAccountRequestTests: BitwardenTestCase {
     func test_body() {
         let subject = CreateAccountRequest(
             body: CreateAccountRequestModel(
-                email: "email@example.com",
-                masterPasswordHash: "1234"
+                email: "example@email.com",
+                kdfConfig: KdfConfig(),
+                key: "key",
+                keys: KeysRequestModel(encryptedPrivateKey: "private"),
+                masterPasswordHash: "1a2b3c",
+                masterPasswordHint: "hint"
             )
         )
         XCTAssertNotNil(subject.body)
@@ -44,11 +56,14 @@ class CreateAccountRequestTests: BitwardenTestCase {
     func test_init_body() {
         let subject = CreateAccountRequest(
             body: CreateAccountRequestModel(
-                email: "email@example.com",
-                masterPasswordHash: "1234"
+                email: "example@email.com",
+                kdfConfig: KdfConfig(),
+                key: "key",
+                keys: KeysRequestModel(encryptedPrivateKey: "private"),
+                masterPasswordHash: "1a2b3c",
+                masterPasswordHint: "hint"
             )
         )
-        XCTAssertEqual(subject.body?.email, "email@example.com")
-        XCTAssertEqual(subject.body?.masterPasswordHash, "1234")
+        XCTAssertEqual(subject.body?.email, "example@email.com")
     }
 }

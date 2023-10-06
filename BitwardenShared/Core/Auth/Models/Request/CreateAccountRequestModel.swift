@@ -9,43 +9,87 @@ struct CreateAccountRequestModel: Equatable {
     // MARK: Properties
 
     /// The captcha response used in validating a user for this request.
-    let captchaResponse: String? = nil
+    let captchaResponse: String?
 
     /// The user's email address.
     let email: String
 
     /// The type of kdf for this request.
-    let kdf: KdfType? = nil
+    var kdf: KdfType?
 
     /// The number of kdf iterations performed in this request.
-    let kdfIterations: Int? = nil
+    var kdfIterations: Int?
 
     /// The kdf memory allocated for the computed password hash.
-    let kdfMemory: Int? = nil
+    var kdfMemory: Int?
 
     /// The number of threads upon which the kdf iterations are performed.
-    let kdfParallelism: Int? = nil
+    var kdfParallelism: Int?
 
     /// The key used for this request.
-    let key: String? = nil
+    let key: String
 
     /// The keys used for this request.
-    let keys: KeysRequestModel? = nil
+    let keys: KeysRequestModel
 
     /// The master password hash used to authenticate a user.
     let masterPasswordHash: String
 
     /// The master password hint.
-    let masterPasswordHint: String? = nil
+    let masterPasswordHint: String?
 
     /// The user's name.
-    let name: String? = nil
+    let name: String?
 
     /// The organization's user ID.
-    let organizationUserId: String? = nil
+    let organizationUserId: String?
 
     /// The token used when making this request.
-    let token: String? = nil
+    let token: String?
+
+    // MARK: Initialization
+
+    /// Initializes a `CreateAccountRequestModel`.
+    ///
+    /// - Parameters:
+    ///   - captchaResponse: The captcha response used in validating a user for this request.
+    ///   - email: The user's email address.
+    ///   - kdfConfig: A model for configuring KDF options.
+    ///   - key: The key used for this request.
+    ///   - keys: The keys used for this request.
+    ///   - masterPasswordHash: The master password hash used to authenticate a user.
+    ///   - masterPasswordHint: The master password hint.
+    ///   - name: The user's name.
+    ///   - organizationUserId: The organization's user ID.
+    ///   - token: The token used when making this request.
+    ///
+    init(
+        captchaResponse: String? = nil,
+        email: String,
+        kdfConfig: KdfConfig,
+        key: String,
+        keys: KeysRequestModel,
+        masterPasswordHash: String,
+        masterPasswordHint: String?,
+        name: String? = nil,
+        organizationUserId: String? = nil,
+        token: String? = nil
+    ) {
+        self.captchaResponse = captchaResponse
+        self.email = email
+        kdf = kdfConfig.kdf
+        kdfIterations = kdfConfig.kdfIterations
+        kdfMemory = kdfConfig.kdfMemory
+        kdfParallelism = kdfConfig.kdfParallelism
+        kdfMemory = kdfConfig.kdfMemory
+        self.key = key
+        self.keys = keys
+        self.masterPasswordHash = masterPasswordHash
+        self.masterPasswordHint = masterPasswordHint
+        self.name = name
+        self.organizationUserId = organizationUserId
+        self.token = token
+    }
 }
 
 // MARK: JSONRequestBody

@@ -21,6 +21,14 @@ public protocol StackNavigator: Navigator {
     ///
     func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool)
 
+    /// Pushes a view controller onto the navigator's stack.
+    ///
+    /// - Parameters:
+    ///   - viewController: The view controller to push onto the stack.
+    ///   - animated: Whether the transition should be animated.
+    ///
+    func push(_ viewController: UIViewController, animated: Bool)
+
     /// Pops a view off the navigator's stack.
     ///
     /// - Parameter animated: Whether the transition should be animated.
@@ -78,6 +86,16 @@ extension StackNavigator {
     ///
     func push<Content: View>(_ view: Content, animated: Bool = UI.animated) {
         push(view, animated: animated, hidesBottomBar: false)
+    }
+
+    /// Pushes a view controller onto the navigator's stack.
+    ///
+    /// - Parameters:
+    ///   - viewController: The view controller to push onto the stack.
+    ///   - animated: Whether the transition should be animated. Defaults to `UI.animated`.
+    ///
+    func push(_ viewController: UIViewController, animated: Bool = UI.animated) {
+        push(viewController, animated: animated)
     }
 
     /// Pops a view off the navigator's stack. Animation is controlled by `UI.animated`.
@@ -151,6 +169,10 @@ extension UINavigationController: StackNavigator {
     public func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {
         let viewController = UIHostingController(rootView: view)
         viewController.hidesBottomBarWhenPushed = hidesBottomBar
+        push(viewController, animated: animated)
+    }
+
+    public func push(_ viewController: UIViewController, animated: Bool) {
         pushViewController(viewController, animated: animated)
     }
 
