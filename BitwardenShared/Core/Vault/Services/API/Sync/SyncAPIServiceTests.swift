@@ -32,7 +32,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
 
     /// `getSync()` successfully decodes a response with ciphers.
     func test_sync_withCiphers() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
+        client.result = .httpSuccess(testData: .syncWithCipher)
 
         let response = try await subject.getSync()
 

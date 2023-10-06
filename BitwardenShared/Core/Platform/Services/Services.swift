@@ -10,6 +10,7 @@ typealias Services = HasAccountAPIService
     & HasClientAuth
     & HasDeviceAPIService
     & HasSystemDevice
+    & HasVaultRepository
 
 /// Protocol for an object that provides an `AccountAPIService`.
 ///
@@ -76,4 +77,11 @@ protocol HasDeviceAPIService {
 protocol HasSystemDevice {
     /// The object used by the application to retrieve information about this device.
     var systemDevice: SystemDevice { get }
+}
+
+/// Protocol for an object that provides a `VaultRepository`.
+///
+protocol HasVaultRepository {
+    /// The repository used by the application to manage vault data for the UI layer.
+    var vaultRepository: VaultRepository { get }
 }
