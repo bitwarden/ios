@@ -150,7 +150,7 @@ struct CreateAccountView: View {
     private var submitButton: some View {
         Button {
             Task {
-                // TODO: BIT-104
+                await store.perform(.createAccount)
             }
         } label: {
             Text(Localizations.submit)
