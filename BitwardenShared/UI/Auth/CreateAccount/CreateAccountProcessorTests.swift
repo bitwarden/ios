@@ -41,10 +41,30 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` creates the user's account.
-    func test_perform_createAccount() async {
+    func test_perform_createAccount_withInvalidEmail() async {
         client.result = .httpSuccess(testData: .createAccountSuccess)
         subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.emailText = ""
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.invalidEmail,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )))
+    }
+
+    /// `perform(_:)` with `.createAccount` creates the user's account.
+    func test_perform_createAccount_withValidEmail() async {
+        client.result = .httpSuccess(testData: .createAccountSuccess)
+        subject.state.isCheckDataBreachesToggleOn = true
+        subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.emailText = "email@example.com"
 
         await subject.perform(.createAccount)
 

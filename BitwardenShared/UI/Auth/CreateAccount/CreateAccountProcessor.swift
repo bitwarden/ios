@@ -71,6 +71,11 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     /// Creates the user's account with their provided credentials.
     ///
     private func createAccount() async {
+        guard state.emailText.isValidEmail else {
+            presentInvalidEmailAlert()
+            return
+        }
+
         do {
             guard state.isTermsAndPrivacyToggleOn else {
                 // TODO: BIT-681
@@ -111,5 +116,18 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         } catch {
             // TODO: BIT-681
         }
+    }
+
+    /// Creates an alert informing the user that the entered email is invalid and navigates to the alert.
+    ///
+    private func presentInvalidEmailAlert() {
+        let alert = Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.invalidEmail,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+        coordinator.navigate(to: .alert(alert))
     }
 }
