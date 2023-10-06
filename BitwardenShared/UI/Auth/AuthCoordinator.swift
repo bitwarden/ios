@@ -72,6 +72,8 @@ internal final class AuthCoordinator: NSObject, Coordinator {
 
     func navigate(to route: AuthRoute, context: AnyObject?) {
         switch route {
+        case let .alert(alert):
+            showAlert(alert)
         case let .captcha(url, callbackUrlScheme):
             showCaptcha(
                 url: url,
@@ -117,6 +119,14 @@ internal final class AuthCoordinator: NSObject, Coordinator {
 
     // MARK: Private Methods
 
+    /// Shows the provided alert on the `stackNavigator`.
+    ///
+    /// - Parameter alert: The alert to show.
+    ///
+    private func showAlert(_ alert: Alert) {
+        stackNavigator.present(alert)
+    }
+
     /// Shows the captcha screen.
     ///
     /// - Parameters:
@@ -156,6 +166,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             store: Store(
                 processor: CreateAccountProcessor(
                     coordinator: asAnyCoordinator(),
+                    services: services,
                     state: CreateAccountState()
                 )
             )

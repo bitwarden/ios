@@ -7,6 +7,7 @@ import XCTest
 class CreateAccountProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var client: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute>!
     var subject: CreateAccountProcessor!
 
@@ -14,12 +15,13 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-
+        client = MockHTTPClient()
         coordinator = MockCoordinator<AuthRoute>()
 
         let state = CreateAccountState()
         subject = CreateAccountProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(httpClient: client),
             state: state
         )
     }
@@ -36,6 +38,20 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.createAccount` creates the user's account.
+    func test_perform_createAccount() async {
+        client.result = .httpSuccess(testData: .createAccountSuccess)
+        subject.state.isCheckDataBreachesToggleOn = true
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests.first?.body, nil)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/da39a"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
     }
 
     /// `receive(_:)` with `.emailTextChanged(_:)` updates the state to reflect the change.

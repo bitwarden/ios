@@ -4,6 +4,11 @@ import Foundation
 
 /// A route to a specific screen in the authentication flow.
 public enum AuthRoute: Equatable {
+    /// A route to display the specified alert.
+    ///
+    /// - Parameter alert: The alert to display.
+    case alert(_ alert: Alert)
+
     /// A route to the captcha screen.
     case captcha(url: URL, callbackUrlScheme: String)
 

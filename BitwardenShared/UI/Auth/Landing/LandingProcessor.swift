@@ -28,12 +28,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
     override func receive(_ action: LandingAction) {
         switch action {
         case .continuePressed:
-            // Region placeholder until region selection support is added: BIT-268
-            coordinator.navigate(to: .login(
-                username: state.email,
-                region: "region",
-                isLoginWithDeviceVisible: false
-            ))
+            validateEmailAndContinue()
         case .createAccountPressed:
             coordinator.navigate(to: .createAccount)
         case let .emailChanged(newValue):
@@ -43,5 +38,30 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
         case let .rememberMeChanged(newValue):
             state.isRememberMeOn = newValue
         }
+    }
+
+    // MARK: Private Methods
+
+    /// Validate the currently entered email address and navigate to the login screen.
+    ///
+    private func validateEmailAndContinue() {
+        guard state.email.isValidEmail else {
+            let alert = Alert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.invalidEmail,
+                alertActions: [
+                    AlertAction(title: Localizations.ok, style: .default),
+                ]
+            )
+            coordinator.navigate(to: .alert(alert))
+            return
+        }
+
+        // Region placeholder until region selection support is added: BIT-268
+        coordinator.navigate(to: .login(
+            username: state.email,
+            region: "region",
+            isLoginWithDeviceVisible: false
+        ))
     }
 }
