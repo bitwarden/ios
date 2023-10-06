@@ -56,10 +56,14 @@ struct CreateAccountView: View {
                 Button {
                     store.send(.dismiss)
                 } label: {
-                    Image(asset: Asset.Images.cancel)
-                        .resizable()
-                        .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
-                        .frame(width: 24, height: 24)
+                    Label {
+                        Text(Localizations.cancel)
+                    } icon: {
+                        Image(asset: Asset.Images.cancel)
+                            .resizable()
+                            .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
+                            .frame(width: 24, height: 24)
+                    }
                 }
             }
         }

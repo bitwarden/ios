@@ -74,6 +74,19 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
     }
 
+    /// `perform(_:)` with `.createAccount` creates the user's account.
+    func test_perform_createAccount_withTermsAndServicesToggle_false() async {
+        client.result = .httpSuccess(testData: .createAccountSuccess)
+        subject.state.isCheckDataBreachesToggleOn = true
+        subject.state.isTermsAndPrivacyToggleOn = false
+        subject.state.emailText = "email@example.com"
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 0)
+        // TODO: BIT-681 Add an assertion here for an error alert.
+    }
+
     /// `receive(_:)` with `.emailTextChanged(_:)` updates the state to reflect the change.
     func test_receive_emailTextChanged() {
         subject.state.emailText = ""
@@ -117,12 +130,32 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         subject.receive(.toggleCheckDataBreaches(true))
         XCTAssertTrue(subject.state.isCheckDataBreachesToggleOn)
+
+        subject.receive(.toggleCheckDataBreaches(true))
+        XCTAssertTrue(subject.state.isCheckDataBreachesToggleOn)
+    }
+
+    /// `receive(_:)` with `.togglePasswordVisibility(_:)` updates the state to reflect the change.
+    func test_receive_togglePasswordVisibility() {
+        subject.state.arePasswordsVisible = false
+
+        subject.receive(.togglePasswordVisibility(true))
+        XCTAssertTrue(subject.state.arePasswordsVisible)
+
+        subject.receive(.togglePasswordVisibility(true))
+        XCTAssertTrue(subject.state.arePasswordsVisible)
+
+        subject.receive(.togglePasswordVisibility(false))
+        XCTAssertFalse(subject.state.arePasswordsVisible)
     }
 
     /// `receive(_:)` with `.toggleTermsAndPrivacy(_:)` updates the state to reflect the change.
     func test_receive_toggleTermsAndPrivacy() {
         subject.receive(.toggleTermsAndPrivacy(false))
         XCTAssertFalse(subject.state.isTermsAndPrivacyToggleOn)
+
+        subject.receive(.toggleTermsAndPrivacy(true))
+        XCTAssertTrue(subject.state.isTermsAndPrivacyToggleOn)
 
         subject.receive(.toggleTermsAndPrivacy(true))
         XCTAssertTrue(subject.state.isTermsAndPrivacyToggleOn)

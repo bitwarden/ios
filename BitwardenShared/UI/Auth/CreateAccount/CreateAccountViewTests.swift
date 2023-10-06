@@ -30,6 +30,12 @@ class CreateAccountViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    func test_cancelButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.cancel)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+    }
+
     /// Tapping the check for security breaches toggle dispatches the `.toggleCheckDataBreaches()` action.
     func test_checkBreachesToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
@@ -72,6 +78,23 @@ class CreateAccountViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .togglePasswordVisibility(true))
     }
 
+    /// Updating the text field dispatches the `.retypePasswordTextChanged()` action.
+    func test_retypePasswordField_updateValue() throws {
+        processor.state.arePasswordsVisible = true
+        let textfield = try subject.inspect().find(viewWithId: Localizations.retypeMasterPassword).textField()
+        try textfield.setInput("text")
+        XCTAssertEqual(processor.dispatchedActions.last, .retypePasswordTextChanged("text"))
+    }
+
+    func test_submitButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.submit)
+        try button.tap()
+
+        waitFor(!processor.effects.isEmpty)
+
+        XCTAssertEqual(processor.effects.last, .createAccount)
+    }
+
     /// Tapping the terms and privacy policy toggle dispatches the `.toggleTermsAndPrivacy()` action.
     func test_termsAndPrivacyToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
@@ -80,14 +103,6 @@ class CreateAccountViewTests: BitwardenTestCase {
         let toggle = try subject.inspect().find(viewWithId: ViewIdentifier.CreateAccount.termsAndPrivacy).toggle()
         try toggle.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .toggleTermsAndPrivacy(true))
-    }
-
-    /// Updating the text field dispatches the `.retypePasswordTextChanged()` action.
-    func test_retypePasswordField_updateValue() throws {
-        processor.state.arePasswordsVisible = true
-        let textfield = try subject.inspect().find(viewWithId: Localizations.retypeMasterPassword).textField()
-        try textfield.setInput("text")
-        XCTAssertEqual(processor.dispatchedActions.last, .retypePasswordTextChanged("text"))
     }
 
     // MARK: Snapshots
