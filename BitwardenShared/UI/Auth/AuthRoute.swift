@@ -44,7 +44,4 @@ public enum AuthRoute: Equatable {
 
     /// A route to the master password hint screen.
     case masterPasswordHint
-
-    /// A route to the region selection screen.
-    case regionSelection
 }

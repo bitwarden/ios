@@ -104,9 +104,6 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             showLoginWithDevice()
         case .masterPasswordHint:
             showMasterPasswordHint()
-        case .regionSelection:
-            guard let delegate = context as? RegionSelectionDelegate else { return }
-            showRegionSelection(delegate: delegate)
         }
     }
 
@@ -226,23 +223,6 @@ internal final class AuthCoordinator: NSObject, Coordinator {
     private func showMasterPasswordHint() {
         let view = Text("Master Password Hint")
         stackNavigator.push(view)
-    }
-
-    /// Shows the region selection screen.
-    private func showRegionSelection(delegate: RegionSelectionDelegate) {
-        let actions = RegionType.allCases.map { region in
-            AlertAction(title: region.baseUrlDescription, style: .default) { _ in
-                delegate.regionSelected(region)
-            }
-        }
-        let cancelAction = AlertAction(title: Localizations.cancel, style: .cancel)
-        let alert = Alert(
-            title: Localizations.loggingInOn,
-            message: nil,
-            preferredStyle: .actionSheet,
-            alertActions: actions + [cancelAction]
-        )
-        stackNavigator.present(alert)
     }
 }
 
