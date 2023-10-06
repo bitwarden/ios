@@ -41,6 +41,9 @@ struct LoginView: View {
                 .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
             }
         }
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     /// The text field along with the master password hint button.

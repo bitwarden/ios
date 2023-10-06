@@ -19,6 +19,20 @@ enum URLDecodingError: Error, Equatable {
 // MARK: - String
 
 extension String {
+    // MARK: Properties
+
+    /// A flag indicating if this string is considered a valid email address or not.
+    var isValidEmail: Bool {
+        let regexPattern = "^.+@.+\\..+$"
+        if #available(iOS 16, *) {
+            guard let emailRegex = try? Regex(regexPattern) else { return false }
+            return wholeMatch(of: emailRegex) != nil
+        } else {
+            guard let emailRegex = try? NSRegularExpression(pattern: regexPattern) else { return false }
+            return emailRegex.firstMatch(in: self, range: NSRange(startIndex..., in: self)) != nil
+        }
+    }
+
     // MARK: Methods
 
     /// Creates a new string that has been encoded for use in a url or request header.

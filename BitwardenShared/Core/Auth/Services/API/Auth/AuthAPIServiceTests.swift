@@ -32,7 +32,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
 
     /// `getIdentityToken()` successfully decodes the identity token response.
     func test_getIdentityToken() async throws {
-        client.result = .httpSuccess(testData: .identityToken)
+        client.result = .httpSuccess(testData: .identityTokenSuccess)
 
         let response = try await subject.getIdentityToken(
             IdentityTokenRequestModel(
@@ -48,7 +48,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
                 forcePasswordReset: false,
                 kdf: .pbkdf2sha256,
                 kdfIterations: 600_000,
-                kdkMemory: nil,
+                kdfMemory: nil,
                 kdfParallelism: nil,
                 key: "KEY",
                 masterPasswordPolicy: nil,
