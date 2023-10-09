@@ -23,5 +23,5 @@ struct LoginState: Equatable {
     var username: String = ""
 
     /// The region selected by the user on the landing screen.
-    var region: String = ""
+    var region: RegionType = .unitedStates
 }

@@ -55,9 +55,24 @@ class StackNavigatorTests: BitwardenTestCase {
     }
 
     /// `push(_:animated:)` pushes the hosted view.
-    func test_push() {
+    func test_push_view() {
         subject.push(EmptyView(), animated: false)
         XCTAssertTrue(subject.topViewController is UIHostingController<EmptyView>)
+    }
+
+    /// `push(_:animated:hidesBottomBar:)` pushes the hosted view and hides the bottom bar.
+    func test_push_view_hidesBottomBar_true() throws {
+        subject.push(EmptyView(), animated: false, hidesBottomBar: true)
+        let viewController = try XCTUnwrap(subject.topViewController)
+        XCTAssertTrue(viewController is UIHostingController<EmptyView>)
+        XCTAssertTrue(viewController.hidesBottomBarWhenPushed)
+    }
+
+    /// `push(_:animated:)` pushes the view controller.
+    func test_push_viewController() {
+        let viewController = UIViewController()
+        subject.push(viewController, animated: false)
+        XCTAssertIdentical(subject.topViewController, viewController)
     }
 
     /// `pop(animated:)` pops the hosted view.
