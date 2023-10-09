@@ -71,8 +71,9 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     /// Creates the user's account with their provided credentials.
     ///
     private func createAccount() async {
-        guard state.emailText.isValidEmail else {
-            presentInvalidEmailAlert()
+        let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard email.isValidEmail else {
+            coordinator.navigate(to: .alert(.invalidEmail))
             return
         }
 
@@ -85,13 +86,13 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
 
             let keys = try await services.clientAuth.makeRegisterKeys(
-                email: state.emailText,
+                email: email,
                 password: state.passwordText,
                 kdf: kdf
             )
 
             let hashedPassword = try await services.clientAuth.hashPassword(
-                email: state.emailText,
+                email: email,
                 password: state.passwordText,
                 kdfParams: kdf
             )
@@ -102,7 +103,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
             _ = try await services.accountAPIService.createNewAccount(
                 body: CreateAccountRequestModel(
-                    email: state.emailText,
+                    email: email,
                     kdfConfig: KdfConfig(),
                     key: keys.encryptedUserKey,
                     keys: KeysRequestModel(
@@ -116,18 +117,5 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         } catch {
             // TODO: BIT-681
         }
-    }
-
-    /// Creates an alert informing the user that the entered email is invalid and navigates to the alert.
-    ///
-    private func presentInvalidEmailAlert() {
-        let alert = Alert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.invalidEmail,
-            alertActions: [
-                AlertAction(title: Localizations.ok, style: .default),
-            ]
-        )
-        coordinator.navigate(to: .alert(alert))
     }
 }

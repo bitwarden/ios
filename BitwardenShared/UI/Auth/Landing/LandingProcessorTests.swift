@@ -36,18 +36,38 @@ class LandingProcessorTests: BitwardenTestCase {
         subject.state.email = "email"
 
         subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.invalidEmail,
-            alertActions: [
-                AlertAction(title: Localizations.ok, style: .default),
-            ]
-        )))
+        XCTAssertEqual(coordinator.routes.last, .alert(.invalidEmail))
     }
 
     /// `receive(_:)` with `.continuePressed` and a valid email navigates to the login screen.
     func test_receive_continuePressed_withValidEmail() {
         subject.state.email = "email@example.com"
+
+        subject.receive(.continuePressed)
+        XCTAssertEqual(coordinator.routes.last, .login(
+            username: "email@example.com",
+            region: "region",
+            isLoginWithDeviceVisible: false
+        ))
+    }
+
+    /// `receive(_:)` with `.continuePressed` and a valid email surrounded by whitespace trims the whitespace and
+    /// navigates to the login screen.
+    func test_receive_continuePressed_withValidEmailAndSpace() {
+        subject.state.email = " email@example.com "
+
+        subject.receive(.continuePressed)
+        XCTAssertEqual(coordinator.routes.last, .login(
+            username: "email@example.com",
+            region: "region",
+            isLoginWithDeviceVisible: false
+        ))
+    }
+
+    /// `receive(_:)` with `.continuePressed` and a valid email with uppercase characters converts the email to
+    /// lowercase and navigates to the login screen.
+    func test_receive_continuePressed_withValidEmailUppercased() {
+        subject.state.email = "EMAIL@EXAMPLE.COM"
 
         subject.receive(.continuePressed)
         XCTAssertEqual(coordinator.routes.last, .login(

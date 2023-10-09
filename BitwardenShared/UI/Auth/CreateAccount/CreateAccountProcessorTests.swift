@@ -40,7 +40,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
-    /// `perform(_:)` with `.createAccount` creates the user's account.
+    /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.
     func test_perform_createAccount_withInvalidEmail() async {
         client.result = .httpSuccess(testData: .createAccountSuccess)
         subject.state.isCheckDataBreachesToggleOn = true
@@ -50,21 +50,47 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.invalidEmail,
-            alertActions: [
-                AlertAction(title: Localizations.ok, style: .default),
-            ]
-        )))
+        XCTAssertEqual(coordinator.routes.last, .alert(.invalidEmail))
     }
 
-    /// `perform(_:)` with `.createAccount` creates the user's account.
+    /// `perform(_:)` with `.createAccount` and a valid email creates the user's account.
     func test_perform_createAccount_withValidEmail() async {
         client.result = .httpSuccess(testData: .createAccountSuccess)
         subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.emailText = "email@example.com"
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests.first?.body, nil)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/da39a"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+    }
+
+    /// `perform(_:)` with `.createAccount` and a valid email surrounded by whitespace trims the whitespace and
+    /// creates the user's account
+    func test_perform_createAccount_withValidEmailAndSpace() async {
+        client.result = .httpSuccess(testData: .createAccountSuccess)
+        subject.state.isCheckDataBreachesToggleOn = true
+        subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.emailText = " email@example.com "
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests.first?.body, nil)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/da39a"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+    }
+
+    /// `perform(_:)` with `.createAccount` and a valid email with uppercase characters converts the email to lowercase
+    /// and creates the user's account.
+    func test_perform_createAccount_withValidEmailUppercased() async {
+        client.result = .httpSuccess(testData: .createAccountSuccess)
+        subject.state.isCheckDataBreachesToggleOn = true
+        subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.emailText = "EMAIL@EXAMPLE.COM"
 
         await subject.perform(.createAccount)
 
