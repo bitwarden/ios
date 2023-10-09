@@ -38,6 +38,24 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
+    func test_navigate_alert() {
+        let alert = BitwardenShared.Alert(
+            title: "title",
+            message: "message",
+            preferredStyle: .alert,
+            alertActions: [
+                AlertAction(
+                    title: "alert title",
+                    style: .cancel
+                ),
+            ]
+        )
+
+        subject.navigate(to: .alert(alert))
+        XCTAssertEqual(stackNavigator.alerts.last, alert)
+    }
+
     /// `navigate(to:)` with `.complete` notifies the delegate that auth has completed.
     func test_navigate_complete() {
         subject.navigate(to: .complete)
@@ -84,19 +102,24 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.actions.last?.type, .poppedToRoot)
     }
 
-    /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator.
+    /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator and hides the back button.
     func test_navigate_login() throws {
         subject.navigate(to: .login(
             username: "username",
-            region: "region",
+            region: .unitedStates,
             isLoginWithDeviceVisible: true
         ))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
-        let view = try XCTUnwrap(stackNavigator.actions.last?.view as? LoginView)
+        let viewController = try XCTUnwrap(
+            stackNavigator.actions.last?.viewController as? UIHostingController<LoginView>
+        )
+        XCTAssertTrue(viewController.navigationItem.hidesBackButton)
+
+        let view = viewController.rootView
         let state = view.store.state
         XCTAssertEqual(state.username, "username")
-        XCTAssertEqual(state.region, "region")
+        XCTAssertEqual(state.region, .unitedStates)
         XCTAssertTrue(state.isLoginWithDeviceVisible)
     }
 
@@ -115,14 +138,6 @@ class AuthCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.masterPasswordHint` pushes the master password hint view onto the stack navigator.
     func test_navigate_masterPasswordHint() {
         subject.navigate(to: .masterPasswordHint)
-        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
-    }
-
-    /// `navigate(to:)` with `.regionSelection` pushes the region selection view onto the stack navigator.
-    func test_navigate_regionSelection() {
-        subject.navigate(to: .regionSelection)
-
-        // Placeholder assertion until the region selection screen is added: BIT-268
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 

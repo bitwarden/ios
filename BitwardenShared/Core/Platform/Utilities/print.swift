@@ -3,7 +3,8 @@ import Foundation
 /// Wraps the `Swift.print()` within an `#if DEBUG` check, so that print statements have no effect in production
 /// builds.
 ///
-/// - Note: *print()* might cause [security vulnerabilities](https://codifiedsecurity.com/mobile-app-security-testing-checklist-ios/)
+/// - Note: `print()` might cause
+/// [security vulnerabilities](https://codifiedsecurity.com/mobile-app-security-testing-checklist-ios/).
 ///
 /// - Parameters:
 ///   - items: Zero or more items to print.

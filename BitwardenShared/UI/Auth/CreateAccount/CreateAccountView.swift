@@ -8,8 +8,7 @@ struct CreateAccountView: View {
     // MARK: Properties
 
     /// An action that opens URLs.
-    @Environment(\.openURL) private
-    var openURL
+    @Environment(\.openURL) private var openURL
 
     /// The store used to render the view.
     @ObservedObject var store: Store<CreateAccountState, CreateAccountAction, CreateAccountEffect>

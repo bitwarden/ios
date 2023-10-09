@@ -4,6 +4,11 @@ import Foundation
 
 /// A route to a specific screen in the authentication flow.
 public enum AuthRoute: Equatable {
+    /// A route to display the specified alert.
+    ///
+    /// - Parameter alert: The alert to display.
+    case alert(_ alert: Alert)
+
     /// A route to the captcha screen.
     case captcha(url: URL, callbackUrlScheme: String)
 
@@ -29,7 +34,7 @@ public enum AuthRoute: Equatable {
     ///   - region: The region the user has selected for login.
     ///   - isLoginWithDeviceVisible: A flag indicating if the "Login with device" button should be displayed in the
     ///                               login screen.
-    case login(username: String, region: String, isLoginWithDeviceVisible: Bool)
+    case login(username: String, region: RegionType, isLoginWithDeviceVisible: Bool)
 
     /// A route to the login options screen.
     case loginOptions
@@ -39,7 +44,4 @@ public enum AuthRoute: Equatable {
 
     /// A route to the master password hint screen.
     case masterPasswordHint
-
-    /// A route to the region selection screen.
-    case regionSelection
 }

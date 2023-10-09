@@ -39,9 +39,9 @@ struct LandingView: View {
                     store.send(.regionPressed)
                 } label: {
                     Group {
-                        Text("\(Localizations.region): ")
+                        Text("\(Localizations.loggingInOn): ")
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                            + Text(Localizations.us)
+                            + Text(store.state.region.baseUrlDescription)
                             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                     }
                     .font(.styleGuide(.subheadline))
