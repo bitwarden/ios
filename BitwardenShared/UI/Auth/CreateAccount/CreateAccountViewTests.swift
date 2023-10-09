@@ -30,6 +30,7 @@ class CreateAccountViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping the cancel button dispatches the `.dismiss` action.
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -86,6 +87,7 @@ class CreateAccountViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .retypePasswordTextChanged("text"))
     }
 
+    /// Tapping the submit button performs the `.createAccount` effect.
     func test_submitButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.submit)
         try button.tap()
