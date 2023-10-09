@@ -59,18 +59,24 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             state.passwordText = text
         case let .retypePasswordTextChanged(text):
             state.retypePasswordText = text
-        case let .toggleCheckDataBreaches(isOn: isToggleOn):
-            state.isCheckDataBreachesToggleOn = isToggleOn
-        case .togglePasswordVisibility:
-            state.arePasswordsVisible.toggle()
-        case let .toggleTermsAndPrivacy(isOn: isToggleOn):
-            state.isTermsAndPrivacyToggleOn = isToggleOn
+        case let .toggleCheckDataBreaches(newValue):
+            state.isCheckDataBreachesToggleOn = newValue
+        case let .togglePasswordVisibility(newValue):
+            state.arePasswordsVisible = newValue
+        case let .toggleTermsAndPrivacy(newValue):
+            state.isTermsAndPrivacyToggleOn = newValue
         }
     }
 
     /// Creates the user's account with their provided credentials.
     ///
     private func createAccount() async {
+        let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard email.isValidEmail else {
+            coordinator.navigate(to: .alert(.invalidEmail))
+            return
+        }
+
         do {
             guard state.isTermsAndPrivacyToggleOn else {
                 // TODO: BIT-681
@@ -80,13 +86,13 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
 
             let keys = try await services.clientAuth.makeRegisterKeys(
-                email: state.emailText,
+                email: email,
                 password: state.passwordText,
                 kdf: kdf
             )
 
             let hashedPassword = try await services.clientAuth.hashPassword(
-                email: state.emailText,
+                email: email,
                 password: state.passwordText,
                 kdfParams: kdf
             )
@@ -97,7 +103,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
             _ = try await services.accountAPIService.createNewAccount(
                 body: CreateAccountRequestModel(
-                    email: state.emailText,
+                    email: email,
                     kdfConfig: KdfConfig(),
                     key: keys.encryptedUserKey,
                     keys: KeysRequestModel(
