@@ -44,7 +44,7 @@ struct PasswordStrengthIndicator: View {
             if let text = passwordStrength.text {
                 Text(text)
                     .foregroundColor(Color(asset: passwordStrength.color))
-                    .font(.system(.footnote))
+                    .font(.styleGuide(.footnote))
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
