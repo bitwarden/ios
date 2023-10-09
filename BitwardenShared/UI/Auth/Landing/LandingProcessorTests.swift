@@ -59,7 +59,7 @@ class LandingProcessorTests: BitwardenTestCase {
         subject.receive(.continuePressed)
         XCTAssertEqual(coordinator.routes.last, .login(
             username: "email@example.com",
-            region: "region",
+            region: .unitedStates,
             isLoginWithDeviceVisible: false
         ))
     }
@@ -72,7 +72,7 @@ class LandingProcessorTests: BitwardenTestCase {
         subject.receive(.continuePressed)
         XCTAssertEqual(coordinator.routes.last, .login(
             username: "email@example.com",
-            region: "region",
+            region: .unitedStates,
             isLoginWithDeviceVisible: false
         ))
     }
