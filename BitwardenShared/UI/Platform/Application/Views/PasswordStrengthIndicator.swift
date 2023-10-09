@@ -19,11 +19,11 @@ struct PasswordStrengthIndicator: View {
         VStack(alignment: .leading, spacing: 0) {
             Group {
                 Text(Localizations.important + ": ")
-                    .font(.system(.footnote).bold()) +
+                    .font(.styleGuide(.footnote).bold()) +
                     Text(Localizations.yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(
                         minimumPasswordLength
                     ))
-                    .font(.system(.footnote))
+                    .font(.styleGuide(.footnote))
             }
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .padding(.bottom, 16)

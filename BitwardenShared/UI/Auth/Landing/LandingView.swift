@@ -20,7 +20,7 @@ struct LandingView: View {
                     .padding(.vertical, 45)
 
                 Text(Localizations.loginOrCreateNewAccount)
-                    .font(.system(.title2))
+                    .font(.styleGuide(.title2))
                     .multilineTextAlignment(.center)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .frame(maxWidth: .infinity)
@@ -39,12 +39,12 @@ struct LandingView: View {
                     store.send(.regionPressed)
                 } label: {
                     Group {
-                        Text("\(Localizations.region): ")
+                        Text("\(Localizations.loggingInOn): ")
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                            + Text(Localizations.us)
+                            + Text(store.state.region.baseUrlDescription)
                             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                     }
-                    .font(.system(.subheadline))
+                    .font(.styleGuide(.subheadline))
                 }
 
                 Toggle(Localizations.rememberMe, isOn: store.binding(
@@ -68,7 +68,7 @@ struct LandingView: View {
                     }
                     .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                 }
-                .font(.system(.footnote))
+                .font(.styleGuide(.footnote))
             }
             .padding([.horizontal, .bottom], 16)
         }
