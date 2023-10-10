@@ -90,7 +90,7 @@ public class ServiceContainer: Services {
 
         let client = BitwardenSdk.Client(settings: nil)
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
-        let tokenService = DefaultTokenService(appSettingsStore: appSettingsStore)
+        let tokenService = DefaultTokenService(stateService: stateService)
         self.init(
             apiService: APIService(baseUrlService: baseUrlService, tokenService: tokenService),
             appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),

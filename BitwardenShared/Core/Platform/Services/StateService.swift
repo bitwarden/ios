@@ -7,18 +7,17 @@ protocol StateService: AnyObject {
     ///
     func addAccount(_ account: Account) async
 
-    /// Gets the account encryptions keys for the specified user ID.
+    /// Gets the account encryptions keys for the active account.
     ///
-    /// - Parameter userId: The user ID used to look up the account encryption keys.
     /// - Returns: The account encryption keys.
     ///
-    func getAccountEncryptionKeys(_ userId: String) async -> AccountEncryptionKeys?
+    func getAccountEncryptionKeys() async throws -> AccountEncryptionKeys
 
     /// Gets the active account.
     ///
     /// - Returns: The active user account.
     ///
-    func getActiveAccount() async -> Account?
+    func getActiveAccount() async throws -> Account
 
     /// Logs the user out of the account with the specified user ID.
     ///
@@ -26,13 +25,28 @@ protocol StateService: AnyObject {
     ///
     func logoutAccount(_ userId: String) async
 
-    /// Sets the account encryption keys for the specified user ID.
+    /// Sets the account encryption keys for the active account.
+    ///
+    /// - Parameter encryptionKeys: The account encryption keys.
+    ///
+    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws
+
+    /// Sets a new access and refresh token for the active account.
     ///
     /// - Parameters:
-    ///   - encryptionKeys: The account encryption keys.
-    ///   - userId: The user ID associated with the account encryption keys.
+    ///   - accessToken: The account's updated access token.
+    ///   - refreshToken: The account's updated refresh token.
     ///
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String) async
+    func setTokens(accessToken: String, refreshToken: String) async throws
+}
+
+// MARK: - TokenServiceError
+
+/// The errors thrown from a `StateService`.
+///
+enum StateServiceError: Error {
+    /// There isn't an active account.
+    case noActiveAccount
 }
 
 // MARK: - DefaultStateService
@@ -65,11 +79,12 @@ actor DefaultStateService: StateService {
         state.activeUserId = account.profile.userId
     }
 
-    func getAccountEncryptionKeys(_ userId: String) async -> AccountEncryptionKeys? {
+    func getAccountEncryptionKeys() async throws -> AccountEncryptionKeys {
+        let userId = try await getActiveAccountUserId()
         guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId),
               let encryptedUserKey = appSettingsStore.encryptedUserKey(userId: userId)
         else {
-            return nil
+            throw StateServiceError.noActiveAccount
         }
         return AccountEncryptionKeys(
             encryptedPrivateKey: encryptedPrivateKey,
@@ -77,8 +92,11 @@ actor DefaultStateService: StateService {
         )
     }
 
-    func getActiveAccount() async -> Account? {
-        appSettingsStore.state?.activeAccount
+    func getActiveAccount() async throws -> Account {
+        guard let activeAccount = appSettingsStore.state?.activeAccount else {
+            throw StateServiceError.noActiveAccount
+        }
+        return activeAccount
     }
 
     func logoutAccount(_ userId: String) async {
@@ -92,8 +110,33 @@ actor DefaultStateService: StateService {
         }
     }
 
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String) async {
+    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
+        let userId = try await getActiveAccountUserId()
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
+    }
+
+    func setTokens(accessToken: String, refreshToken: String) async throws {
+        guard var state = appSettingsStore.state,
+              let activeUserId = state.activeUserId
+        else {
+            throw StateServiceError.noActiveAccount
+        }
+
+        state.accounts[activeUserId]?.tokens = Account.AccountTokens(
+            accessToken: accessToken,
+            refreshToken: refreshToken
+        )
+        appSettingsStore.state = state
+    }
+
+    // MARK: Private
+
+    /// Returns the user ID for the active account.
+    ///
+    /// - Returns: The user ID for the active account.
+    ///
+    private func getActiveAccountUserId() async throws -> String {
+        try await getActiveAccount().profile.userId
     }
 }

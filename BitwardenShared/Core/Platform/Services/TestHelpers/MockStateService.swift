@@ -2,6 +2,7 @@
 
 class MockStateService: StateService {
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
+    var accountTokens: Account.AccountTokens?
     var accountsAdded = [Account]()
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
@@ -10,19 +11,30 @@ class MockStateService: StateService {
         accountsAdded.append(account)
     }
 
-    func getAccountEncryptionKeys(_ userId: String) async -> AccountEncryptionKeys? {
-        accountEncryptionKeys[userId]
+    func getAccountEncryptionKeys() async throws -> AccountEncryptionKeys {
+        guard let activeAccount,
+              let encryptionKeys = accountEncryptionKeys[activeAccount.profile.userId]
+        else {
+            throw StateServiceError.noActiveAccount
+        }
+        return encryptionKeys
     }
 
-    func getActiveAccount() async -> Account? {
-        activeAccount
+    func getActiveAccount() async throws -> Account {
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        return activeAccount
     }
 
     func logoutAccount(_ userId: String) async {
         accountsLoggedOut.append(userId)
     }
 
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String) async {
-        accountEncryptionKeys[userId] = encryptionKeys
+    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        accountEncryptionKeys[activeAccount.profile.userId] = encryptionKeys
+    }
+
+    func setTokens(accessToken: String, refreshToken: String) async throws {
+        accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
 }

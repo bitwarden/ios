@@ -52,16 +52,19 @@ class StateServiceTests: BitwardenTestCase {
     }
 
     /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
-    func test_getAccountEncryptionKeys() async {
+    func test_getAccountEncryptionKeys() async throws {
         appSettingsStore.encryptedPrivateKeys["1"] = "1:PRIVATE_KEY"
         appSettingsStore.encryptedPrivateKeys["2"] = "2:PRIVATE_KEY"
         appSettingsStore.encryptedUserKeys["1"] = "1:USER_KEY"
         appSettingsStore.encryptedUserKeys["2"] = "2:USER_KEY"
 
-        let noKeys = await subject.getAccountEncryptionKeys("-1")
-        XCTAssertNil(noKeys)
+        appSettingsStore.state?.activeUserId = nil
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountEncryptionKeys()
+        }
 
-        let accountKeys = await subject.getAccountEncryptionKeys("1")
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        let accountKeys = try await subject.getAccountEncryptionKeys()
         XCTAssertEqual(
             accountKeys,
             AccountEncryptionKeys(
@@ -70,7 +73,8 @@ class StateServiceTests: BitwardenTestCase {
             )
         )
 
-        let otherAccountKeys = await subject.getAccountEncryptionKeys("2")
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        let otherAccountKeys = try await subject.getAccountEncryptionKeys()
         XCTAssertEqual(
             otherAccountKeys,
             AccountEncryptionKeys(
@@ -81,7 +85,7 @@ class StateServiceTests: BitwardenTestCase {
     }
 
     /// `getActiveAccount()` returns the active account.
-    func test_getActiveAccount() async {
+    func test_getActiveAccount() async throws {
         let account = Account.fixture(profile: .fixture(userId: "2"))
         appSettingsStore.state = State.fixture(
             accounts: [
@@ -91,22 +95,23 @@ class StateServiceTests: BitwardenTestCase {
             activeUserId: "2"
         )
 
-        let activeAccount = await subject.getActiveAccount()
+        let activeAccount = try await subject.getActiveAccount()
         XCTAssertEqual(activeAccount, account)
     }
 
-    /// `getActiveAccount()` returns `nil` if there aren't any accounts.
-    func test_getActiveAccount_noAccounts() async {
-        let activeAccount = await subject.getActiveAccount()
-        XCTAssertNil(activeAccount)
+    /// `getActiveAccount()` throws an error if there aren't any accounts.
+    func test_getActiveAccount_noAccounts() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getActiveAccount()
+        }
     }
 
-    /// `getActiveAccount()` returns the active account when there are multiple accounts.
-    func test_getActiveAccount_singleAccount() async {
+    /// `getActiveAccount()` returns the active account when there's a single account.
+    func test_getActiveAccount_singleAccount() async throws {
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
 
-        let activeAccount = await subject.getActiveAccount()
+        let activeAccount = try await subject.getActiveAccount()
         XCTAssertEqual(activeAccount, account)
     }
 
@@ -156,18 +161,20 @@ class StateServiceTests: BitwardenTestCase {
     }
 
     /// `setAccountEncryptionKeys(_:userId:)` sets the encryption keys for the user account.
-    func test_setAccountEncryptionKeys() async {
+    func test_setAccountEncryptionKeys() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
         let encryptionKeys = AccountEncryptionKeys(
             encryptedPrivateKey: "1:PRIVATE_KEY",
             encryptedUserKey: "1:USER_KEY"
         )
-        await subject.setAccountEncryptionKeys(encryptionKeys, userId: "1")
+        try await subject.setAccountEncryptionKeys(encryptionKeys)
 
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
         let otherEncryptionKeys = AccountEncryptionKeys(
             encryptedPrivateKey: "2:PRIVATE_KEY",
             encryptedUserKey: "2:USER_KEY"
         )
-        await subject.setAccountEncryptionKeys(otherEncryptionKeys, userId: "2")
+        try await subject.setAccountEncryptionKeys(otherEncryptionKeys)
 
         XCTAssertEqual(
             appSettingsStore.encryptedPrivateKeys,
@@ -182,6 +189,43 @@ class StateServiceTests: BitwardenTestCase {
                 "1": "1:USER_KEY",
                 "2": "2:USER_KEY",
             ]
+        )
+    }
+
+    /// `setTokens(accessToken:refreshToken)` throws an error if there isn't an active account.
+    func test_setAccountTokens_noAccount() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒")
+        }
+    }
+
+    /// `setTokens(accessToken:refreshToken)` sets the tokens for a single account.
+    func test_setAccountTokens_singleAccount() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒")
+
+        let account = try XCTUnwrap(appSettingsStore.state?.accounts["1"])
+        XCTAssertEqual(
+            account,
+            Account.fixture(tokens: Account.AccountTokens(accessToken: "🔑", refreshToken: "🔒"))
+        )
+    }
+
+    /// `setTokens(accessToken:refreshToken)` sets the tokens for an account where there are multiple accounts.
+    func test_setAccountTokens_multipleAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+
+        try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒")
+
+        let account = try XCTUnwrap(appSettingsStore.state?.accounts["2"])
+        XCTAssertEqual(
+            account,
+            Account.fixture(
+                profile: .fixture(userId: "2"),
+                tokens: Account.AccountTokens(accessToken: "🔑", refreshToken: "🔒")
+            )
         )
     }
 }

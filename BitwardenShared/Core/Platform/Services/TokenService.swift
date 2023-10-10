@@ -22,15 +22,6 @@ protocol TokenService: AnyObject {
     func setTokens(accessToken: String, refreshToken: String) async throws
 }
 
-// MARK: - TokenServiceError
-
-/// The errors thrown from a `TokenService`.
-///
-enum TokenServiceError: Error {
-    /// There isn't an active account to get tokens from.
-    case noActiveAccount
-}
-
 // MARK: - DefaultTokenService
 
 /// A default implementation of `TokenService`.
@@ -38,46 +29,30 @@ enum TokenServiceError: Error {
 actor DefaultTokenService: TokenService {
     // MARK: Properties
 
-    /// The service that persists app settings.
-    let appSettingsStore: AppSettingsStore
+    /// The service that manages the account state.
+    let stateService: StateService
 
     // MARK: Initialization
 
     /// Initialize a `DefaultTokenService`.
     ///
-    /// - Parameter appSettingsStore: The service that persists app settings.
+    /// - Parameter stateService: The service that manages the account state.
     ///
-    init(appSettingsStore: AppSettingsStore) {
-        self.appSettingsStore = appSettingsStore
+    init(stateService: StateService) {
+        self.stateService = stateService
     }
 
     // MARK: Methods
 
     func getAccessToken() async throws -> String {
-        guard let account = appSettingsStore.state?.activeAccount else {
-            throw TokenServiceError.noActiveAccount
-        }
-        return account.tokens.accessToken
+        try await stateService.getActiveAccount().tokens.accessToken
     }
 
     func getRefreshToken() async throws -> String {
-        guard let account = appSettingsStore.state?.activeAccount else {
-            throw TokenServiceError.noActiveAccount
-        }
-        return account.tokens.refreshToken
+        try await stateService.getActiveAccount().tokens.refreshToken
     }
 
     func setTokens(accessToken: String, refreshToken: String) async throws {
-        guard var state = appSettingsStore.state,
-              let activeUserId = state.activeUserId
-        else {
-            throw TokenServiceError.noActiveAccount
-        }
-
-        state.accounts[activeUserId]?.tokens = Account.AccountTokens(
-            accessToken: accessToken,
-            refreshToken: refreshToken
-        )
-        appSettingsStore.state = state
+        try await stateService.setTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
 }
