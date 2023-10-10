@@ -19,7 +19,7 @@ protocol DeviceAPIService {
 extension APIService: DeviceAPIService {
     func knownDevice(email: String, deviceIdentifier: String) async throws -> Bool {
         let request = KnownDeviceRequest(email: email, deviceIdentifier: deviceIdentifier)
-        let response = try await apiService.send(request)
+        let response = try await apiUnauthenticatedService.send(request)
         return response.isKnownDevice
     }
 }
