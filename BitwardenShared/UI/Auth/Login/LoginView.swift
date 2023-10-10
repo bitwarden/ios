@@ -22,11 +22,13 @@ struct LoginView: View {
                 loggingInAs
             }
             .padding(.horizontal)
+            .padding(.top, 16)
             .frame(maxWidth: .infinity)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.bitwarden)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -66,7 +68,7 @@ struct LoginView: View {
             Button(Localizations.getMasterPasswordwordHint) {
                 store.send(.getMasterPasswordHintPressed)
             }
-            .font(.system(.subheadline))
+            .font(.styleGuide(.subheadline))
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
     }
@@ -116,7 +118,7 @@ struct LoginView: View {
             }
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
-        .font(.system(.footnote))
+        .font(.styleGuide(.footnote))
     }
 }
 

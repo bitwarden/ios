@@ -17,14 +17,15 @@ class AppSettingsStoreTests: BitwardenTestCase {
 
         userDefaults = UserDefaults(suiteName: "AppSettingsStoreTests")
 
+        for key in DefaultAppSettingsStore.Keys.allCases {
+            userDefaults.removeObject(forKey: key.storageKey)
+        }
+
         subject = DefaultAppSettingsStore(userDefaults: userDefaults)
     }
 
     override func tearDown() {
         super.tearDown()
-
-        userDefaults.removeObject(forKey: "bwPreferencesStorage:appId")
-        userDefaults.removeObject(forKey: "bwPreferencesStorage:rememberedEmail")
 
         subject = nil
         userDefaults = nil
@@ -66,5 +67,39 @@ class AppSettingsStoreTests: BitwardenTestCase {
         subject.rememberedEmail = nil
         XCTAssertNil(subject.rememberedEmail)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
+    }
+
+    /// `state` returns `nil` if there isn't a previously stored value.
+    func test_state_isInitiallyNil() {
+        XCTAssertNil(subject.state)
+    }
+
+    /// `state` can be used to get and set the persisted value in user defaults.
+    func test_state_withValue() throws {
+        subject.state = State.fixture()
+        XCTAssertEqual(subject.state, .fixture())
+        XCTAssertEqual(
+            try JSONDecoder().decode(
+                State.self,
+                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:state")).utf8)
+            ),
+            .fixture()
+        )
+
+        let stateMultipleAccounts = State.fixture(
+            accounts: ["1": .fixture(), "2": .fixture()])
+        subject.state = stateMultipleAccounts
+        XCTAssertEqual(subject.state, stateMultipleAccounts)
+        XCTAssertEqual(
+            try JSONDecoder().decode(
+                State.self,
+                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:state")).utf8)
+            ),
+            stateMultipleAccounts
+        )
+
+        subject.state = nil
+        XCTAssertNil(subject.state)
+        XCTAssertNil(userDefaults.data(forKey: "bwPreferencesStorage:state"))
     }
 }

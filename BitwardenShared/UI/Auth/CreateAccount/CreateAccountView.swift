@@ -27,26 +27,30 @@ struct CreateAccountView: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack {
-                emailAndPassword
+            VStack(spacing: 16) {
+                VStack(spacing: 0) {
+                    emailAndPassword
+                        .padding(.bottom, 8)
 
-                PasswordStrengthIndicator(minimumPasswordLength: Constants.minimumPasswordCharacters)
-
-                VStack(spacing: 16) {
-                    retypePassword
-
-                    passwordHint
+                    PasswordStrengthIndicator(
+                        minimumPasswordLength: Constants.minimumPasswordCharacters,
+                        passwordStrengthScore: store.state.passwordStrengthScore
+                    )
                 }
+
+                retypePassword
+
+                passwordHint
 
                 VStack(spacing: 24) {
                     toggles
 
                     submitButton
                 }
-                .padding(.top, 8)
             }
             .padding(.horizontal, 12)
             .padding([.top, .bottom], 16)
+            .animation(.default, value: store.state.passwordStrengthScore)
         }
         .background(Color(asset: Asset.Colors.backgroundSecondary))
         .navigationBarTitleDisplayMode(.inline)
@@ -56,10 +60,14 @@ struct CreateAccountView: View {
                 Button {
                     store.send(.dismiss)
                 } label: {
-                    Image(asset: Asset.Images.cancel)
-                        .resizable()
-                        .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
-                        .frame(width: 24, height: 24)
+                    Label {
+                        Text(Localizations.cancel)
+                    } icon: {
+                        Image(asset: Asset.Images.cancel)
+                            .resizable()
+                            .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
+                            .frame(width: 24, height: 24)
+                    }
                 }
             }
         }
@@ -75,7 +83,7 @@ struct CreateAccountView: View {
         )) {
             Text(Localizations.checkKnownDataBreachesForThisPassword)
                 .foregroundColor(Color(asset: Asset.Colors.textPrimary))
-                .font(.system(.footnote))
+                .font(.styleGuide(.footnote))
         }
         .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.checkBreaches)
@@ -125,7 +133,7 @@ struct CreateAccountView: View {
 
             Text(Localizations.masterPasswordHintDescription)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .font(.system(.footnote))
+                .font(.styleGuide(.footnote))
         }
     }
 
@@ -150,7 +158,7 @@ struct CreateAccountView: View {
     private var submitButton: some View {
         Button {
             Task {
-                // TODO: BIT-104
+                await store.perform(.createAccount)
             }
         } label: {
             Text(Localizations.submit)
@@ -182,7 +190,7 @@ struct CreateAccountView: View {
             openURL(ExternalLinksConstants.privacyPolicy)
         }
         .foregroundColor(Color(asset: Asset.Colors.textPrimary))
-        .font(.system(.footnote))
+        .font(.styleGuide(.footnote))
         .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.termsAndPrivacy)
     }

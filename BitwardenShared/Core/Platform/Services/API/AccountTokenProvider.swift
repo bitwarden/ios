@@ -58,7 +58,7 @@ actor AccountTokenProvider: TokenProvider {
             let response = try await httpService.send(
                 IdentityTokenRefreshRequest(refreshToken: refreshToken)
             )
-            await tokenService.setTokens(
+            try await tokenService.setTokens(
                 accessToken: response.accessToken,
                 refreshToken: response.refreshToken
             )
