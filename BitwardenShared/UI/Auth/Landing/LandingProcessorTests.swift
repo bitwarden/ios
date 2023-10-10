@@ -127,7 +127,6 @@ class LandingProcessorTests: BitwardenTestCase {
         ))
     }
 
-
     /// `receive(_:)` with `.continuePressed` and a valid email navigates to the login screen.
     func test_receive_continuePressed_withValidEmail_isRememberMeOn_true() {
         appSettingsStore.rememberedEmail = nil
