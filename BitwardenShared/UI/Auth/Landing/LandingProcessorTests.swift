@@ -7,6 +7,7 @@ import XCTest
 class LandingProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appSettingsStore: MockAppSettingsStore!
     var coordinator: MockCoordinator<AuthRoute>!
     var subject: LandingProcessor!
 
@@ -14,33 +15,81 @@ class LandingProcessorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        appSettingsStore = MockAppSettingsStore()
         coordinator = MockCoordinator<AuthRoute>()
 
         let state = LandingState()
+        let services = ServiceContainer.withMocks(
+            appSettingsStore: appSettingsStore
+        )
         subject = LandingProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            services: services,
             state: state
         )
     }
 
     override func tearDown() {
         super.tearDown()
+        appSettingsStore = nil
         coordinator = nil
         subject = nil
     }
 
     // MARK: Tests
 
+    /// `init` without a remembered email in the app settings store initializes the state correctly.
+    func test_init_withoutRememberedEmail() {
+        appSettingsStore.rememberedEmail = nil
+        let services = ServiceContainer.withMocks(
+            appSettingsStore: appSettingsStore
+        )
+        subject = LandingProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: services,
+            state: LandingState()
+        )
+
+        XCTAssertEqual(subject.state.email, "")
+        XCTAssertFalse(subject.state.isRememberMeOn)
+    }
+
+    /// `init` with a remembered email in the app settings store initializes the state correctly.
+    func test_init_withRememberedEmail() {
+        appSettingsStore.rememberedEmail = "email@example.com"
+        let services = ServiceContainer.withMocks(
+            appSettingsStore: appSettingsStore
+        )
+        subject = LandingProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: services,
+            state: LandingState()
+        )
+
+        XCTAssertEqual(subject.state.email, "email@example.com")
+        XCTAssertTrue(subject.state.isRememberMeOn)
+    }
+
     /// `receive(_:)` with `.continuePressed` and an invalid email navigates to the `.alert` route.
     func test_receive_continuePressed_withInvalidEmail() {
+        appSettingsStore.rememberedEmail = nil
         subject.state.email = "email"
 
         subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .alert(.invalidEmail))
+        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.invalidEmail,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )))
+        XCTAssertNil(appSettingsStore.rememberedEmail)
     }
 
     /// `receive(_:)` with `.continuePressed` and a valid email navigates to the login screen.
-    func test_receive_continuePressed_withValidEmail() {
+    func test_receive_continuePressed_withValidEmail_isRememberMeOn_false() {
+        appSettingsStore.rememberedEmail = nil
+        subject.state.isRememberMeOn = false
         subject.state.email = "email@example.com"
 
         subject.receive(.continuePressed)
@@ -49,6 +98,7 @@ class LandingProcessorTests: BitwardenTestCase {
             region: .unitedStates,
             isLoginWithDeviceVisible: false
         ))
+        XCTAssertNil(appSettingsStore.rememberedEmail)
     }
 
     /// `receive(_:)` with `.continuePressed` and a valid email surrounded by whitespace trims the whitespace and
@@ -75,6 +125,21 @@ class LandingProcessorTests: BitwardenTestCase {
             region: .unitedStates,
             isLoginWithDeviceVisible: false
         ))
+    }
+
+    /// `receive(_:)` with `.continuePressed` and a valid email navigates to the login screen.
+    func test_receive_continuePressed_withValidEmail_isRememberMeOn_true() {
+        appSettingsStore.rememberedEmail = nil
+        subject.state.isRememberMeOn = true
+        subject.state.email = "email@example.com"
+
+        subject.receive(.continuePressed)
+        XCTAssertEqual(coordinator.routes.last, .login(
+            username: "email@example.com",
+            region: .unitedStates,
+            isLoginWithDeviceVisible: false
+        ))
+        XCTAssertEqual(appSettingsStore.rememberedEmail, "email@example.com")
     }
 
     /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen.
@@ -128,11 +193,21 @@ class LandingProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.region, .selfHosted)
     }
 
-    /// `receive(_:)` with `.emailChanged` updates the state to reflect the changes.
-    func test_receive_rememberMeChanged() {
+    /// `receive(_:)` with `.rememberMeChanged(true)` updates the state to reflect the changes.
+    func test_receive_rememberMeChanged_true() {
         XCTAssertFalse(subject.state.isRememberMeOn)
 
         subject.receive(.rememberMeChanged(true))
         XCTAssertTrue(subject.state.isRememberMeOn)
+    }
+
+    /// `receive(_:)` with `.rememberMeChanged(false)` updates the state to reflect the changes.
+    func test_receive_rememberMeChanged_false() {
+        appSettingsStore.rememberedEmail = "email@example.com"
+        subject.state.isRememberMeOn = true
+
+        subject.receive(.rememberMeChanged(false))
+        XCTAssertFalse(subject.state.isRememberMeOn)
+        XCTAssertNil(appSettingsStore.rememberedEmail)
     }
 }

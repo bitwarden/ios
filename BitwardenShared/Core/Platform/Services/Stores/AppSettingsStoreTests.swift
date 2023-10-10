@@ -2,9 +2,15 @@ import XCTest
 
 @testable import BitwardenShared
 
+// MARK: - AppSettingsStoreTests
+
 class AppSettingsStoreTests: BitwardenTestCase {
+    // MARK: Properties
+
     var subject: AppSettingsStore!
     var userDefaults: UserDefaults!
+
+    // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
@@ -25,6 +31,8 @@ class AppSettingsStoreTests: BitwardenTestCase {
         userDefaults = nil
     }
 
+    // MARK: Tests
+
     /// `appId` returns `nil` if there isn't a previously stored value.
     func test_appId_isInitiallyNil() {
         XCTAssertNil(subject.appId)
@@ -43,6 +51,22 @@ class AppSettingsStoreTests: BitwardenTestCase {
         subject.appId = nil
         XCTAssertNil(subject.appId)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appId"))
+    }
+
+    /// `rememberedEmail` returns `nil` if there isn't a previously stored value.
+    func test_rememberedEmail_isInitiallyNil() {
+        XCTAssertNil(subject.rememberedEmail)
+    }
+
+    /// `rememberedEmail` can be used to get and set the persisted value in user defaults.
+    func test_rememberedEmail_withValue() {
+        subject.rememberedEmail = "email@example.com"
+        XCTAssertEqual(subject.rememberedEmail, "email@example.com")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"), "email@example.com")
+
+        subject.rememberedEmail = nil
+        XCTAssertNil(subject.rememberedEmail)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
     }
 
     /// `state` returns `nil` if there isn't a previously stored value.

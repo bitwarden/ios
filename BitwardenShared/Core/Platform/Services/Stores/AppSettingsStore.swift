@@ -7,6 +7,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's unique identifier.
     var appId: String? { get set }
 
+    /// The email being remembered on the landing screen.
+    var rememberedEmail: String? { get set }
+
     /// The app's account state.
     var state: State? { get set }
 }
@@ -101,6 +104,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     ///
     enum Keys: String, CaseIterable {
         case appId
+        case rememberedEmail
         case state
 
         /// Returns the key used to store the data under for retrieving it later.
@@ -112,6 +116,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appId: String? {
         get { fetch(for: .appId) }
         set { store(newValue, for: .appId) }
+    }
+
+    var rememberedEmail: String? {
+        get { fetch(for: .rememberedEmail) }
+        set { store(newValue, for: .rememberedEmail) }
     }
 
     var state: State? {

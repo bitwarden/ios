@@ -2,5 +2,6 @@
 
 class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
+    var rememberedEmail: String?
     var state: State?
 }
