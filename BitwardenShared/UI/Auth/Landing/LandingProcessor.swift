@@ -23,6 +23,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
+    ///   - services: The services required by this processor.
     ///   - state: The initial state of the processor.
     ///
     init(coordinator: AnyCoordinator<AuthRoute>, services: Services, state: LandingState) {

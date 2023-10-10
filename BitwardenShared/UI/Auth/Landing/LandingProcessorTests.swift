@@ -38,6 +38,36 @@ class LandingProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    func test_init_withoutRememberedEmail() {
+        appSettingsStore.rememberedEmail = nil
+        let services = ServiceContainer.withMocks(
+            appSettingsStore: appSettingsStore
+        )
+        subject = LandingProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: services,
+            state: LandingState()
+        )
+
+        XCTAssertEqual(subject.state.email, "")
+        XCTAssertFalse(subject.state.isRememberMeOn)
+    }
+
+    func test_init_withRememberedEmail() {
+        appSettingsStore.rememberedEmail = "email@example.com"
+        let services = ServiceContainer.withMocks(
+            appSettingsStore: appSettingsStore
+        )
+        subject = LandingProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: services,
+            state: LandingState()
+        )
+
+        XCTAssertEqual(subject.state.email, "email@example.com")
+        XCTAssertTrue(subject.state.isRememberMeOn)
+    }
+
     /// `receive(_:)` with `.continuePressed` and an invalid email navigates to the `.alert` route.
     func test_receive_continuePressed_withInvalidEmail() {
         appSettingsStore.rememberedEmail = nil
