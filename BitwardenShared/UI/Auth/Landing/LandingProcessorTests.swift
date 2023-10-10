@@ -38,6 +38,7 @@ class LandingProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `init` without a remembered email in the app settings store initializes the state correctly.
     func test_init_withoutRememberedEmail() {
         appSettingsStore.rememberedEmail = nil
         let services = ServiceContainer.withMocks(
@@ -53,6 +54,7 @@ class LandingProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.isRememberMeOn)
     }
 
+    /// `init` with a remembered email in the app settings store initializes the state correctly.
     func test_init_withRememberedEmail() {
         appSettingsStore.rememberedEmail = "email@example.com"
         let services = ServiceContainer.withMocks(
@@ -98,6 +100,33 @@ class LandingProcessorTests: BitwardenTestCase {
         ))
         XCTAssertNil(appSettingsStore.rememberedEmail)
     }
+
+    /// `receive(_:)` with `.continuePressed` and a valid email surrounded by whitespace trims the whitespace and
+    /// navigates to the login screen.
+    func test_receive_continuePressed_withValidEmailAndSpace() {
+        subject.state.email = " email@example.com "
+
+        subject.receive(.continuePressed)
+        XCTAssertEqual(coordinator.routes.last, .login(
+            username: "email@example.com",
+            region: .unitedStates,
+            isLoginWithDeviceVisible: false
+        ))
+    }
+
+    /// `receive(_:)` with `.continuePressed` and a valid email with uppercase characters converts the email to
+    /// lowercase and navigates to the login screen.
+    func test_receive_continuePressed_withValidEmailUppercased() {
+        subject.state.email = "EMAIL@EXAMPLE.COM"
+
+        subject.receive(.continuePressed)
+        XCTAssertEqual(coordinator.routes.last, .login(
+            username: "email@example.com",
+            region: .unitedStates,
+            isLoginWithDeviceVisible: false
+        ))
+    }
+
 
     /// `receive(_:)` with `.continuePressed` and a valid email navigates to the login screen.
     func test_receive_continuePressed_withValidEmail_isRememberMeOn_true() {
