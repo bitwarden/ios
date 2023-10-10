@@ -40,6 +40,29 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
+    /// `perform(_:)` with `.createAccount` presents an alert when the user has
+    /// entered a password that has been found in a data breach.
+    func test_perfrom_checkForBreaches() async {
+        let password = "12345abcde"
+        subject.state.passwordText = password
+        subject.state.retypePasswordText = password
+        subject.state.isCheckDataBreachesToggleOn = true
+
+        client.result = .httpSuccess(testData: .hibpLeakedPasswords)
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/dec7d"))
+        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+            title: Localizations.weakAndExposedMasterPassword,
+            message: Localizations.weakPasswordIdentifiedAndFoundInADataBreachAlertDescription,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ]
+        )))
+    }
+
     /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.
     func test_perform_createAccount_withInvalidEmail() async {
         client.result = .httpSuccess(testData: .createAccountSuccess)
@@ -49,7 +72,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.createAccount)
 
-        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(coordinator.routes.last, .alert(.invalidEmail))
     }
 
@@ -109,7 +132,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.createAccount)
 
-        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(client.requests.count, 1)
         // TODO: BIT-681 Add an assertion here for an error alert.
     }
 

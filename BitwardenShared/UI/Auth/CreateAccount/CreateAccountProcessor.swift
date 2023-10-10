@@ -43,7 +43,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     override func perform(_ effect: CreateAccountEffect) async {
         switch effect {
         case .createAccount:
-            await createAccount()
+            await checkForBreaches()
         }
     }
 
@@ -66,6 +66,34 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         case let .toggleTermsAndPrivacy(newValue):
             state.isTermsAndPrivacyToggleOn = newValue
         }
+    }
+
+    /// Checks if the user's entered password has been found in a data breach.
+    /// If it has, an alert will be presented. If not, the `CreateAccountRequest`
+    /// will be made.
+    ///
+    private func checkForBreaches() async {
+        if state.isCheckDataBreachesToggleOn {
+            do {
+                let breachCount = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
+
+                if breachCount != 0 {
+                    let alert = Alert.breachesAlert {
+                        Task {
+                            await self.createAccount()
+                        }
+                    }
+
+                    coordinator.navigate(to: .alert(alert))
+
+                    return
+                }
+            } catch {
+                // TODO: BIT-739
+            }
+        }
+
+        await createAccount()
     }
 
     /// Creates the user's account with their provided credentials.
@@ -96,10 +124,6 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 password: state.passwordText,
                 kdfParams: kdf
             )
-
-            if state.isCheckDataBreachesToggleOn {
-                _ = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
-            }
 
             _ = try await services.accountAPIService.createNewAccount(
                 body: CreateAccountRequestModel(
