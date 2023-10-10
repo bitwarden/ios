@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// The object used by the application to retrieve information about this device.
     let systemDevice: SystemDevice
 
+    /// The service used by the application to manage account access tokens.
+    let tokenService: TokenService
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -47,6 +50,7 @@ public class ServiceContainer: Services {
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
+    ///   - tokenService: The service used by the application to manage account access tokens.
     ///
     init(
         apiService: APIService,
@@ -54,7 +58,8 @@ public class ServiceContainer: Services {
         baseUrlService: BaseUrlService,
         captchaService: CaptchaService,
         clientAuth: ClientAuthProtocol,
-        systemDevice: SystemDevice
+        systemDevice: SystemDevice,
+        tokenService: TokenService
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
@@ -62,6 +67,7 @@ public class ServiceContainer: Services {
         self.captchaService = captchaService
         self.clientAuth = clientAuth
         self.systemDevice = systemDevice
+        self.tokenService = tokenService
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
     }
@@ -69,18 +75,23 @@ public class ServiceContainer: Services {
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
     public convenience init() {
+        let appSettingsStore = DefaultAppSettingsStore(
+            userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
+        )
         let baseUrlService = DefaultBaseUrlService(
             baseUrl: URL(string: "https://vault.bitwarden.com")!
         )
 
         let client = BitwardenSdk.Client(settings: nil)
+        let tokenService = DefaultTokenService(appSettingsStore: appSettingsStore)
         self.init(
-            apiService: APIService(baseUrlService: baseUrlService, tokenService: DefaultTokenService()),
+            apiService: APIService(baseUrlService: baseUrlService, tokenService: tokenService),
             appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
             clientAuth: client.auth(),
-            systemDevice: UIDevice.current
+            systemDevice: UIDevice.current,
+            tokenService: tokenService
         )
     }
 }
