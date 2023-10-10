@@ -57,6 +57,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             state.passwordHintText = text
         case let .passwordTextChanged(text):
             state.passwordText = text
+            updatePasswordStrength()
         case let .retypePasswordTextChanged(text):
             state.retypePasswordText = text
         case let .toggleCheckDataBreaches(newValue):
@@ -67,6 +68,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             state.isTermsAndPrivacyToggleOn = newValue
         }
     }
+
+    // MARK: Private
 
     /// Creates the user's account with their provided credentials.
     ///
@@ -117,5 +120,21 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         } catch {
             // TODO: BIT-681
         }
+    }
+
+    /// Updates state's password strength score based on the user's entered password.
+    ///
+    func updatePasswordStrength() {
+        // TODO: BIT-694 Use the SDK to calculate password strength
+        let score: UInt8?
+        switch state.passwordText.count {
+        case 1 ..< 4: score = 0
+        case 4 ..< 7: score = 1
+        case 7 ..< 9: score = 2
+        case 9 ..< 12: score = 3
+        case 12 ... Int.max: score = 4
+        default: score = nil
+        }
+        state.passwordStrengthScore = score
     }
 }
