@@ -8,7 +8,7 @@ class AccountTests: BitwardenTestCase {
     /// `init(identityTokenResponseModel:)` initializes an account from an identity token response.
     func test_init_identityTokenResponseModel() throws {
         // swiftlint:disable:next line_length
-        let accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMzUxMjQ2Ny05Y2ZlLTQzYjAtOTY5Zi0wNzUzNDA4NDc2NGIiLCJuYW1lIjoiQml0d2FyZGVuIFVzZXIiLCJlbWFpbCI6InVzZXJAYml0d2FyZGVuLmNvbSIsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2V9.Pbd74CpalStTjFTvUBaxmHkl4Z0gwVLHATVFIzvYpjE"
+        let accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJBcHBsaWNhdGlvbiJdfQ.KDqC8kUaOAgBiUY8eeLa0a4xYWN8GmheXTFXmataFwM"
         let subject = try Account(identityTokenResponseModel: .fixture(accessToken: accessToken))
 
         XCTAssertEqual(

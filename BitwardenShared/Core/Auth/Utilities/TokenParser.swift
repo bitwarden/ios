@@ -28,6 +28,6 @@ enum TokenParser {
             throw TokenParserError.invalidToken
         }
 
-        return try JSONDecoder.snakeCaseDecoder.decode(TokenPayload.self, from: payloadData)
+        return try JSONDecoder().decode(TokenPayload.self, from: payloadData)
     }
 }

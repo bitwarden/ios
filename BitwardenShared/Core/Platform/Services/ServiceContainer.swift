@@ -93,7 +93,7 @@ public class ServiceContainer: Services {
         let tokenService = DefaultTokenService(stateService: stateService)
         self.init(
             apiService: APIService(baseUrlService: baseUrlService, tokenService: tokenService),
-            appSettingsStore: DefaultAppSettingsStore(userDefaults: UserDefaults.standard),
+            appSettingsStore: appSettingsStore,
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
             clientAuth: client.auth(),
