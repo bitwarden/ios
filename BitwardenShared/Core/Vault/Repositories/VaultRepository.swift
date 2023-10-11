@@ -86,7 +86,7 @@ class DefaultVaultRepository {
         case let .folder(folder):
             return ciphers.filter { $0.folderId == folder.id }.map(VaultListItem.init)
         case .trash:
-            return response.ciphers.filter { $0.deletedDate == nil }.map(VaultListItem.init)
+            return response.ciphers.filter { $0.deletedDate != nil }.map(VaultListItem.init)
         }
     }
 
