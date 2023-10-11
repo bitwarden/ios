@@ -82,6 +82,15 @@ class StateServiceTests: BitwardenTestCase {
                 encryptedUserKey: "2:USER_KEY"
             )
         )
+
+        let accountKeysForUserId = try await subject.getAccountEncryptionKeys(userId: "1")
+        XCTAssertEqual(
+            accountKeys,
+            AccountEncryptionKeys(
+                encryptedPrivateKey: "1:PRIVATE_KEY",
+                encryptedUserKey: "1:USER_KEY"
+            )
+        )
     }
 
     /// `getActiveAccount()` returns the active account.
@@ -121,7 +130,7 @@ class StateServiceTests: BitwardenTestCase {
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
 
-        await subject.logoutAccount("1")
+        try await subject.logoutAccount(userId: "1")
 
         let state = try XCTUnwrap(appSettingsStore.state)
         XCTAssertTrue(state.accounts.isEmpty)
@@ -137,7 +146,7 @@ class StateServiceTests: BitwardenTestCase {
         let secondAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "2"))
         await subject.addAccount(secondAccount)
 
-        await subject.logoutAccount("2")
+        try await subject.logoutAccount(userId: "2")
 
         let state = try XCTUnwrap(appSettingsStore.state)
         XCTAssertEqual(state.accounts, ["1": firstAccount])
@@ -153,7 +162,7 @@ class StateServiceTests: BitwardenTestCase {
         let secondAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "2"))
         await subject.addAccount(secondAccount)
 
-        await subject.logoutAccount("1")
+        try await subject.logoutAccount(userId: "1")
 
         let state = try XCTUnwrap(appSettingsStore.state)
         XCTAssertEqual(state.accounts, ["2": secondAccount])
@@ -163,13 +172,14 @@ class StateServiceTests: BitwardenTestCase {
     /// `setAccountEncryptionKeys(_:userId:)` sets the encryption keys for the user account.
     func test_setAccountEncryptionKeys() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+
         let encryptionKeys = AccountEncryptionKeys(
             encryptedPrivateKey: "1:PRIVATE_KEY",
             encryptedUserKey: "1:USER_KEY"
         )
-        try await subject.setAccountEncryptionKeys(encryptionKeys)
+        try await subject.setAccountEncryptionKeys(encryptionKeys, userId: "1")
 
-        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
         let otherEncryptionKeys = AccountEncryptionKeys(
             encryptedPrivateKey: "2:PRIVATE_KEY",
             encryptedUserKey: "2:USER_KEY"
