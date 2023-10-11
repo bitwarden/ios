@@ -72,7 +72,7 @@ class DefaultVaultRepository {
     private func vaultListItems(group: VaultListGroup, from response: SyncResponseModel) -> [VaultListItem] {
         let ciphers = response.ciphers
             .filter { $0.deletedDate == nil }
-            .sorted { ($0.name ?? "") < ($1.name ?? "") }
+            .sorted { ($0.name ?? "").localizedStandardCompare($1.name ?? "") == .orderedAscending }
 
         switch group {
         case .login:
@@ -98,7 +98,7 @@ class DefaultVaultRepository {
     private func vaultListSections(from response: SyncResponseModel) -> [VaultListSection] {
         let ciphers = response.ciphers
             .filter { $0.deletedDate == nil }
-            .sorted { ($0.name ?? "") < ($1.name ?? "") }
+            .sorted { ($0.name ?? "").localizedStandardCompare($1.name ?? "") == .orderedAscending }
 
         let ciphersFavorites = ciphers.filter(\.favorite).map(VaultListItem.init)
         let ciphersNoFolder = ciphers.filter { $0.folderId == nil }.map(VaultListItem.init)
