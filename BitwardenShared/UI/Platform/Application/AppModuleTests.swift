@@ -1,3 +1,4 @@
+import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
@@ -56,5 +57,16 @@ class AppModuleTests: BitwardenTestCase {
         coordinator.start()
         XCTAssertNotNil(rootViewController.childViewController)
         XCTAssertTrue(rootViewController.childViewController === tabBarController)
+    }
+
+    /// `makeVaultCoordinator()` builds the vault coordinator.
+    func test_makeVaultCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeVaultCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<VaultListView>)
     }
 }

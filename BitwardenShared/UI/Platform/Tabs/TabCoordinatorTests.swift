@@ -8,6 +8,7 @@ import XCTest
 class TabCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var module: MockAppModule!
     var rootNavigator: MockRootNavigator!
     var subject: TabCoordinator!
     var tabNavigator: MockTabNavigator!
@@ -16,9 +17,11 @@ class TabCoordinatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        module = MockAppModule()
         rootNavigator = MockRootNavigator()
         tabNavigator = MockTabNavigator()
         subject = TabCoordinator(
+            module: module,
             rootNavigator: rootNavigator,
             tabNavigator: tabNavigator
         )
@@ -51,9 +54,9 @@ class TabCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(tabNavigator.selectedIndex, 3)
     }
 
-    /// `navigate(to:)` with `.vault` sets the correct selected index on tab navigator.
+    /// `navigate(to:)` with `.vault(.list)` sets the correct selected index on tab navigator.
     func test_navigate_vault() {
-        subject.navigate(to: .vault)
+        subject.navigate(to: .vault(.list))
         XCTAssertEqual(tabNavigator.selectedIndex, 0)
     }
 
@@ -61,6 +64,7 @@ class TabCoordinatorTests: BitwardenTestCase {
     func test_rootNavigator_resetWeakReference() {
         var rootNavigator: MockRootNavigator? = MockRootNavigator()
         subject = TabCoordinator(
+            module: module,
             rootNavigator: rootNavigator!,
             tabNavigator: tabNavigator
         )

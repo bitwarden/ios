@@ -2,10 +2,11 @@
 
 // MARK: - MockAppModule
 
-class MockAppModule: AppModule, AuthModule, TabModule {
+class MockAppModule: AppModule, AuthModule, TabModule, VaultModule {
     var appCoordinator = MockCoordinator<AppRoute>()
     var authCoordinator = MockCoordinator<AuthRoute>()
     var tabCoordinator = MockCoordinator<TabRoute>()
+    var vaultCoordinator = MockCoordinator<VaultRoute>()
 
     func makeAppCoordinator(
         navigator: RootNavigator
@@ -26,5 +27,11 @@ class MockAppModule: AppModule, AuthModule, TabModule {
         tabNavigator: TabNavigator
     ) -> AnyCoordinator<TabRoute> {
         tabCoordinator.asAnyCoordinator()
+    }
+
+    func makeVaultCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<VaultRoute> {
+        vaultCoordinator.asAnyCoordinator()
     }
 }

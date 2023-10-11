@@ -70,21 +70,21 @@ class TabRouteTests: BitwardenTestCase {
 
     /// `.vault` image is the `.locked` asset.
     func test_vault_image() {
-        XCTAssertEqual(TabRoute.vault.image?.pngData(), Asset.Images.locked.image.pngData())
+        XCTAssertEqual(TabRoute.vault(.list).image?.pngData(), Asset.Images.locked.image.pngData())
     }
 
     /// `.vault` is the first tab.
     func test_vault_rawValue() {
-        XCTAssertEqual(TabRoute.vault.index, 0)
+        XCTAssertEqual(TabRoute.vault(.list).index, 0)
     }
 
     /// `.vault` selected image is the `.lockedFilled` asset.
     func test_vault_selectedImage() {
-        XCTAssertEqual(TabRoute.vault.selectedImage?.pngData(), Asset.Images.lockedFilled.image.pngData())
+        XCTAssertEqual(TabRoute.vault(.list).selectedImage?.pngData(), Asset.Images.lockedFilled.image.pngData())
     }
 
     /// `.vault` uses the correct localized title.
     func test_vault_title() {
-        XCTAssertEqual(TabRoute.vault.title, Localizations.myVault)
+        XCTAssertEqual(TabRoute.vault(.list).title, Localizations.myVault)
     }
 }
