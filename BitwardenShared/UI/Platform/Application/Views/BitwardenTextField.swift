@@ -33,6 +33,9 @@ struct BitwardenTextField: View {
     /// The text content type used for the text field.
     let contentType: UITextContentType
 
+    /// The footer text displayed below the text field.
+    let footer: String?
+
     /// Whether a password in this text field is visible.
     let isPasswordVisible: Binding<Bool>?
 
@@ -51,12 +54,20 @@ struct BitwardenTextField: View {
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            textFieldTitle
+        VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
+                textFieldTitle
 
-            HStack(spacing: 8) {
-                textField
-                textFieldButtons
+                HStack(spacing: 8) {
+                    textField
+                    textFieldButtons
+                }
+            }
+
+            if let footer {
+                Text(footer)
+                    .font(.styleGuide(.footnote))
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
         }
     }
@@ -144,6 +155,7 @@ struct BitwardenTextField: View {
     ///   - buttons: A list of additional buttons that appear on the trailing edge of a textfield.
     ///   - contentType: The text content type used for the text field.
     ///   - autoCaptializationType: The auto-capitalization type for the text field.
+    ///   - footer: The footer text displayed below the text field.
     ///   - keyboardType: The type of keyboard to use.
     ///   - isPasswordVisible: Whether or not the password in the text field is visible.
     ///   - placeholder: An optional placeholder to display in the text field.
@@ -154,6 +166,7 @@ struct BitwardenTextField: View {
         buttons: [AccessoryButton] = [],
         contentType: UITextContentType,
         autoCapitalizationType: TextInputAutocapitalization = .sentences,
+        footer: String? = nil,
         keyboardType: UIKeyboardType = .default,
         isPasswordVisible: Binding<Bool>? = nil,
         placeholder: String? = nil,
@@ -162,6 +175,7 @@ struct BitwardenTextField: View {
         autoCaptializationType = autoCapitalizationType
         self.buttons = buttons
         self.contentType = contentType
+        self.footer = footer
         self.isPasswordVisible = isPasswordVisible
         self.keyboardType = keyboardType
         self.placeholder = placeholder ?? ""
@@ -249,6 +263,26 @@ struct BitwardenTextField_Previews: PreviewProvider {
         }
         .background(Color(.systemGroupedBackground))
         .previewDisplayName("Additional buttons")
+
+        VStack {
+            BitwardenTextField(
+                title: "Title",
+                buttons: [
+                    BitwardenTextField.AccessoryButton(
+                        accessibilityLabel: "",
+                        action: {},
+                        icon: Asset.Images.cog
+                    ),
+                ],
+                contentType: .password,
+                footer: Localizations.vaultLockedMasterPassword,
+                isPasswordVisible: .constant(false),
+                text: .constant("Text field text")
+            )
+            .padding()
+        }
+        .background(Color(.systemGroupedBackground))
+        .previewDisplayName("Footer text")
     }
 }
 #endif

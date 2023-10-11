@@ -11,4 +11,17 @@ class AlertErrorTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, "message")
         XCTAssertEqual(subject.alertActions, [AlertAction(title: "Ok", style: .cancel)])
     }
+
+    /// `inputValidationAlert(error:)` creates an `Alert` for an input validation error.
+    func test_inputValidationAlert() {
+        let subject = Alert.inputValidationAlert(
+            error: InputValidationError(
+                message: Localizations.validationFieldRequired(Localizations.masterPassword)
+            )
+        )
+
+        XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(subject.message, Localizations.validationFieldRequired(Localizations.masterPassword))
+        XCTAssertEqual(subject.alertActions, [AlertAction(title: Localizations.ok, style: .default)])
+    }
 }

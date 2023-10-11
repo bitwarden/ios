@@ -24,6 +24,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         & HasAppIdService
         & HasAppSettingsStore
         & HasAuthAPIService
+        & HasAuthRepository
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
@@ -105,6 +106,8 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             showLoginWithDevice()
         case .masterPasswordHint:
             showMasterPasswordHint()
+        case .vaultUnlock:
+            showVaultUnlock()
         }
     }
 
@@ -190,7 +193,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             )
             let store = Store(processor: processor)
             let view = LandingView(store: store)
-            stackNavigator.push(view)
+            stackNavigator.replace(view, animated: false)
         }
     }
 
@@ -236,6 +239,18 @@ internal final class AuthCoordinator: NSObject, Coordinator {
     /// Shows the master password hint screen.
     private func showMasterPasswordHint() {
         let view = Text("Master Password Hint")
+        stackNavigator.push(view)
+    }
+
+    /// Shows the vault unlock view.
+    ///
+    private func showVaultUnlock() {
+        let processor = VaultUnlockProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultUnlockState()
+        )
+        let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator.push(view)
     }
 }
