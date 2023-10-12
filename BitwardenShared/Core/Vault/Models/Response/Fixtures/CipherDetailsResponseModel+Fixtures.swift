@@ -13,7 +13,7 @@ extension CipherDetailsResponseModel {
         favorite: Bool = false,
         fields: [CipherFieldModel]? = nil,
         folderId: String? = nil,
-        id: String? = nil,
+        id: String = UUID().uuidString,
         identity: CipherIdentityModel? = nil,
         login: CipherLoginModel? = nil,
         name: String? = nil,
