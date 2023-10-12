@@ -24,7 +24,7 @@ packages:
     path: Networking
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.11.1
+    exactVersion: 1.14.1
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.9.7
@@ -325,5 +325,7 @@ targets:
       - target: Bitwarden
       - target: BitwardenShared
       - package: SnapshotTesting
+      - package: SnapshotTesting
+        product: InlineSnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true

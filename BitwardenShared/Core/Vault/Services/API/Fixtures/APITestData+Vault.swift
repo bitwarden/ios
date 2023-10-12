@@ -1,5 +1,6 @@
 extension APITestData {
-    static let syncWithCiphers = loadFromBundle(resource: "syncWithCiphers", extension: "json")
-    static let syncWithProfile = loadFromBundle(resource: "syncWithProfile", extension: "json")
-    static let syncWithSends = loadFromBundle(resource: "syncWithSends", extension: "json")
+    static let syncWithCipher = loadFromJsonBundle(resource: "syncWithCipher")
+    static let syncWithCiphers = loadFromJsonBundle(resource: "syncWithCiphers")
+    static let syncWithProfile = loadFromJsonBundle(resource: "syncWithProfile")
+    static let syncWithSends = loadFromJsonBundle(resource: "syncWithSends")
 }

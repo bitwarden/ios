@@ -42,6 +42,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to manage account access tokens.
     let tokenService: TokenService
 
+    /// The repository used by the application to manage vault data for the UI layer.
+    let vaultRepository: VaultRepository
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -76,6 +79,7 @@ public class ServiceContainer: Services {
         self.tokenService = tokenService
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
+        vaultRepository = DefaultVaultRepository(syncAPIService: apiService)
     }
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.

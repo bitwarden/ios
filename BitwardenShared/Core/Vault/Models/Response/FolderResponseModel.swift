@@ -2,11 +2,11 @@ import Foundation
 
 /// API response model for a folder.
 ///
-struct FolderResponseModel: Codable, Equatable {
+struct FolderResponseModel: Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// The folder's identifier.
-    let id: String?
+    let id: String
 
     /// The folder's name.
     let name: String?
