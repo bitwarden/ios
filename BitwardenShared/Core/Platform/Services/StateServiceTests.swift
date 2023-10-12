@@ -85,7 +85,7 @@ class StateServiceTests: BitwardenTestCase {
 
         let accountKeysForUserId = try await subject.getAccountEncryptionKeys(userId: "1")
         XCTAssertEqual(
-            accountKeys,
+            accountKeysForUserId,
             AccountEncryptionKeys(
                 encryptedPrivateKey: "1:PRIVATE_KEY",
                 encryptedUserKey: "1:USER_KEY"

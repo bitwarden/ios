@@ -36,7 +36,6 @@ class MockStateService: StateService {
     }
 
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
 }
