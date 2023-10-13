@@ -13,7 +13,7 @@ extension Alert {
     /// - Returns An alert notifying the user that their entered password has been found in a data breach.
     ///
     static func breachesAlert(
-        _ action: @escaping () -> Void
+        _ action: @escaping () async -> Void
     ) -> Alert {
         Alert(
             title: Localizations.weakAndExposedMasterPassword,
@@ -21,7 +21,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in
-                    action()
+                    await action()
                 },
             ]
         )

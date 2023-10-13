@@ -1,6 +1,15 @@
 import Foundation
 import Networking
 
+// MARK: - CreateAccountError
+
+/// Enumeration of errors that may occur when creating an account.
+///
+enum CreateAccountError: Error {
+    /// The password was found in data breaches.
+    case passwordBreachesFound
+}
+
 // MARK: - CreateAccountRequest
 
 /// The API request sent when submitting an account creation form.

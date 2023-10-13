@@ -1,6 +1,6 @@
 {
     "name": "name",
-    "email": "email",
+    "email": "example@email.com",
     "masterPasswordHash": "masterPasswordHash",
     "masterPasswordHint": "masterPasswordHint",
     "captchaResponse": "captchaResponse",

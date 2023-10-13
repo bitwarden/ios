@@ -28,6 +28,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        client = nil
         coordinator = nil
         subject = nil
     }
@@ -41,8 +42,32 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the user has
+    /// entered a password that has been found in a data breach. After tapping `Yes` to create
+    /// an account anyways, the `CreateAccountRequest` is made.
+    func test_perform_checkForBreachesAndCreateAccount_yesTapped() async throws {
+        let password = "12345abcde"
+        subject.state.emailText = "example@email.com"
+        subject.state.passwordText = password
+        subject.state.retypePasswordText = password
+        subject.state.isCheckDataBreachesToggleOn = true
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .createAccountRequest)]
+        await subject.perform(.createAccount)
+
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+        await alert.alertActions[1].handler?(alert.alertActions[1])
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/dec7d"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+    }
+
+    /// `perform(_:)` with `.createAccount` presents an alert when the user has
     /// entered a password that has been found in a data breach.
-    func test_perfrom_checkForBreaches() async {
+    func test_perfrom_checkForBreachesAndCreateAccount() async {
         let password = "12345abcde"
         subject.state.passwordText = password
         subject.state.retypePasswordText = password

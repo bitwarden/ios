@@ -43,7 +43,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     override func perform(_ effect: CreateAccountEffect) async {
         switch effect {
         case .createAccount:
-            await checkForBreaches()
+            await checkForBreachesAndCreateAccount()
         }
     }
 
@@ -72,28 +72,25 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     /// If it has, an alert will be presented. If not, the `CreateAccountRequest`
     /// will be made.
     ///
-    private func checkForBreaches() async {
-        if state.isCheckDataBreachesToggleOn {
-            do {
-                let breachCount = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
-
-                if breachCount != 0 {
-                    let alert = Alert.breachesAlert {
-                        Task {
-                            await self.createAccount()
-                        }
-                    }
-
-                    coordinator.navigate(to: .alert(alert))
-
-                    return
-                }
-            } catch {
-                // TODO: BIT-739
-            }
+    private func checkForBreachesAndCreateAccount() async {
+        guard state.isCheckDataBreachesToggleOn else {
+            await createAccount()
+            return
         }
-
-        await createAccount()
+        do {
+            let breachCount = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
+            guard breachCount == 0 else {
+                throw CreateAccountError.passwordBreachesFound
+            }
+            await createAccount()
+        } catch CreateAccountError.passwordBreachesFound {
+            let alert = Alert.breachesAlert {
+                await self.createAccount()
+            }
+            coordinator.navigate(to: .alert(alert))
+        } catch {
+            // TODO: BIT-739
+        }
     }
 
     /// Creates the user's account with their provided credentials.
