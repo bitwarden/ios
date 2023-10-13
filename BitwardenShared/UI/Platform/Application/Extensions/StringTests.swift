@@ -18,6 +18,10 @@ class StringTests: BitwardenTestCase {
             "email@.com",
             "example.com",
             "example.com@email",
+            "@@example.com",
+            " @example.com",
+            " email@example.com",
+            "email@example.com ",
         ]
 
         // All strings should _not_ be considered valid emails

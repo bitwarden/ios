@@ -33,7 +33,7 @@ struct CipherDetailsResponseModel: Codable, Equatable {
     let folderId: String?
 
     /// A identifier for the cipher.
-    let id: String?
+    let id: String
 
     /// Identity data if the cipher is a identity.
     let identity: CipherIdentityModel?

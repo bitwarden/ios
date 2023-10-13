@@ -68,7 +68,7 @@ struct LoginView: View {
             Button(Localizations.getMasterPasswordwordHint) {
                 store.send(.getMasterPasswordHintPressed)
             }
-            .font(.system(.subheadline))
+            .font(.styleGuide(.subheadline))
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
     }
@@ -118,7 +118,7 @@ struct LoginView: View {
             }
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
-        .font(.system(.footnote))
+        .font(.styleGuide(.footnote))
     }
 }
 
