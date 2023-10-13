@@ -1,6 +1,15 @@
 import BitwardenSdk
 import Combine
 
+// MARK: - CreateAccountError
+
+/// Enumeration of errors that may occur when creating an account.
+///
+enum CreateAccountError: Error {
+    /// The password was found in data breaches.
+    case passwordBreachesFound
+}
+
 // MARK: - CreateAccountProcessor
 
 /// The processor used to manage state and handle actions for the create account screen.
