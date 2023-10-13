@@ -1,10 +1,45 @@
 import Foundation
+import OSLog
 
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
     /// The app's unique identifier.
     var appId: String? { get set }
+
+    /// The email being remembered on the landing screen.
+    var rememberedEmail: String? { get set }
+
+    /// The app's account state.
+    var state: State? { get set }
+
+    /// Gets the encrypted private key for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the encrypted private key.
+    ///
+    func encryptedPrivateKey(userId: String) -> String?
+
+    /// Gets the encrypted user key for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the encrypted user key.
+    ///
+    func encryptedUserKey(userId: String) -> String?
+
+    /// Sets the encrypted private key for a user ID.
+    ///
+    /// - Parameters:
+    ///   - key: The user's encrypted private key.
+    ///   - userId: The user ID associated with the encrypted private key.
+    ///
+    func setEncryptedPrivateKey(key: String, userId: String)
+
+    /// Sets the encrypted user key for a user ID.
+    ///
+    /// - Parameters:
+    ///   - key: The user's encrypted user key.
+    ///   - userId: The user ID associated with the encrypted user key.
+    ///
+    func setEncryptedUserKey(key: String, userId: String)
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -38,6 +73,26 @@ class DefaultAppSettingsStore {
         userDefaults.string(forKey: key.storageKey)
     }
 
+    /// Fetches and decodes a JSON encoded object for the given key from `UserDefaults`.
+    ///
+    /// - Parameters:
+    ///   - key: The key used to store the value.
+    ///   - decoder: The `JSONDecoder` used to decode JSON into the object type.
+    /// - Returns: The value associated with the given key, decoded from JSON.
+    ///
+    private func fetch<T: Codable>(for key: Keys, decoder: JSONDecoder = JSONDecoder()) -> T? {
+        guard let string = userDefaults.string(forKey: key.storageKey) else {
+            return nil
+        }
+
+        do {
+            return try decoder.decode(T.self, from: Data(string.utf8))
+        } catch {
+            Logger.application.error("Error fetching \(key.storageKey) from UserDefaults: \(error)")
+            return nil
+        }
+    }
+
     /// Stores a `String` associated with the given key in `UserDefaults`.
     ///
     /// - Parameters:
@@ -47,22 +102,88 @@ class DefaultAppSettingsStore {
     private func store(_ value: String?, for key: Keys) {
         userDefaults.set(value, forKey: key.storageKey)
     }
+
+    /// Stores a JSON encoded object associated with the given key in `UserDefaults`.
+    ///
+    /// - Parameters:
+    ///   - value: The value to store as JSON encoded data associated with the key.
+    ///   - key:  The key to associate with the value for retrieving it later.
+    ///   - encoder: The `JSONEncoder` used to encode the value as JSON.
+    ///
+    private func store<T: Codable>(_ value: T?, for key: Keys, encoder: JSONEncoder = JSONEncoder()) {
+        guard let value else {
+            userDefaults.removeObject(forKey: key.storageKey)
+            return
+        }
+
+        do {
+            let data = try encoder.encode(value)
+            userDefaults.set(String(data: data, encoding: .utf8), forKey: key.storageKey)
+        } catch {
+            Logger.application.error(
+                "Error storing \(key.storageKey): \(String(describing: value)) to UserDefaults: \(error)"
+            )
+        }
+    }
 }
 
 extension DefaultAppSettingsStore: AppSettingsStore {
     /// The keys used to store their associated values.
     ///
-    private enum Keys: String {
+    enum Keys {
         case appId
+        case encryptedPrivateKey(userId: String)
+        case encryptedUserKey(userId: String)
+        case rememberedEmail
+        case state
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
-            "bwPreferencesStorage:\(rawValue)"
+            let key: String
+            switch self {
+            case .appId:
+                key = "appId"
+            case let .encryptedUserKey(userId):
+                key = "masterKeyEncryptedUserKey_\(userId)"
+            case let .encryptedPrivateKey(userId):
+                key = "encPrivateKey_\(userId)"
+            case .rememberedEmail:
+                key = "rememberedEmail"
+            case .state:
+                key = "state"
+            }
+            return "bwPreferencesStorage:\(key)"
         }
     }
 
     var appId: String? {
         get { fetch(for: .appId) }
         set { store(newValue, for: .appId) }
+    }
+
+    var rememberedEmail: String? {
+        get { fetch(for: .rememberedEmail) }
+        set { store(newValue, for: .rememberedEmail) }
+    }
+
+    var state: State? {
+        get { fetch(for: .state) }
+        set { store(newValue, for: .state) }
+    }
+
+    func encryptedPrivateKey(userId: String) -> String? {
+        fetch(for: .encryptedPrivateKey(userId: userId))
+    }
+
+    func encryptedUserKey(userId: String) -> String? {
+        fetch(for: .encryptedUserKey(userId: userId))
+    }
+
+    func setEncryptedPrivateKey(key: String, userId: String) {
+        store(key, for: .encryptedPrivateKey(userId: userId))
+    }
+
+    func setEncryptedUserKey(key: String, userId: String) {
+        store(key, for: .encryptedUserKey(userId: userId))
     }
 }

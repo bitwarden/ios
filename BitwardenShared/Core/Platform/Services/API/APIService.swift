@@ -9,6 +9,9 @@ class APIService {
     /// The API service that is used for general requests.
     let apiService: HTTPService
 
+    /// The API service that is used for general unauthenticated requests.
+    let apiUnauthenticatedService: HTTPService
+
     /// The API service used for logging events.
     let eventsService: HTTPService
 
@@ -55,6 +58,11 @@ class APIService {
             client: client,
             requestHandlers: [defaultHeadersRequestHandler],
             tokenProvider: accountTokenProvider
+        )
+        apiUnauthenticatedService = HTTPService(
+            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/api") },
+            client: client,
+            requestHandlers: [defaultHeadersRequestHandler]
         )
         eventsService = HTTPService(
             baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/events") },

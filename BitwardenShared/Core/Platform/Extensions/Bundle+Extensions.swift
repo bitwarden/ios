@@ -15,4 +15,9 @@ extension Bundle {
     var buildNumber: String {
         infoDictionary?["CFBundleVersion"] as? String ?? ""
     }
+
+    /// Return's the app's app group identifier.
+    var groupIdentifier: String {
+        "group.\(bundleIdentifier!)"
+    }
 }

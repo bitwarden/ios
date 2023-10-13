@@ -5,10 +5,17 @@ import Combine
 /// The processor used to manage state and handle actions for the landing screen.
 ///
 class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
+    // MARK: Types
+
+    typealias Services = HasAppSettingsStore
+
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<AuthRoute>
+
+    /// The services required by this processor.
+    private let services: Services
 
     // MARK: Initialization
 
@@ -16,10 +23,18 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
+    ///   - services: The services required by this processor.
     ///   - state: The initial state of the processor.
     ///
-    init(coordinator: AnyCoordinator<AuthRoute>, state: LandingState) {
+    init(coordinator: AnyCoordinator<AuthRoute>, services: Services, state: LandingState) {
         self.coordinator = coordinator
+        self.services = services
+
+        let rememberedEmail = services.appSettingsStore.rememberedEmail
+        var state = state
+        state.email = rememberedEmail ?? ""
+        state.isRememberMeOn = rememberedEmail != nil
+
         super.init(state: state)
     }
 
@@ -28,6 +43,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
     override func receive(_ action: LandingAction) {
         switch action {
         case .continuePressed:
+            updateRememberedEmail()
             validateEmailAndContinue()
         case .createAccountPressed:
             coordinator.navigate(to: .createAccount)
@@ -37,6 +53,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
             presentRegionSelectionAlert()
         case let .rememberMeChanged(newValue):
             state.isRememberMeOn = newValue
+            if !newValue {
+                updateRememberedEmail()
+            }
         }
     }
 
@@ -75,5 +94,15 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
             alertActions: actions + [cancelAction]
         )
         coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Updates the value of `rememberedEmail` in the app settings store with the `email` value in `state`.
+    ///
+    private func updateRememberedEmail() {
+        if state.isRememberMeOn {
+            services.appSettingsStore.rememberedEmail = state.email
+        } else {
+            services.appSettingsStore.rememberedEmail = nil
+        }
     }
 }

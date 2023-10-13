@@ -19,16 +19,7 @@ protocol TokenService: AnyObject {
     ///   - accessToken: The account's updated access token.
     ///   - refreshToken: The account's updated refresh token.
     ///
-    func setTokens(accessToken: String, refreshToken: String) async
-}
-
-// MARK: - TokenServiceError
-
-/// The errors thrown from a `TokenService`.
-///
-enum TokenServiceError: Error {
-    /// There isn't an active account to get tokens from.
-    case noActiveAccount
+    func setTokens(accessToken: String, refreshToken: String) async throws
 }
 
 // MARK: - DefaultTokenService
@@ -38,26 +29,30 @@ enum TokenServiceError: Error {
 actor DefaultTokenService: TokenService {
     // MARK: Properties
 
-    /// The account's access token.
-    var accessToken: String?
+    /// The service that manages the account state.
+    let stateService: StateService
 
-    /// The account's refresh token.
-    var refreshToken: String?
+    // MARK: Initialization
+
+    /// Initialize a `DefaultTokenService`.
+    ///
+    /// - Parameter stateService: The service that manages the account state.
+    ///
+    init(stateService: StateService) {
+        self.stateService = stateService
+    }
 
     // MARK: Methods
 
     func getAccessToken() async throws -> String {
-        guard let accessToken else { throw TokenServiceError.noActiveAccount }
-        return accessToken
+        try await stateService.getActiveAccount().tokens.accessToken
     }
 
     func getRefreshToken() async throws -> String {
-        guard let refreshToken else { throw TokenServiceError.noActiveAccount }
-        return refreshToken
+        try await stateService.getActiveAccount().tokens.refreshToken
     }
 
-    func setTokens(accessToken: String, refreshToken: String) async {
-        self.accessToken = accessToken
-        self.refreshToken = refreshToken
+    func setTokens(accessToken: String, refreshToken: String) async throws {
+        try await stateService.setTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
 }
