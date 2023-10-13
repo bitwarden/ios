@@ -12,6 +12,34 @@ protocol AppSettingsStore: AnyObject {
 
     /// The app's account state.
     var state: State? { get set }
+
+    /// Gets the encrypted private key for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the encrypted private key.
+    ///
+    func encryptedPrivateKey(userId: String) -> String?
+
+    /// Gets the encrypted user key for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the encrypted user key.
+    ///
+    func encryptedUserKey(userId: String) -> String?
+
+    /// Sets the encrypted private key for a user ID.
+    ///
+    /// - Parameters:
+    ///   - key: The user's encrypted private key.
+    ///   - userId: The user ID associated with the encrypted private key.
+    ///
+    func setEncryptedPrivateKey(key: String, userId: String)
+
+    /// Sets the encrypted user key for a user ID.
+    ///
+    /// - Parameters:
+    ///   - key: The user's encrypted user key.
+    ///   - userId: The user ID associated with the encrypted user key.
+    ///
+    func setEncryptedUserKey(key: String, userId: String)
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -102,14 +130,29 @@ class DefaultAppSettingsStore {
 extension DefaultAppSettingsStore: AppSettingsStore {
     /// The keys used to store their associated values.
     ///
-    enum Keys: String, CaseIterable {
+    enum Keys {
         case appId
+        case encryptedPrivateKey(userId: String)
+        case encryptedUserKey(userId: String)
         case rememberedEmail
         case state
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
-            "bwPreferencesStorage:\(rawValue)"
+            let key: String
+            switch self {
+            case .appId:
+                key = "appId"
+            case let .encryptedUserKey(userId):
+                key = "masterKeyEncryptedUserKey_\(userId)"
+            case let .encryptedPrivateKey(userId):
+                key = "encPrivateKey_\(userId)"
+            case .rememberedEmail:
+                key = "rememberedEmail"
+            case .state:
+                key = "state"
+            }
+            return "bwPreferencesStorage:\(key)"
         }
     }
 
@@ -126,5 +169,21 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var state: State? {
         get { fetch(for: .state) }
         set { store(newValue, for: .state) }
+    }
+
+    func encryptedPrivateKey(userId: String) -> String? {
+        fetch(for: .encryptedPrivateKey(userId: userId))
+    }
+
+    func encryptedUserKey(userId: String) -> String? {
+        fetch(for: .encryptedUserKey(userId: userId))
+    }
+
+    func setEncryptedPrivateKey(key: String, userId: String) {
+        store(key, for: .encryptedPrivateKey(userId: userId))
+    }
+
+    func setEncryptedUserKey(key: String, userId: String) {
+        store(key, for: .encryptedUserKey(userId: userId))
     }
 }

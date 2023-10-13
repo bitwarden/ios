@@ -11,6 +11,7 @@ extension ServiceContainer {
         clientAuth: ClientAuthProtocol = MockClientAuth(),
         systemDevice: SystemDevice = MockSystemDevice(),
         httpClient: HTTPClient = MockHTTPClient(),
+        stateService: StateService = MockStateService(),
         tokenService: TokenService = MockTokenService()
     ) -> ServiceContainer {
         ServiceContainer(
@@ -22,6 +23,7 @@ extension ServiceContainer {
             baseUrlService: baseUrlService,
             captchaService: captchaService,
             clientAuth: clientAuth,
+            stateService: stateService,
             systemDevice: systemDevice,
             tokenService: tokenService
         )

@@ -14,6 +14,42 @@ struct Account: Codable, Equatable {
 }
 
 extension Account {
+    /// Initializes an `Account` from the response of the identity token request.
+    ///
+    /// - Parameter identityTokenResponseModel: The response model from the identity token request.
+    ///
+    init(identityTokenResponseModel: IdentityTokenResponseModel) throws {
+        let tokenPayload = try TokenParser.parseToken(identityTokenResponseModel.accessToken)
+        self.init(
+            profile: AccountProfile(
+                avatarColor: nil,
+                email: tokenPayload.email,
+                emailVerified: nil,
+                forcePasswordResetReason: identityTokenResponseModel.forcePasswordReset ?
+                    .adminForcePasswordReset : nil,
+                hasPremiumPersonally: tokenPayload.hasPremium,
+                kdfIterations: identityTokenResponseModel.kdfIterations,
+                kdfMemory: identityTokenResponseModel.kdfMemory,
+                kdfParallelism: identityTokenResponseModel.kdfParallelism,
+                kdfType: identityTokenResponseModel.kdf,
+                name: tokenPayload.name,
+                orgIdentifier: nil,
+                stamp: nil,
+                userDecryptionOptions: identityTokenResponseModel.userDecryptionOptions,
+                userId: tokenPayload.userId
+            ),
+            settings: AccountSettings(
+                environmentUrls: nil
+            ),
+            tokens: AccountTokens(
+                accessToken: identityTokenResponseModel.accessToken,
+                refreshToken: identityTokenResponseModel.refreshToken
+            )
+        )
+    }
+}
+
+extension Account {
     /// Domain model for an account's profile details.
     ///
     struct AccountProfile: Codable, Equatable {

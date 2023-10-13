@@ -4,7 +4,7 @@ struct State: Codable, Equatable {
     // MARK: Properties
 
     /// The list of the accounts on the device, keyed by the user's ID.
-    var accounts: [String: Account]
+    var accounts: [String: Account] = [:]
 
     /// The user ID for the active account.
     var activeUserId: String?

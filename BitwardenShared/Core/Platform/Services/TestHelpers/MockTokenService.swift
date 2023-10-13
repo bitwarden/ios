@@ -7,12 +7,12 @@ class MockTokenService: TokenService {
     var refreshToken: String? = "REFRESH_TOKEN"
 
     func getAccessToken() async throws -> String {
-        guard let accessToken else { throw TokenServiceError.noActiveAccount }
+        guard let accessToken else { throw StateServiceError.noActiveAccount }
         return accessToken
     }
 
     func getRefreshToken() async throws -> String {
-        guard let refreshToken else { throw TokenServiceError.noActiveAccount }
+        guard let refreshToken else { throw StateServiceError.noActiveAccount }
         return refreshToken
     }
 

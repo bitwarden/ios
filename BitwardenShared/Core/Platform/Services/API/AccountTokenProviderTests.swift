@@ -45,7 +45,7 @@ class AccountTokenProviderTests: BitwardenTestCase {
         tokenService.accessToken = nil
         tokenService.refreshToken = nil
 
-        await assertAsyncThrows(error: TokenServiceError.noActiveAccount) {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.getToken()
         }
     }
