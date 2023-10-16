@@ -9,7 +9,7 @@ public class AlertAction {
     // MARK: Properties
 
     /// An optional handler that is called when the user taps on the action from the alert.
-    let handler: ((AlertAction) -> Void)?
+    let handler: ((AlertAction) async -> Void)?
 
     /// The style of the action.
     let style: UIAlertAction.Style
@@ -29,7 +29,7 @@ public class AlertAction {
     public init(
         title: String,
         style: UIAlertAction.Style,
-        handler: ((AlertAction) -> Void)? = nil
+        handler: ((AlertAction) async -> Void)? = nil
     ) {
         self.title = title
         self.style = style

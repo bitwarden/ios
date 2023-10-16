@@ -1,6 +1,15 @@
 import BitwardenSdk
 import Combine
 
+// MARK: - CreateAccountError
+
+/// Enumeration of errors that may occur when creating an account.
+///
+enum CreateAccountError: Error {
+    /// The password was found in data breaches.
+    case passwordBreachesFound
+}
+
 // MARK: - CreateAccountProcessor
 
 /// The processor used to manage state and handle actions for the create account screen.
@@ -43,7 +52,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     override func perform(_ effect: CreateAccountEffect) async {
         switch effect {
         case .createAccount:
-            await createAccount()
+            await checkForBreachesAndCreateAccount()
         }
     }
 
@@ -69,7 +78,32 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         }
     }
 
-    // MARK: Private
+    // MARK: Private methods
+
+    /// Checks if the user's entered password has been found in a data breach.
+    /// If it has, an alert will be presented. If not, the `CreateAccountRequest`
+    /// will be made.
+    ///
+    private func checkForBreachesAndCreateAccount() async {
+        guard state.isCheckDataBreachesToggleOn else {
+            await createAccount()
+            return
+        }
+        do {
+            let breachCount = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
+            guard breachCount == 0 else {
+                throw CreateAccountError.passwordBreachesFound
+            }
+            await createAccount()
+        } catch CreateAccountError.passwordBreachesFound {
+            let alert = Alert.breachesAlert {
+                await self.createAccount()
+            }
+            coordinator.navigate(to: .alert(alert))
+        } catch {
+            // TODO: BIT-739
+        }
+    }
 
     /// Creates the user's account with their provided credentials.
     ///
@@ -99,10 +133,6 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 password: state.passwordText,
                 kdfParams: kdf
             )
-
-            if state.isCheckDataBreachesToggleOn {
-                _ = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
-            }
 
             _ = try await services.accountAPIService.createNewAccount(
                 body: CreateAccountRequestModel(

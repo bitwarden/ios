@@ -82,7 +82,9 @@ public class Alert {
 
         alertActions.forEach { alertAction in
             let action = UIAlertAction(title: alertAction.title, style: alertAction.style) { _ in
-                alertAction.handler?(alertAction)
+                Task {
+                    await alertAction.handler?(alertAction)
+                }
             }
 
             alert.addAction(action)
