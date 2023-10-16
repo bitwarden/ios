@@ -194,11 +194,14 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         }
     }
 
-    /// Shows the login screen.
+    /// Shows the login screen. If the create account flow is being presented it will be dismissed
+    /// and the login screen will be pushed
     ///
     /// - Parameter state: The `LoginState` to initialize the login screen with.
     ///
     private func showLogin(state: LoginState) {
+        let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
+
         let processor = LoginProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
@@ -212,6 +215,10 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         // back button might flash on screen while the screen is being pushed.
         viewController.navigationItem.hidesBackButton = true
         stackNavigator.push(viewController)
+
+        if isPresenting {
+            stackNavigator.dismiss()
+        }
     }
 
     /// Shows the login options screen.

@@ -7,7 +7,9 @@ import XCTest
 class CreateAccountProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
+    var clientAuth: MockClientAuth!
     var coordinator: MockCoordinator<AuthRoute>!
     var subject: CreateAccountProcessor!
 
@@ -15,29 +17,139 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        captchaService = MockCaptchaService()
         client = MockHTTPClient()
+        clientAuth = MockClientAuth()
         coordinator = MockCoordinator<AuthRoute>()
-
-        let state = CreateAccountState()
         subject = CreateAccountProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(httpClient: client),
-            state: state
+            services: ServiceContainer.withMocks(
+                captchaService: captchaService,
+                clientAuth: clientAuth,
+                httpClient: client
+            ),
+            state: CreateAccountState()
         )
     }
 
     override func tearDown() {
         super.tearDown()
+        captchaService = nil
+        clientAuth = nil
         coordinator = nil
         subject = nil
     }
 
     // MARK: Tests
 
+    /// `captchaCompleted()` makes the create account request again, this time with a captcha token.
+    /// Also tests that the user is then navigated to the login screen.
+    func test_captchaCompleted() throws {
+        clientAuth.hashPasswordResult = .success("hashed password")
+        client.result = .httpSuccess(testData: .createAccountRequest)
+
+        subject.state.emailText = "example@email.com"
+        subject.state.passwordText = "password1234"
+        subject.state.isTermsAndPrivacyToggleOn = true
+        subject.captchaCompleted(token: "token")
+
+        let createAccountRequest = CreateAccountRequestModel(
+            captchaResponse: "token",
+            email: "example@email.com",
+            kdfConfig: KdfConfig(),
+            key: "encryptedUserKey",
+            keys: KeysRequestModel(
+                publicKey: "public",
+                encryptedPrivateKey: "private"
+            ),
+            masterPasswordHash: "hashed password",
+            masterPasswordHint: ""
+        )
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].body, try createAccountRequest.encode())
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "password1234")
+        XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .login(
+                username: "example@email.com",
+                region: LoginState().region,
+                isLoginWithDeviceVisible: LoginState().isLoginWithDeviceVisible
+            )
+        )
+    }
+
     /// `receive(_:)` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.createAccount` presents an alert when the user has
+    /// entered a password that has been found in a data breach. After tapping `Yes` to create
+    /// an account anyways, the `CreateAccountRequest` is made.
+    func test_perform_checkForBreachesAndCreateAccount_yesTapped() async throws {
+        let password = "12345abcde"
+        subject.state.emailText = "example@email.com"
+        subject.state.passwordText = password
+        subject.state.retypePasswordText = password
+        subject.state.isCheckDataBreachesToggleOn = true
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .createAccountRequest)]
+        await subject.perform(.createAccount)
+
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+        await alert.alertActions[1].handler?(alert.alertActions[1])
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/dec7d"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+    }
+
+    /// `perform(_:)` with `.createAccount` presents an alert when the user has
+    /// entered a password that has been found in a data breach.
+    func test_perfrom_checkForBreachesAndCreateAccount() async {
+        let password = "12345abcde"
+        subject.state.passwordText = password
+        subject.state.retypePasswordText = password
+        subject.state.isCheckDataBreachesToggleOn = true
+
+        client.result = .httpSuccess(testData: .hibpLeakedPasswords)
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/dec7d"))
+        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+            title: Localizations.weakAndExposedMasterPassword,
+            message: Localizations.weakPasswordIdentifiedAndFoundInADataBreachAlertDescription,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ]
+        )))
+    }
+
+    /// `perform(_:)` with `.createAccount` and a captcha error occurs navigates to the `.captcha` route.
+    func test_createAccount_captchaError() async {
+        client.result = .httpFailure(CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: "token"))
+
+        captchaService.generateCaptchaUrlValue = .example
+        subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
+        subject.state.isTermsAndPrivacyToggleOn = true
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(captchaService.callbackUrlSchemeGets, 1)
+        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
+        XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
     }
 
     /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.
@@ -49,7 +161,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.createAccount)
 
-        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(coordinator.routes.last, .alert(.invalidEmail))
     }
 
@@ -109,7 +221,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.createAccount)
 
-        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(client.requests.count, 1)
         // TODO: BIT-681 Add an assertion here for an error alert.
     }
 
