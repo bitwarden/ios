@@ -12,7 +12,7 @@ struct CipherDetailsResponseModel: Codable, Equatable {
     let card: CipherCardModel?
 
     /// The identifiers for collections which contain this cipher.
-    let collectionIds: [String]?
+    let collectionIds: [String]
 
     /// The date the cipher was created.
     let creationDate: Date
@@ -42,7 +42,7 @@ struct CipherDetailsResponseModel: Codable, Equatable {
     let login: CipherLoginModel?
 
     /// The name of the cipher.
-    let name: String?
+    let name: String
 
     /// Notes containing within the cipher.
     let notes: String?

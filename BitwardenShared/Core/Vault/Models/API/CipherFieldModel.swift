@@ -10,7 +10,7 @@ struct CipherFieldModel: Codable, Equatable {
     let name: String?
 
     /// The field's type.
-    let type: FieldType?
+    let type: FieldType
 
     /// The field's value.
     let value: String?

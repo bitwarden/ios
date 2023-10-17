@@ -12,10 +12,10 @@ struct CollectionDetailsResponseModel: Codable, Equatable {
     let hidePasswords: Bool
 
     /// The collection's identifier.
-    let id: String?
+    let id: String
 
     /// The collection's name.
-    let name: String?
+    let name: String
 
     /// The organization ID of the collection.
     let organizationId: String

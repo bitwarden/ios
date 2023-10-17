@@ -1,6 +1,6 @@
 /// An enum describing the fields that a custom cipher field can be linked to.
 ///
-enum LinkedIdType: Int, Codable {
+enum LinkedIdType: UInt32, Codable {
     // MARK: Login
 
     /// The field is linked to the login's username.
