@@ -29,11 +29,11 @@ struct CreateAccountState: Equatable {
     /// 0-4 (weak to strong password).
     var passwordStrengthScore: UInt8?
 
-    /// The text in the re-type password text field.
-    var retypePasswordText: String = ""
-
     /// The password visibility icon used in the view's text fields.
     var passwordVisibleIcon: ImageAsset {
         arePasswordsVisible ? Asset.Images.eyeSlash : Asset.Images.eye
     }
+
+    /// The text in the re-type password text field.
+    var retypePasswordText: String = ""
 }

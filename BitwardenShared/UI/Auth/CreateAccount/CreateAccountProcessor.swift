@@ -22,6 +22,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
     typealias Services = HasAccountAPIService
         & HasClientAuth
+        & HasCaptchaService
 
     // MARK: Private Properties
 
@@ -104,13 +105,15 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             }
             coordinator.navigate(to: .alert(alert))
         } catch {
-            // TODO: BIT-739
+            // TODO: BIT-739 HIBP network request failure error dialogue
         }
     }
 
     /// Creates the user's account with their provided credentials.
     ///
-    private func createAccount() async {
+    /// - Parameter captchaToken: The token returned when the captcha flow has completed.
+    ///
+    private func createAccount(captchaToken: String? = nil) async {
         let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard email.isValidEmail else {
             coordinator.navigate(to: .alert(.invalidEmail))
@@ -138,6 +141,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
             _ = try await services.accountAPIService.createNewAccount(
                 body: CreateAccountRequestModel(
+                    captchaResponse: captchaToken,
                     email: email,
                     kdfConfig: KdfConfig(),
                     key: keys.encryptedUserKey,
@@ -149,16 +153,49 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                     masterPasswordHint: state.passwordHintText
                 )
             )
+
+            coordinator.navigate(to: .login(
+                username: email,
+                region: LoginState().region,
+                isLoginWithDeviceVisible: LoginState().isLoginWithDeviceVisible
+            ))
         } catch CreateAccountError.acceptPoliciesError {
             coordinator.navigate(to: .alert(.acceptPoliciesAlert()))
+        } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
+            launchCaptchaFlow(with: siteCode)
         } catch {
-            // TODO: BIT-681
+            // TODO: BIT-860 Email errors
+            // TODO: BIT-861 Password/Hint fields errors
+            // TODO: BIT-863 Networking errors
+            // TODO: BIT-864 Account already exists error
+        }
+    }
+
+    /// Generates the items needed and authenticates with the captcha flow.
+    ///
+    /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
+    ///   with hCaptcha.
+    ///
+    private func launchCaptchaFlow(with siteKey: String) {
+        do {
+            let callbackUrlScheme = services.captchaService.callbackUrlScheme
+            let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
+            coordinator.navigate(
+                to: .captcha(
+                    url: url,
+                    callbackUrlScheme: callbackUrlScheme
+                ),
+                context: self
+            )
+        } catch {
+            // TODO: BIT-887 Show alert for when hCaptcha fails
+            print(error)
         }
     }
 
     /// Updates state's password strength score based on the user's entered password.
     ///
-    func updatePasswordStrength() {
+    private func updatePasswordStrength() {
         // TODO: BIT-694 Use the SDK to calculate password strength
         let score: UInt8?
         switch state.passwordText.count {
@@ -170,5 +207,20 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         default: score = nil
         }
         state.passwordStrengthScore = score
+    }
+}
+
+// MARK: - CaptchaFlowDelegate
+
+extension CreateAccountProcessor: CaptchaFlowDelegate {
+    func captchaCompleted(token: String) {
+        Task {
+            await createAccount(captchaToken: token)
+        }
+    }
+
+    func captchaErrored(error: Error) {
+        // TODO: BIT-681
+        print(error)
     }
 }

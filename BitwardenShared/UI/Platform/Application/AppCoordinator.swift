@@ -107,6 +107,6 @@ class AppCoordinator: Coordinator {
 
 extension AppCoordinator: AuthCoordinatorDelegate {
     func didCompleteAuth() {
-        showTab(route: .vault)
+        showTab(route: .vault(.list))
     }
 }

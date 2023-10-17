@@ -95,7 +95,5 @@ struct CreateAccountRequestModel: Equatable {
 // MARK: JSONRequestBody
 
 extension CreateAccountRequestModel: JSONRequestBody {
-    static var encoder: JSONEncoder {
-        JSONEncoder()
-    }
+    static let encoder = JSONEncoder()
 }

@@ -7,7 +7,9 @@ import XCTest
 class CreateAccountProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
+    var clientAuth: MockClientAuth!
     var coordinator: MockCoordinator<AuthRoute>!
     var subject: CreateAccountProcessor!
 
@@ -15,25 +17,71 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        captchaService = MockCaptchaService()
         client = MockHTTPClient()
+        clientAuth = MockClientAuth()
         coordinator = MockCoordinator<AuthRoute>()
-
-        let state = CreateAccountState()
         subject = CreateAccountProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(httpClient: client),
-            state: state
+            services: ServiceContainer.withMocks(
+                captchaService: captchaService,
+                clientAuth: clientAuth,
+                httpClient: client
+            ),
+            state: CreateAccountState()
         )
     }
 
     override func tearDown() {
         super.tearDown()
+        captchaService = nil
+        clientAuth = nil
         client = nil
         coordinator = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `captchaCompleted()` makes the create account request again, this time with a captcha token.
+    /// Also tests that the user is then navigated to the login screen.
+    func test_captchaCompleted() throws {
+        clientAuth.hashPasswordResult = .success("hashed password")
+        client.result = .httpSuccess(testData: .createAccountRequest)
+
+        subject.state.emailText = "example@email.com"
+        subject.state.passwordText = "password1234"
+        subject.state.isTermsAndPrivacyToggleOn = true
+        subject.captchaCompleted(token: "token")
+
+        let createAccountRequest = CreateAccountRequestModel(
+            captchaResponse: "token",
+            email: "example@email.com",
+            kdfConfig: KdfConfig(),
+            key: "encryptedUserKey",
+            keys: KeysRequestModel(
+                publicKey: "public",
+                encryptedPrivateKey: "private"
+            ),
+            masterPasswordHash: "hashed password",
+            masterPasswordHint: ""
+        )
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].body, try createAccountRequest.encode())
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "password1234")
+        XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .login(
+                username: "example@email.com",
+                region: LoginState().region,
+                isLoginWithDeviceVisible: LoginState().isLoginWithDeviceVisible
+            )
+        )
+    }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {
@@ -86,6 +134,23 @@ class CreateAccountProcessorTests: BitwardenTestCase {
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
             ]
         )))
+    }
+
+    /// `perform(_:)` with `.createAccount` and a captcha error occurs navigates to the `.captcha` route.
+    func test_createAccount_captchaError() async {
+        client.result = .httpFailure(CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: "token"))
+
+        captchaService.generateCaptchaUrlValue = .example
+        subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
+        subject.state.isTermsAndPrivacyToggleOn = true
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(captchaService.callbackUrlSchemeGets, 1)
+        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
+        XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
     }
 
     /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.

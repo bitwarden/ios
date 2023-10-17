@@ -37,7 +37,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     func test_didCompleteAuth() {
         subject.didCompleteAuth()
         XCTAssertTrue(module.tabCoordinator.isStarted)
-        XCTAssertEqual(module.tabCoordinator.routes, [.vault])
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list)])
     }
 
     /// `navigate(to:)` with `.onboarding` starts the auth coordinator and navigates to the proper auth route.
@@ -56,19 +56,19 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.authCoordinator.routes, [.landing, .landing])
     }
 
-    /// `navigate(to:)` with `.tab(.vault)` starts the tab coordinator and navigates to the proper tab route.
+    /// `navigate(to:)` with `.tab(.vault(.list))` starts the tab coordinator and navigates to the proper tab route.
     func test_navigateTo_tab() {
-        subject.navigate(to: .tab(.vault))
+        subject.navigate(to: .tab(.vault(.list)))
         XCTAssertTrue(module.tabCoordinator.isStarted)
-        XCTAssertEqual(module.tabCoordinator.routes, [.vault])
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list)])
     }
 
-    /// `navigate(to:)` with `.tab(.vault)` twice uses the existing coordinator, rather than creating a new one.
+    /// `navigate(to:)` with `.tab(.vault(.list))` twice uses the existing coordinator, rather than creating a new one.
     func test_navigateTo_tabTwice() {
-        subject.navigate(to: .tab(.vault))
-        subject.navigate(to: .tab(.vault))
+        subject.navigate(to: .tab(.vault(.list)))
+        subject.navigate(to: .tab(.vault(.list)))
 
-        XCTAssertEqual(module.tabCoordinator.routes, [.vault, .vault])
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list), .vault(.list)])
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
