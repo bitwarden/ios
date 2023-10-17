@@ -31,7 +31,7 @@ class LoginProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingsStore,
                 captchaService: captchaService,
-                clientAuth: clientAuth,
+                clientService: MockClientService(clientAuth: clientAuth),
                 systemDevice: systemDevice,
                 httpClient: client
             ),

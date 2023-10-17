@@ -7,6 +7,7 @@ class VaultRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
     var client: MockHTTPClient!
+    var clientVault: MockClientVaultService!
     var subject: DefaultVaultRepository!
 
     // MARK: Setup & Teardown
@@ -15,8 +16,12 @@ class VaultRepositoryTests: BitwardenTestCase {
         super.setUp()
 
         client = MockHTTPClient()
+        clientVault = MockClientVaultService()
 
-        subject = DefaultVaultRepository(syncAPIService: APIService(client: client))
+        subject = DefaultVaultRepository(
+            clientVault: clientVault,
+            syncAPIService: APIService(client: client)
+        )
     }
 
     override func tearDown() {

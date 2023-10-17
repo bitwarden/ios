@@ -25,7 +25,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 captchaService: captchaService,
-                clientAuth: clientAuth,
+                clientService: MockClientService(clientAuth: clientAuth),
                 httpClient: client
             ),
             state: CreateAccountState()

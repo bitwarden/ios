@@ -20,7 +20,7 @@ protocol VaultRepository: AnyObject {
     /// - Returns: A publisher for the details of a cipher which will be notified as the details of
     ///     the cipher change.
     ///
-    func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherDetailsResponseModel, Never>>
+    func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>>
 
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
@@ -44,6 +44,9 @@ protocol VaultRepository: AnyObject {
 class DefaultVaultRepository {
     // MARK: Properties
 
+    /// The client used by the application to handle vault encryption and decryption tasks.
+    let clientVault: ClientVaultService
+
     /// The API service used to perform sync API requests.
     let syncAPIService: SyncAPIService
 
@@ -54,9 +57,12 @@ class DefaultVaultRepository {
 
     /// Initialize a `DefaultVaultRepository`.
     ///
-    /// - Parameter syncAPIService: The API service used to perform sync API requests.
+    /// - Parameters:
+    ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - syncAPIService: The API service used to perform sync API requests.
     ///
-    init(syncAPIService: SyncAPIService) {
+    init(clientVault: ClientVaultService, syncAPIService: SyncAPIService) {
+        self.clientVault = clientVault
         self.syncAPIService = syncAPIService
     }
 
@@ -69,24 +75,30 @@ class DefaultVaultRepository {
     ///   - response: The sync response used to build the list of items.
     /// - Returns: A list of items for the group in the vault list.
     ///
-    private func vaultListItems(group: VaultListGroup, from response: SyncResponseModel) -> [VaultListItem] {
-        let ciphers = response.ciphers
-            .filter { $0.deletedDate == nil }
+    private func vaultListItems(
+        group: VaultListGroup,
+        from response: SyncResponseModel
+    ) async throws -> [VaultListItem] {
+        let ciphers = try await clientVault.ciphers()
+            .decryptList(ciphers: response.ciphers.map(Cipher.init))
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        let activeCiphers = ciphers.filter { $0.deletedDate == nil }
+        let deletedCiphers = ciphers.filter { $0.deletedDate != nil }
 
         switch group {
         case .login:
-            return ciphers.filter { $0.type == .login }.map(VaultListItem.init)
+            return activeCiphers.filter { $0.type == .login }.compactMap(VaultListItem.init)
         case .card:
-            return ciphers.filter { $0.type == .card }.map(VaultListItem.init)
+            return activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
         case .identity:
-            return ciphers.filter { $0.type == .identity }.map(VaultListItem.init)
+            return activeCiphers.filter { $0.type == .identity }.compactMap(VaultListItem.init)
         case .secureNote:
-            return ciphers.filter { $0.type == .secureNote }.map(VaultListItem.init)
+            return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case let .folder(folder):
-            return ciphers.filter { $0.folderId == folder.id }.map(VaultListItem.init)
+            return activeCiphers.filter { $0.folderId == folder.id }.compactMap(VaultListItem.init)
         case .trash:
-            return response.ciphers.filter { $0.deletedDate != nil }.map(VaultListItem.init)
+            return deletedCiphers.compactMap(VaultListItem.init)
         }
     }
 
@@ -95,26 +107,32 @@ class DefaultVaultRepository {
     /// - Parameter response: The sync response used to build the list of sections.
     /// - Returns: A list of the sections to display in the vault list.
     ///
-    private func vaultListSections(from response: SyncResponseModel) -> [VaultListSection] {
-        let ciphers = response.ciphers
-            .filter { $0.deletedDate == nil }
+    private func vaultListSections(from response: SyncResponseModel) async throws -> [VaultListSection] {
+        let ciphers = try await clientVault.ciphers()
+            .decryptList(ciphers: response.ciphers.map(Cipher.init))
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let ciphersFavorites = ciphers.filter(\.favorite).map(VaultListItem.init)
-        let ciphersNoFolder = ciphers.filter { $0.folderId == nil }.map(VaultListItem.init)
+        let folders = try await clientVault.folders()
+            .decryptList(folders: response.folders.map(Folder.init))
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let ciphersTrashCount = response.ciphers.lazy.filter { $0.deletedDate != nil }.count
+        let activeCiphers = ciphers.filter { $0.deletedDate == nil }
+
+        let ciphersFavorites = activeCiphers.filter(\.favorite).compactMap(VaultListItem.init)
+        let ciphersNoFolder = activeCiphers.filter { $0.folderId == nil }.compactMap(VaultListItem.init)
+
+        let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
-        let folders = response.folders.map { folder in
-            let cipherCount = ciphers.lazy.filter { $0.folderId == folder.id }.count
+        let folderItems = folders.map { folder in
+            let cipherCount = activeCiphers.lazy.filter { $0.folderId == folder.id }.count
             return VaultListItem(id: folder.id, itemType: .group(.folder(folder), cipherCount))
         }
 
-        let typesCardCount = ciphers.lazy.filter { $0.card != nil }.count
-        let typesIdentityCount = ciphers.lazy.filter { $0.identity != nil }.count
-        let typesLoginCount = ciphers.lazy.filter { $0.login != nil }.count
-        let typesSecureNoteCount = ciphers.lazy.filter { $0.secureNote != nil }.count
+        let typesCardCount = activeCiphers.lazy.filter { $0.type == .card }.count
+        let typesIdentityCount = activeCiphers.lazy.filter { $0.type == .identity }.count
+        let typesLoginCount = activeCiphers.lazy.filter { $0.type == .login }.count
+        let typesSecureNoteCount = activeCiphers.lazy.filter { $0.type == .secureNote }.count
 
         let types = [
             VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount)),
@@ -126,7 +144,7 @@ class DefaultVaultRepository {
         return [
             VaultListSection(id: "Favorites", items: ciphersFavorites, name: Localizations.favorites),
             VaultListSection(id: "Types", items: types, name: Localizations.types),
-            VaultListSection(id: "Folders", items: folders, name: Localizations.folders),
+            VaultListSection(id: "Folders", items: folderItems, name: Localizations.folders),
             VaultListSection(id: "NoFolder", items: ciphersNoFolder, name: Localizations.folderNone),
             VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash),
         ]
@@ -145,9 +163,9 @@ extension DefaultVaultRepository: VaultRepository {
 
     func vaultListPublisher() -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>> {
         syncResponseSubject
-            .compactMap { response in
+            .asyncCompactMap { response in
                 guard let response else { return nil }
-                return self.vaultListSections(from: response)
+                return try? await self.vaultListSections(from: response)
             }
             .eraseToAnyPublisher()
             .values
@@ -155,17 +173,20 @@ extension DefaultVaultRepository: VaultRepository {
 
     func vaultListPublisher(group: VaultListGroup) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
         syncResponseSubject
-            .compactMap { response in
+            .asyncCompactMap { response in
                 guard let response else { return nil }
-                return self.vaultListItems(group: group, from: response)
+                return try? await self.vaultListItems(group: group, from: response)
             }
             .eraseToAnyPublisher()
             .values
     }
 
-    func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherDetailsResponseModel, Never>> {
+    func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>> {
         syncResponseSubject
-            .compactMap { $0?.ciphers.first(where: { $0.id == id }) }
+            .asyncCompactMap { response in
+                guard let cipher = response?.ciphers.first(where: { $0.id == id }) else { return nil }
+                return try? await self.clientVault.ciphers().decrypt(cipher: Cipher(responseModel: cipher))
+            }
             .eraseToAnyPublisher()
             .values
     }

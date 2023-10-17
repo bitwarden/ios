@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 /// Data model for an item displayed in the vault list.
 ///
 struct VaultListItem: Equatable, Identifiable {
@@ -6,7 +8,7 @@ struct VaultListItem: Equatable, Identifiable {
     /// An enumeration for the type of item being displayed by this item.
     enum ItemType: Equatable {
         /// The wrapped item is a cipher.
-        case cipher(CipherDetailsResponseModel)
+        case cipher(CipherListView)
 
         /// The wrapped item is a group of items.
         case group(VaultListGroup, Int)
@@ -22,12 +24,12 @@ struct VaultListItem: Equatable, Identifiable {
 }
 
 extension VaultListItem {
-    /// Initialize a `VaultListItem` from a `CipherDetailsResponseModel`.
+    /// Initialize a `VaultListItem` from a `CipherListView`.
     ///
-    /// - Parameter responseModel: The `CipherDetailsResponseModel` used to initialize the
-    ///     `VaultListItem`.
+    /// - Parameter cipherListView: The `CipherListView` used to initialize the `VaultListItem`.
     ///
-    init(cipherDetailResponseModel responseModel: CipherDetailsResponseModel) {
-        self.init(id: responseModel.id, itemType: .cipher(responseModel))
+    init?(cipherListView: CipherListView) {
+        guard let id = cipherListView.id else { return nil }
+        self.init(id: id, itemType: .cipher(cipherListView))
     }
 }
