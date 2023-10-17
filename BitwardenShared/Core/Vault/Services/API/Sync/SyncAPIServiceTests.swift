@@ -129,7 +129,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                             fileName: "test.txt",
                             id: "1",
                             size: "123",
-                            sizeName: nil
+                            sizeName: "123 KB"
                         ),
                         id: "d7a7e48c-443f-11ee-be56-0242ac120002",
                         key: "encrypted key",

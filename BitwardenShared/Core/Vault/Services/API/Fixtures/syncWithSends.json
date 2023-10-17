@@ -38,7 +38,7 @@
         "fileName": "test.txt",
         "id": "1",
         "size": "123",
-        "sizeName": null
+        "sizeName": "123 KB"
       },
       "key": "encrypted key",
       "maxAccessCount": null,

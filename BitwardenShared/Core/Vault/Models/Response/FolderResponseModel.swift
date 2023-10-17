@@ -9,7 +9,7 @@ struct FolderResponseModel: Codable, Equatable, Hashable {
     let id: String
 
     /// The folder's name.
-    let name: String?
+    let name: String
 
     /// The date of the folder's last revision.
     let revisionDate: Date

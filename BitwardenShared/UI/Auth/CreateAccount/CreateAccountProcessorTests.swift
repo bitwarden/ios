@@ -36,6 +36,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         super.tearDown()
         captchaService = nil
         clientAuth = nil
+        client = nil
         coordinator = nil
         subject = nil
     }

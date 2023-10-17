@@ -79,7 +79,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         }
     }
 
-    // MARK: Private Methods
+    // MARK: Private methods
 
     /// Checks if the user's entered password has been found in a data breach.
     /// If it has, an alert will be presented. If not, the `CreateAccountRequest`
