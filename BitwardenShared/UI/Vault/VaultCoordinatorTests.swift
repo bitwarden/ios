@@ -64,9 +64,10 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
     }
 
+    /// `start()` has no effect.
     func test_start() {
         subject.start()
 
-        XCTAssertTrue(stackNavigator.actions.last?.view is VaultListView)
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 }

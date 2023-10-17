@@ -65,7 +65,7 @@ class AppModuleTests: BitwardenTestCase {
         let coordinator = subject.makeVaultCoordinator(
             stackNavigator: navigationController
         )
-        coordinator.start()
+        coordinator.navigate(to: .list)
         XCTAssertEqual(navigationController.viewControllers.count, 1)
         XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<VaultListView>)
     }
