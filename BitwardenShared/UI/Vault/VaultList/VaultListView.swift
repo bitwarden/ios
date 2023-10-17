@@ -27,7 +27,7 @@ struct VaultListView: View {
                         store.send(.profilePressed)
                     } label: {
                         Text(store.state.userInitials)
-                            .font(.system(size: 11))
+                            .font(.styleGuide(.caption2))
                             .foregroundColor(.white)
                             .padding(4)
                             .background(Color.purple)

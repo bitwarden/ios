@@ -21,11 +21,11 @@ internal final class TabCoordinator: Coordinator {
 
     // MARK: Private Properties
 
-    /// The coordinator used to navigate to `VaultRoute`s.
-    private var vaultCoordinator: AnyCoordinator<VaultRoute>?
-
     /// The module used to create child coordinators.
     private let module: Module
+
+    /// The coordinator used to navigate to `VaultRoute`s.
+    private var vaultCoordinator: AnyCoordinator<VaultRoute>?
 
     // MARK: Initialization
 

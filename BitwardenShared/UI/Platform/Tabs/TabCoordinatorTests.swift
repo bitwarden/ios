@@ -29,6 +29,7 @@ class TabCoordinatorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        module = nil
         rootNavigator = nil
         subject = nil
         tabNavigator = nil

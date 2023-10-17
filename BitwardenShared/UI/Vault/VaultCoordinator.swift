@@ -39,9 +39,7 @@ final class VaultCoordinator: Coordinator {
         stackNavigator.showLoadingOverlay(state)
     }
 
-    func start() {
-        navigate(to: .list)
-    }
+    func start() {}
 
     // MARK: Private Methods
 
