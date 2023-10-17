@@ -5,6 +5,20 @@ import Foundation
 extension Alert {
     // MARK: Methods
 
+    /// An alert notifying the user that they haven't agreed to the terms of service and privacy policy.
+    ///
+    /// - Returns An alert notifying the user that they haven't agreed to the terms of service and privacy policy.
+    ///
+    static func acceptPoliciesAlert() -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.acceptPoliciesError,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
     /// An alert notifying the user, upon creating an account, that their entered password has been found
     /// in a data breach.
     ///

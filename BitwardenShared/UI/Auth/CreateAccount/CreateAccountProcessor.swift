@@ -8,6 +8,9 @@ import Combine
 enum CreateAccountError: Error {
     /// The password was found in data breaches.
     case passwordBreachesFound
+
+    /// The terms of service and privacy policy have not been acknowledged.
+    case acceptPoliciesError
 }
 
 // MARK: - CreateAccountProcessor
@@ -116,8 +119,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
         do {
             guard state.isTermsAndPrivacyToggleOn else {
-                // TODO: BIT-681
-                return
+                throw CreateAccountError.acceptPoliciesError
             }
 
             let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
@@ -147,6 +149,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                     masterPasswordHint: state.passwordHintText
                 )
             )
+        } catch CreateAccountError.acceptPoliciesError {
+            coordinator.navigate(to: .alert(.acceptPoliciesAlert()))
         } catch {
             // TODO: BIT-681
         }
