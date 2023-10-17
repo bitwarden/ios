@@ -110,7 +110,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     ///
     /// - Parameter captchaToken: The token returned when the captcha flow has completed.
     ///
-    private func createAccount(captchaToken: String? = "") async {
+    private func createAccount(captchaToken: String? = nil) async {
         let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard email.isValidEmail else {
             coordinator.navigate(to: .alert(.invalidEmail))

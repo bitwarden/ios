@@ -8,14 +8,14 @@ import XCTest
 class CreateAccountRequestTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subjectAuthorizationCode: CreateAccountRequest!
+    var subject: CreateAccountRequest!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        subjectAuthorizationCode = CreateAccountRequest(
+        subject = CreateAccountRequest(
             body: CreateAccountRequestModel(
                 email: "example@email.com",
                 kdfConfig: KdfConfig(),
@@ -30,7 +30,7 @@ class CreateAccountRequestTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        subjectAuthorizationCode = nil
+        subject = nil
     }
 
     // MARK: Tests
@@ -88,7 +88,7 @@ class CreateAccountRequestTests: BitwardenTestCase {
             body: APITestData.createAccountCaptchaFailure.data
         )
 
-        XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
+        XCTAssertThrowsError(try subject.validate(response)) { error in
             XCTAssertEqual(
                 error as? CreateAccountRequestError,
                 .captchaRequired(hCaptchaSiteCode: "bc38c8a2-5311-4e8c-9dfc-49e99f6df417")
@@ -103,7 +103,7 @@ class CreateAccountRequestTests: BitwardenTestCase {
             body: Data("example data".utf8)
         )
 
-        XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))
+        XCTAssertNoThrow(try subject.validate(response))
     }
 
     /// `validate(_:)` with a valid response does not throw a validation error.
@@ -112,7 +112,7 @@ class CreateAccountRequestTests: BitwardenTestCase {
             body: APITestData.createAccountSuccess.data
         )
 
-        XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))
+        XCTAssertNoThrow(try subject.validate(response))
     }
 
     // MARK: Init
