@@ -2,12 +2,11 @@ import UIKit
 
 // MARK: - TabRoute
 
-/// The enumeration of tabs displayed by the application. The raw value must map to the index of the tab as it is
-/// displayed within a tab bar controller.
+/// The enumeration of tabs displayed by the application.
 ///
-public enum TabRoute: Int, Equatable, Hashable {
+public enum TabRoute: Equatable, Hashable {
     /// The vault tab.
-    case vault
+    case vault(VaultRoute)
 
     /// The send tab.
     case send
@@ -28,6 +27,15 @@ extension TabRoute: TabRepresentable {
         case .send: return Asset.Images.send.image
         case .settings: return Asset.Images.gear.image
         case .vault: return Asset.Images.locked.image
+        }
+    }
+
+    public var index: Int {
+        switch self {
+        case .vault: return 0
+        case .send: return 1
+        case .generator: return 2
+        case .settings: return 3
         }
     }
 
