@@ -8,6 +8,9 @@ import Combine
 enum CreateAccountError: Error {
     /// The password was found in data breaches.
     case passwordBreachesFound
+
+    /// The terms of service and privacy policy have not been acknowledged.
+    case acceptPoliciesError
 }
 
 // MARK: - CreateAccountProcessor
@@ -102,7 +105,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             }
             coordinator.navigate(to: .alert(alert))
         } catch {
-            // TODO: BIT-739
+            // TODO: BIT-739 HIBP network request failure error dialogue
         }
     }
 
@@ -117,12 +120,11 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             return
         }
 
-        guard state.isTermsAndPrivacyToggleOn else {
-            // TODO: BIT-681
-            return
-        }
-
         do {
+            guard state.isTermsAndPrivacyToggleOn else {
+                throw CreateAccountError.acceptPoliciesError
+            }
+
             let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
 
             let keys = try await services.clientAuth.makeRegisterKeys(
@@ -157,10 +159,15 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 region: LoginState().region,
                 isLoginWithDeviceVisible: LoginState().isLoginWithDeviceVisible
             ))
+        } catch CreateAccountError.acceptPoliciesError {
+            coordinator.navigate(to: .alert(.acceptPoliciesAlert()))
         } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
             launchCaptchaFlow(with: siteCode)
         } catch {
-            // TODO: BIT-681
+            // TODO: BIT-860 Email errors
+            // TODO: BIT-861 Password/Hint fields errors
+            // TODO: BIT-863 Networking errors
+            // TODO: BIT-864 Account already exists error
         }
     }
 
@@ -181,7 +188,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 context: self
             )
         } catch {
-            // TODO: BIT-681
+            // TODO: BIT-887 Show alert for when hCaptcha fails
             print(error)
         }
     }

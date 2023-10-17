@@ -213,17 +213,17 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
     }
 
-    /// `perform(_:)` with `.createAccount` creates the user's account.
+    /// `perform(_:)` with `.createAccount` navigates to an error alert when the terms of service
+    /// and privacy policy toggle is off.
     func test_perform_createAccount_withTermsAndServicesToggle_false() async {
         client.result = .httpSuccess(testData: .createAccountSuccess)
-        subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = false
         subject.state.emailText = "email@example.com"
 
         await subject.perform(.createAccount)
 
-        XCTAssertEqual(client.requests.count, 1)
-        // TODO: BIT-681 Add an assertion here for an error alert.
+        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(coordinator.routes.last, .alert(.acceptPoliciesAlert()))
     }
 
     /// `receive(_:)` with `.emailTextChanged(_:)` updates the state to reflect the change.
