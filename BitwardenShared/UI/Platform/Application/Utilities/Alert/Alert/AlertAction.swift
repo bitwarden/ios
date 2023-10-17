@@ -50,3 +50,10 @@ extension AlertAction: Equatable {
         }
     }
 }
+
+extension AlertAction: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(style)
+        hasher.combine(title)
+    }
+}

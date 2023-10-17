@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The repository used by the application to manage data for the UI layer.
+    let settingsRepository: SettingsRepository
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -59,6 +62,7 @@ public class ServiceContainer: Services {
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - tokenService: The service used by the application to manage account access tokens.
@@ -70,6 +74,7 @@ public class ServiceContainer: Services {
         baseUrlService: BaseUrlService,
         captchaService: CaptchaService,
         clientService: ClientService,
+        settingsRepository: SettingsRepository,
         stateService: StateService,
         systemDevice: SystemDevice,
         tokenService: TokenService
@@ -80,6 +85,7 @@ public class ServiceContainer: Services {
         self.baseUrlService = baseUrlService
         self.captchaService = captchaService
         self.clientService = clientService
+        self.settingsRepository = settingsRepository
         self.stateService = stateService
         self.systemDevice = systemDevice
         self.tokenService = tokenService
@@ -109,6 +115,7 @@ public class ServiceContainer: Services {
             clientCrypto: clientService.clientCrypto(),
             stateService: stateService
         )
+        let settingsRepository = DefaultSettingsRepository(stateService: stateService)
 
         self.init(
             apiService: APIService(baseUrlService: baseUrlService, tokenService: tokenService),
@@ -117,6 +124,7 @@ public class ServiceContainer: Services {
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
             clientService: clientService,
+            settingsRepository: settingsRepository,
             stateService: stateService,
             systemDevice: UIDevice.current,
             tokenService: tokenService

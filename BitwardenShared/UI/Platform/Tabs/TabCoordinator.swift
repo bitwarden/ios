@@ -9,7 +9,8 @@ internal final class TabCoordinator: Coordinator {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
-    typealias Module = VaultModule
+    typealias Module = SettingsModule
+        & VaultModule
 
     // MARK: Properties
 
@@ -24,6 +25,12 @@ internal final class TabCoordinator: Coordinator {
     /// The module used to create child coordinators.
     private let module: Module
 
+    /// The coordinator used to navigate to `SettingsRoute`s.
+    private var settingsCoordinator: AnyCoordinator<SettingsRoute>?
+
+    /// A delegate of the `SettingsCoordinator`.
+    private var settingsDelegate: SettingsCoordinatorDelegate?
+
     /// The coordinator used to navigate to `VaultRoute`s.
     private var vaultCoordinator: AnyCoordinator<VaultRoute>?
 
@@ -34,15 +41,18 @@ internal final class TabCoordinator: Coordinator {
     /// - Parameters:
     ///   - module: The module used to create child coordinators.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
+    ///   - settingsDelegate: A delegate of the `SettingsCoordinator`.
     ///   - tabNavigator: The tab navigator that is managed by this coordinator.
     ///
     init(
         module: Module,
         rootNavigator: RootNavigator,
+        settingsDelegate: SettingsCoordinatorDelegate,
         tabNavigator: TabNavigator
     ) {
         self.module = module
         self.rootNavigator = rootNavigator
+        self.settingsDelegate = settingsDelegate
         self.tabNavigator = tabNavigator
     }
 
@@ -63,9 +73,8 @@ internal final class TabCoordinator: Coordinator {
         case .generator:
             // TODO: BIT-327 Add show generation function for navigation to a generator route
             break
-        case .settings:
-            // TODO: BIT-86 Add show settings function for navigating to a settings route
-            break
+        case let .settings(settingsRoute):
+            settingsCoordinator?.navigate(to: settingsRoute, context: context)
         }
     }
 
@@ -78,7 +87,7 @@ internal final class TabCoordinator: Coordinator {
     }
 
     func start() {
-        guard let rootNavigator else { return }
+        guard let rootNavigator, let settingsDelegate else { return }
 
         rootNavigator.show(child: tabNavigator)
 
@@ -95,13 +104,18 @@ internal final class TabCoordinator: Coordinator {
         generatorNavigator.push(Text("Generator"))
 
         let settingsNavigator = UINavigationController()
-        settingsNavigator.push(Text("Settings"))
+        settingsNavigator.navigationBar.prefersLargeTitles = true
+        settingsCoordinator = module.makeSettingsCoordinator(
+            delegate: settingsDelegate,
+            stackNavigator: settingsNavigator
+        )
+        settingsCoordinator?.start()
 
         let tabsAndNavigators: [TabRoute: Navigator] = [
             .vault(.list): vaultNavigator,
             .send: sendNavigator,
             .generator: generatorNavigator,
-            .settings: settingsNavigator,
+            .settings(.settings): settingsNavigator,
         ]
         tabNavigator.setNavigators(tabsAndNavigators)
     }

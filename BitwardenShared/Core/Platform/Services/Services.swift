@@ -10,6 +10,8 @@ typealias Services = HasAccountAPIService
     & HasCaptchaService
     & HasClientAuth
     & HasDeviceAPIService
+    & HasSettingsRepository
+    & HasStateService
     & HasSystemDevice
     & HasVaultRepository
 
@@ -79,6 +81,20 @@ protocol HasClientAuth {
 protocol HasDeviceAPIService {
     /// The service used by the application to make device-related API requests.
     var deviceAPIService: DeviceAPIService { get }
+}
+
+/// Protocol for an object that provides a `SettingsRepository`.
+///
+protocol HasSettingsRepository {
+    /// The repository used by the application to manage data and services access for the UI layer.
+    var settingsRepository: SettingsRepository { get }
+}
+
+/// Protocol for an object that provides a `StateService`.
+///
+protocol HasStateService {
+    /// The service used by the application to manage account state.
+    var stateService: StateService { get }
 }
 
 /// Protocol for an object that provides a `SystemDevice`.

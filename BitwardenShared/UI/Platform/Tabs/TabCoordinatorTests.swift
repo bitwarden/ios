@@ -23,6 +23,7 @@ class TabCoordinatorTests: BitwardenTestCase {
         subject = TabCoordinator(
             module: module,
             rootNavigator: rootNavigator,
+            settingsDelegate: MockSettingsCoordinatorDelegate(),
             tabNavigator: tabNavigator
         )
     }
@@ -51,8 +52,10 @@ class TabCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.settings` sets the correct selected index on tab navigator.
     func test_navigate_settings() {
-        subject.navigate(to: .settings)
+        subject.start()
+        subject.navigate(to: .settings(.settings))
         XCTAssertEqual(tabNavigator.selectedIndex, 3)
+        XCTAssertEqual(module.settingsCoordinator.routes, [.settings])
     }
 
     /// `navigate(to:)` with `.vault(.list)` sets the correct selected index on tab navigator.
@@ -67,6 +70,7 @@ class TabCoordinatorTests: BitwardenTestCase {
         subject = TabCoordinator(
             module: module,
             rootNavigator: rootNavigator!,
+            settingsDelegate: MockSettingsCoordinatorDelegate(),
             tabNavigator: tabNavigator
         )
         XCTAssertNotNil(subject.rootNavigator)
@@ -104,7 +108,7 @@ class TabCoordinatorTests: BitwardenTestCase {
         // Placeholder assertion until the generator screen is added: BIT-331
         XCTAssertTrue(tabNavigator.navigators[2] is StackNavigator)
 
-        // Placeholder assertion until the settings screen is added: BIT-150
         XCTAssertTrue(tabNavigator.navigators[3] is StackNavigator)
+        XCTAssertTrue(module.settingsCoordinator.isStarted)
     }
 }

@@ -70,17 +70,10 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     /// Shows an alert asking the user to confirm that they want to logout.
     ///
     private func showLogoutConfirmation() {
-        let alert = Alert(
-            title: Localizations.logOut,
-            message: Localizations.logoutConfirmation,
-            alertActions: [
-                AlertAction(title: Localizations.yes, style: .default) { _ in
-                    try? await self.services.authRepository.logout()
-                    self.coordinator.navigate(to: .landing)
-                },
-                AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
-        )
+        let alert = Alert.logoutConfirmation {
+            try? await self.services.authRepository.logout()
+            self.coordinator.navigate(to: .landing)
+        }
         coordinator.navigate(to: .alert(alert))
     }
 

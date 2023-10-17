@@ -43,7 +43,12 @@ public class AppProcessor {
     public func start(navigator: RootNavigator) {
         let coordinator = appModule.makeAppCoordinator(navigator: navigator)
         coordinator.start()
-        coordinator.navigate(to: .auth(.landing))
         self.coordinator = coordinator
+
+        if services.appSettingsStore.state?.activeAccount != nil {
+            coordinator.navigate(to: .auth(.vaultUnlock))
+        } else {
+            coordinator.navigate(to: .auth(.landing))
+        }
     }
 }
