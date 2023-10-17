@@ -7,7 +7,7 @@ extension Alert {
 
     /// An alert notifying the user that they haven't agreed to the terms of service and privacy policy.
     ///
-    /// - Returns An alert notifying the user that they haven't agreed to the terms of service and privacy policy.
+    /// - Returns: An alert notifying the user that they haven't agreed to the terms of service and privacy policy.
     ///
     static func acceptPoliciesAlert() -> Alert {
         Alert(
@@ -24,7 +24,7 @@ extension Alert {
     ///
     /// - Parameter action: The action to perform when the user taps `Yes`, opting to use the password anyways.
     ///
-    /// - Returns An alert notifying the user that their entered password has been found in a data breach.
+    /// - Returns: An alert notifying the user that their entered password has been found in a data breach.
     ///
     static func breachesAlert(
         _ action: @escaping () async -> Void

@@ -213,7 +213,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
     }
 
-    /// `perform(_:)` with `.createAccount` throws an error when the terms of service
+    /// `perform(_:)` with `.createAccount` navigates to an error alert when the terms of service
     /// and privacy policy toggle is off.
     func test_perform_createAccount_withTermsAndServicesToggle_false() async {
         client.result = .httpSuccess(testData: .createAccountSuccess)
