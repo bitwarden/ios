@@ -115,3 +115,13 @@ extension Alert: Equatable {
             && lhs.title == rhs.title
     }
 }
+
+extension Alert: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(alertActions)
+        hasher.combine(message)
+        hasher.combine(preferredAction)
+        hasher.combine(preferredStyle)
+        hasher.combine(title)
+    }
+}
