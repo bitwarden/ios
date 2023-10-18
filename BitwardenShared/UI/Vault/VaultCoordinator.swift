@@ -30,8 +30,14 @@ final class VaultCoordinator: Coordinator {
         switch route {
         case .addItem:
             showAddItem()
+        case let .alert(alert):
+            stackNavigator.present(alert)
+        case .generator:
+            showGenerator()
         case .list:
             showList()
+        case .setupTotpCamera:
+            showCamera()
         }
     }
 
@@ -46,19 +52,46 @@ final class VaultCoordinator: Coordinator {
     /// Shows the add item screen.
     ///
     private func showAddItem() {
-        let view = Text("Add Item")
-        stackNavigator.push(view)
+        let processor = AddItemProcessor(
+            coordinator: asAnyCoordinator(),
+            state: AddItemState()
+        )
+        let store = Store(processor: processor)
+        let view = AddItemView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
+    }
+
+    /// Shows the totp camera setup screen.
+    ///
+    private func showCamera() {
+        // TODO: BIT-874 Update to show the actual camera screen
+        let view = Text("Camera")
+        stackNavigator.present(view)
+    }
+
+    /// Shows the generator screen.
+    ///
+    private func showGenerator() {
+        // TODO: BIT-875 Update to show the actual generator screen
+        let view = Text("Generator")
+        stackNavigator.present(view)
     }
 
     /// Shows the vault list screen.
     ///
     private func showList() {
-        let processor = VaultListProcessor(
-            coordinator: asAnyCoordinator(),
-            state: VaultListState()
-        )
-        let store = Store(processor: processor)
-        let view = VaultListView(store: store)
-        stackNavigator.push(view)
+        if stackNavigator.isPresenting {
+            stackNavigator.dismiss()
+        } else {
+            let processor = VaultListProcessor(
+                coordinator: asAnyCoordinator(),
+                state: VaultListState()
+            )
+            let store = Store(processor: processor)
+            let view = VaultListView(store: store)
+            stackNavigator.replace(view, animated: false)
+        }
     }
 }
