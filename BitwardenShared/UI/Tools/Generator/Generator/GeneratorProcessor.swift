@@ -34,5 +34,18 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     // MARK: Methods
 
-    override func receive(_ action: GeneratorAction) {}
+    override func receive(_ action: GeneratorAction) {
+        switch action {
+        case .copyGeneratedValue:
+            break
+        case .refreshGeneratedValue:
+            break
+        case let .sliderValueChanged(field, value):
+            state[keyPath: field.keyPath] = value
+        case let .stepperValueChanged(field, value):
+            state[keyPath: field.keyPath] = value
+        case let .toggleValueChanged(field, isOn):
+            state[keyPath: field.keyPath] = isOn
+        }
+    }
 }
