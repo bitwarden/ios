@@ -21,6 +21,13 @@ class StackNavigatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    func test_isPresenting() {
+        XCTAssertFalse(subject.isPresenting)
+
+        subject.present(EmptyView(), animated: false)
+        XCTAssertTrue(subject.isPresenting)
+    }
+
     /// `present(_:animated:)` presents the hosted view.
     func test_present() {
         subject.present(EmptyView(), animated: false)
