@@ -39,7 +39,7 @@ class TabCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.generator` sets the correct selected index on tab navigator.
     func test_navigate_generator() {
-        subject.navigate(to: .generator)
+        subject.navigate(to: .generator(.generator))
         XCTAssertEqual(tabNavigator.selectedIndex, 2)
     }
 
@@ -101,8 +101,8 @@ class TabCoordinatorTests: BitwardenTestCase {
         // Placeholder assertion until the send screen is added: BIT-249
         XCTAssertTrue(tabNavigator.navigators[1] is StackNavigator)
 
-        // Placeholder assertion until the generator screen is added: BIT-331
         XCTAssertTrue(tabNavigator.navigators[2] is StackNavigator)
+        XCTAssertTrue(module.generatorCoordinator.isStarted)
 
         // Placeholder assertion until the settings screen is added: BIT-150
         XCTAssertTrue(tabNavigator.navigators[3] is StackNavigator)
