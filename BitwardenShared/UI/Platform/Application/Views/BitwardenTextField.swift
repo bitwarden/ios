@@ -100,7 +100,7 @@ struct BitwardenTextField: View {
 
     /// The buttons displayed on the trailing edge of the text field.
     @ViewBuilder private var textFieldButtons: some View {
-        if isPasswordVisible != nil || buttons.isEmpty {
+        if isPasswordVisible != nil || !buttons.isEmpty {
             HStack(spacing: 8) {
                 if let isPasswordVisible {
                     accessoryButton(
