@@ -25,13 +25,13 @@ struct BitwardenTextField: View {
     // MARK: Properties
 
     /// The auto-capitalization type for the text field.
-    let autoCaptializationType: TextInputAutocapitalization
+    let autoCapitalizationType: TextInputAutocapitalization
 
     /// A list of additional buttons that appear on the trailing edge of a textfield.
     let buttons: [AccessoryButton]
 
     /// The text content type used for the text field.
-    let contentType: UITextContentType
+    let contentType: UITextContentType?
 
     /// Whether a password in this text field is visible.
     let isPasswordVisible: Binding<Bool>?
@@ -76,7 +76,7 @@ struct BitwardenTextField: View {
                     .id(title)
                     .keyboardType(keyboardType)
                     .textContentType(contentType)
-                    .textInputAutocapitalization(autoCaptializationType)
+                    .textInputAutocapitalization(autoCapitalizationType)
                 if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
                         .id(title)
@@ -143,7 +143,7 @@ struct BitwardenTextField: View {
     ///   - title: The title of the text field.
     ///   - buttons: A list of additional buttons that appear on the trailing edge of a textfield.
     ///   - contentType: The text content type used for the text field.
-    ///   - autoCaptializationType: The auto-capitalization type for the text field.
+    ///   - autoCapitalizationType: The auto-capitalization type for the text field.
     ///   - keyboardType: The type of keyboard to use.
     ///   - isPasswordVisible: Whether or not the password in the text field is visible.
     ///   - placeholder: An optional placeholder to display in the text field.
@@ -152,14 +152,14 @@ struct BitwardenTextField: View {
     init(
         title: String? = nil,
         buttons: [AccessoryButton] = [],
-        contentType: UITextContentType,
+        contentType: UITextContentType? = nil,
         autoCapitalizationType: TextInputAutocapitalization = .sentences,
         keyboardType: UIKeyboardType = .default,
         isPasswordVisible: Binding<Bool>? = nil,
         placeholder: String? = nil,
         text: Binding<String>
     ) {
-        autoCaptializationType = autoCapitalizationType
+        self.autoCapitalizationType = autoCapitalizationType
         self.buttons = buttons
         self.contentType = contentType
         self.isPasswordVisible = isPasswordVisible
