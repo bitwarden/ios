@@ -7,7 +7,8 @@ import SwiftUI
 struct BitwardenToggleStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         Toggle(configuration)
-            .tint(Color(asset: Asset.Colors.primaryBitwarden))
+            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
     }
 }
 
