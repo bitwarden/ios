@@ -94,8 +94,8 @@ struct CreateAccountView: View {
         VStack(spacing: 16) {
             BitwardenTextField(
                 title: Localizations.emailAddress,
-                contentType: .emailAddress,
                 autoCapitalizationType: .never,
+                contentType: .emailAddress,
                 keyboardType: .emailAddress,
                 text: store.binding(
                     get: \.emailText,
@@ -105,8 +105,8 @@ struct CreateAccountView: View {
 
             BitwardenTextField(
                 title: Localizations.masterPassword,
-                contentType: .password,
                 autoCapitalizationType: .never,
+                contentType: .password,
                 isPasswordVisible: store.binding(
                     get: \.arePasswordsVisible,
                     send: CreateAccountAction.togglePasswordVisibility
@@ -141,8 +141,8 @@ struct CreateAccountView: View {
     private var retypePassword: some View {
         BitwardenTextField(
             title: Localizations.retypeMasterPassword,
-            contentType: .password,
             autoCapitalizationType: .never,
+            contentType: .password,
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,
                 send: CreateAccountAction.togglePasswordVisibility

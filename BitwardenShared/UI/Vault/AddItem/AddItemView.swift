@@ -34,6 +34,7 @@ struct AddItemView: View {
 
                     BitwardenTextField(
                         title: Localizations.username,
+                        autoCapitalizationType: .never,
                         buttons: [
                             .init(
                                 accessibilityLabel: Localizations.generateUsername,
@@ -50,6 +51,7 @@ struct AddItemView: View {
 
                     BitwardenTextField(
                         title: Localizations.password,
+                        autoCapitalizationType: .never,
                         buttons: [
                             .init(
                                 accessibilityLabel: Localizations.checkPassword,
@@ -94,6 +96,7 @@ struct AddItemView: View {
                 section(title: Localizations.urIs) {
                     BitwardenTextField(
                         title: Localizations.uri,
+                        autoCapitalizationType: .never,
                         buttons: [
                             .init(
                                 accessibilityLabel: Localizations.settings,
@@ -101,6 +104,7 @@ struct AddItemView: View {
                                 icon: Asset.Images.gear
                             ),
                         ],
+                        keyboardType: .URL,
                         text: store.binding(
                             get: \.uri,
                             send: AddItemAction.uriChanged

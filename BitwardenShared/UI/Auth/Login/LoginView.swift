@@ -53,8 +53,8 @@ struct LoginView: View {
         VStack(alignment: .leading, spacing: 8) {
             BitwardenTextField(
                 title: Localizations.masterPassword,
-                contentType: .password,
                 autoCapitalizationType: .never,
+                contentType: .password,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: LoginAction.revealMasterPasswordFieldPressed

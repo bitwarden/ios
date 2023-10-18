@@ -43,7 +43,6 @@ struct BitwardenTextField: View {
             self.icon = icon
         }
 
-
         /// Creates a new `AccessoryButton`.
         ///
         /// - Parameters:
@@ -177,9 +176,9 @@ struct BitwardenTextField: View {
     ///
     /// - Parameters:
     ///   - title: The title of the text field.
+    ///   - autoCapitalizationType: The auto-capitalization type for the text field.
     ///   - buttons: A list of additional buttons that appear on the trailing edge of a textfield.
     ///   - contentType: The text content type used for the text field.
-    ///   - autoCapitalizationType: The auto-capitalization type for the text field.
     ///   - keyboardType: The type of keyboard to use.
     ///   - isPasswordVisible: Whether or not the password in the text field is visible.
     ///   - placeholder: An optional placeholder to display in the text field.
@@ -187,9 +186,9 @@ struct BitwardenTextField: View {
     ///
     init(
         title: String? = nil,
+        autoCapitalizationType: TextInputAutocapitalization = .sentences,
         buttons: [AccessoryButton] = [],
         contentType: UITextContentType? = nil,
-        autoCapitalizationType: TextInputAutocapitalization = .sentences,
         keyboardType: UIKeyboardType = .default,
         isPasswordVisible: Binding<Bool>? = nil,
         placeholder: String? = nil,
