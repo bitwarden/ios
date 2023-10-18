@@ -43,7 +43,7 @@ class AppProcessorTests: BitwardenTestCase {
         subject.start(navigator: rootNavigator)
 
         XCTAssertTrue(appModule.appCoordinator.isStarted)
-        XCTAssertEqual(appModule.appCoordinator.routes, [.auth(.vaultUnlock)])
+        XCTAssertEqual(appModule.appCoordinator.routes, [.auth(.vaultUnlock(.fixture()))])
     }
 
     /// `start(navigator:)` builds the AppCoordinator and navigates to the landing view if there

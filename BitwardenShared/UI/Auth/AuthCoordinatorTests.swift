@@ -143,7 +143,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.vaultUnlock` pushes the vault unlock view onto the stack navigator.
     func test_navigate_vaultUnlock() {
-        subject.navigate(to: .vaultUnlock)
+        subject.navigate(to: .vaultUnlock(.fixture()))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
         XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)

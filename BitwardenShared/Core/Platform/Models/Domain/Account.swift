@@ -1,6 +1,6 @@
 /// Domain model for a user account.
 ///
-struct Account: Codable, Equatable {
+public struct Account: Codable, Equatable {
     // MARK: Properties
 
     /// The account's profile details.
