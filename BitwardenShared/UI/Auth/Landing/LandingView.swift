@@ -38,13 +38,20 @@ struct LandingView: View {
                 Button {
                     store.send(.regionPressed)
                 } label: {
-                    Group {
-                        Text("\(Localizations.loggingInOn): ")
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                            + Text(store.state.region.baseUrlDescription)
+                    HStack(spacing: 4) {
+                        Group {
+                            Text("\(Localizations.loggingInOn): ")
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                + Text(store.state.region.baseUrlDescription)
+                                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        }
+                        .font(.styleGuide(.subheadline))
+
+                        Asset.Images.downTriangle.swiftUIImage
+                            .resizable()
+                            .frame(width: 12, height: 12)
                             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                     }
-                    .font(.styleGuide(.subheadline))
                 }
 
                 Toggle(Localizations.rememberMe, isOn: store.binding(
