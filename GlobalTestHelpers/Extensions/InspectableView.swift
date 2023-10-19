@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import ViewInspector
 
 /// A generic type wrapper around `AsyncButton` to allow `ViewInspector` to find instances of `AsyncButton` without
