@@ -24,20 +24,11 @@ struct BitwardenTextField: View {
 
     // MARK: Properties
 
-    /// The auto-capitalization type for the text field.
-    let autoCaptializationType: TextInputAutocapitalization
-
     /// A list of additional buttons that appear on the trailing edge of a textfield.
     let buttons: [AccessoryButton]
 
-    /// The text content type used for the text field.
-    let contentType: UITextContentType
-
     /// Whether a password in this text field is visible.
     let isPasswordVisible: Binding<Bool>?
-
-    /// The type of keyboard to use.
-    let keyboardType: UIKeyboardType
 
     /// The placeholder that is displayed in the textfield.
     let placeholder: String
@@ -67,16 +58,13 @@ struct BitwardenTextField: View {
     private var textField: some View {
         HStack(spacing: 8) {
             ZStack {
-                let isPassword = contentType == .password
+                let isPassword = isPasswordVisible != nil
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
                 TextField(placeholder, text: $text)
                     .font(.styleGuide(isPassword ? .bodyMonospaced : .body))
-                    .hidden(!isPasswordVisible && contentType == .password)
+                    .hidden(!isPasswordVisible && isPassword)
                     .id(title)
-                    .keyboardType(keyboardType)
-                    .textContentType(contentType)
-                    .textInputAutocapitalization(autoCaptializationType)
                 if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
                         .id(title)
@@ -142,9 +130,6 @@ struct BitwardenTextField: View {
     /// - Parameters:
     ///   - title: The title of the text field.
     ///   - buttons: A list of additional buttons that appear on the trailing edge of a textfield.
-    ///   - contentType: The text content type used for the text field.
-    ///   - autoCaptializationType: The auto-capitalization type for the text field.
-    ///   - keyboardType: The type of keyboard to use.
     ///   - isPasswordVisible: Whether or not the password in the text field is visible.
     ///   - placeholder: An optional placeholder to display in the text field.
     ///   - text: The text entered into the text field.
@@ -152,18 +137,12 @@ struct BitwardenTextField: View {
     init(
         title: String? = nil,
         buttons: [AccessoryButton] = [],
-        contentType: UITextContentType,
-        autoCapitalizationType: TextInputAutocapitalization = .sentences,
-        keyboardType: UIKeyboardType = .default,
         isPasswordVisible: Binding<Bool>? = nil,
         placeholder: String? = nil,
         text: Binding<String>
     ) {
-        autoCaptializationType = autoCapitalizationType
         self.buttons = buttons
-        self.contentType = contentType
         self.isPasswordVisible = isPasswordVisible
-        self.keyboardType = keyboardType
         self.placeholder = placeholder ?? ""
         _text = text
         self.title = title
@@ -199,9 +178,9 @@ struct BitwardenTextField_Previews: PreviewProvider {
         VStack {
             BitwardenTextField(
                 title: "Title",
-                contentType: .emailAddress,
                 text: .constant("Text field text")
             )
+            .textContentType(.emailAddress)
             .padding()
         }
         .background(Color(.systemGroupedBackground))
@@ -210,10 +189,10 @@ struct BitwardenTextField_Previews: PreviewProvider {
         VStack {
             BitwardenTextField(
                 title: "Title",
-                contentType: .password,
                 isPasswordVisible: .constant(false),
                 text: .constant("Text field text")
             )
+            .textContentType(.password)
             .padding()
         }
         .background(Color(.systemGroupedBackground))
@@ -222,10 +201,10 @@ struct BitwardenTextField_Previews: PreviewProvider {
         VStack {
             BitwardenTextField(
                 title: "Title",
-                contentType: .password,
                 isPasswordVisible: .constant(true),
                 text: .constant("Password")
             )
+            .textContentType(.password)
             .padding()
         }
         .background(Color(.systemGroupedBackground))
@@ -241,8 +220,6 @@ struct BitwardenTextField_Previews: PreviewProvider {
                         icon: Asset.Images.cog
                     ),
                 ],
-                contentType: .password,
-                isPasswordVisible: .constant(false),
                 text: .constant("Text field text")
             )
             .padding()

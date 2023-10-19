@@ -27,14 +27,14 @@ struct LandingView: View {
 
                 BitwardenTextField(
                     title: Localizations.emailAddress,
-                    contentType: .emailAddress,
-                    autoCapitalizationType: .never,
-                    keyboardType: .emailAddress,
                     text: store.binding(
                         get: \.email,
                         send: LandingAction.emailChanged
                     )
                 )
+                .textContentType(.emailAddress)
+                .keyboardType(.emailAddress)
+                .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
 
                 Button {
