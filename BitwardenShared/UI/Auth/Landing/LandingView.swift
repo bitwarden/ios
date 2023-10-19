@@ -79,7 +79,7 @@ struct LandingView: View {
             }
             .padding([.horizontal, .bottom], 16)
         }
-        .background(Asset.Colors.backgroundGroupedPrimary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationBarTitle(Localizations.bitwarden, displayMode: .inline)
     }
 }
