@@ -5,9 +5,12 @@ import SwiftUI
 /// A view that allows the user to add a new item to a vault.
 ///
 struct AddItemView: View {
-    // MARK: Properties
+    // MARK: Private Properties
 
-    @Environment(\.openURL) var openURL
+    /// An object used to open urls in this view.
+    @Environment(\.openURL) private var openURL
+
+    // MARK: Properties
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddItemState, AddItemAction, AddItemEffect>
@@ -99,7 +102,7 @@ struct AddItemView: View {
                         autoCapitalizationType: .never,
                         buttons: [
                             .init(
-                                accessibilityLabel: Localizations.settings,
+                                accessibilityLabel: Localizations.uriMatchDetection,
                                 action: { store.send(.uriSettingsPressed) },
                                 icon: Asset.Images.gear
                             ),
@@ -152,6 +155,7 @@ struct AddItemView: View {
                             send: AddItemAction.notesChanged
                         )
                     )
+                    .accessibilityLabel(Localizations.notes)
                 }
 
                 section(title: Localizations.customFields) {
@@ -199,6 +203,14 @@ struct AddItemView: View {
         }
     }
 
+    // MARK: Methods
+
+    /// Creates a section with a title hosted in a title view.
+    ///
+    /// - Parameters:
+    ///   - title: The title of this section.
+    ///   - content: The content to place below the title view in this section.
+    ///
     @ViewBuilder
     private func section(title: String, @ViewBuilder content: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -208,18 +220,6 @@ struct AddItemView: View {
 
             content()
         }
-    }
-
-    /// Creates a section title view.
-    ///
-    /// - Parameter title: The title to display in this view.
-    /// - Returns: A title view representation.
-    ///
-    @ViewBuilder
-    private func sectionTitle(_ title: String) -> some View {
-        Text(title.uppercased())
-            .font(.footnote)
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
     }
 }
 

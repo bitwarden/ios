@@ -1,7 +1,7 @@
 // MARK: - AddItemAction
 
 /// Actions that can be handled by an `AddItemProcessor`.
-enum AddItemAction {
+enum AddItemAction: Equatable {
     /// The dismiss button was pressed.
     case dismissPressed
 
@@ -37,9 +37,6 @@ enum AddItemAction {
 
     /// The setup totp button was pressed.
     case setupTotpPressed
-
-    /// The toggle folder visibility button was changed.
-    case toggleFolderVisibilityChanged(Bool)
 
     /// The toggle password visibility button was changed.
     case togglePasswordVisibilityChanged(Bool)

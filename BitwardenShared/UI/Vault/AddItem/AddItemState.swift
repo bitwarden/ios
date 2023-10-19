@@ -11,9 +11,6 @@ struct AddItemState {
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool = false
 
-    /// A flag indicating if the folder field is visible.
-    var isFolderVisible: Bool = false
-
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool = false
 

@@ -59,8 +59,6 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
             state.password = newValue
         case .setupTotpPressed:
             coordinator.navigate(to: .setupTotpCamera)
-        case let .toggleFolderVisibilityChanged(newValue):
-            state.isFolderVisible = newValue
         case let .togglePasswordVisibilityChanged(newValue):
             state.isPasswordVisible = newValue
         case let .typeChanged(newValue):

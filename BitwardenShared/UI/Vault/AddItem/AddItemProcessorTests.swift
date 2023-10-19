@@ -214,28 +214,6 @@ class AddItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
     }
 
-    /// `receive(_:)` with `.toggleFolderVisibilityChanged` with `true` updates the state correctly.
-    func test_receive_toggleFolderVisibilityChanged_withTrue() {
-        subject.state.isFolderVisible = false
-
-        subject.receive(.toggleFolderVisibilityChanged(true))
-        XCTAssertTrue(subject.state.isFolderVisible)
-
-        subject.receive(.toggleFolderVisibilityChanged(true))
-        XCTAssertTrue(subject.state.isFolderVisible)
-    }
-
-    /// `receive(_:)` with `.toggleFolderVisibilityChanged` with `false` updates the state correctly.
-    func test_receive_toggleFolderVisibilityChanged_withFalse() {
-        subject.state.isFolderVisible = true
-
-        subject.receive(.toggleFolderVisibilityChanged(false))
-        XCTAssertFalse(subject.state.isFolderVisible)
-
-        subject.receive(.toggleFolderVisibilityChanged(false))
-        XCTAssertFalse(subject.state.isFolderVisible)
-    }
-
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.
     func test_receive_togglePasswordVisibilityChanged_withTrue() {
         subject.state.isPasswordVisible = false
