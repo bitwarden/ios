@@ -5,6 +5,25 @@ import XCTest
 class AccountTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `kdfConfig` returns the default KDF config if the KDF values are `nil`.
+    func test_kdfConfig_defaults() throws {
+        let subject = Account.fixture(
+            profile: .fixture(kdfIterations: nil, kdfMemory: nil, kdfParallelism: nil, kdfType: nil)
+        )
+        XCTAssertEqual(subject.kdf, KdfConfig(kdf: .pbkdf2sha256, kdfIterations: 600_000))
+    }
+
+    /// `kdfConfig` returns the KDF config for the account using the accounts KDF values.
+    func test_kdfConfig_values() throws {
+        let subject = Account.fixture(
+            profile: .fixture(kdfIterations: 1_000_000, kdfMemory: 64, kdfParallelism: 4, kdfType: .argon2id)
+        )
+        XCTAssertEqual(
+            subject.kdf,
+            KdfConfig(kdf: .argon2id, kdfIterations: 1_000_000, kdfMemory: 64, kdfParallelism: 4)
+        )
+    }
+
     /// `init(identityTokenResponseModel:)` initializes an account from an identity token response.
     func test_init_identityTokenResponseModel() throws {
         // swiftlint:disable:next line_length

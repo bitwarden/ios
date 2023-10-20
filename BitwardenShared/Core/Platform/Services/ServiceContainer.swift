@@ -24,6 +24,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to persist app setting values.
     let appSettingsStore: AppSettingsStore
 
+    /// The repository used by the application to manage auth data for the UI layer.
+    let authRepository: AuthRepository
+
     /// The service used by the application to retrieve the current base url for API requests.
     let baseUrlService: BaseUrlService
 
@@ -55,6 +58,7 @@ public class ServiceContainer: Services {
     /// - Parameters:
     ///   - apiService: The service used by the application to make API requests.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
+    ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
@@ -66,6 +70,7 @@ public class ServiceContainer: Services {
     init(
         apiService: APIService,
         appSettingsStore: AppSettingsStore,
+        authRepository: AuthRepository,
         baseUrlService: BaseUrlService,
         captchaService: CaptchaService,
         clientService: ClientService,
@@ -76,6 +81,7 @@ public class ServiceContainer: Services {
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
+        self.authRepository = authRepository
         self.baseUrlService = baseUrlService
         self.captchaService = captchaService
         self.clientService = clientService
@@ -105,11 +111,16 @@ public class ServiceContainer: Services {
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
         let tokenService = DefaultTokenService(stateService: stateService)
 
+        let authRepository = DefaultAuthRepository(
+            clientCrypto: clientService.clientCrypto(),
+            stateService: stateService
+        )
         let generatorRepository = DefaultGeneratorRepository()
 
         self.init(
             apiService: APIService(baseUrlService: baseUrlService, tokenService: tokenService),
             appSettingsStore: appSettingsStore,
+            authRepository: authRepository,
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
             clientService: clientService,

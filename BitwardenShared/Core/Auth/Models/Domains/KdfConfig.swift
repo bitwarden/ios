@@ -2,7 +2,7 @@
 
 /// A model for configuring KDF options.
 ///
-struct KdfConfig: Encodable, Equatable {
+struct KdfConfig: Encodable, Equatable, KdfConfigProtocol {
     // MARK: Properties
 
     /// The type of kdf used in the request.

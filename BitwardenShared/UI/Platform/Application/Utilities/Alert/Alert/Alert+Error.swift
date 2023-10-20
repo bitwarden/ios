@@ -25,4 +25,17 @@ extension Alert {
             ]
         )
     }
+
+    /// Creates an alert for an `InputValidationError`.
+    ///
+    /// - Parameter error: The error to create the alert for.
+    /// - Returns: An alert that can be displayed to the user for an `InputValidationError`.
+    ///
+    static func inputValidationAlert(error: InputValidationError) -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: error.message,
+            alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+        )
+    }
 }

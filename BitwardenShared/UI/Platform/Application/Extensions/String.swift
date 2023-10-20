@@ -22,15 +22,10 @@ extension String {
     // MARK: Properties
 
     /// A flag indicating if this string is considered a valid email address or not.
+    ///
+    /// An email is considered valid if it has at least one `@` symbol in it.
     var isValidEmail: Bool {
-        let regexPattern = "^[^\\s@]+@\\S+\\.\\S+$"
-        if #available(iOS 16, *) {
-            guard let emailRegex = try? Regex(regexPattern) else { return false }
-            return wholeMatch(of: emailRegex) != nil
-        } else {
-            guard let emailRegex = try? NSRegularExpression(pattern: regexPattern) else { return false }
-            return emailRegex.firstMatch(in: self, range: NSRange(startIndex..., in: self)) != nil
-        }
+        contains("@")
     }
 
     // MARK: Methods
