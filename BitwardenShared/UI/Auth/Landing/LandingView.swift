@@ -27,24 +27,33 @@ struct LandingView: View {
 
                 BitwardenTextField(
                     title: Localizations.emailAddress,
-                    contentType: .emailAddress,
                     text: store.binding(
                         get: \.email,
                         send: LandingAction.emailChanged
                     )
                 )
+                .textContentType(.emailAddress)
+                .keyboardType(.emailAddress)
+                .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
 
                 Button {
                     store.send(.regionPressed)
                 } label: {
-                    Group {
-                        Text("\(Localizations.loggingInOn): ")
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                            + Text(store.state.region.baseUrlDescription)
+                    HStack(spacing: 4) {
+                        Group {
+                            Text("\(Localizations.loggingInOn): ")
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                + Text(store.state.region.baseUrlDescription)
+                                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        }
+                        .font(.styleGuide(.subheadline))
+
+                        Asset.Images.downTriangle.swiftUIImage
+                            .resizable()
+                            .frame(width: 12, height: 12)
                             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                     }
-                    .font(.styleGuide(.subheadline))
                 }
 
                 Toggle(Localizations.rememberMe, isOn: store.binding(
@@ -72,7 +81,7 @@ struct LandingView: View {
             }
             .padding([.horizontal, .bottom], 16)
         }
-        .background(Asset.Colors.backgroundGroupedPrimary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationBarTitle(Localizations.bitwarden, displayMode: .inline)
     }
 }

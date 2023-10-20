@@ -94,19 +94,18 @@ struct CreateAccountView: View {
         VStack(spacing: 16) {
             BitwardenTextField(
                 title: Localizations.emailAddress,
-                autoCapitalizationType: .never,
-                contentType: .emailAddress,
-                keyboardType: .emailAddress,
                 text: store.binding(
                     get: \.emailText,
                     send: CreateAccountAction.emailTextChanged
                 )
             )
+            .textContentType(.emailAddress)
+            .keyboardType(.emailAddress)
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
 
             BitwardenTextField(
                 title: Localizations.masterPassword,
-                autoCapitalizationType: .never,
-                contentType: .password,
                 isPasswordVisible: store.binding(
                     get: \.arePasswordsVisible,
                     send: CreateAccountAction.togglePasswordVisibility
@@ -116,6 +115,9 @@ struct CreateAccountView: View {
                     send: CreateAccountAction.passwordTextChanged
                 )
             )
+            .textContentType(.password)
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
         }
     }
 
@@ -124,7 +126,6 @@ struct CreateAccountView: View {
         VStack(alignment: .leading) {
             BitwardenTextField(
                 title: Localizations.masterPasswordHint,
-                contentType: .name,
                 text: store.binding(
                     get: \.passwordHintText,
                     send: CreateAccountAction.passwordHintTextChanged
@@ -141,8 +142,6 @@ struct CreateAccountView: View {
     private var retypePassword: some View {
         BitwardenTextField(
             title: Localizations.retypeMasterPassword,
-            autoCapitalizationType: .never,
-            contentType: .password,
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,
                 send: CreateAccountAction.togglePasswordVisibility
@@ -152,6 +151,8 @@ struct CreateAccountView: View {
                 send: CreateAccountAction.retypePasswordTextChanged
             )
         )
+        .textContentType(.password)
+        .textInputAutocapitalization(.never)
     }
 
     /// The button pressed when the user attempts to create the account.
