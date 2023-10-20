@@ -14,6 +14,20 @@ struct Account: Codable, Equatable {
 }
 
 extension Account {
+    // MARK: Computed Properties
+
+    /// The `KdfConfig` for the account.
+    var kdf: KdfConfig {
+        KdfConfig(
+            kdf: profile.kdfType ?? .pbkdf2sha256,
+            kdfIterations: profile.kdfIterations ?? Constants.pbkdf2Iterations,
+            kdfMemory: profile.kdfMemory,
+            kdfParallelism: profile.kdfParallelism
+        )
+    }
+
+    // MARK: Initialization
+
     /// Initializes an `Account` from the response of the identity token request.
     ///
     /// - Parameter identityTokenResponseModel: The response model from the identity token request.

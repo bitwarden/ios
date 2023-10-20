@@ -1,4 +1,10 @@
+import XCTest
+
 @testable import BitwardenShared
+
+enum MockCoordinatorError: Error {
+    case alertRouteNotFound
+}
 
 class MockCoordinator<Route>: Coordinator {
     var contexts: [AnyObject?] = []
@@ -23,5 +29,19 @@ class MockCoordinator<Route>: Coordinator {
 
     func start() {
         isStarted = true
+    }
+}
+
+extension MockCoordinator<AuthRoute> {
+    func unwrapLastRouteAsAlert(file: StaticString = #file, line: UInt = #line) throws -> Alert {
+        guard case let .alert(alert) = routes.last else {
+            XCTFail(
+                "Expected an `.alert` route, but found \(String(describing: routes.last))",
+                file: file,
+                line: line
+            )
+            throw MockCoordinatorError.alertRouteNotFound
+        }
+        return alert
     }
 }

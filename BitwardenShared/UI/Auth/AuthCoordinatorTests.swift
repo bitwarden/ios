@@ -141,6 +141,14 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 
+    /// `navigate(to:)` with `.vaultUnlock` pushes the vault unlock view onto the stack navigator.
+    func test_navigate_vaultUnlock() {
+        subject.navigate(to: .vaultUnlock)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+        XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)
+    }
+
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.
     func test_rootNavigator_resetWeakReference() {
         var rootNavigator: MockRootNavigator? = MockRootNavigator()
