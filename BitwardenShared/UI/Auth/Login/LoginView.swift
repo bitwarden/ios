@@ -53,8 +53,6 @@ struct LoginView: View {
         VStack(alignment: .leading, spacing: 8) {
             BitwardenTextField(
                 title: Localizations.masterPassword,
-                contentType: .password,
-                autoCapitalizationType: .never,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: LoginAction.revealMasterPasswordFieldPressed
@@ -64,6 +62,8 @@ struct LoginView: View {
                     send: LoginAction.masterPasswordChanged
                 )
             )
+            .textContentType(.password)
+            .textInputAutocapitalization(.never)
 
             Button(Localizations.getMasterPasswordwordHint) {
                 store.send(.getMasterPasswordHintPressed)

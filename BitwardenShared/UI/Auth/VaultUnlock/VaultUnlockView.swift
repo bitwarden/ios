@@ -24,8 +24,6 @@ struct VaultUnlockView: View {
             VStack(spacing: 24) {
                 BitwardenTextField(
                     title: Localizations.masterPassword,
-                    contentType: .password,
-                    autoCapitalizationType: .never,
                     footer: footerText,
                     isPasswordVisible: store.binding(
                         get: \.isMasterPasswordRevealed,
@@ -36,6 +34,8 @@ struct VaultUnlockView: View {
                         send: VaultUnlockAction.masterPasswordChanged
                     )
                 )
+                .textContentType(.password)
+                .textInputAutocapitalization(.never)
 
                 Button {
                     Task { await store.perform(.unlockVault) }
