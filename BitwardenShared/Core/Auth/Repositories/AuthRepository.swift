@@ -56,15 +56,9 @@ extension DefaultAuthRepository: AuthRepository {
     func unlockVault(password: String) async throws {
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
         let account = try await stateService.getActiveAccount()
-        let kdf = KdfConfig(
-            kdf: account.profile.kdfType ?? .pbkdf2sha256,
-            kdfIterations: account.profile.kdfIterations ?? Constants.pbkdf2Iterations,
-            kdfMemory: account.profile.kdfMemory,
-            kdfParallelism: account.profile.kdfParallelism
-        )
         try await clientCrypto.initializeCrypto(
             req: InitCryptoRequest(
-                kdfParams: kdf.sdkKdf,
+                kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
                 password: password,
                 userKey: encryptionKeys.encryptedUserKey,
