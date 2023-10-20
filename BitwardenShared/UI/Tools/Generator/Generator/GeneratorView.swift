@@ -20,6 +20,7 @@ struct GeneratorView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .navigationBarTitleDisplayMode(.large)
         .navigationTitle(Localizations.generator)
+        .onAppear { store.send(.appeared) }
     }
 
     /// Returns a view for displaying a section of items in the form.

@@ -1,6 +1,9 @@
 /// Actions that can be processed by a `GeneratorProcessor`.
 ///
 enum GeneratorAction: Equatable {
+    /// The generator view appeared on screen.
+    case appeared
+
     /// The copy generated value button was pressed.
     case copyGeneratedValue
 
@@ -24,4 +27,25 @@ enum GeneratorAction: Equatable {
 
     /// A toggle field value was changed.
     case toggleValueChanged(field: ToggleField<GeneratorState>, isOn: Bool)
+}
+
+extension GeneratorAction {
+    // MARK: Computed Properties
+
+    /// Whether this action should result in the processor generating a new generated value.
+    var shouldGenerateNewValue: Bool {
+        switch self {
+        case .appeared,
+             .generatorTypeChanged,
+             .passwordGeneratorTypeChanged,
+             .refreshGeneratedValue,
+             .sliderValueChanged,
+             .stepperValueChanged,
+             .textValueChanged,
+             .toggleValueChanged:
+            return true
+        case .copyGeneratedValue:
+            return false
+        }
+    }
 }
