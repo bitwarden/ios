@@ -51,6 +51,10 @@ struct GeneratorView: View {
                     StepperFieldView(field: stepperField) { newValue in
                         store.send(.stepperValueChanged(field: stepperField, value: newValue))
                     }
+                case let .text(textField):
+                    FormTextFieldView(field: textField) { newValue in
+                        store.send(.textValueChanged(field: textField, value: newValue))
+                    }
                 case let .toggle(toggleField):
                     ToggleFieldView(field: toggleField) { isOn in
                         store.send(.toggleValueChanged(field: toggleField, isOn: isOn))

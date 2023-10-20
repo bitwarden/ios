@@ -80,5 +80,19 @@ extension GeneratorState {
 
         /// The minimum number of special characters in the generated password.
         var minimumSpecial: Int = 1
+
+        // MARK: Passphrase Properties
+
+        /// Whether the capitalize the passphrase words.
+        var capitalize: Bool = false
+
+        /// Whether the passphrase should include numbers.
+        var includeNumber: Bool = false
+
+        /// The number of words to include in the passphrase.
+        var numberOfWords: Int = 3
+
+        /// The separator to put between words in the passphrase.
+        var wordSeparator: String = "-"
     }
 }

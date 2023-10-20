@@ -44,6 +44,12 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state[keyPath: field.keyPath] = value
         case let .stepperValueChanged(field, value):
             state[keyPath: field.keyPath] = value
+        case let .textValueChanged(field, value):
+            state[keyPath: field.keyPath] = value
+
+            if field.keyPath == \.passwordState.wordSeparator, value.count > 1 {
+                state[keyPath: field.keyPath] = String(value.prefix(1))
+            }
         case let .toggleValueChanged(field, isOn):
             state[keyPath: field.keyPath] = isOn
         }

@@ -34,6 +34,9 @@ extension GeneratorState {
             /// A stepper field.
             case stepper(StepperField<State>)
 
+            /// A text field.
+            case text(FormTextField<State>)
+
             /// A toggle field.
             case toggle(ToggleField<State>)
 
@@ -48,6 +51,8 @@ extension GeneratorState {
                 case let .slider(field):
                     return field.id
                 case let .stepper(field):
+                    return field.id
+                case let .text(field):
                     return field.id
                 case let .toggle(field):
                     return field.id
@@ -178,6 +183,29 @@ extension GeneratorState {
             StepperField(
                 keyPath: keyPath,
                 range: range,
+                title: title,
+                value: self[keyPath: keyPath]
+            )
+        ))
+    }
+
+    /// A helper method for creating a text field.
+    ///
+    /// - Parameters:
+    ///   - autocapitalization: The behavior for when the input should be automatically capitalized.
+    ///   - keyPath: A key path for getting and setting the backing value for the field.
+    ///   - title: The title of the field.
+    /// - Returns: A form field for a generated value field.
+    ///
+    func textField(
+        autocapitalization: FormTextField<Self>.Autocapitalization,
+        keyPath: WritableKeyPath<GeneratorState, String>,
+        title: String
+    ) -> FormField<Self> {
+        FormField(fieldType: .text(
+            FormTextField(
+                autocapitalization: autocapitalization,
+                keyPath: keyPath,
                 title: title,
                 value: self[keyPath: keyPath]
             )

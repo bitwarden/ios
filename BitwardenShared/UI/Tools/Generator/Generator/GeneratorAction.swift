@@ -13,6 +13,9 @@ enum GeneratorAction: Equatable {
     /// A stepper field value was changed.
     case stepperValueChanged(field: StepperField<GeneratorState>, value: Int)
 
+    /// A text field value was changed.
+    case textValueChanged(field: FormTextField<GeneratorState>, value: String)
+
     /// A toggle field value was changed.
     case toggleValueChanged(field: ToggleField<GeneratorState>, isOn: Bool)
 }

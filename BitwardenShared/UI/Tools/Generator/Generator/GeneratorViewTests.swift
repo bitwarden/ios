@@ -77,6 +77,20 @@ class GeneratorViewTests: BitwardenTestCase {
         )
     }
 
+    /// Updating the text value dispatches the `.textValueChanged` action.
+    func test_textValueChanged() throws {
+        processor.state.passwordState.passwordGeneratorType = .passphrase
+        let field = FormTextField<GeneratorState>(
+            autocapitalization: .never,
+            keyPath: \.passwordState.wordSeparator,
+            title: Localizations.wordSeparator,
+            value: "-"
+        )
+        let textField = try subject.inspect().find(textField: "")
+        try textField.setInput("!!")
+        XCTAssertEqual(processor.dispatchedActions.last, .textValueChanged(field: field, value: "!!"))
+    }
+
     /// Updating the toggle value dispatches the `.toggleValueChanged()` action.
     func test_toggleField_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
@@ -95,8 +109,18 @@ class GeneratorViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
+    /// Test a snapshot of the passphrase generation view.
+    func test_snapshot_generatorViewPassphrase() {
+        processor.state.passwordState.passwordGeneratorType = .passphrase
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
+    }
+
     /// Test a snapshot of the password generation view.
     func test_snapshot_generatorViewPassword() {
+        processor.state.passwordState.passwordGeneratorType = .password
         assertSnapshot(
             matching: subject,
             as: .defaultPortrait

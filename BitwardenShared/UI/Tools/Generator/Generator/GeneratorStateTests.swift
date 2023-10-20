@@ -6,9 +6,30 @@ import XCTest
 class GeneratorStateTests: XCTestCase {
     // MARK: Tests
 
+    /// `formSections` returns the sections and fields for generating a passphrase.
+    func test_formSections_passphrase() {
+        var subject = GeneratorState()
+        subject.passwordState.passwordGeneratorType = .passphrase
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Picker: What would you like to generate? Value: Password
+            Section: Options
+              Picker: Password type Value: Passphrase
+              Stepper: Number of words Value: 3 Range: 3...20
+              Text: Word separator Value: -
+              Toggle: Capitalize Value: false
+              Toggle: Include number Value: false
+            """
+        }
+    }
+
     /// `formSections` returns the sections and fields for generating a password.
     func test_formSections_password() {
-        let subject = GeneratorState()
+        var subject = GeneratorState()
+        subject.passwordState.passwordGeneratorType = .password
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -92,6 +113,8 @@ class GeneratorStateTests: XCTestCase {
                 )
             case let .stepper(stepper):
                 result.append("Stepper: \(stepper.title) Value: \(stepper.value) Range: \(stepper.range)")
+            case let .text(text):
+                result.append("Text: \(text.title) Value: \(text.value)")
             case let .toggle(toggle):
                 result.append("Toggle: \(toggle.title) Value: \(toggle.isOn)")
             }
