@@ -105,11 +105,12 @@ internal final class TabCoordinator: Coordinator {
 
         let settingsNavigator = UINavigationController()
         settingsNavigator.navigationBar.prefersLargeTitles = true
-        settingsCoordinator = module.makeSettingsCoordinator(
+        let settingsCoordinator = module.makeSettingsCoordinator(
             delegate: settingsDelegate,
             stackNavigator: settingsNavigator
         )
-        settingsCoordinator?.start()
+        settingsCoordinator.start()
+        self.settingsCoordinator = settingsCoordinator
 
         let tabsAndNavigators: [TabRoute: Navigator] = [
             .vault(.list): vaultNavigator,
