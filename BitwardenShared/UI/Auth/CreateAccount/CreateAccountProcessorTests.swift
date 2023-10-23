@@ -1,9 +1,11 @@
+import Networking
 import XCTest
 
 @testable import BitwardenShared
 
 // MARK: - CreateAccountProcessorTests
 
+// swiftlint:disable:next type_body_length
 class CreateAccountProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -83,12 +85,6 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `receive(_:)` with `.dismiss` dismisses the view.
-    func test_receive_dismiss() {
-        subject.receive(.dismiss)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
-    }
-
     /// `perform(_:)` with `.createAccount` presents an alert when the user has
     /// entered a password that has been found in a data breach. After tapping `Yes` to create
     /// an account anyways, the `CreateAccountRequest` is made.
@@ -101,6 +97,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.isTermsAndPrivacyToggleOn = true
 
         client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .createAccountRequest)]
+
         await subject.perform(.createAccount)
 
         guard case let .alert(alert) = coordinator.routes.last else {
@@ -122,6 +119,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.isCheckDataBreachesToggleOn = true
 
         client.result = .httpSuccess(testData: .hibpLeakedPasswords)
+
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 1)
@@ -136,15 +134,89 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )))
     }
 
-    /// `perform(_:)` with `.createAccount` and a captcha error occurs navigates to the `.captcha` route.
-    func test_createAccount_captchaError() async {
-        client.result = .httpFailure(CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: "token"))
+    /// `perform(_:)` with `.createAccount` presents an alert when the email has already been taken.
+    func test_perform_createAccount_accountAlreadyExists() async {
+        subject.state.emailText = "j@a.com"
+        subject.state.isTermsAndPrivacyToggleOn = true
 
+        let response = HTTPResponse.failure(
+            statusCode: 400,
+            body: APITestData.createAccountAccountAlreadyExists.data
+        )
+
+        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
+
+        client.result = .httpFailure(
+            CreateAccountRequestError.serverError(errorResponse)
+        )
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .alert(.createAccountAlert("Email 'j@a.com' is already taken."))
+        )
+    }
+
+    /// `perform(_:)` with `.createAccount` presents an alert when the email exceeds the maximum length.
+    func test_perform_createAccount_emailExceedsMaxLength() async {
+        subject.state.emailText = """
+        eyrztwlvxqdksnmcbjgahfpouyqiwubfdzoxhjsrlnvgeatkcpimy\
+        fqaxhztsowbmdkjlrpnuqvycigfexrvlosqtpnheujawzsdmkbfoy\
+        cxqpwkzthbnmudxlysgarcejfqvopzrkihwdelbuxyfqnjsgptamcozrvihsl\
+        nbujrtdosmvhxwyfapzcklqoxbgdvtfieqyuhwajnrpslmcskgzofdqehxcbv\
+        omjltzafwudqypnisgrkeohycbvxjflaumtwzrdqnpsoiezgyhqbmxdlvnzwa\
+        htjoekrcispgvyfbuqklszepjwdrantihxfcoygmuslqbajzdfgrkmwbpnouq\
+        tlsvixechyfjslrdvngiwzqpcotxubamhyekufjrzdwmxihqkfonslbcjgtpu\
+        voyaezrctudwlskjpvmfqhnxbriyg@example.com
+        """
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        let response = HTTPResponse.failure(
+            statusCode: 400,
+            body: APITestData.createAccountEmailExceedsMaxLength.data
+        )
+
+        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
+
+        client.result = .httpFailure(
+            CreateAccountRequestError.serverError(errorResponse)
+        )
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .alert(.createAccountAlert("The field Email must be a string with a maximum length of 256."))
+        )
+    }
+
+    /// `perform(_:)` with `.createAccount` presents an alert when the email field is empty.
+    func test_perform_createAccount_emptyEmail() async {
+        subject.state.isCheckDataBreachesToggleOn = true
+        subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.emailText = ""
+
+        client.result = .httpSuccess(testData: .createAccountSuccess)
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(coordinator.routes.last, .alert(.validationFieldRequired(fieldName: "Email")))
+    }
+
+    /// `perform(_:)` with `.createAccount` and a captcha error occurs navigates to the `.captcha` route.
+    func test_perform_createAccount_captchaError() async {
         captchaService.generateCaptchaUrlValue = .example
         subject.state.emailText = "email@example.com"
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.isTermsAndPrivacyToggleOn = true
+
+        client.result = .httpFailure(CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: "token"))
+
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 1)
@@ -153,25 +225,51 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
     }
 
-    /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.
-    func test_perform_createAccount_withInvalidEmail() async {
-        client.result = .httpSuccess(testData: .createAccountSuccess)
-        subject.state.isCheckDataBreachesToggleOn = true
+    /// `perform(_:)` with `.createAccount` presents an alert when the email is in an invalid format.
+    func test_perform_createAccount_invalidEmailFormat() async {
+        subject.state.emailText = "∫@ø.com"
         subject.state.isTermsAndPrivacyToggleOn = true
-        subject.state.emailText = ""
+
+        let response = HTTPResponse.failure(
+            statusCode: 400,
+            body: APITestData.createAccountInvalidEmailFormat.data
+        )
+
+        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
+
+        client.result = .httpFailure(
+            CreateAccountRequestError.serverError(errorResponse)
+        )
 
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .alert(.createAccountAlert("The Email field is not a supported e-mail address format."))
+        )
+    }
+
+    /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.
+    func test_perform_createAccount_withInvalidEmail() async {
+        subject.state.emailText = "exampleemail.com"
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        client.result = .httpFailure(CreateAccountError.invalidEmail)
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 0)
         XCTAssertEqual(coordinator.routes.last, .alert(.invalidEmail))
     }
 
     /// `perform(_:)` with `.createAccount` and a valid email creates the user's account.
     func test_perform_createAccount_withValidEmail() async {
-        client.result = .httpSuccess(testData: .createAccountSuccess)
         subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.emailText = "email@example.com"
+
+        client.result = .httpSuccess(testData: .createAccountSuccess)
 
         await subject.perform(.createAccount)
 
@@ -184,10 +282,11 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.createAccount` and a valid email surrounded by whitespace trims the whitespace and
     /// creates the user's account
     func test_perform_createAccount_withValidEmailAndSpace() async {
-        client.result = .httpSuccess(testData: .createAccountSuccess)
         subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.emailText = " email@example.com "
+
+        client.result = .httpSuccess(testData: .createAccountSuccess)
 
         await subject.perform(.createAccount)
 
@@ -200,10 +299,11 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.createAccount` and a valid email with uppercase characters converts the email to lowercase
     /// and creates the user's account.
     func test_perform_createAccount_withValidEmailUppercased() async {
-        client.result = .httpSuccess(testData: .createAccountSuccess)
         subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.emailText = "EMAIL@EXAMPLE.COM"
+
+        client.result = .httpSuccess(testData: .createAccountSuccess)
 
         await subject.perform(.createAccount)
 
@@ -216,14 +316,21 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.createAccount` navigates to an error alert when the terms of service
     /// and privacy policy toggle is off.
     func test_perform_createAccount_withTermsAndServicesToggle_false() async {
-        client.result = .httpSuccess(testData: .createAccountSuccess)
         subject.state.isTermsAndPrivacyToggleOn = false
         subject.state.emailText = "email@example.com"
+
+        client.result = .httpSuccess(testData: .createAccountSuccess)
 
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 0)
         XCTAssertEqual(coordinator.routes.last, .alert(.acceptPoliciesAlert()))
+    }
+
+    /// `receive(_:)` with `.dismiss` dismisses the view.
+    func test_receive_dismiss() {
+        subject.receive(.dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// `receive(_:)` with `.emailTextChanged(_:)` updates the state to reflect the change.
@@ -324,4 +431,5 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.receive(.toggleTermsAndPrivacy(true))
         XCTAssertTrue(subject.state.isTermsAndPrivacyToggleOn)
     }
+    // swiftlint:disable:next file_length
 }

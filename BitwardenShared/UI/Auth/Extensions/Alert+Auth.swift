@@ -40,4 +40,20 @@ extension Alert {
             ]
         )
     }
+
+    /// An alert shown when creating an account fails.
+    ///
+    /// - Parameter errorMessage: The message to display in the alert.
+    ///
+    /// - Returns: An alert for when creating an account fails.
+    ///
+    static func createAccountAlert(_ errorMessage: String) -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: errorMessage,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
 }
