@@ -14,7 +14,7 @@ class AlertAuthTests: BitwardenTestCase {
 
     /// `logoutConfirmation(action:)` constructs an `Alert` used to confirm that the user wants to
     /// logout of the account.
-    func test_logoutConformation() {
+    func test_logoutConfirmation() {
         let subject = Alert.logoutConfirmation {}
 
         XCTAssertEqual(subject.title, Localizations.logOut)
