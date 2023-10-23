@@ -128,7 +128,7 @@ struct BitwardenTextField: View {
         .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 

@@ -19,7 +19,7 @@ struct SettingsView: View {
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
-                        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
                         .cornerRadius(10)
                 }
             }
