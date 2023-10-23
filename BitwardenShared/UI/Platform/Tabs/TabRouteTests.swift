@@ -10,22 +10,25 @@ class TabRouteTests: BitwardenTestCase {
 
     /// `.generator` image is the `.restart` asset.
     func test_generator_image() {
-        XCTAssertEqual(TabRoute.generator.image?.pngData(), Asset.Images.restart.image.pngData())
+        XCTAssertEqual(TabRoute.generator(.generator).image?.pngData(), Asset.Images.restart.image.pngData())
     }
 
     /// `.generator` is the third tab.
     func test_generator_rawValue() {
-        XCTAssertEqual(TabRoute.generator.index, 2)
+        XCTAssertEqual(TabRoute.generator(.generator).index, 2)
     }
 
     /// `.generator` selected image is the `.restartFilled` asset.
     func test_generator_selectedImage() {
-        XCTAssertEqual(TabRoute.generator.selectedImage?.pngData(), Asset.Images.restartFilled.image.pngData())
+        XCTAssertEqual(
+            TabRoute.generator(.generator).selectedImage?.pngData(),
+            Asset.Images.restartFilled.image.pngData()
+        )
     }
 
     /// `.generator` uses the correct localized title.
     func test_generator_title() {
-        XCTAssertEqual(TabRoute.generator.title, Localizations.generator)
+        XCTAssertEqual(TabRoute.generator(.generator).title, Localizations.generator)
     }
 
     /// `.send` image is the `.send` asset.

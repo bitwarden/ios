@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The repository used by the application to manage generator data for the UI layer.
+    let generatorRepository: GeneratorRepository
+
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
 
@@ -62,6 +65,7 @@ public class ServiceContainer: Services {
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
@@ -74,6 +78,7 @@ public class ServiceContainer: Services {
         baseUrlService: BaseUrlService,
         captchaService: CaptchaService,
         clientService: ClientService,
+        generatorRepository: GeneratorRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
         systemDevice: SystemDevice,
@@ -85,6 +90,7 @@ public class ServiceContainer: Services {
         self.baseUrlService = baseUrlService
         self.captchaService = captchaService
         self.clientService = clientService
+        self.generatorRepository = generatorRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
         self.systemDevice = systemDevice
@@ -115,6 +121,7 @@ public class ServiceContainer: Services {
             clientCrypto: clientService.clientCrypto(),
             stateService: stateService
         )
+        let generatorRepository = DefaultGeneratorRepository()
         let settingsRepository = DefaultSettingsRepository(stateService: stateService)
 
         self.init(
@@ -124,6 +131,7 @@ public class ServiceContainer: Services {
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
             clientService: clientService,
+            generatorRepository: generatorRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,
             systemDevice: UIDevice.current,

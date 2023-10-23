@@ -12,7 +12,7 @@ public enum TabRoute: Equatable, Hashable {
     case send
 
     /// The generator tab.
-    case generator
+    case generator(GeneratorRoute)
 
     /// The settings tab.
     case settings(SettingsRoute)

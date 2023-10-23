@@ -11,17 +11,9 @@ class StringTests: BitwardenTestCase {
     func test_isValidEmail_withInvalidString() {
         let subjects = [
             "",
+            "e",
             "email",
-            "email@example",
-            "email@example.",
-            "@example.com",
-            "email@.com",
             "example.com",
-            "example.com@email",
-            "@@example.com",
-            " @example.com",
-            " email@example.com",
-            "email@example.com ",
         ]
 
         // All strings should _not_ be considered valid emails
@@ -35,6 +27,15 @@ class StringTests: BitwardenTestCase {
         let subjects = [
             "email@example.com",
             "e@e.c",
+            "email@example",
+            "email@example.",
+            "@example.com",
+            "email@.com",
+            "example.com@email",
+            "@@example.com",
+            " @example.com",
+            " email@example.com",
+            "email@example.com ",
         ]
 
         XCTAssertTrue(subjects.allSatisfy(\.isValidEmail))
