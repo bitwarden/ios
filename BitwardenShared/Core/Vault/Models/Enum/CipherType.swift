@@ -13,3 +13,14 @@ enum CipherType: Int, Codable {
     /// Personal information for filling out forms.
     case identity = 4
 }
+
+extension CipherType: Menuable {
+    var localizedName: String {
+        switch self {
+        case .card: return Localizations.typeCard
+        case .identity: return Localizations.typeIdentity
+        case .login: return Localizations.typeLogin
+        case .secureNote: return Localizations.typeSecureNote
+        }
+    }
+}
