@@ -21,7 +21,7 @@ final class SettingsCoordinator: Coordinator {
     // MARK: Properties
 
     /// The delegate for this coordinator, used to notify when the user logs out.
-    var delegate: SettingsCoordinatorDelegate?
+    weak var delegate: SettingsCoordinatorDelegate?
 
     /// The services used by this coordinator.
     let services: Services

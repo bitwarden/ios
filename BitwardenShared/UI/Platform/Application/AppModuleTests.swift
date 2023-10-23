@@ -62,9 +62,10 @@ class AppModuleTests: BitwardenTestCase {
     func test_makeTabCoordinator() {
         let rootViewController = RootViewController()
         let tabBarController = UITabBarController()
+        let settingsDelegate = MockSettingsCoordinatorDelegate()
         let coordinator = subject.makeTabCoordinator(
             rootNavigator: rootViewController,
-            settingsDelegate: MockSettingsCoordinatorDelegate(),
+            settingsDelegate: settingsDelegate,
             tabNavigator: tabBarController
         )
         coordinator.start()

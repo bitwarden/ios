@@ -10,6 +10,7 @@ class TabCoordinatorTests: BitwardenTestCase {
 
     var module: MockAppModule!
     var rootNavigator: MockRootNavigator!
+    var settingsDelegate: MockSettingsCoordinatorDelegate!
     var subject: TabCoordinator!
     var tabNavigator: MockTabNavigator!
 
@@ -20,10 +21,11 @@ class TabCoordinatorTests: BitwardenTestCase {
         module = MockAppModule()
         rootNavigator = MockRootNavigator()
         tabNavigator = MockTabNavigator()
+        settingsDelegate = MockSettingsCoordinatorDelegate()
         subject = TabCoordinator(
             module: module,
             rootNavigator: rootNavigator,
-            settingsDelegate: MockSettingsCoordinatorDelegate(),
+            settingsDelegate: settingsDelegate,
             tabNavigator: tabNavigator
         )
     }

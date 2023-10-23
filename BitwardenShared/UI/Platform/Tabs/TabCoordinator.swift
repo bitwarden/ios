@@ -29,7 +29,7 @@ internal final class TabCoordinator: Coordinator {
     private var settingsCoordinator: AnyCoordinator<SettingsRoute>?
 
     /// A delegate of the `SettingsCoordinator`.
-    private var settingsDelegate: SettingsCoordinatorDelegate?
+    private weak var settingsDelegate: SettingsCoordinatorDelegate?
 
     /// The coordinator used to navigate to `VaultRoute`s.
     private var vaultCoordinator: AnyCoordinator<VaultRoute>?
