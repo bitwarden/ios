@@ -10,6 +10,7 @@ typealias Services = HasAccountAPIService
     & HasCaptchaService
     & HasClientAuth
     & HasDeviceAPIService
+    & HasGeneratorRepository
     & HasSystemDevice
     & HasVaultRepository
 
@@ -79,6 +80,13 @@ protocol HasClientAuth {
 protocol HasDeviceAPIService {
     /// The service used by the application to make device-related API requests.
     var deviceAPIService: DeviceAPIService { get }
+}
+
+/// Protocol for an object that provides a `GeneratorRepository`.
+///
+protocol HasGeneratorRepository {
+    /// The repository used by the application to manage generator data for the UI layer.
+    var generatorRepository: GeneratorRepository { get }
 }
 
 /// Protocol for an object that provides a `SystemDevice`.

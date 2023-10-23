@@ -11,6 +11,7 @@ extension ServiceContainer {
         captchaService: CaptchaService = MockCaptchaService(),
         clientService: ClientService = MockClientService(),
         systemDevice: SystemDevice = MockSystemDevice(),
+        generatorRepository: GeneratorRepository = MockGeneratorRepository(),
         httpClient: HTTPClient = MockHTTPClient(),
         stateService: StateService = MockStateService(),
         tokenService: TokenService = MockTokenService()
@@ -25,6 +26,7 @@ extension ServiceContainer {
             baseUrlService: baseUrlService,
             captchaService: captchaService,
             clientService: clientService,
+            generatorRepository: generatorRepository,
             stateService: stateService,
             systemDevice: systemDevice,
             tokenService: tokenService
