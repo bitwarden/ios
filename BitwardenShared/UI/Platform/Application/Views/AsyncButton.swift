@@ -21,23 +21,16 @@ struct AsyncButton<Label>: View where Label: View {
     /// An optional semantic role that describes the button.
     private let role: ButtonRole?
 
-    /// The current count of how many times the task for this button has been triggered. Used to generate new
-    /// `Task`s to perform the async `action` on this button.
-    @SwiftUI.State private var taskCount: UInt = 0
-
     var body: some View {
         Button(
             role: role,
             action: {
-                print("previous count: \(taskCount)")
-                taskCount += 1
+                Task {
+                    await action()
+                }
             },
             label: label
         )
-        .task(id: taskCount) {
-            guard taskCount > 0 else { return }
-            await action()
-        }
     }
 
     // MARK: Initialization
