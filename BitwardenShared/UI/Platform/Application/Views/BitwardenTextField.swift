@@ -12,14 +12,49 @@ struct BitwardenTextField: View {
     /// A type of button that is displayed within a `BitwardenTextField`.
     ///
     struct AccessoryButton {
+        /// A wrapper around the action for this button to allow easily switching between sync and async actions.
+        enum Action { // swiftlint:disable:this nesting
+            /// A synchronous action.
+            case sync(() -> Void)
+
+            /// An asynchronous action.
+            case async(() async -> Void)
+        }
+
         /// The accessibility label for this button.
         var accessibilityLabel: String
 
         /// The action that is executed when this button is tapped.
-        var action: () -> Void
+        var action: Action
 
         /// The icon to display in this button.
         var icon: ImageAsset
+
+        /// Creates a new `AccessoryButton`.
+        ///
+        /// - Parameters:
+        ///   - accessibilityLabel: The accessibility label for this button.
+        ///   - action: The synchronous action that is executed when this button is tapped.
+        ///   - icon: The icon to display in this button.
+        ///
+        init(accessibilityLabel: String, action: @escaping () -> Void, icon: ImageAsset) {
+            self.accessibilityLabel = accessibilityLabel
+            self.action = .sync(action)
+            self.icon = icon
+        }
+
+        /// Creates a new `AccessoryButton`.
+        ///
+        /// - Parameters:
+        ///   - accessibilityLabel: The accessibility label for this button.
+        ///   - action: The asynchronous action that is executed when this button is tapped.
+        ///   - icon: The icon to display in this button.
+        ///
+        init(accessibilityLabel: String, action: @escaping () async -> Void, icon: ImageAsset) {
+            self.accessibilityLabel = accessibilityLabel
+            self.action = .async(action)
+            self.icon = icon
+        }
     }
 
     // MARK: Properties
@@ -99,7 +134,7 @@ struct BitwardenTextField: View {
 
     /// The buttons displayed on the trailing edge of the text field.
     @ViewBuilder private var textFieldButtons: some View {
-        if isPasswordVisible != nil || buttons.isEmpty {
+        if isPasswordVisible != nil || !buttons.isEmpty {
             HStack(spacing: 8) {
                 if let isPasswordVisible {
                     accessoryButton(
@@ -170,17 +205,22 @@ struct BitwardenTextField: View {
     ///
     @ViewBuilder
     private func accessoryButton(_ button: AccessoryButton) -> some View {
-        Button(action: button.action) {
-            button.icon.swiftUIImage
-                .resizable()
-                .frame(width: 14, height: 14)
-                .padding(10)
-                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                .background(Asset.Colors.fillTertiary.swiftUIColor)
-                .clipShape(Circle())
-                .animation(nil, value: button.icon.swiftUIImage)
+        let label = button.icon.swiftUIImage
+            .resizable()
+            .frame(width: 14, height: 14)
+            .padding(10)
+            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .background(Asset.Colors.fillTertiary.swiftUIColor)
+            .clipShape(Circle())
+            .animation(nil, value: button.icon.swiftUIImage)
+        switch button.action {
+        case let .async(action):
+            AsyncButton(role: nil, action: action, label: { label })
+                .accessibilityLabel(button.accessibilityLabel)
+        case let .sync(action):
+            Button(action: action, label: { label })
+                .accessibilityLabel(button.accessibilityLabel)
         }
-        .accessibilityLabel(button.accessibilityLabel)
     }
 }
 

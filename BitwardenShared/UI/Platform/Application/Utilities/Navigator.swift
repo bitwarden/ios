@@ -8,11 +8,19 @@ import SwiftUI
 public protocol Navigator: AlertPresentable, AnyObject {
     // MARK: Properties
 
+    /// A flag indicating if this navigator is currently presenting a view modally.
+    var isPresenting: Bool { get }
+
     /// The root view controller of this `Navigator`.
     var rootViewController: UIViewController? { get }
 }
 
 extension Navigator {
+    /// A flag indicating if this navigator is currently presenting a view modally.
+    public var isPresenting: Bool {
+        rootViewController?.presentedViewController != nil
+    }
+
     /// Shows the loading overlay view.
     ///
     /// - Parameter state: The state for configuring the loading overlay.
