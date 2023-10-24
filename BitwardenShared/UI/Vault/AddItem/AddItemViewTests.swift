@@ -30,6 +30,7 @@ class AddItemViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping the cancel button dispatches the `.dismissPressed` action.
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -156,6 +157,7 @@ class AddItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .savePressed)
     }
 
+    /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
     func test_setupTotpButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.setupTotp)
         try button.tap()
@@ -169,6 +171,7 @@ class AddItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .typeChanged("text"))
     }
 
+    /// Tapping the uri settings button dispatches the `.uriSettingsPressed` action.
     func test_uriSettingsButton_tap() throws {
         let button = try subject.inspect().find(
             buttonWithAccessibilityLabel: Localizations.uriMatchDetection

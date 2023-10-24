@@ -21,6 +21,7 @@ class StackNavigatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `isPresenting` returns true when a view is being presented on this navigator.
     func test_isPresenting() {
         XCTAssertFalse(subject.isPresenting)
 

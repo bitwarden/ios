@@ -60,6 +60,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.alerts.last, alert)
     }
 
+    /// `navigate(to:)` with `.generator` presents the generator screen.
     func test_navigateTo_generator() throws {
         subject.navigate(to: .generator)
 
@@ -78,6 +79,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is VaultListView)
     }
 
+    /// `.navigate(to:)` with `.list` while presenting a screen modally dismisses the modal screen.
     func test_navigateTo_list_whilePresenting() throws {
         stackNavigator.present(EmptyView(), animated: false, overFullscreen: false)
         subject.navigate(to: .list)
@@ -101,6 +103,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
     }
 
+    /// `navigate(to:)` with `.setupTotpCamera` presents the camera screen.
     func test_navigateTo_setupTotpCamera() throws {
         subject.navigate(to: .setupTotpCamera)
 

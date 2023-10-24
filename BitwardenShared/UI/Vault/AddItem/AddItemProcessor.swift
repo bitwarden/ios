@@ -1,5 +1,7 @@
 // MARK: - AddItemProcessor
 
+/// The processor used to manage state and handle actions for the add item screen.
+///
 final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddItemEffect> {
     // MARK: Properties
 

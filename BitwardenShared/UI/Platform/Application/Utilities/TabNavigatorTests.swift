@@ -62,6 +62,7 @@ class TabNavigatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `isPresenting` returns true when a view is being presented on this navigator.
     func test_isPresenting() {
         XCTAssertFalse(subject.isPresenting)
 
@@ -69,10 +70,12 @@ class TabNavigatorTests: BitwardenTestCase {
         XCTAssertTrue(subject.isPresenting)
     }
 
+    /// `rootViewController` returns itself.
     func test_rootViewController() {
         XCTAssertIdentical(subject.rootViewController, subject)
     }
 
+    /// `navigatorFor` with `.firstTab` returns the correct view controller.
     func test_navigatorFor_firstTab() {
         let viewController = UINavigationController()
         subject.viewControllers = [viewController]
