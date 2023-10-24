@@ -9,6 +9,11 @@ enum CreateAccountRequestError: Error, Equatable {
     ///
     /// - Parameter hCaptchaSiteCode: The site code to use when authenticating with hCaptcha.
     case captchaRequired(hCaptchaSiteCode: String)
+
+    /// A validation error occurred when creating an account.
+    ///
+    /// - Parameter errorResponse: The error response returned from the server.
+    case serverError(_ errorResponse: ErrorResponseModel)
 }
 
 // MARK: - CreateAccountRequest
@@ -40,16 +45,14 @@ struct CreateAccountRequest: Request {
 
     func validate(_ response: HTTPResponse) throws {
         switch response.statusCode {
-        case 400:
-            guard let object = try? JSONSerialization.jsonObject(with: response.body) as? [String: Any],
-                  let validationErrors = object["validationErrors"] as? [String: Any],
-                  let siteCodes = validationErrors["HCaptcha_SiteKey"] as? [String],
-                  let siteCode = siteCodes.first
-            else { return }
+        case 400 ..< 500:
+            guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
 
-            // Only throw the captcha error if the captcha site key can be found. Otherwise, this must be
-            // some other type of error.
-            throw CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
+            if let siteCode = errorResponse.validationErrors?["HCaptcha_SiteKey"]?.first {
+                throw CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
+            }
+
+            throw CreateAccountRequestError.serverError(errorResponse)
         default:
             return
         }

@@ -6,11 +6,26 @@ import Combine
 /// Enumeration of errors that may occur when creating an account.
 ///
 enum CreateAccountError: Error {
+    /// The terms of service and privacy policy have not been acknowledged.
+    case acceptPoliciesError
+
+    /// The email field is empty.
+    case emailEmpty
+
+    /// The email is invalid.
+    case invalidEmail
+
     /// The password was found in data breaches.
     case passwordBreachesFound
 
-    /// The terms of service and privacy policy have not been acknowledged.
-    case acceptPoliciesError
+    /// The password confirmation is not correct.
+    case passwordsDontMatch
+
+    /// The password field is empty.
+    case passwordEmpty
+
+    /// The password does not meet the minimum length requirement.
+    case passwordIsTooShort
 }
 
 // MARK: - CreateAccountProcessor
@@ -113,14 +128,29 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     ///
     /// - Parameter captchaToken: The token returned when the captcha flow has completed.
     ///
-    private func createAccount(captchaToken: String? = nil) async {
-        let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard email.isValidEmail else {
-            coordinator.navigate(to: .alert(.invalidEmail))
-            return
-        }
-
+    private func createAccount(captchaToken: String? = nil) async { // swiftlint:disable:this function_body_length
         do {
+            let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            guard !email.isEmpty else {
+                throw CreateAccountError.emailEmpty
+            }
+
+            guard email.isValidEmail else {
+                throw CreateAccountError.invalidEmail
+            }
+
+            guard !state.passwordText.isEmpty else {
+                throw CreateAccountError.passwordEmpty
+            }
+
+            guard state.passwordText.count >= Constants.minimumPasswordCharacters else {
+                throw CreateAccountError.passwordIsTooShort
+            }
+
+            guard state.passwordText == state.retypePasswordText else {
+                throw CreateAccountError.passwordsDontMatch
+            }
+
             guard state.isTermsAndPrivacyToggleOn else {
                 throw CreateAccountError.acceptPoliciesError
             }
@@ -161,13 +191,23 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             ))
         } catch CreateAccountError.acceptPoliciesError {
             coordinator.navigate(to: .alert(.acceptPoliciesAlert()))
+        } catch CreateAccountError.emailEmpty {
+            coordinator.navigate(to: .alert(.validationFieldRequired(fieldName: Localizations.email)))
+        } catch CreateAccountError.invalidEmail {
+            coordinator.navigate(to: .alert(.invalidEmail))
+        } catch CreateAccountError.passwordsDontMatch {
+            coordinator.navigate(to: .alert(.passwordsDontMatch))
+        } catch CreateAccountError.passwordEmpty {
+            coordinator.navigate(to: .alert(.validationFieldRequired(fieldName: Localizations.masterPassword)))
+        } catch CreateAccountError.passwordIsTooShort {
+            coordinator.navigate(to: .alert(.passwordIsTooShort))
         } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
             launchCaptchaFlow(with: siteCode)
+        } catch let CreateAccountRequestError.serverError(errorResponse) {
+            coordinator.navigate(to: .alert(.serverError(errorResponse.singleMessage())))
         } catch {
-            // TODO: BIT-860 Email errors
             // TODO: BIT-861 Password/Hint fields errors
             // TODO: BIT-863 Networking errors
-            // TODO: BIT-864 Account already exists error
         }
     }
 
