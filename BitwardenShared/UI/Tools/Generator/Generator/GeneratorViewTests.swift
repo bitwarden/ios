@@ -32,19 +32,15 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Tapping on the copy button dispatches the `.copyGeneratedValue` action.
     func test_generatedValue_copyTap() throws {
-        let button = try subject.inspect().findAll(ViewType.Button.self) { view in
-            try view.accessibilityLabel().string() == Localizations.copyPassword
-        }
-        try button.first?.tap()
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyPassword)
+        try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyGeneratedValue)
     }
 
     /// Tapping on the refresh button dispatches the `.refreshGeneratedValue` action.
     func test_generatedValue_refreshTap() throws {
-        let button = try subject.inspect().findAll(ViewType.Button.self) { view in
-            try view.accessibilityLabel().string() == Localizations.generatePassword
-        }
-        try button.first?.tap()
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.generatePassword)
+        try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
     }
 
@@ -57,9 +53,7 @@ class GeneratorViewTests: BitwardenTestCase {
             title: Localizations.length,
             value: 14
         )
-        let slider = try subject.inspect().find(ViewType.Slider.self) { view in
-            try view.accessibilityLabel().string() == Localizations.length
-        }
+        let slider = try subject.inspect().find(sliderWithAccessibilityLabel: Localizations.length)
         try slider.setValue(0.25) // (128 - 5 + 1) * 0.25 + 5 = 36
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -94,9 +88,7 @@ class GeneratorViewTests: BitwardenTestCase {
             keyPath: \.passwordState.containsLowercase,
             title: "a-z"
         )
-        let toggle = try subject.inspect().find(ViewType.Toggle.self) { view in
-            try view.labelView().text().string() == Localizations.lowercaseAtoZ
-        }
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.lowercaseAtoZ)
         try toggle.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .toggleValueChanged(field: field, isOn: false))
     }

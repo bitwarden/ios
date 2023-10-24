@@ -139,6 +139,36 @@ extension InspectableView {
     func find(secureField label: String) throws -> InspectableView<ViewType.SecureField> {
         try find(ViewType.SecureField.self, containing: label)
     }
+
+    /// Attempts to locate a slider with the provided accessibility label.
+    ///
+    /// - Parameter accessibilityLabel: The accessibility label to use while searching for a slider.
+    /// - Returns: A slider, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        sliderWithAccessibilityLabel accessibilityLabel: String,
+        locale: Locale = .testsDefault
+    ) throws -> InspectableView<ViewType.Slider> {
+        try find(ViewType.Slider.self) { view in
+            try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
+        }
+    }
+
+    /// Attempts to locate a toggle with the provided accessibility label.
+    ///
+    /// - Parameter accessibilityLabel: The accessibility label to use while searching for a toggle.
+    /// - Returns: A toggle, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        toggleWithAccessibilityLabel accessibilityLabel: String,
+        locale: Locale = .testsDefault
+    ) throws -> InspectableView<ViewType.Toggle> {
+        try find(ViewType.Toggle.self) { view in
+            try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
+        }
+    }
 }
 
 extension InspectableView where View == AsyncButtonType {
