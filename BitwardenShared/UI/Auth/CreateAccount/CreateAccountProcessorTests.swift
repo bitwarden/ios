@@ -50,15 +50,15 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     func test_captchaCompleted() throws {
         clientAuth.hashPasswordResult = .success("hashed password")
         client.result = .httpSuccess(testData: .createAccountRequest)
-
-        subject.state.emailText = "example@email.com"
         subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
+        subject.state.emailText = "email@example.com"
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.captchaCompleted(token: "token")
 
         let createAccountRequest = CreateAccountRequestModel(
             captchaResponse: "token",
-            email: "example@email.com",
+            email: "email@example.com",
             kdfConfig: KdfConfig(),
             key: "encryptedUserKey",
             keys: KeysRequestModel(
@@ -78,7 +78,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(
             coordinator.routes.last,
             .login(
-                username: "example@email.com",
+                username: "email@example.com",
                 region: LoginState().region,
                 isLoginWithDeviceVisible: LoginState().isLoginWithDeviceVisible
             )
@@ -89,10 +89,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// entered a password that has been found in a data breach. After tapping `Yes` to create
     /// an account anyways, the `CreateAccountRequest` is made.
     func test_perform_checkForBreachesAndCreateAccount_yesTapped() async throws {
-        let password = "12345abcde"
-        subject.state.emailText = "example@email.com"
-        subject.state.passwordText = password
-        subject.state.retypePasswordText = password
+        subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
+        subject.state.emailText = "email@example.com"
         subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
 
@@ -106,24 +105,25 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         await alert.alertActions[1].handler?(alert.alertActions[1])
 
         XCTAssertEqual(client.requests.count, 2)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/dec7d"))
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the user has
     /// entered a password that has been found in a data breach.
     func test_perfrom_checkForBreachesAndCreateAccount() async {
-        let password = "12345abcde"
-        subject.state.passwordText = password
-        subject.state.retypePasswordText = password
+        subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
+        subject.state.emailText = "email@example.com"
         subject.state.isCheckDataBreachesToggleOn = true
+        subject.state.isTermsAndPrivacyToggleOn = true
 
         client.result = .httpSuccess(testData: .hibpLeakedPasswords)
 
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/dec7d"))
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
         XCTAssertEqual(coordinator.routes.last, .alert(Alert(
             title: Localizations.weakAndExposedMasterPassword,
             message: Localizations.weakPasswordIdentifiedAndFoundInADataBreachAlertDescription,
@@ -136,7 +136,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email has already been taken.
     func test_perform_createAccount_accountAlreadyExists() async {
-        subject.state.emailText = "j@a.com"
+        subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
         subject.state.isTermsAndPrivacyToggleOn = true
 
         let response = HTTPResponse.failure(
@@ -171,6 +173,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         tlsvixechyfjslrdvngiwzqpcotxubamhyekufjrzdwmxihqkfonslbcjgtpu\
         voyaezrctudwlskjpvmfqhnxbriyg@example.com
         """
+        subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
         subject.state.isTermsAndPrivacyToggleOn = true
 
         let response = HTTPResponse.failure(
@@ -195,7 +199,6 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email field is empty.
     func test_perform_createAccount_emptyEmail() async {
-        subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.emailText = ""
 
@@ -203,8 +206,23 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.createAccount)
 
-        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests.count, 0)
         XCTAssertEqual(coordinator.routes.last, .alert(.validationFieldRequired(fieldName: "Email")))
+    }
+
+    /// `perform(_:)` with `.createAccount` presents an alert when the password field is empty.
+    func test_perform_createAccount_emptyPassword() async {
+        subject.state.passwordText = ""
+        subject.state.retypePasswordText = ""
+        subject.state.emailText = "email@example.com"
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        client.result = .httpSuccess(testData: .createAccountSuccess)
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(coordinator.routes.last, .alert(.validationFieldRequired(fieldName: "Master password")))
     }
 
     /// `perform(_:)` with `.createAccount` and a captcha error occurs navigates to the `.captcha` route.
@@ -225,9 +243,42 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
     }
 
+    /// `perform(_:)` with `.createAccount` presents an alert when the password hint is too long.
+    func test_perform_createAccount_hintTooLong() async {
+        subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "123456789012"
+        subject.state.retypePasswordText = "123456789012"
+        subject.state.passwordHintText = """
+        ajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajaj
+        ajajajajajajajajajajajajajajajajajajajajajajajajajajajajajsjajajajajaj
+        """
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        let response = HTTPResponse.failure(
+            statusCode: 400,
+            body: APITestData.createAccountHintTooLong.data
+        )
+
+        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
+
+        client.result = .httpFailure(
+            CreateAccountRequestError.serverError(errorResponse)
+        )
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .alert(.createAccountAlert("The field MasterPasswordHint must be a string with a maximum length of 50."))
+        )
+    }
+
     /// `perform(_:)` with `.createAccount` presents an alert when the email is in an invalid format.
     func test_perform_createAccount_invalidEmailFormat() async {
         subject.state.emailText = "∫@ø.com"
+        subject.state.passwordText = "123456789012"
+        subject.state.retypePasswordText = "123456789012"
         subject.state.isTermsAndPrivacyToggleOn = true
 
         let response = HTTPResponse.failure(
@@ -250,6 +301,42 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(_:)` with `.createAccount` presents an alert when password confirmation is incorrect.
+    func test_perform_createAccount_passwordsDontMatch() async {
+        subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "123456789012"
+        subject.state.retypePasswordText = "123456789000"
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        client.result = .httpSuccess(testData: .createAccountSuccess)
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .alert(.createAccountAlert("Password confirmation is not correct."))
+        )
+    }
+
+    /// `perform(_:)` with `.createAccount` presents an alert when the password isn't long enough.
+    func test_perform_createAccount_passwordsTooShort() async {
+        subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "123"
+        subject.state.retypePasswordText = "123"
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        client.result = .httpSuccess(testData: .createAccountSuccess)
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .alert(.createAccountAlert("Master password must be at least 12 characters long."))
+        )
+    }
+
     /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.
     func test_perform_createAccount_withInvalidEmail() async {
         subject.state.emailText = "exampleemail.com"
@@ -268,6 +355,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "123456789012"
+        subject.state.retypePasswordText = "123456789012"
 
         client.result = .httpSuccess(testData: .createAccountSuccess)
 
@@ -275,7 +364,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests.first?.body, nil)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/da39a"))
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/8d993"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
     }
 
@@ -284,6 +373,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     func test_perform_createAccount_withValidEmailAndSpace() async {
         subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.passwordText = "123456789012"
+        subject.state.retypePasswordText = "123456789012"
         subject.state.emailText = " email@example.com "
 
         client.result = .httpSuccess(testData: .createAccountSuccess)
@@ -292,7 +383,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests.first?.body, nil)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/da39a"))
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/8d993"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
     }
 
@@ -302,6 +393,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.emailText = "EMAIL@EXAMPLE.COM"
+        subject.state.passwordText = "123456789012"
+        subject.state.retypePasswordText = "123456789012"
 
         client.result = .httpSuccess(testData: .createAccountSuccess)
 
@@ -309,7 +402,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests.first?.body, nil)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/da39a"))
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/8d993"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
     }
 
@@ -318,6 +411,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     func test_perform_createAccount_withTermsAndServicesToggle_false() async {
         subject.state.isTermsAndPrivacyToggleOn = false
         subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "123456789012"
+        subject.state.retypePasswordText = "123456789012"
 
         client.result = .httpSuccess(testData: .createAccountSuccess)
 

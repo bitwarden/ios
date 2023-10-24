@@ -17,6 +17,15 @@ enum CreateAccountError: Error {
 
     /// The password was found in data breaches.
     case passwordBreachesFound
+
+    /// The password confirmation is not correct.
+    case passwordsDontMatch
+
+    /// The password field is empty.
+    case passwordEmpty
+
+    /// The password does not meet the minimum length requirement.
+    case passwordIsTooShort
 }
 
 // MARK: - CreateAccountProcessor
@@ -130,6 +139,18 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 throw CreateAccountError.invalidEmail
             }
 
+            guard !state.passwordText.isEmpty else {
+                throw CreateAccountError.passwordEmpty
+            }
+
+            guard state.passwordText.count >= Constants.minimumPasswordCharacters else {
+                throw CreateAccountError.passwordIsTooShort
+            }
+
+            guard state.passwordText == state.retypePasswordText else {
+                throw CreateAccountError.passwordsDontMatch
+            }
+
             guard state.isTermsAndPrivacyToggleOn else {
                 throw CreateAccountError.acceptPoliciesError
             }
@@ -174,6 +195,12 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             coordinator.navigate(to: .alert(.validationFieldRequired(fieldName: Localizations.email)))
         } catch CreateAccountError.invalidEmail {
             coordinator.navigate(to: .alert(.invalidEmail))
+        } catch CreateAccountError.passwordsDontMatch {
+            coordinator.navigate(to: .alert(.passwordsDontMatch))
+        } catch CreateAccountError.passwordEmpty {
+            coordinator.navigate(to: .alert(.validationFieldRequired(fieldName: Localizations.masterPassword)))
+        } catch CreateAccountError.passwordIsTooShort {
+            coordinator.navigate(to: .alert(.passwordIsTooShort))
         } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
             launchCaptchaFlow(with: siteCode)
         } catch let CreateAccountRequestError.serverError(errorResponse) {
