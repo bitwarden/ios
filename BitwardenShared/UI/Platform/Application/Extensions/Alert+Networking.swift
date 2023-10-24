@@ -17,6 +17,7 @@ extension Alert {
                 AlertAction(title: Localizations.tryAgain, style: .default) { _ in
                     await tryAgain()
                 },
+                AlertAction(title: Localizations.cancel, style: .cancel),
             ]
         )
     }
@@ -60,11 +61,13 @@ extension Alert {
         _ tryAgain: @escaping () async -> Void
     ) -> Alert {
         defaultAlert(
-            title: errorMessage,
+            title: Localizations.anErrorHasOccurred,
+            message: errorMessage,
             alertActions: [
                 AlertAction(title: Localizations.tryAgain, style: .default) { _ in
                     await tryAgain()
                 },
+                AlertAction(title: Localizations.cancel, style: .cancel),
             ]
         )
     }
