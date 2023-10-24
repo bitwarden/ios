@@ -129,12 +129,21 @@ class StateServiceTests: BitwardenTestCase {
     func test_logoutAccount_singleAccount() async throws {
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
+        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "USER_KEY"
+        ))
 
         try await subject.logoutAccount(userId: "1")
 
+        // User is removed from the state.
         let state = try XCTUnwrap(appSettingsStore.state)
         XCTAssertTrue(state.accounts.isEmpty)
         XCTAssertNil(state.activeUserId)
+
+        // Additional user keys are removed.
+        XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
+        XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
     }
 
     /// `logoutAccount(_:)` removes the account from the account list and updates the active account
@@ -142,15 +151,28 @@ class StateServiceTests: BitwardenTestCase {
     func test_logoutAccount_multipleAccounts() async throws {
         let firstAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(firstAccount)
+        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
+            encryptedPrivateKey: "1:PRIVATE_KEY",
+            encryptedUserKey: "1:USER_KEY"
+        ))
 
         let secondAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "2"))
         await subject.addAccount(secondAccount)
+        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
+            encryptedPrivateKey: "2:PRIVATE_KEY",
+            encryptedUserKey: "2:USER_KEY"
+        ))
 
         try await subject.logoutAccount(userId: "2")
 
+        // User is removed from the state.
         let state = try XCTUnwrap(appSettingsStore.state)
         XCTAssertEqual(state.accounts, ["1": firstAccount])
         XCTAssertEqual(state.activeUserId, "1")
+
+        // Additional user keys are removed.
+        XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, ["1": "1:PRIVATE_KEY"])
+        XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["1": "1:USER_KEY"])
     }
 
     /// `logoutAccount(_:)` removes an inactive account from the account list and doesn't change
@@ -158,15 +180,28 @@ class StateServiceTests: BitwardenTestCase {
     func test_logoutAccount_inactiveAccount() async throws {
         let firstAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(firstAccount)
+        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
+            encryptedPrivateKey: "1:PRIVATE_KEY",
+            encryptedUserKey: "1:USER_KEY"
+        ))
 
         let secondAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "2"))
         await subject.addAccount(secondAccount)
+        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
+            encryptedPrivateKey: "2:PRIVATE_KEY",
+            encryptedUserKey: "2:USER_KEY"
+        ))
 
         try await subject.logoutAccount(userId: "1")
 
+        // User is removed from the state.
         let state = try XCTUnwrap(appSettingsStore.state)
         XCTAssertEqual(state.accounts, ["2": secondAccount])
         XCTAssertEqual(state.activeUserId, "2")
+
+        // Additional user keys are removed.
+        XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, ["2": "2:PRIVATE_KEY"])
+        XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
     }
 
     /// `setAccountEncryptionKeys(_:userId:)` sets the encryption keys for the user account.

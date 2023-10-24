@@ -16,7 +16,8 @@ extension IdentityTokenResponseModel {
             keyConnectorOption: nil,
             trustedDeviceOption: nil
         ),
-        accessToken: String = "ACCESS_TOKEN",
+        // swiftlint:disable:next line_length
+        accessToken: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJBcHBsaWNhdGlvbiJdfQ.KDqC8kUaOAgBiUY8eeLa0a4xYWN8GmheXTFXmataFwM",
         expiresIn: Int = 3600,
         tokenType: String = "Bearer",
         refreshToken: String = "REFRESH_TOKEN"

@@ -12,6 +12,27 @@ extension Account {
             tokens: tokens
         )
     }
+
+    static func fixtureAccountLogin() -> Account {
+        Account.fixture(
+            profile: Account.AccountProfile.fixture(
+                emailVerified: nil,
+                hasPremiumPersonally: false,
+                name: "Bitwarden User",
+                stamp: nil,
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil
+                ),
+                userId: "13512467-9cfe-43b0-969f-07534084764b"
+            ),
+            settings: Account.AccountSettings(environmentUrls: nil),
+            tokens: Account.AccountTokens.fixture(
+                accessToken: IdentityTokenResponseModel.fixture().accessToken
+            )
+        )
+    }
 }
 
 extension Account.AccountProfile {
@@ -27,7 +48,7 @@ extension Account.AccountProfile {
         kdfType: KdfType? = .pbkdf2sha256,
         name: String? = nil,
         orgIdentifier: String? = nil,
-        stamp: String = "STAMP",
+        stamp: String? = "STAMP",
         userDecryptionOptions: UserDecryptionOptions? = nil,
         userId: String = "1"
     ) -> Account.AccountProfile {

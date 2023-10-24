@@ -13,6 +13,7 @@ class LoginProcessorTests: BitwardenTestCase {
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var coordinator: MockCoordinator<AuthRoute>!
+    var stateService: MockStateService!
     var subject: LoginProcessor!
     var systemDevice: MockSystemDevice!
 
@@ -25,6 +26,7 @@ class LoginProcessorTests: BitwardenTestCase {
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
         coordinator = MockCoordinator()
+        stateService = MockStateService()
         systemDevice = MockSystemDevice()
         subject = LoginProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -32,8 +34,9 @@ class LoginProcessorTests: BitwardenTestCase {
                 appSettingsStore: appSettingsStore,
                 captchaService: captchaService,
                 clientService: MockClientService(clientAuth: clientAuth),
-                systemDevice: systemDevice,
-                httpClient: client
+                httpClient: client,
+                stateService: stateService,
+                systemDevice: systemDevice
             ),
             state: LoginState()
         )
@@ -46,6 +49,7 @@ class LoginProcessorTests: BitwardenTestCase {
         client = nil
         clientAuth = nil
         coordinator = nil
+        stateService = nil
         subject = nil
         systemDevice = nil
     }
@@ -92,6 +96,17 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
 
         XCTAssertEqual(coordinator.routes.last, .complete)
+
+        XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys,
+            [
+                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    encryptedPrivateKey: "PRIVATE_KEY",
+                    encryptedUserKey: "KEY"
+                ),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.appeared` and an error occurs does not update the login with button visibility.
@@ -187,6 +202,17 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .complete)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
+
+        XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys,
+            [
+                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    encryptedPrivateKey: "PRIVATE_KEY",
+                    encryptedUserKey: "KEY"
+                ),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha error occurs navigates to the `.captcha`
