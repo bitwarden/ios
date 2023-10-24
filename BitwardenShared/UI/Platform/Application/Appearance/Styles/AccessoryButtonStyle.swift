@@ -7,7 +7,7 @@ import SwiftUI
 struct AccessoryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .frame(width: 16, height: 16)
+            .frame(width: 14, height: 14)
             .padding(10)
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
             .background(Asset.Colors.fillTertiary.swiftUIColor)
