@@ -26,7 +26,7 @@ extension VaultUnlockState {
     init(account: Account) {
         self.init(
             email: account.profile.email,
-            webVaultHost: account.settings.environmentUrls?.webVault?.host ?? "bitwarden.com"
+            webVaultHost: account.settings.environmentUrls?.webVault?.host ?? Constants.defaultWebVaultHost
         )
     }
 }

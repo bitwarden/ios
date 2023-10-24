@@ -35,6 +35,6 @@ class VaultUnlockStateTests: BitwardenTestCase {
         )
 
         XCTAssertEqual(subject.email, "user@bitwarden.com")
-        XCTAssertEqual(subject.webVaultHost, "bitwarden.com")
+        XCTAssertEqual(subject.webVaultHost, Constants.defaultWebVaultHost)
     }
 }
