@@ -49,7 +49,7 @@ struct LandingView: View {
                         }
                         .font(.styleGuide(.subheadline))
 
-                        Asset.Images.downTriangle.swiftUIImage
+                        Image(decorative: Asset.Images.downAngle)
                             .resizable()
                             .frame(width: 12, height: 12)
                             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
