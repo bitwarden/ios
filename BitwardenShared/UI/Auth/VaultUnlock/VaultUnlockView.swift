@@ -11,9 +11,10 @@ struct VaultUnlockView: View {
 
     /// The text to display in the footer of the master password text field.
     var footerText: String {
-        Localizations.vaultLockedMasterPassword
-            + "\n"
-            + Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost)
+        """
+        \(Localizations.vaultLockedMasterPassword)
+        \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
+        """
     }
 
     var body: some View {
