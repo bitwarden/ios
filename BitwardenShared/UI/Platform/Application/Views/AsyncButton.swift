@@ -16,7 +16,7 @@ struct AsyncButton<Label>: View where Label: View {
     // MARK: Private Properties
 
     /// A view that describes the purpose of the button’s action.
-    @ViewBuilder private var label: () -> Label
+    private var label: Label
 
     /// An optional semantic role that describes the button.
     private let role: ButtonRole?
@@ -29,7 +29,7 @@ struct AsyncButton<Label>: View where Label: View {
                     await action()
                 }
             },
-            label: label
+            label: { label }
         )
     }
 
@@ -50,7 +50,7 @@ struct AsyncButton<Label>: View where Label: View {
     ) {
         self.role = role
         self.action = action
-        self.label = label
+        self.label = label()
     }
 }
 
