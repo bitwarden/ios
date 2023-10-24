@@ -25,8 +25,11 @@ extension GeneratorState {
             /// A generated value field.
             case generatedValue(GeneratedValueField<State>)
 
-            /// A picker field.
-            case picker(PickerField<State>)
+            /// A menu field for the generator type.
+            case menuGeneratorType(FormMenuField<State, GeneratorType>)
+
+            /// A menu field for the password generator type.
+            case menuPasswordGeneratorType(FormMenuField<State, PasswordState.PasswordGeneratorType>)
 
             /// A slider field.
             case slider(SliderField<State>)
@@ -46,7 +49,9 @@ extension GeneratorState {
                 switch self {
                 case let .generatedValue(field):
                     return field.id
-                case let .picker(field):
+                case let .menuGeneratorType(field):
+                    return field.id
+                case let .menuPasswordGeneratorType(field):
                     return field.id
                 case let .slider(field):
                     return field.id
@@ -68,27 +73,6 @@ extension GeneratorState {
         // MARK: Identifiable
 
         var id: String { fieldType.id }
-    }
-
-    /// The data necessary for displaying a picker field.
-    ///
-    struct PickerField<State>: Equatable, Identifiable {
-        // MARK: Properties
-
-        /// A key path for updating the backing value for the picker field.
-        var keyPath: WritableKeyPath<State, String>
-
-        /// The title of the field.
-        var title: String
-
-        /// The current picker value.
-        var value: String
-
-        // MARK: Identifiable
-
-        var id: String {
-            "PickerField-\(title)"
-        }
     }
 
     /// The data necessary for displaying the generated value field. This is used to display the
@@ -123,21 +107,19 @@ extension GeneratorState {
         ))
     }
 
-    /// A helper method for creating a picker field.
+    /// A helper method for creating a menu field for the password generator type.
     ///
-    /// - Parameters:
-    ///   - keyPath: A key path for getting and setting the backing value for the field.
-    ///   - title: The title of the field.
-    /// - Returns: A form field for a picker field.
+    /// - Returns: A form field for the password generator type menu.
     ///
-    func pickerField(keyPath: WritableKeyPath<GeneratorState, String>, title: String) -> FormField<Self> {
-        FormField(fieldType: .picker(
-            PickerField(
-                keyPath: keyPath,
-                title: title,
-                value: self[keyPath: keyPath]
-            ))
-        )
+    func passwordGeneratorTypeField() -> FormField<Self> {
+        FormField(fieldType: .menuPasswordGeneratorType(
+            FormMenuField(
+                keyPath: \.passwordState.passwordGeneratorType,
+                options: PasswordState.PasswordGeneratorType.allCases,
+                selection: passwordState.passwordGeneratorType,
+                title: Localizations.passwordType
+            )
+        ))
     }
 
     /// A helper method for creating a slider field.

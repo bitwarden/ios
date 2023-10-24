@@ -6,30 +6,22 @@ extension GeneratorState {
 
         /// The type of password to generate.
         ///
-        enum PasswordGeneratorType: String, Equatable { // swiftlint:disable:this nesting
+        enum PasswordGeneratorType: Menuable, Equatable { // swiftlint:disable:this nesting
             /// Generate a passphrase.
             case passphrase
 
             /// Generate a password.
             case password
 
-            var rawValue: String {
+            /// All of the cases to show in the menu.
+            static let allCases: [Self] = [.password, .passphrase]
+
+            var localizedName: String {
                 switch self {
                 case .password:
                     return Localizations.password
                 case .passphrase:
                     return Localizations.passphrase
-                }
-            }
-
-            init?(rawValue: String) {
-                switch rawValue {
-                case Localizations.password:
-                    self = .password
-                case Localizations.passphrase:
-                    self = .passphrase
-                default:
-                    return nil
                 }
             }
         }
@@ -38,15 +30,6 @@ extension GeneratorState {
 
         /// The type of password to generate.
         var passwordGeneratorType = PasswordGeneratorType.password
-
-        /// A proxy value for getting and setting `passwordGeneratorType` via key path with its raw value.
-        var passwordGeneratorTypeValue: String {
-            get { passwordGeneratorType.rawValue }
-            set {
-                guard let passwordGeneratorType = PasswordGeneratorType(rawValue: newValue) else { return }
-                self.passwordGeneratorType = passwordGeneratorType
-            }
-        }
 
         // MARK: Password Properties
 

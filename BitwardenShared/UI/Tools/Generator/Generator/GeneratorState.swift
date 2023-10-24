@@ -5,30 +5,22 @@ struct GeneratorState: Equatable {
 
     /// The type of value to generate.
     ///
-    enum GeneratorType: String, Equatable {
+    enum GeneratorType: Menuable, Equatable {
         /// Generate a password or passphrase.
         case password
 
         /// Generate a username.
         case username
 
-        var rawValue: String {
+        /// All of the cases to show in the menu.
+        static let allCases: [Self] = [.password, .username]
+
+        var localizedName: String {
             switch self {
             case .password:
                 return Localizations.password
             case .username:
                 return Localizations.username
-            }
-        }
-
-        init?(rawValue: String) {
-            switch rawValue {
-            case Localizations.password:
-                self = .password
-            case Localizations.username:
-                self = .username
-            default:
-                return nil
             }
         }
     }
@@ -37,15 +29,6 @@ struct GeneratorState: Equatable {
 
     /// The type of value to generate.
     var generatorType = GeneratorType.password
-
-    /// A proxy value for getting and setting `generatorType` via key path with its raw value.
-    var generatorTypeValue: String {
-        get { generatorType.rawValue }
-        set {
-            guard let generatorType = GeneratorType(rawValue: newValue) else { return }
-            self.generatorType = generatorType
-        }
-    }
 
     /// The generated value (password, passphrase or username).
     var generatedValue: String = ""
@@ -63,7 +46,7 @@ struct GeneratorState: Equatable {
             switch passwordState.passwordGeneratorType {
             case .passphrase:
                 optionFields = [
-                    pickerField(keyPath: \.passwordState.passwordGeneratorTypeValue, title: Localizations.passwordType),
+                    passwordGeneratorTypeField(),
                     stepperField(
                         keyPath: \.passwordState.numberOfWords,
                         range: 3 ... 20,
@@ -79,7 +62,7 @@ struct GeneratorState: Equatable {
                 ]
             case .password:
                 optionFields = [
-                    pickerField(keyPath: \.passwordState.passwordGeneratorTypeValue, title: Localizations.passwordType),
+                    passwordGeneratorTypeField(),
                     sliderField(
                         keyPath: \.passwordState.lengthDouble,
                         range: 5 ... 128,
@@ -127,7 +110,12 @@ struct GeneratorState: Equatable {
             FormSection(
                 fields: [
                     generatedValueField(keyPath: \.generatedValue),
-                    pickerField(keyPath: \.generatorTypeValue, title: Localizations.whatWouldYouLikeToGenerate),
+                    FormField(fieldType: .menuGeneratorType(FormMenuField(
+                        keyPath: \.generatorType,
+                        options: GeneratorType.allCases,
+                        selection: generatorType,
+                        title: Localizations.whatWouldYouLikeToGenerate
+                    ))),
                 ],
                 id: "Generator",
                 title: nil
