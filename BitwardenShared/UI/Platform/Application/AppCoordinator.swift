@@ -94,6 +94,7 @@ class AppCoordinator: Coordinator {
             let tabNavigator = UITabBarController()
             let coordinator = module.makeTabCoordinator(
                 rootNavigator: navigator,
+                settingsDelegate: self,
                 tabNavigator: tabNavigator
             )
             coordinator.start()
@@ -108,5 +109,13 @@ class AppCoordinator: Coordinator {
 extension AppCoordinator: AuthCoordinatorDelegate {
     func didCompleteAuth() {
         showTab(route: .vault(.list))
+    }
+}
+
+// MARK: - SettingsCoordinatorDelegate
+
+extension AppCoordinator: SettingsCoordinatorDelegate {
+    func didLogout() {
+        showAuth(route: .landing)
     }
 }

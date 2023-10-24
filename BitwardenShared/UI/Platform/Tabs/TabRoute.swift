@@ -15,7 +15,7 @@ public enum TabRoute: Equatable, Hashable {
     case generator(GeneratorRoute)
 
     /// The settings tab.
-    case settings
+    case settings(SettingsRoute)
 }
 
 // MARK: - TabRepresentable

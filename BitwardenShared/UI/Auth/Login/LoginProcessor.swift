@@ -31,6 +31,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
+        & HasStateService
         & HasSystemDevice
 
     // MARK: Private Properties
@@ -153,8 +154,11 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             )
             let identityToken = try await services.authAPIService.getIdentityToken(identityTokenRequest)
 
-            // TODO: BIT-165 Store the access token.
-            print("TOKEN: \(identityToken)")
+            let account = try Account(identityTokenResponseModel: identityToken)
+            await services.stateService.addAccount(account)
+            let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityToken)
+            try await services.stateService.setAccountEncryptionKeys(encryptionKeys)
+
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .complete)
         } catch {

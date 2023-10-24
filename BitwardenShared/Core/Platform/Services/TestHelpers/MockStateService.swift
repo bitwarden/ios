@@ -9,6 +9,7 @@ class MockStateService: StateService {
 
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
+        activeAccount = account
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {

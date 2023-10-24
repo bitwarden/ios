@@ -149,6 +149,9 @@ actor DefaultStateService: StateService {
             // Find the next account to make the active account.
             state.activeUserId = state.accounts.first?.key
         }
+
+        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
+        appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {

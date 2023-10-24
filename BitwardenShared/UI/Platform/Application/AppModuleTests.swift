@@ -46,12 +46,26 @@ class AppModuleTests: BitwardenTestCase {
         XCTAssertTrue(rootViewController.childViewController === navigationController)
     }
 
+    /// `makeSettingsCoordinator()` builds the settings coordinator.
+    func test_makeSettingsCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeSettingsCoordinator(
+            delegate: MockSettingsCoordinatorDelegate(),
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<SettingsView>)
+    }
+
     /// `makeTabCoordinator` builds the tab coordinator.
     func test_makeTabCoordinator() {
         let rootViewController = RootViewController()
         let tabBarController = UITabBarController()
+        let settingsDelegate = MockSettingsCoordinatorDelegate()
         let coordinator = subject.makeTabCoordinator(
             rootNavigator: rootViewController,
+            settingsDelegate: settingsDelegate,
             tabNavigator: tabBarController
         )
         coordinator.start()

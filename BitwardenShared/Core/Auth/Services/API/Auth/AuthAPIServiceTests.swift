@@ -44,26 +44,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(
             response,
-            IdentityTokenResponseModel(
-                forcePasswordReset: false,
-                kdf: .pbkdf2sha256,
-                kdfIterations: 600_000,
-                kdfMemory: nil,
-                kdfParallelism: nil,
-                key: "KEY",
-                masterPasswordPolicy: nil,
-                privateKey: "PRIVATE_KEY",
-                resetMasterPassword: false,
-                userDecryptionOptions: UserDecryptionOptions(
-                    hasMasterPassword: true,
-                    keyConnectorOption: nil,
-                    trustedDeviceOption: nil
-                ),
-                accessToken: "ACCESS_TOKEN",
-                expiresIn: 3600,
-                tokenType: "Bearer",
-                refreshToken: "REFRESH_TOKEN"
-            )
+            IdentityTokenResponseModel.fixture()
         )
     }
 

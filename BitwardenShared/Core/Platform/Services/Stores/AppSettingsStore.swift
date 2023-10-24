@@ -31,7 +31,7 @@ protocol AppSettingsStore: AnyObject {
     ///   - key: The user's encrypted private key.
     ///   - userId: The user ID associated with the encrypted private key.
     ///
-    func setEncryptedPrivateKey(key: String, userId: String)
+    func setEncryptedPrivateKey(key: String?, userId: String)
 
     /// Sets the encrypted user key for a user ID.
     ///
@@ -39,7 +39,7 @@ protocol AppSettingsStore: AnyObject {
     ///   - key: The user's encrypted user key.
     ///   - userId: The user ID associated with the encrypted user key.
     ///
-    func setEncryptedUserKey(key: String, userId: String)
+    func setEncryptedUserKey(key: String?, userId: String)
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -179,11 +179,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .encryptedUserKey(userId: userId))
     }
 
-    func setEncryptedPrivateKey(key: String, userId: String) {
+    func setEncryptedPrivateKey(key: String?, userId: String) {
         store(key, for: .encryptedPrivateKey(userId: userId))
     }
 
-    func setEncryptedUserKey(key: String, userId: String) {
+    func setEncryptedUserKey(key: String?, userId: String) {
         store(key, for: .encryptedUserKey(userId: userId))
     }
 }

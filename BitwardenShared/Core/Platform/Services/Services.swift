@@ -11,6 +11,8 @@ typealias Services = HasAccountAPIService
     & HasClientAuth
     & HasDeviceAPIService
     & HasGeneratorRepository
+    & HasSettingsRepository
+    & HasStateService
     & HasSystemDevice
     & HasVaultRepository
 
@@ -87,6 +89,20 @@ protocol HasDeviceAPIService {
 protocol HasGeneratorRepository {
     /// The repository used by the application to manage generator data for the UI layer.
     var generatorRepository: GeneratorRepository { get }
+}
+
+/// Protocol for an object that provides a `SettingsRepository`.
+///
+protocol HasSettingsRepository {
+    /// The repository used by the application to manage data and services access for the UI layer.
+    var settingsRepository: SettingsRepository { get }
+}
+
+/// Protocol for an object that provides a `StateService`.
+///
+protocol HasStateService {
+    /// The service used by the application to manage account state.
+    var stateService: StateService { get }
 }
 
 /// Protocol for an object that provides a `SystemDevice`.
