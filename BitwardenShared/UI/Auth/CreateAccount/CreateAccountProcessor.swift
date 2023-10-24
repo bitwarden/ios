@@ -1,5 +1,6 @@
 import BitwardenSdk
 import Combine
+import Foundation
 
 // MARK: - CreateAccountError
 
@@ -206,8 +207,9 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         } catch let CreateAccountRequestError.serverError(errorResponse) {
             coordinator.navigate(to: .alert(.serverError(errorResponse.singleMessage())))
         } catch {
-            // TODO: BIT-861 Password/Hint fields errors
-            // TODO: BIT-863 Networking errors
+            coordinator.navigate(to: .alert(.networkResponseError(error) {
+                await self.createAccount(captchaToken: captchaToken)
+            }))
         }
     }
 

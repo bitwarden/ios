@@ -15,14 +15,13 @@ extension Alert {
     ///
     static func defaultAlert(
         title: String,
-        message: String
+        message: String? = nil,
+        alertActions: [AlertAction]? = nil
     ) -> Alert {
         Alert(
             title: title,
             message: message,
-            alertActions: [
-                AlertAction(title: Localizations.ok, style: .cancel),
-            ]
+            alertActions: alertActions ?? [AlertAction(title: Localizations.ok, style: .cancel)]
         )
     }
 
