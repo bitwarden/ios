@@ -1,3 +1,5 @@
+import Foundation
+
 typealias ClientType = String
 typealias DeviceType = Int
 
@@ -10,6 +12,9 @@ enum Constants {
 
     /// The client type corresponding to the app.
     static let clientType: ClientType = "mobile"
+
+    /// The URL for the web vault if the user account doesn't have one specified.
+    static let defaultWebVaultHost = "bitwarden.com"
 
     /// The device type, iOS = 1.
     static let deviceType: DeviceType = 1

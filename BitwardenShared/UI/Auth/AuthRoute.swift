@@ -46,5 +46,5 @@ public enum AuthRoute: Equatable {
     case masterPasswordHint
 
     /// A route to the unlock vault screen.
-    case vaultUnlock
+    case vaultUnlock(Account)
 }

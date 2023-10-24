@@ -45,8 +45,8 @@ public class AppProcessor {
         coordinator.start()
         self.coordinator = coordinator
 
-        if services.appSettingsStore.state?.activeAccount != nil {
-            coordinator.navigate(to: .auth(.vaultUnlock))
+        if let activeAccount = services.appSettingsStore.state?.activeAccount {
+            coordinator.navigate(to: .auth(.vaultUnlock(activeAccount)))
         } else {
             coordinator.navigate(to: .auth(.landing))
         }

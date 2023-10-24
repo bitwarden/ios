@@ -20,7 +20,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase {
         subject = VaultUnlockProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(authRepository: authRepository),
-            state: VaultUnlockState()
+            state: VaultUnlockState(account: .fixture())
         )
     }
 

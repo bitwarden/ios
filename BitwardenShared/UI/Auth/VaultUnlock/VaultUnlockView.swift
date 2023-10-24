@@ -10,13 +10,11 @@ struct VaultUnlockView: View {
     @ObservedObject var store: Store<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect>
 
     /// The text to display in the footer of the master password text field.
-    var footerText: String? {
-        guard let email = store.state.email,
-              let webVaultHost = store.state.webVaultHost
-        else { return nil }
-        return Localizations.vaultLockedMasterPassword
-            + "\n"
-            + Localizations.loggedInAsOn(email, webVaultHost)
+    var footerText: String {
+        """
+        \(Localizations.vaultLockedMasterPassword)
+        \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
+        """
     }
 
     var body: some View {

@@ -107,8 +107,8 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             showLoginWithDevice()
         case .masterPasswordHint:
             showMasterPasswordHint()
-        case .vaultUnlock:
-            showVaultUnlock()
+        case let .vaultUnlock(account):
+            showVaultUnlock(account: account)
         }
     }
 
@@ -245,11 +245,13 @@ internal final class AuthCoordinator: NSObject, Coordinator {
 
     /// Shows the vault unlock view.
     ///
-    private func showVaultUnlock() {
+    /// - Parameter account: The active account.
+    ///
+    private func showVaultUnlock(account: Account) {
         let processor = VaultUnlockProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultUnlockState()
+            state: VaultUnlockState(account: account)
         )
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator.push(view)

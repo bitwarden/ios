@@ -4,7 +4,7 @@ struct VaultUnlockState: Equatable {
     // MARK: Properties
 
     /// The user's email for the active account.
-    var email: String?
+    let email: String
 
     /// A flag indicating if the master password should be revealed or not.
     var isMasterPasswordRevealed = false
@@ -13,5 +13,20 @@ struct VaultUnlockState: Equatable {
     var masterPassword: String = ""
 
     /// The hostname of the web vault URL.
-    var webVaultHost: String?
+    let webVaultHost: String
+}
+
+extension VaultUnlockState {
+    // MARK: Initialization
+
+    /// Initialize `VaultUnlockState` for an account.
+    ///
+    /// - Parameter account: The active account.
+    ///
+    init(account: Account) {
+        self.init(
+            email: account.profile.email,
+            webVaultHost: account.settings.environmentUrls?.webVault?.host ?? Constants.defaultWebVaultHost
+        )
+    }
 }
