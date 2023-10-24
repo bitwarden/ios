@@ -52,6 +52,7 @@ class TabNavigatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         subject = UITabBarController()
+        setKeyWindowRoot(viewController: subject)
     }
 
     override func tearDown() {
@@ -61,10 +62,20 @@ class TabNavigatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `isPresenting` returns true when a view is being presented on this navigator.
+    func test_isPresenting() {
+        XCTAssertFalse(subject.isPresenting)
+
+        subject.present(UIViewController(), animated: false)
+        XCTAssertTrue(subject.isPresenting)
+    }
+
+    /// `rootViewController` returns itself.
     func test_rootViewController() {
         XCTAssertIdentical(subject.rootViewController, subject)
     }
 
+    /// `navigatorFor` with `.firstTab` returns the correct view controller.
     func test_navigatorFor_firstTab() {
         let viewController = UINavigationController()
         subject.viewControllers = [viewController]
