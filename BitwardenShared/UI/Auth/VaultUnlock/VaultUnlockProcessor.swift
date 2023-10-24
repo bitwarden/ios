@@ -71,7 +71,13 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     ///
     private func showLogoutConfirmation() {
         let alert = Alert.logoutConfirmation {
-            try? await self.services.authRepository.logout()
+            do {
+                try await self.services.authRepository.logout()
+            } catch {
+                // TODO: BIT-941 Log error to Crashlytics.
+                Logger.processor.error("Error logging out: \(error)")
+                assertionFailure("Error logging out: \(error)")
+            }
             self.coordinator.navigate(to: .landing)
         }
         coordinator.navigate(to: .alert(alert))
