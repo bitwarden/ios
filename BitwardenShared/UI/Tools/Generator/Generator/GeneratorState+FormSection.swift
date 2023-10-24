@@ -164,8 +164,8 @@ extension GeneratorState {
     /// A helper method for creating a stepper field.
     ///
     /// - Parameters:
-    ///   - keyPath: A key path for updating the backing value for the slider field.
-    ///   - range: The range of allowable values for the slider.
+    ///   - keyPath: A key path for updating the backing value for the stepper field.
+    ///   - range: The range of allowable values for the stepper.
     ///   - title: The title of the field.
     /// - Returns: A form field for a stepper field.
     ///
@@ -184,14 +184,14 @@ extension GeneratorState {
         ))
     }
 
-    /// A helper method for creating a generated value field.
+    /// A helper method for creating a toggle field.
     ///
     /// - Parameters:
     ///   - accessibilityLabel: The accessibility label for the toggle. The title will be used as
     ///     the accessibility label if this is `nil`.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
     ///   - title: The title of the field.
-    /// - Returns: A form field for a generated value field.
+    /// - Returns: A form field for a toggle field.
     ///
     func toggleField(
         accessibilityLabel: String? = nil,

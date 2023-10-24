@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - AccessoryButtonStyle
+
 /// The style for an accessory button.
 ///
 struct AccessoryButtonStyle: ButtonStyle {
