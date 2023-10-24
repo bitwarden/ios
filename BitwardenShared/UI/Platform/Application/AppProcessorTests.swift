@@ -6,6 +6,7 @@ class AppProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var appModule: MockAppModule!
+    var appSettingStore: MockAppSettingsStore!
     var subject: AppProcessor!
 
     // MARK: Setup & Teardown
@@ -14,7 +15,13 @@ class AppProcessorTests: BitwardenTestCase {
         super.setUp()
 
         appModule = MockAppModule()
-        subject = AppProcessor(appModule: appModule, services: ServiceContainer.withMocks())
+        appSettingStore = MockAppSettingsStore()
+        subject = AppProcessor(
+            appModule: appModule,
+            services: ServiceContainer.withMocks(
+                appSettingsStore: appSettingStore
+            )
+        )
     }
 
     override func tearDown() {
@@ -26,8 +33,22 @@ class AppProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `start(navigator:)` builds the AppCoordinator and navigates to the initial route.
-    func test_start() {
+    /// `start(navigator:)` builds the AppCoordinator and navigates to vault unlock if there's an
+    /// active account.
+    func test_start_activeAccount() {
+        appSettingStore.state = State.fixture()
+
+        let rootNavigator = MockRootNavigator()
+
+        subject.start(navigator: rootNavigator)
+
+        XCTAssertTrue(appModule.appCoordinator.isStarted)
+        XCTAssertEqual(appModule.appCoordinator.routes, [.auth(.vaultUnlock)])
+    }
+
+    /// `start(navigator:)` builds the AppCoordinator and navigates to the landing view if there
+    /// isn't an active account.
+    func test_start_noActiveAccount() {
         let rootNavigator = MockRootNavigator()
 
         subject.start(navigator: rootNavigator)

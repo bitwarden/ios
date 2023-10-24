@@ -15,11 +15,19 @@ class MockAppSettingsStore: AppSettingsStore {
         encryptedUserKeys[userId]
     }
 
-    func setEncryptedPrivateKey(key: String, userId: String) {
+    func setEncryptedPrivateKey(key: String?, userId: String) {
+        guard let key else {
+            encryptedPrivateKeys.removeValue(forKey: userId)
+            return
+        }
         encryptedPrivateKeys[userId] = key
     }
 
-    func setEncryptedUserKey(key: String, userId: String) {
+    func setEncryptedUserKey(key: String?, userId: String) {
+        guard let key else {
+            encryptedUserKeys.removeValue(forKey: userId)
+            return
+        }
         encryptedUserKeys[userId] = key
     }
 }
