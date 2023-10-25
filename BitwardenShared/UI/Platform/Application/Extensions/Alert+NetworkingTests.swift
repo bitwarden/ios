@@ -18,7 +18,7 @@ class AlertNetworkingTests: BitwardenTestCase {
         XCTAssertEqual(subject.title, Localizations.internetConnectionRequiredTitle)
         XCTAssertEqual(subject.message, Localizations.internetConnectionRequiredMessage)
         XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions.count, 2)
 
         let action = subject.alertActions[0]
         XCTAssertEqual(action.title, Localizations.tryAgain)
@@ -31,9 +31,9 @@ class AlertNetworkingTests: BitwardenTestCase {
         let urlError = URLError(.timedOut)
         let subject = Alert.networkResponseError(urlError) {}
 
-        XCTAssertEqual(subject.title, urlError.localizedDescription)
+        XCTAssertEqual(subject.message, urlError.localizedDescription)
         XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions.count, 2)
 
         let action = subject.alertActions[0]
         XCTAssertEqual(action.title, Localizations.tryAgain)

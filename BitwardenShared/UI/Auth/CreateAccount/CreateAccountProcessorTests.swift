@@ -391,7 +391,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
             return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
         }
 
-        XCTAssertEqual(alert.title, urlError.localizedDescription)
+        XCTAssertEqual(alert.message, urlError.localizedDescription)
 
         await alert.alertActions[0].handler?(alert.alertActions[0])
 
