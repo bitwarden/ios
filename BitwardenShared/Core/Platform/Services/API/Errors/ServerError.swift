@@ -3,7 +3,7 @@
 /// An enumeration of server errors.
 ///
 enum ServerError: Error {
-    /// A generic error
+    /// A generic error.
     ///
     /// - Parameter errorResponse: The error response returned from the API request.
     ///
