@@ -40,35 +40,18 @@ extension Alert {
                 await tryAgain()
             }
         case let error as URLError where error.code == .timedOut:
-            return timeoutError(error.localizedDescription) {
-                await tryAgain()
-            }
+            return defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: error.localizedDescription,
+                alertActions: [
+                    AlertAction(title: Localizations.tryAgain, style: .default) { _ in
+                        await tryAgain()
+                    },
+                    AlertAction(title: Localizations.cancel, style: .cancel),
+                ]
+            )
         default:
             return defaultAlert(title: Localizations.anErrorHasOccurred)
         }
-    }
-
-    /// An alert for when a network request times out.
-    ///
-    /// - Parameters:
-    ///   - errorMessage: The error message returned from the API upon a timed out request.
-    ///   - tryAgain: An action allowing the user to retry the request.
-    ///
-    /// - Returns: An alert for when a network request times out.
-    ///
-    static func timeoutError(
-        _ errorMessage: String,
-        _ tryAgain: @escaping () async -> Void
-    ) -> Alert {
-        defaultAlert(
-            title: Localizations.anErrorHasOccurred,
-            message: errorMessage,
-            alertActions: [
-                AlertAction(title: Localizations.tryAgain, style: .default) { _ in
-                    await tryAgain()
-                },
-                AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
-        )
     }
 }
