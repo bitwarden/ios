@@ -7,6 +7,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     // MARK: Types
 
     typealias Services = HasGeneratorRepository
+        & HasPasteboardService
 
     // MARK: Private Properties
 
@@ -50,7 +51,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .appeared:
             break
         case .copyGeneratedValue:
-            break
+            services.pasteboardService.copy(state.generatedValue)
         case let .generatorTypeChanged(generatorType):
             state.generatorType = generatorType
         case let .passwordGeneratorTypeChanged(passwordGeneratorType):

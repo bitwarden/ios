@@ -8,6 +8,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<GeneratorRoute>!
     var generatorRepository: MockGeneratorRepository!
+    var pasteboardService: MockPasteboardService!
     var subject: GeneratorProcessor!
 
     // MARK: Setup & Teardown
@@ -17,11 +18,13 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         coordinator = MockCoordinator()
         generatorRepository = MockGeneratorRepository()
+        pasteboardService = MockPasteboardService()
 
         subject = GeneratorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                generatorRepository: generatorRepository
+                generatorRepository: generatorRepository,
+                pasteboardService: pasteboardService
             ),
             state: GeneratorState()
         )
@@ -32,6 +35,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         coordinator = nil
         generatorRepository = nil
+        pasteboardService = nil
         subject = nil
     }
 
@@ -46,6 +50,38 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         waitFor { generatorRepository.passwordGeneratorRequest != nil }
         XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+    }
+
+    /// `receive(_:)` with `.copyGeneratedValue` copies the generated password to the system
+    /// pasteboard and shows a toast.
+    func test_receive_copiedGeneratedValue_password() {
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .password
+
+        subject.state.generatedValue = "PASSWORD"
+        subject.receive(.copyGeneratedValue)
+        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+    }
+
+    /// `receive(_:)` with `.copyGeneratedValue` copies the generated passphrase to the system
+    /// pasteboard and shows a toast.
+    func test_receive_copiedGeneratedValue_passphrase() {
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .passphrase
+
+        subject.state.generatedValue = "PASSPHRASE"
+        subject.receive(.copyGeneratedValue)
+        XCTAssertEqual(pasteboardService.copiedString, "PASSPHRASE")
+    }
+
+    /// `receive(_:)` with `.copyGeneratedValue` copies the generated username to the system
+    /// pasteboard and shows a toast.
+    func test_receive_copiedGeneratedValue_username() {
+        subject.state.generatorType = .username
+
+        subject.state.generatedValue = "USERNAME"
+        subject.receive(.copyGeneratedValue)
+        XCTAssertEqual(pasteboardService.copiedString, "USERNAME")
     }
 
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
