@@ -1,8 +1,9 @@
 import Foundation
+import Networking
 
 /// API response model for a user's cipher.
 ///
-struct CipherDetailsResponseModel: Codable, Equatable {
+struct CipherDetailsResponseModel: JSONResponse, Equatable {
     // MARK: Properties
 
     /// The cipher's list of attachments.
@@ -12,7 +13,7 @@ struct CipherDetailsResponseModel: Codable, Equatable {
     let card: CipherCardModel?
 
     /// The identifiers for collections which contain this cipher.
-    let collectionIds: [String]
+    let collectionIds: [String]?
 
     /// The date the cipher was created.
     let creationDate: Date

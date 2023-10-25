@@ -9,14 +9,19 @@ class AddItemProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<VaultRoute>!
     var subject: AddItemProcessor!
+    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        vaultRepository = MockVaultRepository()
         subject = AddItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                vaultRepository: vaultRepository
+            ),
             state: AddItemState()
         )
     }
@@ -25,6 +30,7 @@ class AddItemProcessorTests: BitwardenTestCase {
         super.tearDown()
         coordinator = nil
         subject = nil
+        vaultRepository = nil
     }
 
     // MARK: Tests
@@ -51,6 +57,21 @@ class AddItemProcessorTests: BitwardenTestCase {
     func test_perform_savePressed() async {
         await subject.perform(.savePressed)
 
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).creationDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).revisionDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+        let creationDate = Date(year: 2023, month: 10, day: 20)
+        vaultRepository.addCipherCiphers[0].creationDate = creationDate
+        vaultRepository.addCipherCiphers[0].revisionDate = creationDate
+
+        XCTAssertEqual(vaultRepository.addCipherCiphers, [subject.state.cipher(creationDate: creationDate)])
         XCTAssertEqual(coordinator.routes.last, .list)
     }
 

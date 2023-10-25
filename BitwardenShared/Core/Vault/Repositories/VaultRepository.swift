@@ -12,6 +12,14 @@ protocol VaultRepository: AnyObject {
     ///
     func fetchSync() async throws
 
+    // MARK: Data Methods
+
+    /// Adds a cipher to the user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is added.
+    ///
+    func addCipher(_ cipher: CipherView) async throws
+
     // MARK: Publishers
 
     /// A publisher for the details of a cipher in the vault.
@@ -44,6 +52,9 @@ protocol VaultRepository: AnyObject {
 class DefaultVaultRepository {
     // MARK: Properties
 
+    /// The API service used to perform API requests for the ciphers in a user's vault.
+    let cipherAPIService: CipherAPIService
+
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
@@ -58,10 +69,12 @@ class DefaultVaultRepository {
     /// Initialize a `DefaultVaultRepository`.
     ///
     /// - Parameters:
+    ///   - cipherAPIService: The API service used to perform API requests for the ciphers in a user's vault.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///
-    init(clientVault: ClientVaultService, syncAPIService: SyncAPIService) {
+    init(cipherAPIService: CipherAPIService, clientVault: ClientVaultService, syncAPIService: SyncAPIService) {
+        self.cipherAPIService = cipherAPIService
         self.clientVault = clientVault
         self.syncAPIService = syncAPIService
     }
@@ -157,6 +170,15 @@ extension DefaultVaultRepository: VaultRepository {
     func fetchSync() async throws {
         let response = try await syncAPIService.getSync()
         syncResponseSubject.value = response
+    }
+
+    // MARK: Data Methods
+
+    func addCipher(_ cipher: CipherView) async throws {
+        let cipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
+        _ = try await cipherAPIService.addCipher(cipher)
+        // TODO: BIT-92 Insert response into database instead of fetching sync.
+        try await fetchSync()
     }
 
     // MARK: Publishers

@@ -19,6 +19,7 @@ class VaultRepositoryTests: BitwardenTestCase {
         clientVault = MockClientVaultService()
 
         subject = DefaultVaultRepository(
+            cipherAPIService: APIService(client: client),
             clientVault: clientVault,
             syncAPIService: APIService(client: client)
         )
@@ -32,6 +33,20 @@ class VaultRepositoryTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `addCipher()` makes the add cipher API request and updates the vault.
+    func test_addCipher() async throws {
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+
+        try await subject.addCipher(.fixture())
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers")
+        XCTAssertEqual(client.requests[1].url.absoluteString, "https://example.com/api/sync")
+    }
 
     /// `fetchSync()` performs the sync API request.
     func test_fetchSync() async throws {

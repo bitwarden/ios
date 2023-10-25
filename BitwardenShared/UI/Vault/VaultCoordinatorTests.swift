@@ -18,6 +18,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
         stackNavigator = MockStackNavigator()
         subject = VaultCoordinator(
+            services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
     }

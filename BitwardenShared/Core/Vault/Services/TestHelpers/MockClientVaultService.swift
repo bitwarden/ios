@@ -42,7 +42,7 @@ class MockClientCiphers: ClientCiphersProtocol {
     }
 
     func encrypt(cipherView: CipherView) async throws -> Cipher {
-        fatalError("Not implemented yet")
+        Cipher(cipherView: cipherView)
     }
 }
 
