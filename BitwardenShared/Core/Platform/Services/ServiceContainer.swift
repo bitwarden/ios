@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
+
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
@@ -65,6 +68,7 @@ public class ServiceContainer: Services {
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
@@ -79,6 +83,7 @@ public class ServiceContainer: Services {
         baseUrlService: BaseUrlService,
         captchaService: CaptchaService,
         clientService: ClientService,
+        errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
@@ -92,6 +97,7 @@ public class ServiceContainer: Services {
         self.baseUrlService = baseUrlService
         self.captchaService = captchaService
         self.clientService = clientService
+        self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
@@ -104,7 +110,9 @@ public class ServiceContainer: Services {
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
-    public convenience init() {
+    /// - Parameter errorReporter: The service used by the application to report non-fatal errors.
+    ///
+    public convenience init(errorReporter: ErrorReporter) {
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
@@ -136,6 +144,7 @@ public class ServiceContainer: Services {
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
             clientService: clientService,
+            errorReporter: errorReporter,
             generatorRepository: generatorRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,

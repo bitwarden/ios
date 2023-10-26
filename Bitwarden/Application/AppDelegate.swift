@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AppDelegateType {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        let services = ServiceContainer()
+        let services = ServiceContainer(errorReporter: CrashlyticsErrorReporter())
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)
         return true
