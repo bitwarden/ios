@@ -315,6 +315,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         let urlError = URLError(.notConnectedToInternet) as Error
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
@@ -389,6 +390,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         let urlError = URLError(.timedOut) as Error
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
