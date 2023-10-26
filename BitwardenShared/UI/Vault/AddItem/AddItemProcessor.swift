@@ -53,6 +53,9 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
             state.name = newValue
         case .newCustomFieldPressed:
             presentCustomFieldAlert()
+        case .newUriPressed:
+            // TODO: BIT-901 Add a new blank URI field
+            break
         case let .notesChanged(newValue):
             state.notes = newValue
         case let .ownerChanged(newValue):
