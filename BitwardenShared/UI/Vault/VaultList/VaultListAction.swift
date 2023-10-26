@@ -1,9 +1,14 @@
+import BitwardenSdk
+
 // MARK: - VaultListAction
 
 /// Actions that can be processed by a `VaultListProcessor`.
 enum VaultListAction: Equatable {
     /// The add item button was pressed.
     case addItemPressed
+
+    /// An item in the vault was pressed.
+    case itemPressed(item: CipherListView)
 
     /// The profile initials button was pressed.
     case profilePressed

@@ -8,4 +8,7 @@ struct VaultListState: Equatable {
 
     /// The text that the user is currently searching for.
     var searchText: String = ""
+
+    /// An array of results matching the `searchText`.
+    var searchResults: [VaultListItem] = []
 }

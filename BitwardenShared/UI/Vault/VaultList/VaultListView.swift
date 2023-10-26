@@ -1,4 +1,98 @@
+import BitwardenSdk
 import SwiftUI
+
+// MARK: - VaultMainView
+
+/// The main view of the vault.
+private struct VaultMainView: View {
+    // MARK: Properties
+
+    /// A flag indicating if the search bar is focused.
+    @Environment(\.isSearching) private var isSearching
+
+    /// The `Store` for this view.
+    @ObservedObject var store: Store<VaultListState, VaultListAction, Void>
+
+    var body: some View {
+        ZStack {
+            let isSearching = isSearching
+                || !store.state.searchText.isEmpty
+                || !store.state.searchResults.isEmpty
+
+            emptyVault
+                .hidden(isSearching)
+
+            search
+                .hidden(!isSearching)
+        }
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .animation(.default, value: isSearching)
+    }
+
+    // MARK: Private Properties
+
+    /// A view that displays the empty vault interface.
+    @ViewBuilder private var emptyVault: some View {
+        GeometryReader { reader in
+            ScrollView {
+                VStack(spacing: 24) {
+                    Spacer()
+
+                    Text(Localizations.noItems)
+                        .multilineTextAlignment(.center)
+
+                    Button(Localizations.addAnItem) {
+                        store.send(.addItemPressed)
+                    }
+                    .buttonStyle(.tertiary())
+
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .frame(minHeight: reader.size.height)
+            }
+        }
+    }
+
+    /// A view that displays the search interface, including search results, an empty search
+    /// interface, and a message indicating that no results were found.
+    @ViewBuilder private var search: some View {
+        if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
+            ScrollView {
+                LazyVStack {
+                    ForEach(store.state.searchResults) { item in
+                        switch item.itemType {
+                        case let .cipher(cipherItem):
+                            Button {
+                                store.send(.itemPressed(item: cipherItem))
+                            } label: {
+                                CipherListViewRowView(item: cipherItem)
+                            }
+                        case .group:
+                            EmptyView()
+                        }
+                    }
+                }
+            }
+        } else {
+            GeometryReader { reader in
+                ScrollView {
+                    VStack(spacing: 35) {
+                        Image(decorative: Asset.Images.magnifyingGlass)
+                            .resizable()
+                            .frame(width: 74, height: 74)
+                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                        Text(Localizations.thereAreNoItemsThatMatchTheSearch)
+                            .font(.styleGuide(.callout))
+                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
+                }
+            }
+        }
+    }
+}
 
 // MARK: - VaultListView
 
@@ -11,12 +105,13 @@ struct VaultListView: View {
     @ObservedObject var store: Store<VaultListState, VaultListAction, Void>
 
     var body: some View {
-        empty
+        VaultMainView(store: store)
             .searchable(
                 text: store.binding(
                     get: \.searchText,
                     send: VaultListAction.searchTextChanged
                 ),
+                placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
             .navigationTitle(Localizations.myVault)
@@ -93,5 +188,53 @@ struct VaultListView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Empty")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            userInitials: "AA",
+                            searchText: "Exam",
+                            searchResults: [
+                                .init(cipherListView: .init(
+                                    id: UUID().uuidString,
+                                    organizationId: nil,
+                                    folderId: nil,
+                                    collectionIds: [],
+                                    name: "Example",
+                                    subTitle: "email@example.com",
+                                    type: .login,
+                                    favorite: true,
+                                    reprompt: .none,
+                                    edit: false,
+                                    viewPassword: true,
+                                    attachments: 0,
+                                    creationDate: Date(),
+                                    deletedDate: nil,
+                                    revisionDate: Date()
+                                ))!,
+                            ]
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("1 Search Result")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            userInitials: "AA",
+                            searchText: "Exam",
+                            searchResults: []
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("No Search Results")
     }
 }

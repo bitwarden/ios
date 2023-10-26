@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SnapshotTesting
 import SwiftUI
 import ViewInspector
@@ -46,9 +47,50 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .profilePressed)
     }
 
+    func test_searchResult_tap() throws {
+        let cipherItem = CipherListView.fixture()
+        let result = VaultListItem.fixture(cipherListView: cipherItem)
+        processor.state.searchResults = [result]
+        let button = try subject.inspect().find(button: "Example")
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: cipherItem))
+    }
+
     // MARK: Snapshots
 
     func test_snapshot_empty() {
         assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_withSearchResult() {
+        processor.state.searchText = "Exam"
+        processor.state.searchResults = [
+            VaultListItem(
+                cipherListView: CipherListView(
+                    id: UUID().uuidString,
+                    organizationId: nil,
+                    folderId: nil,
+                    collectionIds: [],
+                    name: "Example",
+                    subTitle: "email@example.com",
+                    type: .login,
+                    favorite: true,
+                    reprompt: .none,
+                    edit: false,
+                    viewPassword: true,
+                    attachments: 0,
+                    creationDate: Date(),
+                    deletedDate: nil,
+                    revisionDate: Date()
+                )
+            )!,
+        ]
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_withoutSearchResult() {
+        processor.state.searchText = "Exam"
+        processor.state.searchResults = []
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }
