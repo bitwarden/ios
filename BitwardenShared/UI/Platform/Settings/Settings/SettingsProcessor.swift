@@ -5,7 +5,8 @@ import OSLog
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Void> {
     // MARK: Types
 
-    typealias Services = HasSettingsRepository
+    typealias Services = HasErrorReporter
+        & HasSettingsRepository
 
     // MARK: Private Properties
 
@@ -52,9 +53,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
             do {
                 try await self.services.settingsRepository.logout()
             } catch {
-                // TODO: BIT-941 Log error to Crashlytics.
-                Logger.processor.error("Error logging out: \(error)")
                 assertionFailure("Error logging out: \(error)")
+                self.services.errorReporter.log(error: BitwardenError.logoutError(error: error))
             }
             self.coordinator.navigate(to: .logout)
         }

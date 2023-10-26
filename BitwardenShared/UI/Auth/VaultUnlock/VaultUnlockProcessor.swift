@@ -6,6 +6,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -74,9 +75,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             do {
                 try await self.services.authRepository.logout()
             } catch {
-                // TODO: BIT-941 Log error to Crashlytics.
-                Logger.processor.error("Error logging out: \(error)")
                 assertionFailure("Error logging out: \(error)")
+                self.services.errorReporter.log(error: BitwardenError.logoutError(error: error))
             }
             self.coordinator.navigate(to: .landing)
         }
