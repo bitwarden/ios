@@ -101,6 +101,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         guard case let .alert(alert) = coordinator.routes.last else {
             return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
         }
+
         await alert.alertActions[1].handler?(alert.alertActions[1])
 
         XCTAssertEqual(client.requests.count, 2)
@@ -307,6 +308,42 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(_:)` with `.createAccount` presents an alert when there is no internet connection.
+    /// When the user taps `Try again`, the create account request is made again.
+    func test_perform_createAccount_noInternetConnection() async {
+        subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        let urlError = URLError(.notConnectedToInternet) as Error
+        client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
+
+        await subject.perform(.createAccount)
+
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+
+        XCTAssertEqual(alert, Alert.networkResponseError(urlError) {
+            await self.subject.perform(.createAccount)
+        })
+
+        await alert.alertActions[0].handler?(alert.alertActions[0])
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .login(
+                username: "email@example.com",
+                region: BitwardenShared.RegionType.unitedStates,
+                isLoginWithDeviceVisible: false
+            )
+        )
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+    }
+
     /// `perform(_:)` with `.createAccount` presents an alert when password confirmation is incorrect.
     func test_perform_createAccount_passwordsDontMatch() async {
         subject.state.emailText = "email@example.com"
@@ -343,6 +380,40 @@ class CreateAccountProcessorTests: BitwardenTestCase {
             coordinator.routes.last,
             .alert(.createAccountAlert("Master password must be at least 12 characters long."))
         )
+    }
+
+    /// `perform(_:)` with `.createAccount` presents an alert when the request times out.
+    /// When the user taps `Try again`, the create account request is made again.
+    func test_perform_createAccount_timeout() async {
+        subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
+        subject.state.isTermsAndPrivacyToggleOn = true
+
+        let urlError = URLError(.timedOut) as Error
+        client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
+
+        await subject.perform(.createAccount)
+
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+
+        XCTAssertEqual(alert.message, urlError.localizedDescription)
+
+        await alert.alertActions[0].handler?(alert.alertActions[0])
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .login(
+                username: "email@example.com",
+                region: BitwardenShared.RegionType.unitedStates,
+                isLoginWithDeviceVisible: false
+            )
+        )
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
     }
 
     /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.
