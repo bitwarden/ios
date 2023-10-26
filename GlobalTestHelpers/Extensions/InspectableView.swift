@@ -24,6 +24,14 @@ struct BitwardenTextFieldType: BaseViewType {
     ]
 }
 
+struct BitwardenMenuFieldType: BaseViewType {
+    static var typePrefix: String = "BitwardenMenuField"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.BitwardenMenuField",
+    ]
+}
+
 // MARK: InspectableView
 
 extension InspectableView {
@@ -59,6 +67,21 @@ extension InspectableView {
         try find(AsyncButtonType.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
         }
+    }
+
+    /// Attempts to locate a bitwarden menu field with the provided title.
+    ///
+    /// - Parameters:
+    ///   - title: The title to use while searching for a menu field.
+    ///   - locale: The locale for text extraction.
+    /// - Returns: A `BitwardenMenuFieldType`, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        bitwardenMenuField title: String,
+        locale: Locale = .testsDefault
+    ) throws -> InspectableView<BitwardenMenuFieldType> {
+        try find(BitwardenMenuFieldType.self, containing: title, locale: locale)
     }
 
     /// Attempts to locate a bitwarden text field with the provided title.
@@ -172,5 +195,14 @@ extension InspectableView where View == BitwardenTextFieldType {
                 type: String(describing: BitwardenTextFieldType.self)
             )
         }
+    }
+}
+
+extension InspectableView where View == BitwardenMenuFieldType {
+    /// Selects a new value in the menu field.
+    ///
+    func select(newValue: any Hashable) throws {
+        let picker = try find(ViewType.Picker.self)
+        try picker.select(value: newValue)
     }
 }
