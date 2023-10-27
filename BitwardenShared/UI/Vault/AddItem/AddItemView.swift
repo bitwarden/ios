@@ -21,7 +21,7 @@ struct AddItemView: View {
                 section(title: Localizations.itemInformation) {
                     BitwardenMenuField(
                         title: Localizations.type,
-                        options: [.login, .card, .identity, .secureNote],
+                        options: CipherType.allCases,
                         selection: store.binding(
                             get: \.type,
                             send: AddItemAction.typeChanged

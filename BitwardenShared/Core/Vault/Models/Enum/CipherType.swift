@@ -14,6 +14,10 @@ enum CipherType: Int, Codable {
     case identity = 4
 }
 
+extension CipherType: CaseIterable {
+    static var allCases: [CipherType] = [.login, .card, .identity, .secureNote]
+}
+
 extension CipherType: Menuable {
     var localizedName: String {
         switch self {
