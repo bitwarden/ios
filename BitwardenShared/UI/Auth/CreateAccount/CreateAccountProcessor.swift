@@ -1,6 +1,7 @@
 import BitwardenSdk
 import Combine
 import Foundation
+import OSLog
 
 // MARK: - CreateAccountError
 
@@ -109,20 +110,21 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             await createAccount()
             return
         }
+
         do {
             let breachCount = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
             guard breachCount == 0 else {
-                throw CreateAccountError.passwordBreachesFound
+                let alert = Alert.breachesAlert {
+                    await self.createAccount()
+                }
+                coordinator.navigate(to: .alert(alert))
+                return
             }
-            await createAccount()
-        } catch CreateAccountError.passwordBreachesFound {
-            let alert = Alert.breachesAlert {
-                await self.createAccount()
-            }
-            coordinator.navigate(to: .alert(alert))
         } catch {
-            // TODO: BIT-739 HIBP network request failure error dialogue
+            Logger.processor.error("HIBP network request failed: \(error)")
         }
+
+        await createAccount()
     }
 
     /// Creates the user's account with their provided credentials.
