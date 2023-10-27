@@ -26,6 +26,9 @@ enum AddItemAction: Equatable {
     /// The new custom field button was pressed.
     case newCustomFieldPressed
 
+    /// The new uri button was pressed.
+    case newUriPressed
+
     /// The notes field was changed.
     case notesChanged(String)
 

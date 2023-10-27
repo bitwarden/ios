@@ -116,6 +116,11 @@ struct AddItemView: View {
                     .keyboardType(.URL)
                     .textInputAutocapitalization(.never)
                     .textContentType(.URL)
+
+                    Button(Localizations.newUri) {
+                        store.send(.newUriPressed)
+                    }
+                    .buttonStyle(.tertiary())
                 }
 
                 section(title: Localizations.miscellaneous) {

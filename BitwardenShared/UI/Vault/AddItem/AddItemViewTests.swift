@@ -106,6 +106,13 @@ class AddItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .newCustomFieldPressed)
     }
 
+    /// Tapping the new uri button dispatches the `.newUriPressed` action.
+    func test_newUriButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.newUri)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .newUriPressed)
+    }
+
     /// Updating the notes text field dispatches the `.notesChanged()` action.
     func test_notesTextField_updateValue() throws {
         let textField = try subject.inspect().find(

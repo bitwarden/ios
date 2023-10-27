@@ -159,6 +159,13 @@ class AddItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(coordinator.routes.last)
     }
 
+    /// `receive(_:)` with `.newUriPressed` adds a new URI field to the state.
+    func test_receive_newUriPressed() {
+        subject.receive(.newUriPressed)
+
+        // TODO: BIT-901 state assertion for added field
+    }
+
     /// `receive(_:)` with `.notesChanged` with a value updates the state correctly.
     func test_receive_notesChanged_withValue() {
         subject.state.notes = ""
