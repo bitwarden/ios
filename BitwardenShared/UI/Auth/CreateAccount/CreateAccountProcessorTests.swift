@@ -49,12 +49,12 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// Also tests that the user is then navigated to the login screen.
     func test_captchaCompleted() throws {
         CreateAccountRequestModel.encoder.outputFormatting = .sortedKeys
+        subject.state.isTermsAndPrivacyToggleOn = true
         clientAuth.hashPasswordResult = .success("hashed password")
         client.result = .httpSuccess(testData: .createAccountRequest)
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.emailText = "email@example.com"
-        subject.state.isTermsAndPrivacyToggleOn = true
         subject.captchaCompleted(token: "token")
 
         let createAccountRequest = CreateAccountRequestModel(
@@ -90,11 +90,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// entered a password that has been found in a data breach. After tapping `Yes` to create
     /// an account anyways, the `CreateAccountRequest` is made.
     func test_perform_checkForBreachesAndCreateAccount_yesTapped() async throws {
+        subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.emailText = "email@example.com"
-        subject.state.isCheckDataBreachesToggleOn = true
-        subject.state.isTermsAndPrivacyToggleOn = true
 
         client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .createAccountRequest)]
 
@@ -117,7 +116,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.emailText = "email@example.com"
-        subject.state.isCheckDataBreachesToggleOn = true
+
         subject.state.isTermsAndPrivacyToggleOn = true
 
         client.result = .httpSuccess(testData: .hibpLeakedPasswords)
@@ -142,6 +141,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         let response = HTTPResponse.failure(
             statusCode: 400,
@@ -178,6 +178,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         let response = HTTPResponse.failure(
             statusCode: 400,
@@ -202,6 +203,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.createAccount` presents an alert when the email field is empty.
     func test_perform_createAccount_emptyEmail() async {
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
         subject.state.emailText = ""
 
         client.result = .httpSuccess(testData: .createAccountSuccess)
@@ -218,6 +220,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.retypePasswordText = ""
         subject.state.emailText = "email@example.com"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         client.result = .httpSuccess(testData: .createAccountSuccess)
 
@@ -234,6 +237,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         client.result = .httpFailure(CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: "token"))
 
@@ -255,6 +259,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         ajajajajajajajajajajajajajajajajajajajajajajajajajajajajajsjajajajajaj
         """
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         let response = HTTPResponse.failure(
             statusCode: 400,
@@ -282,6 +287,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "123456789012"
         subject.state.retypePasswordText = "123456789012"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         let response = HTTPResponse.failure(
             statusCode: 400,
@@ -310,6 +316,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         let urlError = URLError(.notConnectedToInternet) as Error
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
@@ -345,6 +352,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "123456789012"
         subject.state.retypePasswordText = "123456789000"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         client.result = .httpSuccess(testData: .createAccountSuccess)
 
@@ -363,6 +371,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "123"
         subject.state.retypePasswordText = "123"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         client.result = .httpSuccess(testData: .createAccountSuccess)
 
@@ -382,6 +391,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         let urlError = URLError(.timedOut) as Error
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
@@ -413,6 +423,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     func test_perform_createAccount_withInvalidEmail() async {
         subject.state.emailText = "exampleemail.com"
         subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
 
         client.result = .httpFailure(CreateAccountError.invalidEmail)
 
@@ -424,7 +435,6 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` and a valid email creates the user's account.
     func test_perform_createAccount_withValidEmail() async {
-        subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.emailText = "email@example.com"
         subject.state.passwordText = "123456789012"
@@ -443,7 +453,6 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.createAccount` and a valid email surrounded by whitespace trims the whitespace and
     /// creates the user's account
     func test_perform_createAccount_withValidEmailAndSpace() async {
-        subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.passwordText = "123456789012"
         subject.state.retypePasswordText = "123456789012"
@@ -462,7 +471,6 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.createAccount` and a valid email with uppercase characters converts the email to lowercase
     /// and creates the user's account.
     func test_perform_createAccount_withValidEmailUppercased() async {
-        subject.state.isCheckDataBreachesToggleOn = true
         subject.state.isTermsAndPrivacyToggleOn = true
         subject.state.emailText = "EMAIL@EXAMPLE.COM"
         subject.state.passwordText = "123456789012"
@@ -482,6 +490,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// and privacy policy toggle is off.
     func test_perform_createAccount_withTermsAndServicesToggle_false() async {
         subject.state.isTermsAndPrivacyToggleOn = false
+        subject.state.isCheckDataBreachesToggleOn = false
         subject.state.emailText = "email@example.com"
         subject.state.passwordText = "123456789012"
         subject.state.retypePasswordText = "123456789012"
