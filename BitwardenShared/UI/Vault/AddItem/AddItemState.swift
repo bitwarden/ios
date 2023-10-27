@@ -30,7 +30,7 @@ struct AddItemState {
     var owner: String = ""
 
     /// What cipher type this item is.
-    var type: String = "" // TODO: BIT-902 update to use CipherType
+    var type: CipherType = .login
 
     /// The uri associated with this item. Used with autofill.
     var uri: String = "" // TODO: BIT-901 Update to use an array of CipherLoginUriModel

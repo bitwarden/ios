@@ -42,7 +42,7 @@ enum AddItemAction: Equatable {
     case togglePasswordVisibilityChanged(Bool)
 
     /// The type field was changed.
-    case typeChanged(String)
+    case typeChanged(CipherType)
 
     /// The uri field was changed.
     case uriChanged(String)
