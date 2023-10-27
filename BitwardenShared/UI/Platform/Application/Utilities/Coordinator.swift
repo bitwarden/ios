@@ -15,6 +15,12 @@ public protocol Coordinator<Route>: AnyObject {
     ///
     func navigate(to route: Route, context: AnyObject?)
 
+    /// Shows the provided alert on the `stackNavigator`.
+    ///
+    /// - Parameter alert: The alert to show.
+    ///
+    func showAlert(_ alert: Alert)
+
     /// Shows the loading overlay view.
     ///
     /// - Parameter state: The state for configuring the loading overlay.
@@ -26,6 +32,32 @@ public protocol Coordinator<Route>: AnyObject {
     func start()
 }
 
+/// A protocol for an object that has a `Navigator`.
+///
+protocol HasNavigator {
+    var navigator: Navigator { get }
+}
+
+/// A protocol for an object that has a `StackNavigator`.
+///
+protocol HasStackNavigator: HasNavigator {
+    var stackNavigator: StackNavigator { get }
+}
+
+/// A protocol for an object that has a `TabNavigator`.
+///
+protocol HasTabNavigator: HasNavigator {
+    var tabNavigator: TabNavigator { get }
+}
+
+/// A protocol for an object that has a `RootNavigator`.
+///
+protocol HasRootNavigator: HasNavigator {
+    var navigator: RootNavigator { get }
+}
+
+// MARK: Extensions
+
 public extension Coordinator {
     /// Navigate to the screen associated with the given `Route` without context.
     ///
@@ -35,4 +67,43 @@ public extension Coordinator {
     func navigate(to route: Route) {
         navigate(to: route, context: nil)
     }
+}
+
+extension Coordinator where Self: HasNavigator {
+    /// Hides the loading overlay view.
+    ///
+    func hideLoadingOverlay() {
+        navigator.hideLoadingOverlay()
+    }
+
+    /// Shows the provided alert on the `stackNavigator`.
+    ///
+    /// - Parameter alert: The alert to show.
+    ///
+    func showAlert(_ alert: Alert) {
+        navigator.present(alert)
+    }
+
+    /// Shows the loading overlay view.
+    ///
+    /// - Parameter state: The state for configuring the loading overlay.
+    ///
+    func showLoadingOverlay(_ state: LoadingOverlayState) {
+        navigator.showLoadingOverlay(state)
+    }
+}
+
+extension HasStackNavigator {
+    /// The stack navigator.
+    var navigator: Navigator { stackNavigator }
+}
+
+extension HasTabNavigator {
+    /// The tab navigator.
+    var navigator: Navigator { tabNavigator }
+}
+
+extension HasRootNavigator {
+    /// The root navigator.
+    var navigator: Navigator { navigator }
 }

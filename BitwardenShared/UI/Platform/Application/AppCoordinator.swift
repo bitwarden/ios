@@ -4,7 +4,7 @@ import UIKit
 
 /// A coordinator that manages the app's top-level navigation.
 ///
-class AppCoordinator: Coordinator {
+class AppCoordinator: Coordinator, HasRootNavigator {
     // MARK: Types
 
     /// The types of modules used by this coordinator.
@@ -39,10 +39,6 @@ class AppCoordinator: Coordinator {
 
     // MARK: Methods
 
-    func hideLoadingOverlay() {
-        navigator.hideLoadingOverlay()
-    }
-
     func navigate(to route: AppRoute, context: AnyObject?) {
         switch route {
         case let .auth(authRoute):
@@ -50,10 +46,6 @@ class AppCoordinator: Coordinator {
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         }
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        navigator.showLoadingOverlay(state)
     }
 
     func start() {

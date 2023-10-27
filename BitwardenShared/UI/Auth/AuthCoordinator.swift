@@ -17,7 +17,7 @@ protocol AuthCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the authentication flow.
 ///
-internal final class AuthCoordinator: NSObject, Coordinator {
+internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasAccountAPIService
@@ -69,10 +69,6 @@ internal final class AuthCoordinator: NSObject, Coordinator {
 
     // MARK: Methods
 
-    func hideLoadingOverlay() {
-        stackNavigator.hideLoadingOverlay()
-    }
-
     func navigate(to route: AuthRoute, context: AnyObject?) {
         switch route {
         case let .alert(alert):
@@ -112,23 +108,11 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         }
     }
 
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        stackNavigator.showLoadingOverlay(state)
-    }
-
     func start() {
         rootNavigator?.show(child: stackNavigator)
     }
 
     // MARK: Private Methods
-
-    /// Shows the provided alert on the `stackNavigator`.
-    ///
-    /// - Parameter alert: The alert to show.
-    ///
-    private func showAlert(_ alert: Alert) {
-        stackNavigator.present(alert)
-    }
 
     /// Shows the captcha screen.
     ///

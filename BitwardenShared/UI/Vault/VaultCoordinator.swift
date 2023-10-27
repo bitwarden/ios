@@ -4,11 +4,11 @@ import SwiftUI
 
 /// A coordinator that manages navigation in the vault tab.
 ///
-final class VaultCoordinator: Coordinator {
+final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: - Private Properties
 
     /// The stack navigator that is managed by this coordinator.
-    private let stackNavigator: StackNavigator
+    var stackNavigator: StackNavigator
 
     // MARK: Initialization
 
@@ -21,10 +21,6 @@ final class VaultCoordinator: Coordinator {
     }
 
     // MARK: Methods
-
-    func hideLoadingOverlay() {
-        stackNavigator.hideLoadingOverlay()
-    }
 
     func navigate(to route: VaultRoute, context: AnyObject?) {
         switch route {
@@ -39,10 +35,6 @@ final class VaultCoordinator: Coordinator {
         case .setupTotpCamera:
             showCamera()
         }
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        stackNavigator.showLoadingOverlay(state)
     }
 
     func start() {}
