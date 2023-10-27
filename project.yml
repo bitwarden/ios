@@ -36,6 +36,8 @@ schemes:
         Bitwarden: all
         BitwardenTests: [test]
     test:
+      commandLineArguments:
+        "-testing": true
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
@@ -85,6 +87,8 @@ schemes:
         BitwardenShared: all
         BitwardenSharedTests: [test]
     test:
+      commandLineArguments:
+        "-testing": true
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true

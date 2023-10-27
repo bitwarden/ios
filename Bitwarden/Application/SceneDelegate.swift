@@ -1,4 +1,5 @@
 import BitwardenShared
+import SwiftUI
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -14,9 +15,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        guard let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor,
-              let windowScene = scene as? UIWindowScene
-        else {
+        guard let windowScene = scene as? UIWindowScene else { return }
+        guard let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor else {
+            if (UIApplication.shared.delegate as? AppDelegateType)?.isTesting == true {
+                // If the app is running tests, show a testing view.
+                window = UIWindow(windowScene: windowScene)
+                window?.makeKeyAndVisible()
+                window?.rootViewController = UIHostingController(rootView: ZStack {
+                    Color("backgroundSplash").ignoresSafeArea()
+
+                    Image("logoBitwarden")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 238)
+                })
+            }
             return
         }
 
