@@ -61,6 +61,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
         subject.state.generatedValue = "PASSWORD"
         subject.receive(.copyGeneratedValue)
         XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
     }
 
     /// `receive(_:)` with `.copyGeneratedValue` copies the generated passphrase to the system
@@ -72,6 +73,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
         subject.state.generatedValue = "PASSPHRASE"
         subject.receive(.copyGeneratedValue)
         XCTAssertEqual(pasteboardService.copiedString, "PASSPHRASE")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.passphrase))
     }
 
     /// `receive(_:)` with `.copyGeneratedValue` copies the generated username to the system
@@ -82,6 +84,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
         subject.state.generatedValue = "USERNAME"
         subject.receive(.copyGeneratedValue)
         XCTAssertEqual(pasteboardService.copiedString, "USERNAME")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
     }
 
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
@@ -246,6 +249,16 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         subject.receive(.textValueChanged(field: field, value: "abc"))
         XCTAssertEqual(subject.state.passwordState.wordSeparator, "a")
+    }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_toastShown() {
+        let toast = Toast(text: "toast!")
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
+
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `receive(_:)` with `.toggleValueChanged` updates the state's value for the toggle field.

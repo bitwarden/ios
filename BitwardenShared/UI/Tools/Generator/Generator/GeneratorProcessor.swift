@@ -52,6 +52,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             break
         case .copyGeneratedValue:
             services.pasteboardService.copy(state.generatedValue)
+            state.showCopiedValueToast()
         case let .generatorTypeChanged(generatorType):
             state.generatorType = generatorType
         case let .passwordGeneratorTypeChanged(passwordGeneratorType):
@@ -79,6 +80,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 // Don't generate a new value on every character input, wait until focus leaves the field.
                 shouldGenerateNewValue = false
             }
+        case let .toastShown(newValue):
+            state.toast = newValue
         case let .toggleValueChanged(field, isOn):
             state[keyPath: field.keyPath] = isOn
         case let .usernameGeneratorTypeChanged(usernameGeneratorType):
