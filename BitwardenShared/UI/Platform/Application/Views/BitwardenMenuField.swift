@@ -61,7 +61,7 @@ struct BitwardenMenuField<T>: View where T: Menuable {
         .id(title)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
