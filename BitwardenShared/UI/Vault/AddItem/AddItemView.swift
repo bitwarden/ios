@@ -19,9 +19,10 @@ struct AddItemView: View {
         ScrollView {
             LazyVStack(spacing: 20) {
                 section(title: Localizations.itemInformation) {
-                    BitwardenTextField(
+                    BitwardenMenuField(
                         title: Localizations.type,
-                        text: store.binding(
+                        options: CipherType.allCases,
+                        selection: store.binding(
                             get: \.type,
                             send: AddItemAction.typeChanged
                         )

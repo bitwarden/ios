@@ -24,6 +24,14 @@ struct BitwardenTextFieldType: BaseViewType {
     ]
 }
 
+struct BitwardenMenuFieldType: BaseViewType {
+    static var typePrefix: String = "BitwardenMenuField"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.BitwardenMenuField",
+    ]
+}
+
 // MARK: InspectableView
 
 extension InspectableView {
@@ -59,6 +67,21 @@ extension InspectableView {
         try find(AsyncButtonType.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
         }
+    }
+
+    /// Attempts to locate a bitwarden menu field with the provided title.
+    ///
+    /// - Parameters:
+    ///   - title: The title to use while searching for a menu field.
+    ///   - locale: The locale for text extraction.
+    /// - Returns: A `BitwardenMenuFieldType`, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        bitwardenMenuField title: String,
+        locale: Locale = .testsDefault
+    ) throws -> InspectableView<BitwardenMenuFieldType> {
+        try find(BitwardenMenuFieldType.self, containing: title, locale: locale)
     }
 
     /// Attempts to locate a bitwarden text field with the provided title.
@@ -139,6 +162,36 @@ extension InspectableView {
     func find(secureField label: String) throws -> InspectableView<ViewType.SecureField> {
         try find(ViewType.SecureField.self, containing: label)
     }
+
+    /// Attempts to locate a slider with the provided accessibility label.
+    ///
+    /// - Parameter accessibilityLabel: The accessibility label to use while searching for a slider.
+    /// - Returns: A slider, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        sliderWithAccessibilityLabel accessibilityLabel: String,
+        locale: Locale = .testsDefault
+    ) throws -> InspectableView<ViewType.Slider> {
+        try find(ViewType.Slider.self) { view in
+            try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
+        }
+    }
+
+    /// Attempts to locate a toggle with the provided accessibility label.
+    ///
+    /// - Parameter accessibilityLabel: The accessibility label to use while searching for a toggle.
+    /// - Returns: A toggle, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        toggleWithAccessibilityLabel accessibilityLabel: String,
+        locale: Locale = .testsDefault
+    ) throws -> InspectableView<ViewType.Toggle> {
+        try find(ViewType.Toggle.self) { view in
+            try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
+        }
+    }
 }
 
 extension InspectableView where View == AsyncButtonType {
@@ -172,5 +225,14 @@ extension InspectableView where View == BitwardenTextFieldType {
                 type: String(describing: BitwardenTextFieldType.self)
             )
         }
+    }
+}
+
+extension InspectableView where View == BitwardenMenuFieldType {
+    /// Selects a new value in the menu field.
+    ///
+    func select(newValue: any Hashable) throws {
+        let picker = try find(ViewType.Picker.self)
+        try picker.select(value: newValue)
     }
 }

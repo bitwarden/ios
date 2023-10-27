@@ -171,11 +171,11 @@ class AddItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .setupTotpPressed)
     }
 
-    /// Updating the type text field dispatches the `.typeChanged()` action.
-    func test_typeTextField_updateValue() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.type)
-        try textField.inputBinding().wrappedValue = "text"
-        XCTAssertEqual(processor.dispatchedActions.last, .typeChanged("text"))
+    func test_typeMenuField_updateValue() throws {
+        processor.state.type = .login
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.type)
+        try menuField.select(newValue: CipherType.card)
+        XCTAssertEqual(processor.dispatchedActions.last, .typeChanged(.card))
     }
 
     /// Tapping the uri settings button dispatches the `.uriSettingsPressed` action.
@@ -208,7 +208,7 @@ class AddItemViewTests: BitwardenTestCase {
     }
 
     func test_snapshot_full_fieldsVisible() {
-        processor.state.type = "Login"
+        processor.state.type = .login
         processor.state.name = "Name"
         processor.state.username = "username"
         processor.state.password = "password1!"
@@ -225,7 +225,7 @@ class AddItemViewTests: BitwardenTestCase {
     }
 
     func test_snapshot_full_fieldsNotVisible() {
-        processor.state.type = "Login"
+        processor.state.type = .login
         processor.state.name = "Name"
         processor.state.username = "username"
         processor.state.password = "password1!"

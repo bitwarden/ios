@@ -1,3 +1,5 @@
+import OSLog
+
 /// The processor used to manage state and handle actions for the settings screen.
 ///
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Void> {
@@ -47,7 +49,13 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
     ///
     private func showLogoutConfirmation() {
         let alert = Alert.logoutConfirmation {
-            try? await self.services.settingsRepository.logout()
+            do {
+                try await self.services.settingsRepository.logout()
+            } catch {
+                // TODO: BIT-941 Log error to Crashlytics.
+                Logger.processor.error("Error logging out: \(error)")
+                assertionFailure("Error logging out: \(error)")
+            }
             self.coordinator.navigate(to: .logout)
         }
         coordinator.navigate(to: .alert(alert))

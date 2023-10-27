@@ -243,20 +243,12 @@ class AddItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.isPasswordVisible)
     }
 
-    /// `receive(_:)` with `.typeChanged` without a value updates the state correctly.
-    func test_receive_typeChanged_withValue() {
-        subject.state.type = ""
-        subject.receive(.typeChanged("type"))
+    /// `receive(_:)` with `.typeChanged` updates the state correctly.
+    func test_receive_typeChanged() {
+        subject.state.type = .login
+        subject.receive(.typeChanged(.card))
 
-        XCTAssertEqual(subject.state.type, "type")
-    }
-
-    /// `receive(_:)` with `.typeChanged` without a value updates the state correctly.
-    func test_receive_typeChanged_withoutValue() {
-        subject.state.type = "type"
-        subject.receive(.typeChanged(""))
-
-        XCTAssertEqual(subject.state.type, "")
+        XCTAssertEqual(subject.state.type, .card)
     }
 
     /// `receive(_:)` with `.uriChanged` without a value updates the state correctly.

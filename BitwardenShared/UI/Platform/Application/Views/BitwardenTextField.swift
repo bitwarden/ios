@@ -128,7 +128,7 @@ struct BitwardenTextField: View {
         .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -208,18 +208,16 @@ struct BitwardenTextField: View {
         let label = button.icon.swiftUIImage
             .resizable()
             .frame(width: 14, height: 14)
-            .padding(10)
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-            .background(Asset.Colors.fillTertiary.swiftUIColor)
-            .clipShape(Circle())
             .animation(nil, value: button.icon.swiftUIImage)
         switch button.action {
         case let .async(action):
             AsyncButton(role: nil, action: action, label: { label })
                 .accessibilityLabel(button.accessibilityLabel)
+                .buttonStyle(.accessory)
         case let .sync(action):
             Button(action: action, label: { label })
                 .accessibilityLabel(button.accessibilityLabel)
+                .buttonStyle(.accessory)
         }
     }
 }
