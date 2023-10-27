@@ -48,6 +48,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `captchaCompleted()` makes the create account request again, this time with a captcha token.
     /// Also tests that the user is then navigated to the login screen.
     func test_captchaCompleted() throws {
+        CreateAccountRequestModel.encoder.outputFormatting = .sortedKeys
         clientAuth.hashPasswordResult = .success("hashed password")
         client.result = .httpSuccess(testData: .createAccountRequest)
         subject.state.passwordText = "password1234"
