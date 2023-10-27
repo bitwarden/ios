@@ -14,7 +14,7 @@ struct CreateAccountState: Equatable {
     var emailText: String = ""
 
     /// Whether the check for data breaches toggle is on.
-    var isCheckDataBreachesToggleOn: Bool = false
+    var isCheckDataBreachesToggleOn: Bool = true
 
     /// Whether the terms and privacy toggle is on.
     var isTermsAndPrivacyToggleOn: Bool = false
