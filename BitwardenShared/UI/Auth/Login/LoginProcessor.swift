@@ -28,6 +28,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     typealias Services = HasAccountAPIService
         & HasAppIdService
         & HasAuthAPIService
+        & HasAuthRepository
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
@@ -158,6 +159,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             await services.stateService.addAccount(account)
             let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityToken)
             try await services.stateService.setAccountEncryptionKeys(encryptionKeys)
+
+            try await services.authRepository.unlockVault(password: state.masterPassword)
 
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .complete)

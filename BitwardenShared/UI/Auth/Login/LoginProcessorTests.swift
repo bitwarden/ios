@@ -9,6 +9,7 @@ class LoginProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
+    var authRepository: MockAuthRepository!
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
@@ -22,6 +23,7 @@ class LoginProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         appSettingsStore = MockAppSettingsStore()
+        authRepository = MockAuthRepository()
         captchaService = MockCaptchaService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
@@ -32,6 +34,7 @@ class LoginProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingsStore,
+                authRepository: authRepository,
                 captchaService: captchaService,
                 clientService: MockClientService(clientAuth: clientAuth),
                 httpClient: client,
@@ -97,6 +100,7 @@ class LoginProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.routes.last, .complete)
 
+        XCTAssertEqual(authRepository.unlockVaultPassword, "Password1234!")
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
         XCTAssertEqual(
             stateService.accountEncryptionKeys,
@@ -203,6 +207,7 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
 
+        XCTAssertEqual(authRepository.unlockVaultPassword, "Password1234!")
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
         XCTAssertEqual(
             stateService.accountEncryptionKeys,
