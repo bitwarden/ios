@@ -83,6 +83,17 @@ extension GeneratorState {
 }
 
 extension GeneratorState.PasswordState {
+    /// Returns a `PassphraseGeneratorRequest` containing the user selected settings for generating
+    /// a passphrase.
+    var passphraseGeneratorRequest: PassphraseGeneratorRequest {
+        PassphraseGeneratorRequest(
+            numWords: UInt8(numberOfWords),
+            wordSeparator: wordSeparator,
+            capitalize: capitalize,
+            includeNumber: includeNumber
+        )
+    }
+
     /// Returns a `PasswordGeneratorRequest` containing the user selected settings for generating a
     /// password.
     var passwordGeneratorRequest: PasswordGeneratorRequest {

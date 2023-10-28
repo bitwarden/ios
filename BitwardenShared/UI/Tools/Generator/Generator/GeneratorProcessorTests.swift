@@ -57,6 +57,26 @@ class GeneratorProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.generatorType, .username)
     }
 
+    /// `receive(_:)` with `.refreshGeneratedValue` generates a new passphrase.
+    func test_receive_refreshGeneratedValue_passphrase() {
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .passphrase
+
+        subject.receive(.refreshGeneratedValue)
+
+        waitFor { generatorRepository.passphraseGeneratorRequest != nil }
+
+        XCTAssertEqual(
+            generatorRepository.passphraseGeneratorRequest,
+            PassphraseGeneratorRequest(
+                numWords: 3,
+                wordSeparator: "-",
+                capitalize: false,
+                includeNumber: false
+            )
+        )
+    }
+
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new password.
     func test_receive_refreshGeneratedValue_password() {
         subject.state.generatorType = .password
