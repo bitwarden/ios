@@ -7,7 +7,10 @@ import SwiftUI
 struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
     // MARK: Properties
 
-    /// A key path for updating the backing value for the text field.
+    /// The footer text displayed below the menu field.
+    let footer: String?
+
+    /// A key path for updating the backing value for the menu field.
     let keyPath: WritableKeyPath<State, T>
 
     /// The options displayed in the menu.
@@ -23,6 +26,30 @@ struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
 
     var id: String {
         "FormMenuField-\(title)"
+    }
+
+    // MARK: Initialization
+
+    /// Initialize a `FormMenuField`.
+    ///
+    /// - Parameters:
+    ///   - footer: The footer text displayed below the menu field.
+    ///   - keyPath: A key path for updating the backing value for the menu field.
+    ///   - options: The options displayed in the menu.
+    ///   - selection: The current selection.
+    ///   - title: The title of the field.
+    init(
+        footer: String? = nil,
+        keyPath: WritableKeyPath<State, T>,
+        options: [T],
+        selection: T,
+        title: String
+    ) {
+        self.footer = footer
+        self.keyPath = keyPath
+        self.options = options
+        self.selection = selection
+        self.title = title
     }
 }
 
@@ -45,6 +72,7 @@ struct FormMenuFieldView<State, T: Menuable, TrailingContent: View>: View {
     var body: some View {
         BitwardenMenuField(
             title: field.title,
+            footer: field.footer,
             options: field.options,
             selection: Binding(get: { field.selection }, set: action),
             trailingContent: { trailingContent }

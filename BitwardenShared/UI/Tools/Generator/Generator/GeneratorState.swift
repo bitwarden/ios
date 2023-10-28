@@ -108,6 +108,7 @@ struct GeneratorState: Equatable {
         case .username:
             optionFields = [
                 FormField(fieldType: .menuUsernameGeneratorType(FormMenuField(
+                    footer: Localizations.plusAddressedEmailDescription,
                     keyPath: \.usernameState.usernameGeneratorType,
                     options: UsernameState.UsernameGeneratorType.allCases,
                     selection: usernameState.usernameGeneratorType,

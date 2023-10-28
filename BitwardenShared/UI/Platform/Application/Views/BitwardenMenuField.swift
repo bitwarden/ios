@@ -25,6 +25,9 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     /// The options displayed in the menu.
     let options: [T]
 
+    /// The footer text displayed below the menu field.
+    let footer: String?
+
     /// The title of the menu field.
     let title: String?
 
@@ -37,6 +40,12 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
         VStack(alignment: .leading, spacing: 4) {
             menuFieldTitle
             menu
+
+            if let footer {
+                Text(footer)
+                    .font(.styleGuide(.footnote))
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            }
         }
     }
 
@@ -88,14 +97,17 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     ///
     /// - Parameters:
     ///   - title: The title of the text field.
+    ///   - footer: The footer text displayed below the menu field.
     ///   - options: The options that the user can choose between.
     ///   - selection: A `Binding` for the currently selected option.
     ///
     init(
         title: String? = nil,
+        footer: String? = nil,
         options: [T],
         selection: Binding<T>
     ) where TrailingContent == EmptyView {
+        self.footer = footer
         self.options = options
         _selection = selection
         self.title = title
@@ -106,16 +118,19 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     ///
     /// - Parameters:
     ///   - title: The title of the text field.
+    ///   - footer: The footer text displayed below the menu field.
     ///   - options: The options that the user can choose between.
     ///   - selection: A `Binding` for the currently selected option.
     ///   - trailingContent: Optional content view that is displayed to the right of the menu value.
     ///
     init(
         title: String? = nil,
+        footer: String? = nil,
         options: [T],
         selection: Binding<T>,
         trailingContent: () -> TrailingContent
     ) {
+        self.footer = footer
         self.options = options
         _selection = selection
         self.title = title
@@ -166,6 +181,18 @@ struct BitwardenMenuField_Previews: PreviewProvider {
         }
         .background(Color(.systemGroupedBackground))
         .previewDisplayName("Trailing Button")
+
+        Group {
+            BitwardenMenuField(
+                title: "Animals",
+                footer: "Select your favorite animal",
+                options: MenuPreviewOptions.allCases,
+                selection: .constant(.dog)
+            )
+            .padding()
+        }
+        .background(Color(.systemGroupedBackground))
+        .previewDisplayName("Footer")
     }
 }
 #endif
