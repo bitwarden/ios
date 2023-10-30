@@ -47,6 +47,9 @@ extension StyleGuideFont {
 
     /// The font for the caption2 style.
     static let caption2 = StyleGuideFont(font: .system(.caption2))
+
+    /// The font for the caption2 style monospaced.
+    static let caption2Monospaced = StyleGuideFont(font: .system(.caption2, design: .monospaced))
 }
 
 // MARK: Font + Style Guide

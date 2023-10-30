@@ -34,7 +34,14 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         self.coordinator = coordinator
         self.services = services
         var state = state
-        state.userInitials = "NA"
+        let accountProfile = ProfileSwitcherItem(
+            email: "info@bitwarden.com",
+            userInitials: "NA"
+        )
+        state.profileSwitcherState = ProfileSwitcherState(
+            currentAccountProfile: accountProfile,
+            isVisible: false
+        )
         super.init(state: state)
     }
 
@@ -55,15 +62,29 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     override func receive(_ action: VaultListAction) {
         switch action {
         case .addItemPressed:
+            state.profileSwitcherState.isVisible = false
             coordinator.navigate(to: .addItem)
         case .itemPressed:
             coordinator.navigate(to: .viewItem)
         case .morePressed:
             // TODO: BIT-375 Show item actions
             break
-        case .profilePressed:
-            // TODO: BIT-124 Switch account
-            break
+        case let .profileSwitcherAction(profileAction):
+            switch profileAction {
+            case .accountPressed:
+                // TODO: BIT-124 Switch account
+                state.profileSwitcherState.isVisible = false
+            case .addAccountPressed:
+                // TODO: BIT-124 Switch account
+                state.profileSwitcherState.isVisible = false
+            case .backgroundPressed:
+                state.profileSwitcherState.isVisible = false
+            }
+        case let .requestedProfileSwitcher(visible: isVisible):
+            state.profileSwitcherState.isVisible = isVisible
+        case let .searchStateChanged(isSearching: isSearching):
+            guard isSearching else { return }
+            state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
             state.searchResults = searchVault(for: newValue)
