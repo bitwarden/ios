@@ -9,7 +9,7 @@ struct FormTextField<State>: Equatable, Identifiable {
 
     /// An enum describing the behavior for when the input should be automatically capitalized.
     ///
-    enum Autocapitalization: Equatable {
+    enum Autocapitalization {
         /// Input is never capitalized.
         case never
 
