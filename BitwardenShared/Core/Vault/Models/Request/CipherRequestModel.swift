@@ -5,10 +5,6 @@ import Networking
 /// API request model for adding or updating a cipher.
 ///
 struct CipherRequestModel: JSONRequestBody {
-    // MARK: Static Properties
-
-    static let encoder = JSONEncoder()
-
     // MARK: Properties
 
     /// The cipher's attachment data.

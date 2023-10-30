@@ -8,6 +8,7 @@ extension Date {
         hour: Int = 0,
         minute: Int = 0,
         second: Int = 0,
+        nanosecond: Int = 0,
         timeZone: TimeZone = TimeZone(secondsFromGMT: 0)!
     ) {
         let calendar = Calendar(identifier: .gregorian)
@@ -19,7 +20,8 @@ extension Date {
             day: day,
             hour: hour,
             minute: minute,
-            second: second
+            second: second,
+            nanosecond: nanosecond
         )
         self = dateComponents.date!
     }
