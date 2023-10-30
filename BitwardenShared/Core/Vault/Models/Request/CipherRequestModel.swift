@@ -12,7 +12,7 @@ struct CipherRequestModel: JSONRequestBody {
     // MARK: Properties
 
     /// The cipher's attachment data.
-    let attachments: [String: String]?
+    let attachments2: [String: AttachmentRequestModel]?
 
     /// Card data if the cipher is a card.
     let card: CipherCardModel?
@@ -30,7 +30,7 @@ struct CipherRequestModel: JSONRequestBody {
     let identity: CipherIdentityModel?
 
     /// The date the cipher was last updated.
-    let lastKnownRevisionDate: Date?
+    let lastKnownRevisionDate: Date
 
     /// Login data if the cipher is a login.
     let login: CipherLoginModel?
@@ -55,7 +55,7 @@ struct CipherRequestModel: JSONRequestBody {
     let secureNote: CipherSecureNoteModel?
 
     /// The type of the cipher.
-    let type: CipherType?
+    let type: CipherType
 }
 
 extension CipherRequestModel {
@@ -65,13 +65,16 @@ extension CipherRequestModel {
     ///
     init(cipher: Cipher) {
         self.init(
-            attachments: nil,
+            attachments2: cipher.attachments?.reduce(into: [String: AttachmentRequestModel]()) { result, attachment in
+                guard let id = attachment.id else { return }
+                result[id] = AttachmentRequestModel(attachment: attachment)
+            },
             card: cipher.card.map(CipherCardModel.init),
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
             folderId: cipher.folderId,
             identity: cipher.identity.map(CipherIdentityModel.init),
-            lastKnownRevisionDate: nil,
+            lastKnownRevisionDate: cipher.revisionDate,
             login: cipher.login.map(CipherLoginModel.init),
             name: cipher.name,
             notes: cipher.notes,

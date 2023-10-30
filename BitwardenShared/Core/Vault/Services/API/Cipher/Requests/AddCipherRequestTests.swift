@@ -11,7 +11,7 @@ class AddCipherRequestTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        subject = AddCipherRequest(cipher: .fixture())
+        subject = AddCipherRequest(cipher: .fixture(revisionDate: Date(year: 2023, month: 10, day: 31)))
     }
 
     override func tearDown() {
@@ -28,6 +28,7 @@ class AddCipherRequestTests: BitwardenTestCase {
             """
             {
               "favorite" : false,
+              "lastKnownRevisionDate" : 720403200,
               "name" : "Bitwarden",
               "reprompt" : 0,
               "type" : 1

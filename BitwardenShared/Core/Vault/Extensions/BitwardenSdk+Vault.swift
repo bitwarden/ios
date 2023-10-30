@@ -5,6 +5,16 @@ import BitwardenSdk
 
 // MARK: - Ciphers
 
+extension AttachmentRequestModel {
+    init(attachment: BitwardenSdk.Attachment) {
+        self.init(
+            fileName: attachment.fileName,
+            key: attachment.key,
+            size: attachment.size
+        )
+    }
+}
+
 extension CipherCardModel {
     init(card: BitwardenSdk.Card) {
         self.init(
