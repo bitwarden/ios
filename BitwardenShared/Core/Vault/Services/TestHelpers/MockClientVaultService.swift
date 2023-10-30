@@ -33,6 +33,9 @@ class MockClientVaultService: ClientVaultService {
 // MARK: - MockClientCiphers
 
 class MockClientCiphers: ClientCiphersProtocol {
+    var encryptError: Error?
+    var encryptedCiphers = [CipherView]()
+
     func decrypt(cipher: Cipher) async throws -> CipherView {
         CipherView(cipher: cipher)
     }
@@ -42,7 +45,11 @@ class MockClientCiphers: ClientCiphersProtocol {
     }
 
     func encrypt(cipherView: CipherView) async throws -> Cipher {
-        Cipher(cipherView: cipherView)
+        encryptedCiphers.append(cipherView)
+        if let encryptError {
+            throw encryptError
+        }
+        return Cipher(cipherView: cipherView)
     }
 }
 
