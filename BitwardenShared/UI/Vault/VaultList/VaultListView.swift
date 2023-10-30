@@ -59,17 +59,16 @@ private struct VaultMainView: View {
     @ViewBuilder private var search: some View {
         if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
             ScrollView {
-                LazyVStack {
+                LazyVStack(spacing: 0) {
                     ForEach(store.state.searchResults) { item in
-                        switch item.itemType {
-                        case let .cipher(cipherItem):
-                            Button {
-                                store.send(.itemPressed(item: cipherItem))
-                            } label: {
-                                CipherListViewRowView(item: cipherItem)
-                            }
-                        case .group:
-                            EmptyView()
+                        Button {
+                            store.send(.itemPressed(item: item))
+                        } label: {
+                            vaultItemRow(
+                                for: item,
+                                isLastInSection: store.state.searchResults.last == item
+                            )
+                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                         }
                     }
                 }
@@ -91,6 +90,33 @@ private struct VaultMainView: View {
                 }
             }
         }
+    }
+
+    // MARK: Private Methods
+
+    /// Creates a row in the list for the provided item.
+    ///
+    /// - Parameters:
+    ///   - item: The `VaultListItem` to use when creating the view.
+    ///   - isLastInSection: A flag indicating if this item is the last one in the section.
+    ///
+    @ViewBuilder
+    private func vaultItemRow(for item: VaultListItem, isLastInSection: Bool = false) -> some View {
+        VaultListItemRowView(store: store.child(
+            state: { _ in
+                VaultListItemRowState(
+                    item: item,
+                    hasDivider: !isLastInSection
+                )
+            },
+            mapAction: { action in
+                switch action {
+                case .morePressed:
+                    return .morePressed(item: item)
+                }
+            },
+            mapEffect: nil
+        ))
     }
 }
 
@@ -144,36 +170,11 @@ struct VaultListView: View {
                 }
             }
     }
-
-    // MARK: Private Properties
-
-    /// The empty state for this view, displayed when there are no items in the vault.
-    @ViewBuilder private var empty: some View {
-        GeometryReader { reader in
-            ScrollView {
-                VStack(spacing: 24) {
-                    Spacer()
-
-                    Text(Localizations.noItems)
-                        .multilineTextAlignment(.center)
-
-                    Button(Localizations.addAnItem) {
-                        store.send(.addItemPressed)
-                    }
-                    .buttonStyle(.tertiary())
-
-                    Spacer()
-                }
-                .padding(.horizontal, 16)
-                .frame(minHeight: reader.size.height)
-            }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        }
-    }
 }
 
 // MARK: Previews
 
+#if DEBUG
 struct VaultListView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -229,6 +230,73 @@ struct VaultListView_Previews: PreviewProvider {
                         state: VaultListState(
                             userInitials: "AA",
                             searchText: "Exam",
+                            searchResults: [
+                                .init(cipherListView: .init(
+                                    id: UUID().uuidString,
+                                    organizationId: nil,
+                                    folderId: nil,
+                                    collectionIds: [],
+                                    name: "Example",
+                                    subTitle: "email@example.com",
+                                    type: .login,
+                                    favorite: true,
+                                    reprompt: .none,
+                                    edit: false,
+                                    viewPassword: true,
+                                    attachments: 0,
+                                    creationDate: Date(),
+                                    deletedDate: nil,
+                                    revisionDate: Date()
+                                ))!,
+                                .init(cipherListView: .init(
+                                    id: UUID().uuidString,
+                                    organizationId: nil,
+                                    folderId: nil,
+                                    collectionIds: [],
+                                    name: "Example 2",
+                                    subTitle: "email2@example.com",
+                                    type: .login,
+                                    favorite: true,
+                                    reprompt: .none,
+                                    edit: false,
+                                    viewPassword: true,
+                                    attachments: 0,
+                                    creationDate: Date(),
+                                    deletedDate: nil,
+                                    revisionDate: Date()
+                                ))!,
+                                .init(cipherListView: .init(
+                                    id: UUID().uuidString,
+                                    organizationId: nil,
+                                    folderId: nil,
+                                    collectionIds: [],
+                                    name: "Example 3",
+                                    subTitle: "email3@example.com",
+                                    type: .login,
+                                    favorite: true,
+                                    reprompt: .none,
+                                    edit: false,
+                                    viewPassword: true,
+                                    attachments: 0,
+                                    creationDate: Date(),
+                                    deletedDate: nil,
+                                    revisionDate: Date()
+                                ))!,
+                            ]
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("3 Search Results")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            userInitials: "AA",
+                            searchText: "Exam",
                             searchResults: []
                         )
                     )
@@ -238,3 +306,4 @@ struct VaultListView_Previews: PreviewProvider {
         .previewDisplayName("No Search Results")
     }
 }
+#endif

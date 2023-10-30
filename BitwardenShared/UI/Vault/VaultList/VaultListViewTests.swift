@@ -48,12 +48,11 @@ class VaultListViewTests: BitwardenTestCase {
     }
 
     func test_searchResult_tap() throws {
-        let cipherItem = CipherListView.fixture()
-        let result = VaultListItem.fixture(cipherListView: cipherItem)
+        let result = VaultListItem.fixture()
         processor.state.searchResults = [result]
         let button = try subject.inspect().find(button: "Example")
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: cipherItem))
+        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
     }
 
     // MARK: Snapshots
@@ -65,25 +64,18 @@ class VaultListViewTests: BitwardenTestCase {
     func test_snapshot_withSearchResult() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [
-            VaultListItem(
-                cipherListView: CipherListView(
-                    id: UUID().uuidString,
-                    organizationId: nil,
-                    folderId: nil,
-                    collectionIds: [],
-                    name: "Example",
-                    subTitle: "email@example.com",
-                    type: .login,
-                    favorite: true,
-                    reprompt: .none,
-                    edit: false,
-                    viewPassword: true,
-                    attachments: 0,
-                    creationDate: Date(),
-                    deletedDate: nil,
-                    revisionDate: Date()
-                )
-            )!,
+            .fixture(),
+        ]
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_withMultipleSearchResults() {
+        processor.state.searchText = "Exam"
+        processor.state.searchResults = [
+            .fixture(cipherListView: .fixture(id: "1")),
+            .fixture(cipherListView: .fixture(id: "2")),
+            .fixture(cipherListView: .fixture(id: "3")),
+            .fixture(cipherListView: .fixture(id: "4")),
         ]
         assertSnapshot(of: subject, as: .defaultPortrait)
     }

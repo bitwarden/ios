@@ -50,11 +50,14 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
         parentStore: Store<ParentState, ParentAction, ParentEffect>,
         state parentToChildState: @escaping (ParentState) -> State,
         mapAction: @escaping (Action) -> ParentAction,
-        mapEffect: @escaping (Effect) -> ParentEffect
+        mapEffect: ((Effect) -> ParentEffect)?
     ) {
         state = parentToChildState(parentStore.state)
         receive = { parentStore.send(mapAction($0)) }
-        perform = { await parentStore.perform(mapEffect($0)) }
+        perform = { effect in
+            guard let mapEffect else { return }
+            await parentStore.perform(mapEffect(effect))
+        }
         cancellable = parentStore.$state.sink { [weak self] in self?.state = parentToChildState($0) }
     }
 
@@ -91,7 +94,7 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     open func child<ChildState, ChildAction, ChildEffect>(
         state: @escaping (State) -> ChildState,
         mapAction: @escaping (ChildAction) -> Action,
-        mapEffect: @escaping (ChildEffect) -> Effect
+        mapEffect: ((ChildEffect) -> Effect)?
     ) -> Store<ChildState, ChildAction, ChildEffect> {
         Store<ChildState, ChildAction, ChildEffect>(
             parentStore: self,

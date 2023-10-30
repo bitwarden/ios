@@ -36,6 +36,9 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             coordinator.navigate(to: .addItem)
         case .itemPressed:
             coordinator.navigate(to: .viewItem)
+        case .morePressed:
+            // TODO: BIT-0 Show item actions
+            break
         case .profilePressed:
             // TODO: BIT-124 Switch account
             break
