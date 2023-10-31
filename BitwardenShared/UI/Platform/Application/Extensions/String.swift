@@ -28,6 +28,11 @@ extension String {
         contains("@")
     }
 
+    /// Returns the string or `nil` if it is empty.
+    var nilIfEmpty: String? {
+        isEmpty ? nil : self
+    }
+
     // MARK: Methods
 
     /// Creates a new string that has been encoded for use in a url or request header.

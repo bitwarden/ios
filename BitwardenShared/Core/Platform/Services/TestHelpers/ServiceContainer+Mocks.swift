@@ -15,7 +15,8 @@ extension ServiceContainer {
         settingsRepository: SettingsRepository = MockSettingsRepository(),
         stateService: StateService = MockStateService(),
         systemDevice: SystemDevice = MockSystemDevice(),
-        tokenService: TokenService = MockTokenService()
+        tokenService: TokenService = MockTokenService(),
+        vaultRepository: VaultRepository = MockVaultRepository()
     ) -> ServiceContainer {
         ServiceContainer(
             apiService: APIService(
@@ -31,7 +32,8 @@ extension ServiceContainer {
             settingsRepository: settingsRepository,
             stateService: stateService,
             systemDevice: systemDevice,
-            tokenService: tokenService
+            tokenService: tokenService,
+            vaultRepository: vaultRepository
         )
     }
 }

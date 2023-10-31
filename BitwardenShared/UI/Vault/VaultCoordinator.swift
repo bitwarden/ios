@@ -5,7 +5,14 @@ import SwiftUI
 /// A coordinator that manages navigation in the vault tab.
 ///
 final class VaultCoordinator: Coordinator, HasStackNavigator {
+    // MARK: Types
+
+    typealias Services = HasVaultRepository
+
     // MARK: - Private Properties
+
+    /// The services used by this coordinator.
+    private let services: Services
 
     /// The stack navigator that is managed by this coordinator.
     var stackNavigator: StackNavigator
@@ -14,9 +21,12 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Creates a new `VaultCoordinator`.
     ///
-    /// - Parameters stackNavigator: The stack navigator that is managed by this coordinator.
+    /// - Parameters:
+    ///   - services: The services used by this coordinator.
+    ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
-    init(stackNavigator: StackNavigator) {
+    init(services: Services, stackNavigator: StackNavigator) {
+        self.services = services
         self.stackNavigator = stackNavigator
     }
 
@@ -48,6 +58,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     private func showAddItem() {
         let processor = AddItemProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: AddItemState()
         )
         let store = Store(processor: processor)

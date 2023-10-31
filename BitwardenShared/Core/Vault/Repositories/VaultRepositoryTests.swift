@@ -1,3 +1,4 @@
+import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
 
@@ -7,6 +8,7 @@ class VaultRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
     var client: MockHTTPClient!
+    var clientCiphers: MockClientCiphers!
     var clientVault: MockClientVaultService!
     var subject: DefaultVaultRepository!
 
@@ -16,9 +18,13 @@ class VaultRepositoryTests: BitwardenTestCase {
         super.setUp()
 
         client = MockHTTPClient()
+        clientCiphers = MockClientCiphers()
         clientVault = MockClientVaultService()
 
+        clientVault.clientCiphers = clientCiphers
+
         subject = DefaultVaultRepository(
+            cipherAPIService: APIService(client: client),
             clientVault: clientVault,
             syncAPIService: APIService(client: client)
         )
@@ -32,6 +38,34 @@ class VaultRepositoryTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `addCipher()` makes the add cipher API request and updates the vault.
+    func test_addCipher() async throws {
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+
+        let cipher = CipherView.fixture()
+        try await subject.addCipher(cipher)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers")
+        XCTAssertEqual(client.requests[1].url.absoluteString, "https://example.com/api/sync")
+
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+    }
+
+    /// `addCipher()` throws an error if encrypting the cipher fails.
+    func test_addCipher_encryptError() async {
+        struct EncryptError: Error, Equatable {}
+
+        clientCiphers.encryptError = EncryptError()
+
+        await assertAsyncThrows(error: EncryptError()) {
+            try await subject.addCipher(.fixture())
+        }
+    }
 
     /// `fetchSync()` performs the sync API request.
     func test_fetchSync() async throws {

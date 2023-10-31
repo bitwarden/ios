@@ -70,6 +70,7 @@ public class ServiceContainer: Services {
     ///   - stateService: The service used by the application to manage account state.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - tokenService: The service used by the application to manage account access tokens.
+    ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///
     init(
         apiService: APIService,
@@ -82,7 +83,8 @@ public class ServiceContainer: Services {
         settingsRepository: SettingsRepository,
         stateService: StateService,
         systemDevice: SystemDevice,
-        tokenService: TokenService
+        tokenService: TokenService,
+        vaultRepository: VaultRepository
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
@@ -95,12 +97,9 @@ public class ServiceContainer: Services {
         self.stateService = stateService
         self.systemDevice = systemDevice
         self.tokenService = tokenService
+        self.vaultRepository = vaultRepository
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
-        vaultRepository = DefaultVaultRepository(
-            clientVault: clientService.clientVault(),
-            syncAPIService: apiService
-        )
     }
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
@@ -117,15 +116,21 @@ public class ServiceContainer: Services {
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
         let tokenService = DefaultTokenService(stateService: stateService)
 
+        let apiService = APIService(baseUrlService: baseUrlService, tokenService: tokenService)
         let authRepository = DefaultAuthRepository(
             clientCrypto: clientService.clientCrypto(),
             stateService: stateService
         )
         let generatorRepository = DefaultGeneratorRepository()
         let settingsRepository = DefaultSettingsRepository(stateService: stateService)
+        let vaultRepository = DefaultVaultRepository(
+            cipherAPIService: apiService,
+            clientVault: clientService.clientVault(),
+            syncAPIService: apiService
+        )
 
         self.init(
-            apiService: APIService(baseUrlService: baseUrlService, tokenService: tokenService),
+            apiService: apiService,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             baseUrlService: baseUrlService,
@@ -135,7 +140,8 @@ public class ServiceContainer: Services {
             settingsRepository: settingsRepository,
             stateService: stateService,
             systemDevice: UIDevice.current,
-            tokenService: tokenService
+            tokenService: tokenService,
+            vaultRepository: vaultRepository
         )
     }
 }

@@ -1,3 +1,6 @@
+import BitwardenSdk
+import Foundation
+
 // MARK: - AddItemState
 
 /// An object that defines the current state of an `AddItemView`.
@@ -37,4 +40,42 @@ struct AddItemState {
 
     /// The username for this item.
     var username: String = ""
+}
+
+extension AddItemState {
+    /// Returns a `CipherView` based on the fields the user entered in the `AddItemView`.
+    func cipher(creationDate: Date = .now) -> CipherView {
+        CipherView(
+            id: nil,
+            organizationId: nil,
+            folderId: nil,
+            collectionIds: [],
+            name: name,
+            notes: notes.nilIfEmpty,
+            type: BitwardenSdk.CipherType(.login),
+            login: BitwardenSdk.LoginView(
+                username: username.nilIfEmpty,
+                password: password.nilIfEmpty,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
+            identity: nil,
+            card: nil,
+            secureNote: nil,
+            favorite: isFavoriteOn,
+            reprompt: isMasterPasswordRePromptOn ? .password : .none,
+            organizationUseTotp: false,
+            edit: true,
+            viewPassword: true,
+            localData: nil,
+            attachments: nil,
+            fields: nil,
+            passwordHistory: nil,
+            creationDate: creationDate,
+            deletedDate: nil,
+            revisionDate: creationDate
+        )
+    }
 }
