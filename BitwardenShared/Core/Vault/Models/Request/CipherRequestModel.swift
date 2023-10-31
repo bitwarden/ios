@@ -8,6 +8,9 @@ struct CipherRequestModel: JSONRequestBody {
     // MARK: Properties
 
     /// The cipher's attachment data.
+    ///
+    /// Note: `attachments2` is the newer version of the `attachment` API property for sending
+    /// attachment data.
     let attachments2: [String: AttachmentRequestModel]?
 
     /// Card data if the cipher is a card.
