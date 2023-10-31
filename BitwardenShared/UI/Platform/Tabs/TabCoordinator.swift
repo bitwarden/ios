@@ -5,7 +5,7 @@ import UIKit
 
 /// A coordinator that manages navigation in the tab interface.
 ///
-internal final class TabCoordinator: Coordinator {
+internal final class TabCoordinator: Coordinator, HasTabNavigator {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
@@ -62,10 +62,6 @@ internal final class TabCoordinator: Coordinator {
 
     // MARK: Methods
 
-    func hideLoadingOverlay() {
-        tabNavigator.hideLoadingOverlay()
-    }
-
     func navigate(to route: TabRoute, context: AnyObject?) {
         tabNavigator.selectedIndex = route.index
         switch route {
@@ -84,10 +80,6 @@ internal final class TabCoordinator: Coordinator {
 
     func show(vaultRoute: VaultRoute, context: AnyObject?) {
         vaultCoordinator?.navigate(to: vaultRoute, context: context)
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        tabNavigator.showLoadingOverlay(state)
     }
 
     func start() {

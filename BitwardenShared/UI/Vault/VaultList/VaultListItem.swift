@@ -33,3 +33,37 @@ extension VaultListItem {
         self.init(id: id, itemType: .cipher(cipherListView))
     }
 }
+
+extension VaultListItem {
+    /// An image asset for this item that can be used in the UI.
+    var icon: ImageAsset {
+        switch itemType {
+        case let .cipher(cipherItem):
+            switch cipherItem.type {
+            case .card:
+                return Asset.Images.creditCard
+            case .identity:
+                return Asset.Images.id
+            case .login:
+                return Asset.Images.globe
+            case .secureNote:
+                return Asset.Images.doc
+            }
+        case let .group(group, _):
+            switch group {
+            case .card:
+                return Asset.Images.creditCard
+            case .folder:
+                return Asset.Images.folder
+            case .identity:
+                return Asset.Images.id
+            case .login:
+                return Asset.Images.globe
+            case .secureNote:
+                return Asset.Images.doc
+            case .trash:
+                return Asset.Images.trash
+            }
+        }
+    }
+}

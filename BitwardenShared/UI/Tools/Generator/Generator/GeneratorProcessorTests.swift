@@ -36,6 +36,24 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
+    func test_receive_generatorTypeChanged() {
+        subject.receive(.generatorTypeChanged(.password))
+        XCTAssertEqual(subject.state.generatorType, .password)
+
+        subject.receive(.generatorTypeChanged(.username))
+        XCTAssertEqual(subject.state.generatorType, .username)
+    }
+
+    /// `receive(_:)` with `.passwordGeneratorTypeChanged` updates the state's password generator type value.
+    func test_receive_passwordGeneratorTypeChanged() {
+        subject.receive(.passwordGeneratorTypeChanged(.password))
+        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .password)
+
+        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
+        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .passphrase)
+    }
+
     /// `receive(_:)` with `.sliderValueChanged` updates the state's value for the slider field.
     func test_receive_sliderValueChanged() {
         let field = SliderField<GeneratorState>(
@@ -67,6 +85,38 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         subject.receive(.stepperValueChanged(field: field, value: 5))
         XCTAssertEqual(subject.state.passwordState.minimumNumber, 5)
+    }
+
+    /// `receive(_:)` with `.textValueChanged` updates the state's value for the text field.
+    func test_receive_textValueChanged() {
+        let field = FormTextField<GeneratorState>(
+            autocapitalization: .never,
+            keyPath: \.passwordState.wordSeparator,
+            title: Localizations.wordSeparator,
+            value: "-"
+        )
+
+        subject.receive(.textValueChanged(field: field, value: "*"))
+        XCTAssertEqual(subject.state.passwordState.wordSeparator, "*")
+
+        subject.receive(.textValueChanged(field: field, value: "!"))
+        XCTAssertEqual(subject.state.passwordState.wordSeparator, "!")
+    }
+
+    /// `receive(_:)` with `.textValueChanged` for the word separator limits the value to one character.
+    func test_receive_textValueChanged_wordSeparatorLimitedToOneCharacter() {
+        let field = FormTextField<GeneratorState>(
+            autocapitalization: .never,
+            keyPath: \.passwordState.wordSeparator,
+            title: Localizations.wordSeparator,
+            value: "-"
+        )
+
+        subject.receive(.textValueChanged(field: field, value: "-*"))
+        XCTAssertEqual(subject.state.passwordState.wordSeparator, "-")
+
+        subject.receive(.textValueChanged(field: field, value: "abc"))
+        XCTAssertEqual(subject.state.passwordState.wordSeparator, "a")
     }
 
     /// `receive(_:)` with `.toggleValueChanged` updates the state's value for the toggle field.

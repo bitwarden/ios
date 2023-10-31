@@ -11,6 +11,9 @@ open class AnyCoordinator<Route>: Coordinator {
     /// A closure that wraps the `navigate(to:)` method.
     private let doNavigate: (Route, AnyObject?) -> Void
 
+    /// A closure that wraps the `showAlert(_:)` method.
+    private let doShowAlert: (Alert) -> Void
+
     /// A closure that wraps the `showLoadingOverlay(_:)` method.
     private let doShowLoadingOverlay: (LoadingOverlayState) -> Void
 
@@ -28,6 +31,7 @@ open class AnyCoordinator<Route>: Coordinator {
         doNavigate = { route, context in
             coordinator.navigate(to: route, context: context)
         }
+        doShowAlert = { coordinator.showAlert($0) }
         doShowLoadingOverlay = { coordinator.showLoadingOverlay($0) }
         doStart = { coordinator.start() }
     }
@@ -36,6 +40,10 @@ open class AnyCoordinator<Route>: Coordinator {
 
     open func navigate(to route: Route, context: AnyObject?) {
         doNavigate(route, context)
+    }
+
+    open func showAlert(_ alert: Alert) {
+        doShowAlert(alert)
     }
 
     open func showLoadingOverlay(_ state: LoadingOverlayState) {

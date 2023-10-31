@@ -4,7 +4,7 @@ import SwiftUI
 
 /// A coordinator that manages navigation in the vault tab.
 ///
-final class VaultCoordinator: Coordinator {
+final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasVaultRepository
@@ -15,7 +15,7 @@ final class VaultCoordinator: Coordinator {
     private let services: Services
 
     /// The stack navigator that is managed by this coordinator.
-    private let stackNavigator: StackNavigator
+    var stackNavigator: StackNavigator
 
     // MARK: Initialization
 
@@ -32,10 +32,6 @@ final class VaultCoordinator: Coordinator {
 
     // MARK: Methods
 
-    func hideLoadingOverlay() {
-        stackNavigator.hideLoadingOverlay()
-    }
-
     func navigate(to route: VaultRoute, context: AnyObject?) {
         switch route {
         case .addItem:
@@ -48,11 +44,9 @@ final class VaultCoordinator: Coordinator {
             showList()
         case .setupTotpCamera:
             showCamera()
+        case .viewItem:
+            showViewItem()
         }
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        stackNavigator.showLoadingOverlay(state)
     }
 
     func start() {}
@@ -104,5 +98,12 @@ final class VaultCoordinator: Coordinator {
             let view = VaultListView(store: store)
             stackNavigator.replace(view, animated: false)
         }
+    }
+
+    /// Shows the view item screen.
+    private func showViewItem() {
+        // TODO: BIT-219 Present the actual view item screen
+        let view = Text("View Item")
+        stackNavigator.present(view)
     }
 }

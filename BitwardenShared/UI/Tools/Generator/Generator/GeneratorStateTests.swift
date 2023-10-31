@@ -6,17 +6,38 @@ import XCTest
 class GeneratorStateTests: XCTestCase {
     // MARK: Tests
 
-    /// `formSections` returns the sections and fields for generating a password.
-    func test_formSections_password() {
-        let subject = GeneratorState()
+    /// `formSections` returns the sections and fields for generating a passphrase.
+    func test_formSections_passphrase() {
+        var subject = GeneratorState()
+        subject.passwordState.passwordGeneratorType = .passphrase
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
             Section: (empty)
               Generated: (empty)
-              Picker: What would you like to generate? Value: Password
+              Menu: What would you like to generate? Selection: Password Options: Password, Username
             Section: Options
-              Picker: Password type Value: Password
+              Menu: Password type Selection: Passphrase Options: Password, Passphrase
+              Stepper: Number of words Value: 3 Range: 3...20
+              Text: Word separator Value: -
+              Toggle: Capitalize Value: false
+              Toggle: Include number Value: false
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a password.
+    func test_formSections_password() {
+        var subject = GeneratorState()
+        subject.passwordState.passwordGeneratorType = .password
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate? Selection: Password Options: Password, Username
+            Section: Options
+              Menu: Password type Selection: Password Options: Password, Passphrase
               Slider: Length Value: 14.0 Range: 5.0...128.0 Step: 1.0
               Toggle: A-Z Value: true
               Toggle: a-z Value: true
@@ -29,50 +50,6 @@ class GeneratorStateTests: XCTestCase {
         }
     }
 
-    /// `generatorTypeValue` can be used to get the raw value of `generatorType`.
-    func test_generatorTypeValue_getter() {
-        var subject = GeneratorState()
-
-        subject.generatorType = .password
-        XCTAssertEqual(subject.generatorTypeValue, Localizations.password)
-
-        subject.generatorType = .username
-        XCTAssertEqual(subject.generatorTypeValue, Localizations.username)
-    }
-
-    /// `generatorTypeValue` can be used to set the raw value of `generatorType`.
-    func test_generatorTypeValue_setter() {
-        var subject = GeneratorState()
-
-        subject.generatorTypeValue = Localizations.password
-        XCTAssertEqual(subject.generatorType, .password)
-
-        subject.generatorTypeValue = Localizations.username
-        XCTAssertEqual(subject.generatorType, .username)
-    }
-
-    /// `passwordGeneratorTypeValue` can be used to set the raw value of `passwordGeneratorType`.
-    func test_passwordState_passwordGeneratorType_getter() {
-        var subject = GeneratorState()
-
-        subject.passwordState.passwordGeneratorType = .passphrase
-        XCTAssertEqual(subject.passwordState.passwordGeneratorTypeValue, Localizations.passphrase)
-
-        subject.passwordState.passwordGeneratorType = .password
-        XCTAssertEqual(subject.passwordState.passwordGeneratorTypeValue, Localizations.password)
-    }
-
-    /// `passwordGeneratorTypeValue` can be used to set the raw value of `passwordGeneratorType`.
-    func test_passwordState_passwordGeneratorType_setter() {
-        var subject = GeneratorState()
-
-        subject.passwordState.passwordGeneratorTypeValue = Localizations.passphrase
-        XCTAssertEqual(subject.passwordState.passwordGeneratorType, .passphrase)
-
-        subject.passwordState.passwordGeneratorTypeValue = Localizations.password
-        XCTAssertEqual(subject.passwordState.passwordGeneratorType, .password)
-    }
-
     // MARK: Private
 
     /// Returns a string containing a description of the vault list items.
@@ -83,8 +60,16 @@ class GeneratorStateTests: XCTestCase {
             switch field.fieldType {
             case let .generatedValue(generatedValue):
                 result.append("Generated: \(generatedValue.value.isEmpty ? "(empty)" : generatedValue.value)")
-            case let .picker(picker):
-                result.append("Picker: \(picker.title) Value: \(picker.value)")
+            case let .menuGeneratorType(menu):
+                result.append(
+                    "Menu: \(menu.title) Selection: \(menu.selection.localizedName) " +
+                        "Options: \(menu.options.map(\.localizedName).joined(separator: ", "))"
+                )
+            case let .menuPasswordGeneratorType(menu):
+                result.append(
+                    "Menu: \(menu.title) Selection: \(menu.selection.localizedName) " +
+                        "Options: \(menu.options.map(\.localizedName).joined(separator: ", "))"
+                )
             case let .slider(slider):
                 result.append(
                     "Slider: \(slider.title) Value: \(slider.value) " +
@@ -92,6 +77,8 @@ class GeneratorStateTests: XCTestCase {
                 )
             case let .stepper(stepper):
                 result.append("Stepper: \(stepper.title) Value: \(stepper.value) Range: \(stepper.range)")
+            case let .text(text):
+                result.append("Text: \(text.title) Value: \(text.value)")
             case let .toggle(toggle):
                 result.append("Toggle: \(toggle.title) Value: \(toggle.isOn)")
             }

@@ -41,8 +41,14 @@ struct GeneratorView: View {
                 switch field.fieldType {
                 case let .generatedValue(generatedValueField):
                     generatedValueView(field: generatedValueField)
-                case let .picker(pickerField):
-                    pickerValueView(field: pickerField)
+                case let .menuGeneratorType(menuField):
+                    FormMenuFieldView(field: menuField) { newValue in
+                        store.send(.generatorTypeChanged(newValue))
+                    }
+                case let .menuPasswordGeneratorType(menuField):
+                    FormMenuFieldView(field: menuField) { newValue in
+                        store.send(.passwordGeneratorTypeChanged(newValue))
+                    }
                 case let .slider(sliderField):
                     SliderFieldView(field: sliderField) { newValue in
                         store.send(.sliderValueChanged(field: sliderField, value: newValue))
@@ -50,6 +56,10 @@ struct GeneratorView: View {
                 case let .stepper(stepperField):
                     StepperFieldView(field: stepperField) { newValue in
                         store.send(.stepperValueChanged(field: stepperField, value: newValue))
+                    }
+                case let .text(textField):
+                    FormTextFieldView(field: textField) { newValue in
+                        store.send(.textValueChanged(field: textField, value: newValue))
                     }
                 case let .toggle(toggleField):
                     ToggleFieldView(field: toggleField) { isOn in
@@ -94,28 +104,6 @@ struct GeneratorView: View {
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Localizations.generatePassword)
-        }
-    }
-
-    /// Returns a view for displaying a picker value.
-    ///
-    /// - Parameter field: The data for displaying the picker field.
-    ///
-    @ViewBuilder
-    func pickerValueView(field: GeneratorState.PickerField<GeneratorState>) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(field.title)
-                .font(.styleGuide(.subheadline).bold())
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-            Text(field.value)
-                .font(.styleGuide(.body))
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
-                .cornerRadius(10)
         }
     }
 }
