@@ -41,7 +41,7 @@ struct SettingsView: View {
                     .padding()
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
         .cornerRadius(10)
     }
 
@@ -55,7 +55,7 @@ struct SettingsView: View {
             listItem(Localizations.other) {}
             listItem(Localizations.about, hasDivider: false) {}
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
         .cornerRadius(10)
     }
 
@@ -82,7 +82,6 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     Image(asset: Asset.Images.chevron)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
                         .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                 }
                 .padding()
