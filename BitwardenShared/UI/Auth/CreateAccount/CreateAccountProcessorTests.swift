@@ -85,6 +85,31 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(_:)` with `.createAccount` will still make the `CreateAccountRequest` when the HIBP
+    /// network request fails.
+    func test_perform_checkForBreachesAndCreateAccount_failure() async throws {
+        subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
+        subject.state.emailText = "email@example.com"
+
+        client.results = [.httpFailure(URLError(.timedOut) as Error), .httpSuccess(testData: .createAccountRequest)]
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .login(
+                username: "email@example.com",
+                region: LoginState().region,
+                isLoginWithDeviceVisible: LoginState().isLoginWithDeviceVisible
+            )
+        )
+    }
+
     /// `perform(_:)` with `.createAccount` presents an alert when the user has
     /// entered a password that has been found in a data breach. After tapping `Yes` to create
     /// an account anyways, the `CreateAccountRequest` is made.
