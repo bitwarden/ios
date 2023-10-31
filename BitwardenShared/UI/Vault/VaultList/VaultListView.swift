@@ -40,6 +40,8 @@ private struct VaultMainView: View {
 
                     Text(Localizations.noItems)
                         .multilineTextAlignment(.center)
+                        .font(.styleGuide(.callout))
+                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                     Button(Localizations.addAnItem) {
                         store.send(.addItemPressed)
@@ -83,6 +85,7 @@ private struct VaultMainView: View {
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
                         Text(Localizations.thereAreNoItemsThatMatchTheSearch)
+                            .multilineTextAlignment(.center)
                             .font(.styleGuide(.callout))
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     }
