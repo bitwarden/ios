@@ -5,7 +5,7 @@ struct GeneratorState: Equatable {
 
     /// The type of value to generate.
     ///
-    enum GeneratorType: Menuable, Equatable {
+    enum GeneratorType: CaseIterable, Equatable, Menuable {
         /// Generate a password or passphrase.
         case password
 

@@ -6,7 +6,7 @@ extension GeneratorState {
 
         /// The type of password to generate.
         ///
-        enum PasswordGeneratorType: Menuable, Equatable { // swiftlint:disable:this nesting
+        enum PasswordGeneratorType: CaseIterable, Equatable, Menuable { // swiftlint:disable:this nesting
             /// Generate a passphrase.
             case passphrase
 
