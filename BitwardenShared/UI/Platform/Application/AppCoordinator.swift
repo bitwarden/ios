@@ -4,7 +4,7 @@ import UIKit
 
 /// A coordinator that manages the app's top-level navigation.
 ///
-class AppCoordinator: Coordinator {
+class AppCoordinator: Coordinator, HasRootNavigator {
     // MARK: Types
 
     /// The types of modules used by this coordinator.
@@ -22,7 +22,7 @@ class AppCoordinator: Coordinator {
     let module: Module
 
     /// The navigator to use for presenting screens.
-    let navigator: RootNavigator
+    let rootNavigator: RootNavigator
 
     // MARK: Initialization
 
@@ -30,18 +30,14 @@ class AppCoordinator: Coordinator {
     ///
     /// - Parameters:
     ///   - module: The module to use for creating child coordinators.
-    ///   - navigator: The navigator to use for presenting screens.
+    ///   - rootNavigator: The navigator to use for presenting screens.
     ///
-    init(module: Module, navigator: RootNavigator) {
+    init(module: Module, rootNavigator: RootNavigator) {
         self.module = module
-        self.navigator = navigator
+        self.rootNavigator = rootNavigator
     }
 
     // MARK: Methods
-
-    func hideLoadingOverlay() {
-        navigator.hideLoadingOverlay()
-    }
 
     func navigate(to route: AppRoute, context: AnyObject?) {
         switch route {
@@ -50,10 +46,6 @@ class AppCoordinator: Coordinator {
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         }
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        navigator.showLoadingOverlay(state)
     }
 
     func start() {
@@ -74,7 +66,7 @@ class AppCoordinator: Coordinator {
             let navigationController = UINavigationController()
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
-                rootNavigator: navigator,
+                rootNavigator: rootNavigator,
                 stackNavigator: navigationController
             )
             coordinator.start()
@@ -93,7 +85,7 @@ class AppCoordinator: Coordinator {
         } else {
             let tabNavigator = UITabBarController()
             let coordinator = module.makeTabCoordinator(
-                rootNavigator: navigator,
+                rootNavigator: rootNavigator,
                 settingsDelegate: self,
                 tabNavigator: tabNavigator
             )

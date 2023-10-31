@@ -9,7 +9,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var module: MockAppModule!
-    var navigator: MockRootNavigator!
+    var rootNavigator: MockRootNavigator!
     var subject: AppCoordinator!
 
     // MARK: Setup & Teardown
@@ -17,17 +17,17 @@ class AppCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         module = MockAppModule()
-        navigator = MockRootNavigator()
+        rootNavigator = MockRootNavigator()
         subject = AppCoordinator(
             module: module,
-            navigator: navigator
+            rootNavigator: rootNavigator
         )
     }
 
     override func tearDown() {
         super.tearDown()
         module = nil
-        navigator = nil
+        rootNavigator = nil
         subject = nil
     }
 
@@ -80,8 +80,8 @@ class AppCoordinatorTests: BitwardenTestCase {
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
     func test_show_hide_loadingOverlay() throws {
-        navigator.rootViewController = UIViewController()
-        try setKeyWindowRoot(viewController: XCTUnwrap(subject.navigator.rootViewController))
+        rootNavigator.rootViewController = UIViewController()
+        try setKeyWindowRoot(viewController: XCTUnwrap(subject.rootNavigator.rootViewController))
 
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
 
