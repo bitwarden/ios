@@ -78,7 +78,7 @@ private struct VaultMainView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                            .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
                         }
                     }
                 }
