@@ -62,7 +62,21 @@ struct GeneratorState: Equatable {
         case .password:
             switch passwordState.passwordGeneratorType {
             case .passphrase:
-                optionFields = []
+                optionFields = [
+                    pickerField(keyPath: \.passwordState.passwordGeneratorTypeValue, title: Localizations.passwordType),
+                    stepperField(
+                        keyPath: \.passwordState.numberOfWords,
+                        range: 3 ... 20,
+                        title: Localizations.numberOfWords
+                    ),
+                    textField(
+                        autocapitalization: .never,
+                        keyPath: \.passwordState.wordSeparator,
+                        title: Localizations.wordSeparator
+                    ),
+                    toggleField(keyPath: \.passwordState.capitalize, title: Localizations.capitalize),
+                    toggleField(keyPath: \.passwordState.includeNumber, title: Localizations.includeNumber),
+                ]
             case .password:
                 optionFields = [
                     pickerField(keyPath: \.passwordState.passwordGeneratorTypeValue, title: Localizations.passwordType),
