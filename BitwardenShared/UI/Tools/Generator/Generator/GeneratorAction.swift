@@ -4,6 +4,12 @@ enum GeneratorAction: Equatable {
     /// The copy generated value button was pressed.
     case copyGeneratedValue
 
+    /// The generator type was changed.
+    case generatorTypeChanged(GeneratorState.GeneratorType)
+
+    /// The password generator type was changed.
+    case passwordGeneratorTypeChanged(GeneratorState.PasswordState.PasswordGeneratorType)
+
     /// The refresh generated value button was pressed.
     case refreshGeneratedValue
 

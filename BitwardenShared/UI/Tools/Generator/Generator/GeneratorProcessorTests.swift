@@ -36,6 +36,24 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
+    func test_receive_generatorTypeChanged() {
+        subject.receive(.generatorTypeChanged(.password))
+        XCTAssertEqual(subject.state.generatorType, .password)
+
+        subject.receive(.generatorTypeChanged(.username))
+        XCTAssertEqual(subject.state.generatorType, .username)
+    }
+
+    /// `receive(_:)` with `.passwordGeneratorTypeChanged` updates the state's password generator type value.
+    func test_receive_passwordGeneratorTypeChanged() {
+        subject.receive(.passwordGeneratorTypeChanged(.password))
+        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .password)
+
+        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
+        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .passphrase)
+    }
+
     /// `receive(_:)` with `.sliderValueChanged` updates the state's value for the slider field.
     func test_receive_sliderValueChanged() {
         let field = SliderField<GeneratorState>(

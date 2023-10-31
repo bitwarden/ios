@@ -44,6 +44,22 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
     }
 
+    /// Updating the generator type dispatches the `.generatorTypeChanged` action.
+    func test_menuGeneratorTypeChanged() throws {
+        processor.state.generatorType = .password
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whatWouldYouLikeToGenerate)
+        try menuField.select(newValue: GeneratorState.GeneratorType.username)
+        XCTAssertEqual(processor.dispatchedActions.last, .generatorTypeChanged(.username))
+    }
+
+    /// Updating the password generator type dispatches the `.passwordGeneratorTypeChanged` action.
+    func test_menuPasswordGeneratorTypeChanged() throws {
+        processor.state.passwordState.passwordGeneratorType = .password
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.passwordType)
+        try menuField.select(newValue: GeneratorState.PasswordState.PasswordGeneratorType.passphrase)
+        XCTAssertEqual(processor.dispatchedActions.last, .passwordGeneratorTypeChanged(.passphrase))
+    }
+
     /// Updating the slider value dispatches the `.sliderValueChanged` action.
     func test_sliderValueChanged() throws {
         let field = SliderField<GeneratorState>(

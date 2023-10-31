@@ -38,6 +38,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         switch action {
         case .copyGeneratedValue:
             break
+        case let .generatorTypeChanged(generatorType):
+            state.generatorType = generatorType
+        case let .passwordGeneratorTypeChanged(passwordGeneratorType):
+            state.passwordState.passwordGeneratorType = passwordGeneratorType
         case .refreshGeneratedValue:
             break
         case let .sliderValueChanged(field, value):
