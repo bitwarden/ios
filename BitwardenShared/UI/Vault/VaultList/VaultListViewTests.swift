@@ -11,7 +11,7 @@ import XCTest
 class VaultListViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<VaultListState, VaultListAction, Void>!
+    var processor: MockProcessor<VaultListState, VaultListAction, VaultListEffect>!
     var subject: VaultListView!
 
     // MARK: Setup & Teardown
@@ -55,10 +55,61 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
     }
 
+    func test_vaultItem_tap() throws {
+        let item = VaultListItem(id: "1", itemType: .group(.login, 123))
+        processor.state.sections = [VaultListSection(id: "1", items: [item], name: "Group")]
+        let button = try subject.inspect().find(button: Localizations.typeLogin)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: item))
+    }
+
+    func test_vaultItemMoreButton_tap() throws {
+        let item = VaultListItem.fixture()
+        processor.state.sections = [VaultListSection(id: "1", items: [item], name: "Group")]
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.more)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .morePressed(item: item))
+    }
+
     // MARK: Snapshots
 
     func test_snapshot_empty() {
         assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_myVault() {
+        processor.state.sections = [
+            VaultListSection(
+                id: "",
+                items: [
+                    .fixture(),
+                ],
+                name: "Favorites"
+            ),
+            VaultListSection(
+                id: "2",
+                items: [
+                    VaultListItem(
+                        id: "21",
+                        itemType: .group(.login, 123)
+                    ),
+                    VaultListItem(
+                        id: "22",
+                        itemType: .group(.card, 25)
+                    ),
+                    VaultListItem(
+                        id: "23",
+                        itemType: .group(.identity, 1)
+                    ),
+                    VaultListItem(
+                        id: "24",
+                        itemType: .group(.secureNote, 0)
+                    ),
+                ],
+                name: "Types"
+            ),
+        ]
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_withSearchResult() {

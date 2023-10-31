@@ -92,6 +92,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         } else {
             let processor = VaultListProcessor(
                 coordinator: asAnyCoordinator(),
+                services: services,
                 state: VaultListState()
             )
             let store = Store(processor: processor)

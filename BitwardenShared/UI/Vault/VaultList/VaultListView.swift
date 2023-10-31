@@ -11,7 +11,7 @@ private struct VaultMainView: View {
     @Environment(\.isSearching) private var isSearching
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<VaultListState, VaultListAction, Void>
+    @ObservedObject var store: Store<VaultListState, VaultListAction, VaultListEffect>
 
     var body: some View {
         // A ZStack with hidden children is used here so that opening and closing the
@@ -27,7 +27,7 @@ private struct VaultMainView: View {
                 || !store.state.searchText.isEmpty
                 || !store.state.searchResults.isEmpty
 
-            emptyVault
+            vault
                 .hidden(isSearching)
 
             search
@@ -61,6 +61,19 @@ private struct VaultMainView: View {
                 .padding(.horizontal, 16)
                 .frame(minHeight: reader.size.height)
             }
+        }
+    }
+
+    /// A view that displays the main vault interface, including sections for groups and
+    /// vault items.
+    @ViewBuilder private var myVault: some View {
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                ForEach(store.state.sections) { section in
+                    vaultSection(title: section.name, items: section.items)
+                }
+            }
+            .padding(16)
         }
     }
 
@@ -103,6 +116,15 @@ private struct VaultMainView: View {
         }
     }
 
+    /// A view that displays either the my vault or empty vault interface.
+    @ViewBuilder private var vault: some View {
+        if store.state.sections.isEmpty {
+            emptyVault
+        } else {
+            myVault
+        }
+    }
+
     // MARK: Private Methods
 
     /// Creates a row in the list for the provided item.
@@ -129,6 +151,37 @@ private struct VaultMainView: View {
             mapEffect: nil
         ))
     }
+
+    /// Creates a section that appears in the vault.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the section.
+    ///   - items: The `VaultListItem`s in this section.
+    ///
+    @ViewBuilder
+    private func vaultSection(title: String, items: [VaultListItem]) -> some View {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(title.uppercased())
+                Spacer()
+                Text("\(items.count)")
+            }
+            .font(.footnote)
+            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+            VStack(alignment: .leading) {
+                ForEach(items) { item in
+                    Button {
+                        store.send(.itemPressed(item: item))
+                    } label: {
+                        vaultItemRow(for: item, isLastInSection: items.last == item)
+                    }
+                }
+            }
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+    }
 }
 
 // MARK: - VaultListView
@@ -139,7 +192,7 @@ struct VaultListView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<VaultListState, VaultListAction, Void>
+    @ObservedObject var store: Store<VaultListState, VaultListAction, VaultListEffect>
 
     var body: some View {
         VaultMainView(store: store)
@@ -180,6 +233,12 @@ struct VaultListView: View {
                     }
                 }
             }
+            .task {
+                await store.perform(.appeared)
+            }
+            .refreshable {
+                await store.perform(.refresh)
+            }
     }
 }
 
@@ -200,6 +259,43 @@ struct VaultListView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Empty")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            userInitials: "AA",
+                            sections: [
+                                VaultListSection(
+                                    id: "2",
+                                    items: [
+                                        VaultListItem(
+                                            id: "21",
+                                            itemType: .group(.login, 123)
+                                        ),
+                                        VaultListItem(
+                                            id: "22",
+                                            itemType: .group(.card, 25)
+                                        ),
+                                        VaultListItem(
+                                            id: "23",
+                                            itemType: .group(.identity, 1)
+                                        ),
+                                        VaultListItem(
+                                            id: "24",
+                                            itemType: .group(.secureNote, 0)
+                                        ),
+                                    ],
+                                    name: "Types"
+                                ),
+                            ]
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("My Vault")
 
         NavigationView {
             VaultListView(
