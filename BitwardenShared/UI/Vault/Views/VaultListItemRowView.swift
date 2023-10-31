@@ -74,7 +74,6 @@ struct VaultListItemRowView: View {
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                             }
                             .accessibilityElement(children: .combine)
-                            .accessibilityLabel("\(cipherItem.name), \(cipherItem.subTitle)")
 
                             Spacer()
 
