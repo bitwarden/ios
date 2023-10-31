@@ -34,6 +34,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case .setupTotpCamera:
             showCamera()
+        case .viewItem:
+            showViewItem()
         }
     }
 
@@ -85,5 +87,12 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             let view = VaultListView(store: store)
             stackNavigator.replace(view, animated: false)
         }
+    }
+
+    /// Shows the view item screen.
+    private func showViewItem() {
+        // TODO: BIT-219 Present the actual view item screen
+        let view = Text("View Item")
+        stackNavigator.present(view)
     }
 }

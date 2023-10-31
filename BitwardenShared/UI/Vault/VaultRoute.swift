@@ -20,4 +20,7 @@ public enum VaultRoute: Equatable, Hashable {
 
     /// A route to the camera screen for setting up TOTP.
     case setupTotpCamera
+
+    /// A route to the view item screen.
+    case viewItem // TODO: BIT-219 Add an associated type to pass the item to the screen
 }
