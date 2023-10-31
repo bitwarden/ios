@@ -14,6 +14,14 @@ private struct VaultMainView: View {
     @ObservedObject var store: Store<VaultListState, VaultListAction, Void>
 
     var body: some View {
+        // A ZStack with hidden children is used here so that opening and closing the
+        // search interface does not reset the scroll position for the main vault
+        // view, as would happen if we used an `if else` block here.
+        //
+        // Additionally, we cannot use an `.overlay()` on the main vault view to contain
+        // the search interface since VoiceOver still reads the elements below the overlay,
+        // which is not ideal.
+
         ZStack {
             let isSearching = isSearching
                 || !store.state.searchText.isEmpty
