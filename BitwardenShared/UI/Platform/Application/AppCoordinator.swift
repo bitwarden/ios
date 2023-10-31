@@ -22,7 +22,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     let module: Module
 
     /// The navigator to use for presenting screens.
-    let navigator: RootNavigator
+    let rootNavigator: RootNavigator
 
     // MARK: Initialization
 
@@ -30,11 +30,11 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     ///
     /// - Parameters:
     ///   - module: The module to use for creating child coordinators.
-    ///   - navigator: The navigator to use for presenting screens.
+    ///   - rootNavigator: The navigator to use for presenting screens.
     ///
-    init(module: Module, navigator: RootNavigator) {
+    init(module: Module, rootNavigator: RootNavigator) {
         self.module = module
-        self.navigator = navigator
+        self.rootNavigator = rootNavigator
     }
 
     // MARK: Methods
@@ -66,7 +66,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let navigationController = UINavigationController()
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
-                rootNavigator: navigator,
+                rootNavigator: rootNavigator,
                 stackNavigator: navigationController
             )
             coordinator.start()
@@ -85,7 +85,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         } else {
             let tabNavigator = UITabBarController()
             let coordinator = module.makeTabCoordinator(
-                rootNavigator: navigator,
+                rootNavigator: rootNavigator,
                 settingsDelegate: self,
                 tabNavigator: tabNavigator
             )

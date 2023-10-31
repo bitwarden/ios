@@ -53,7 +53,7 @@ protocol HasTabNavigator: HasNavigator {
 /// A protocol for an object that has a `RootNavigator`.
 ///
 protocol HasRootNavigator: HasNavigator {
-    var navigator: RootNavigator { get }
+    var rootNavigator: RootNavigator { get }
 }
 
 // MARK: Extensions
@@ -105,5 +105,5 @@ extension HasTabNavigator {
 
 extension HasRootNavigator {
     /// The root navigator.
-    var navigator: Navigator { navigator }
+    var navigator: Navigator { rootNavigator }
 }

@@ -36,7 +36,7 @@ extension DefaultAppModule: AppModule {
     public func makeAppCoordinator(navigator: RootNavigator) -> AnyCoordinator<AppRoute> {
         AppCoordinator(
             module: self,
-            navigator: navigator
+            rootNavigator: navigator
         ).asAnyCoordinator()
     }
 }
