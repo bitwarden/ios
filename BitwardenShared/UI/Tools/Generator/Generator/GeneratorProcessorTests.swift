@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -36,6 +37,17 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `receive(_:)` with `.appeared` generates a new generated value.
+    func test_receive_appear() {
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .password
+
+        subject.receive(.appeared)
+
+        waitFor { generatorRepository.passwordGeneratorRequest != nil }
+        XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+    }
+
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
     func test_receive_generatorTypeChanged() {
         subject.receive(.generatorTypeChanged(.password))
@@ -43,6 +55,30 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         subject.receive(.generatorTypeChanged(.username))
         XCTAssertEqual(subject.state.generatorType, .username)
+    }
+
+    /// `receive(_:)` with `.refreshGeneratedValue` generates a new password.
+    func test_receive_refreshGeneratedValue_password() {
+        subject.state.generatorType = .password
+
+        subject.receive(.refreshGeneratedValue)
+
+        waitFor { generatorRepository.passwordGeneratorRequest != nil }
+        XCTAssertEqual(
+            generatorRepository.passwordGeneratorRequest,
+            PasswordGeneratorRequest(
+                lowercase: true,
+                uppercase: true,
+                numbers: true,
+                special: false,
+                length: 14,
+                avoidAmbiguous: false,
+                minLowercase: nil,
+                minUppercase: nil,
+                minNumber: nil,
+                minSpecial: nil
+            )
+        )
     }
 
     /// `receive(_:)` with `.passwordGeneratorTypeChanged` updates the state's password generator type value.

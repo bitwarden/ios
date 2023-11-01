@@ -1,3 +1,4 @@
+import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
 
@@ -48,6 +49,50 @@ class GeneratorStateTests: XCTestCase {
               Toggle: Avoid ambiguous characters Value: false
             """
         }
+    }
+
+    /// `passwordState.passwordGeneratorRequest` returns the password generator request.
+    func test_passwordState_passwordGeneratorRequest() {
+        var subject = GeneratorState().passwordState
+
+        XCTAssertEqual(
+            subject.passwordGeneratorRequest,
+            PasswordGeneratorRequest(
+                lowercase: true,
+                uppercase: true,
+                numbers: true,
+                special: false,
+                length: 14,
+                avoidAmbiguous: false,
+                minLowercase: nil,
+                minUppercase: nil,
+                minNumber: nil,
+                minSpecial: nil
+            )
+        )
+
+        subject.containsLowercase = false
+        subject.containsUppercase = false
+        subject.containsNumbers = false
+        subject.containsSpecial = true
+        subject.length = 30
+        subject.avoidAmbiguous = true
+
+        XCTAssertEqual(
+            subject.passwordGeneratorRequest,
+            PasswordGeneratorRequest(
+                lowercase: false,
+                uppercase: false,
+                numbers: false,
+                special: true,
+                length: 30,
+                avoidAmbiguous: true,
+                minLowercase: nil,
+                minUppercase: nil,
+                minNumber: nil,
+                minSpecial: nil
+            )
+        )
     }
 
     // MARK: Private
