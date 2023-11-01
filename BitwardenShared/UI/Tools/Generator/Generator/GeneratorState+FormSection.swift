@@ -31,6 +31,9 @@ extension GeneratorState {
             /// A menu field for the password generator type.
             case menuPasswordGeneratorType(FormMenuField<State, PasswordState.PasswordGeneratorType>)
 
+            /// A menu field for the user generator type.
+            case menuUsernameGeneratorType(FormMenuField<State, UsernameState.UsernameGeneratorType>)
+
             /// A slider field.
             case slider(SliderField<State>)
 
@@ -52,6 +55,8 @@ extension GeneratorState {
                 case let .menuGeneratorType(field):
                     return field.id
                 case let .menuPasswordGeneratorType(field):
+                    return field.id
+                case let .menuUsernameGeneratorType(field):
                     return field.id
                 case let .slider(field):
                     return field.id
@@ -175,12 +180,13 @@ extension GeneratorState {
     ///
     /// - Parameters:
     ///   - autocapitalization: The behavior for when the input should be automatically capitalized.
+    ///     Defaults to `.never`.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
     ///   - title: The title of the field.
     /// - Returns: A form field for a generated value field.
     ///
     func textField(
-        autocapitalization: FormTextField<Self>.Autocapitalization,
+        autocapitalization: FormTextField<Self>.Autocapitalization = .never,
         keyPath: WritableKeyPath<GeneratorState, String>,
         title: String
     ) -> FormField<Self> {

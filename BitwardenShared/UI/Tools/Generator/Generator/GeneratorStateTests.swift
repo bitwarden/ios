@@ -16,9 +16,13 @@ class GeneratorStateTests: XCTestCase {
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate? Selection: Password Options: Password, Username
+              Menu: What would you like to generate?
+                Selection: Password
+                Options: Password, Username
             Section: Options
-              Menu: Password type Selection: Passphrase Options: Password, Passphrase
+              Menu: Password type
+                Selection: Passphrase
+                Options: Password, Passphrase
               Stepper: Number of words Value: 3 Range: 3...20
               Text: Word separator Value: -
               Toggle: Capitalize Value: false
@@ -36,9 +40,13 @@ class GeneratorStateTests: XCTestCase {
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate? Selection: Password Options: Password, Username
+              Menu: What would you like to generate?
+                Selection: Password
+                Options: Password, Username
             Section: Options
-              Menu: Password type Selection: Password Options: Password, Passphrase
+              Menu: Password type
+                Selection: Password
+                Options: Password, Passphrase
               Slider: Length Value: 14.0 Range: 5.0...128.0 Step: 1.0
               Toggle: A-Z Value: true
               Toggle: a-z Value: true
@@ -47,6 +55,28 @@ class GeneratorStateTests: XCTestCase {
               Stepper: Minimum numbers Value: 1 Range: 0...5
               Stepper: Minimum special Value: 1 Range: 0...5
               Toggle: Avoid ambiguous characters Value: false
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a plus-address email username.
+    func test_formSections_username_plusAddressedEmail() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .plusAddressedEmail
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Plus addressed email
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+              Text: Email (required) Value: (empty)
             """
         }
     }
@@ -136,15 +166,11 @@ class GeneratorStateTests: XCTestCase {
             case let .generatedValue(generatedValue):
                 result.append("Generated: \(generatedValue.value.isEmpty ? "(empty)" : generatedValue.value)")
             case let .menuGeneratorType(menu):
-                result.append(
-                    "Menu: \(menu.title) Selection: \(menu.selection.localizedName) " +
-                        "Options: \(menu.options.map(\.localizedName).joined(separator: ", "))"
-                )
+                result.append(menu.dumpField(indent: indent))
             case let .menuPasswordGeneratorType(menu):
-                result.append(
-                    "Menu: \(menu.title) Selection: \(menu.selection.localizedName) " +
-                        "Options: \(menu.options.map(\.localizedName).joined(separator: ", "))"
-                )
+                result.append(menu.dumpField(indent: indent))
+            case let .menuUsernameGeneratorType(menu):
+                result.append(menu.dumpField(indent: indent))
             case let .slider(slider):
                 result.append(
                     "Slider: \(slider.title) Value: \(slider.value) " +
@@ -153,7 +179,7 @@ class GeneratorStateTests: XCTestCase {
             case let .stepper(stepper):
                 result.append("Stepper: \(stepper.title) Value: \(stepper.value) Range: \(stepper.range)")
             case let .text(text):
-                result.append("Text: \(text.title) Value: \(text.value)")
+                result.append("Text: \(text.title) Value: \(text.value.isEmpty ? "(empty)" : text.value)")
             case let .toggle(toggle):
                 result.append("Toggle: \(toggle.title) Value: \(toggle.isOn)")
             }
@@ -173,5 +199,17 @@ class GeneratorStateTests: XCTestCase {
                 result.append("\n")
             }
         }
+    }
+}
+
+private extension FormMenuField {
+    /// Returns a string containing a description of the `FormMenuField`.
+    func dumpField(indent: String) -> String {
+        [
+            "Menu: \(title)",
+            indent + "  Selection: \(selection.localizedName)",
+            indent + "  Options: \(options.map(\.localizedName).joined(separator: ", "))",
+        ]
+        .joined(separator: "\n")
     }
 }
