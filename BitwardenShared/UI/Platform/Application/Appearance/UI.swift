@@ -65,6 +65,8 @@ public enum UI {
         tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = textAttributes
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+
+        UISearchBar.appearance().setImage(Asset.Images.magnifyingGlass.image, for: .search, state: .normal)
     }
 }
 
