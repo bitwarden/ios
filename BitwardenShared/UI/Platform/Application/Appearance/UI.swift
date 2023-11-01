@@ -66,6 +66,10 @@ public enum UI {
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
 
+        // Explicitly tint the image so that it does not assume the tint color assigned to the entire search bar.
+        let image = Asset.Images.cancelRound.image
+        let tintedImage = image.withTintColor(Asset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
+        UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
         UISearchBar.appearance().setImage(Asset.Images.magnifyingGlass.image, for: .search, state: .normal)
     }
 }
