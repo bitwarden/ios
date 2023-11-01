@@ -169,7 +169,7 @@ private struct VaultMainView: View {
             .font(.footnote)
             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 0) {
                 ForEach(items) { item in
                     Button {
                         store.send(.itemPressed(item: item))
@@ -267,6 +267,47 @@ struct VaultListView_Previews: PreviewProvider {
                         state: VaultListState(
                             userInitials: "AA",
                             sections: [
+                                VaultListSection(
+                                    id: "1",
+                                    items: [
+
+                                        .init(cipherListView: .init(
+                                            id: UUID().uuidString,
+                                            organizationId: nil,
+                                            folderId: nil,
+                                            collectionIds: [],
+                                            name: "Example",
+                                            subTitle: "email@example.com",
+                                            type: .login,
+                                            favorite: true,
+                                            reprompt: .none,
+                                            edit: false,
+                                            viewPassword: true,
+                                            attachments: 0,
+                                            creationDate: Date(),
+                                            deletedDate: nil,
+                                            revisionDate: Date()
+                                        ))!,
+                                        .init(cipherListView: .init(
+                                            id: UUID().uuidString,
+                                            organizationId: nil,
+                                            folderId: nil,
+                                            collectionIds: [],
+                                            name: "Example 2",
+                                            subTitle: "",
+                                            type: .secureNote,
+                                            favorite: true,
+                                            reprompt: .none,
+                                            edit: false,
+                                            viewPassword: true,
+                                            attachments: 0,
+                                            creationDate: Date(),
+                                            deletedDate: nil,
+                                            revisionDate: Date()
+                                        ))!,
+                                    ],
+                                    name: "Favorites"
+                                ),
                                 VaultListSection(
                                     id: "2",
                                     items: [

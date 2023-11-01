@@ -5,20 +5,19 @@ import SwiftUI
 
 /// An object representing the visual state of a `VaultListItemRowView`.
 struct VaultListItemRowState {
-    /// The item displayed in this row.
-    var item: VaultListItem
+    // MARK: Static Properties
 
-    /// A flag indicating if this row should display a divider on the bottom edge.
-    var hasDivider: Bool
+    /// The padding above an element containing one text element.
+    private static let singleTextTopPadding: CGFloat = 19
 
-    /// The padding to the top of the view.
-    var topPadding: CGFloat {
-        switch item.itemType {
-        case .cipher:
-            return 9
-        case .group:
-            return 19
-        }
+    /// The padding above an element containing two text elements.
+    private static let doubleTextTopPadding: CGFloat = 9
+
+    // MARK: Properties
+
+    /// The padding between the icon and the bottom of the view.
+    var bottomIconPadding: CGFloat {
+        topPadding
     }
 
     /// The padding between the label and the bottom of the view.
@@ -28,9 +27,35 @@ struct VaultListItemRowState {
         hasDivider ? (topPadding - 1) : topPadding
     }
 
-    /// The padding between the icon and the bottom of the view.
-    var bottomIconPadding: CGFloat {
-        topPadding
+    /// A flag indicating if this row should display a divider on the bottom edge.
+    var hasDivider: Bool
+
+    /// The item displayed in this row.
+    var item: VaultListItem
+
+    /// The padding to the top of the view.
+    var topPadding: CGFloat {
+        switch item.itemType {
+        case let .cipher(cipherItem):
+            if cipherItem.subTitle.isEmpty {
+                return Self.singleTextTopPadding
+            } else {
+                return Self.doubleTextTopPadding
+            }
+        case .group:
+            return Self.singleTextTopPadding
+        }
+    }
+
+    /// Creates a new `VaultListItemRowState` object.
+    ///
+    /// - Parameters:
+    ///   - item: The item displayed in this row.
+    ///   - hasDivider: A flag indicating if this row should display a divider on the bottom edge.
+    ///
+    init(item: VaultListItem, hasDivider: Bool) {
+        self.hasDivider = hasDivider
+        self.item = item
     }
 }
 
@@ -69,9 +94,11 @@ struct VaultListItemRowView: View {
                                 Text(cipherItem.name)
                                     .font(.styleGuide(.body))
                                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                                Text(cipherItem.subTitle)
-                                    .font(.styleGuide(.subheadline))
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                if let subTitle = cipherItem.subTitle.nilIfEmpty {
+                                    Text(subTitle)
+                                        .font(.styleGuide(.subheadline))
+                                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                }
                             }
                             .accessibilityElement(children: .combine)
 

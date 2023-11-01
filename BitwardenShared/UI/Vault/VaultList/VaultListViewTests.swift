@@ -83,6 +83,7 @@ class VaultListViewTests: BitwardenTestCase {
                 id: "",
                 items: [
                     .fixture(),
+                    .fixture(cipherListView: .fixture(id: "12", subTitle: "", type: .secureNote)),
                 ],
                 name: "Favorites"
             ),
