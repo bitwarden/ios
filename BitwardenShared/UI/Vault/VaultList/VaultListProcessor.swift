@@ -58,9 +58,16 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     override func receive(_ action: VaultListAction) {
         switch action {
         case .addItemPressed:
-            coordinator.navigate(to: .addItem)
-        case .itemPressed:
-            coordinator.navigate(to: .viewItem)
+            coordinator.navigate(to: .addItem(group: nil))
+        case let .itemPressed(item):
+//            coordinator.navigate(to: .viewItem)
+            switch item.itemType {
+            case let .cipher(cipherItem):
+                print(cipherItem.name)
+                break
+            case let .group(group, _):
+                coordinator.navigate(to: .group(group))
+            }
         case .morePressed:
             // TODO: BIT-375 Show item actions
             break

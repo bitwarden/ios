@@ -139,7 +139,10 @@ class DefaultVaultRepository {
 
         let folderItems = folders.map { folder in
             let cipherCount = activeCiphers.lazy.filter { $0.folderId == folder.id }.count
-            return VaultListItem(id: folder.id, itemType: .group(.folder(folder), cipherCount))
+            return VaultListItem(
+                id: folder.id,
+                itemType: .group(.folder(id: folder.id, name: folder.name), cipherCount)
+            )
         }
 
         let typesCardCount = activeCiphers.lazy.filter { $0.type == .card }.count
