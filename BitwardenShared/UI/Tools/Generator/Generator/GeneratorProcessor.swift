@@ -84,6 +84,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             let password = try await services.generatorRepository.generatePassword(
                 settings: state.passwordState.passwordGeneratorRequest
             )
+            try Task.checkCancellation()
             state.generatedValue = password
         } catch {
             Logger.application.error("Generator: error generating password: \(error)")
