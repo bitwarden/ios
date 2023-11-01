@@ -13,6 +13,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<GeneratorRoute>
 
+    /// The task used to generate a new value so it can be cancelled if needed.
+    private var generateValueTask: Task<Void, Never>?
+
     /// The services used by this processor.
     private var services: Services
 
@@ -65,7 +68,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         }
 
         if action.shouldGenerateNewValue {
-            generateValue()
+            generateValueTask?.cancel()
+            generateValueTask = Task {
+                await generateValue()
+            }
         }
     }
 
@@ -86,14 +92,14 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     /// Generates a new value based on the current settings.
     ///
-    func generateValue() {
+    func generateValue() async {
         switch state.generatorType {
         case .password:
             switch state.passwordState.passwordGeneratorType {
             case .passphrase:
                 break
             case .password:
-                Task { await generatePassword() }
+                await generatePassword()
             }
         case .username:
             break
