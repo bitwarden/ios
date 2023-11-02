@@ -30,12 +30,11 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         switch action {
         case .addItemPressed:
             coordinator.navigate(to: .addItem(group: state.group))
-        case let .itemPressed(item):
+        case .itemPressed:
             coordinator.navigate(to: .viewItem)
         case let .morePressed(item):
             // TODO: BIT-375 Show the more menu
             print("more: \(item.id)")
-            break
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         }

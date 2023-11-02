@@ -43,28 +43,23 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     override func perform(_ effect: VaultListEffect) async {
         switch effect {
         case .appeared:
+            await refreshVault()
             for await value in services.vaultRepository.vaultListPublisher() {
                 state.sections = value
             }
         case .refresh:
-            do {
-                try await services.vaultRepository.fetchSync()
-            } catch {
-                print(error)
-            }
+            await refreshVault()
         }
     }
 
     override func receive(_ action: VaultListAction) {
         switch action {
         case .addItemPressed:
-            coordinator.navigate(to: .addItem(group: nil))
+            coordinator.navigate(to: .addItem())
         case let .itemPressed(item):
-//            coordinator.navigate(to: .viewItem)
             switch item.itemType {
-            case let .cipher(cipherItem):
-                print(cipherItem.name)
-                break
+            case .cipher:
+                coordinator.navigate(to: .viewItem)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
             }
@@ -81,6 +76,17 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     }
 
     // MARK: - Private Methods
+
+    /// Refreshes the vault's contents.
+    ///
+    private func refreshVault() async {
+        do {
+            try await services.vaultRepository.fetchSync()
+        } catch {
+            // TODO: BIT-1034 Add an error alert
+            print(error)
+        }
+    }
 
     /// Searches the vault using the provided string, and returns any matching results.
     ///

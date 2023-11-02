@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import BitwardenSdk
 import SwiftUI
 
@@ -270,7 +272,6 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "1",
                                     items: [
-
                                         .init(cipherListView: .init(
                                             id: UUID().uuidString,
                                             organizationId: nil,

@@ -29,7 +29,7 @@ extension CipherType {
             self = .login
         case .secureNote:
             self = .secureNote
-        case .folder(let id, let name):
+        case .folder:
             return nil
         case .trash:
             return nil

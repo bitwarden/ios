@@ -8,7 +8,7 @@ class VaultListGroupTests: BitwardenTestCase {
     /// `name` returns the display name of the group.
     func test_name() {
         XCTAssertEqual(VaultListGroup.card.name, "Card")
-        XCTAssertEqual(VaultListGroup.folder(.init(id: "", name: "Folder 📁", revisionDate: Date())).name, "Folder 📁")
+        XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").name, "Folder 📁")
         XCTAssertEqual(VaultListGroup.identity.name, "Identity")
         XCTAssertEqual(VaultListGroup.login.name, "Login")
         XCTAssertEqual(VaultListGroup.secureNote.name, "Secure note")

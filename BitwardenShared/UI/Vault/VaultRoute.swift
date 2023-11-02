@@ -5,7 +5,7 @@ import Foundation
 /// A route to a specific screen in the vault tab.
 public enum VaultRoute: Equatable, Hashable {
     /// A route to the add item screen.
-    case addItem(group: VaultListGroup?)
+    case addItem(group: VaultListGroup? = nil)
 
     /// A route to display the specified alert.
     ///

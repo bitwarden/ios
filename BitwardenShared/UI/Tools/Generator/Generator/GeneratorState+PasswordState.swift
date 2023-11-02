@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 extension GeneratorState {
     /// Data model for the values that can be set for generating a password.
     ///
@@ -77,5 +79,35 @@ extension GeneratorState {
 
         /// The separator to put between words in the passphrase.
         var wordSeparator: String = "-"
+    }
+}
+
+extension GeneratorState.PasswordState {
+    /// Returns a `PassphraseGeneratorRequest` containing the user selected settings for generating
+    /// a passphrase.
+    var passphraseGeneratorRequest: PassphraseGeneratorRequest {
+        PassphraseGeneratorRequest(
+            numWords: UInt8(numberOfWords),
+            wordSeparator: wordSeparator,
+            capitalize: capitalize,
+            includeNumber: includeNumber
+        )
+    }
+
+    /// Returns a `PasswordGeneratorRequest` containing the user selected settings for generating a
+    /// password.
+    var passwordGeneratorRequest: PasswordGeneratorRequest {
+        PasswordGeneratorRequest(
+            lowercase: containsLowercase,
+            uppercase: containsUppercase,
+            numbers: containsNumbers,
+            special: containsSpecial,
+            length: UInt8(length),
+            avoidAmbiguous: avoidAmbiguous,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil, // TODO: BIT-980 Fix type mismatch with SDK (SDK expects bool not int).
+            minSpecial: nil // TODO: BIT-980 Fix type mismatch with SDK (SDK expects bool not int).
+        )
     }
 }
