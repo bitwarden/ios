@@ -143,6 +143,16 @@ class GeneratorViewTests: BitwardenTestCase {
         )
     }
 
+    /// Test a snapshot of the catch-all username generation view.
+    func test_snapshot_generatorViewUsernameCatchAll() {
+        processor.state.generatorType = .username
+        processor.state.usernameState.usernameGeneratorType = .catchAllEmail
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
+    }
+
     /// Test a snapshot of the plus addressed username generation view.
     func test_snapshot_generatorViewUsernamePlusAddressed() {
         processor.state.generatorType = .username

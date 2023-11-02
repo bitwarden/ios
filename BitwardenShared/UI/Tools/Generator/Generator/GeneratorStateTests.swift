@@ -59,6 +59,29 @@ class GeneratorStateTests: XCTestCase {
         }
     }
 
+    /// `formSections` returns the sections and fields for generating a catch-all email username.
+    func test_formSections_username_catchAllEmail() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .catchAllEmail
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Catch-all email
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Use your domain's configured catch-all inbox.
+              Text: Domain name (required) Value: (empty)
+            """
+        }
+    }
+
     /// `formSections` returns the sections and fields for generating a plus-address email username.
     func test_formSections_username_plusAddressedEmail() {
         var subject = GeneratorState()
@@ -76,6 +99,7 @@ class GeneratorStateTests: XCTestCase {
               Menu: Username type
                 Selection: Plus addressed email
                 Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Use your email provider's subaddress capabilities
               Text: Email (required) Value: (empty)
             """
         }
@@ -209,7 +233,9 @@ private extension FormMenuField {
             "Menu: \(title)",
             indent + "  Selection: \(selection.localizedName)",
             indent + "  Options: \(options.map(\.localizedName).joined(separator: ", "))",
+            footer.map { indent + "  Footer: \($0)" },
         ]
+        .compactMap { $0 }
         .joined(separator: "\n")
     }
 }
