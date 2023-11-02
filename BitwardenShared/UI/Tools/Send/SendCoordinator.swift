@@ -6,7 +6,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     // MARK: - Private Properties
 
     /// The stack navigator that is managed by this coordinator.
-    private let stackNavigator: StackNavigator
+    var stackNavigator: StackNavigator
 
     // MARK: Initialization
 
