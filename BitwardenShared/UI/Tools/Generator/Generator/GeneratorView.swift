@@ -5,6 +5,9 @@ import SwiftUI
 struct GeneratorView: View {
     // MARK: Properties
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<GeneratorState, GeneratorAction, Void>
 
@@ -51,9 +54,7 @@ struct GeneratorView: View {
                         store.send(.passwordGeneratorTypeChanged(newValue))
                     }
                 case let .menuUsernameGeneratorType(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.usernameGeneratorTypeChanged(newValue))
-                    }
+                    menuUsernameGeneratorTypeView(field: menuField)
                 case let .slider(sliderField):
                     SliderFieldView(field: sliderField) { newValue in
                         store.send(.sliderValueChanged(field: sliderField, value: newValue))
@@ -109,6 +110,27 @@ struct GeneratorView: View {
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Localizations.generatePassword)
+        }
+    }
+
+    /// Returns a view for displaying a menu for selecting the username type
+    ///
+    /// - Parameter field: The data for displaying the menu field.
+    ///
+    func menuUsernameGeneratorTypeView(
+        field: FormMenuField<GeneratorState, GeneratorState.UsernameState.UsernameGeneratorType>
+    ) -> some View {
+        FormMenuFieldView(field: field) { newValue in
+            store.send(.usernameGeneratorTypeChanged(newValue))
+        } trailingContent: {
+            Button {
+                openURL(ExternalLinksConstants.generatorUsernameTypes)
+            } label: {
+                Asset.Images.questionRound.swiftUIImage
+                    .resizable()
+                    .frame(width: 14, height: 14)
+            }
+            .buttonStyle(.accessory)
         }
     }
 }
