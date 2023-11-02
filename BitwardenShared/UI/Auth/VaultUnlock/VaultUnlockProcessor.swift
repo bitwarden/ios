@@ -75,7 +75,6 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             do {
                 try await self.services.authRepository.logout()
             } catch {
-                assertionFailure("Error logging out: \(error)")
                 self.services.errorReporter.log(error: BitwardenError.logoutError(error: error))
             }
             self.coordinator.navigate(to: .landing)

@@ -53,7 +53,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
             do {
                 try await self.services.settingsRepository.logout()
             } catch {
-                assertionFailure("Error logging out: \(error)")
                 self.services.errorReporter.log(error: BitwardenError.logoutError(error: error))
             }
             self.coordinator.navigate(to: .logout)

@@ -34,7 +34,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AppDelegateType {
         // Exit early if testing to avoid running any app functionality.
         guard !isTesting else { return true }
 
-        let services = ServiceContainer(errorReporter: CrashlyticsErrorReporter())
+        #if DEBUG
+        let errorReporter = OSLogErrorReporter()
+        #else
+        let errorReporter = CrashlyticsErrorReporter()
+        #endif
+
+        let services = ServiceContainer(errorReporter: errorReporter)
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)
         return true
