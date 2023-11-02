@@ -4,11 +4,18 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the vault list screen.
 ///
-final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, Void> {
+final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, VaultListEffect> {
+    // MARK: Types
+
+    typealias Services = HasVaultRepository
+
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<VaultRoute>
+
+    /// The services used by this processor.
+    private let services: Services
 
     // MARK: Initialization
 
@@ -16,19 +23,34 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
+    ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///
     init(
         coordinator: AnyCoordinator<VaultRoute>,
+        services: Services,
         state: VaultListState
     ) {
         self.coordinator = coordinator
+        self.services = services
         var state = state
         state.userInitials = "NA"
         super.init(state: state)
     }
 
     // MARK: Methods
+
+    override func perform(_ effect: VaultListEffect) async {
+        switch effect {
+        case .appeared:
+            await refreshVault()
+            for await value in services.vaultRepository.vaultListPublisher() {
+                state.sections = value
+            }
+        case .refresh:
+            await refreshVault()
+        }
+    }
 
     override func receive(_ action: VaultListAction) {
         switch action {
@@ -49,6 +71,17 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     }
 
     // MARK: - Private Methods
+
+    /// Refreshes the vault's contents.
+    ///
+    private func refreshVault() async {
+        do {
+            try await services.vaultRepository.fetchSync()
+        } catch {
+            // TODO: BIT-1034 Add an error alert
+            print(error)
+        }
+    }
 
     /// Searches the vault using the provided string, and returns any matching results.
     ///
