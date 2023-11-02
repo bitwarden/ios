@@ -58,6 +58,7 @@ class VaultListProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.sections.count, 1)
         XCTAssertEqual(subject.state.sections[0].items, [vaultListItem])
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
