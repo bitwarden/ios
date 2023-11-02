@@ -61,7 +61,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the add item screen.
     ///
-    /// - Parameter type: The `CipherType` to initialize this view with.
+    /// - Parameter type: An optional `CipherType` to initialize this view with.
     ///
     private func showAddItem(for type: CipherType?) {
         let state = AddItemState(

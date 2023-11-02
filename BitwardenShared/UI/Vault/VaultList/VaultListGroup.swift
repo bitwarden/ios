@@ -1,10 +1,5 @@
 import BitwardenSdk
 
-struct CipherFolder: Equatable {
-    var id: String
-    var name: String
-}
-
 /// An enumeration of groups of items displayed in the vault list.
 ///
 public enum VaultListGroup: Equatable, Hashable {

@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - VaultGroupView
 
-/// A view that displays a single vault group.
+/// A view that displays the items in a single vault group.
 struct VaultGroupView: View {
     // MARK: Properties
 
@@ -10,6 +10,64 @@ struct VaultGroupView: View {
     @ObservedObject var store: Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
 
     var body: some View {
+        contents
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+            .navigationTitle(store.state.group.navigationTitle)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        store.send(.addItemPressed)
+                    } label: {
+                        Label {
+                            Text(Localizations.addItem)
+                        } icon: {
+                            Asset.Images.plus.swiftUIImage
+                        }
+                    }
+                }
+            }
+            .task {
+                await store.perform(.appeared)
+            }
+    }
+
+    // MARK: Private Properties
+
+    @ViewBuilder private var contents: some View {
+        if store.state.items.isEmpty {
+            emptyView
+        } else {
+            groupView
+        }
+    }
+
+    /// A view that displays an empty state for this vault group.
+    @ViewBuilder private var emptyView: some View {
+        GeometryReader { reader in
+            ScrollView {
+                VStack(spacing: 24) {
+                    Spacer()
+
+                    Text(Localizations.noItems)
+                        .multilineTextAlignment(.center)
+                        .font(.styleGuide(.callout))
+                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+
+                    Button(Localizations.addAnItem) {
+                        store.send(.addItemPressed)
+                    }
+                    .buttonStyle(.tertiary())
+
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .frame(minHeight: reader.size.height)
+            }
+        }
+    }
+
+    /// A view that displays a list of the contents of this vault group.
+    @ViewBuilder private var groupView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 7) {
                 HStack(alignment: .firstTextBaseline) {
@@ -56,24 +114,6 @@ struct VaultGroupView: View {
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: Localizations.search
         )
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle(store.state.group.navigationTitle)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    store.send(.addItemPressed)
-                } label: {
-                    Label {
-                        Text(Localizations.add)
-                    } icon: {
-                        Asset.Images.plus.swiftUIImage
-                    }
-                }
-            }
-        }
-        .task {
-            await store.perform(.appeared)
-        }
     }
 }
 
@@ -82,6 +122,17 @@ struct VaultGroupView: View {
 #if DEBUG
 struct VaultItemListView_Previews: PreviewProvider {
     static var previews: some View {
+        NavigationView {
+            VaultGroupView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultGroupState()
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Empty")
+
         NavigationView {
             VaultGroupView(
                 store: Store(

@@ -2,6 +2,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// MARK: - VaultListGroupTests
+
 class VaultListGroupTests: BitwardenTestCase {
     // MARK: Tests
 
@@ -13,5 +15,15 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.login.name, "Login")
         XCTAssertEqual(VaultListGroup.secureNote.name, "Secure note")
         XCTAssertEqual(VaultListGroup.trash.name, "Trash")
+    }
+
+    /// `navigationTitle` returns the navigation title of the group.
+    func test_navigationTitle() {
+        XCTAssertEqual(VaultListGroup.card.navigationTitle, Localizations.cards)
+        XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").navigationTitle, "Folder 📁")
+        XCTAssertEqual(VaultListGroup.identity.navigationTitle, Localizations.identities)
+        XCTAssertEqual(VaultListGroup.login.navigationTitle, Localizations.logins)
+        XCTAssertEqual(VaultListGroup.secureNote.navigationTitle, Localizations.secureNotes)
+        XCTAssertEqual(VaultListGroup.trash.navigationTitle, Localizations.trash)
     }
 }

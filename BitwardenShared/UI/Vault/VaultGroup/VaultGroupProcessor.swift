@@ -1,8 +1,8 @@
 import Foundation
 
-// MARK: VaultGroupProcessor
+// MARK: - VaultGroupProcessor
 
-/// A `Processor` that can handle `VaultGroupAction`s and `VaultGroupEffect`s.
+/// A `Processor` that can process `VaultGroupAction`s and `VaultGroupEffect`s.
 final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupAction, VaultGroupEffect> {
     // MARK: Private Properties
 
@@ -11,6 +11,12 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
 
     // MARK: Initialization
 
+    /// Creates a new `VaultGroupProcessor`.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The `Coordinator` for this processor.
+    ///   - state: The initial state of this processor.
+    ///
     init(coordinator: any Coordinator<VaultRoute>, state: VaultGroupState) {
         self.coordinator = coordinator
         super.init(state: state)
