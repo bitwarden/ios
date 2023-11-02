@@ -16,7 +16,8 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
 final class SettingsCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasSettingsRepository
+    typealias Services = HasErrorReporter
+        & HasSettingsRepository
 
     // MARK: Properties
 
