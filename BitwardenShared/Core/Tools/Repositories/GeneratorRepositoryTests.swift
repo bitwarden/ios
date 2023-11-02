@@ -28,6 +28,38 @@ class GeneratorRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `generatePassphrase` returns the generated passphrase.
+    func test_generatePassphrase() async throws {
+        let passphrase = try await subject.generatePassphrase(
+            settings: PassphraseGeneratorRequest(
+                numWords: 3,
+                wordSeparator: "-",
+                capitalize: false,
+                includeNumber: false
+            )
+        )
+
+        XCTAssertEqual(passphrase, "PASSPHRASE")
+    }
+
+    /// `generatePassphrase` throws an error if generating a passphrase fails.
+    func test_generatePassphrase_error() async {
+        struct GeneratePassphraseError: Error, Equatable {}
+
+        clientGenerators.passphraseResult = .failure(GeneratePassphraseError())
+
+        await assertAsyncThrows(error: GeneratePassphraseError()) {
+            _ = try await subject.generatePassphrase(
+                settings: PassphraseGeneratorRequest(
+                    numWords: 3,
+                    wordSeparator: "-",
+                    capitalize: false,
+                    includeNumber: false
+                )
+            )
+        }
+    }
+
     /// `generatePassword` returns the generated password.
     func test_generatePassword() async throws {
         let password = try await subject.generatePassword(

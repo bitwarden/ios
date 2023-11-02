@@ -77,6 +77,20 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     // MARK: Private
 
+    /// Generates a new passphrase.
+    ///
+    func generatePassphrase() async {
+        do {
+            let passphrase = try await services.generatorRepository.generatePassphrase(
+                settings: state.passwordState.passphraseGeneratorRequest
+            )
+            try Task.checkCancellation()
+            state.generatedValue = passphrase
+        } catch {
+            Logger.application.error("Generator: error generating passphrase: \(error)")
+        }
+    }
+
     /// Generates a new password.
     ///
     func generatePassword() async {
@@ -98,7 +112,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .password:
             switch state.passwordState.passwordGeneratorType {
             case .passphrase:
-                break
+                await generatePassphrase()
             case .password:
                 await generatePassword()
             }

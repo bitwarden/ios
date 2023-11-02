@@ -51,6 +51,36 @@ class GeneratorStateTests: XCTestCase {
         }
     }
 
+    /// `passwordState.passphraseGeneratorRequest` returns the passphrase generator request.
+    func test_passwordState_passphraseGeneratorRequest() {
+        var subject = GeneratorState().passwordState
+
+        XCTAssertEqual(
+            subject.passphraseGeneratorRequest,
+            PassphraseGeneratorRequest(
+                numWords: 3,
+                wordSeparator: "-",
+                capitalize: false,
+                includeNumber: false
+            )
+        )
+
+        subject.numberOfWords = 6
+        subject.wordSeparator = "*"
+        subject.capitalize = true
+        subject.includeNumber = true
+
+        XCTAssertEqual(
+            subject.passphraseGeneratorRequest,
+            PassphraseGeneratorRequest(
+                numWords: 6,
+                wordSeparator: "*",
+                capitalize: true,
+                includeNumber: true
+            )
+        )
+    }
+
     /// `passwordState.passwordGeneratorRequest` returns the password generator request.
     func test_passwordState_passwordGeneratorRequest() {
         var subject = GeneratorState().passwordState
