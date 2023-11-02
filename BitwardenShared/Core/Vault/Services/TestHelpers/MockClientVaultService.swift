@@ -108,7 +108,7 @@ class MockClientSends: ClientSendsProtocol {
         fatalError("Not implemented yet")
     }
 
-    func decryptList(sends: [Send]) async throws -> [SendListView] {
+    func decryptList(sends: [Send]) async throws -> [BitwardenSdk.SendListView] {
         fatalError("Not implemented yet")
     }
 

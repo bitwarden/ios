@@ -46,6 +46,17 @@ class AppModuleTests: BitwardenTestCase {
         XCTAssertTrue(rootViewController.childViewController === navigationController)
     }
 
+    /// `makeSendCoordinator()` builds the send coordinator.
+    func test_makeSendCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeSendCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<SendListView>)
+    }
+
     /// `makeSettingsCoordinator()` builds the settings coordinator.
     func test_makeSettingsCoordinator() {
         let navigationController = UINavigationController()
