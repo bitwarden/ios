@@ -64,7 +64,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { generatorRepository.passphraseGeneratorRequest != nil }
+        waitFor { !subject.state.generatedValue.isEmpty }
 
         XCTAssertEqual(
             generatorRepository.passphraseGeneratorRequest,
@@ -75,6 +75,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
                 includeNumber: false
             )
         )
+        XCTAssertEqual(subject.state.generatedValue, "PASSPHRASE")
     }
 
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new password.
@@ -83,7 +84,8 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { generatorRepository.passwordGeneratorRequest != nil }
+        waitFor { !subject.state.generatedValue.isEmpty }
+
         XCTAssertEqual(
             generatorRepository.passwordGeneratorRequest,
             PasswordGeneratorRequest(
@@ -99,6 +101,21 @@ class GeneratorProcessorTests: BitwardenTestCase {
                 minSpecial: nil
             )
         )
+        XCTAssertEqual(subject.state.generatedValue, "PASSWORD")
+    }
+
+    /// `receive(_:)` with `.refreshGeneratedValue` generates a new plus addressed email.
+    func test_receive_refreshGeneratedValue_usernamePlusAddressedEmail() {
+        subject.state.generatorType = .username
+        subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
+        subject.state.usernameState.email = "user@bitwarden.com"
+
+        subject.receive(.refreshGeneratedValue)
+
+        waitFor { !subject.state.generatedValue.isEmpty }
+
+        XCTAssertEqual(generatorRepository.usernamePlusAddressEmail, "user@bitwarden.com")
+        XCTAssertEqual(subject.state.generatedValue, "user+abcd0123@bitwarden.com")
     }
 
     /// `receive(_:)` with `.passwordGeneratorTypeChanged` updates the state's password generator type value.

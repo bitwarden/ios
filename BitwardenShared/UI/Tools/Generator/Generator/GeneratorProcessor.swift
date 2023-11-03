@@ -79,7 +79,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     // MARK: Private
 
-    /// Generates a new passphrase.
+    /// Generate a new passphrase.
     ///
     func generatePassphrase() async {
         do {
@@ -93,7 +93,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         }
     }
 
-    /// Generates a new password.
+    /// Generate a new password.
     ///
     func generatePassword() async {
         do {
@@ -104,6 +104,33 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.generatedValue = password
         } catch {
             Logger.application.error("Generator: error generating password: \(error)")
+        }
+    }
+
+    /// Generate a new username.
+    ///
+    func generateUsername() async {
+        do {
+            let username: String
+            switch state.usernameState.usernameGeneratorType {
+            case .catchAllEmail:
+                // TODO: BIT-396 Generate catch-all email
+                username = "-"
+            case .forwardedEmail:
+                // TODO: BIT-406 Generate forwarded email
+                username = "-"
+            case .plusAddressedEmail:
+                username = try await services.generatorRepository.generateUsernamePlusAddressedEmail(
+                    email: state.usernameState.email
+                )
+            case .randomWord:
+                // TODO: BIT-407 Generate random word
+                username = "-"
+            }
+            try Task.checkCancellation()
+            state.generatedValue = username
+        } catch {
+            Logger.application.error("Generator: error generating username: \(error)")
         }
     }
 
@@ -119,8 +146,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 await generatePassword()
             }
         case .username:
-            // TODO: BIT-1003 Generate usernames
-            state.generatedValue = "-"
+            await generateUsername()
         }
     }
 }
