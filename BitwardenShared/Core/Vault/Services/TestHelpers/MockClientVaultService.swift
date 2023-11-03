@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 @testable import BitwardenShared
 
@@ -100,7 +101,7 @@ class MockClientSends: ClientSendsProtocol {
         fatalError("Not implemented yet")
     }
 
-    func decryptBuffer(send: Send, buffer: [UInt8]) async throws -> [UInt8] {
+    func decryptBuffer(send: Send, buffer: Data) async throws -> Data {
         fatalError("Not implemented yet")
     }
 
@@ -116,7 +117,7 @@ class MockClientSends: ClientSendsProtocol {
         fatalError("Not implemented yet")
     }
 
-    func encryptBuffer(send: Send, buffer: [UInt8]) async throws -> [UInt8] {
+    func encryptBuffer(send: Send, buffer: Data) async throws -> Data {
         fatalError("Not implemented yet")
     }
 
