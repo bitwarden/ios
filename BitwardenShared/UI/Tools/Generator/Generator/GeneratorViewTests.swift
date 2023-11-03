@@ -98,6 +98,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.passwordState.passwordGeneratorType = .passphrase
         let field = FormTextField<GeneratorState>(
             autocapitalization: .never,
+            isAutocorrectDisabled: true,
             keyPath: \.passwordState.wordSeparator,
             title: Localizations.wordSeparator,
             value: "-"

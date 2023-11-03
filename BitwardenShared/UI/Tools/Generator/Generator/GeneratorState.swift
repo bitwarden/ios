@@ -56,7 +56,6 @@ struct GeneratorState: Equatable {
                         title: Localizations.numberOfWords
                     ),
                     textField(
-                        autocapitalization: .never,
                         keyPath: \.passwordState.wordSeparator,
                         title: Localizations.wordSeparator
                     ),
@@ -120,7 +119,9 @@ struct GeneratorState: Equatable {
             case .catchAllEmail:
                 optionFields.append(contentsOf: [
                     textField(
+                        keyboardType: .URL,
                         keyPath: \.usernameState.domain,
+                        textContentType: .URL,
                         title: Localizations.domainNameRequiredParenthesis
                     ),
                 ])
@@ -129,7 +130,9 @@ struct GeneratorState: Equatable {
             case .plusAddressedEmail:
                 optionFields.append(contentsOf: [
                     textField(
+                        keyboardType: .emailAddress,
                         keyPath: \.usernameState.email,
+                        textContentType: .emailAddress,
                         title: Localizations.emailRequiredParenthesis
                     ),
                 ])

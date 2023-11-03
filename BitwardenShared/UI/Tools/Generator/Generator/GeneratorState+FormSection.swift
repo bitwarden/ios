@@ -1,3 +1,5 @@
+import UIKit
+
 extension GeneratorState {
     /// Data model containing the data to display a section of fields in a form.
     ///
@@ -181,19 +183,29 @@ extension GeneratorState {
     /// - Parameters:
     ///   - autocapitalization: The behavior for when the input should be automatically capitalized.
     ///     Defaults to `.never`.
+    ///   - isAutocorrectDisabled: Whether autocorrect is disabled in the text field. Defaults to
+    ///     `true`.
+    ///   - keyboardType: The type of keyboard to display.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
+    ///   - textContentType: The expected type of content input in the text field. Defaults to `nil`.
     ///   - title: The title of the field.
     /// - Returns: A form field for a generated value field.
     ///
     func textField(
         autocapitalization: FormTextField<Self>.Autocapitalization = .never,
+        isAutocorrectDisabled: Bool = true,
+        keyboardType: UIKeyboardType = .default,
         keyPath: WritableKeyPath<GeneratorState, String>,
+        textContentType: UITextContentType? = nil,
         title: String
     ) -> FormField<Self> {
         FormField(fieldType: .text(
             FormTextField(
                 autocapitalization: autocapitalization,
+                isAutocorrectDisabled: isAutocorrectDisabled,
+                keyboardType: keyboardType,
                 keyPath: keyPath,
+                textContentType: textContentType,
                 title: title,
                 value: self[keyPath: keyPath]
             )
