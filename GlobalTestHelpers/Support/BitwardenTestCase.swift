@@ -8,6 +8,17 @@ open class BitwardenTestCase: XCTestCase {
     /// The window being used for testing. Defaults to a new window with the same size as `UIScreen.main.bounds`.
     public var window: UIWindow!
 
+    @MainActor
+    override open class func setUp() {
+        if UIDevice.current.name != "iPhone 14 Pro" {
+            assertionFailure(
+                """
+                Tests must be run using the iPhone 14 Pro simulator. Snapshot tests depend on using the correct device.
+                """
+            )
+        }
+    }
+
     /// Executes any logic that should be applied before each test runs.
     ///
     @MainActor
