@@ -5,6 +5,9 @@ import SwiftUI
 struct GeneratorView: View {
     // MARK: Properties
 
+    /// The key path of the currently focused text field.
+    @FocusState private var focusedFieldKeyPath: KeyPath<GeneratorState, String>?
+
     /// An action that opens URLs.
     @Environment(\.openURL) private var openURL
 
@@ -24,6 +27,9 @@ struct GeneratorView: View {
         .navigationBarTitleDisplayMode(.large)
         .navigationTitle(Localizations.generator)
         .onAppear { store.send(.appeared) }
+        .onChange(of: focusedFieldKeyPath) { newValue in
+            store.send(.textFieldFocusChanged(keyPath: newValue))
+        }
     }
 
     /// Returns a view for displaying a section of items in the form.
@@ -67,6 +73,7 @@ struct GeneratorView: View {
                     FormTextFieldView(field: textField) { newValue in
                         store.send(.textValueChanged(field: textField, value: newValue))
                     }
+                    .focused($focusedFieldKeyPath, equals: textField.keyPath)
                 case let .toggle(toggleField):
                     ToggleFieldView(field: toggleField) { isOn in
                         store.send(.toggleValueChanged(field: toggleField, isOn: isOn))

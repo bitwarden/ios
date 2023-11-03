@@ -160,6 +160,28 @@ class GeneratorProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.passwordState.minimumNumber, 5)
     }
 
+    /// `receive(_:)` with `.textFieldFocusChanged` updates the processor's focused key path value
+    /// which is used to determine if a new value should be generated as the text field value changes.
+    func test_receive_textFieldFocusChanged() {
+        let field = FormTextField<GeneratorState>(
+            keyPath: \.usernameState.email,
+            title: Localizations.email,
+            value: "user@"
+        )
+
+        subject.state.generatorType = .username
+        subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
+
+        subject.receive(.textFieldFocusChanged(keyPath: \.usernameState.email))
+        subject.receive(.textValueChanged(field: field, value: "user@bitwarden.com"))
+        XCTAssertNil(generatorRepository.usernamePlusAddressEmail)
+
+        subject.receive(.textFieldFocusChanged(keyPath: nil))
+        waitFor { !subject.state.generatedValue.isEmpty }
+        XCTAssertEqual(generatorRepository.usernamePlusAddressEmail, "user@bitwarden.com")
+        XCTAssertEqual(subject.state.generatedValue, "user+abcd0123@bitwarden.com")
+    }
+
     /// `receive(_:)` with `.textValueChanged` updates the state's value for the text field.
     func test_receive_textValueChanged() {
         let field = FormTextField<GeneratorState>(
