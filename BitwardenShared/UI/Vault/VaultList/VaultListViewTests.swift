@@ -19,7 +19,15 @@ class VaultListViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        let state = VaultListState(userInitials: "AA")
+        let state = VaultListState(
+            profileSwitcherState: ProfileSwitcherState(
+                currentAccountProfile: ProfileSwitcherItem(
+                    email: "anne.account@bitwarden.com",
+                    userInitials: "AA"
+                ),
+                isVisible: false
+            )
+        )
         processor = MockProcessor(state: state)
         subject = VaultListView(store: Store(processor: processor))
     }
@@ -40,11 +48,41 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
-    /// Tapping the profile button dispatches the `.profilePressed` action.
-    func test_profileButton_tap() throws {
-        let button = try subject.inspect().find(button: "AA")
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .profilePressed)
+    /// Tapping a profile row dispatches the `.accountPressed` action.
+    func test_accountRow_tap_currentAccount() throws {
+        processor.state.profileSwitcherState.isVisible = true
+        let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
+        try accountRow.tap()
+        let currentAccount = processor.state.profileSwitcherState.currentAccountProfile
+
+        XCTAssertEqual(processor.dispatchedActions.last, .profileSwitcherAction(.accountPressed(currentAccount)))
+    }
+
+    /// Tapping the add account row dispatches the `.addAccountPressed ` action.
+    func test_accountRow_tap_addAccount() throws {
+        processor.state.profileSwitcherState.isVisible = true
+        let addAccountRow = try subject.inspect().find(button: "Add account")
+        try addAccountRow.tap()
+
+        XCTAssertEqual(processor.dispatchedActions.last, .profileSwitcherAction(.addAccountPressed))
+    }
+
+    /// Tapping the profile button dispatches the `.toggleProfilesViewVisibility` action.
+    func test_profileButton_tap_withProfilesViewNotVisible() throws {
+        processor.state.profileSwitcherState.isVisible = false
+        let buttonUnselected = try subject.inspect().find(button: "AA")
+        try buttonUnselected.tap()
+
+        XCTAssertEqual(processor.dispatchedActions.last, .requestedProfileSwitcher(visible: true))
+    }
+
+    /// Tapping the profile button dispatches the `.toggleProfilesViewVisibility` action.
+    func test_profileButton_tap_withProfilesViewVisible() throws {
+        processor.state.profileSwitcherState.isVisible = true
+        let buttonUnselected = try subject.inspect().find(button: "AA")
+        try buttonUnselected.tap()
+
+        XCTAssertEqual(processor.dispatchedActions.last, .requestedProfileSwitcher(visible: false))
     }
 
     func test_searchResult_tap() throws {
@@ -74,6 +112,14 @@ class VaultListViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     func test_snapshot_empty() {
+        processor.state.profileSwitcherState.isVisible = false
+
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_empty_singleAccountProfileSwitcher() {
+        processor.state.profileSwitcherState.isVisible = true
+
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
