@@ -214,7 +214,6 @@ struct VaultListView: View {
                     await store.perform(.refresh)
                 }
             profileSwitcher
-                .hidden(!store.state.profileSwitcherState.isVisible)
         }
         .navigationTitle(Localizations.myVault)
         .navigationBarTitleDisplayMode(.large)
