@@ -60,6 +60,15 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .passwordGeneratorTypeChanged(.passphrase))
     }
 
+    /// Updating the username generator forwarded email service dispatches the
+    /// `.usernameForwardedEmailServiceChanged` action.
+    func test_menuUsernameForwardedEmailServiceChanged() throws {
+        processor.state.usernameState.forwardedEmailService = .addyIO
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.forwardedEmailAlias)
+        try menuField.select(newValue: GeneratorState.UsernameState.ForwardedEmailService.fastmail)
+        XCTAssertEqual(processor.dispatchedActions.last, .usernameForwardedEmailServiceChanged(.fastmail))
+    }
+
     /// Updating the slider value dispatches the `.sliderValueChanged` action.
     func test_sliderValueChanged() throws {
         let field = SliderField<GeneratorState>(

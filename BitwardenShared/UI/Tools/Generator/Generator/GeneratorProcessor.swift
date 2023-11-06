@@ -84,6 +84,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.toast = newValue
         case let .toggleValueChanged(field, isOn):
             state[keyPath: field.keyPath] = isOn
+        case let .usernameForwardedEmailServiceChanged(forwardedEmailService):
+            state.usernameState.forwardedEmailService = forwardedEmailService
         case let .usernameGeneratorTypeChanged(usernameGeneratorType):
             state.usernameState.usernameGeneratorType = usernameGeneratorType
         }

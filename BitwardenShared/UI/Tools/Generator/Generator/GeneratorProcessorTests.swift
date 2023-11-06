@@ -277,6 +277,16 @@ class GeneratorProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.passwordState.containsLowercase)
     }
 
+    /// `receive(_:)` with `.usernameForwardedEmailServiceChanged` updates the state's username
+    /// forwarded email service value.
+    func test_receive_usernameForwardedEmailServiceChanged() {
+        subject.receive(.usernameForwardedEmailServiceChanged(.duckDuckGo))
+        XCTAssertEqual(subject.state.usernameState.forwardedEmailService, .duckDuckGo)
+
+        subject.receive(.usernameForwardedEmailServiceChanged(.simpleLogin))
+        XCTAssertEqual(subject.state.usernameState.forwardedEmailService, .simpleLogin)
+    }
+
     /// `receive(_:)` with `.usernameGeneratorTypeChanged` updates the state's username generator type value.
     func test_receive_usernameGeneratorTypeChanged() {
         subject.receive(.usernameGeneratorTypeChanged(.plusAddressedEmail))

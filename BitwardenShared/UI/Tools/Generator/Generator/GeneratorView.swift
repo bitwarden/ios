@@ -63,6 +63,10 @@ struct GeneratorView: View {
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.passwordGeneratorTypeChanged(newValue))
                     }
+                case let .menuUsernameForwardedEmailService(menuField):
+                    FormMenuFieldView(field: menuField) { newValue in
+                        store.send(.usernameForwardedEmailServiceChanged(newValue))
+                    }
                 case let .menuUsernameGeneratorType(menuField):
                     menuUsernameGeneratorTypeView(field: menuField)
                 case let .slider(sliderField):

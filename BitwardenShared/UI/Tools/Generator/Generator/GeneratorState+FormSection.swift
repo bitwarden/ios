@@ -36,6 +36,9 @@ extension GeneratorState {
             /// A menu field for the user generator type.
             case menuUsernameGeneratorType(FormMenuField<State, UsernameState.UsernameGeneratorType>)
 
+            /// A menu field for username forwarded email service.
+            case menuUsernameForwardedEmailService(FormMenuField<State, UsernameState.ForwardedEmailService>)
+
             /// A slider field.
             case slider(SliderField<State>)
 
@@ -59,6 +62,8 @@ extension GeneratorState {
                 case let .menuPasswordGeneratorType(field):
                     return field.id
                 case let .menuUsernameGeneratorType(field):
+                    return field.id
+                case let .menuUsernameForwardedEmailService(field):
                     return field.id
                 case let .slider(field):
                     return field.id
