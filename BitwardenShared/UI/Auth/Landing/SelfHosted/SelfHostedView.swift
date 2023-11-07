@@ -18,13 +18,8 @@ struct SelfHostedView: View {
             customEnvironment
             saveButton
         }
-        .modifier(ScrollViewModifier())
-        .modifier(
-            NavigationBarViewModifier(
-                title: Localizations.settings,
-                navigationBarTitleDisplayMode: .inline
-            )
-        )
+        .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
+        .scrollView()
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
@@ -48,6 +43,10 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.webVaultUrlChanged
                     )
                 )
+                .autocorrectionDisabled()
+                .keyboardType(.URL)
+                .textContentType(.URL)
+                .textInputAutocapitalization(.never)
 
                 BitwardenTextField(
                     title: Localizations.apiUrl,
@@ -56,6 +55,10 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.apiUrlChanged
                     )
                 )
+                .autocorrectionDisabled()
+                .keyboardType(.URL)
+                .textContentType(.URL)
+                .textInputAutocapitalization(.never)
 
                 BitwardenTextField(
                     title: Localizations.identityUrl,
@@ -64,6 +67,10 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.identityUrlChanged
                     )
                 )
+                .autocorrectionDisabled()
+                .keyboardType(.URL)
+                .textContentType(.URL)
+                .textInputAutocapitalization(.never)
 
                 BitwardenTextField(
                     title: Localizations.iconsUrl,
@@ -72,6 +79,10 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.iconsUrlChanged
                     )
                 )
+                .autocorrectionDisabled()
+                .keyboardType(.URL)
+                .textContentType(.URL)
+                .textInputAutocapitalization(.never)
             }
         }
         .padding(.top, 8)

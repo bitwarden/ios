@@ -10,7 +10,7 @@ struct ScrollViewModifier: ViewModifier {
     func body(content: Content) -> some View {
         ScrollView {
             content
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 16)
                 .padding([.top, .bottom], 16)
         }
         .background(Color(asset: Asset.Colors.backgroundSecondary))

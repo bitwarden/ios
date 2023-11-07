@@ -48,13 +48,8 @@ struct CreateAccountView: View {
             }
         }
         .animation(.default, value: store.state.passwordStrengthScore)
-        .modifier(ScrollViewModifier())
-        .modifier(
-            NavigationBarViewModifier(
-                title: Localizations.createAccount,
-                navigationBarTitleDisplayMode: .inline
-            )
-        )
+        .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
+        .scrollView()
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
