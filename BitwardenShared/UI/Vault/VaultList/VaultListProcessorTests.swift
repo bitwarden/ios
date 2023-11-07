@@ -68,6 +68,22 @@ class VaultListProcessorTests: BitwardenTestCase {
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
+    /// `receive(_:)` with `.addAccountPressed` updates the state correctly
+    func test_receive_accountPressed() {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.profileSwitcherAction(.accountPressed(ProfileSwitcherItem())))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.addAccountPressed` updates the state correctly
+    func test_receive_addAccountPressed() {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.profileSwitcherAction(.addAccountPressed))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
     func test_receive_addItemPressed() {
         subject.receive(.addItemPressed)
@@ -75,11 +91,43 @@ class VaultListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .addItem())
     }
 
+    /// `receive(_:)` with `.addItemPressed` hides the profile switcher view
+    func test_receive_addItemPressed_hideProfiles() {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.addItemPressed)
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     func test_receive_itemPressed() {
         subject.receive(.itemPressed(item: .fixture()))
 
         XCTAssertEqual(coordinator.routes.last, .viewItem)
+    }
+
+    /// `receive(_:)` with `ProfileSwitcherAction.backgroundPressed` turns off the Profile Switcher Visibility.
+    func test_receive_profileSwitcherBacgroundPressed() {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.profileSwitcherAction(.backgroundPressed))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.searchStateChanged(isSearching: false)` hides the profile switcher
+    func test_receive_searchTextChanged_false_noProfilesChange() {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.searchStateChanged(isSearching: false))
+
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` hides the profile switcher
+    func test_receive_searchStateChanged_true_profilesHide() {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
 
     /// `receive(_:)` with `.searchTextChanged` without a matching search term updates the state correctly.
@@ -98,5 +146,13 @@ class VaultListProcessorTests: BitwardenTestCase {
 
         // TODO: BIT-628 Replace assertion with mock vault assertion
         XCTAssertEqual(subject.state.searchResults.count, 1)
+    }
+
+    /// `receive(_:)` with `.toggleProfilesViewVisibility` updates the state correctly.
+    func test_receive_toggleProfilesViewVisibility() {
+        subject.state.profileSwitcherState.isVisible = false
+        subject.receive(.requestedProfileSwitcher(visible: true))
+
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 }

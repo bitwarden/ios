@@ -191,6 +191,7 @@ class LandingProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
         await alert.alertActions[2].handler?(alert.alertActions[2])
         XCTAssertEqual(subject.state.region, .selfHosted)
+        XCTAssertEqual(coordinator.routes.last, .selfHosted)
     }
 
     /// `receive(_:)` with `.rememberMeChanged(true)` updates the state to reflect the changes.

@@ -29,7 +29,10 @@ class SceneDelegateTests: BitwardenTestCase {
 
     /// `scene(_:willConnectTo:options:)` with a `UIWindowScene` creates the app's UI.
     func test_sceneWillConnectTo_withWindowScene() throws {
-        let appProcessor = AppProcessor(appModule: appModule, services: ServiceContainer())
+        let appProcessor = AppProcessor(
+            appModule: appModule,
+            services: ServiceContainer(errorReporter: MockErrorReporter())
+        )
         (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
 
         let session = TestInstanceFactory.create(UISceneSession.self)
@@ -46,7 +49,10 @@ class SceneDelegateTests: BitwardenTestCase {
 
     /// `scene(_:willConnectTo:options:)` without a `UIWindowScene` fails to create the app's UI.
     func test_sceneWillConnectTo_withNonWindowScene() throws {
-        let appProcessor = AppProcessor(appModule: appModule, services: ServiceContainer())
+        let appProcessor = AppProcessor(
+            appModule: appModule,
+            services: ServiceContainer(errorReporter: MockErrorReporter())
+        )
         (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
 
         let session = TestInstanceFactory.create(UISceneSession.self)

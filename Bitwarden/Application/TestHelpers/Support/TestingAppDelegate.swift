@@ -8,4 +8,5 @@ import UIKit
 ///
 class TestingAppDelegate: NSObject, UIApplicationDelegate, AppDelegateType {
     var appProcessor: AppProcessor?
+    var isTesting = false
 }

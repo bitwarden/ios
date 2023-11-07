@@ -36,6 +36,9 @@ private struct VaultMainView: View {
                 .hidden(!isSearching)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .onChange(of: isSearching) { newValue in
+            store.send(.searchStateChanged(isSearching: newValue))
+        }
         .animation(.default, value: isSearching)
     }
 
@@ -197,42 +200,71 @@ struct VaultListView: View {
     @ObservedObject var store: Store<VaultListState, VaultListAction, VaultListEffect>
 
     var body: some View {
-        VaultMainView(store: store)
-            .searchable(
-                text: store.binding(
-                    get: \.searchText,
-                    send: VaultListAction.searchTextChanged
-                ),
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
-            )
-            .navigationTitle(Localizations.myVault)
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        store.send(.profilePressed)
-                    } label: {
+        ZStack {
+            VaultMainView(store: store)
+                .searchable(
+                    text: store.binding(
+                        get: \.searchText,
+                        send: VaultListAction.searchTextChanged
+                    ),
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: Localizations.search
+                )
+                .refreshable {
+                    await store.perform(.refresh)
+                }
+            profileSwitcher
+        }
+        .navigationTitle(Localizations.myVault)
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    store.send(.requestedProfileSwitcher(visible: !store.state.profileSwitcherState.isVisible))
+                } label: {
+                    HStack {
                         Text(store.state.userInitials)
-                            .font(.styleGuide(.caption2))
+                            .font(.styleGuide(.caption2Monospaced))
                             .foregroundColor(.white)
                             .padding(4)
                             .background(Color.purple)
                             .clipShape(Circle())
+                        Spacer()
                     }
+                    .frame(minWidth: 50)
+                    .fixedSize()
                 }
-                ToolbarItem(placement: .primaryAction) {
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    store.send(.addItemPressed)
+                } label: {
                     AddItemButton {
                         store.send(.addItemPressed)
                     }
                 }
             }
-            .task {
-                await store.perform(.appeared)
-            }
-            .refreshable {
-                await store.perform(.refresh)
-            }
+        }
+        .task {
+            await store.perform(.appeared)
+        }
+    }
+
+    // MARK: Private properties
+
+    /// A view that displays the ability to add or switch between account profiles
+    @ViewBuilder private var profileSwitcher: some View {
+        ProfileSwitcherView(
+            store: store.child(
+                state: { vaultListState in
+                    vaultListState.profileSwitcherState
+                },
+                mapAction: { action in
+                    .profileSwitcherAction(action)
+                },
+                mapEffect: nil
+            )
+        )
     }
 }
 
@@ -240,13 +272,39 @@ struct VaultListView: View {
 
 #if DEBUG
 struct VaultListView_Previews: PreviewProvider {
+    static let singleAccountState = ProfileSwitcherState(
+        currentAccountProfile: ProfileSwitcherItem(
+            color: .purple,
+            email: "Anne.Account@bitwarden.com",
+            userInitials: "AA"
+        ),
+        isVisible: false
+    )
+
+    static let dualAccountState = ProfileSwitcherState(
+        alternateAccounts: [
+            ProfileSwitcherItem(
+                color: .green,
+                email: "bonus.bridge@bitwarden.com",
+                isUnlocked: true,
+                userInitials: "BB"
+            ),
+        ],
+        currentAccountProfile: ProfileSwitcherItem(
+            color: .purple,
+            email: "Anne.Account@bitwarden.com",
+            userInitials: "AA"
+        ),
+        isVisible: true
+    )
+
     static var previews: some View {
         NavigationView {
             VaultListView(
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            userInitials: "AA"
+                            profileSwitcherState: .empty
                         )
                     )
                 )
@@ -259,7 +317,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            userInitials: "AA",
+                            profileSwitcherState: .empty,
                             sections: [
                                 VaultListSection(
                                     id: "1",
@@ -336,7 +394,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            userInitials: "AA",
+                            profileSwitcherState: .empty,
                             searchText: "Exam",
                             searchResults: [
                                 .init(cipherListView: .init(
@@ -369,7 +427,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            userInitials: "AA",
+                            profileSwitcherState: .empty,
                             searchText: "Exam",
                             searchResults: [
                                 .init(cipherListView: .init(
@@ -436,7 +494,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            userInitials: "AA",
+                            profileSwitcherState: .empty,
                             searchText: "Exam",
                             searchResults: []
                         )
@@ -445,6 +503,32 @@ struct VaultListView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("No Search Results")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            profileSwitcherState: singleAccountState
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Profile Switcher Visible: Single Account")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            profileSwitcherState: dualAccountState
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Profile Switcher Visible: Multi Account")
     }
 }
 #endif

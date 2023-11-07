@@ -28,6 +28,7 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
+        & HasErrorReporter
         & HasStateService
         & HasSystemDevice
 
@@ -103,6 +104,8 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
             showLoginWithDevice()
         case .masterPasswordHint:
             showMasterPasswordHint()
+        case .selfHosted:
+            showSelfHostedView()
         case let .vaultUnlock(account):
             showVaultUnlock(account: account)
         }
@@ -225,6 +228,17 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     private func showMasterPasswordHint() {
         let view = Text("Master Password Hint")
         stackNavigator.push(view)
+    }
+
+    /// Shows the self-hosted settings view.
+    private func showSelfHostedView() {
+        let processor = SelfHostedProcessor(
+            coordinator: asAnyCoordinator(),
+            state: SelfHostedState()
+        )
+        let view = SelfHostedView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
     }
 
     /// Shows the vault unlock view.
