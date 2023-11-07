@@ -66,6 +66,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state[keyPath: field.keyPath] = value
         case let .textFieldFocusChanged(keyPath):
             focusedKeyPath = keyPath
+        case let .textFieldIsPasswordVisibleChanged(field, value):
+            guard let isPasswordVisibleKeyPath = field.isPasswordVisibleKeyPath else { break }
+            state[keyPath: isPasswordVisibleKeyPath] = value
         case let .textValueChanged(field, value):
             // SwiftUI TextField likes to send multiple changes via the binding. So if the text
             // field is equal to the state's value, return early.

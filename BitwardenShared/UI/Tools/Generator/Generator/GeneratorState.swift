@@ -142,6 +142,7 @@ struct GeneratorState: Equatable {
                 case .addyIO:
                     optionFields.append(contentsOf: [
                         textField(
+                            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                             keyPath: \.usernameState.addyIOAPIAccessToken,
                             title: Localizations.apiAccessToken
                         ),
@@ -153,6 +154,7 @@ struct GeneratorState: Equatable {
                 case .duckDuckGo:
                     optionFields.append(
                         textField(
+                            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                             keyPath: \.usernameState.duckDuckGoAPIKey,
                             title: Localizations.apiKeyRequiredParenthesis
                         )
@@ -160,6 +162,7 @@ struct GeneratorState: Equatable {
                 case .fastmail:
                     optionFields.append(
                         textField(
+                            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                             keyPath: \.usernameState.fastmailAPIKey,
                             title: Localizations.apiKeyRequiredParenthesis
                         )
@@ -167,6 +170,7 @@ struct GeneratorState: Equatable {
                 case .firefoxRelay:
                     optionFields.append(
                         textField(
+                            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                             keyPath: \.usernameState.firefoxRelayAPIAccessToken,
                             title: Localizations.apiAccessToken
                         )
@@ -174,6 +178,7 @@ struct GeneratorState: Equatable {
                 case .simpleLogin:
                     optionFields.append(
                         textField(
+                            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                             keyPath: \.usernameState.simpleLoginAPIKey,
                             title: Localizations.apiKeyRequiredParenthesis
                         )

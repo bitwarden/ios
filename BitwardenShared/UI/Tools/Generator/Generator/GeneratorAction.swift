@@ -25,6 +25,9 @@ enum GeneratorAction: Equatable {
     /// A text field was focused or lost focus.
     case textFieldFocusChanged(keyPath: KeyPath<GeneratorState, String>?)
 
+    /// A text field's toggle for displaying or hiding the password was changed.
+    case textFieldIsPasswordVisibleChanged(field: FormTextField<GeneratorState>, value: Bool)
+
     /// A text field value was changed.
     case textValueChanged(field: FormTextField<GeneratorState>, value: String)
 
@@ -60,6 +63,7 @@ extension GeneratorAction {
              .usernameGeneratorTypeChanged:
             return true
         case .copyGeneratedValue,
+             .textFieldIsPasswordVisibleChanged,
              .toastShown:
             return false
         }

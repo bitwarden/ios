@@ -190,6 +190,8 @@ extension GeneratorState {
     ///     Defaults to `.never`.
     ///   - isAutocorrectDisabled: Whether autocorrect is disabled in the text field. Defaults to
     ///     `true`.
+    ///   - isPasswordVisibleKeyPath: A key path for updating whether a password displayed in the
+    ///     text field is visible.
     ///   - keyboardType: The type of keyboard to display.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
     ///   - textContentType: The expected type of content input in the text field. Defaults to `nil`.
@@ -199,6 +201,7 @@ extension GeneratorState {
     func textField(
         autocapitalization: FormTextField<Self>.Autocapitalization = .never,
         isAutocorrectDisabled: Bool = true,
+        isPasswordVisibleKeyPath: WritableKeyPath<GeneratorState, Bool>? = nil,
         keyboardType: UIKeyboardType = .default,
         keyPath: WritableKeyPath<GeneratorState, String>,
         textContentType: UITextContentType? = nil,
@@ -208,6 +211,8 @@ extension GeneratorState {
             FormTextField(
                 autocapitalization: autocapitalization,
                 isAutocorrectDisabled: isAutocorrectDisabled,
+                isPasswordVisible: isPasswordVisibleKeyPath.map { self[keyPath: $0] },
+                isPasswordVisibleKeyPath: isPasswordVisibleKeyPath,
                 keyboardType: keyboardType,
                 keyPath: keyPath,
                 textContentType: textContentType,
