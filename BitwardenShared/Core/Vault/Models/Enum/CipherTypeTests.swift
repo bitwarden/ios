@@ -5,6 +5,7 @@ import XCTest
 class CipherTypeTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `localizedName` returns the correct values.
     func test_localizedName() {
         XCTAssertEqual(CipherType.card.localizedName, Localizations.typeCard)
         XCTAssertEqual(CipherType.identity.localizedName, Localizations.typeIdentity)
@@ -12,8 +13,8 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType.secureNote.localizedName, Localizations.typeSecureNote)
     }
 
+    /// `init` with a `VaultListGroup` produces the correct value.
     func test_init_group() {
-        XCTAssertNil(CipherType(group: nil))
         XCTAssertEqual(CipherType(group: .card), .card)
         XCTAssertNil(CipherType(group: .folder(id: "id", name: "name")))
         XCTAssertEqual(CipherType(group: .identity), .identity)

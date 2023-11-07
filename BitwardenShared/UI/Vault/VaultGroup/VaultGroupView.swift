@@ -14,15 +14,9 @@ struct VaultGroupView: View {
             .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
             .navigationTitle(store.state.group.navigationTitle)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
+                ToolbarItem(placement: .primaryAction) {
+                    AddItemButton {
                         store.send(.addItemPressed)
-                    } label: {
-                        Label {
-                            Text(Localizations.addItem)
-                        } icon: {
-                            Asset.Images.plus.swiftUIImage
-                        }
                     }
                 }
             }

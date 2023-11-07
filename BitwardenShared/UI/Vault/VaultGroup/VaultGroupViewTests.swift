@@ -71,7 +71,11 @@ class VaultGroupViewTests: BitwardenTestCase {
     func test_snapshot_multipleItems() {
         processor.state.items = [
             .fixture(cipherListView: .fixture(id: "1")),
-            .fixture(cipherListView: .fixture(id: "2")),
+            .fixture(cipherListView: .fixture(
+                id: "2",
+                name: "An extra long name that should take up more than one line",
+                subTitle: "An equally long subtitle that should also take up more than one line"
+            )),
             .fixture(cipherListView: .fixture(id: "3")),
             .fixture(cipherListView: .fixture(id: "4")),
         ]

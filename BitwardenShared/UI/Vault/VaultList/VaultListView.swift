@@ -222,16 +222,8 @@ struct VaultListView: View {
                     }
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
+                    AddItemButton {
                         store.send(.addItemPressed)
-                    } label: {
-                        Label {
-                            Text(Localizations.addAnItem)
-                        } icon: {
-                            Asset.Images.plus.swiftUIImage
-                                .resizable()
-                                .frame(width: 19, height: 19)
-                        }
                     }
                 }
             }

@@ -35,7 +35,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: VaultRoute, context: AnyObject?) {
         switch route {
         case let .addItem(group):
-            showAddItem(for: CipherType(group: group))
+            showAddItem(for: group.flatMap(CipherType.init))
         case let .alert(alert):
             stackNavigator.present(alert)
         case .generator:

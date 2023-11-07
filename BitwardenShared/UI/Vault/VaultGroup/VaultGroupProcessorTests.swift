@@ -56,7 +56,7 @@ class VaultGroupProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.searchTextChanged` and no value sets the state correctly.
     func test_receive_searchTextChanged_withoutValue() {
-        subject.state.searchText = "searcg"
+        subject.state.searchText = "search"
         subject.receive(.searchTextChanged(""))
         XCTAssertEqual(subject.state.searchText, "")
     }

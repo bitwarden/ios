@@ -19,8 +19,7 @@ extension CipherType {
     ///
     /// - Parameter group: The `VaultListGroup` to use to create this `CipherType`.
     ///
-    init?(group: VaultListGroup?) {
-        guard let group else { return nil }
+    init?(group: VaultListGroup) {
         switch group {
         case .card:
             self = .card
