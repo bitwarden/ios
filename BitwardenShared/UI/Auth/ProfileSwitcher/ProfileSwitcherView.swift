@@ -16,22 +16,24 @@ struct ProfileSwitcherView: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             backgroundView
+                .opacity(store.state.isVisible ? 1 : 0)
             ScrollView {
                 LazyVStack(spacing: 0.0) {
                     accounts
                     addAccountRow
                 }
+                .transition(.move(edge: .top))
+                .hidden(!store.state.isVisible)
+                .fixedSize(horizontal: false, vertical: true)
             }
-            .fixedSize(horizontal: false, vertical: true)
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         }
-        .onAppear {
-            guard store.state.isVisible,
-                  isVoiceoverEnabled else { return }
+        .onChange(of: store.state.isVisible) { isVisible in
+            guard isVisible, isVoiceoverEnabled else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 isCurrentAccountFocused = true
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
     }
 
     // MARK: Private Properties
