@@ -131,6 +131,7 @@ struct GeneratorView: View {
                     .frame(width: 14, height: 14)
             }
             .buttonStyle(.accessory)
+            .accessibilityLabel(Localizations.learnMore)
         }
     }
 }
