@@ -108,8 +108,8 @@ class DefaultVaultRepository {
             return activeCiphers.filter { $0.type == .identity }.compactMap(VaultListItem.init)
         case .secureNote:
             return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
-        case let .folder(folder):
-            return activeCiphers.filter { $0.folderId == folder.id }.compactMap(VaultListItem.init)
+        case let .folder(id, _):
+            return activeCiphers.filter { $0.folderId == id }.compactMap(VaultListItem.init)
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
         }
