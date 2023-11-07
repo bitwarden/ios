@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 // MARK: - VaultListProcessor
 
@@ -84,6 +84,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
                 state.profileSwitcherState.isVisible = false
             case .backgroundPressed:
                 state.profileSwitcherState.isVisible = false
+            case let .scrollOffsetChanged(newOffset):
+                state.profileSwitcherState.scrollOffset = newOffset
             }
         case let .requestedProfileSwitcher(visible: isVisible):
             state.profileSwitcherState.isVisible = isVisible
