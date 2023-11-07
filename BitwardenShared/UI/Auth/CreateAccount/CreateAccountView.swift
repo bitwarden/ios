@@ -82,7 +82,6 @@ struct CreateAccountView: View {
             send: CreateAccountAction.toggleCheckDataBreaches
         )) {
             Text(Localizations.checkKnownDataBreachesForThisPassword)
-                .foregroundColor(Color(asset: Asset.Colors.textPrimary))
                 .font(.styleGuide(.footnote))
         }
         .toggleStyle(.bitwarden)
@@ -190,7 +189,6 @@ struct CreateAccountView: View {
         .accessibilityAction(named: Localizations.privacyPolicy) {
             openURL(ExternalLinksConstants.privacyPolicy)
         }
-        .foregroundColor(Color(asset: Asset.Colors.textPrimary))
         .font(.styleGuide(.footnote))
         .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.termsAndPrivacy)

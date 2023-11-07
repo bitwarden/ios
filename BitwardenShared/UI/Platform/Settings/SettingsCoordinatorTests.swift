@@ -34,6 +34,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `navigate(to:)` with `.accountSecurity` pushes the account security view onto the stack navigator.
+    func test_navigateTo_accountSecurity() throws {
+        subject.navigate(to: .accountSecurity)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is AccountSecurityView)
+    }
+
     /// `navigate(to:)` with `.alert` has the stack navigator present the alert.
     func test_navigateTo_alert() throws {
         let alert = Alert.defaultAlert(

@@ -53,6 +53,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: SettingsRoute, context: AnyObject?) {
         switch route {
+        case .accountSecurity:
+            showAccountSecurity()
         case let .alert(alert):
             stackNavigator.present(alert)
         case .logout:
@@ -68,12 +70,23 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
+    /// Shows the account security screen.
+    ///
+    private func showAccountSecurity() {
+        let processor = AccountSecurityProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AccountSecurityState()
+        )
+        let view = AccountSecurityView(store: Store(processor: processor))
+        stackNavigator.push(view)
+    }
+
     /// Shows the settings screen.
     ///
     private func showSettings() {
         let processor = SettingsProcessor(
             coordinator: asAnyCoordinator(),
-            services: services,
             state: SettingsState()
         )
         let view = SettingsView(store: Store(processor: processor))

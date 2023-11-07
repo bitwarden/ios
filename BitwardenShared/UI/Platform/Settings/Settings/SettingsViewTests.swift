@@ -6,6 +6,8 @@ import XCTest
 @testable import BitwardenShared
 
 class SettingsViewTests: BitwardenTestCase {
+    // MARK: Properties
+
     let subject = SettingsView(store: .mock(state: SettingsState()))
 
     /// Tests the view renders correctly.
