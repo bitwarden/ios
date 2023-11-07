@@ -142,4 +142,14 @@ class GeneratorViewTests: BitwardenTestCase {
             as: .defaultPortrait
         )
     }
+
+    /// Test a snapshot of the plus addressed username generation view.
+    func test_snapshot_generatorViewUsernamePlusAddressed() {
+        processor.state.generatorType = .username
+        processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
+    }
 }

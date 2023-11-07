@@ -27,6 +27,9 @@ enum GeneratorAction: Equatable {
 
     /// A toggle field value was changed.
     case toggleValueChanged(field: ToggleField<GeneratorState>, isOn: Bool)
+
+    /// The username generator type was changed.
+    case usernameGeneratorTypeChanged(GeneratorState.UsernameState.UsernameGeneratorType)
 }
 
 extension GeneratorAction {
@@ -42,7 +45,8 @@ extension GeneratorAction {
              .sliderValueChanged,
              .stepperValueChanged,
              .textValueChanged,
-             .toggleValueChanged:
+             .toggleValueChanged,
+             .usernameGeneratorTypeChanged:
             return true
         case .copyGeneratedValue:
             return false

@@ -16,7 +16,7 @@ protocol Menuable: Equatable, Hashable {
 /// options. This view is identical to `BitwardenTextField`, but uses a `Menu`
 /// instead of a `TextField` as the input mechanism.
 ///
-struct BitwardenMenuField<T>: View where T: Menuable {
+struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     // MARK: Properties
 
     /// The selection chosen from the menu.
@@ -25,8 +25,14 @@ struct BitwardenMenuField<T>: View where T: Menuable {
     /// The options displayed in the menu.
     let options: [T]
 
+    /// The footer text displayed below the menu field.
+    let footer: String?
+
     /// The title of the menu field.
     let title: String?
+
+    /// Optional content view that is displayed to the right of the menu value.
+    let trailingContent: TrailingContent
 
     // MARK: View
 
@@ -34,6 +40,12 @@ struct BitwardenMenuField<T>: View where T: Menuable {
         VStack(alignment: .leading, spacing: 4) {
             menuFieldTitle
             menu
+
+            if let footer {
+                Text(footer)
+                    .font(.styleGuide(.footnote))
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            }
         }
     }
 
@@ -41,28 +53,32 @@ struct BitwardenMenuField<T>: View where T: Menuable {
 
     /// The menu that displays the list of options.
     private var menu: some View {
-        Menu {
-            Picker(selection: $selection) {
-                ForEach(options, id: \.hashValue) { option in
-                    Text(option.localizedName).tag(option)
+        HStack(spacing: 8) {
+            Menu {
+                Picker(selection: $selection) {
+                    ForEach(options, id: \.hashValue) { option in
+                        Text(option.localizedName).tag(option)
+                    }
+                } label: {
+                    Text("")
                 }
             } label: {
-                Text("")
+                HStack {
+                    Text(selection.localizedName)
+                    Spacer()
+                }
+                .contentShape(Rectangle())
             }
-        } label: {
-            HStack {
-                Text(selection.localizedName)
-                Spacer()
-            }
-            .contentShape(Rectangle())
+            .font(.styleGuide(.body))
+            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            .id(title)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+
+            trailingContent
         }
-        .font(.styleGuide(.body))
-        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-        .id(title)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// The title of the menu field.
@@ -81,17 +97,44 @@ struct BitwardenMenuField<T>: View where T: Menuable {
     ///
     /// - Parameters:
     ///   - title: The title of the text field.
+    ///   - footer: The footer text displayed below the menu field.
     ///   - options: The options that the user can choose between.
     ///   - selection: A `Binding` for the currently selected option.
     ///
     init(
         title: String? = nil,
+        footer: String? = nil,
         options: [T],
         selection: Binding<T>
-    ) {
+    ) where TrailingContent == EmptyView {
+        self.footer = footer
         self.options = options
         _selection = selection
         self.title = title
+        trailingContent = EmptyView()
+    }
+
+    /// Initializes a new `BitwardenMenuField`.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the text field.
+    ///   - footer: The footer text displayed below the menu field.
+    ///   - options: The options that the user can choose between.
+    ///   - selection: A `Binding` for the currently selected option.
+    ///   - trailingContent: Optional content view that is displayed to the right of the menu value.
+    ///
+    init(
+        title: String? = nil,
+        footer: String? = nil,
+        options: [T],
+        selection: Binding<T>,
+        trailingContent: () -> TrailingContent
+    ) {
+        self.footer = footer
+        self.options = options
+        _selection = selection
+        self.title = title
+        self.trailingContent = trailingContent()
     }
 }
 
@@ -122,6 +165,34 @@ struct BitwardenMenuField_Previews: PreviewProvider {
         }
         .background(Color(.systemGroupedBackground))
         .previewDisplayName("CipherType")
+
+        Group {
+            BitwardenMenuField(
+                title: "Animals",
+                options: MenuPreviewOptions.allCases,
+                selection: .constant(.dog)
+            ) {
+                Button {} label: {
+                    Asset.Images.camera.swiftUIImage
+                }
+                .buttonStyle(.accessory)
+            }
+            .padding()
+        }
+        .background(Color(.systemGroupedBackground))
+        .previewDisplayName("Trailing Button")
+
+        Group {
+            BitwardenMenuField(
+                title: "Animals",
+                footer: "Select your favorite animal",
+                options: MenuPreviewOptions.allCases,
+                selection: .constant(.dog)
+            )
+            .padding()
+        }
+        .background(Color(.systemGroupedBackground))
+        .previewDisplayName("Footer")
     }
 }
 #endif

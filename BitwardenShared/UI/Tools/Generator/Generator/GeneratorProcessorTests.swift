@@ -190,4 +190,13 @@ class GeneratorProcessorTests: BitwardenTestCase {
         subject.receive(.toggleValueChanged(field: field, isOn: false))
         XCTAssertFalse(subject.state.passwordState.containsLowercase)
     }
+
+    /// `receive(_:)` with `.usernameGeneratorTypeChanged` updates the state's username generator type value.
+    func test_receive_usernameGeneratorTypeChanged() {
+        subject.receive(.usernameGeneratorTypeChanged(.plusAddressedEmail))
+        XCTAssertEqual(subject.state.usernameState.usernameGeneratorType, .plusAddressedEmail)
+
+        subject.receive(.usernameGeneratorTypeChanged(.catchAllEmail))
+        XCTAssertEqual(subject.state.usernameState.usernameGeneratorType, .catchAllEmail)
+    }
 }
