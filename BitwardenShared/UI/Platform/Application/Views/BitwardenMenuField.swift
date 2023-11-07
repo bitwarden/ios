@@ -53,7 +53,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
 
     /// The menu that displays the list of options.
     private var menu: some View {
-        HStack {
+        HStack(spacing: 8) {
             Menu {
                 Picker(selection: $selection) {
                     ForEach(options, id: \.hashValue) { option in
