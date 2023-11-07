@@ -46,7 +46,7 @@ struct ToastView: View {
                             self.toast = nil
                         }
                     } catch {
-                        // Skip the animation if the task/sleep is cancelled.
+                        // No-op: Skip the animation if the task/sleep is cancelled.
                     }
                 }
         }
