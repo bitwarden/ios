@@ -85,6 +85,7 @@ struct CreateAccountView: View {
                 .foregroundColor(Color(asset: Asset.Colors.textPrimary))
                 .font(.styleGuide(.footnote))
         }
+        .accessibilityIdentifier("CheckExposedMasterPasswordToggle")
         .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.checkBreaches)
     }
@@ -93,6 +94,7 @@ struct CreateAccountView: View {
     private var emailAndPassword: some View {
         VStack(spacing: 16) {
             BitwardenTextField(
+                accessibilityIdentifier: "EmailAddressEntry",
                 title: Localizations.emailAddress,
                 text: store.binding(
                     get: \.emailText,
@@ -105,11 +107,13 @@ struct CreateAccountView: View {
             .autocorrectionDisabled()
 
             BitwardenTextField(
+                accessibilityIdentifier: "MasterPasswordEntry",
                 title: Localizations.masterPassword,
                 isPasswordVisible: store.binding(
                     get: \.arePasswordsVisible,
                     send: CreateAccountAction.togglePasswordVisibility
                 ),
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 text: store.binding(
                     get: \.passwordText,
                     send: CreateAccountAction.passwordTextChanged
@@ -125,6 +129,7 @@ struct CreateAccountView: View {
     private var passwordHint: some View {
         VStack(alignment: .leading) {
             BitwardenTextField(
+                accessibilityIdentifier: "MasterPasswordHintLabel",
                 title: Localizations.masterPasswordHint,
                 text: store.binding(
                     get: \.passwordHintText,
@@ -141,11 +146,13 @@ struct CreateAccountView: View {
     /// The text field for re-typing the master password.
     private var retypePassword: some View {
         BitwardenTextField(
+            accessibilityIdentifier: "ConfirmMasterPasswordEntry",
             title: Localizations.retypeMasterPassword,
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,
                 send: CreateAccountAction.togglePasswordVisibility
             ),
+            passwordVisibilityAccessibilityId: "ConfirmPasswordVisibilityToggle",
             text: store.binding(
                 get: \.retypePasswordText,
                 send: CreateAccountAction.retypePasswordTextChanged
@@ -190,6 +197,7 @@ struct CreateAccountView: View {
         .accessibilityAction(named: Localizations.privacyPolicy) {
             openURL(ExternalLinksConstants.privacyPolicy)
         }
+        .accessibilityIdentifier("AcceptPoliciesToggle")
         .foregroundColor(Color(asset: Asset.Colors.textPrimary))
         .font(.styleGuide(.footnote))
         .toggleStyle(.bitwarden)
