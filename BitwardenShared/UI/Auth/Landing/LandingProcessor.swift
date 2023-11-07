@@ -84,6 +84,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, Void> {
         let actions = RegionType.allCases.map { region in
             AlertAction(title: region.baseUrlDescription, style: .default) { [weak self] _ in
                 self?.state.region = region
+
+                if region == .selfHosted {
+                    self?.coordinator.navigate(to: .selfHosted)
+                }
             }
         }
         let cancelAction = AlertAction(title: Localizations.cancel, style: .cancel)
