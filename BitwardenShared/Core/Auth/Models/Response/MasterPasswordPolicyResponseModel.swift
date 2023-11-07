@@ -19,7 +19,7 @@ struct MasterPasswordPolicyResponseModel: Codable, Equatable {
     let requireNumbers: Bool?
 
     /// Whether the password requires a special character.
-    let requireSpecial: Bool
+    let requireSpecial: Bool?
 
     /// Whether the password requires an uppercase character.
     let requireUpper: Bool?
