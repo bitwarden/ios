@@ -61,4 +61,112 @@ class AccountTests: BitwardenTestCase {
             )
         )
     }
+
+    func test_initials_oneName_short() throws {
+        let subject = Account.fixture(
+            profile: .fixture(
+                email: "user@bitwarden.com",
+                name: "AJ"
+            )
+        )
+        let initials = subject.initials()
+
+        XCTAssertEqual("AJ", initials)
+    }
+
+    func test_initials_oneName_long() throws {
+        let subject = Account.fixture(
+            profile: .fixture(
+                email: "user@bitwarden.com",
+                name: "User"
+            )
+        )
+        let initials = subject.initials()
+
+        XCTAssertEqual("US", initials)
+    }
+
+    func test_initials_twoNames() throws {
+        let subject = Account.fixture(
+            profile: .fixture(
+                email: "user@bitwarden.com",
+                name: "Bitwarden User"
+            )
+        )
+        let initials = subject.initials()
+
+        XCTAssertEqual("BU", initials)
+    }
+
+    func test_initials_threeNames() throws {
+        let subject = Account.fixture(
+            profile: .fixture(
+                email: "user@bitwarden.com",
+                name: "An Interesting User"
+            )
+        )
+        let initials = subject.initials()
+
+        XCTAssertEqual("AI", initials)
+    }
+
+    func test_initials_email_oneName() throws {
+        let subject = Account.fixture(
+            profile: .fixture(
+                email: "user@bitwarden.com",
+                name: nil
+            )
+        )
+        let initials = subject.initials()
+
+        XCTAssertEqual("US", initials)
+    }
+
+    func test_initials_email_oneName_short() throws {
+        let subject = Account.fixture(
+            profile: .fixture(
+                email: "a@bitwarden.com",
+                name: nil
+            )
+        )
+        let initials = subject.initials()
+
+        XCTAssertEqual("A", initials)
+    }
+
+    func test_initials_email_oneNamePlus() throws {
+        let subject = Account.fixture(
+            profile: .fixture(
+                email: "user+1@bitwarden.com",
+                name: nil
+            )
+        )
+        let initials = subject.initials()
+
+        XCTAssertEqual("U1", initials)
+    }
+
+    func test_initials_email_twoNamesDot() throws {
+        let subject = Account.fixture(
+            profile: .fixture(
+                email: "test.user@bitwarden.com",
+                name: nil
+            )
+        )
+        let initials = subject.initials()
+
+        XCTAssertEqual("TU", initials)
+    }
+
+    func test_initials_empty() throws {
+        let subject = Account.fixture(
+            profile: .fixture(
+                email: "",
+                name: nil
+            )
+        )
+        let initials = subject.initials()
+
+        XCTAssertNil(initials)
+    }
 }

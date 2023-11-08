@@ -14,6 +14,12 @@ protocol StateService: AnyObject {
     ///
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys
 
+    /// Gets all accounts.
+    ///
+    /// - Returns: The known user accounts.
+    ///
+    func getAccounts() async throws -> [Account]
+
     /// Gets the active account.
     ///
     /// - Returns: The active user account.
@@ -85,6 +91,8 @@ extension StateService {
 /// The errors thrown from a `StateService`.
 ///
 enum StateServiceError: Error {
+    /// There are no known accounts.
+    case noAccounts
     /// There isn't an active account.
     case noActiveAccount
 }
@@ -130,6 +138,13 @@ actor DefaultStateService: StateService {
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: encryptedUserKey
         )
+    }
+
+    func getAccounts() throws -> [Account] {
+        guard let accounts = appSettingsStore.state?.accounts else {
+            throw StateServiceError.noAccounts
+        }
+        return Array(accounts.values)
     }
 
     func getActiveAccount() throws -> Account {

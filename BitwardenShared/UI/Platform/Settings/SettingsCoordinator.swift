@@ -22,7 +22,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     // MARK: Properties
 
     /// The delegate for this coordinator, used to notify when the user logs out.
-    weak var delegate: SettingsCoordinatorDelegate?
+    private weak var delegate: SettingsCoordinatorDelegate?
 
     /// The services used by this coordinator.
     let services: Services

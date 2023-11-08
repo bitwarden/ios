@@ -11,12 +11,14 @@ public protocol TabModule: AnyObject {
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
     ///   - settingsDelegate: The delegate for the settings coordinator.
     ///   - tabNavigator: The navigator used by the coordinator to navigate between routes.
+    ///   - vaultDelegate: The delegate for the vault coordinator.
     /// - Returns: A new coordinator that can navigate to any `TabRoute`.
     ///
     func makeTabCoordinator(
         rootNavigator: RootNavigator,
         settingsDelegate: SettingsCoordinatorDelegate,
-        tabNavigator: TabNavigator
+        tabNavigator: TabNavigator,
+        vaultDelegate: VaultCoordinatorDelegate
     ) -> AnyCoordinator<TabRoute>
 }
 
@@ -26,13 +28,15 @@ extension DefaultAppModule: TabModule {
     public func makeTabCoordinator(
         rootNavigator: RootNavigator,
         settingsDelegate: SettingsCoordinatorDelegate,
-        tabNavigator: TabNavigator
+        tabNavigator: TabNavigator,
+        vaultDelegate: VaultCoordinatorDelegate
     ) -> AnyCoordinator<TabRoute> {
         TabCoordinator(
             module: self,
             rootNavigator: rootNavigator,
             settingsDelegate: settingsDelegate,
-            tabNavigator: tabNavigator
+            tabNavigator: tabNavigator,
+            vaultDelegate: vaultDelegate
         ).asAnyCoordinator()
     }
 }

@@ -45,16 +45,18 @@ class MockAppModule: AppModule, AuthModule, GeneratorModule, TabModule, SendModu
     }
 
     func makeTabCoordinator(
-        rootNavigator: RootNavigator,
-        settingsDelegate: SettingsCoordinatorDelegate,
-        tabNavigator: TabNavigator
-    ) -> AnyCoordinator<TabRoute> {
+        rootNavigator: BitwardenShared.RootNavigator,
+        settingsDelegate: BitwardenShared.SettingsCoordinatorDelegate,
+        tabNavigator: BitwardenShared.TabNavigator,
+        vaultDelegate: BitwardenShared.VaultCoordinatorDelegate
+    ) -> BitwardenShared.AnyCoordinator<BitwardenShared.TabRoute> {
         tabCoordinator.asAnyCoordinator()
     }
 
     func makeVaultCoordinator(
-        stackNavigator: StackNavigator
-    ) -> AnyCoordinator<VaultRoute> {
+        delegate: BitwardenShared.VaultCoordinatorDelegate,
+        stackNavigator: BitwardenShared.StackNavigator
+    ) -> BitwardenShared.AnyCoordinator<BitwardenShared.VaultRoute> {
         vaultCoordinator.asAnyCoordinator()
     }
 }
