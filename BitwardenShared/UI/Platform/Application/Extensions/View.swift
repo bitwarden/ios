@@ -58,8 +58,8 @@ extension View {
     ) -> some View {
         modifier(NavigationBarViewModifier(
             title: title,
-            navigationBarTitleDisplayMode: titleDisplayMode)
-        )
+            navigationBarTitleDisplayMode: titleDisplayMode
+        ))
     }
 
     /// Applies the `ScrollViewModifier` to a view.

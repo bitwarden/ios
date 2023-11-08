@@ -239,12 +239,8 @@ struct VaultListView: View {
                 Button {
                     store.send(.addItemPressed)
                 } label: {
-                    Label {
-                        Text(Localizations.addAnItem)
-                    } icon: {
-                        Asset.Images.plus.swiftUIImage
-                            .resizable()
-                            .frame(width: 19, height: 19)
+                    AddItemButton {
+                        store.send(.addItemPressed)
                     }
                 }
             }

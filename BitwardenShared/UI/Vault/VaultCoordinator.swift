@@ -34,12 +34,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: VaultRoute, context: AnyObject?) {
         switch route {
-        case .addItem:
-            showAddItem()
+        case let .addItem(group):
+            showAddItem(for: group.flatMap(CipherType.init))
         case let .alert(alert):
             stackNavigator.present(alert)
         case .generator:
             showGenerator()
+        case let .group(group):
+            showGroup(group)
         case .list:
             showList()
         case .setupTotpCamera:
@@ -55,11 +57,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the add item screen.
     ///
-    private func showAddItem() {
+    /// - Parameter type: An optional `CipherType` to initialize this view with.
+    ///
+    private func showAddItem(for type: CipherType?) {
+        let state = AddItemState(
+            type: type ?? .login
+        )
         let processor = AddItemProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: AddItemState()
+            state: state
         )
         let store = Store(processor: processor)
         let view = AddItemView(store: store)
@@ -82,6 +89,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         // TODO: BIT-875 Update to show the actual generator screen
         let view = Text("Generator")
         stackNavigator.present(view)
+    }
+
+    /// Shows the vault group screen.
+    ///
+    private func showGroup(_ group: VaultListGroup) {
+        let processor = VaultGroupProcessor(
+            coordinator: asAnyCoordinator(),
+            state: VaultGroupState(group: group)
+        )
+        let store = Store(processor: processor)
+        let view = VaultGroupView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
     }
 
     /// Shows the vault list screen.
