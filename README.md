@@ -128,6 +128,10 @@ The following dependencies are used in the development environment only. They ar
     - https://github.com/yonaskolb/XcodeGen
     - Purpose: Generates the Xcode project using the folder structure and a project spec.
     - License: MIT
+- **yeetd**
+    - https://github.com/biscuitehh/yeetd
+    - Purpose: Improves the performance of Xcode 15 simulators while executing unit tests in a CI environment.
+    - License: MIT
 
 ## Project Structure
 
