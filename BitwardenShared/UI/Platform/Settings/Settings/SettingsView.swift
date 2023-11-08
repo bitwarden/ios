@@ -41,7 +41,7 @@ struct SettingsView: View {
                     .padding()
             }
         }
-        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .cornerRadius(10)
     }
 
@@ -55,7 +55,7 @@ struct SettingsView: View {
             listItem(Localizations.other) {}
             listItem(Localizations.about, hasDivider: false) {}
         }
-        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .cornerRadius(10)
     }
 

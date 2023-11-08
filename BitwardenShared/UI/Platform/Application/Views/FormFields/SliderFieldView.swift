@@ -69,7 +69,7 @@ struct SliderFieldView<State>: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .cornerRadius(10)
     }
 

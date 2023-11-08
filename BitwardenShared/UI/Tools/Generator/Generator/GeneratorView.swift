@@ -88,7 +88,7 @@ struct GeneratorView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                 .cornerRadius(10)
 
             Button {

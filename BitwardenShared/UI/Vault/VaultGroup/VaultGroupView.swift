@@ -96,7 +96,7 @@ struct VaultGroupView: View {
                         }
                     }
                 }
-                .background(Asset.Colors.backgroundGroupedElevatedSecondary.swiftUIColor)
+                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .padding(16)
