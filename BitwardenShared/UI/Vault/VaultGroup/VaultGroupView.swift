@@ -13,6 +13,7 @@ struct VaultGroupView: View {
         contents
             .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
             .navigationTitle(store.state.group.navigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     AddItemButton {

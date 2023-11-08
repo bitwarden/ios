@@ -100,7 +100,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         )
         let store = Store(processor: processor)
         let view = VaultGroupView(store: store)
-        stackNavigator.push(view)
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
     }
 
     /// Shows the vault list screen.
