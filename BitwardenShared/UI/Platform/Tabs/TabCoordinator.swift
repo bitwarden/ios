@@ -5,11 +5,12 @@ import UIKit
 
 /// A coordinator that manages navigation in the tab interface.
 ///
-internal final class TabCoordinator: Coordinator {
+internal final class TabCoordinator: Coordinator, HasTabNavigator {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = GeneratorModule
+        & SendModule
         & SettingsModule
         & VaultModule
 
@@ -28,6 +29,9 @@ internal final class TabCoordinator: Coordinator {
 
     /// The module used to create child coordinators.
     private let module: Module
+
+    /// The coordinator used to navigate to `SendRoute`s.
+    private var sendCoordinator: AnyCoordinator<SendRoute>?
 
     /// The coordinator used to navigate to `SettingsRoute`s.
     private var settingsCoordinator: AnyCoordinator<SettingsRoute>?
@@ -62,10 +66,6 @@ internal final class TabCoordinator: Coordinator {
 
     // MARK: Methods
 
-    func hideLoadingOverlay() {
-        tabNavigator.hideLoadingOverlay()
-    }
-
     func navigate(to route: TabRoute, context: AnyObject?) {
         tabNavigator.selectedIndex = route.index
         switch route {
@@ -86,10 +86,6 @@ internal final class TabCoordinator: Coordinator {
         vaultCoordinator?.navigate(to: vaultRoute, context: context)
     }
 
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        tabNavigator.showLoadingOverlay(state)
-    }
-
     func start() {
         guard let rootNavigator, let settingsDelegate else { return }
 
@@ -102,7 +98,11 @@ internal final class TabCoordinator: Coordinator {
         )
 
         let sendNavigator = UINavigationController()
-        sendNavigator.push(Text("Send"))
+        sendNavigator.navigationBar.prefersLargeTitles = true
+        sendCoordinator = module.makeSendCoordinator(
+            stackNavigator: sendNavigator
+        )
+        sendCoordinator?.start()
 
         let generatorNavigator = UINavigationController()
         generatorNavigator.navigationBar.prefersLargeTitles = true

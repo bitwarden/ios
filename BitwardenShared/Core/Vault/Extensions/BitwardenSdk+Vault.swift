@@ -1,8 +1,176 @@
 // swiftlint:disable:this file_name
+// swiftlint:disable file_length
 
 import BitwardenSdk
 
 // MARK: - Ciphers
+
+extension AttachmentRequestModel {
+    init(attachment: BitwardenSdk.Attachment) {
+        self.init(
+            fileName: attachment.fileName,
+            key: attachment.key,
+            size: attachment.size
+        )
+    }
+}
+
+extension CipherCardModel {
+    init(card: BitwardenSdk.Card) {
+        self.init(
+            brand: card.brand,
+            cardholderName: card.cardholderName,
+            code: card.code,
+            expMonth: card.expMonth,
+            expYear: card.expYear,
+            number: card.number
+        )
+    }
+}
+
+extension CipherFieldModel {
+    init(field: BitwardenSdk.Field) {
+        self.init(
+            linkedId: field.linkedId.flatMap(LinkedIdType.init),
+            name: field.name,
+            type: FieldType(fieldType: field.type),
+            value: field.value
+        )
+    }
+}
+
+extension CipherIdentityModel {
+    init(identity: BitwardenSdk.Identity) {
+        self.init(
+            address1: identity.address1,
+            address2: identity.address2,
+            address3: identity.address3,
+            city: identity.city,
+            company: identity.company,
+            country: identity.country,
+            email: identity.email,
+            firstName: identity.firstName,
+            lastName: identity.lastName,
+            licenseNumber: identity.licenseNumber,
+            middleName: identity.middleName,
+            passportNumber: identity.passportNumber,
+            phone: identity.phone,
+            postalCode: identity.postalCode,
+            ssn: identity.ssn,
+            state: identity.state,
+            title: identity.title,
+            username: identity.username
+        )
+    }
+}
+
+extension CipherLoginModel {
+    init(login: BitwardenSdk.Login) {
+        self.init(
+            autofillOnPageLoad: login.autofillOnPageLoad,
+            password: login.password,
+            passwordRevisionDate: login.passwordRevisionDate,
+            totp: login.totp,
+            uris: login.uris?.map(CipherLoginUriModel.init),
+            username: login.username
+        )
+    }
+}
+
+extension CipherLoginUriModel {
+    init(loginUri: BitwardenSdk.LoginUri) {
+        self.init(
+            match: loginUri.match.map(UriMatchType.init),
+            uri: loginUri.uri
+        )
+    }
+}
+
+extension CipherPasswordHistoryModel {
+    init(passwordHistory: BitwardenSdk.PasswordHistory) {
+        self.init(
+            lastUsedDate: passwordHistory.lastUsedDate,
+            password: passwordHistory.password
+        )
+    }
+}
+
+extension CipherRepromptType {
+    init(type: BitwardenSdk.CipherRepromptType) {
+        switch type {
+        case .none:
+            self = .none
+        case .password:
+            self = .password
+        }
+    }
+}
+
+extension CipherSecureNoteModel {
+    init(secureNote: BitwardenSdk.SecureNote) {
+        self.init(type: SecureNoteType(type: secureNote.type))
+    }
+}
+
+extension CipherType {
+    init(type: BitwardenSdk.CipherType) {
+        switch type {
+        case .card:
+            self = .card
+        case .identity:
+            self = .identity
+        case .login:
+            self = .login
+        case .secureNote:
+            self = .secureNote
+        }
+    }
+}
+
+extension FieldType {
+    init(fieldType: BitwardenSdk.FieldType) {
+        switch fieldType {
+        case .boolean:
+            self = .boolean
+        case .hidden:
+            self = .hidden
+        case .linked:
+            self = .linked
+        case .text:
+            self = .text
+        }
+    }
+}
+
+extension SecureNoteType {
+    init(type: BitwardenSdk.SecureNoteType) {
+        switch type {
+        case .generic:
+            self = .generic
+        }
+    }
+}
+
+extension UriMatchType {
+    init(match: BitwardenSdk.UriMatchType) {
+        switch match {
+        case .domain:
+            self = .domain
+        case .host:
+            self = .host
+        case .startsWith:
+            self = .startsWith
+        case .exact:
+            self = .exact
+        case .regularExpression:
+            self = .regularExpression
+        case .never:
+            self = .never
+        }
+    }
+}
+
+// MARK: - Ciphers (BitwardenSdk)
 
 extension BitwardenSdk.Attachment {
     init(responseModel model: AttachmentResponseModel) {
@@ -36,7 +204,7 @@ extension BitwardenSdk.Cipher {
             id: model.id,
             organizationId: model.organizationId,
             folderId: model.folderId,
-            collectionIds: model.collectionIds,
+            collectionIds: model.collectionIds ?? [],
             name: model.name,
             notes: model.notes,
             type: BitwardenSdk.CipherType(model.type),
@@ -202,7 +370,7 @@ extension BitwardenSdk.UriMatchType {
     }
 }
 
-// MARK: Collections
+// MARK: Collections (BitwardenSdk)
 
 extension BitwardenSdk.Collection {
     init(collectionDetailsResponseModel model: CollectionDetailsResponseModel) {
@@ -217,7 +385,7 @@ extension BitwardenSdk.Collection {
     }
 }
 
-// MARK: - Folders
+// MARK: - Folders (BitwardenSdk)
 
 extension BitwardenSdk.Folder {
     init(folderResponseModel model: FolderResponseModel) {
@@ -229,7 +397,7 @@ extension BitwardenSdk.Folder {
     }
 }
 
-// MARK: - Sends
+// MARK: - Sends (BitwardenSdk)
 
 extension BitwardenSdk.Send {
     init(sendResponseModel model: SendResponseModel) {

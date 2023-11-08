@@ -4,45 +4,51 @@ import SwiftUI
 
 /// A coordinator that manages navigation in the vault tab.
 ///
-final class VaultCoordinator: Coordinator {
+final class VaultCoordinator: Coordinator, HasStackNavigator {
+    // MARK: Types
+
+    typealias Services = HasVaultRepository
+
     // MARK: - Private Properties
 
+    /// The services used by this coordinator.
+    private let services: Services
+
     /// The stack navigator that is managed by this coordinator.
-    private let stackNavigator: StackNavigator
+    var stackNavigator: StackNavigator
 
     // MARK: Initialization
 
     /// Creates a new `VaultCoordinator`.
     ///
-    /// - Parameters stackNavigator: The stack navigator that is managed by this coordinator.
+    /// - Parameters:
+    ///   - services: The services used by this coordinator.
+    ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
-    init(stackNavigator: StackNavigator) {
+    init(services: Services, stackNavigator: StackNavigator) {
+        self.services = services
         self.stackNavigator = stackNavigator
     }
 
     // MARK: Methods
 
-    func hideLoadingOverlay() {
-        stackNavigator.hideLoadingOverlay()
-    }
-
     func navigate(to route: VaultRoute, context: AnyObject?) {
         switch route {
-        case .addItem:
-            showAddItem()
+        case let .addItem(group):
+            showAddItem(for: group.flatMap(CipherType.init))
         case let .alert(alert):
             stackNavigator.present(alert)
         case .generator:
             showGenerator()
+        case let .group(group):
+            showGroup(group)
         case .list:
             showList()
         case .setupTotpCamera:
             showCamera()
+        case .viewItem:
+            showViewItem()
         }
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        stackNavigator.showLoadingOverlay(state)
     }
 
     func start() {}
@@ -51,10 +57,16 @@ final class VaultCoordinator: Coordinator {
 
     /// Shows the add item screen.
     ///
-    private func showAddItem() {
+    /// - Parameter type: An optional `CipherType` to initialize this view with.
+    ///
+    private func showAddItem(for type: CipherType?) {
+        let state = AddItemState(
+            type: type ?? .login
+        )
         let processor = AddItemProcessor(
             coordinator: asAnyCoordinator(),
-            state: AddItemState()
+            services: services,
+            state: state
         )
         let store = Store(processor: processor)
         let view = AddItemView(store: store)
@@ -79,6 +91,20 @@ final class VaultCoordinator: Coordinator {
         stackNavigator.present(view)
     }
 
+    /// Shows the vault group screen.
+    ///
+    private func showGroup(_ group: VaultListGroup) {
+        let processor = VaultGroupProcessor(
+            coordinator: asAnyCoordinator(),
+            state: VaultGroupState(group: group)
+        )
+        let store = Store(processor: processor)
+        let view = VaultGroupView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
     /// Shows the vault list screen.
     ///
     private func showList() {
@@ -87,11 +113,19 @@ final class VaultCoordinator: Coordinator {
         } else {
             let processor = VaultListProcessor(
                 coordinator: asAnyCoordinator(),
+                services: services,
                 state: VaultListState()
             )
             let store = Store(processor: processor)
             let view = VaultListView(store: store)
             stackNavigator.replace(view, animated: false)
         }
+    }
+
+    /// Shows the view item screen.
+    private func showViewItem() {
+        // TODO: BIT-219 Present the actual view item screen
+        let view = Text("View Item")
+        stackNavigator.present(view)
     }
 }

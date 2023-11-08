@@ -18,6 +18,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
         stackNavigator = MockStackNavigator()
         subject = VaultCoordinator(
+            services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
     }
@@ -33,7 +34,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.addItem` pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem() throws {
-        subject.navigate(to: .addItem)
+        subject.navigate(to: .addItem())
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
@@ -86,6 +87,15 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .dismissed)
+    }
+
+    /// `.navigate(to:)` with `.viewItem` presents the view item screen.
+    func test_navigateTo_viewItem() throws {
+        subject.navigate(to: .viewItem)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is Text)
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.

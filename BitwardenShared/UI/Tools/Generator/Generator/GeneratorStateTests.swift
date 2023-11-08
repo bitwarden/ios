@@ -1,3 +1,4 @@
+import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
 
@@ -6,17 +7,46 @@ import XCTest
 class GeneratorStateTests: XCTestCase {
     // MARK: Tests
 
-    /// `formSections` returns the sections and fields for generating a password.
-    func test_formSections_password() {
-        let subject = GeneratorState()
+    /// `formSections` returns the sections and fields for generating a passphrase.
+    func test_formSections_passphrase() {
+        var subject = GeneratorState()
+        subject.passwordState.passwordGeneratorType = .passphrase
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
             Section: (empty)
               Generated: (empty)
-              Picker: What would you like to generate? Value: Password
+              Menu: What would you like to generate?
+                Selection: Password
+                Options: Password, Username
             Section: Options
-              Picker: Password type Value: Password
+              Menu: Password type
+                Selection: Passphrase
+                Options: Password, Passphrase
+              Stepper: Number of words Value: 3 Range: 3...20
+              Text: Word separator Value: -
+              Toggle: Capitalize Value: false
+              Toggle: Include number Value: false
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a password.
+    func test_formSections_password() {
+        var subject = GeneratorState()
+        subject.passwordState.passwordGeneratorType = .password
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Password
+                Options: Password, Username
+            Section: Options
+              Menu: Password type
+                Selection: Password
+                Options: Password, Passphrase
               Slider: Length Value: 14.0 Range: 5.0...128.0 Step: 1.0
               Toggle: A-Z Value: true
               Toggle: a-z Value: true
@@ -29,48 +59,100 @@ class GeneratorStateTests: XCTestCase {
         }
     }
 
-    /// `generatorTypeValue` can be used to get the raw value of `generatorType`.
-    func test_generatorTypeValue_getter() {
+    /// `formSections` returns the sections and fields for generating a plus-address email username.
+    func test_formSections_username_plusAddressedEmail() {
         var subject = GeneratorState()
-
-        subject.generatorType = .password
-        XCTAssertEqual(subject.generatorTypeValue, Localizations.password)
-
         subject.generatorType = .username
-        XCTAssertEqual(subject.generatorTypeValue, Localizations.username)
+        subject.usernameState.usernameGeneratorType = .plusAddressedEmail
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Plus addressed email
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+              Text: Email (required) Value: (empty)
+            """
+        }
     }
 
-    /// `generatorTypeValue` can be used to set the raw value of `generatorType`.
-    func test_generatorTypeValue_setter() {
-        var subject = GeneratorState()
+    /// `passwordState.passphraseGeneratorRequest` returns the passphrase generator request.
+    func test_passwordState_passphraseGeneratorRequest() {
+        var subject = GeneratorState().passwordState
 
-        subject.generatorTypeValue = Localizations.password
-        XCTAssertEqual(subject.generatorType, .password)
+        XCTAssertEqual(
+            subject.passphraseGeneratorRequest,
+            PassphraseGeneratorRequest(
+                numWords: 3,
+                wordSeparator: "-",
+                capitalize: false,
+                includeNumber: false
+            )
+        )
 
-        subject.generatorTypeValue = Localizations.username
-        XCTAssertEqual(subject.generatorType, .username)
+        subject.numberOfWords = 6
+        subject.wordSeparator = "*"
+        subject.capitalize = true
+        subject.includeNumber = true
+
+        XCTAssertEqual(
+            subject.passphraseGeneratorRequest,
+            PassphraseGeneratorRequest(
+                numWords: 6,
+                wordSeparator: "*",
+                capitalize: true,
+                includeNumber: true
+            )
+        )
     }
 
-    /// `passwordGeneratorTypeValue` can be used to set the raw value of `passwordGeneratorType`.
-    func test_passwordState_passwordGeneratorType_getter() {
-        var subject = GeneratorState()
+    /// `passwordState.passwordGeneratorRequest` returns the password generator request.
+    func test_passwordState_passwordGeneratorRequest() {
+        var subject = GeneratorState().passwordState
 
-        subject.passwordState.passwordGeneratorType = .passphrase
-        XCTAssertEqual(subject.passwordState.passwordGeneratorTypeValue, Localizations.passphrase)
+        XCTAssertEqual(
+            subject.passwordGeneratorRequest,
+            PasswordGeneratorRequest(
+                lowercase: true,
+                uppercase: true,
+                numbers: true,
+                special: false,
+                length: 14,
+                avoidAmbiguous: false,
+                minLowercase: nil,
+                minUppercase: nil,
+                minNumber: nil,
+                minSpecial: nil
+            )
+        )
 
-        subject.passwordState.passwordGeneratorType = .password
-        XCTAssertEqual(subject.passwordState.passwordGeneratorTypeValue, Localizations.password)
-    }
+        subject.containsLowercase = false
+        subject.containsUppercase = false
+        subject.containsNumbers = false
+        subject.containsSpecial = true
+        subject.length = 30
+        subject.avoidAmbiguous = true
 
-    /// `passwordGeneratorTypeValue` can be used to set the raw value of `passwordGeneratorType`.
-    func test_passwordState_passwordGeneratorType_setter() {
-        var subject = GeneratorState()
-
-        subject.passwordState.passwordGeneratorTypeValue = Localizations.passphrase
-        XCTAssertEqual(subject.passwordState.passwordGeneratorType, .passphrase)
-
-        subject.passwordState.passwordGeneratorTypeValue = Localizations.password
-        XCTAssertEqual(subject.passwordState.passwordGeneratorType, .password)
+        XCTAssertEqual(
+            subject.passwordGeneratorRequest,
+            PasswordGeneratorRequest(
+                lowercase: false,
+                uppercase: false,
+                numbers: false,
+                special: true,
+                length: 30,
+                avoidAmbiguous: true,
+                minLowercase: nil,
+                minUppercase: nil,
+                minNumber: nil,
+                minSpecial: nil
+            )
+        )
     }
 
     // MARK: Private
@@ -83,8 +165,12 @@ class GeneratorStateTests: XCTestCase {
             switch field.fieldType {
             case let .generatedValue(generatedValue):
                 result.append("Generated: \(generatedValue.value.isEmpty ? "(empty)" : generatedValue.value)")
-            case let .picker(picker):
-                result.append("Picker: \(picker.title) Value: \(picker.value)")
+            case let .menuGeneratorType(menu):
+                result.append(menu.dumpField(indent: indent))
+            case let .menuPasswordGeneratorType(menu):
+                result.append(menu.dumpField(indent: indent))
+            case let .menuUsernameGeneratorType(menu):
+                result.append(menu.dumpField(indent: indent))
             case let .slider(slider):
                 result.append(
                     "Slider: \(slider.title) Value: \(slider.value) " +
@@ -92,6 +178,8 @@ class GeneratorStateTests: XCTestCase {
                 )
             case let .stepper(stepper):
                 result.append("Stepper: \(stepper.title) Value: \(stepper.value) Range: \(stepper.range)")
+            case let .text(text):
+                result.append("Text: \(text.title) Value: \(text.value.isEmpty ? "(empty)" : text.value)")
             case let .toggle(toggle):
                 result.append("Toggle: \(toggle.title) Value: \(toggle.isOn)")
             }
@@ -111,5 +199,17 @@ class GeneratorStateTests: XCTestCase {
                 result.append("\n")
             }
         }
+    }
+}
+
+private extension FormMenuField {
+    /// Returns a string containing a description of the `FormMenuField`.
+    func dumpField(indent: String) -> String {
+        [
+            "Menu: \(title)",
+            indent + "  Selection: \(selection.localizedName)",
+            indent + "  Options: \(options.map(\.localizedName).joined(separator: ", "))",
+        ]
+        .joined(separator: "\n")
     }
 }

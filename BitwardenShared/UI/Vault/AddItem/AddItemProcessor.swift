@@ -3,10 +3,17 @@
 /// The processor used to manage state and handle actions for the add item screen.
 ///
 final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddItemEffect> {
+    // MARK: Types
+
+    typealias Services = HasVaultRepository
+
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultRoute>
+
+    /// The services required by this processor.
+    private let services: Services
 
     // MARK: Initialization
 
@@ -14,13 +21,16 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
+    ///   - services: The services required by this processor.
     ///   - state: The initial state for the processor.
     ///
     init(
         coordinator: AnyCoordinator<VaultRoute>,
+        services: Services,
         state: AddItemState
     ) {
         self.coordinator = coordinator
+        self.services = services
         super.init(state: state)
     }
 
@@ -125,8 +135,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         defer { coordinator.hideLoadingOverlay() }
 
         do {
-            // TODO: BIT-220 Use the api to save the item
-            try await Task.sleep(nanoseconds: 1_000_000_000)
+            try await services.vaultRepository.addCipher(state.cipher())
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .list)
         } catch {

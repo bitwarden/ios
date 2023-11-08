@@ -17,7 +17,7 @@ settings:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 02f548d9a46ba64676ece85e745ae44f0db65fb2
+    revision: 670218b068b2c1f7903bfcc629b5c4b5348de41e
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.13.0
@@ -36,6 +36,8 @@ schemes:
         Bitwarden: all
         BitwardenTests: [test]
     test:
+      commandLineArguments:
+        "-testing": true
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
@@ -91,6 +93,8 @@ schemes:
         BitwardenShared: all
         BitwardenSharedTests: [test]
     test:
+      commandLineArguments:
+        "-testing": true
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
@@ -151,6 +155,12 @@ targets:
       - script: Scripts/update_settings_version_number.sh
         name: "Settings.bundle: Update Version Number"
         basedOnDependencyAnalysis: false
+      - path: Scripts/firebase_crashlytics_run.sh
+        name: "Run Firebase Crashlytics"
+        basedOnDependencyAnalysis: false
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+          - ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}
   BitwardenTests:
     type: bundle.unit-test
     platform: iOS

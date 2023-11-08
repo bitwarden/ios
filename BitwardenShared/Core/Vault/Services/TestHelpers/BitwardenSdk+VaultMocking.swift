@@ -2,6 +2,19 @@
 
 import BitwardenSdk
 
+extension Attachment {
+    init(attachmentView: AttachmentView) {
+        self.init(
+            id: attachmentView.id,
+            url: attachmentView.url,
+            size: attachmentView.size,
+            sizeName: attachmentView.sizeName,
+            fileName: attachmentView.fileName,
+            key: attachmentView.key
+        )
+    }
+}
+
 extension AttachmentView {
     init(attachment: Attachment) {
         self.init(
@@ -11,6 +24,19 @@ extension AttachmentView {
             sizeName: attachment.sizeName,
             fileName: attachment.fileName,
             key: attachment.key
+        )
+    }
+}
+
+extension Card {
+    init(cardView: CardView) {
+        self.init(
+            cardholderName: cardView.cardholderName,
+            expMonth: cardView.expMonth,
+            expYear: cardView.expYear,
+            code: cardView.code,
+            brand: cardView.brand,
+            number: cardView.number
         )
     }
 }
@@ -50,6 +76,36 @@ extension CipherListView {
     }
 }
 
+extension Cipher {
+    init(cipherView: CipherView) {
+        self.init(
+            id: cipherView.id,
+            organizationId: cipherView.organizationId,
+            folderId: cipherView.folderId,
+            collectionIds: cipherView.collectionIds,
+            name: cipherView.name,
+            notes: cipherView.notes,
+            type: cipherView.type,
+            login: cipherView.login.map(Login.init),
+            identity: cipherView.identity.map(Identity.init),
+            card: cipherView.card.map(Card.init),
+            secureNote: cipherView.secureNote.map(SecureNote.init),
+            favorite: cipherView.favorite,
+            reprompt: cipherView.reprompt,
+            organizationUseTotp: cipherView.organizationUseTotp,
+            edit: cipherView.edit,
+            viewPassword: cipherView.viewPassword,
+            localData: cipherView.localData.map(LocalData.init),
+            attachments: cipherView.attachments?.map(Attachment.init),
+            fields: cipherView.fields?.map(Field.init),
+            passwordHistory: cipherView.passwordHistory?.map(PasswordHistory.init),
+            creationDate: cipherView.creationDate,
+            deletedDate: cipherView.deletedDate,
+            revisionDate: cipherView.revisionDate
+        )
+    }
+}
+
 extension CipherView {
     init(cipher: Cipher) {
         self.init(
@@ -80,6 +136,17 @@ extension CipherView {
     }
 }
 
+extension Field {
+    init(fieldView: FieldView) {
+        self.init(
+            name: fieldView.name,
+            value: fieldView.value,
+            type: fieldView.type,
+            linkedId: fieldView.linkedId
+        )
+    }
+}
+
 extension FieldView {
     init(field: Field) {
         self.init(
@@ -91,12 +158,47 @@ extension FieldView {
     }
 }
 
+extension Folder {
+    init(folderView: FolderView) {
+        self.init(
+            id: folderView.id,
+            name: folderView.name,
+            revisionDate: folderView.revisionDate
+        )
+    }
+}
+
 extension FolderView {
     init(folder: Folder) {
         self.init(
             id: folder.id,
             name: folder.name,
             revisionDate: folder.revisionDate
+        )
+    }
+}
+
+extension Identity {
+    init(identityView: IdentityView) {
+        self.init(
+            title: identityView.title,
+            firstName: identityView.firstName,
+            middleName: identityView.middleName,
+            lastName: identityView.lastName,
+            address1: identityView.address1,
+            address2: identityView.address2,
+            address3: identityView.address3,
+            city: identityView.city,
+            state: identityView.state,
+            postalCode: identityView.postalCode,
+            country: identityView.country,
+            company: identityView.company,
+            email: identityView.email,
+            phone: identityView.phone,
+            ssn: identityView.ssn,
+            username: identityView.username,
+            passportNumber: identityView.passportNumber,
+            licenseNumber: identityView.licenseNumber
         )
     }
 }
@@ -126,11 +228,33 @@ extension IdentityView {
     }
 }
 
+extension LocalData {
+    init(localDataView: LocalDataView) {
+        self.init(
+            lastUsedDate: localDataView.lastUsedDate,
+            lastLaunched: localDataView.lastLaunched
+        )
+    }
+}
+
 extension LocalDataView {
     init(localData: LocalData) {
         self.init(
             lastUsedDate: localData.lastUsedDate,
             lastLaunched: localData.lastLaunched
+        )
+    }
+}
+
+extension Login {
+    init(loginView: LoginView) {
+        self.init(
+            username: loginView.username,
+            password: loginView.password,
+            passwordRevisionDate: loginView.passwordRevisionDate,
+            uris: loginView.uris?.map(LoginUri.init),
+            totp: loginView.totp,
+            autofillOnPageLoad: loginView.autofillOnPageLoad
         )
     }
 }
@@ -148,11 +272,29 @@ extension LoginView {
     }
 }
 
+extension LoginUri {
+    init(loginUriView: LoginUriView) {
+        self.init(
+            uri: loginUriView.uri,
+            match: loginUriView.match
+        )
+    }
+}
+
 extension LoginUriView {
     init(loginUri: LoginUri) {
         self.init(
             uri: loginUri.uri,
             match: loginUri.match
+        )
+    }
+}
+
+extension PasswordHistory {
+    init(passwordHistoryView: PasswordHistoryView) {
+        self.init(
+            password: passwordHistoryView.password,
+            lastUsedDate: passwordHistoryView.lastUsedDate
         )
     }
 }
@@ -163,6 +305,12 @@ extension PasswordHistoryView {
             password: passwordHistory.password,
             lastUsedDate: passwordHistory.lastUsedDate
         )
+    }
+}
+
+extension SecureNote {
+    init(secureNoteView: SecureNoteView) {
+        self.init(type: secureNoteView.type)
     }
 }
 

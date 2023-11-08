@@ -5,6 +5,9 @@ import SwiftUI
 struct GeneratorView: View {
     // MARK: Properties
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<GeneratorState, GeneratorAction, Void>
 
@@ -20,6 +23,7 @@ struct GeneratorView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .navigationBarTitleDisplayMode(.large)
         .navigationTitle(Localizations.generator)
+        .onAppear { store.send(.appeared) }
     }
 
     /// Returns a view for displaying a section of items in the form.
@@ -41,8 +45,16 @@ struct GeneratorView: View {
                 switch field.fieldType {
                 case let .generatedValue(generatedValueField):
                     generatedValueView(field: generatedValueField)
-                case let .picker(pickerField):
-                    pickerValueView(field: pickerField)
+                case let .menuGeneratorType(menuField):
+                    FormMenuFieldView(field: menuField) { newValue in
+                        store.send(.generatorTypeChanged(newValue))
+                    }
+                case let .menuPasswordGeneratorType(menuField):
+                    FormMenuFieldView(field: menuField) { newValue in
+                        store.send(.passwordGeneratorTypeChanged(newValue))
+                    }
+                case let .menuUsernameGeneratorType(menuField):
+                    menuUsernameGeneratorTypeView(field: menuField)
                 case let .slider(sliderField):
                     SliderFieldView(field: sliderField) { newValue in
                         store.send(.sliderValueChanged(field: sliderField, value: newValue))
@@ -50,6 +62,10 @@ struct GeneratorView: View {
                 case let .stepper(stepperField):
                     StepperFieldView(field: stepperField) { newValue in
                         store.send(.stepperValueChanged(field: stepperField, value: newValue))
+                    }
+                case let .text(textField):
+                    FormTextFieldView(field: textField) { newValue in
+                        store.send(.textValueChanged(field: textField, value: newValue))
                     }
                 case let .toggle(toggleField):
                     ToggleFieldView(field: toggleField) { isOn in
@@ -97,25 +113,25 @@ struct GeneratorView: View {
         }
     }
 
-    /// Returns a view for displaying a picker value.
+    /// Returns a view for displaying a menu for selecting the username type
     ///
-    /// - Parameter field: The data for displaying the picker field.
+    /// - Parameter field: The data for displaying the menu field.
     ///
-    @ViewBuilder
-    func pickerValueView(field: GeneratorState.PickerField<GeneratorState>) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(field.title)
-                .font(.styleGuide(.subheadline).bold())
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-            Text(field.value)
-                .font(.styleGuide(.body))
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
-                .cornerRadius(10)
+    func menuUsernameGeneratorTypeView(
+        field: FormMenuField<GeneratorState, GeneratorState.UsernameState.UsernameGeneratorType>
+    ) -> some View {
+        FormMenuFieldView(field: field) { newValue in
+            store.send(.usernameGeneratorTypeChanged(newValue))
+        } trailingContent: {
+            Button {
+                openURL(ExternalLinksConstants.generatorUsernameTypes)
+            } label: {
+                Asset.Images.questionRound.swiftUIImage
+                    .resizable()
+                    .frame(width: 14, height: 14)
+            }
+            .buttonStyle(.accessory)
+            .accessibilityLabel(Localizations.learnMore)
         }
     }
 }

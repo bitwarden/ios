@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 extension GeneratorState {
     /// Data model for the values that can be set for generating a password.
     ///
@@ -6,30 +8,22 @@ extension GeneratorState {
 
         /// The type of password to generate.
         ///
-        enum PasswordGeneratorType: String, Equatable { // swiftlint:disable:this nesting
+        enum PasswordGeneratorType: CaseIterable, Equatable, Menuable { // swiftlint:disable:this nesting
             /// Generate a passphrase.
             case passphrase
 
             /// Generate a password.
             case password
 
-            var rawValue: String {
+            /// All of the cases to show in the menu.
+            static let allCases: [Self] = [.password, .passphrase]
+
+            var localizedName: String {
                 switch self {
                 case .password:
                     return Localizations.password
                 case .passphrase:
                     return Localizations.passphrase
-                }
-            }
-
-            init?(rawValue: String) {
-                switch rawValue {
-                case Localizations.password:
-                    self = .password
-                case Localizations.passphrase:
-                    self = .passphrase
-                default:
-                    return nil
                 }
             }
         }
@@ -38,15 +32,6 @@ extension GeneratorState {
 
         /// The type of password to generate.
         var passwordGeneratorType = PasswordGeneratorType.password
-
-        /// A proxy value for getting and setting `passwordGeneratorType` via key path with its raw value.
-        var passwordGeneratorTypeValue: String {
-            get { passwordGeneratorType.rawValue }
-            set {
-                guard let passwordGeneratorType = PasswordGeneratorType(rawValue: newValue) else { return }
-                self.passwordGeneratorType = passwordGeneratorType
-            }
-        }
 
         // MARK: Password Properties
 
@@ -80,5 +65,49 @@ extension GeneratorState {
 
         /// The minimum number of special characters in the generated password.
         var minimumSpecial: Int = 1
+
+        // MARK: Passphrase Properties
+
+        /// Whether the capitalize the passphrase words.
+        var capitalize: Bool = false
+
+        /// Whether the passphrase should include numbers.
+        var includeNumber: Bool = false
+
+        /// The number of words to include in the passphrase.
+        var numberOfWords: Int = 3
+
+        /// The separator to put between words in the passphrase.
+        var wordSeparator: String = "-"
+    }
+}
+
+extension GeneratorState.PasswordState {
+    /// Returns a `PassphraseGeneratorRequest` containing the user selected settings for generating
+    /// a passphrase.
+    var passphraseGeneratorRequest: PassphraseGeneratorRequest {
+        PassphraseGeneratorRequest(
+            numWords: UInt8(numberOfWords),
+            wordSeparator: wordSeparator,
+            capitalize: capitalize,
+            includeNumber: includeNumber
+        )
+    }
+
+    /// Returns a `PasswordGeneratorRequest` containing the user selected settings for generating a
+    /// password.
+    var passwordGeneratorRequest: PasswordGeneratorRequest {
+        PasswordGeneratorRequest(
+            lowercase: containsLowercase,
+            uppercase: containsUppercase,
+            numbers: containsNumbers,
+            special: containsSpecial,
+            length: UInt8(length),
+            avoidAmbiguous: avoidAmbiguous,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil, // TODO: BIT-980 Fix type mismatch with SDK (SDK expects bool not int).
+            minSpecial: nil // TODO: BIT-980 Fix type mismatch with SDK (SDK expects bool not int).
+        )
     }
 }

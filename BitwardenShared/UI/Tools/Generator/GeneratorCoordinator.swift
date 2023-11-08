@@ -1,6 +1,6 @@
 /// A coordinator that manages navigation in the generator tab.
 ///
-final class GeneratorCoordinator: Coordinator {
+final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasGeneratorRepository
@@ -31,19 +31,11 @@ final class GeneratorCoordinator: Coordinator {
 
     // MARK: Methods
 
-    func hideLoadingOverlay() {
-        stackNavigator.hideLoadingOverlay()
-    }
-
     func navigate(to route: GeneratorRoute, context: AnyObject?) {
         switch route {
         case .generator:
             showGenerator()
         }
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        stackNavigator.showLoadingOverlay(state)
     }
 
     func start() {

@@ -13,10 +13,11 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the settings tab.
 ///
-final class SettingsCoordinator: Coordinator {
+final class SettingsCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasSettingsRepository
+    typealias Services = HasErrorReporter
+        & HasSettingsRepository
 
     // MARK: Properties
 
@@ -50,10 +51,6 @@ final class SettingsCoordinator: Coordinator {
 
     // MARK: Methods
 
-    func hideLoadingOverlay() {
-        stackNavigator.hideLoadingOverlay()
-    }
-
     func navigate(to route: SettingsRoute, context: AnyObject?) {
         switch route {
         case let .alert(alert):
@@ -63,10 +60,6 @@ final class SettingsCoordinator: Coordinator {
         case .settings:
             showSettings()
         }
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        stackNavigator.showLoadingOverlay(state)
     }
 
     func start() {

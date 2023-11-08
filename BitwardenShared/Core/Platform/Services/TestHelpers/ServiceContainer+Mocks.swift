@@ -10,12 +10,14 @@ extension ServiceContainer {
         baseUrlService: BaseUrlService = DefaultBaseUrlService(baseUrl: .example),
         captchaService: CaptchaService = MockCaptchaService(),
         clientService: ClientService = MockClientService(),
+        errorReporter: ErrorReporter = MockErrorReporter(),
         generatorRepository: GeneratorRepository = MockGeneratorRepository(),
         httpClient: HTTPClient = MockHTTPClient(),
         settingsRepository: SettingsRepository = MockSettingsRepository(),
         stateService: StateService = MockStateService(),
         systemDevice: SystemDevice = MockSystemDevice(),
-        tokenService: TokenService = MockTokenService()
+        tokenService: TokenService = MockTokenService(),
+        vaultRepository: VaultRepository = MockVaultRepository()
     ) -> ServiceContainer {
         ServiceContainer(
             apiService: APIService(
@@ -27,11 +29,13 @@ extension ServiceContainer {
             baseUrlService: baseUrlService,
             captchaService: captchaService,
             clientService: clientService,
+            errorReporter: errorReporter,
             generatorRepository: generatorRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,
             systemDevice: systemDevice,
-            tokenService: tokenService
+            tokenService: tokenService,
+            vaultRepository: vaultRepository
         )
     }
 }

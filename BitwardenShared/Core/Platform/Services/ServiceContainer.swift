@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
+
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
@@ -65,11 +68,13 @@ public class ServiceContainer: Services {
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - tokenService: The service used by the application to manage account access tokens.
+    ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///
     init(
         apiService: APIService,
@@ -78,11 +83,13 @@ public class ServiceContainer: Services {
         baseUrlService: BaseUrlService,
         captchaService: CaptchaService,
         clientService: ClientService,
+        errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
         systemDevice: SystemDevice,
-        tokenService: TokenService
+        tokenService: TokenService,
+        vaultRepository: VaultRepository
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
@@ -90,22 +97,22 @@ public class ServiceContainer: Services {
         self.baseUrlService = baseUrlService
         self.captchaService = captchaService
         self.clientService = clientService
+        self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
         self.systemDevice = systemDevice
         self.tokenService = tokenService
+        self.vaultRepository = vaultRepository
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
-        vaultRepository = DefaultVaultRepository(
-            clientVault: clientService.clientVault(),
-            syncAPIService: apiService
-        )
     }
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
-    public convenience init() {
+    /// - Parameter errorReporter: The service used by the application to report non-fatal errors.
+    ///
+    public convenience init(errorReporter: ErrorReporter) {
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
@@ -117,25 +124,33 @@ public class ServiceContainer: Services {
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
         let tokenService = DefaultTokenService(stateService: stateService)
 
+        let apiService = APIService(baseUrlService: baseUrlService, tokenService: tokenService)
         let authRepository = DefaultAuthRepository(
             clientCrypto: clientService.clientCrypto(),
             stateService: stateService
         )
-        let generatorRepository = DefaultGeneratorRepository()
+        let generatorRepository = DefaultGeneratorRepository(clientGenerators: clientService.clientGenerator())
         let settingsRepository = DefaultSettingsRepository(stateService: stateService)
+        let vaultRepository = DefaultVaultRepository(
+            cipherAPIService: apiService,
+            clientVault: clientService.clientVault(),
+            syncAPIService: apiService
+        )
 
         self.init(
-            apiService: APIService(baseUrlService: baseUrlService, tokenService: tokenService),
+            apiService: apiService,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             baseUrlService: baseUrlService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
             clientService: clientService,
+            errorReporter: errorReporter,
             generatorRepository: generatorRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,
             systemDevice: UIDevice.current,
-            tokenService: tokenService
+            tokenService: tokenService,
+            vaultRepository: vaultRepository
         )
     }
 }

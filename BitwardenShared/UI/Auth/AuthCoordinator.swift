@@ -17,7 +17,7 @@ protocol AuthCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the authentication flow.
 ///
-internal final class AuthCoordinator: NSObject, Coordinator {
+internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasAccountAPIService
@@ -28,6 +28,7 @@ internal final class AuthCoordinator: NSObject, Coordinator {
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
+        & HasErrorReporter
         & HasStateService
         & HasSystemDevice
 
@@ -69,10 +70,6 @@ internal final class AuthCoordinator: NSObject, Coordinator {
 
     // MARK: Methods
 
-    func hideLoadingOverlay() {
-        stackNavigator.hideLoadingOverlay()
-    }
-
     func navigate(to route: AuthRoute, context: AnyObject?) {
         switch route {
         case let .alert(alert):
@@ -107,13 +104,11 @@ internal final class AuthCoordinator: NSObject, Coordinator {
             showLoginWithDevice()
         case .masterPasswordHint:
             showMasterPasswordHint()
+        case .selfHosted:
+            showSelfHostedView()
         case let .vaultUnlock(account):
             showVaultUnlock(account: account)
         }
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        stackNavigator.showLoadingOverlay(state)
     }
 
     func start() {
@@ -121,14 +116,6 @@ internal final class AuthCoordinator: NSObject, Coordinator {
     }
 
     // MARK: Private Methods
-
-    /// Shows the provided alert on the `stackNavigator`.
-    ///
-    /// - Parameter alert: The alert to show.
-    ///
-    private func showAlert(_ alert: Alert) {
-        stackNavigator.present(alert)
-    }
 
     /// Shows the captcha screen.
     ///
@@ -241,6 +228,17 @@ internal final class AuthCoordinator: NSObject, Coordinator {
     private func showMasterPasswordHint() {
         let view = Text("Master Password Hint")
         stackNavigator.push(view)
+    }
+
+    /// Shows the self-hosted settings view.
+    private func showSelfHostedView() {
+        let processor = SelfHostedProcessor(
+            coordinator: asAnyCoordinator(),
+            state: SelfHostedState()
+        )
+        let view = SelfHostedView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
     }
 
     /// Shows the vault unlock view.

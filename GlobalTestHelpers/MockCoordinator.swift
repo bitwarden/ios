@@ -7,11 +7,12 @@ enum MockCoordinatorError: Error {
 }
 
 class MockCoordinator<Route>: Coordinator {
+    var alertShown = [Alert]()
     var contexts: [AnyObject?] = []
     var isLoadingOverlayShowing = false
     var isStarted: Bool = false
-    var routes: [Route] = []
     var loadingOverlaysShown = [LoadingOverlayState]()
+    var routes: [Route] = []
 
     func hideLoadingOverlay() {
         isLoadingOverlayShowing = false
@@ -20,6 +21,10 @@ class MockCoordinator<Route>: Coordinator {
     func navigate(to route: Route, context: AnyObject?) {
         routes.append(route)
         contexts.append(context)
+    }
+
+    func showAlert(_ alert: Alert) {
+        alertShown.append(alert)
     }
 
     func showLoadingOverlay(_ state: LoadingOverlayState) {

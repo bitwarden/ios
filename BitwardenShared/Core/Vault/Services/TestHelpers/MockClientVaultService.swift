@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 @testable import BitwardenShared
 
@@ -33,6 +34,9 @@ class MockClientVaultService: ClientVaultService {
 // MARK: - MockClientCiphers
 
 class MockClientCiphers: ClientCiphersProtocol {
+    var encryptError: Error?
+    var encryptedCiphers = [CipherView]()
+
     func decrypt(cipher: Cipher) async throws -> CipherView {
         CipherView(cipher: cipher)
     }
@@ -42,7 +46,11 @@ class MockClientCiphers: ClientCiphersProtocol {
     }
 
     func encrypt(cipherView: CipherView) async throws -> Cipher {
-        fatalError("Not implemented yet")
+        encryptedCiphers.append(cipherView)
+        if let encryptError {
+            throw encryptError
+        }
+        return Cipher(cipherView: cipherView)
     }
 }
 
@@ -93,7 +101,7 @@ class MockClientSends: ClientSendsProtocol {
         fatalError("Not implemented yet")
     }
 
-    func decryptBuffer(send: Send, buffer: [UInt8]) async throws -> [UInt8] {
+    func decryptBuffer(send: Send, buffer: Data) async throws -> Data {
         fatalError("Not implemented yet")
     }
 
@@ -101,7 +109,7 @@ class MockClientSends: ClientSendsProtocol {
         fatalError("Not implemented yet")
     }
 
-    func decryptList(sends: [Send]) async throws -> [SendListView] {
+    func decryptList(sends: [Send]) async throws -> [BitwardenSdk.SendListView] {
         fatalError("Not implemented yet")
     }
 
@@ -109,7 +117,7 @@ class MockClientSends: ClientSendsProtocol {
         fatalError("Not implemented yet")
     }
 
-    func encryptBuffer(send: Send, buffer: [UInt8]) async throws -> [UInt8] {
+    func encryptBuffer(send: Send, buffer: Data) async throws -> Data {
         fatalError("Not implemented yet")
     }
 
