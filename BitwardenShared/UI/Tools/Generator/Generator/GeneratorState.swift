@@ -36,11 +36,14 @@ struct GeneratorState: Equatable {
     /// The options used to generate a password.
     var passwordState = PasswordState()
 
+    /// The options used to generate a username.
+    var usernameState = UsernameState()
+
     // MARK: Computed Properties
 
     /// The list of sections to display in the generator form.
     var formSections: [FormSection<Self>] {
-        let optionFields: [FormField<Self>]
+        var optionFields: [FormField<Self>]
         switch generatorType {
         case .password:
             switch passwordState.passwordGeneratorType {
@@ -103,7 +106,31 @@ struct GeneratorState: Equatable {
                 ]
             }
         case .username:
-            optionFields = []
+            optionFields = [
+                FormField(fieldType: .menuUsernameGeneratorType(FormMenuField(
+                    footer: Localizations.plusAddressedEmailDescription,
+                    keyPath: \.usernameState.usernameGeneratorType,
+                    options: UsernameState.UsernameGeneratorType.allCases,
+                    selection: usernameState.usernameGeneratorType,
+                    title: Localizations.usernameType
+                ))),
+            ]
+
+            switch usernameState.usernameGeneratorType {
+            case .catchAllEmail:
+                break
+            case .forwardedEmail:
+                break
+            case .plusAddressedEmail:
+                optionFields.append(contentsOf: [
+                    textField(
+                        keyPath: \.usernameState.email,
+                        title: Localizations.emailRequiredParenthesis
+                    ),
+                ])
+            case .randomWord:
+                break
+            }
         }
 
         return [

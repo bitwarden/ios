@@ -21,6 +21,9 @@ struct BitwardenTextField: View {
             case async(() async -> Void)
         }
 
+        /// The accessibility identifier for the button.
+        var accessibilityIdentifier: String?
+
         /// The accessibility label for this button.
         var accessibilityLabel: String
 
@@ -33,11 +36,18 @@ struct BitwardenTextField: View {
         /// Creates a new `AccessoryButton`.
         ///
         /// - Parameters:
+        ///   - accessibilityIdentifier: The accessibility identifier for the button.
         ///   - accessibilityLabel: The accessibility label for this button.
         ///   - action: The synchronous action that is executed when this button is tapped.
         ///   - icon: The icon to display in this button.
         ///
-        init(accessibilityLabel: String, action: @escaping () -> Void, icon: ImageAsset) {
+        init(
+            accessibilityIdentifier: String? = nil,
+            accessibilityLabel: String,
+            action: @escaping () -> Void,
+            icon: ImageAsset
+        ) {
+            self.accessibilityIdentifier = accessibilityIdentifier
             self.accessibilityLabel = accessibilityLabel
             self.action = .sync(action)
             self.icon = icon
@@ -46,11 +56,18 @@ struct BitwardenTextField: View {
         /// Creates a new `AccessoryButton`.
         ///
         /// - Parameters:
+        ///   - accessibilityIdentifier: The accessibility identifier for the button.
         ///   - accessibilityLabel: The accessibility label for this button.
         ///   - action: The asynchronous action that is executed when this button is tapped.
         ///   - icon: The icon to display in this button.
         ///
-        init(accessibilityLabel: String, action: @escaping () async -> Void, icon: ImageAsset) {
+        init(
+            accessibilityIdentifier: String? = nil,
+            accessibilityLabel: String,
+            action: @escaping () async -> Void,
+            icon: ImageAsset
+        ) {
+            self.accessibilityIdentifier = accessibilityIdentifier
             self.accessibilityLabel = accessibilityLabel
             self.action = .async(action)
             self.icon = icon
@@ -58,6 +75,9 @@ struct BitwardenTextField: View {
     }
 
     // MARK: Properties
+
+    /// The accessibility identifier for the text field.
+    let accessibilityIdentifier: String?
 
     /// A list of additional buttons that appear on the trailing edge of a textfield.
     let buttons: [AccessoryButton]
@@ -67,6 +87,9 @@ struct BitwardenTextField: View {
 
     /// Whether a password in this text field is visible.
     let isPasswordVisible: Binding<Bool>?
+
+    /// The accessibility identifier for the button to toggle password visibility.
+    let passwordVisibilityAccessibilityId: String?
 
     /// The placeholder that is displayed in the textfield.
     let placeholder: String
@@ -116,6 +139,7 @@ struct BitwardenTextField: View {
                         .id(title)
                 }
             }
+            .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
 
             Button {
                 text = ""
@@ -128,7 +152,7 @@ struct BitwardenTextField: View {
         .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -139,6 +163,7 @@ struct BitwardenTextField: View {
                 if let isPasswordVisible {
                     accessoryButton(
                         AccessoryButton(
+                            accessibilityIdentifier: passwordVisibilityAccessibilityId ?? "PasswordVisibilityToggle",
                             accessibilityLabel: isPasswordVisible.wrappedValue
                                 ? Localizations.passwordIsVisibleTapToHide
                                 : Localizations.passwordIsNotVisibleTapToShow,
@@ -174,24 +199,31 @@ struct BitwardenTextField: View {
     /// Initializes a new `BitwardenTextField`.
     ///
     /// - Parameters:
+    ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - title: The title of the text field.
     ///   - buttons: A list of additional buttons that appear on the trailing edge of a textfield.
     ///   - footer: The footer text displayed below the text field.
     ///   - isPasswordVisible: Whether or not the password in the text field is visible.
+    ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
+    ///     button to toggle password visibility.
     ///   - placeholder: An optional placeholder to display in the text field.
     ///   - text: The text entered into the text field.
     ///
     init(
+        accessibilityIdentifier: String? = nil,
         title: String? = nil,
         buttons: [AccessoryButton] = [],
         footer: String? = nil,
         isPasswordVisible: Binding<Bool>? = nil,
+        passwordVisibilityAccessibilityId: String? = nil,
         placeholder: String? = nil,
         text: Binding<String>
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.buttons = buttons
         self.footer = footer
         self.isPasswordVisible = isPasswordVisible
+        self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.placeholder = placeholder ?? ""
         _text = text
         self.title = title
@@ -212,10 +244,12 @@ struct BitwardenTextField: View {
         switch button.action {
         case let .async(action):
             AsyncButton(role: nil, action: action, label: { label })
+                .accessibilityIdentifier(button.accessibilityIdentifier ?? "")
                 .accessibilityLabel(button.accessibilityLabel)
                 .buttonStyle(.accessory)
         case let .sync(action):
             Button(action: action, label: { label })
+                .accessibilityIdentifier(button.accessibilityIdentifier ?? "")
                 .accessibilityLabel(button.accessibilityLabel)
                 .buttonStyle(.accessory)
         }

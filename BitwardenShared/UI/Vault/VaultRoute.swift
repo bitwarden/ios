@@ -5,7 +5,9 @@ import Foundation
 /// A route to a specific screen in the vault tab.
 public enum VaultRoute: Equatable, Hashable {
     /// A route to the add item screen.
-    case addItem
+    ///
+    /// - Parameter group: An optional `VaultListGroup` that the user wants to add an item for.
+    case addItem(group: VaultListGroup? = nil)
 
     /// A route to display the specified alert.
     ///
@@ -17,6 +19,9 @@ public enum VaultRoute: Equatable, Hashable {
 
     /// A route to the username/password generator screen.
     case generator
+
+    /// A route to the vault item list screen for the specified group.
+    case group(_ group: VaultListGroup)
 
     /// A route to the vault list screen.
     case list

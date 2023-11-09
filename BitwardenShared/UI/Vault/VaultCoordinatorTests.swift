@@ -34,7 +34,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.addItem` pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem() throws {
-        subject.navigate(to: .addItem)
+        subject.navigate(to: .addItem())
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)

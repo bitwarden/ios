@@ -88,7 +88,7 @@ class VaultListProcessorTests: BitwardenTestCase {
     func test_receive_addItemPressed() {
         subject.receive(.addItemPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .addItem)
+        XCTAssertEqual(coordinator.routes.last, .addItem())
     }
 
     /// `receive(_:)` with `.addItemPressed` hides the profile switcher view

@@ -65,6 +65,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             }
         case let .toggleValueChanged(field, isOn):
             state[keyPath: field.keyPath] = isOn
+        case let .usernameGeneratorTypeChanged(usernameGeneratorType):
+            state.usernameState.usernameGeneratorType = usernameGeneratorType
         }
 
         if action.shouldGenerateNewValue {
@@ -117,7 +119,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 await generatePassword()
             }
         case .username:
-            break
+            // TODO: BIT-1003 Generate usernames
+            state.generatedValue = "-"
         }
     }
 }
