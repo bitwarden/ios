@@ -96,7 +96,7 @@ private struct VaultMainView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                         }
                     }
                 }
@@ -183,7 +183,7 @@ private struct VaultMainView: View {
                     }
                 }
             }
-            .background(Asset.Colors.backgroundGroupedElevatedSecondary.swiftUIColor)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
