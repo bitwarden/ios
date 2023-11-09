@@ -29,7 +29,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 if let accessoryContent {
