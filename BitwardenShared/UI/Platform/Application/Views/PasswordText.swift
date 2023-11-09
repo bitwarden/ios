@@ -33,7 +33,8 @@ struct PasswordText: View {
     /// - Parameter value: The value to color code.
     /// - Returns: A color-coded `Text` view containing the provided string.
     ///
-    @ViewBuilder private func colorCodedText(for value: String) -> Text {
+    @ViewBuilder
+    private func colorCodedText(for value: String) -> Text {
         password.reduce(Text("")) { text, character in
             let foregroundColor: Color = {
                 if character.isNumber {
