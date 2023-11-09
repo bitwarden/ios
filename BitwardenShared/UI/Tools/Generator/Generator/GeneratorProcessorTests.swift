@@ -166,6 +166,13 @@ class GeneratorProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .passphrase)
     }
 
+    /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.
+    func test_receive_showPasswordHistory() {
+        subject.receive(.showPasswordHistory)
+
+        XCTAssertEqual(coordinator.routes.last, .generatorHistory)
+    }
+
     /// `receive(_:)` with `.sliderValueChanged` updates the state's value for the slider field.
     func test_receive_sliderValueChanged() {
         let field = SliderField<GeneratorState>(

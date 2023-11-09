@@ -60,6 +60,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .refreshGeneratedValue:
             // Generating a new value happens below.
             break
+        case .showPasswordHistory:
+            coordinator.navigate(to: .generatorHistory)
         case let .sliderValueChanged(field, value):
             state[keyPath: field.keyPath] = value
         case let .stepperValueChanged(field, value):
