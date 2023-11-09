@@ -117,7 +117,7 @@ class ViewItemViewTests: BitwardenTestCase {
             name: "Example",
             notes: "This is a long note so that it goes to the next line!",
             password: "Password1234!",
-            updatedDate: Date(),
+            updatedDate: Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41),
             uris: [
                 .init(
                     uri: "https://www.example.com",
