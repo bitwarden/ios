@@ -48,10 +48,13 @@ struct VaultListItemRowView: View {
                             Text(cipherItem.name)
                                 .font(.styleGuide(.body))
                                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                                .lineLimit(1)
+
                             if let subTitle = cipherItem.subTitle.nilIfEmpty {
                                 Text(subTitle)
                                     .font(.styleGuide(.subheadline))
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                    .lineLimit(1)
                             }
                         }
                         .accessibilityElement(children: .combine)
