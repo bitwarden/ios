@@ -38,14 +38,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showAddItem()
         case let .alert(alert):
             stackNavigator.present(alert)
+        case .dismiss:
+            stackNavigator.dismiss()
         case .generator:
             showGenerator()
         case .list:
             showList()
         case .setupTotpCamera:
             showCamera()
-        case .viewItem:
-            showViewItem()
+        case let .viewItem(id):
+            showViewItem(id: id)
         }
     }
 
@@ -102,9 +104,21 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     }
 
     /// Shows the view item screen.
-    private func showViewItem() {
-        // TODO: BIT-219 Present the actual view item screen
-        let view = Text("View Item")
-        stackNavigator.present(view)
+    ///
+    /// - Parameter id: The id of the item to show.
+    ///
+    private func showViewItem(id: String) {
+        let processor = ViewItemProcessor(
+            coordinator: self,
+            itemId: id,
+            state: ViewItemState(
+                typeState: .loading
+            )
+        )
+        let store = Store(processor: processor)
+        let view = ViewItemView(store: store)
+        let stackNavigator = UINavigationController()
+        stackNavigator.replace(view)
+        self.stackNavigator.present(stackNavigator)
     }
 }

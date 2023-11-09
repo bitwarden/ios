@@ -91,11 +91,13 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
     func test_navigateTo_viewItem() throws {
-        subject.navigate(to: .viewItem)
+        subject.navigate(to: .viewItem(id: "id"))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
+
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ViewItemView>)
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.

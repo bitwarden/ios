@@ -64,8 +64,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .addItemPressed:
             state.profileSwitcherState.isVisible = false
             coordinator.navigate(to: .addItem)
-        case .itemPressed:
-            coordinator.navigate(to: .viewItem)
+        case let .itemPressed(vaultListItem):
+            coordinator.navigate(to: .viewItem(id: vaultListItem.id))
         case .morePressed:
             // TODO: BIT-375 Show item actions
             break
