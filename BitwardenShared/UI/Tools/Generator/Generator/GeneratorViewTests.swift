@@ -175,6 +175,16 @@ class GeneratorViewTests: BitwardenTestCase {
         )
     }
 
+    /// Test a snapshot of the forwarded email alias generation view.
+    func test_snapshot_generatorViewUsernameForwarded() {
+        processor.state.generatorType = .username
+        processor.state.usernameState.usernameGeneratorType = .forwardedEmail
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
+    }
+
     /// Test a snapshot of the plus addressed username generation view.
     func test_snapshot_generatorViewUsernamePlusAddressed() {
         processor.state.generatorType = .username
