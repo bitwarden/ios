@@ -7,7 +7,7 @@ struct GeneratorHistoryView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<GeneratorHistoryState, GeneratorHistoryAction, Void>
+    @ObservedObject var store: Store<GeneratorHistoryState, GeneratorHistoryAction, GeneratorHistoryEffect>
 
     var body: some View {
         Group {
@@ -22,8 +22,8 @@ struct GeneratorHistoryView: View {
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Menu {
-                    Button {
-                        store.send(.clearList)
+                    AsyncButton {
+                        await store.perform(.clearList)
                     } label: {
                         Text(Localizations.clear)
                     }
@@ -39,6 +39,7 @@ struct GeneratorHistoryView: View {
                 }
             }
         }
+        .task { await store.perform(.appeared) }
     }
 
     /// Returns a view for the empty state when no password history items exist.

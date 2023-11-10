@@ -3,7 +3,11 @@ import OSLog
 
 /// The processor used to manage state and handle actions for the generator history screen.
 ///
-final class GeneratorHistoryProcessor: StateProcessor<GeneratorHistoryState, GeneratorHistoryAction, Void> {
+final class GeneratorHistoryProcessor: StateProcessor<
+    GeneratorHistoryState,
+    GeneratorHistoryAction,
+    GeneratorHistoryEffect
+> {
     // MARK: Types
 
     typealias Services = HasGeneratorRepository
@@ -37,11 +41,19 @@ final class GeneratorHistoryProcessor: StateProcessor<GeneratorHistoryState, Gen
 
     // MARK: Methods
 
+    override func perform(_ effect: GeneratorHistoryEffect) async {
+        switch effect {
+        case .appeared:
+            for await passwordHistory in services.generatorRepository.passwordHistoryPublisher() {
+                state.passwordHistory = passwordHistory
+            }
+        case .clearList:
+            await services.generatorRepository.clearPasswordHistory()
+        }
+    }
+
     override func receive(_ action: GeneratorHistoryAction) {
         switch action {
-        case .clearList:
-            // TODO: BIT-419 Clear password history list
-            break
         case .copyPassword:
             // TODO: BIT-1005 Copy password
             break

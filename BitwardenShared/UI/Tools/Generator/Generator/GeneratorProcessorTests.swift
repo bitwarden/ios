@@ -303,13 +303,13 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new passphrase.
-    func test_receive_refreshGeneratedValue_passphrase() {
+    func test_receive_refreshGeneratedValue_passphrase() throws {
         subject.state.generatorType = .password
         subject.state.passwordState.passwordGeneratorType = .passphrase
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { !subject.state.generatedValue.isEmpty }
+        waitFor { !generatorRepository.passwordHistorySubject.value.isEmpty }
 
         XCTAssertEqual(
             generatorRepository.passphraseGeneratorRequest,
@@ -320,16 +320,21 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 includeNumber: false
             )
         )
+
         XCTAssertEqual(subject.state.generatedValue, "PASSPHRASE")
+        XCTAssertEqual(generatorRepository.passwordHistorySubject.value.count, 1)
+        let passwordHistory = try XCTUnwrap(generatorRepository.passwordHistorySubject.value.first)
+        XCTAssertEqual(passwordHistory.password, "PASSPHRASE")
+        XCTAssertEqual(passwordHistory.lastUsedDate.timeIntervalSince1970, Date().timeIntervalSince1970, accuracy: 0.1)
     }
 
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new password.
-    func test_receive_refreshGeneratedValue_password() {
+    func test_receive_refreshGeneratedValue_password() throws {
         subject.state.generatorType = .password
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { !subject.state.generatedValue.isEmpty }
+        waitFor { !generatorRepository.passwordHistorySubject.value.isEmpty }
 
         XCTAssertEqual(
             generatorRepository.passwordGeneratorRequest,
@@ -346,7 +351,12 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 minSpecial: nil
             )
         )
+
         XCTAssertEqual(subject.state.generatedValue, "PASSWORD")
+        XCTAssertEqual(generatorRepository.passwordHistorySubject.value.count, 1)
+        let passwordHistory = try XCTUnwrap(generatorRepository.passwordHistorySubject.value.first)
+        XCTAssertEqual(passwordHistory.password, "PASSWORD")
+        XCTAssertEqual(passwordHistory.lastUsedDate.timeIntervalSince1970, Date().timeIntervalSince1970, accuracy: 0.1)
     }
 
     /// `receive(_:)` with `.selectButtonPressed` navigates to the `.complete` route.
@@ -369,6 +379,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual(generatorRepository.usernamePlusAddressEmail, "user@bitwarden.com")
         XCTAssertEqual(subject.state.generatedValue, "user+abcd0123@bitwarden.com")
+        XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.

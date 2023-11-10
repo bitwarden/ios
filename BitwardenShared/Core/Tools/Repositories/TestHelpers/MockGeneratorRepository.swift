@@ -1,8 +1,13 @@
 import BitwardenSdk
+import Combine
 
 @testable import BitwardenShared
 
 class MockGeneratorRepository: GeneratorRepository {
+    var addPasswordHistoryCalled = false
+    var clearPasswordHistoryCalled = false
+    var passwordHistorySubject = CurrentValueSubject<[PasswordHistoryView], Never>([])
+
     var passphraseGeneratorRequest: PassphraseGeneratorRequest?
     var passphraseResult: Result<String, Error> = .success("PASSPHRASE")
 
@@ -23,6 +28,24 @@ class MockGeneratorRepository: GeneratorRepository {
 
     var usernamePlusAddressEmail: String?
     var usernamePlusAddressEmailResult: Result<String, Error> = .success("user+abcd0123@bitwarden.com")
+
+    // MARK: Password History
+
+    func addPasswordHistory(_ passwordHistory: PasswordHistoryView) async throws {
+        addPasswordHistoryCalled = true
+        passwordHistorySubject.value.insert(passwordHistory, at: 0)
+    }
+
+    func clearPasswordHistory() async {
+        clearPasswordHistoryCalled = true
+        passwordHistorySubject.value.removeAll()
+    }
+
+    func passwordHistoryPublisher() -> AsyncPublisher<AnyPublisher<[PasswordHistoryView], Never>> {
+        passwordHistorySubject.eraseToAnyPublisher().values
+    }
+
+    // MARK: Generator
 
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
         passphraseGeneratorRequest = settings
