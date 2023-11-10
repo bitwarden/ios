@@ -98,6 +98,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.passwordState.passwordGeneratorType = .passphrase
         let field = FormTextField<GeneratorState>(
             autocapitalization: .never,
+            isAutocorrectDisabled: true,
             keyPath: \.passwordState.wordSeparator,
             title: Localizations.wordSeparator,
             value: "-"
@@ -137,6 +138,16 @@ class GeneratorViewTests: BitwardenTestCase {
     /// Test a snapshot of the password generation view.
     func test_snapshot_generatorViewPassword() {
         processor.state.passwordState.passwordGeneratorType = .password
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
+    }
+
+    /// Test a snapshot of the catch-all username generation view.
+    func test_snapshot_generatorViewUsernameCatchAll() {
+        processor.state.generatorType = .username
+        processor.state.usernameState.usernameGeneratorType = .catchAllEmail
         assertSnapshot(
             matching: subject,
             as: .defaultPortrait

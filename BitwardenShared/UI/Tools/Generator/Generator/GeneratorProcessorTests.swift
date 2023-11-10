@@ -146,7 +146,6 @@ class GeneratorProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.textValueChanged` updates the state's value for the text field.
     func test_receive_textValueChanged() {
         let field = FormTextField<GeneratorState>(
-            autocapitalization: .never,
             keyPath: \.passwordState.wordSeparator,
             title: Localizations.wordSeparator,
             value: "-"
@@ -162,7 +161,6 @@ class GeneratorProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.textValueChanged` for the word separator limits the value to one character.
     func test_receive_textValueChanged_wordSeparatorLimitedToOneCharacter() {
         let field = FormTextField<GeneratorState>(
-            autocapitalization: .never,
             keyPath: \.passwordState.wordSeparator,
             title: Localizations.wordSeparator,
             value: "-"

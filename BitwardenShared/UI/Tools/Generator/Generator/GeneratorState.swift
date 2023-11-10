@@ -56,7 +56,6 @@ struct GeneratorState: Equatable {
                         title: Localizations.numberOfWords
                     ),
                     textField(
-                        autocapitalization: .never,
                         keyPath: \.passwordState.wordSeparator,
                         title: Localizations.wordSeparator
                     ),
@@ -108,7 +107,7 @@ struct GeneratorState: Equatable {
         case .username:
             optionFields = [
                 FormField(fieldType: .menuUsernameGeneratorType(FormMenuField(
-                    footer: Localizations.plusAddressedEmailDescription,
+                    footer: usernameState.usernameGeneratorType.localizedDescription,
                     keyPath: \.usernameState.usernameGeneratorType,
                     options: UsernameState.UsernameGeneratorType.allCases,
                     selection: usernameState.usernameGeneratorType,
@@ -118,13 +117,22 @@ struct GeneratorState: Equatable {
 
             switch usernameState.usernameGeneratorType {
             case .catchAllEmail:
-                break
+                optionFields.append(contentsOf: [
+                    textField(
+                        keyboardType: .URL,
+                        keyPath: \.usernameState.domain,
+                        textContentType: .URL,
+                        title: Localizations.domainNameRequiredParenthesis
+                    ),
+                ])
             case .forwardedEmail:
                 break
             case .plusAddressedEmail:
                 optionFields.append(contentsOf: [
                     textField(
+                        keyboardType: .emailAddress,
                         keyPath: \.usernameState.email,
+                        textContentType: .emailAddress,
                         title: Localizations.emailRequiredParenthesis
                     ),
                 ])
