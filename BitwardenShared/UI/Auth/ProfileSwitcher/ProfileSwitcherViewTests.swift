@@ -99,8 +99,9 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
 
     /// Tapping the background triggers a `.backgroundPressed` action.
     func test_background_tap() throws {
-        let background = try subject.inspect().zStack().color(0)
-        try background.callOnTapGesture()
+        let view = try subject.inspect().view(ProfileSwitcherView.self)
+        let background = view.first
+        try background?.callOnTapGesture()
 
         XCTAssertEqual(processor.dispatchedActions.last, .backgroundPressed)
     }
