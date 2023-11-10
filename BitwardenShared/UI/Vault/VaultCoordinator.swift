@@ -96,12 +96,24 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     private func showGroup(_ group: VaultListGroup) {
         let processor = VaultGroupProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: VaultGroupState(group: group)
         )
         let store = Store(processor: processor)
         let view = VaultGroupView(store: store)
         let viewController = UIHostingController(rootView: view)
+
+        // Preset some navigation item values so that the navigation bar does not flash oddly once
+        // the view's push animation has completed.
         viewController.navigationItem.largeTitleDisplayMode = .never
+        viewController.navigationItem.title = group.navigationTitle
+        let searchController = UISearchController()
+        if #available(iOS 16.0, *) {
+            viewController.navigationItem.preferredSearchBarPlacement = .stacked
+        }
+        viewController.navigationItem.searchController = searchController
+        viewController.navigationItem.hidesSearchBarWhenScrolling = false
+
         stackNavigator.push(viewController)
     }
 
