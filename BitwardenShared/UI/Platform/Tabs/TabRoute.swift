@@ -23,10 +23,10 @@ public enum TabRoute: Equatable, Hashable {
 extension TabRoute: TabRepresentable {
     public var image: UIImage? {
         switch self {
-        case .generator: return Asset.Images.restart.image
-        case .send: return Asset.Images.send.image
-        case .settings: return Asset.Images.gear.image
-        case .vault: return Asset.Images.locked.image
+        case .generator: return Asset.Images.restartFilled.image
+        case .send: return Asset.Images.sendFilled.image
+        case .settings: return Asset.Images.gearFilled.image
+        case .vault: return Asset.Images.lockedFilled.image
         }
     }
 

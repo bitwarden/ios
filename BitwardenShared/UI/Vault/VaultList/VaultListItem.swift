@@ -54,7 +54,7 @@ extension VaultListItem {
             case .card:
                 return Asset.Images.creditCard
             case .folder:
-                return Asset.Images.folder
+                return Asset.Images.folderClosed
             case .identity:
                 return Asset.Images.id
             case .login:
