@@ -37,8 +37,17 @@ struct FormTextField<State>: Equatable, Identifiable {
     /// The behavior for when the input should be automatically capitalized.
     let autocapitalization: Autocapitalization
 
+    /// Whether autocorrect is disabled in the text field.
+    let isAutocorrectDisabled: Bool
+
+    /// The type of keyboard to display.
+    let keyboardType: UIKeyboardType
+
     /// A key path for updating the backing value for the text field.
     let keyPath: WritableKeyPath<State, String>
+
+    /// The expected type of content input in the text field.
+    let textContentType: UITextContentType?
 
     /// The title of the field.
     let title: String
@@ -50,6 +59,38 @@ struct FormTextField<State>: Equatable, Identifiable {
 
     var id: String {
         "FormTextField-\(title)"
+    }
+
+    // MARK: Initialization
+
+    /// Initialize a `FormTextField`.
+    ///
+    /// - Parameters:
+    ///   - autocapitalization: The behavior for when the input should be automatically capitalized.
+    ///     Defaults to `.sentences`.
+    ///   - isAutocorrectDisabled: Whether autocorrect is disabled in the text field. Defaults to
+    ///     `false`.
+    ///   - keyboardType: The type of keyboard to display.
+    ///   - keyPath: A key path for updating the backing value for the text field.
+    ///   - textContentType: The expected type of content input in the text field. Defaults to `nil`.
+    ///   - title: The title of the field.
+    ///   - value: The current text value.
+    init(
+        autocapitalization: Autocapitalization = .sentences,
+        isAutocorrectDisabled: Bool = false,
+        keyboardType: UIKeyboardType = .default,
+        keyPath: WritableKeyPath<State, String>,
+        textContentType: UITextContentType? = nil,
+        title: String,
+        value: String
+    ) {
+        self.autocapitalization = autocapitalization
+        self.isAutocorrectDisabled = isAutocorrectDisabled
+        self.keyboardType = keyboardType
+        self.keyPath = keyPath
+        self.textContentType = textContentType
+        self.title = title
+        self.value = value
     }
 }
 
@@ -71,6 +112,9 @@ struct FormTextFieldView<State>: View {
             title: field.title,
             text: Binding(get: { field.value }, set: action)
         )
+        .autocorrectionDisabled(field.isAutocorrectDisabled)
+        .keyboardType(field.keyboardType)
+        .textContentType(field.textContentType)
         .textInputAutocapitalization(field.autocapitalization.textInputAutocapitalization)
     }
 

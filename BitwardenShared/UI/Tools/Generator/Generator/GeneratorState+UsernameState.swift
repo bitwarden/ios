@@ -34,6 +34,20 @@ extension GeneratorState {
                     return Localizations.randomWord
                 }
             }
+
+            /// A localized description of the field, used as the footer text below the menu value in the UI.
+            var localizedDescription: String? {
+                switch self {
+                case .catchAllEmail:
+                    return Localizations.catchAllEmailDescription
+                case .forwardedEmail:
+                    return Localizations.forwardedEmailDescription
+                case .plusAddressedEmail:
+                    return Localizations.plusAddressedEmailDescription
+                case .randomWord:
+                    return nil
+                }
+            }
         }
 
         // MARK: Properties
@@ -45,5 +59,10 @@ extension GeneratorState {
 
         /// The user's email for generating plus addressed emails.
         var email: String = ""
+
+        // MARK: Catch All Email Properties
+
+        /// The user's domain for generating catch all emails.
+        var domain: String = ""
     }
 }
