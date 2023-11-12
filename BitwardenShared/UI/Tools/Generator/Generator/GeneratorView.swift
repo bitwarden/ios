@@ -17,6 +17,13 @@ struct GeneratorView: View {
                 ForEach(store.state.formSections) { section in
                     sectionView(section)
                 }
+
+                if store.state.isSelectButtonVisible {
+                    Button(Localizations.select) {
+                        store.send(.selectButtonPressed)
+                    }
+                    .buttonStyle(.primary())
+                }
             }
             .padding(16)
         }
@@ -24,6 +31,20 @@ struct GeneratorView: View {
         .navigationBarTitleDisplayMode(.large)
         .navigationTitle(Localizations.generator)
         .onAppear { store.send(.appeared) }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if store.state.isDismissButtonVisible {
+                    Button {
+                        store.send(.dismissPressed)
+                    } label: {
+                        Asset.Images.cancel.swiftUIImage
+                            .resizable()
+                            .frame(width: 19, height: 19)
+                    }
+                    .accessibilityLabel(Localizations.cancel)
+                }
+            }
+        }
     }
 
     /// Returns a view for displaying a section of items in the form.

@@ -8,6 +8,7 @@ import XCTest
 class VaultCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultCoordinator!
 
@@ -16,8 +17,10 @@ class VaultCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        module = MockAppModule()
         stackNavigator = MockStackNavigator()
         subject = VaultCoordinator(
+            module: module,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
@@ -61,13 +64,61 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.alerts.last, alert)
     }
 
-    /// `navigate(to:)` with `.generator` presents the generator screen.
-    func test_navigateTo_generator() throws {
-        subject.navigate(to: .generator)
+    /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
+    /// navigator.
+    func test_navigate_dismiss() throws {
+        subject.navigate(to: .dismiss)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissed)
+        XCTAssertEqual(action.dismissAll, false)
+    }
+
+    /// `navigate(to:)` with `.generator`, `.password`, and a delegate presents the generator
+    /// screen.
+    func test_navigateTo_generator_withPassword_withDelegate() throws {
+        let generatorCoordinator = MockCoordinator<GeneratorRoute>()
+        let delegate = MockGeneratorCoordinatorDelegate()
+        module.generatorCoordinator = generatorCoordinator
+        subject.navigate(to: .generator(.password), context: delegate)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(generatorCoordinator.isStarted)
+        XCTAssertEqual(generatorCoordinator.routes.last, .generator(staticType: .password))
+    }
+
+    /// `navigate(to:)` with `.generator`, `.password`, and without a delegate does not present the
+    /// generator screen.
+    func test_navigateTo_generator_withPassword_withoutDelegate() throws {
+        subject.navigate(to: .generator(.password), context: nil)
+
+        XCTAssertNil(stackNavigator.actions.last)
+    }
+
+    /// `navigate(to:)` with `.generator`, `.username`, and a delegate presents the generator
+    /// screen.
+    func test_navigateTo_generator_withUsername_withDelegate() throws {
+        let generatorCoordinator = MockCoordinator<GeneratorRoute>()
+        let delegate = MockGeneratorCoordinatorDelegate()
+        module.generatorCoordinator = generatorCoordinator
+        subject.navigate(to: .generator(.username), context: delegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(generatorCoordinator.isStarted)
+        XCTAssertEqual(generatorCoordinator.routes.last, .generator(staticType: .username))
+    }
+
+    /// `navigate(to:)` with `.generator`, `.username`, and without a delegate does not present the
+    /// generator screen.
+    func test_navigateTo_generator_withUsername_withoutDelegate() throws {
+        subject.navigate(to: .generator(.username), context: nil)
+
+        XCTAssertNil(stackNavigator.actions.last)
     }
 
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.

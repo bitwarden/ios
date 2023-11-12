@@ -14,8 +14,13 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameter alert: The alert to display.
     case alert(_ alert: Alert)
 
+    /// A route to dismiss the last presented view.
+    case dismiss
+
     /// A route to the username/password generator screen.
-    case generator
+    ///
+    /// - Parameter type: The type to generate.
+    case generator(_ type: GeneratorType)
 
     /// A route to the vault item list screen for the specified group.
     case group(_ group: VaultListGroup)

@@ -26,6 +26,7 @@ class MockAppModule: AppModule, AuthModule, GeneratorModule, TabModule, SendModu
     }
 
     func makeGeneratorCoordinator(
+        delegate: GeneratorCoordinatorDelegate?,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<GeneratorRoute> {
         generatorCoordinator.asAnyCoordinator()

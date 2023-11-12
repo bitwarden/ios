@@ -42,7 +42,7 @@ class TabCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.generator` sets the correct selected index on tab navigator.
     func test_navigate_generator() {
-        subject.navigate(to: .generator(.generator))
+        subject.navigate(to: .generator(.generator()))
         XCTAssertEqual(tabNavigator.selectedIndex, 2)
     }
 

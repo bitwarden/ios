@@ -7,9 +7,15 @@ import SwiftUI
 final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
+    typealias Module = GeneratorModule
+
     typealias Services = HasVaultRepository
+        & GeneratorCoordinator.Services
 
     // MARK: - Private Properties
+
+    /// The module used by this coordinator to create child coordinators.
+    private let module: Module
 
     /// The services used by this coordinator.
     private let services: Services
@@ -22,10 +28,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     /// Creates a new `VaultCoordinator`.
     ///
     /// - Parameters:
+    ///   - module: The module used by this coordinator to create child coordinators.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
-    init(services: Services, stackNavigator: StackNavigator) {
+    init(
+        module: Module,
+        services: Services,
+        stackNavigator: StackNavigator
+    ) {
+        self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
     }
@@ -38,8 +50,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showAddItem(for: group.flatMap(CipherType.init))
         case let .alert(alert):
             stackNavigator.present(alert)
-        case .generator:
-            showGenerator()
+        case .dismiss:
+            stackNavigator.dismiss(all: false)
+        case let .generator(type):
+            guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
+            showGenerator(for: type, delegate: delegate)
         case let .group(group):
             showGroup(group)
         case .list:
@@ -83,12 +98,21 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.present(view)
     }
 
-    /// Shows the generator screen.
+    /// Shows the generator screen for the the specified type.
     ///
-    private func showGenerator() {
-        // TODO: BIT-875 Update to show the actual generator screen
-        let view = Text("Generator")
-        stackNavigator.present(view)
+    /// - Parameters:
+    ///   - type: The type to generate.
+    ///   - delegate: The delegate for this generator flow.
+    ///
+    private func showGenerator(for type: GeneratorType, delegate: GeneratorCoordinatorDelegate) {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeGeneratorCoordinator(
+            delegate: delegate,
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        coordinator.navigate(to: .generator(staticType: type))
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the vault group screen.

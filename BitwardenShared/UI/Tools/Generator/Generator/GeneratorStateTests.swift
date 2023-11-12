@@ -4,6 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable:next type_body_length
 class GeneratorStateTests: XCTestCase {
     // MARK: Tests
 
@@ -19,6 +20,28 @@ class GeneratorStateTests: XCTestCase {
               Menu: What would you like to generate?
                 Selection: Password
                 Options: Password, Username
+            Section: Options
+              Menu: Password type
+                Selection: Passphrase
+                Options: Password, Passphrase
+              Stepper: Number of words Value: 3 Range: 3...20
+              Text: Word separator Value: -
+              Toggle: Capitalize Value: false
+              Toggle: Include number Value: false
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a passphrase.
+    func test_formSections_passphrase_withoutTypeField() {
+        var subject = GeneratorState()
+        subject.passwordState.passwordGeneratorType = .passphrase
+        subject.isTypeFieldVisible = false
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
             Section: Options
               Menu: Password type
                 Selection: Passphrase
@@ -59,6 +82,32 @@ class GeneratorStateTests: XCTestCase {
         }
     }
 
+    /// `formSections` returns the sections and fields for generating a password.
+    func test_formSections_password_withoutTypeField() {
+        var subject = GeneratorState()
+        subject.passwordState.passwordGeneratorType = .password
+        subject.isTypeFieldVisible = false
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+            Section: Options
+              Menu: Password type
+                Selection: Password
+                Options: Password, Passphrase
+              Slider: Length Value: 14.0 Range: 5.0...128.0 Step: 1.0
+              Toggle: A-Z Value: true
+              Toggle: a-z Value: true
+              Toggle: 0-9 Value: true
+              Toggle: !@#$%^&* Value: false
+              Stepper: Minimum numbers Value: 1 Range: 0...5
+              Stepper: Minimum special Value: 1 Range: 0...5
+              Toggle: Avoid ambiguous characters Value: false
+            """
+        }
+    }
+
     /// `formSections` returns the sections and fields for generating a catch-all email username.
     func test_formSections_username_catchAllEmail() {
         var subject = GeneratorState()
@@ -82,6 +131,27 @@ class GeneratorStateTests: XCTestCase {
         }
     }
 
+    /// `formSections` returns the sections and fields for generating a catch-all email username.
+    func test_formSections_username_catchAllEmail_withoutTypeField() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .catchAllEmail
+        subject.isTypeFieldVisible = false
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+            Section: Options
+              Menu: Username type
+                Selection: Catch-all email
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Use your domain's configured catch-all inbox.
+              Text: Domain name (required) Value: (empty)
+            """
+        }
+    }
+
     /// `formSections` returns the sections and fields for generating a plus-address email username.
     func test_formSections_username_plusAddressedEmail() {
         var subject = GeneratorState()
@@ -95,6 +165,27 @@ class GeneratorStateTests: XCTestCase {
               Menu: What would you like to generate?
                 Selection: Username
                 Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Plus addressed email
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Use your email provider's subaddress capabilities
+              Text: Email (required) Value: (empty)
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a plus-address email username.
+    func test_formSections_username_plusAddressedEmail_withoutTypeField() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .plusAddressedEmail
+        subject.isTypeFieldVisible = false
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
             Section: Options
               Menu: Username type
                 Selection: Plus addressed email

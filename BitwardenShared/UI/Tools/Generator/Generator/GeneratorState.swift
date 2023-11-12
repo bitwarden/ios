@@ -1,30 +1,32 @@
+// MARK: - GeneratorType
+
+/// The type of value to generate.
+///
+public enum GeneratorType: CaseIterable, Equatable, Menuable {
+    /// Generate a password or passphrase.
+    case password
+
+    /// Generate a username.
+    case username
+
+    /// All of the cases to show in the menu.
+    public static let allCases: [Self] = [.password, .username]
+
+    var localizedName: String {
+        switch self {
+        case .password:
+            return Localizations.password
+        case .username:
+            return Localizations.username
+        }
+    }
+}
+
+// MARK: - GeneratorState
+
 /// An object that defines the current state of a `GeneratorView`.
 ///
 struct GeneratorState: Equatable {
-    // MARK: Types
-
-    /// The type of value to generate.
-    ///
-    enum GeneratorType: CaseIterable, Equatable, Menuable {
-        /// Generate a password or passphrase.
-        case password
-
-        /// Generate a username.
-        case username
-
-        /// All of the cases to show in the menu.
-        static let allCases: [Self] = [.password, .username]
-
-        var localizedName: String {
-            switch self {
-            case .password:
-                return Localizations.password
-            case .username:
-                return Localizations.username
-            }
-        }
-    }
-
     // MARK: Properties
 
     /// The type of value to generate.
@@ -32,6 +34,15 @@ struct GeneratorState: Equatable {
 
     /// The generated value (password, passphrase or username).
     var generatedValue: String = ""
+
+    /// A flag indicating if the dismiss button is visible.
+    var isDismissButtonVisible = false
+
+    /// A flag indicating if the select button is visible.
+    var isSelectButtonVisible = false
+
+    /// A flag indicating if the generator type field is visible.
+    var isTypeFieldVisible = true
 
     /// The options used to generate a password.
     var passwordState = PasswordState()
@@ -141,17 +152,26 @@ struct GeneratorState: Equatable {
             }
         }
 
+        let generatorFields: [FormField<Self>]
+        if isTypeFieldVisible {
+            generatorFields = [
+                generatedValueField(keyPath: \.generatedValue),
+                FormField(fieldType: .menuGeneratorType(FormMenuField(
+                    keyPath: \.generatorType,
+                    options: GeneratorType.allCases,
+                    selection: generatorType,
+                    title: Localizations.whatWouldYouLikeToGenerate
+                ))),
+            ]
+        } else {
+            generatorFields = [
+                generatedValueField(keyPath: \.generatedValue),
+            ]
+        }
+
         return [
             FormSection(
-                fields: [
-                    generatedValueField(keyPath: \.generatedValue),
-                    FormField(fieldType: .menuGeneratorType(FormMenuField(
-                        keyPath: \.generatorType,
-                        options: GeneratorType.allCases,
-                        selection: generatorType,
-                        title: Localizations.whatWouldYouLikeToGenerate
-                    ))),
-                ],
+                fields: generatorFields,
                 id: "Generator",
                 title: nil
             ),

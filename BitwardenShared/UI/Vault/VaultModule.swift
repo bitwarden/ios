@@ -20,6 +20,7 @@ extension DefaultAppModule: VaultModule {
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<VaultRoute> {
         VaultCoordinator(
+            module: self,
             services: services,
             stackNavigator: stackNavigator
         ).asAnyCoordinator()

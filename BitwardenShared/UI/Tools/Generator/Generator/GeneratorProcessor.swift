@@ -46,6 +46,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             break
         case .copyGeneratedValue:
             break
+        case .dismissPressed:
+            coordinator.navigate(to: .cancel)
         case let .generatorTypeChanged(generatorType):
             state.generatorType = generatorType
         case let .passwordGeneratorTypeChanged(passwordGeneratorType):
@@ -53,6 +55,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .refreshGeneratedValue:
             // Generating a new value happens below.
             break
+        case .selectButtonPressed:
+            coordinator.navigate(
+                to: .complete(
+                    type: state.generatorType,
+                    value: state.generatedValue
+                )
+            )
         case let .sliderValueChanged(field, value):
             state[keyPath: field.keyPath] = value
         case let .stepperValueChanged(field, value):

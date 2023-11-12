@@ -7,14 +7,20 @@ enum GeneratorAction: Equatable {
     /// The copy generated value button was pressed.
     case copyGeneratedValue
 
+    /// The dismiss button was pressed
+    case dismissPressed
+
     /// The generator type was changed.
-    case generatorTypeChanged(GeneratorState.GeneratorType)
+    case generatorTypeChanged(GeneratorType)
 
     /// The password generator type was changed.
     case passwordGeneratorTypeChanged(GeneratorState.PasswordState.PasswordGeneratorType)
 
     /// The refresh generated value button was pressed.
     case refreshGeneratedValue
+
+    /// The select button was pressed.
+    case selectButtonPressed
 
     /// A slider field value was changed.
     case sliderValueChanged(field: SliderField<GeneratorState>, value: Double)
@@ -48,7 +54,9 @@ extension GeneratorAction {
              .toggleValueChanged,
              .usernameGeneratorTypeChanged:
             return true
-        case .copyGeneratedValue:
+        case .copyGeneratedValue,
+             .dismissPressed,
+             .selectButtonPressed:
             return false
         }
     }
