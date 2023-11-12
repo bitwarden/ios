@@ -38,7 +38,6 @@ struct ViewLoginItemView: View {
 
             if let password = store.state.password {
                 BitwardenField(title: Localizations.password) {
-//                    Text(password)
                     PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
                         .font(.styleGuide(.body))
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
