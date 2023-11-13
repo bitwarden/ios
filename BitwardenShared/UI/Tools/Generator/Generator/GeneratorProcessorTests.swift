@@ -8,6 +8,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<GeneratorRoute>!
     var generatorRepository: MockGeneratorRepository!
+    var pasteboardService: MockPasteboardService!
     var subject: GeneratorProcessor!
 
     // MARK: Setup & Teardown
@@ -17,11 +18,13 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         coordinator = MockCoordinator()
         generatorRepository = MockGeneratorRepository()
+        pasteboardService = MockPasteboardService()
 
         subject = GeneratorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                generatorRepository: generatorRepository
+                generatorRepository: generatorRepository,
+                pasteboardService: pasteboardService
             ),
             state: GeneratorState()
         )
@@ -32,6 +35,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         coordinator = nil
         generatorRepository = nil
+        pasteboardService = nil
         subject = nil
     }
 
@@ -46,6 +50,41 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         waitFor { generatorRepository.passwordGeneratorRequest != nil }
         XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+    }
+
+    /// `receive(_:)` with `.copyGeneratedValue` copies the generated password to the system
+    /// pasteboard and shows a toast.
+    func test_receive_copiedGeneratedValue_password() {
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .password
+
+        subject.state.generatedValue = "PASSWORD"
+        subject.receive(.copyGeneratedValue)
+        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+    }
+
+    /// `receive(_:)` with `.copyGeneratedValue` copies the generated passphrase to the system
+    /// pasteboard and shows a toast.
+    func test_receive_copiedGeneratedValue_passphrase() {
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .passphrase
+
+        subject.state.generatedValue = "PASSPHRASE"
+        subject.receive(.copyGeneratedValue)
+        XCTAssertEqual(pasteboardService.copiedString, "PASSPHRASE")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.passphrase))
+    }
+
+    /// `receive(_:)` with `.copyGeneratedValue` copies the generated username to the system
+    /// pasteboard and shows a toast.
+    func test_receive_copiedGeneratedValue_username() {
+        subject.state.generatorType = .username
+
+        subject.state.generatedValue = "USERNAME"
+        subject.receive(.copyGeneratedValue)
+        XCTAssertEqual(pasteboardService.copiedString, "USERNAME")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
     }
 
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
@@ -64,7 +103,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { generatorRepository.passphraseGeneratorRequest != nil }
+        waitFor { !subject.state.generatedValue.isEmpty }
 
         XCTAssertEqual(
             generatorRepository.passphraseGeneratorRequest,
@@ -75,6 +114,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
                 includeNumber: false
             )
         )
+        XCTAssertEqual(subject.state.generatedValue, "PASSPHRASE")
     }
 
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new password.
@@ -83,7 +123,8 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { generatorRepository.passwordGeneratorRequest != nil }
+        waitFor { !subject.state.generatedValue.isEmpty }
+
         XCTAssertEqual(
             generatorRepository.passwordGeneratorRequest,
             PasswordGeneratorRequest(
@@ -99,6 +140,21 @@ class GeneratorProcessorTests: BitwardenTestCase {
                 minSpecial: nil
             )
         )
+        XCTAssertEqual(subject.state.generatedValue, "PASSWORD")
+    }
+
+    /// `receive(_:)` with `.refreshGeneratedValue` generates a new plus addressed email.
+    func test_receive_refreshGeneratedValue_usernamePlusAddressedEmail() {
+        subject.state.generatorType = .username
+        subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
+        subject.state.usernameState.email = "user@bitwarden.com"
+
+        subject.receive(.refreshGeneratedValue)
+
+        waitFor { !subject.state.generatedValue.isEmpty }
+
+        XCTAssertEqual(generatorRepository.usernamePlusAddressEmail, "user@bitwarden.com")
+        XCTAssertEqual(subject.state.generatedValue, "user+abcd0123@bitwarden.com")
     }
 
     /// `receive(_:)` with `.passwordGeneratorTypeChanged` updates the state's password generator type value.
@@ -143,6 +199,28 @@ class GeneratorProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.passwordState.minimumNumber, 5)
     }
 
+    /// `receive(_:)` with `.textFieldFocusChanged` updates the processor's focused key path value
+    /// which is used to determine if a new value should be generated as the text field value changes.
+    func test_receive_textFieldFocusChanged() {
+        let field = FormTextField<GeneratorState>(
+            keyPath: \.usernameState.email,
+            title: Localizations.email,
+            value: "user@"
+        )
+
+        subject.state.generatorType = .username
+        subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
+
+        subject.receive(.textFieldFocusChanged(keyPath: \.usernameState.email))
+        subject.receive(.textValueChanged(field: field, value: "user@bitwarden.com"))
+        XCTAssertNil(generatorRepository.usernamePlusAddressEmail)
+
+        subject.receive(.textFieldFocusChanged(keyPath: nil))
+        waitFor { !subject.state.generatedValue.isEmpty }
+        XCTAssertEqual(generatorRepository.usernamePlusAddressEmail, "user@bitwarden.com")
+        XCTAssertEqual(subject.state.generatedValue, "user+abcd0123@bitwarden.com")
+    }
+
     /// `receive(_:)` with `.textValueChanged` updates the state's value for the text field.
     func test_receive_textValueChanged() {
         let field = FormTextField<GeneratorState>(
@@ -171,6 +249,16 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         subject.receive(.textValueChanged(field: field, value: "abc"))
         XCTAssertEqual(subject.state.passwordState.wordSeparator, "a")
+    }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_toastShown() {
+        let toast = Toast(text: "toast!")
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
+
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `receive(_:)` with `.toggleValueChanged` updates the state's value for the toggle field.

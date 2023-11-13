@@ -107,7 +107,7 @@ struct SelfHostedView: View {
         ) {
             BitwardenTextField(
                 title: Localizations.serverUrl,
-                placeholder: "ex. http://bitwarden.company.com",
+                placeholder: "ex. https://bitwarden.company.com",
                 text: store.binding(
                     get: \.serverUrl,
                     send: SelfHostedAction.serverUrlChanged

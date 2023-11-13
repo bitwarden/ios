@@ -42,6 +42,9 @@ public class ServiceContainer: Services {
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
+    /// The service used by the application for sharing data with other apps.
+    let pasteboardService: PasteboardService
+
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
 
@@ -70,6 +73,7 @@ public class ServiceContainer: Services {
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
+    ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
@@ -85,6 +89,7 @@ public class ServiceContainer: Services {
         clientService: ClientService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
+        pasteboardService: PasteboardService,
         settingsRepository: SettingsRepository,
         stateService: StateService,
         systemDevice: SystemDevice,
@@ -99,6 +104,7 @@ public class ServiceContainer: Services {
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
+        self.pasteboardService = pasteboardService
         self.settingsRepository = settingsRepository
         self.stateService = stateService
         self.systemDevice = systemDevice
@@ -146,6 +152,7 @@ public class ServiceContainer: Services {
             clientService: clientService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
+            pasteboardService: DefaultPasteboardService(),
             settingsRepository: settingsRepository,
             stateService: stateService,
             systemDevice: UIDevice.current,

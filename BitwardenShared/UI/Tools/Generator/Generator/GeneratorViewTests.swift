@@ -126,6 +126,16 @@ class GeneratorViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
+    /// Test a snapshot of the copied value toast.
+    func test_snapshot_generatorViewToast() {
+        processor.state.generatedValue = "pa11w0rd"
+        processor.state.showCopiedValueToast()
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
+    }
+
     /// Test a snapshot of the passphrase generation view.
     func test_snapshot_generatorViewPassphrase() {
         processor.state.passwordState.passwordGeneratorType = .passphrase
@@ -158,6 +168,16 @@ class GeneratorViewTests: BitwardenTestCase {
     func test_snapshot_generatorViewUsernamePlusAddressed() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
+    }
+
+    /// Test a snapshot of the random word username generation view.
+    func test_snapshot_generatorViewUsernameRandomWord() {
+        processor.state.generatorType = .username
+        processor.state.usernameState.usernameGeneratorType = .randomWord
         assertSnapshot(
             matching: subject,
             as: .defaultPortrait
