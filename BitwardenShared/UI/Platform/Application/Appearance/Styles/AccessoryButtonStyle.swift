@@ -31,13 +31,13 @@ extension ButtonStyle where Self == AccessoryButtonStyle {
 struct AccessoryButtonStyle_Previews: PreviewProvider {
     static var previews: some View {
         Button {} label: {
-            Asset.Images.briefcase.swiftUIImage
+            Asset.Images.bwiProvider.swiftUIImage
         }
         .buttonStyle(.accessory)
         .previewDisplayName("Enabled")
 
         Button {} label: {
-            Asset.Images.briefcase.swiftUIImage
+            Asset.Images.bwiProvider.swiftUIImage
         }
         .buttonStyle(.accessory)
         .disabled(true)

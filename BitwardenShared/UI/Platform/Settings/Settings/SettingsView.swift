@@ -81,7 +81,9 @@ struct SettingsView: View {
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Image(asset: Asset.Images.chevron)
+                    Image(asset: Asset.Images.rightAngle)
+                        .resizable()
+                        .frame(width: 12, height: 12)
                         .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                 }
                 .padding()

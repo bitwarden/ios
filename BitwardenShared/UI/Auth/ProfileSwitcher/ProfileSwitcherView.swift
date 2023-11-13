@@ -202,7 +202,7 @@ struct ProfileSwitcherView: View {
                 title: accountProfile.email,
                 trailingIcon: accountProfile.isUnlocked
                     ? Asset.Images.unlocked.swiftUIImage
-                    : Asset.Images.lockedOutline.swiftUIImage
+                    : Asset.Images.locked.swiftUIImage
             )
         }
     }

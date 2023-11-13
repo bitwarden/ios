@@ -115,7 +115,7 @@ struct GeneratorView: View {
             Button {
                 store.send(.refreshGeneratedValue)
             } label: {
-                Asset.Images.restart.swiftUIImage
+                Asset.Images.restart2.swiftUIImage
                     .resizable()
                     .frame(width: 16, height: 16)
             }
