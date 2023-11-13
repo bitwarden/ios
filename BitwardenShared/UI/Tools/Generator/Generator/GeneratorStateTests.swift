@@ -105,6 +105,29 @@ class GeneratorStateTests: XCTestCase {
         }
     }
 
+    /// `formSections` returns the sections and fields for generating a random word username.
+    func test_formSections_username_randomWord() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .randomWord
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Random word
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+              Toggle: Capitalize Value: false
+              Toggle: Include number Value: false
+            """
+        }
+    }
+
     /// `passwordState.passphraseGeneratorRequest` returns the passphrase generator request.
     func test_passwordState_passphraseGeneratorRequest() {
         var subject = GeneratorState().passwordState

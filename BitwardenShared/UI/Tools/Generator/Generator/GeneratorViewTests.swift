@@ -163,4 +163,14 @@ class GeneratorViewTests: BitwardenTestCase {
             as: .defaultPortrait
         )
     }
+
+    /// Test a snapshot of the random word username generation view.
+    func test_snapshot_generatorViewUsernameRandomWord() {
+        processor.state.generatorType = .username
+        processor.state.usernameState.usernameGeneratorType = .randomWord
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
+    }
 }

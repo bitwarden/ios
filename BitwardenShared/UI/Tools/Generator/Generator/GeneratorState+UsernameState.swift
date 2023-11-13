@@ -64,5 +64,13 @@ extension GeneratorState {
 
         /// The user's domain for generating catch all emails.
         var domain: String = ""
+
+        // MARK: Random Word Properties
+
+        /// Whether to capitalize the random word.
+        var capitalize: Bool = false
+
+        /// Whether the random word should include numbers.
+        var includeNumber: Bool = false
     }
 }

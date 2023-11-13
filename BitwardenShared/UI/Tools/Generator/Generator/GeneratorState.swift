@@ -137,7 +137,10 @@ struct GeneratorState: Equatable {
                     ),
                 ])
             case .randomWord:
-                break
+                optionFields.append(contentsOf: [
+                    toggleField(keyPath: \.usernameState.capitalize, title: Localizations.capitalize),
+                    toggleField(keyPath: \.usernameState.includeNumber, title: Localizations.includeNumber),
+                ])
             }
         }
 
