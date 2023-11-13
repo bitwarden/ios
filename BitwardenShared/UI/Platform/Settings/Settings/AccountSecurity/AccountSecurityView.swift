@@ -8,7 +8,7 @@ struct AccountSecurityView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<AccountSecurityState, AccountSecurityAction, Void>
+    @ObservedObject var store: Store<AccountSecurityState, AccountSecurityAction, AccountSecurityEffect>
 
     // MARK: View
 
@@ -26,6 +26,11 @@ struct AccountSecurityView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.accountSecurity)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            Task {
+                await store.perform(.getBiometricAuthenticationType)
+            }
+        }
     }
 
     // MARK: Private views
@@ -43,11 +48,13 @@ struct AccountSecurityView: View {
                 description: Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices
             )
 
-            SettingsListItem(
-                Localizations.pendingLogInRequests,
-                hasDivider: false
-            ) {}
-                .cornerRadius(10)
+            if store.state.isApproveLoginRequestsToggleOn {
+                SettingsListItem(
+                    Localizations.pendingLogInRequests,
+                    hasDivider: false
+                ) {}
+                    .cornerRadius(10)
+            }
         }
     }
 
@@ -63,7 +70,6 @@ struct AccountSecurityView: View {
                     Image(asset: Asset.Images.externalLink)
                         .resizable()
                         .frame(width: 22, height: 22)
-                        .tint(Color(asset: Asset.Colors.textSecondary))
                 }
 
                 SettingsListItem(Localizations.lockNow) {}
@@ -89,8 +95,6 @@ struct AccountSecurityView: View {
                     Localizations.sessionTimeout
                 ) {} trailingContent: {
                     Text(Localizations.fifteenMinutes)
-                        .font(.styleGuide(.body))
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 }
 
                 SettingsListItem(
@@ -98,8 +102,6 @@ struct AccountSecurityView: View {
                     hasDivider: false
                 ) {} trailingContent: {
                     Text(Localizations.lock)
-                        .font(.styleGuide(.body))
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 }
             }
             .cornerRadius(10)
@@ -113,21 +115,25 @@ struct AccountSecurityView: View {
             sectionHeader(Localizations.unlockOptions)
 
             VStack(spacing: 24) {
-                toggle(
-                    isOn: store.binding(
-                        get: \.isUnlockWithTouchIDToggleOn,
-                        send: AccountSecurityAction.toggleUnlockWithTouchID
-                    ),
-                    description: Localizations.unlockWith(Localizations.touchID)
-                )
+                if store.state.biometricAuthenticationType == .touchID {
+                    toggle(
+                        isOn: store.binding(
+                            get: \.isUnlockWithTouchIDToggleOn,
+                            send: AccountSecurityAction.toggleUnlockWithTouchID
+                        ),
+                        description: Localizations.unlockWith(Localizations.touchID)
+                    )
+                }
 
-                toggle(
-                    isOn: store.binding(
-                        get: \.isUnlockWithFaceIDOn,
-                        send: AccountSecurityAction.toggleUnlockWithFaceID
-                    ),
-                    description: Localizations.unlockWith(Localizations.faceID)
-                )
+                if store.state.biometricAuthenticationType == .faceID {
+                    toggle(
+                        isOn: store.binding(
+                            get: \.isUnlockWithFaceIDOn,
+                            send: AccountSecurityAction.toggleUnlockWithFaceID
+                        ),
+                        description: Localizations.unlockWith(Localizations.faceID)
+                    )
+                }
 
                 toggle(
                     isOn: store.binding(
@@ -143,6 +149,7 @@ struct AccountSecurityView: View {
     /// A section header.
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
+            .accessibilityAddTraits(.isHeader)
             .font(.styleGuide(.footnote))
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .textCase(.uppercase)

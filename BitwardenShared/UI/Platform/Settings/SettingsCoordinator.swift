@@ -1,3 +1,5 @@
+import SwiftUI
+
 // MARK: - SettingsCoordinatorDelegate
 
 /// An object that is signaled when specific circumstances in the application flow have been encountered.
@@ -78,8 +80,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             services: services,
             state: AccountSecurityState()
         )
+
         let view = AccountSecurityView(store: Store(processor: processor))
-        stackNavigator.push(view)
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
     }
 
     /// Shows the settings screen.

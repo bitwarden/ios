@@ -1,11 +1,19 @@
+import LocalAuthentication
 import OSLog
 
 // MARK: - AccountSecurityProcessor
 
-final class AccountSecurityProcessor: StateProcessor<AccountSecurityState, AccountSecurityAction, Void> {
+/// The processor used to manage state and handle actions for the account security screen.
+///
+final class AccountSecurityProcessor: StateProcessor<
+    AccountSecurityState,
+    AccountSecurityAction,
+    AccountSecurityEffect
+> {
     // MARK: Types
 
-    typealias Services = HasSettingsRepository
+    typealias Services = HasErrorReporter
+        & HasSettingsRepository
 
     // MARK: Private Properties
 
@@ -36,6 +44,13 @@ final class AccountSecurityProcessor: StateProcessor<AccountSecurityState, Accou
 
     // MARK: Methods
 
+    override func perform(_ effect: AccountSecurityEffect) async {
+        switch effect {
+        case .getBiometricAuthenticationType:
+            state.biometricAuthenticationType = getBiometricAuthenticationType()
+        }
+    }
+
     override func receive(_ action: AccountSecurityAction) {
         switch action {
         case .logout:
@@ -53,6 +68,26 @@ final class AccountSecurityProcessor: StateProcessor<AccountSecurityState, Accou
 
     // MARK: Private
 
+    /// Returns the available authentication policies and access controls for the user's device.
+    ///
+    /// - Returns: Available authentication policies and access controls for the user's device.
+    ///
+    private func getBiometricAuthenticationType() -> BiometricAuthenticationType {
+        let authContext = LAContext()
+        _ = authContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
+
+        switch authContext.biometryType {
+        case .none:
+            return .none
+        case .touchID:
+            return .touchID
+        case .faceID:
+            return .faceID
+        @unknown default:
+            return .none
+        }
+    }
+
     /// Shows an alert asking the user to confirm that they want to logout.
     ///
     private func showLogoutConfirmation() {
@@ -60,12 +95,25 @@ final class AccountSecurityProcessor: StateProcessor<AccountSecurityState, Accou
             do {
                 try await self.services.settingsRepository.logout()
             } catch {
-                // TODO: BIT-941 Log error to Crashlytics.
-                Logger.processor.error("Error logging out: \(error)")
-                assertionFailure("Error logging out: \(error)")
+                self.services.errorReporter.log(error: error)
             }
             self.coordinator.navigate(to: .logout)
         }
         coordinator.navigate(to: .alert(alert))
     }
+}
+
+// MARK: - BiometricAuthenticationType
+
+/// The enumeration biometric authentication types.
+///
+enum BiometricAuthenticationType: Equatable {
+    /// FaceID biometric authentication.
+    case faceID
+
+    /// No biometric authentication available on the user's device.
+    case none
+
+    /// TouchID biometric authentication..
+    case touchID
 }

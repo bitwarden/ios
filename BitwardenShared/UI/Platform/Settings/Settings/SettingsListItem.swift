@@ -5,7 +5,7 @@ import SwiftUI
 /// A list item that appears across settings screens.
 ///
 struct SettingsListItem<Content: View>: View {
-    // MARK: Properites
+    // MARK: Properties
 
     /// The action to perform when the list item is tapped.
     let action: () -> Void
@@ -25,27 +25,26 @@ struct SettingsListItem<Content: View>: View {
         Button {
             action()
         } label: {
-            ZStack {
+            VStack(spacing: 0) {
                 HStack {
                     Text(name)
                         .font(.styleGuide(.body))
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .multilineTextAlignment(.leading)
                         .padding(.vertical, 19)
 
                     Spacer()
 
                     trailingContent()
-                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                        .font(.styleGuide(.body))
+                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .multilineTextAlignment(.leading)
                 }
                 .padding(.horizontal, 16)
 
                 if hasDivider {
-                    VStack {
-                        Spacer()
-
-                        Divider()
-                            .padding(.leading, 16)
-                    }
+                    Divider()
+                        .padding(.leading, 16)
                 }
             }
         }

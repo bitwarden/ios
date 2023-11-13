@@ -33,6 +33,14 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `perform(_:)` with `getBiometricAuthenticationType` returns the device's biometric
+    /// authentication type. These tests use the iPhone 14 Pro, which should return `.faceID`.
+    func test_perform_getBiometricAuthenticationType() async {
+        await subject.perform(.getBiometricAuthenticationType)
+
+        XCTAssertEqual(subject.state.biometricAuthenticationType, .faceID)
+    }
+
     /// `receive(_:)` with `.logout` presents a logout confirmation alert.
     func test_receive_logout() async throws {
         subject.receive(.logout)
