@@ -28,6 +28,9 @@ enum GeneratorAction: Equatable {
     /// A text field value was changed.
     case textValueChanged(field: FormTextField<GeneratorState>, value: String)
 
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// A toggle field value was changed.
     case toggleValueChanged(field: ToggleField<GeneratorState>, isOn: Bool)
 
@@ -52,7 +55,8 @@ extension GeneratorAction {
              .toggleValueChanged,
              .usernameGeneratorTypeChanged:
             return true
-        case .copyGeneratedValue:
+        case .copyGeneratedValue,
+             .toastShown:
             return false
         }
     }

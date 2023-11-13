@@ -30,6 +30,10 @@ struct GeneratorView: View {
         .onChange(of: focusedFieldKeyPath) { newValue in
             store.send(.textFieldFocusChanged(keyPath: newValue))
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: GeneratorAction.toastShown
+        ))
     }
 
     /// Returns a view for displaying a section of items in the form.

@@ -36,6 +36,9 @@ struct GeneratorState: Equatable {
     /// The options used to generate a password.
     var passwordState = PasswordState()
 
+    /// A toast message to show in the view.
+    var toast: Toast?
+
     /// The options used to generate a username.
     var usernameState = UsernameState()
 
@@ -165,5 +168,25 @@ struct GeneratorState: Equatable {
                 title: Localizations.options
             ),
         ]
+    }
+
+    // MARK: Methods
+
+    /// Updates the state to show a toast for the value that was copied.
+    ///
+    mutating func showCopiedValueToast() {
+        let valueCopied: String
+        switch generatorType {
+        case .password:
+            switch passwordState.passwordGeneratorType {
+            case .passphrase:
+                valueCopied = Localizations.passphrase
+            case .password:
+                valueCopied = Localizations.password
+            }
+        case .username:
+            valueCopied = Localizations.username
+        }
+        toast = Toast(text: Localizations.valueHasBeenCopied(valueCopied))
     }
 }
