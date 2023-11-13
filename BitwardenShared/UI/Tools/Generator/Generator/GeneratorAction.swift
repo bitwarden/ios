@@ -22,6 +22,9 @@ enum GeneratorAction: Equatable {
     /// A stepper field value was changed.
     case stepperValueChanged(field: StepperField<GeneratorState>, value: Int)
 
+    /// A text field was focused or lost focus.
+    case textFieldFocusChanged(keyPath: KeyPath<GeneratorState, String>?)
+
     /// A text field value was changed.
     case textValueChanged(field: FormTextField<GeneratorState>, value: String)
 
@@ -44,6 +47,7 @@ extension GeneratorAction {
              .refreshGeneratedValue,
              .sliderValueChanged,
              .stepperValueChanged,
+             .textFieldFocusChanged,
              .textValueChanged,
              .toggleValueChanged,
              .usernameGeneratorTypeChanged:

@@ -13,6 +13,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<GeneratorRoute>
 
+    /// The key path of the currently focused text field.
+    private var focusedKeyPath: KeyPath<GeneratorState, String>?
+
     /// The task used to generate a new value so it can be cancelled if needed.
     private var generateValueTask: Task<Void, Never>?
 
@@ -41,6 +44,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     // MARK: Methods
 
     override func receive(_ action: GeneratorAction) {
+        var shouldGenerateNewValue = action.shouldGenerateNewValue
+
         switch action {
         case .appeared:
             break
@@ -57,11 +62,21 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state[keyPath: field.keyPath] = value
         case let .stepperValueChanged(field, value):
             state[keyPath: field.keyPath] = value
+        case let .textFieldFocusChanged(keyPath):
+            focusedKeyPath = keyPath
         case let .textValueChanged(field, value):
+            // SwiftUI TextField likes to send multiple changes via the binding. So if the text
+            // field is equal to the state's value, return early.
+            guard value != state[keyPath: field.keyPath] else { return }
             state[keyPath: field.keyPath] = value
 
             if field.keyPath == \.passwordState.wordSeparator, value.count > 1 {
                 state[keyPath: field.keyPath] = String(value.prefix(1))
+            }
+
+            if focusedKeyPath == \.usernameState.email || focusedKeyPath == \.usernameState.domain {
+                // Don't generate a new value on every character input, wait until focus leaves the field.
+                shouldGenerateNewValue = false
             }
         case let .toggleValueChanged(field, isOn):
             state[keyPath: field.keyPath] = isOn
@@ -69,7 +84,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.usernameState.usernameGeneratorType = usernameGeneratorType
         }
 
-        if action.shouldGenerateNewValue {
+        if shouldGenerateNewValue {
             generateValueTask?.cancel()
             generateValueTask = Task {
                 await generateValue()
@@ -79,7 +94,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     // MARK: Private
 
-    /// Generates a new passphrase.
+    /// Generate a new passphrase.
     ///
     func generatePassphrase() async {
         do {
@@ -93,7 +108,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         }
     }
 
-    /// Generates a new password.
+    /// Generate a new password.
     ///
     func generatePassword() async {
         do {
@@ -104,6 +119,33 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.generatedValue = password
         } catch {
             Logger.application.error("Generator: error generating password: \(error)")
+        }
+    }
+
+    /// Generate a new username.
+    ///
+    func generateUsername() async {
+        do {
+            let username: String
+            switch state.usernameState.usernameGeneratorType {
+            case .catchAllEmail:
+                // TODO: BIT-396 Generate catch-all email
+                username = "-"
+            case .forwardedEmail:
+                // TODO: BIT-406 Generate forwarded email
+                username = "-"
+            case .plusAddressedEmail:
+                username = try await services.generatorRepository.generateUsernamePlusAddressedEmail(
+                    email: state.usernameState.email
+                )
+            case .randomWord:
+                // TODO: BIT-407 Generate random word
+                username = "-"
+            }
+            try Task.checkCancellation()
+            state.generatedValue = username
+        } catch {
+            Logger.application.error("Generator: error generating username: \(error)")
         }
     }
 
@@ -119,8 +161,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 await generatePassword()
             }
         case .username:
-            // TODO: BIT-1003 Generate usernames
-            state.generatedValue = "-"
+            await generateUsername()
         }
     }
 }
