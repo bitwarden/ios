@@ -132,6 +132,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         let processor = ViewItemProcessor(
             coordinator: self,
             itemId: id,
+            services: services,
             state: ViewItemState(
                 typeState: .loading
             )

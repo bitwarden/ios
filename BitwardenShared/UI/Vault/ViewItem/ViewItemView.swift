@@ -13,7 +13,7 @@ struct ViewItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ViewItemState, ViewItemAction, Void>
+    @ObservedObject var store: Store<ViewItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
         contents
@@ -40,6 +40,9 @@ struct ViewItemView: View {
                     }
                     .accessibilityLabel(Localizations.close)
                 }
+            }
+            .task {
+                await store.perform(.appeared)
             }
     }
 

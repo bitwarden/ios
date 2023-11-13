@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -9,15 +10,21 @@ class ViewItemProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<VaultRoute>!
     var subject: ViewItemProcessor!
+    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        vaultRepository = MockVaultRepository()
+        let services = ServiceContainer.withMocks(
+            vaultRepository: vaultRepository
+        )
         subject = ViewItemProcessor(
             coordinator: coordinator,
             itemId: "id",
+            services: services,
             state: ViewItemState()
         )
     }
@@ -29,6 +36,45 @@ class ViewItemProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
+    func test_perform_appeared() {
+        let cipherItem = CipherView.fixture(
+            id: "id",
+            login: LoginView(
+                username: "username",
+                password: "password",
+                passwordRevisionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
+            name: "Name",
+            notes: "Notes",
+            viewPassword: true
+        )
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.typeState != .loading)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.typeState, .login(ViewLoginItemState(
+            customFields: [],
+            folder: nil,
+            isPasswordVisible: true,
+            name: "Name",
+            notes: "Notes",
+            password: "password",
+            updatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+            uris: [],
+            username: "username"
+        )))
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+    }
 
     /// `receive` with `.checkPasswordPressed` checks the password with the HIBP service.
     func test_receive_checkPasswordPressed() {

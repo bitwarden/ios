@@ -3,7 +3,11 @@ import BitwardenSdk
 // MARK: - ViewItemProcessor
 
 /// A processor that can process `ViewItemAction`s.
-final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Void> {
+final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
+    // MARK: Types
+
+    typealias Services = HasVaultRepository
+
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
@@ -12,6 +16,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Voi
     /// The ID of the item being viewed.
     private let itemId: String
 
+    /// The services used by this processor.
+    private let services: Services
+
     // MARK: Intialization
 
     /// Creates a new `ViewItemProcessor`.
@@ -19,19 +26,33 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Voi
     /// - Parameters:
     ///   - coordiantor: The `Coordinator` for this processor.
     ///   - itemId: The id of the item that is being viewed.
+    ///   - services: The services used by this processor.
     ///   - state: The initial state of this processor.
     ///
     init(
         coordinator: any Coordinator<VaultRoute>,
         itemId: String,
+        services: Services,
         state: ViewItemState
     ) {
         self.coordinator = coordinator
         self.itemId = itemId
+        self.services = services
         super.init(state: state)
     }
 
     // MARK: Methods
+
+    override func perform(_ effect: ViewItemEffect) async {
+        switch effect {
+        case .appeared:
+            await refreshVault()
+            for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
+                guard let newState = ViewItemState(cipherView: value) else { continue }
+                state = newState
+            }
+        }
+    }
 
     override func receive(_ action: ViewItemAction) {
         switch action {
@@ -57,6 +78,17 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Voi
             default:
                 assertionFailure("Cannot toggle password for non-login item.")
             }
+        }
+    }
+
+    // MARK: Private Methods
+
+    private func refreshVault() async {
+        do {
+            try await services.vaultRepository.fetchSync()
+        } catch {
+            // TODO: BIT-1034 Add an error alert
+            print(error)
         }
     }
 }

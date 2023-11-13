@@ -9,7 +9,7 @@ import XCTest
 class ViewItemViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<ViewItemState, ViewItemAction, Void>!
+    var processor: MockProcessor<ViewItemState, ViewItemAction, ViewItemEffect>!
     var subject: ViewItemView!
 
     // MARK: Setup & Teardown
