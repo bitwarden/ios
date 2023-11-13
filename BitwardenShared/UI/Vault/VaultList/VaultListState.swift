@@ -9,7 +9,7 @@ struct VaultListState: Equatable {
     var loadingState: LoadingState<[VaultListSection]> = .loading
 
     /// The user's current account profile state and alternative accounts.
-    var profileSwitcherState = ProfileSwitcherState.empty
+    var profileSwitcherState = ProfileSwitcherState(accounts: [], activeAccountId: nil, isVisible: false)
 
     /// An array of results matching the `searchText`.
     var searchResults: [VaultListItem] = []
@@ -19,6 +19,6 @@ struct VaultListState: Equatable {
 
     /// The user's initials.
     var userInitials: String {
-        profileSwitcherState.currentAccountProfile.userInitials
+        profileSwitcherState.activeAccountInitials
     }
 }

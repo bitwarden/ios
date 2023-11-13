@@ -19,6 +19,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasVaultRepository
+        & HasAuthRepository
+        & HasErrorReporter
 
     // MARK: Properties
 

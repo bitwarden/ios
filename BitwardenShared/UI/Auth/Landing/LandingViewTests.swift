@@ -10,7 +10,7 @@ import XCTest
 class LandingViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<LandingState, LandingAction, Void>!
+    var processor: MockProcessor<LandingState, LandingAction, LandingEffect>!
     var subject: LandingView!
 
     // MARK: Setup & Teardown
@@ -101,6 +101,38 @@ class LandingViewTests: BitwardenTestCase {
     /// Check the snapshot when the remember me toggle is on.
     func test_snapshot_isRememberMeOn_true() {
         processor.state.isRememberMeOn = true
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    /// Check the snapshot for the profiles visible
+    func test_snapshot_profilesVisible() {
+        let account = ProfileSwitcherItem(
+            email: "extra.warden@bitwarden.com",
+            userInitials: "EW"
+        )
+        processor.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [
+                account,
+            ],
+            activeAccountId: account.userId,
+            isVisible: true
+        )
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    /// Check the snapshot for the profiles closed
+    func test_snapshot_profilesClosed() {
+        let account = ProfileSwitcherItem(
+            email: "extra.warden@bitwarden.com",
+            userInitials: "EW"
+        )
+        processor.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [
+                account,
+            ],
+            activeAccountId: account.userId,
+            isVisible: false
+        )
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 }

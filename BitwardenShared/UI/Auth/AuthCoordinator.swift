@@ -172,6 +172,7 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     }
 
     /// Shows the landing screen.
+    ///
     private func showLanding() {
         if stackNavigator.popToRoot(animated: UI.animated).isEmpty {
             let processor = LandingProcessor(
