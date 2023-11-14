@@ -15,8 +15,9 @@ protocol BiometricsService: AnyObject {
 
 // MARK: - DefaultBiometricsService
 
-/// A default implementation of `BiometricsService`, which returns the available authentication policies and access controls for the user's device,
-/// and logs an error if one occurs while obtaining the device's biometric authentication type.
+/// A default implementation of `BiometricsService`, which returns the available authentication policies
+/// and access controls for the user's device, and logs an error if one occurs
+/// while obtaining the device's biometric authentication type.
 ///
 class DefaultBiometricsService: BiometricsService {
     func getBiometricAuthenticationType() -> BiometricAuthenticationType {
@@ -39,4 +40,19 @@ class DefaultBiometricsService: BiometricsService {
             return .none
         }
     }
+}
+
+// MARK: - BiometricAuthenticationType
+
+/// The enumeration biometric authentication types.
+///
+enum BiometricAuthenticationType: Equatable {
+    /// FaceID biometric authentication.
+    case faceID
+
+    /// No biometric authentication available on the user's device.
+    case none
+
+    /// TouchID biometric authentication..
+    case touchID
 }

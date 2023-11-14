@@ -74,18 +74,3 @@ final class AccountSecurityProcessor: StateProcessor<AccountSecurityState, Accou
         coordinator.navigate(to: .alert(alert))
     }
 }
-
-// MARK: - BiometricAuthenticationType
-
-/// The enumeration biometric authentication types.
-///
-enum BiometricAuthenticationType: Equatable {
-    /// FaceID biometric authentication.
-    case faceID
-
-    /// No biometric authentication available on the user's device.
-    case none
-
-    /// TouchID biometric authentication..
-    case touchID
-}

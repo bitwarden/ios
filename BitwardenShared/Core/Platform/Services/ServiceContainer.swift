@@ -72,7 +72,8 @@ public class ServiceContainer: Services {
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
-    ///   - biometricsService: The service used to obtain the available authentication policies and access controls for the user's device.
+    ///   - biometricsService: The service used to obtain the available authentication policies
+    ///   and access controls for the user's device.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
