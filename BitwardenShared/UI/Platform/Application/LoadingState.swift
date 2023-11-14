@@ -7,7 +7,7 @@ import SwiftUI
 enum LoadingState<T: Equatable>: Equatable {
     /// The data that should be displayed on screen.
     case data(T)
-    
+
     /// The view is loading.
     case loading
 }
