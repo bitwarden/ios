@@ -221,6 +221,27 @@ class GeneratorProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.generatedValue, "user+abcd0123@bitwarden.com")
     }
 
+    /// `receive(_:)` with `.textFieldIsPasswordVisibleChanged` updates the states value for whether
+    /// the password is visible for the field.
+    func test_receive_textFieldIsPasswordVisibleChanged() {
+        let field = FormTextField<GeneratorState>(
+            isPasswordVisible: false,
+            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
+            keyPath: \.usernameState.addyIOAPIAccessToken,
+            title: Localizations.apiAccessToken,
+            value: ""
+        )
+
+        subject.state.generatorType = .username
+        subject.state.usernameState.usernameGeneratorType = .forwardedEmail
+
+        subject.receive(.textFieldIsPasswordVisibleChanged(field: field, value: true))
+        XCTAssertTrue(subject.state.usernameState.isAPIKeyVisible)
+
+        subject.receive(.textFieldIsPasswordVisibleChanged(field: field, value: false))
+        XCTAssertFalse(subject.state.usernameState.isAPIKeyVisible)
+    }
+
     /// `receive(_:)` with `.textValueChanged` updates the state's value for the text field.
     func test_receive_textValueChanged() {
         let field = FormTextField<GeneratorState>(
@@ -275,6 +296,16 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         subject.receive(.toggleValueChanged(field: field, isOn: false))
         XCTAssertFalse(subject.state.passwordState.containsLowercase)
+    }
+
+    /// `receive(_:)` with `.usernameForwardedEmailServiceChanged` updates the state's username
+    /// forwarded email service value.
+    func test_receive_usernameForwardedEmailServiceChanged() {
+        subject.receive(.usernameForwardedEmailServiceChanged(.duckDuckGo))
+        XCTAssertEqual(subject.state.usernameState.forwardedEmailService, .duckDuckGo)
+
+        subject.receive(.usernameForwardedEmailServiceChanged(.simpleLogin))
+        XCTAssertEqual(subject.state.usernameState.forwardedEmailService, .simpleLogin)
     }
 
     /// `receive(_:)` with `.usernameGeneratorTypeChanged` updates the state's username generator type value.

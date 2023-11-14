@@ -60,6 +60,17 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .passwordGeneratorTypeChanged(.passphrase))
     }
 
+    /// Updating the username generator forwarded email service dispatches the
+    /// `.usernameForwardedEmailServiceChanged` action.
+    func test_menuUsernameForwardedEmailServiceChanged() throws {
+        processor.state.generatorType = .username
+        processor.state.usernameState.usernameGeneratorType = .forwardedEmail
+        processor.state.usernameState.forwardedEmailService = .addyIO
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.service)
+        try menuField.select(newValue: GeneratorState.UsernameState.ForwardedEmailService.fastmail)
+        XCTAssertEqual(processor.dispatchedActions.last, .usernameForwardedEmailServiceChanged(.fastmail))
+    }
+
     /// Updating the slider value dispatches the `.sliderValueChanged` action.
     func test_sliderValueChanged() throws {
         let field = SliderField<GeneratorState>(
@@ -158,6 +169,16 @@ class GeneratorViewTests: BitwardenTestCase {
     func test_snapshot_generatorViewUsernameCatchAll() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .catchAllEmail
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
+    }
+
+    /// Test a snapshot of the forwarded email alias generation view.
+    func test_snapshot_generatorViewUsernameForwarded() {
+        processor.state.generatorType = .username
+        processor.state.usernameState.usernameGeneratorType = .forwardedEmail
         assertSnapshot(
             matching: subject,
             as: .defaultPortrait

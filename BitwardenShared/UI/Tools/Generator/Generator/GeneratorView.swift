@@ -63,6 +63,10 @@ struct GeneratorView: View {
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.passwordGeneratorTypeChanged(newValue))
                     }
+                case let .menuUsernameForwardedEmailService(menuField):
+                    FormMenuFieldView(field: menuField) { newValue in
+                        store.send(.usernameForwardedEmailServiceChanged(newValue))
+                    }
                 case let .menuUsernameGeneratorType(menuField):
                     menuUsernameGeneratorTypeView(field: menuField)
                 case let .slider(sliderField):
@@ -76,6 +80,8 @@ struct GeneratorView: View {
                 case let .text(textField):
                     FormTextFieldView(field: textField) { newValue in
                         store.send(.textValueChanged(field: textField, value: newValue))
+                    } isPasswordVisibleChangedAction: { newValue in
+                        store.send(.textFieldIsPasswordVisibleChanged(field: textField, value: newValue))
                     }
                     .focused($focusedFieldKeyPath, equals: textField.keyPath)
                 case let .toggle(toggleField):
