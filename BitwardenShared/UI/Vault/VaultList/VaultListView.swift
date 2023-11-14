@@ -96,7 +96,7 @@ private struct VaultMainView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                         }
                     }
                 }
@@ -183,7 +183,7 @@ private struct VaultMainView: View {
                     }
                 }
             }
-            .background(Asset.Colors.backgroundGroupedElevatedSecondary.swiftUIColor)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -214,7 +214,6 @@ struct VaultListView: View {
                     await store.perform(.refresh)
                 }
             profileSwitcher
-                .hidden(!store.state.profileSwitcherState.isVisible)
         }
         .navigationTitle(Localizations.myVault)
         .navigationBarTitleDisplayMode(.large)
@@ -240,12 +239,8 @@ struct VaultListView: View {
                 Button {
                     store.send(.addItemPressed)
                 } label: {
-                    Label {
-                        Text(Localizations.addAnItem)
-                    } icon: {
-                        Asset.Images.plus.swiftUIImage
-                            .resizable()
-                            .frame(width: 19, height: 19)
+                    AddItemButton {
+                        store.send(.addItemPressed)
                     }
                 }
             }

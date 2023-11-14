@@ -28,8 +28,10 @@ struct SettingsView: View {
 
     /// The chevron shown in the settings list item.
     private var chevron: some View {
-        Image(asset: Asset.Images.chevron)
+        Image(asset: Asset.Images.rightAngle)
+            .resizable()
             .frame(width: 12, height: 12)
+            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
     }
 
     /// The settings items.

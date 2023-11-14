@@ -19,7 +19,7 @@ class BitwardenMenuFieldTests: BitwardenTestCase {
     // MARK: Properties
 
     var selection: TestValue!
-    var subject: BitwardenMenuField<TestValue>!
+    var subject: BitwardenMenuField<TestValue, EmptyView>!
 
     // MARK: Setup & Teardown
 

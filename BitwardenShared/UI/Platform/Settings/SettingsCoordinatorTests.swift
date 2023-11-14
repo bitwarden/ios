@@ -1,3 +1,4 @@
+import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
@@ -40,7 +41,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
-        XCTAssertTrue(action.view is AccountSecurityView)
+        XCTAssertTrue(action.viewController is UIHostingController<AccountSecurityView>)
     }
 
     /// `navigate(to:)` with `.alert` has the stack navigator present the alert.

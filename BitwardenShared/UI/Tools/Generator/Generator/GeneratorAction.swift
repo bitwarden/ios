@@ -22,11 +22,26 @@ enum GeneratorAction: Equatable {
     /// A stepper field value was changed.
     case stepperValueChanged(field: StepperField<GeneratorState>, value: Int)
 
+    /// A text field was focused or lost focus.
+    case textFieldFocusChanged(keyPath: KeyPath<GeneratorState, String>?)
+
+    /// A text field's toggle for displaying or hiding the password was changed.
+    case textFieldIsPasswordVisibleChanged(field: FormTextField<GeneratorState>, value: Bool)
+
     /// A text field value was changed.
     case textValueChanged(field: FormTextField<GeneratorState>, value: String)
 
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// A toggle field value was changed.
     case toggleValueChanged(field: ToggleField<GeneratorState>, isOn: Bool)
+
+    /// The username forwarded email service was changed.
+    case usernameForwardedEmailServiceChanged(GeneratorState.UsernameState.ForwardedEmailService)
+
+    /// The username generator type was changed.
+    case usernameGeneratorTypeChanged(GeneratorState.UsernameState.UsernameGeneratorType)
 }
 
 extension GeneratorAction {
@@ -41,10 +56,15 @@ extension GeneratorAction {
              .refreshGeneratedValue,
              .sliderValueChanged,
              .stepperValueChanged,
+             .textFieldFocusChanged,
              .textValueChanged,
-             .toggleValueChanged:
+             .toggleValueChanged,
+             .usernameForwardedEmailServiceChanged,
+             .usernameGeneratorTypeChanged:
             return true
-        case .copyGeneratedValue:
+        case .copyGeneratedValue,
+             .textFieldIsPasswordVisibleChanged,
+             .toastShown:
             return false
         }
     }

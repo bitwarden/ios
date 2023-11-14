@@ -5,6 +5,12 @@ import SwiftUI
 struct GeneratorView: View {
     // MARK: Properties
 
+    /// The key path of the currently focused text field.
+    @FocusState private var focusedFieldKeyPath: KeyPath<GeneratorState, String>?
+
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<GeneratorState, GeneratorAction, Void>
 
@@ -21,6 +27,13 @@ struct GeneratorView: View {
         .navigationBarTitleDisplayMode(.large)
         .navigationTitle(Localizations.generator)
         .onAppear { store.send(.appeared) }
+        .onChange(of: focusedFieldKeyPath) { newValue in
+            store.send(.textFieldFocusChanged(keyPath: newValue))
+        }
+        .toast(store.binding(
+            get: \.toast,
+            send: GeneratorAction.toastShown
+        ))
     }
 
     /// Returns a view for displaying a section of items in the form.
@@ -50,6 +63,12 @@ struct GeneratorView: View {
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.passwordGeneratorTypeChanged(newValue))
                     }
+                case let .menuUsernameForwardedEmailService(menuField):
+                    FormMenuFieldView(field: menuField) { newValue in
+                        store.send(.usernameForwardedEmailServiceChanged(newValue))
+                    }
+                case let .menuUsernameGeneratorType(menuField):
+                    menuUsernameGeneratorTypeView(field: menuField)
                 case let .slider(sliderField):
                     SliderFieldView(field: sliderField) { newValue in
                         store.send(.sliderValueChanged(field: sliderField, value: newValue))
@@ -61,7 +80,10 @@ struct GeneratorView: View {
                 case let .text(textField):
                     FormTextFieldView(field: textField) { newValue in
                         store.send(.textValueChanged(field: textField, value: newValue))
+                    } isPasswordVisibleChangedAction: { newValue in
+                        store.send(.textFieldIsPasswordVisibleChanged(field: textField, value: newValue))
                     }
+                    .focused($focusedFieldKeyPath, equals: textField.keyPath)
                 case let .toggle(toggleField):
                     ToggleFieldView(field: toggleField) { isOn in
                         store.send(.toggleValueChanged(field: toggleField, isOn: isOn))
@@ -83,7 +105,7 @@ struct GeneratorView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                 .cornerRadius(10)
 
             Button {
@@ -99,12 +121,34 @@ struct GeneratorView: View {
             Button {
                 store.send(.refreshGeneratedValue)
             } label: {
-                Asset.Images.restart.swiftUIImage
+                Asset.Images.restart2.swiftUIImage
                     .resizable()
                     .frame(width: 16, height: 16)
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Localizations.generatePassword)
+        }
+    }
+
+    /// Returns a view for displaying a menu for selecting the username type
+    ///
+    /// - Parameter field: The data for displaying the menu field.
+    ///
+    func menuUsernameGeneratorTypeView(
+        field: FormMenuField<GeneratorState, GeneratorState.UsernameState.UsernameGeneratorType>
+    ) -> some View {
+        FormMenuFieldView(field: field) { newValue in
+            store.send(.usernameGeneratorTypeChanged(newValue))
+        } trailingContent: {
+            Button {
+                openURL(ExternalLinksConstants.generatorUsernameTypes)
+            } label: {
+                Asset.Images.questionRound.swiftUIImage
+                    .resizable()
+                    .frame(width: 14, height: 14)
+            }
+            .buttonStyle(.accessory)
+            .accessibilityLabel(Localizations.learnMore)
         }
     }
 }

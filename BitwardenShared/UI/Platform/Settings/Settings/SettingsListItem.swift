@@ -48,7 +48,7 @@ struct SettingsListItem<Content: View>: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+        .background(Asset.Colors.backgroundTertiary.swiftUIColor)
     }
 
     // MARK: Initialization

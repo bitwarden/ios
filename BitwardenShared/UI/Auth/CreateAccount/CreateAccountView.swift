@@ -26,49 +26,33 @@ struct CreateAccountView: View {
     // MARK: View
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 16) {
-                VStack(spacing: 0) {
-                    emailAndPassword
-                        .padding(.bottom, 8)
+        VStack(spacing: 16) {
+            VStack(spacing: 0) {
+                emailAndPassword
+                    .padding(.bottom, 8)
 
-                    PasswordStrengthIndicator(
-                        minimumPasswordLength: Constants.minimumPasswordCharacters,
-                        passwordStrengthScore: store.state.passwordStrengthScore
-                    )
-                }
-
-                retypePassword
-
-                passwordHint
-
-                VStack(spacing: 24) {
-                    toggles
-
-                    submitButton
-                }
+                PasswordStrengthIndicator(
+                    minimumPasswordLength: Constants.minimumPasswordCharacters,
+                    passwordStrengthScore: store.state.passwordStrengthScore
+                )
             }
-            .padding(.horizontal, 12)
-            .padding([.top, .bottom], 16)
-            .animation(.default, value: store.state.passwordStrengthScore)
+
+            retypePassword
+
+            passwordHint
+
+            VStack(spacing: 24) {
+                toggles
+
+                submitButton
+            }
         }
-        .background(Color(asset: Asset.Colors.backgroundSecondary))
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle(Localizations.createAccount)
+        .animation(.default, value: store.state.passwordStrengthScore)
+        .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
+        .scrollView()
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    store.send(.dismiss)
-                } label: {
-                    Label {
-                        Text(Localizations.cancel)
-                    } icon: {
-                        Image(asset: Asset.Images.cancel)
-                            .resizable()
-                            .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
-                            .frame(width: 24, height: 24)
-                    }
-                }
+            cancelToolbarItem {
+                store.send(.dismiss)
             }
         }
     }
@@ -84,6 +68,7 @@ struct CreateAccountView: View {
             Text(Localizations.checkKnownDataBreachesForThisPassword)
                 .font(.styleGuide(.footnote))
         }
+        .accessibilityIdentifier("CheckExposedMasterPasswordToggle")
         .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.checkBreaches)
     }
@@ -92,6 +77,7 @@ struct CreateAccountView: View {
     private var emailAndPassword: some View {
         VStack(spacing: 16) {
             BitwardenTextField(
+                accessibilityIdentifier: "EmailAddressEntry",
                 title: Localizations.emailAddress,
                 text: store.binding(
                     get: \.emailText,
@@ -104,11 +90,13 @@ struct CreateAccountView: View {
             .autocorrectionDisabled()
 
             BitwardenTextField(
+                accessibilityIdentifier: "MasterPasswordEntry",
                 title: Localizations.masterPassword,
                 isPasswordVisible: store.binding(
                     get: \.arePasswordsVisible,
                     send: CreateAccountAction.togglePasswordVisibility
                 ),
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 text: store.binding(
                     get: \.passwordText,
                     send: CreateAccountAction.passwordTextChanged
@@ -124,6 +112,7 @@ struct CreateAccountView: View {
     private var passwordHint: some View {
         VStack(alignment: .leading) {
             BitwardenTextField(
+                accessibilityIdentifier: "MasterPasswordHintLabel",
                 title: Localizations.masterPasswordHint,
                 text: store.binding(
                     get: \.passwordHintText,
@@ -140,11 +129,13 @@ struct CreateAccountView: View {
     /// The text field for re-typing the master password.
     private var retypePassword: some View {
         BitwardenTextField(
+            accessibilityIdentifier: "ConfirmMasterPasswordEntry",
             title: Localizations.retypeMasterPassword,
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,
                 send: CreateAccountAction.togglePasswordVisibility
             ),
+            passwordVisibilityAccessibilityId: "ConfirmPasswordVisibilityToggle",
             text: store.binding(
                 get: \.retypePasswordText,
                 send: CreateAccountAction.retypePasswordTextChanged
@@ -189,6 +180,8 @@ struct CreateAccountView: View {
         .accessibilityAction(named: Localizations.privacyPolicy) {
             openURL(ExternalLinksConstants.privacyPolicy)
         }
+        .accessibilityIdentifier("AcceptPoliciesToggle")
+        .foregroundColor(Color(asset: Asset.Colors.textPrimary))
         .font(.styleGuide(.footnote))
         .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CreateAccount.termsAndPrivacy)

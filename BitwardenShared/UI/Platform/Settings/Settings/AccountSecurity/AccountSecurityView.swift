@@ -8,7 +8,7 @@ struct AccountSecurityView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<AccountSecurityState, AccountSecurityAction, AccountSecurityEffect>
+    @ObservedObject var store: Store<AccountSecurityState, AccountSecurityAction, Void>
 
     // MARK: View
 
@@ -26,11 +26,6 @@ struct AccountSecurityView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.accountSecurity)
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            Task {
-                await store.perform(.getBiometricAuthenticationType)
-            }
-        }
     }
 
     // MARK: Private views

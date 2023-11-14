@@ -45,6 +45,9 @@ public enum AuthRoute: Equatable {
     /// A route to the master password hint screen.
     case masterPasswordHint
 
+    /// A route to the self-hosted settings view.
+    case selfHosted
+
     /// A route to the unlock vault screen.
     case vaultUnlock(Account)
 }

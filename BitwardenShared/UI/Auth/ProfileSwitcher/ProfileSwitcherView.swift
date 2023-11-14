@@ -14,24 +14,40 @@ struct ProfileSwitcherView: View {
     @ObservedObject var store: Store<ProfileSwitcherState, ProfileSwitcherAction, Void>
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            backgroundView
-            ScrollView {
-                LazyVStack(spacing: 0.0) {
-                    accounts
-                    addAccountRow
-                }
+        OffsetObservingScrollView(
+            axes: store.state.isVisible ? .vertical : [],
+            offset: .init(
+                get: { store.state.scrollOffset },
+                set: { store.send(.scrollOffsetChanged($0)) }
+            )
+        ) {
+            LazyVStack(spacing: 0.0) {
+                accounts
+                    .onChange(of: store.state.isVisible) { isVisible in
+                        guard isVisible, isVoiceoverEnabled else { return }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            isCurrentAccountFocused = true
+                        }
+                    }
+                addAccountRow
             }
-            .fixedSize(horizontal: false, vertical: true)
+            .transition(.move(edge: .top))
             .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .hidden(!store.state.isVisible)
+            .fixedSize(horizontal: false, vertical: true)
         }
-        .onAppear {
-            guard store.state.isVisible,
-                  isVoiceoverEnabled else { return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isCurrentAccountFocused = true
-            }
+        .background {
+            backgroundView
         }
+        .onTapGesture {
+            store.send(.backgroundPressed)
+        }
+        .accessibilityAction {
+            store.send(.backgroundPressed)
+        }
+        .accessibilityLabel(Localizations.close)
+        .allowsHitTesting(store.state.isVisible)
+        .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
     }
 
     // MARK: Private Properties
@@ -57,15 +73,14 @@ struct ProfileSwitcherView: View {
 
     /// A background view with accessibility enabled
     private var backgroundView: some View {
-        Color.black.opacity(0.4)
-            .onTapGesture {
-                store.send(.backgroundPressed)
-            }
-            .accessibilityAction {
-                store.send(.backgroundPressed)
-            }
-            .accessibilityLabel(Localizations.close)
-            .ignoresSafeArea()
+        VStack {
+            Asset.Colors.backgroundPrimary.swiftUIColor
+                .frame(height: abs(min(store.state.scrollOffset.y, 0)))
+                .fixedSize(horizontal: false, vertical: true)
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+        }
+        .hidden(!store.state.isVisible)
     }
 
     /// A group of account views
@@ -187,7 +202,7 @@ struct ProfileSwitcherView: View {
                 title: accountProfile.email,
                 trailingIcon: accountProfile.isUnlocked
                     ? Asset.Images.unlocked.swiftUIImage
-                    : Asset.Images.lockedOutline.swiftUIImage
+                    : Asset.Images.locked.swiftUIImage
             )
         }
     }

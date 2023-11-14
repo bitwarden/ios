@@ -14,6 +14,28 @@ enum CipherType: Int, Codable {
     case identity = 4
 }
 
+extension CipherType {
+    /// Creates a new `CipherType` from the associated `VaultListGroup`.
+    ///
+    /// - Parameter group: The `VaultListGroup` to use to create this `CipherType`.
+    ///
+    init?(group: VaultListGroup) {
+        switch group {
+        case .card:
+            self = .card
+        case .identity:
+            self = .identity
+        case .login:
+            self = .login
+        case .secureNote:
+            self = .secureNote
+        case .folder,
+             .trash:
+            return nil
+        }
+    }
+}
+
 extension CipherType: CaseIterable {
     static var allCases: [CipherType] = [.login, .card, .identity, .secureNote]
 }

@@ -1,18 +1,14 @@
-import LocalAuthentication
 import OSLog
 
 // MARK: - AccountSecurityProcessor
 
 /// The processor used to manage state and handle actions for the account security screen.
 ///
-final class AccountSecurityProcessor: StateProcessor<
-    AccountSecurityState,
-    AccountSecurityAction,
-    AccountSecurityEffect
-> {
+final class AccountSecurityProcessor: StateProcessor<AccountSecurityState, AccountSecurityAction, Void> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasBiometricsService
+        & HasErrorReporter
         & HasSettingsRepository
 
     // MARK: Private Properties
@@ -37,19 +33,15 @@ final class AccountSecurityProcessor: StateProcessor<
         services: Services,
         state: AccountSecurityState
     ) {
+        var state = state
+        state.biometricAuthenticationType = services.biometricsService.getBiometricAuthenticationType()
+
         self.coordinator = coordinator
         self.services = services
         super.init(state: state)
     }
 
     // MARK: Methods
-
-    override func perform(_ effect: AccountSecurityEffect) async {
-        switch effect {
-        case .getBiometricAuthenticationType:
-            state.biometricAuthenticationType = getBiometricAuthenticationType()
-        }
-    }
 
     override func receive(_ action: AccountSecurityAction) {
         switch action {
@@ -67,26 +59,6 @@ final class AccountSecurityProcessor: StateProcessor<
     }
 
     // MARK: Private
-
-    /// Returns the available authentication policies and access controls for the user's device.
-    ///
-    /// - Returns: Available authentication policies and access controls for the user's device.
-    ///
-    private func getBiometricAuthenticationType() -> BiometricAuthenticationType {
-        let authContext = LAContext()
-        _ = authContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
-
-        switch authContext.biometryType {
-        case .none:
-            return .none
-        case .touchID:
-            return .touchID
-        case .faceID:
-            return .faceID
-        @unknown default:
-            return .none
-        }
-    }
 
     /// Shows an alert asking the user to confirm that they want to logout.
     ///

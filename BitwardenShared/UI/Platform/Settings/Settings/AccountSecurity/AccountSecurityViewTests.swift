@@ -6,7 +6,12 @@ import XCTest
 class AccountSecurityViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject = AccountSecurityView(store: Store(processor: StateProcessor(state: AccountSecurityState())))
+    var subject = AccountSecurityView(
+        store: Store(
+            processor: StateProcessor(
+                state: AccountSecurityState(isApproveLoginRequestsToggleOn: true))
+        )
+    )
 
     // MARK: Snapshots
 

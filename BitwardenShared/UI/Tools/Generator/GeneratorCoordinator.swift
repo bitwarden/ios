@@ -4,6 +4,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasGeneratorRepository
+        & HasPasteboardService
 
     // MARK: Properties
 

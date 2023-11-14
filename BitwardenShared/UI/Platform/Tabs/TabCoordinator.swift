@@ -10,6 +10,7 @@ internal final class TabCoordinator: Coordinator, HasTabNavigator {
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = GeneratorModule
+        & SendModule
         & SettingsModule
         & VaultModule
 
@@ -28,6 +29,9 @@ internal final class TabCoordinator: Coordinator, HasTabNavigator {
 
     /// The module used to create child coordinators.
     private let module: Module
+
+    /// The coordinator used to navigate to `SendRoute`s.
+    private var sendCoordinator: AnyCoordinator<SendRoute>?
 
     /// The coordinator used to navigate to `SettingsRoute`s.
     private var settingsCoordinator: AnyCoordinator<SettingsRoute>?
@@ -94,7 +98,11 @@ internal final class TabCoordinator: Coordinator, HasTabNavigator {
         )
 
         let sendNavigator = UINavigationController()
-        sendNavigator.push(Text("Send"))
+        sendNavigator.navigationBar.prefersLargeTitles = true
+        sendCoordinator = module.makeSendCoordinator(
+            stackNavigator: sendNavigator
+        )
+        sendCoordinator?.start()
 
         let generatorNavigator = UINavigationController()
         generatorNavigator.navigationBar.prefersLargeTitles = true

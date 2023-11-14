@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 // MARK: - VaultListProcessor
 
@@ -63,9 +63,14 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         switch action {
         case .addItemPressed:
             state.profileSwitcherState.isVisible = false
-            coordinator.navigate(to: .addItem)
-        case .itemPressed:
-            coordinator.navigate(to: .viewItem)
+            coordinator.navigate(to: .addItem())
+        case let .itemPressed(item):
+            switch item.itemType {
+            case .cipher:
+                coordinator.navigate(to: .viewItem)
+            case let .group(group, _):
+                coordinator.navigate(to: .group(group))
+            }
         case .morePressed:
             // TODO: BIT-375 Show item actions
             break
@@ -79,6 +84,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
                 state.profileSwitcherState.isVisible = false
             case .backgroundPressed:
                 state.profileSwitcherState.isVisible = false
+            case let .scrollOffsetChanged(newOffset):
+                state.profileSwitcherState.scrollOffset = newOffset
             }
         case let .requestedProfileSwitcher(visible: isVisible):
             state.profileSwitcherState.isVisible = isVisible

@@ -37,7 +37,7 @@ struct LoginView: View {
                     Label {
                         Text(Localizations.options)
                     } icon: {
-                        Asset.Images.moreVert.swiftUIImage
+                        Asset.Images.verticalKabob.swiftUIImage
                     }
                 }
                 .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
@@ -99,7 +99,7 @@ struct LoginView: View {
                 store.send(.enterpriseSingleSignOnPressed)
             } label: {
                 HStack(spacing: 8) {
-                    Image(decorative: Asset.Images.briefcase)
+                    Image(decorative: Asset.Images.bwiProvider)
                     Text(Localizations.logInSso)
                 }
             }
