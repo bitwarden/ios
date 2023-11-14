@@ -30,6 +30,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to retrieve the current base url for API requests.
     let baseUrlService: BaseUrlService
 
+    /// The service used to obtain the available authentication policies and access controls for the user's device.
+    let biometricsService: BiometricsService
+
     /// The service used by the application to generate captcha related artifacts.
     let captchaService: CaptchaService
 
@@ -69,6 +72,8 @@ public class ServiceContainer: Services {
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
+    ///   - biometricsService: The service used to obtain the available authentication policies
+    ///   and access controls for the user's device.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
@@ -85,6 +90,7 @@ public class ServiceContainer: Services {
         appSettingsStore: AppSettingsStore,
         authRepository: AuthRepository,
         baseUrlService: BaseUrlService,
+        biometricsService: BiometricsService,
         captchaService: CaptchaService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
@@ -100,6 +106,7 @@ public class ServiceContainer: Services {
         self.appSettingsStore = appSettingsStore
         self.authRepository = authRepository
         self.baseUrlService = baseUrlService
+        self.biometricsService = biometricsService
         self.captchaService = captchaService
         self.clientService = clientService
         self.errorReporter = errorReporter
@@ -126,6 +133,8 @@ public class ServiceContainer: Services {
             baseUrl: URL(string: "https://vault.bitwarden.com")!
         )
 
+        let biometricsService = DefaultBiometricsService()
+
         let clientService = DefaultClientService()
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
         let tokenService = DefaultTokenService(stateService: stateService)
@@ -149,6 +158,7 @@ public class ServiceContainer: Services {
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             baseUrlService: baseUrlService,
+            biometricsService: biometricsService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
             clientService: clientService,
             errorReporter: errorReporter,
