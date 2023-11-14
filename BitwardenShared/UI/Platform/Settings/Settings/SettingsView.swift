@@ -43,7 +43,9 @@ struct SettingsView: View {
                 chevron
             }
 
-            SettingsListItem(Localizations.autofill) {} trailingContent: {
+            SettingsListItem(Localizations.autofill) {
+                store.send(.autoFillPressed)
+            } trailingContent: {
                 chevron
             }
 

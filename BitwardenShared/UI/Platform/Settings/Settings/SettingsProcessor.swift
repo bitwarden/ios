@@ -35,6 +35,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
         switch action {
         case .accountSecurityPressed:
             coordinator.navigate(to: .accountSecurity)
+        case .autoFillPressed:
+            coordinator.navigate(to: .autoFill)
         }
     }
 }

@@ -13,19 +13,15 @@ struct AccountSecurityView: View {
     // MARK: View
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 20) {
-                approveLoginRequestsSection
-                unlockOptionsSection
-                sessionTimeoutSection
-                otherSection
-            }
-            .padding([.top, .bottom], 16)
-            .padding(.horizontal, 12)
+        VStack(spacing: 20) {
+            approveLoginRequestsSection
+            unlockOptionsSection
+            sessionTimeoutSection
+            otherSection
         }
+        .scrollView()
+        .navigationBar(title: Localizations.accountSecurity, titleDisplayMode: .inline)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle(Localizations.accountSecurity)
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     // MARK: Private views
