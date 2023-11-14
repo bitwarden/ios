@@ -40,7 +40,6 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
         case .appeared:
-            await refreshVaultGroup()
             for await value in services.vaultRepository.vaultListPublisher(group: state.group) {
                 state.loadingState = .data(value)
             }

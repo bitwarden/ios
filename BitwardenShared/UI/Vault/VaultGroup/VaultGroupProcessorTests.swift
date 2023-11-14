@@ -48,7 +48,7 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         task.cancel()
 
         XCTAssertEqual(subject.state.loadingState, .data([vaultListItem]))
-        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
