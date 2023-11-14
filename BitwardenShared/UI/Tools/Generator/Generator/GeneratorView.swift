@@ -34,6 +34,22 @@ struct GeneratorView: View {
             get: \.toast,
             send: GeneratorAction.toastShown
         ))
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button {
+                        store.send(.showPasswordHistory)
+                    } label: {
+                        Text(Localizations.passwordHistory)
+                    }
+                } label: {
+                    Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
+                        .resizable()
+                        .frame(width: 19, height: 19)
+                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                }
+            }
+        }
     }
 
     /// Returns a view for displaying a section of items in the form.

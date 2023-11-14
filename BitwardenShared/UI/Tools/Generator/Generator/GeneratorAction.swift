@@ -16,6 +16,9 @@ enum GeneratorAction: Equatable {
     /// The refresh generated value button was pressed.
     case refreshGeneratedValue
 
+    /// The show password history button was pressed.
+    case showPasswordHistory
+
     /// A slider field value was changed.
     case sliderValueChanged(field: SliderField<GeneratorState>, value: Double)
 
@@ -63,6 +66,7 @@ extension GeneratorAction {
              .usernameGeneratorTypeChanged:
             return true
         case .copyGeneratedValue,
+             .showPasswordHistory,
              .textFieldIsPasswordVisibleChanged,
              .toastShown:
             return false

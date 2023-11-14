@@ -71,6 +71,13 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .usernameForwardedEmailServiceChanged(.fastmail))
     }
 
+    /// Tapping the password history button dispatches the `.showPasswordHistory` action.
+    func test_showPasswordHistory_tapped() throws {
+        let button = try subject.inspect().find(button: Localizations.passwordHistory)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .showPasswordHistory)
+    }
+
     /// Updating the slider value dispatches the `.sliderValueChanged` action.
     func test_sliderValueChanged() throws {
         let field = SliderField<GeneratorState>(
