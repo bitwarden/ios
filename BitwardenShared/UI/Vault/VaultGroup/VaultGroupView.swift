@@ -10,44 +10,40 @@ struct VaultGroupView: View {
     @ObservedObject var store: Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
 
     var body: some View {
-        contents
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-            .searchable(
-                text: store.binding(
-                    get: \.searchText,
-                    send: VaultGroupAction.searchTextChanged
-                ),
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
-            )
-            .navigationTitle(store.state.group.navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    AddItemButton {
-                        store.send(.addItemPressed)
-                    }
+        LoadingView(
+            state: store.state.loadingState,
+            contents: { items in
+                if items.isEmpty {
+                    emptyView
+                } else {
+                    groupView(with: items)
                 }
             }
-            .task {
-                await store.perform(.appeared)
+        )
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .searchable(
+            text: store.binding(
+                get: \.searchText,
+                send: VaultGroupAction.searchTextChanged
+            ),
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: Localizations.search
+        )
+        .navigationTitle(store.state.group.navigationTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                AddItemButton {
+                    store.send(.addItemPressed)
+                }
             }
+        }
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     // MARK: Private Properties
-
-    @ViewBuilder private var contents: some View {
-        switch store.state.loadingState {
-        case .loading:
-            loadingView
-        case let .data(items):
-            if items.isEmpty {
-                emptyView
-            } else {
-                groupView(with: items)
-            }
-        }
-    }
 
     /// A view that displays an empty state for this vault group.
     @ViewBuilder private var emptyView: some View {

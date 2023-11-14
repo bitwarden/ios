@@ -123,6 +123,7 @@ private struct VaultMainView: View {
 
     /// A view that displays either the my vault or empty vault interface.
     @ViewBuilder private var vault: some View {
+        // TODO: BIT-1161 Refactor to use LoadingState to show a loading indicator on initial load
         if store.state.sections.isEmpty {
             emptyVault
         } else {
