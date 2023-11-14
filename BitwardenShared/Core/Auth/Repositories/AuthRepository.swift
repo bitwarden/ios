@@ -1,9 +1,22 @@
 import BitwardenSdk
+import Foundation
 
 /// A protocol for an `AuthRepository` which manages access to the data needed by the UI layer.
 ///
 protocol AuthRepository: AnyObject {
     // MARK: Methods
+
+    /// Gets all accounts.
+    ///
+    /// - Returns: The known user accounts as `[ProfileSwitcherItem]`.
+    ///
+    func getAccounts() async throws -> [ProfileSwitcherItem]
+
+    /// Gets the active account.
+    ///
+    /// - Returns: The active user account as a `ProfileSwitcherItem`.
+    ///
+    func getActiveAccount() async throws -> ProfileSwitcherItem
 
     /// Logs the user out of the active account.
     ///
@@ -49,6 +62,20 @@ class DefaultAuthRepository {
 // MARK: - AuthRepository
 
 extension DefaultAuthRepository: AuthRepository {
+    func getAccounts() async throws -> [ProfileSwitcherItem] {
+        // TODO: BIT-1132 - Profile Switcher UI on Auth
+        let accounts = try await stateService.getAccounts()
+        return accounts.map { account in
+            profileItem(from: account)
+        }
+    }
+
+    func getActiveAccount() async throws -> ProfileSwitcherItem {
+        // TODO: BIT-1132 - Profile Switcher UI on Auth
+        let active = try await stateService.getActiveAccount()
+        return profileItem(from: active)
+    }
+
     func logout() async throws {
         try await stateService.logoutAccount()
     }
@@ -65,6 +92,19 @@ extension DefaultAuthRepository: AuthRepository {
                 privateKey: encryptionKeys.encryptedPrivateKey,
                 organizationKeys: [:]
             )
+        )
+    }
+
+    /// A function to convert an `Account` to a `ProfileSwitcherItem`
+    ///   - Parameter account: The account to convert
+    ///   - Returns: The `ProfileSwitcherItem` representing the account
+    ///
+    func profileItem(from account: Account) -> ProfileSwitcherItem {
+        ProfileSwitcherItem(
+            email: account.profile.email,
+            userId: account.profile.userId,
+            userInitials: account.initials()
+                ?? "  "
         )
     }
 }

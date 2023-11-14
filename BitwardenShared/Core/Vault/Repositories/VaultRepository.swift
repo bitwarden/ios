@@ -58,6 +58,9 @@ class DefaultVaultRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
+    /// The service used by the application to manage account state.
+    let stateService: StateService
+
     /// The API service used to perform sync API requests.
     let syncAPIService: SyncAPIService
 
@@ -71,11 +74,18 @@ class DefaultVaultRepository {
     /// - Parameters:
     ///   - cipherAPIService: The API service used to perform API requests for the ciphers in a user's vault.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - stateService: The service used by the application to manage account state.
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///
-    init(cipherAPIService: CipherAPIService, clientVault: ClientVaultService, syncAPIService: SyncAPIService) {
+    init(
+        cipherAPIService: CipherAPIService,
+        clientVault: ClientVaultService,
+        stateService: StateService,
+        syncAPIService: SyncAPIService
+    ) {
         self.cipherAPIService = cipherAPIService
         self.clientVault = clientVault
+        self.stateService = stateService
         self.syncAPIService = syncAPIService
     }
 
