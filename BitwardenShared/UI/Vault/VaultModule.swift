@@ -7,19 +7,24 @@ import Foundation
 protocol VaultModule {
     /// Initializes a coordinator for navigating between `VaultRoute`s.
     ///
-    /// - Parameter stackNavigator: The stack navigator that will be used to navigate between routes.
+    /// - Parameters:
+    ///   - delegate: A delegate of the `VaultCoordinator`.
+    ///   - stackNavigator: The stack navigator that will be used to navigate between routes.
     /// - Returns: A coordinator that can navigate to `VaultRoute`s.
     ///
     func makeVaultCoordinator(
+        delegate: VaultCoordinatorDelegate,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<VaultRoute>
 }
 
 extension DefaultAppModule: VaultModule {
     func makeVaultCoordinator(
+        delegate: VaultCoordinatorDelegate,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<VaultRoute> {
         VaultCoordinator(
+            delegate: delegate,
             services: services,
             stackNavigator: stackNavigator
         ).asAnyCoordinator()

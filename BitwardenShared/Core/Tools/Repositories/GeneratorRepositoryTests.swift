@@ -7,6 +7,7 @@ class GeneratorRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
     var clientGenerators: MockClientGenerators!
+    var cryptoService: MockCryptoService!
     var subject: GeneratorRepository!
 
     // MARK: Setup & Teardown
@@ -15,14 +16,19 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         super.setUp()
 
         clientGenerators = MockClientGenerators()
+        cryptoService = MockCryptoService()
 
-        subject = DefaultGeneratorRepository(clientGenerators: clientGenerators)
+        subject = DefaultGeneratorRepository(
+            clientGenerators: clientGenerators,
+            cryptoService: cryptoService
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
         clientGenerators = nil
+        cryptoService = nil
         subject = nil
     }
 
@@ -101,6 +107,61 @@ class GeneratorRepositoryTests: BitwardenTestCase {
                     minSpecial: nil
                 )
             )
+        }
+    }
+
+    /// `generateUsernamePlusAddressedEmail` returns the generated plus addressed email.
+    func test_generateUsernamePlusAddressedEmail() async throws {
+        var email = try await subject.generateUsernamePlusAddressedEmail(email: "user@bitwarden.com")
+        XCTAssertEqual(email, "user+ku5eoyi3@bitwarden.com")
+        XCTAssertEqual(cryptoService.randomStringLength, 8)
+
+        email = try await subject.generateUsernamePlusAddressedEmail(email: "user@bit@warden.com")
+        XCTAssertEqual(email, "user+ku5eoyi3@bit@warden.com")
+
+        cryptoService.randomStringResult = .success("abcd0123")
+        email = try await subject.generateUsernamePlusAddressedEmail(email: "user@bitwarden.com")
+        XCTAssertEqual(email, "user+abcd0123@bitwarden.com")
+    }
+
+    /// `generateUsernamePlusAddressedEmail` returns "-" if there aren't enough characters entered.
+    func test_generateUsernamePlusAddressedEmail_tooFewCharacters() async throws {
+        var email = try await subject.generateUsernamePlusAddressedEmail(email: "")
+        XCTAssertEqual(email, "-")
+
+        email = try await subject.generateUsernamePlusAddressedEmail(email: "ab")
+        XCTAssertEqual(email, "-")
+    }
+
+    /// `generateUsernamePlusAddressedEmail` returns the email with no changes if it doesn't contain
+    /// an '@' symbol.
+    func test_generateUsernamePlusAddressedEmail_missingAt() async throws {
+        var email = try await subject.generateUsernamePlusAddressedEmail(email: "abc")
+        XCTAssertEqual(email, "abc")
+
+        email = try await subject.generateUsernamePlusAddressedEmail(email: "user")
+        XCTAssertEqual(email, "user")
+
+        email = try await subject.generateUsernamePlusAddressedEmail(email: "bitwarden.com")
+        XCTAssertEqual(email, "bitwarden.com")
+    }
+
+    /// `generateUsernamePlusAddressedEmail` returns the email with no changes if the '@' symbol is
+    /// the first or last character.
+    func test_generateUsernamePlusAddressedEmail_atFirstOrLast() async throws {
+        var email = try await subject.generateUsernamePlusAddressedEmail(email: "@bitwarden.com")
+        XCTAssertEqual(email, "@bitwarden.com")
+
+        email = try await subject.generateUsernamePlusAddressedEmail(email: "user@")
+        XCTAssertEqual(email, "user@")
+    }
+
+    /// `generateUsernamePlusAddressedEmail` throws an error if generating a username fails.
+    func test_generateUsernamePlusAddressedEmail_error() async {
+        cryptoService.randomStringResult = .failure(CryptoServiceError.randomNumberGenerationFailed(-1))
+
+        await assertAsyncThrows(error: CryptoServiceError.randomNumberGenerationFailed(-1)) {
+            _ = try await subject.generateUsernamePlusAddressedEmail(email: "user@bitwarden.com")
         }
     }
 }

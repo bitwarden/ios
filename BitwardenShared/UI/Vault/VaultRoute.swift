@@ -4,6 +4,9 @@ import Foundation
 
 /// A route to a specific screen in the vault tab.
 public enum VaultRoute: Equatable, Hashable {
+    /// A route to the add account flow.
+    case addAccount
+
     /// A route to the add item screen.
     ///
     /// - Parameter group: An optional `VaultListGroup` that the user wants to add an item for.

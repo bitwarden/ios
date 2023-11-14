@@ -10,31 +10,40 @@ struct VaultGroupView: View {
     @ObservedObject var store: Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
 
     var body: some View {
-        contents
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-            .navigationTitle(store.state.group.navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    AddItemButton {
-                        store.send(.addItemPressed)
-                    }
+        LoadingView(
+            state: store.state.loadingState,
+            contents: { items in
+                if items.isEmpty {
+                    emptyView
+                } else {
+                    groupView(with: items)
                 }
             }
-            .task {
-                await store.perform(.appeared)
+        )
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .searchable(
+            text: store.binding(
+                get: \.searchText,
+                send: VaultGroupAction.searchTextChanged
+            ),
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: Localizations.search
+        )
+        .navigationTitle(store.state.group.navigationTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                AddItemButton {
+                    store.send(.addItemPressed)
+                }
             }
+        }
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     // MARK: Private Properties
-
-    @ViewBuilder private var contents: some View {
-        if store.state.items.isEmpty {
-            emptyView
-        } else {
-            groupView
-        }
-    }
 
     /// A view that displays an empty state for this vault group.
     @ViewBuilder private var emptyView: some View {
@@ -61,20 +70,23 @@ struct VaultGroupView: View {
         }
     }
 
+    // MARK: Private Methods
+
     /// A view that displays a list of the contents of this vault group.
-    @ViewBuilder private var groupView: some View {
+    @ViewBuilder
+    private func groupView(with items: [VaultListItem]) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 7) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(Localizations.items.uppercased())
                     Spacer()
-                    Text("\(store.state.items.count)")
+                    Text("\(items.count)")
                 }
                 .font(.footnote)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
                 LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(store.state.items) { item in
+                    ForEach(items) { item in
                         Button {
                             store.send(.itemPressed(item))
                         } label: {
@@ -82,7 +94,7 @@ struct VaultGroupView: View {
                                 state: { _ in
                                     VaultListItemRowState(
                                         item: item,
-                                        hasDivider: store.state.items.last != item
+                                        hasDivider: items.last != item
                                     )
                                 },
                                 mapAction: { action in
@@ -101,14 +113,6 @@ struct VaultGroupView: View {
             }
             .padding(16)
         }
-        .searchable(
-            text: store.binding(
-                get: \.searchText,
-                send: VaultGroupAction.searchTextChanged
-            ),
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: Localizations.search
-        )
     }
 }
 
@@ -121,7 +125,22 @@ struct VaultItemListView_Previews: PreviewProvider {
             VaultGroupView(
                 store: Store(
                     processor: StateProcessor(
-                        state: VaultGroupState()
+                        state: VaultGroupState(
+                            loadingState: .loading
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Loading")
+
+        NavigationView {
+            VaultGroupView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultGroupState(
+                            loadingState: .data([])
+                        )
                     )
                 )
             )
@@ -134,7 +153,7 @@ struct VaultItemListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultGroupState(
                             group: .login,
-                            items: [
+                            loadingState: .data([
                                 .init(cipherListView: .init(
                                     id: UUID().uuidString,
                                     organizationId: nil,
@@ -169,7 +188,7 @@ struct VaultItemListView_Previews: PreviewProvider {
                                     deletedDate: nil,
                                     revisionDate: Date()
                                 ))!,
-                            ]
+                            ])
                         )
                     )
                 )

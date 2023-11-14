@@ -28,7 +28,7 @@ struct SendListView: View {
                     Button {
                         store.send(.infoButtonPressed)
                     } label: {
-                        Image(asset: Asset.Images.info)
+                        Image(asset: Asset.Images.infoRound)
                             .resizable()
                             .frame(width: 19, height: 19)
                     }

@@ -81,7 +81,7 @@ class VaultListProcessorTests: BitwardenTestCase {
         subject.state.profileSwitcherState.isVisible = true
         subject.receive(.profileSwitcherAction(.addAccountPressed))
 
-        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.

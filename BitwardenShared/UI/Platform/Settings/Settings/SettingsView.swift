@@ -16,8 +16,6 @@ struct SettingsView: View {
         ScrollView {
             VStack {
                 settingsItems
-
-                logoutButton
             }
             .padding(16)
         }
@@ -28,70 +26,44 @@ struct SettingsView: View {
 
     // MARK: Private views
 
-    /// The logout button.
-    private var logoutButton: some View {
-        VStack {
-            Button {
-                store.send(.logout)
-            } label: {
-                Text(Localizations.logOut)
-                    .font(.styleGuide(.body))
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-            }
-        }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-        .cornerRadius(10)
+    /// The chevron shown in the settings list item.
+    private var chevron: some View {
+        Image(asset: Asset.Images.rightAngle)
+            .resizable()
+            .frame(width: 12, height: 12)
+            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
     }
 
     /// The settings items.
     private var settingsItems: some View {
         VStack(spacing: 0) {
-            listItem(Localizations.accountSecurity) {}
-            listItem(Localizations.autofill) {}
-            listItem(Localizations.vault) {}
-            listItem(Localizations.appearance) {}
-            listItem(Localizations.other) {}
-            listItem(Localizations.about, hasDivider: false) {}
-        }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-        .cornerRadius(10)
-    }
+            SettingsListItem(Localizations.accountSecurity) {
+                store.send(.accountSecurityPressed)
+            } trailingContent: {
+                chevron
+            }
 
-    /// A list item.
-    ///
-    /// - Parameters:
-    ///  - name: The name of the list item.
-    ///  - hasDivider: Whether or not the list item should have a divider on the bottom.
-    ///  - action: The action to perform when the list item is tapped.
-    ///
-    /// - Returns: The list item.
-    ///
-    private func listItem(
-        _ name: String,
-        hasDivider: Bool = true,
-        _ action: @escaping () -> Void
-    ) -> some View {
-        Button {} label: {
-            VStack(spacing: 0) {
-                HStack {
-                    Text(name)
-                        .font(.styleGuide(.body))
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+            SettingsListItem(Localizations.autofill) {} trailingContent: {
+                chevron
+            }
 
-                    Image(asset: Asset.Images.chevron)
-                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                }
-                .padding()
+            SettingsListItem(Localizations.vault) {} trailingContent: {
+                chevron
+            }
 
-                if hasDivider {
-                    Divider()
-                        .padding(.leading, 16)
-                }
+            SettingsListItem(Localizations.appearance) {} trailingContent: {
+                chevron
+            }
+
+            SettingsListItem(Localizations.other) {} trailingContent: {
+                chevron
+            }
+
+            SettingsListItem(Localizations.about, hasDivider: false) {} trailingContent: {
+                chevron
             }
         }
+        .cornerRadius(10)
     }
 }
 

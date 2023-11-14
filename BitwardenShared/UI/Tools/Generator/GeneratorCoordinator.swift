@@ -1,9 +1,12 @@
+import SwiftUI
+
 /// A coordinator that manages navigation in the generator tab.
 ///
 final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasGeneratorRepository
+        & HasPasteboardService
 
     // MARK: Properties
 
@@ -33,8 +36,12 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: GeneratorRoute, context: AnyObject?) {
         switch route {
+        case .dismiss:
+            stackNavigator.dismiss()
         case .generator:
             showGenerator()
+        case .generatorHistory:
+            showGeneratorHistory()
         }
     }
 
@@ -54,5 +61,18 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         )
         let view = GeneratorView(store: Store(processor: processor))
         stackNavigator.push(view)
+    }
+
+    /// Shows the generator history screen.
+    ///
+    private func showGeneratorHistory() {
+        let processor = GeneratorHistoryProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: GeneratorHistoryState()
+        )
+        let view = GeneratorHistoryView(store: Store(processor: processor))
+        let hostingController = UIHostingController(rootView: view)
+        stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }
 }

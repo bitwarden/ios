@@ -8,6 +8,7 @@ import XCTest
 class VaultCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var delegate: MockVaultCoordinatorDelegate!
     var stackNavigator: MockStackNavigator!
     var subject: VaultCoordinator!
 
@@ -16,8 +17,10 @@ class VaultCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        delegate = MockVaultCoordinatorDelegate()
         stackNavigator = MockStackNavigator()
         subject = VaultCoordinator(
+            delegate: delegate,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
@@ -26,11 +29,19 @@ class VaultCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        delegate = nil
         stackNavigator = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `navigate(to:)` with `. addAccount ` informs the delegate that the user wants to add an account.
+    func test_navigateTo_addAccount() throws {
+        subject.navigate(to: .addAccount)
+
+        XCTAssertTrue(delegate.addAccountTapped)
+    }
 
     /// `navigate(to:)` with `.addItem` pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem() throws {
@@ -129,5 +140,13 @@ class VaultCoordinatorTests: BitwardenTestCase {
         subject.start()
 
         XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+}
+
+class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
+    var addAccountTapped = false
+
+    func didTapAddAccount() {
+        addAccountTapped = true
     }
 }

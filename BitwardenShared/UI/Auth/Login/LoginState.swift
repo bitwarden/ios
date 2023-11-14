@@ -16,7 +16,7 @@ struct LoginState: Equatable {
 
     /// The password visibility icon used in the view's text field.
     var passwordVisibleIcon: ImageAsset {
-        isMasterPasswordRevealed ? Asset.Images.eyeSlash : Asset.Images.eye
+        isMasterPasswordRevealed ? Asset.Images.hidden : Asset.Images.visible
     }
 
     /// The username provided by the user on the landing screen.
