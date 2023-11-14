@@ -47,8 +47,8 @@ struct ViewLoginItemView: View {
                     } label: {
                         (
                             store.state.isPasswordVisible
-                                ? Asset.Images.eyeSlash.swiftUIImage
-                                : Asset.Images.eye.swiftUIImage
+                                ? Asset.Images.hidden.swiftUIImage
+                                : Asset.Images.visible.swiftUIImage
                         )
                         .resizable()
                         .frame(width: 16, height: 16)
