@@ -70,12 +70,6 @@ struct VaultGroupView: View {
         }
     }
 
-    /// A view that displays a loading state.
-    @ViewBuilder private var loadingView: some View {
-        ProgressView()
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
     // MARK: Private Methods
 
     /// A view that displays a list of the contents of this vault group.
