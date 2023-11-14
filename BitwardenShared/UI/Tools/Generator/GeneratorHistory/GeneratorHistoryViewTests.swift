@@ -83,13 +83,14 @@ class GeneratorHistoryViewTests: BitwardenTestCase {
                 lastUsedDate: Date(year: 2023, month: 10, day: 20, hour: 11, minute: 42)
             ),
             PasswordHistoryView(
-                password: "df@58^%8o7e@&@",
+                password: "03n@5bq!fw5k1!5cdfad6wes1u05b3hls$kbko&d#if4%cckowywt7sh8d*3%cxng553l&4" +
+                    "7e4ywrt3l%dl537sonc6iw2*#r#*grwiw1@%#czm6ox64@m9u%im21*u#",
                 lastUsedDate: Date(year: 2023, month: 0, day: 14, hour: 18, minute: 24)
             ),
         ]
-        assertSnapshot(
+        assertSnapshots(
             matching: subject,
-            as: .defaultPortrait
+            as: [.defaultPortrait, .defaultPortraitAX5]
         )
     }
 }
