@@ -4,4 +4,7 @@
 enum VaultGroupEffect: Equatable {
     /// The vault group view appeared on screen.
     case appeared
+
+    /// The refresh control was triggered.
+    case refresh
 }

@@ -9,14 +9,17 @@ class VaultGroupProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<VaultRoute>!
     var subject: VaultGroupProcessor!
+    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        vaultRepository = MockVaultRepository()
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(vaultRepository: vaultRepository),
             state: VaultGroupState()
         )
     }
@@ -25,14 +28,33 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         super.tearDown()
         coordinator = nil
         subject = nil
+        vaultRepository = nil
     }
 
     // MARK: Tests
 
     /// `perform(_:)` with `.appeared` starts streaming vault items.
-    func test_perform_appeared() async {
-        await subject.perform(.appeared)
-        // TODO: BIT-374 Assert that the vault repository is hooked up properly
+    func test_perform_appeared() {
+        let vaultListItem = VaultListItem.fixture()
+        vaultRepository.vaultListGroupSubject.send([
+            vaultListItem,
+        ])
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.loadingState, .data([vaultListItem]))
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
+    func test_perform_refreshed() async {
+        await subject.perform(.refresh)
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with the correct group.
