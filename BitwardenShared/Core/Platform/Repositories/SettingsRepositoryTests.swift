@@ -29,12 +29,69 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `lockVault` locks the user's vault.
-    func test_lockVault() {
-        XCTAssertFalse(vaultTimeoutService.isLockedSubject.value)
+    /// `isLocked` throws if no account exists
+    func test_isLocked_unknownUser() {
+        vaultTimeoutService.timeoutStore = [:]
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, [:])
 
-        subject.lockVault()
-        XCTAssertTrue(vaultTimeoutService.isLockedSubject.value)
+        XCTAssertThrowsError(try subject.isLocked(userId: "1")) { error in
+            XCTAssertEqual(
+                error as? VaultTimeoutServiceError,
+                .noAccountFound
+            )
+        }
+    }
+
+    /// `isLocked` returns true for locked accounts
+    func test_isLocked_lockedUser() {
+        vaultTimeoutService.timeoutStore = ["123": true]
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
+
+        XCTAssertTrue(try vaultTimeoutService.isLocked(userId: "123"))
+    }
+
+    /// `isLocked` returns false for unlocked accounts
+    func test_isLocked_unlockedUser() {
+        vaultTimeoutService.timeoutStore = ["123": false]
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
+
+        XCTAssertFalse(try vaultTimeoutService.isLocked(userId: "123"))
+    }
+
+    /// `lockVault` can unlock a user's vault.
+    func test_lockVault_false_unknownUser() {
+        vaultTimeoutService.timeoutStore = [:]
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, [:])
+
+        subject.lockVault(false, userId: "123")
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
+    }
+
+    /// `lockVault` can unlock a user's vault.
+    func test_lockVault_false_knownUser() {
+        vaultTimeoutService.timeoutStore = ["123": true]
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
+
+        subject.lockVault(false, userId: "123")
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
+    }
+
+    /// `lockVault` can lock a user's vault.
+    func test_lockVault_true_unknownUser() {
+        vaultTimeoutService.timeoutStore = [:]
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, [:])
+
+        subject.lockVault(true, userId: "123")
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
+    }
+
+    /// `lockVault` can lock a user's vault.
+    func test_lockVault_true_knownUser() {
+        vaultTimeoutService.timeoutStore = ["123": false]
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
+
+        subject.lockVault(true, userId: "123")
+        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
     }
 
     /// `logout()` has the state service log the user out.

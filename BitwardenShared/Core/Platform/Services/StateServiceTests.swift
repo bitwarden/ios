@@ -341,6 +341,47 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
+    /// `setActiveAccount(userId: )` returns without aciton if there are no accounts
+    func test_setActiveAccount_noAccounts() async throws {
+        let storeState = await subject.appSettingsStore.state
+        XCTAssertNil(storeState)
+    }
+
+    /// `setActiveAccount(userId: )` fails if there are no matching accounts
+    func test_setActiveAccount_noMatch() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        await assertAsyncThrows(error: StateServiceError.noAccounts) {
+            try await subject.setActiveAccount(userId: "2")
+        }
+    }
+
+    /// `setActiveAccount(userId: )` succeeds if there is a matching account
+    func test_setActiveAccount_match_single() async throws {
+        let account1 = Account.fixture(profile: .fixture(userId: "1"))
+        await subject.addAccount(account1)
+
+        var active = try await subject.getActiveAccount()
+        XCTAssertEqual(active, account1)
+        try await subject.setActiveAccount(userId: "1")
+        active = try await subject.getActiveAccount()
+        XCTAssertEqual(active, account1)
+    }
+
+    /// `setActiveAccount(userId: )` succeeds if there is a matching account
+    func test_setActiveAccount_match_multi() async throws {
+        let account1 = Account.fixture(profile: .fixture(userId: "1"))
+        let account2 = Account.fixture(profile: .fixture(userId: "2"))
+        await subject.addAccount(account1)
+        await subject.addAccount(account2)
+
+        var active = try await subject.getActiveAccount()
+        XCTAssertEqual(active, account2)
+        try await subject.setActiveAccount(userId: "1")
+        active = try await subject.getActiveAccount()
+        XCTAssertEqual(active, account1)
+    }
+
     /// `setPasswordGenerationOptions` sets the password generation options for an account.
     func test_setPasswordGenerationOptions() async throws {
         let options1 = PasswordGenerationOptions(length: 30)
@@ -368,4 +409,4 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.usernameGenerationOptions["1"], options1)
         XCTAssertEqual(appSettingsStore.usernameGenerationOptions["2"], options2)
     }
-}
+} // swiftlint:disable:this file_length

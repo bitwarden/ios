@@ -28,6 +28,11 @@ protocol AuthRepository: AnyObject {
     ///
     func logout() async throws
 
+    /// Sets the active account by User Id.
+    /// - Parameter userId: The user Id to be set as active.
+    /// - Returns: The new active account.
+    func setActiveAccount(userId: String) async throws -> Account
+
     /// Attempts to unlock the user's vault with their master password.
     ///
     /// - Parameter password: The user's master password to unlock the vault.
@@ -48,6 +53,9 @@ class DefaultAuthRepository {
     /// The service used by the application to manage account state.
     let stateService: StateService
 
+    /// The service used by the application to manage vault access.
+    let vaultTimeoutService: VaultTimeoutService
+
     // MARK: Initialization
 
     /// Initialize a `DefaultAuthRepository`.
@@ -55,13 +63,16 @@ class DefaultAuthRepository {
     /// - Parameters:
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
         clientCrypto: ClientCryptoProtocol,
-        stateService: StateService
+        stateService: StateService,
+        vaultTimeoutService: VaultTimeoutService
     ) {
         self.clientCrypto = clientCrypto
         self.stateService = stateService
+        self.vaultTimeoutService = vaultTimeoutService
     }
 }
 
@@ -91,7 +102,14 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func logout() async throws {
+        let account = try await stateService.getActiveAccount()
         try await stateService.logoutAccount()
+        vaultTimeoutService.remove(userId: account.profile.userId)
+    }
+
+    func setActiveAccount(userId: String) async throws -> Account {
+        try await stateService.setActiveAccount(userId: userId)
+        return try await stateService.getActiveAccount()
     }
 
     func unlockVault(password: String) async throws {
@@ -107,6 +125,7 @@ extension DefaultAuthRepository: AuthRepository {
                 organizationKeys: [:]
             )
         )
+        vaultTimeoutService.lockVault(false, userId: account.profile.userId)
     }
 
     /// A function to convert an `Account` to a `ProfileSwitcherItem`
@@ -115,11 +134,23 @@ extension DefaultAuthRepository: AuthRepository {
     ///   - Returns: The `ProfileSwitcherItem` representing the account
     ///
     func profileItem(from account: Account) -> ProfileSwitcherItem {
-        ProfileSwitcherItem(
+        var profile = ProfileSwitcherItem(
             email: account.profile.email,
             userId: account.profile.userId,
             userInitials: account.initials()
                 ?? ".."
         )
+        do {
+            let isUnlocked = try !vaultTimeoutService.isLocked(userId: account.profile.userId)
+            profile.isUnlocked = isUnlocked
+            return profile
+        } catch {
+            profile.isUnlocked = false
+            vaultTimeoutService.lockVault(
+                true,
+                userId: profile.userId
+            )
+            return profile
+        }
     }
 }

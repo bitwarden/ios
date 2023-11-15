@@ -3,12 +3,13 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AuthRepositoryTests: BitwardenTestCase {
+class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var clientCrypto: MockClientCrypto!
     var subject: DefaultAuthRepository!
     var stateService: MockStateService!
+    var vaultTimeoutService: MockVaultTimeoutService!
 
     let anneAccount = Account
         .fixture(
@@ -67,10 +68,12 @@ class AuthRepositoryTests: BitwardenTestCase {
 
         clientCrypto = MockClientCrypto()
         stateService = MockStateService()
+        vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultAuthRepository(
             clientCrypto: clientCrypto,
-            stateService: stateService
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
         )
     }
 
@@ -80,6 +83,7 @@ class AuthRepositoryTests: BitwardenTestCase {
         clientCrypto = nil
         subject = nil
         stateService = nil
+        vaultTimeoutService = nil
     }
 
     // MARK: Tests
@@ -92,7 +96,6 @@ class AuthRepositoryTests: BitwardenTestCase {
     }
 
     /// `getAccounts()` returns all known accounts.
-    ///
     func test_getAccounts_valid() async throws { // swiftlint:disable:this function_body_length
         stateService.accounts = [
             anneAccount,
@@ -151,6 +154,37 @@ class AuthRepositoryTests: BitwardenTestCase {
                 userId: shortName.profile.userId,
                 userInitials: "AJ"
             )
+        )
+    }
+
+    /// `getAccounts()` can return locked accounts correctly.
+    func test_getAccounts_locked() async throws {
+        stateService.accounts = [
+            anneAccount,
+            beeAccount,
+            empty,
+            shortEmail,
+            shortName,
+        ]
+        vaultTimeoutService.timeoutStore = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: false,
+            shortEmail.profile.userId: true,
+            shortName.profile.userId: false,
+        ]
+        let profiles = try await subject.getAccounts()
+        let lockedStatuses = profiles.map { profile in
+            profile.isUnlocked
+        }
+        XCTAssertEqual(
+            lockedStatuses,
+            [
+                false,
+                true,
+                false,
+                false,
+                true,
+            ]
         )
     }
 
@@ -218,6 +252,47 @@ class AuthRepositoryTests: BitwardenTestCase {
         }
     }
 
+    /// `setActiveAccount(userId: )` succeeds when there is a match
+    func test_setActiveAccount_match_active() async throws {
+        stateService.accounts = [
+            anneAccount,
+        ]
+        stateService.activeAccount = anneAccount
+        _ = try await subject.setActiveAccount(userId: anneAccount.profile.userId)
+        XCTAssertEqual(stateService.activeAccount, anneAccount)
+    }
+
+    /// `setActiveAccount(userId: )` succeeds when there is a match
+    func test_setActiveAccount_match_inactive() async throws {
+        stateService.accounts = [
+            anneAccount,
+            beeAccount,
+        ]
+        stateService.activeAccount = anneAccount
+        _ = try await subject.setActiveAccount(userId: beeAccount.profile.userId)
+        XCTAssertEqual(stateService.activeAccount, beeAccount)
+    }
+
+    /// `setActiveAccount(userId: )` returns an error when there is no match
+    func test_setActiveAccount_noMatch_incorrectId() async throws {
+        stateService.accounts = [
+            anneAccount,
+        ]
+        stateService.activeAccount = anneAccount
+        await assertAsyncThrows(error: StateServiceError.noAccounts) {
+            _ = try await subject.setActiveAccount(userId: "1234")
+        }
+    }
+
+    /// `setActiveAccount(userId: )` returns an error when there is no match
+    func test_setActiveAccount_noMatch_noAccounts() async throws {
+        stateService.accounts = []
+        stateService.activeAccount = nil
+        await assertAsyncThrows(error: StateServiceError.noAccounts) {
+            _ = try await subject.setActiveAccount(userId: anneAccount.profile.userId)
+        }
+    }
+
     /// `unlockVault(password:)` unlocks the vault with the user's password.
     func test_unlockVault() async throws {
         stateService.activeAccount = .fixture()
@@ -240,6 +315,7 @@ class AuthRepositoryTests: BitwardenTestCase {
                 organizationKeys: [:]
             )
         )
+        XCTAssertEqual(vaultTimeoutService.timeoutStore, ["1": false])
     }
 
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.
@@ -247,5 +323,39 @@ class AuthRepositoryTests: BitwardenTestCase {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.unlockVault(password: "")
         }
+    }
+
+    /// `logout` throws an error with no accounts
+    func test_logout_noAccounts() async {
+        stateService.accounts = []
+        stateService.activeAccount = nil
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.logout()
+        }
+    }
+
+    /// `logout` throws an error with no active account
+    func test_logout_noActiveAccount() async {
+        let account = Account.fixtureAccountLogin()
+        stateService.accounts = [account]
+        stateService.activeAccount = nil
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.logout()
+        }
+    }
+
+    /// `logout` successfully logs out a user
+    func test_logout_success() {
+        let account = Account.fixtureAccountLogin()
+        stateService.accounts = [account]
+        stateService.activeAccount = account
+        vaultTimeoutService.timeoutStore = [account.profile.userId: false]
+        let task = Task {
+            try await subject.logout()
+        }
+        waitFor(vaultTimeoutService.timeoutStore.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
     }
 }

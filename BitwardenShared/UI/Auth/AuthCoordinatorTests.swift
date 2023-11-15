@@ -9,6 +9,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authDelegate: MockAuthDelegate!
+    var authRepository: MockAuthRepository!
     var rootNavigator: MockRootNavigator!
     var stackNavigator: MockStackNavigator!
     var subject: AuthCoordinator!
@@ -18,12 +19,15 @@ class AuthCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         authDelegate = MockAuthDelegate()
+        authRepository = MockAuthRepository()
         rootNavigator = MockRootNavigator()
         stackNavigator = MockStackNavigator()
         subject = AuthCoordinator(
             delegate: authDelegate,
             rootNavigator: rootNavigator,
-            services: ServiceContainer.withMocks(),
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository
+            ),
             stackNavigator: stackNavigator
         )
     }
@@ -31,6 +35,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         authDelegate = nil
+        authRepository = nil
         rootNavigator = nil
         stackNavigator = nil
         subject = nil
@@ -139,6 +144,44 @@ class AuthCoordinatorTests: BitwardenTestCase {
     func test_navigate_masterPasswordHint() {
         subject.navigate(to: .masterPasswordHint)
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
+    }
+
+    /// `navigate(to:)` with `.switchAccount` with an locked account navigates to vault unlock
+    func test_navigate_switchAccount_locked() {
+        let account = Account.fixture()
+        authRepository.setActiveAccountResult = .success(account)
+
+        let task = Task {
+            subject.navigate(to: .switchAccount(userId: account.profile.userId, isUnlocked: false))
+        }
+        waitFor(stackNavigator.actions.last?.type == .pushed)
+        task.cancel()
+        XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)
+    }
+
+    /// `navigate(to:)` with `.switchAccount` with an unlocked account triggers completion
+    func test_navigate_switchAccount_unlocked() {
+        let account = Account.fixture()
+        authRepository.setActiveAccountResult = .success(account)
+
+        let task = Task {
+            subject.navigate(to: .switchAccount(userId: account.profile.userId, isUnlocked: true))
+        }
+        waitFor(authDelegate.didCompleteAuthCalled)
+        task.cancel()
+
+        XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+    }
+
+    /// `navigate(to:)` with `.switchAccount` with an invalid account navigates to landing
+    func test_navigate_switchAccount_notFound() {
+        let account = Account.fixture()
+        let task = Task {
+            subject.navigate(to: .switchAccount(userId: account.profile.userId, isUnlocked: true))
+        }
+        waitFor(stackNavigator.actions.last?.view is LandingView)
+        task.cancel()
+        XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
     }
 
     /// `navigate(to:)` with `.vaultUnlock` pushes the vault unlock view onto the stack navigator.

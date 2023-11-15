@@ -4,5 +4,5 @@
 ///
 enum AccountSecurityEffect {
     /// The user's vault was locked.
-    case lockVault
+    case lockVault(userId: String)
 }

@@ -3,13 +3,31 @@ import Combine
 @testable import BitwardenShared
 
 class MockVaultTimeoutService: VaultTimeoutService {
-    var isLockedSubject = CurrentValueSubject<Bool, Never>(false)
-
-    func lock() {
-        isLockedSubject.send(true)
+    /// The store of locked status for known accounts
+    var timeoutStore = [String: Bool]() {
+        didSet {
+            isLockedSubject.send(timeoutStore)
+        }
     }
 
-    func isLockedPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+    lazy var isLockedSubject = CurrentValueSubject<[String: Bool], Never>(self.timeoutStore)
+
+    func isLocked(userId: String) throws -> Bool {
+        guard let pair = timeoutStore.first(where: { $0.key == userId }) else {
+            throw VaultTimeoutServiceError.noAccountFound
+        }
+        return pair.value
+    }
+
+    func isLockedPublisher() -> AsyncPublisher<AnyPublisher<[String: Bool], Never>> {
         isLockedSubject.eraseToAnyPublisher().values
+    }
+
+    func lockVault(_ shouldLock: Bool, userId: String) {
+        timeoutStore[userId] = shouldLock
+    }
+
+    func remove(userId: String) {
+        timeoutStore = timeoutStore.filter { $0.key != userId }
     }
 }

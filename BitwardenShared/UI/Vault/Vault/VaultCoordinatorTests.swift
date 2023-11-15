@@ -149,8 +149,13 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
 class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var addAccountTapped = false
+    var accountTapped: (String, Bool)?
 
     func didTapAddAccount() {
         addAccountTapped = true
+    }
+
+    func didTapAccount(userId: String, isUnlocked: Bool) {
+        accountTapped = (userId, isUnlocked)
     }
 }

@@ -1,5 +1,14 @@
 import Combine
 
+// MARK: - VaultTimeoutServiceError
+
+/// The errors thrown from a `VaultTimeoutService`.
+///
+enum VaultTimeoutServiceError: Error {
+    /// There are no known accounts.
+    case noAccountFound
+}
+
 // MARK: - VaultTimeoutService
 
 /// A protocol for handling vault access.
@@ -7,9 +16,18 @@ import Combine
 protocol VaultTimeoutService: AnyObject {
     // MARK: Methods
 
-    /// Locks the user's vault.
+    /// Checks the locked status of a user vault by user id
+    ///  - Parameter userId: The userId of the account
+    ///  - Returns: A bool, true if locked, false if unlocked.
     ///
-    func lock()
+    func isLocked(userId: String) throws -> Bool
+
+    /// Locks the user's vault
+    /// - Parameters:
+    ///    - shouldLock: the lock status for the account.
+    ///    - userId: The userId of the account to lock.
+    ///
+    func lockVault(_ shouldLock: Bool, userId: String)
 
     // MARK: Publishers
 
@@ -17,22 +35,44 @@ protocol VaultTimeoutService: AnyObject {
     ///
     /// - Returns: Whether or not the vault is locked.
     ///
-    func isLockedPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
+    func isLockedPublisher() -> AsyncPublisher<AnyPublisher<[String: Bool], Never>>
+
+    /// Removes an account id.
+    ///
+    func remove(userId: String)
 }
 
 // MARK: - DefaultVaultTimeoutService
 
 class DefaultVaultTimeoutService: VaultTimeoutService {
-    /// A subject containing a `Bool` for whether or not the vault is locked.
-    var isLockedSubject = CurrentValueSubject<Bool, Never>(false)
-
-    func lock() {
-        isLockedSubject.send(true)
+    /// The store of locked status for known accounts
+    var timeoutStore = [String: Bool]() {
+        didSet {
+            isLockedSubject.send(timeoutStore)
+        }
     }
 
-    func isLockedPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+    /// A subject containing a `Bool` for whether or not the vault is locked.
+    lazy var isLockedSubject = CurrentValueSubject<[String: Bool], Never>(self.timeoutStore)
+
+    func isLocked(userId: String) throws -> Bool {
+        guard let pair = timeoutStore.first(where: { $0.key == userId }) else {
+            throw VaultTimeoutServiceError.noAccountFound
+        }
+        return pair.value
+    }
+
+    func isLockedPublisher() -> AsyncPublisher<AnyPublisher<[String: Bool], Never>> {
         isLockedSubject
             .eraseToAnyPublisher()
             .values
+    }
+
+    func lockVault(_ shouldLock: Bool, userId: String) {
+        timeoutStore[userId] = shouldLock
+    }
+
+    func remove(userId: String) {
+        timeoutStore = timeoutStore.filter { $0.key != userId }
     }
 }

@@ -55,6 +55,12 @@ protocol StateService: AnyObject {
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
 
+    /// Sets the active account.
+    /// - Parameter userId: The user Id of the account to set as active
+    /// - Returns: The active user account.
+    ///
+    func setActiveAccount(userId: String) async throws
+
     /// Sets the password generation options for a user ID.
     ///
     /// - Parameters:
@@ -148,7 +154,7 @@ extension StateService {
     }
 }
 
-// MARK: - TokenServiceError
+// MARK: - StateServiceError
 
 /// The errors thrown from a `StateService`.
 ///
@@ -246,6 +252,15 @@ actor DefaultStateService: StateService {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
+    }
+
+    func setActiveAccount(userId: String) async throws {
+        guard var state = appSettingsStore.state else { return }
+        defer { appSettingsStore.state = state }
+
+        guard state.accounts
+            .contains(where: { $0.key == userId }) else { throw StateServiceError.noAccounts }
+        state.activeUserId = userId
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {

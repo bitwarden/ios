@@ -106,6 +106,8 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
             showMasterPasswordHint()
         case .selfHosted:
             showSelfHostedView()
+        case let .switchAccount(userId: userId, isUnlocked: isUnlocked):
+            selectAccount(for: userId, isUnlocked: isUnlocked)
         case let .vaultUnlock(account):
             showVaultUnlock(account: account)
         }
@@ -116,6 +118,26 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     }
 
     // MARK: Private Methods
+
+    /// Selects the account for a given userId and navigates to the correct point
+    /// - Parameters:
+    ///   - userId: The user id of the selected account.
+    ///   - isUnlocked: The lock status of the account.
+    private func selectAccount(for userId: String, isUnlocked: Bool) {
+        Task {
+            do {
+                let account = try await services.authRepository.setActiveAccount(userId: userId)
+                if isUnlocked {
+                    delegate?.didCompleteAuth()
+                } else {
+                    showVaultUnlock(account: account)
+                }
+            } catch {
+                services.errorReporter.log(error: error)
+                showLanding()
+            }
+        }
+    }
 
     /// Shows the captcha screen.
     ///

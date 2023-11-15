@@ -54,6 +54,14 @@ class MockStateService: StateService {
         accountEncryptionKeys[userId] = encryptionKeys
     }
 
+    func setActiveAccount(userId: String) async throws {
+        guard let accounts,
+              let match = accounts.first(where: { account in
+                  account.profile.userId == userId
+              }) else { throw StateServiceError.noAccounts }
+        activeAccount = match
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         passwordGenerationOptions[userId] = options
