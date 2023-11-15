@@ -26,6 +26,13 @@ protocol StateService: AnyObject {
     ///
     func getActiveAccount() async throws -> Account
 
+    /// Gets the password generation options for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the password generation options.
+    /// - Returns: The password generation options for the user ID.
+    ///
+    func getPasswordGenerationOptions(userId: String?) async -> PasswordGenerationOptions?
+
     /// Logs the user out of an account.
     ///
     /// - Parameter userId: The user ID of the account to log out of. Defaults to the active
@@ -40,6 +47,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
+
+    /// Sets the password generation options for a user ID.
+    ///
+    /// - Parameters:
+    ///   - options: The user's password generation options.
+    ///   - userId: The user ID associated with the password generation options.
+    ///
+    func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws
 
     /// Sets a new access and refresh token for an account.
     ///
@@ -60,6 +75,14 @@ extension StateService {
         try await getAccountEncryptionKeys(userId: nil)
     }
 
+    /// Gets the password generation options for the active account.
+    ///
+    /// - Returns: The password generation options for the user ID.
+    ///
+    func getPasswordGenerationOptions() async -> PasswordGenerationOptions? {
+        await getPasswordGenerationOptions(userId: nil)
+    }
+
     /// Logs the user out of the active account.
     ///
     func logoutAccount() async throws {
@@ -73,6 +96,14 @@ extension StateService {
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
         try await setAccountEncryptionKeys(encryptionKeys, userId: nil)
+    }
+
+    /// Sets the password generation options for the active account.
+    ///
+    /// - Parameters options: The user's password generation options.
+    ///
+    func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?) async throws {
+        try await setPasswordGenerationOptions(options, userId: nil)
     }
 
     /// Sets a new access and refresh token for the active account.
@@ -154,6 +185,11 @@ actor DefaultStateService: StateService {
         return activeAccount
     }
 
+    func getPasswordGenerationOptions(userId: String?) async -> PasswordGenerationOptions? {
+        guard let userId = try? userId ?? getActiveAccountUserId() else { return nil }
+        return appSettingsStore.passwordGenerationOptions(userId: userId)
+    }
+
     func logoutAccount(userId: String?) async throws {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
@@ -167,12 +203,18 @@ actor DefaultStateService: StateService {
 
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
+        appSettingsStore.setPasswordGenerationOptions(nil, userId: userId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
+    }
+
+    func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPasswordGenerationOptions(options, userId: userId)
     }
 
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {

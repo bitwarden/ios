@@ -4,6 +4,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
+    var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var rememberedEmail: String?
     var state: State?
 
@@ -13,6 +14,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func encryptedUserKey(userId: String) -> String? {
         encryptedUserKeys[userId]
+    }
+
+    func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
+        passwordGenerationOptions[userId]
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {
@@ -29,5 +34,13 @@ class MockAppSettingsStore: AppSettingsStore {
             return
         }
         encryptedUserKeys[userId] = key
+    }
+
+    func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
+        guard let options else {
+            passwordGenerationOptions.removeValue(forKey: userId)
+            return
+        }
+        passwordGenerationOptions[userId] = options
     }
 }

@@ -124,6 +124,48 @@ class StateServiceTests: BitwardenTestCase {
         XCTAssertEqual(activeAccount, account)
     }
 
+    /// `getPasswordGenerationOptions()` gets the saved password generation options for the account.
+    func test_getPasswordGenerationOptions() async throws {
+        let options1 = PasswordGenerationOptions(length: 30)
+        let options2 = PasswordGenerationOptions(length: 50)
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        appSettingsStore.passwordGenerationOptions = [
+            "1": options1,
+            "2": options2,
+        ]
+
+        let fetchedOptions1 = await subject.getPasswordGenerationOptions(userId: "1")
+        XCTAssertEqual(fetchedOptions1, options1)
+
+        let fetchedOptions2 = await subject.getPasswordGenerationOptions(userId: "2")
+        XCTAssertEqual(fetchedOptions2, options2)
+
+        let fetchedOptionsActiveAccount = await subject.getPasswordGenerationOptions()
+        XCTAssertEqual(fetchedOptionsActiveAccount, options1)
+
+        let fetchedOptionsNoAccount = await subject.getPasswordGenerationOptions(userId: "-1")
+        XCTAssertNil(fetchedOptionsNoAccount)
+    }
+
+    /// `logoutAccount()` clears any account data.
+    func test_logoutAccount_clearAccountData() async throws {
+        let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
+        await subject.addAccount(account)
+        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "USER_KEY"
+        ))
+        try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
+
+        try await subject.logoutAccount()
+
+        XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
+        XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
+        XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
+    }
+
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to
     /// `nil` if there are no other accounts.
     func test_logoutAccount_singleAccount() async throws {
@@ -272,5 +314,19 @@ class StateServiceTests: BitwardenTestCase {
                 tokens: Account.AccountTokens(accessToken: "🔑", refreshToken: "🔒")
             )
         )
+    }
+
+    /// `setPasswordGenerationOptions` sets the password generation options for an account.
+    func test_setPasswordGenerationOptions() async throws {
+        let options1 = PasswordGenerationOptions(length: 30)
+        let options2 = PasswordGenerationOptions(length: 50)
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setPasswordGenerationOptions(options1)
+        try await subject.setPasswordGenerationOptions(options2, userId: "2")
+
+        XCTAssertEqual(appSettingsStore.passwordGenerationOptions["1"], options1)
+        XCTAssertEqual(appSettingsStore.passwordGenerationOptions["2"], options2)
     }
 }

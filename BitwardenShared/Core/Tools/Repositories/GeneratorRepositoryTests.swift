@@ -9,6 +9,7 @@ class GeneratorRepositoryTests: BitwardenTestCase {
     var clientGenerators: MockClientGenerators!
     var cryptoService: MockCryptoService!
     var subject: GeneratorRepository!
+    var stateService: MockStateService!
 
     // MARK: Setup & Teardown
 
@@ -17,10 +18,12 @@ class GeneratorRepositoryTests: BitwardenTestCase {
 
         clientGenerators = MockClientGenerators()
         cryptoService = MockCryptoService()
+        stateService = MockStateService()
 
         subject = DefaultGeneratorRepository(
             clientGenerators: clientGenerators,
-            cryptoService: cryptoService
+            cryptoService: cryptoService,
+            stateService: stateService
         )
     }
 
@@ -30,6 +33,7 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         clientGenerators = nil
         cryptoService = nil
         subject = nil
+        stateService = nil
     }
 
     // MARK: Tests
@@ -163,5 +167,41 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         await assertAsyncThrows(error: CryptoServiceError.randomNumberGenerationFailed(-1)) {
             _ = try await subject.generateUsernamePlusAddressedEmail(email: "user@bitwarden.com")
         }
+    }
+
+    /// `getPasswordGenerationOptions` returns the saved password generation options for the active account.
+    func test_getPasswordGenerationOptions() async {
+        let options = PasswordGenerationOptions(length: 30)
+
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.passwordGenerationOptions = [account.profile.userId: options]
+
+        let fetchedOptions = await subject.getPasswordGenerationOptions()
+
+        XCTAssertEqual(fetchedOptions, options)
+    }
+
+    /// `getPasswordGenerationOptions` returns an empty set of options if they haven't previously
+    /// been saved for the active account.
+    func test_getPasswordGenerationOptions_notSet() async {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        let fetchedOptions = await subject.getPasswordGenerationOptions()
+
+        XCTAssertEqual(fetchedOptions, PasswordGenerationOptions())
+    }
+
+    /// `setPasswordGenerationOptions` sets the password generation options for the active account.
+    func test_setPasswordGenerationOptions() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        let options = PasswordGenerationOptions(length: 30)
+
+        try await subject.setPasswordGenerationOptions(options)
+
+        XCTAssertEqual(stateService.passwordGenerationOptions, [account.profile.userId: options])
     }
 }

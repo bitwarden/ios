@@ -9,6 +9,8 @@ class MockGeneratorRepository: GeneratorRepository {
     var passwordGeneratorRequest: PasswordGeneratorRequest?
     var passwordResult: Result<String, Error> = .success("PASSWORD")
 
+    var passwordGenerationOptions = PasswordGenerationOptions()
+
     var usernamePlusAddressEmail: String?
     var usernamePlusAddressEmailResult: Result<String, Error> = .success("user+abcd0123@bitwarden.com")
 
@@ -25,5 +27,13 @@ class MockGeneratorRepository: GeneratorRepository {
     func generateUsernamePlusAddressedEmail(email: String) async throws -> String {
         usernamePlusAddressEmail = email
         return try usernamePlusAddressEmailResult.get()
+    }
+
+    func getPasswordGenerationOptions() async -> PasswordGenerationOptions {
+        passwordGenerationOptions
+    }
+
+    func setPasswordGenerationOptions(_ options: PasswordGenerationOptions) async throws {
+        passwordGenerationOptions = options
     }
 }

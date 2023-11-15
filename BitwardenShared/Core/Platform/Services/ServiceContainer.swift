@@ -144,7 +144,10 @@ public class ServiceContainer: Services {
             clientCrypto: clientService.clientCrypto(),
             stateService: stateService
         )
-        let generatorRepository = DefaultGeneratorRepository(clientGenerators: clientService.clientGenerator())
+        let generatorRepository = DefaultGeneratorRepository(
+            clientGenerators: clientService.clientGenerator(),
+            stateService: stateService
+        )
         let settingsRepository = DefaultSettingsRepository(stateService: stateService)
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
