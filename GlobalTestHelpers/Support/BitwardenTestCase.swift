@@ -10,10 +10,10 @@ open class BitwardenTestCase: XCTestCase {
 
     @MainActor
     override open class func setUp() {
-        if UIDevice.current.name != "iPhone 14 Pro" {
+        if UIDevice.current.name != "iPhone 15 Pro" {
             assertionFailure(
                 """
-                Tests must be run using the iPhone 14 Pro simulator. Snapshot tests depend on using the correct device.
+                Tests must be run using the iPhone 15 Pro simulator. Snapshot tests depend on using the correct device.
                 """
             )
         }
