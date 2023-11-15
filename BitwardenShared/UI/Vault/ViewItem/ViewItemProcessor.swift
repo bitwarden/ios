@@ -46,7 +46,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     override func perform(_ effect: ViewItemEffect) async {
         switch effect {
         case .appeared:
-            await refreshVault()
             for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 guard let newState = ViewItemState(cipherView: value) else { continue }
                 state = newState
@@ -71,24 +70,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             // TODO: BIT-1131 Open item menu
             print("more pressed")
         case .passwordVisibilityPressed:
-            switch state.typeState {
-            case var .login(loginState):
+            switch state.loadingState {
+            case var .data(.login(loginState)):
                 loginState.isPasswordVisible.toggle()
-                state.typeState = .login(loginState)
+                state.loadingState = .data(.login(loginState))
             default:
                 assertionFailure("Cannot toggle password for non-login item.")
             }
-        }
-    }
-
-    // MARK: Private Methods
-
-    private func refreshVault() async {
-        do {
-            try await services.vaultRepository.fetchSync()
-        } catch {
-            // TODO: BIT-1034 Add an error alert
-            print(error)
         }
     }
 }

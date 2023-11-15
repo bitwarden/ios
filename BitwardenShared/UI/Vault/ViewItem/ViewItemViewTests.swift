@@ -32,11 +32,11 @@ class ViewItemViewTests: BitwardenTestCase {
 
     /// Tapping the check password button dispatches the `.checkPasswordPressed` action.
     func test_checkPasswordButton_tap() throws {
-        processor.state.typeState = .login(ViewLoginItemState(
+        processor.state.loadingState = .data(.login(ViewLoginItemState(
             name: "Name",
             password: "password",
             updatedDate: Date()
-        ))
+        )))
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.checkPassword)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .checkPasswordPressed)
@@ -44,11 +44,11 @@ class ViewItemViewTests: BitwardenTestCase {
 
     /// Tapping the copy usename button dispatches the `.copyPressed` action with the username.
     func test_copyUsernameButton_tap() throws {
-        processor.state.typeState = .login(ViewLoginItemState(
+        processor.state.loadingState = .data(.login(ViewLoginItemState(
             name: "Name",
             updatedDate: Date(),
             username: "username"
-        ))
+        )))
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "username"))
@@ -57,11 +57,11 @@ class ViewItemViewTests: BitwardenTestCase {
     /// Tapping the copy password button dispatches the `.copyPressed` action along with the
     /// password.
     func test_copyPasswordButton_tap() throws {
-        processor.state.typeState = .login(ViewLoginItemState(
+        processor.state.loadingState = .data(.login(ViewLoginItemState(
             name: "Name",
             password: "password",
             updatedDate: Date()
-        ))
+        )))
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "password"))
@@ -69,13 +69,13 @@ class ViewItemViewTests: BitwardenTestCase {
 
     /// Tapping the copy uri button dispatches the `.copyPressed` action along with the uri.
     func test_copyUriButton_tap() throws {
-        processor.state.typeState = .login(ViewLoginItemState(
+        processor.state.loadingState = .data(.login(ViewLoginItemState(
             name: "Name",
             updatedDate: Date(),
             uris: [
                 .init(uri: "www.example.com", match: nil),
             ]
-        ))
+        )))
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "www.example.com"))
@@ -98,12 +98,12 @@ class ViewItemViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     func test_snapshot_loading() {
-        processor.state.typeState = .loading
+        processor.state.loadingState = .loading
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_login_withAllValues() {
-        processor.state.typeState = .login(.init(
+        processor.state.loadingState = .data(.login(.init(
             customFields: [
                 .init(
                     name: "Field Name",
@@ -129,7 +129,7 @@ class ViewItemViewTests: BitwardenTestCase {
                 ),
             ],
             username: "email@example.com"
-        ))
+        )))
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 }

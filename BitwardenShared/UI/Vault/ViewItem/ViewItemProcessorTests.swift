@@ -59,10 +59,10 @@ class ViewItemProcessorTests: BitwardenTestCase {
             await subject.perform(.appeared)
         }
 
-        waitFor(subject.state.typeState != .loading)
+        waitFor(subject.state.loadingState != .loading)
         task.cancel()
 
-        XCTAssertEqual(subject.state.typeState, .login(ViewLoginItemState(
+        XCTAssertEqual(subject.state.loadingState, .data(.login(ViewLoginItemState(
             customFields: [],
             folder: nil,
             isPasswordVisible: true,
@@ -72,8 +72,8 @@ class ViewItemProcessorTests: BitwardenTestCase {
             updatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
             uris: [],
             username: "username"
-        )))
-        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        ))))
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
     /// `receive` with `.checkPasswordPressed` checks the password with the HIBP service.
@@ -114,10 +114,10 @@ class ViewItemProcessorTests: BitwardenTestCase {
             name: "name",
             updatedDate: Date()
         )
-        subject.state.typeState = .login(loginState)
+        subject.state.loadingState = .data(.login(loginState))
         subject.receive(.passwordVisibilityPressed)
 
         loginState.isPasswordVisible = true
-        XCTAssertEqual(subject.state.typeState, .login(loginState))
+        XCTAssertEqual(subject.state.loadingState, .data(.login(loginState)))
     }
 }

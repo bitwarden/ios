@@ -176,9 +176,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             coordinator: self,
             itemId: id,
             services: services,
-            state: ViewItemState(
-                typeState: .loading
-            )
+            state: ViewItemState()
         )
         let store = Store(processor: processor)
         let view = ViewItemView(store: store)

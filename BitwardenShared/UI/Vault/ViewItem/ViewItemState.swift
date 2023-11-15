@@ -9,9 +9,6 @@ struct ViewItemState: Equatable {
 
     /// An enumeration of the possible values of this state.
     enum ItemTypeState: Equatable {
-        /// The processor is currently loading.
-        case loading
-
         /// A login item's representative state.
         case login(ViewLoginItemState)
     }
@@ -20,7 +17,7 @@ struct ViewItemState: Equatable {
 
     /// The current state. If this state is not `.loading`, this value will contain an associated value with the
     /// appropriate internal state.
-    var typeState: ItemTypeState = .loading
+    var loadingState: LoadingState<ItemTypeState> = .loading
 }
 
 extension ViewItemState {
@@ -35,17 +32,19 @@ extension ViewItemState {
         case .login:
             guard let loginItem = cipherView.login else { return nil }
             self.init(
-                typeState: .login(
-                    ViewLoginItemState(
-                        customFields: cipherView.fields ?? [],
-                        folder: cipherView.folderId,
-                        isPasswordVisible: cipherView.viewPassword,
-                        name: cipherView.name,
-                        notes: cipherView.notes,
-                        password: loginItem.password,
-                        updatedDate: cipherView.revisionDate,
-                        uris: loginItem.uris ?? [],
-                        username: loginItem.username
+                loadingState: .data(
+                    .login(
+                        ViewLoginItemState(
+                            customFields: cipherView.fields ?? [],
+                            folder: cipherView.folderId,
+                            isPasswordVisible: cipherView.viewPassword,
+                            name: cipherView.name,
+                            notes: cipherView.notes,
+                            password: loginItem.password,
+                            updatedDate: cipherView.revisionDate,
+                            uris: loginItem.uris ?? [],
+                            username: loginItem.username
+                        )
                     )
                 )
             )

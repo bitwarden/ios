@@ -16,69 +16,54 @@ struct ViewItemView: View {
     @ObservedObject var store: Store<ViewItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
-        contents
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-            .navigationTitle(Localizations.viewItem)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    Button {
-                        store.send(.morePressed)
-                    } label: {
-                        Asset.Images.verticalKabob.swiftUIImage
-                            .resizable()
-                            .frame(width: 19, height: 19)
-                    }
-                    .accessibilityLabel(Localizations.options)
-
-                    Button {
-                        store.send(.dismissPressed)
-                    } label: {
-                        Asset.Images.cancel.swiftUIImage
-                            .resizable()
-                            .frame(width: 19, height: 19)
-                    }
-                    .accessibilityLabel(Localizations.close)
+        LoadingView(state: store.state.loadingState) { state in
+            details(for: state)
+        }
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .navigationTitle(Localizations.viewItem)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                Button {
+                    store.send(.morePressed)
+                } label: {
+                    Asset.Images.verticalKabob.swiftUIImage
+                        .resizable()
+                        .frame(width: 19, height: 19)
                 }
-            }
-            .task {
-                await store.perform(.appeared)
-            }
-    }
+                .accessibilityLabel(Localizations.options)
 
-    /// The contents of the view, so that modifiers can be added to the entire hierarchy.
-    @ViewBuilder private var contents: some View {
-        switch store.state.typeState {
-        case .loading:
-            ProgressView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        case .login:
-            details
+                Button {
+                    store.send(.dismissPressed)
+                } label: {
+                    Asset.Images.cancel.swiftUIImage
+                        .resizable()
+                        .frame(width: 19, height: 19)
+                }
+                .accessibilityLabel(Localizations.close)
+            }
+        }
+        .task {
+            await store.perform(.appeared)
         }
     }
+
+    // MARK: Private Methods
 
     /// The details of the item. This view wraps all of the different detail views for
     /// the different types of items into one variable, so that the edit button can be
     /// added to all of them at once.
-    @ViewBuilder private var details: some View {
+    @ViewBuilder
+    private func details(for state: ViewItemState.ItemTypeState) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
-                switch store.state.typeState {
+                switch state {
                 case let .login(loginState):
                     ViewLoginItemView(store: store.child(
-                        state: { state in
-                            switch state.typeState {
-                            case let .login(state):
-                                return state
-                            default:
-                                return loginState
-                            }
-                        },
+                        state: { _ in loginState },
                         mapAction: { $0 },
                         mapEffect: nil
                     ))
-                case .loading:
-                    EmptyView()
                 }
             }
             .padding(16)
@@ -103,7 +88,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            typeState: .loading
+                            loadingState: .loading
                         )
                     )
                 )
@@ -116,7 +101,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            typeState: .login(.init(
+                            loadingState: .data(.login(.init(
                                 customFields: [
                                     FieldView(
                                         name: "Field Name",
@@ -142,7 +127,7 @@ struct ViewItemView_Previews: PreviewProvider {
                                     ),
                                 ],
                                 username: "email@example.com"
-                            ))
+                            )))
                         )
                     )
                 )
