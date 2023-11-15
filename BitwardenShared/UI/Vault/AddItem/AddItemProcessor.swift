@@ -5,7 +5,8 @@
 final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddItemEffect> {
     // MARK: Types
 
-    typealias Services = HasVaultRepository
+    typealias Services = HasCameraAuthorizationService
+        & HasVaultRepository
 
     // MARK: Properties
 
@@ -73,7 +74,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         case let .passwordChanged(newValue):
             state.password = newValue
         case .setupTotpPressed:
-            coordinator.navigate(to: .setupTotpCamera)
+            setupTotp()
         case let .togglePasswordVisibilityChanged(newValue):
             state.isPasswordVisible = newValue
         case let .typeChanged(newValue):
@@ -140,6 +141,38 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
             coordinator.navigate(to: .list)
         } catch {
             print(error)
+        }
+    }
+
+    /// Kicks off the TOTP setup flow.
+    ///
+    private func setupTotp() {
+        let status = services.cameraAuthorizationService.cameraAuthorizationStatus
+        if status == .notDetermined {
+            Task {
+                let status = await services.cameraAuthorizationService.requestCameraAuthorization()
+                navigateToSetupTotpRoute(for: status)
+            }
+        } else {
+            navigateToSetupTotpRoute(for: status)
+        }
+    }
+
+    /// Navigates to the correct totp setup route for the provided status.
+    ///
+    /// - Parameter status: The camera authorization status to use when determining which route to
+    ///   navigate to.
+    ///
+    private func navigateToSetupTotpRoute(for status: CameraAuthorizationStatus) {
+        switch status {
+        case .authorized:
+            coordinator.navigate(to: .setupTotpCamera)
+        case .denied,
+             .restricted:
+            coordinator.navigate(to: .setupTotpManual)
+        case .notDetermined:
+            assertionFailure("Navigating to the `.notDetermined` camera authorization status should be impossible.")
+            setupTotp()
         }
     }
 }

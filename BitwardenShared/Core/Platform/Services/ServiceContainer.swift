@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to generate captcha related artifacts.
     let captchaService: CaptchaService
 
+    /// The service used by the application to query for and request camera authorization.
+    let cameraAuthorizationService: CameraAuthorizationService
+
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
@@ -75,6 +78,8 @@ public class ServiceContainer: Services {
     ///   - biometricsService: The service used to obtain the available authentication policies
     ///   and access controls for the user's device.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
+    ///   - cameraAuthorizationService: The service used by the application to query for and request
+    ///     camera authorization.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
@@ -92,6 +97,7 @@ public class ServiceContainer: Services {
         baseUrlService: BaseUrlService,
         biometricsService: BiometricsService,
         captchaService: CaptchaService,
+        cameraAuthorizationService: CameraAuthorizationService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
@@ -108,6 +114,7 @@ public class ServiceContainer: Services {
         self.baseUrlService = baseUrlService
         self.biometricsService = biometricsService
         self.captchaService = captchaService
+        self.cameraAuthorizationService = cameraAuthorizationService
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
@@ -160,6 +167,7 @@ public class ServiceContainer: Services {
             baseUrlService: baseUrlService,
             biometricsService: biometricsService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
+            cameraAuthorizationService: DefaultCameraAuthorizationService(),
             clientService: clientService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,

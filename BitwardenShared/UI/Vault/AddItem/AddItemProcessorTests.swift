@@ -7,6 +7,7 @@ import XCTest
 class AddItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var cameraAuthorizationService: MockCameraAuthorizationService!
     var coordinator: MockCoordinator<VaultRoute>!
     var subject: AddItemProcessor!
     var vaultRepository: MockVaultRepository!
@@ -15,11 +16,14 @@ class AddItemProcessorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+
+        cameraAuthorizationService = MockCameraAuthorizationService()
         coordinator = MockCoordinator()
         vaultRepository = MockVaultRepository()
         subject = AddItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                cameraAuthorizationService: cameraAuthorizationService,
                 vaultRepository: vaultRepository
             ),
             state: AddItemState()
@@ -235,11 +239,48 @@ class AddItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.password, "")
     }
 
-    /// `receive(_:)` with `.setupTotpPressed` navigates to the `.setupTotpCamera` route.
-    func test_receive_setupTotpPressed() {
+    /// `receive(_:)` with `.setupTotpPressed` with camera authorization initial not determined, but
+    /// then authorized, navigates to the `.setupTotpCamera` route.
+    func test_receive_setupTotpPressed_cameraAuthorizationNotDetermined_authorizationGranted() {
+        cameraAuthorizationService.cameraAuthorizationStatus = .notDetermined
+        cameraAuthorizationService.requestCameraAuthorizationResult = .authorized
         subject.receive(.setupTotpPressed)
 
+        waitFor(!coordinator.routes.isEmpty)
+        XCTAssertTrue(cameraAuthorizationService.requestCameraAuthorizationCalled)
         XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
+    }
+
+    /// `receive(_:)` with `.setupTotpPressed` with camera authorization initial not determined, but
+    /// then denied, navigates to the `.setupTotpManual` route.
+    func test_receive_setupTotpPressed_cameraAuthorizationNotDetermined_authorizationDenied() {
+        cameraAuthorizationService.cameraAuthorizationStatus = .notDetermined
+        cameraAuthorizationService.requestCameraAuthorizationResult = .denied
+        subject.receive(.setupTotpPressed)
+
+        waitFor(!coordinator.routes.isEmpty)
+        XCTAssertTrue(cameraAuthorizationService.requestCameraAuthorizationCalled)
+        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
+    /// `receive(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
+    /// `.setupTotpCamera` route.
+    func test_receive_setupTotpPressed_cameraAuthorizationAuthorized() {
+        cameraAuthorizationService.cameraAuthorizationStatus = .authorized
+        subject.receive(.setupTotpPressed)
+
+        XCTAssertFalse(cameraAuthorizationService.requestCameraAuthorizationCalled)
+        XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
+    }
+
+    /// `receive(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the
+    /// `.setupTotpManual` route.
+    func test_receive_setupTotpPressed_cameraAuthorizationDenied() {
+        cameraAuthorizationService.cameraAuthorizationStatus = .denied
+        subject.receive(.setupTotpPressed)
+
+        XCTAssertFalse(cameraAuthorizationService.requestCameraAuthorizationCalled)
+        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.
