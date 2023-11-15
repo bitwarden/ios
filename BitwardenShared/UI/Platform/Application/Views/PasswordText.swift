@@ -23,7 +23,7 @@ struct PasswordText: View {
 
     // MARK: Private Properties
 
-    /// A color-coded evaulation of the provided string.
+    /// A color-coded evaluation of the provided string.
     ///
     /// The following foreground color is applied to each character:
     /// - Letters: `textPrimary`
