@@ -10,6 +10,7 @@ class VaultRepositoryTests: BitwardenTestCase {
     var client: MockHTTPClient!
     var clientCiphers: MockClientCiphers!
     var clientVault: MockClientVaultService!
+    var stateService: MockStateService!
     var subject: DefaultVaultRepository!
 
     // MARK: Setup & Teardown
@@ -23,9 +24,12 @@ class VaultRepositoryTests: BitwardenTestCase {
 
         clientVault.clientCiphers = clientCiphers
 
+        stateService = MockStateService()
+
         subject = DefaultVaultRepository(
             cipherAPIService: APIService(client: client),
             clientVault: clientVault,
+            stateService: stateService,
             syncAPIService: APIService(client: client)
         )
     }
@@ -34,6 +38,7 @@ class VaultRepositoryTests: BitwardenTestCase {
         super.tearDown()
 
         client = nil
+        stateService = nil
         subject = nil
     }
 

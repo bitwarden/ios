@@ -7,11 +7,13 @@ typealias Services = HasAccountAPIService
     & HasAppSettingsStore
     & HasAuthAPIService
     & HasAuthRepository
+    & HasBiometricsService
     & HasCaptchaService
     & HasClientAuth
     & HasDeviceAPIService
     & HasErrorReporter
     & HasGeneratorRepository
+    & HasPasteboardService
     & HasSettingsRepository
     & HasStateService
     & HasSystemDevice
@@ -66,6 +68,12 @@ protocol HasBaseUrlService {
     var baseUrlService: BaseUrlService { get }
 }
 
+/// Protocol for obtaining the device's biometric authentication type.
+///
+protocol HasBiometricsService {
+    var biometricsService: BiometricsService { get }
+}
+
 /// Protocol for an object that provides a `CaptchaService`.
 ///
 protocol HasCaptchaService {
@@ -97,6 +105,13 @@ protocol HasErrorReporter {
 protocol HasGeneratorRepository {
     /// The repository used by the application to manage generator data for the UI layer.
     var generatorRepository: GeneratorRepository { get }
+}
+
+/// Protocol for an object that provides a `PasteboardService`.
+///
+protocol HasPasteboardService {
+    /// The service used by the application for sharing data with other apps.
+    var pasteboardService: PasteboardService { get }
 }
 
 /// Protocol for an object that provides a `SettingsRepository`.

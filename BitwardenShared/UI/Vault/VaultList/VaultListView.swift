@@ -96,7 +96,7 @@ private struct VaultMainView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                         }
                     }
                 }
@@ -123,6 +123,7 @@ private struct VaultMainView: View {
 
     /// A view that displays either the my vault or empty vault interface.
     @ViewBuilder private var vault: some View {
+        // TODO: BIT-1161 Refactor to use LoadingState to show a loading indicator on initial load
         if store.state.sections.isEmpty {
             emptyVault
         } else {
@@ -183,7 +184,7 @@ private struct VaultMainView: View {
                     }
                 }
             }
-            .background(Asset.Colors.backgroundGroupedElevatedSecondary.swiftUIColor)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }

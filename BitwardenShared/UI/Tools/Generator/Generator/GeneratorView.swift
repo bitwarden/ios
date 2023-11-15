@@ -5,6 +5,9 @@ import SwiftUI
 struct GeneratorView: View {
     // MARK: Properties
 
+    /// The key path of the currently focused text field.
+    @FocusState private var focusedFieldKeyPath: KeyPath<GeneratorState, String>?
+
     /// An action that opens URLs.
     @Environment(\.openURL) private var openURL
 
@@ -24,6 +27,29 @@ struct GeneratorView: View {
         .navigationBarTitleDisplayMode(.large)
         .navigationTitle(Localizations.generator)
         .onAppear { store.send(.appeared) }
+        .onChange(of: focusedFieldKeyPath) { newValue in
+            store.send(.textFieldFocusChanged(keyPath: newValue))
+        }
+        .toast(store.binding(
+            get: \.toast,
+            send: GeneratorAction.toastShown
+        ))
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button {
+                        store.send(.showPasswordHistory)
+                    } label: {
+                        Text(Localizations.passwordHistory)
+                    }
+                } label: {
+                    Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
+                        .resizable()
+                        .frame(width: 19, height: 19)
+                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                }
+            }
+        }
     }
 
     /// Returns a view for displaying a section of items in the form.
@@ -53,6 +79,10 @@ struct GeneratorView: View {
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.passwordGeneratorTypeChanged(newValue))
                     }
+                case let .menuUsernameForwardedEmailService(menuField):
+                    FormMenuFieldView(field: menuField) { newValue in
+                        store.send(.usernameForwardedEmailServiceChanged(newValue))
+                    }
                 case let .menuUsernameGeneratorType(menuField):
                     menuUsernameGeneratorTypeView(field: menuField)
                 case let .slider(sliderField):
@@ -66,7 +96,10 @@ struct GeneratorView: View {
                 case let .text(textField):
                     FormTextFieldView(field: textField) { newValue in
                         store.send(.textValueChanged(field: textField, value: newValue))
+                    } isPasswordVisibleChangedAction: { newValue in
+                        store.send(.textFieldIsPasswordVisibleChanged(field: textField, value: newValue))
                     }
+                    .focused($focusedFieldKeyPath, equals: textField.keyPath)
                 case let .toggle(toggleField):
                     ToggleFieldView(field: toggleField) { isOn in
                         store.send(.toggleValueChanged(field: toggleField, isOn: isOn))
@@ -88,7 +121,7 @@ struct GeneratorView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                 .cornerRadius(10)
 
             Button {
@@ -104,7 +137,7 @@ struct GeneratorView: View {
             Button {
                 store.send(.refreshGeneratedValue)
             } label: {
-                Asset.Images.restart.swiftUIImage
+                Asset.Images.restart2.swiftUIImage
                     .resizable()
                     .frame(width: 16, height: 16)
             }

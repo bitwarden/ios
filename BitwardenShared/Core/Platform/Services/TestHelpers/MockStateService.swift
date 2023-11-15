@@ -6,6 +6,7 @@ class MockStateService: StateService {
     var accountsAdded = [Account]()
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
+    var accounts: [Account]?
 
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
@@ -19,6 +20,12 @@ class MockStateService: StateService {
             throw StateServiceError.noActiveAccount
         }
         return encryptionKeys
+    }
+
+    func getAccounts() async throws -> [BitwardenShared.Account] {
+        // TODO: BIT-1132 - Profile Switcher UI on Auth
+        guard let accounts else { throw StateServiceError.noAccounts }
+        return accounts
     }
 
     func getActiveAccount() throws -> Account {

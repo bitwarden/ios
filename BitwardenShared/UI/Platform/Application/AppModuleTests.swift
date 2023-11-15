@@ -74,10 +74,12 @@ class AppModuleTests: BitwardenTestCase {
         let rootViewController = RootViewController()
         let tabBarController = UITabBarController()
         let settingsDelegate = MockSettingsCoordinatorDelegate()
+        let vaultDelegate = MockVaultCoordinatorDelegate()
         let coordinator = subject.makeTabCoordinator(
             rootNavigator: rootViewController,
             settingsDelegate: settingsDelegate,
-            tabNavigator: tabBarController
+            tabNavigator: tabBarController,
+            vaultDelegate: vaultDelegate
         )
         coordinator.start()
         XCTAssertNotNil(rootViewController.childViewController)
@@ -88,6 +90,7 @@ class AppModuleTests: BitwardenTestCase {
     func test_makeVaultCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeVaultCoordinator(
+            delegate: MockVaultCoordinatorDelegate(),
             stackNavigator: navigationController
         )
         coordinator.navigate(to: .list)

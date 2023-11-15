@@ -1,3 +1,5 @@
+import SwiftUI
+
 // MARK: - ProfileSwitcherAction
 
 /// Actions that can be processed by a `ProfileSwitcherProcessor`.
@@ -10,4 +12,7 @@ enum ProfileSwitcherAction: Equatable {
 
     /// The user tapped the background area of the view
     case backgroundPressed
+
+    /// The offset of the scrollView Changed
+    case scrollOffsetChanged(CGPoint)
 }

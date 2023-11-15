@@ -144,15 +144,17 @@ struct BitwardenTextField: View {
             Button {
                 text = ""
             } label: {
-                Asset.Images.delete.swiftUIImage
-                    .foregroundColor(.gray)
+                Asset.Images.cancelRound.swiftUIImage
+                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .frame(width: 14, height: 14)
             }
+            .padding(.vertical, 5)
             .hidden(text.isEmpty)
         }
         .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundElevatedTertiary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -171,8 +173,8 @@ struct BitwardenTextField: View {
                                 isPasswordVisible.wrappedValue.toggle()
                             },
                             icon: isPasswordVisible.wrappedValue
-                                ? Asset.Images.eyeSlash
-                                : Asset.Images.eye
+                                ? Asset.Images.hidden
+                                : Asset.Images.visible
                         )
                     )
                 }
@@ -303,7 +305,7 @@ struct BitwardenTextField_Previews: PreviewProvider {
                     BitwardenTextField.AccessoryButton(
                         accessibilityLabel: "",
                         action: {},
-                        icon: Asset.Images.cog
+                        icon: Asset.Images.gear
                     ),
                 ],
                 text: .constant("Text field text")
@@ -320,7 +322,7 @@ struct BitwardenTextField_Previews: PreviewProvider {
                     BitwardenTextField.AccessoryButton(
                         accessibilityLabel: "",
                         action: {},
-                        icon: Asset.Images.cog
+                        icon: Asset.Images.gear
                     ),
                 ],
                 footer: Localizations.vaultLockedMasterPassword,

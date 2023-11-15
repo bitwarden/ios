@@ -35,7 +35,7 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Properties
 
     /// The delegate for this coordinator. Used to signal when auth has been completed.
-    weak var delegate: (any AuthCoordinatorDelegate)?
+    private weak var delegate: (any AuthCoordinatorDelegate)?
 
     /// The root navigator used to display this coordinator's interface.
     weak var rootNavigator: (any RootNavigator)?

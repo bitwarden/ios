@@ -1,3 +1,5 @@
+import SwiftUI
+
 // MARK: - SettingsCoordinatorDelegate
 
 /// An object that is signaled when specific circumstances in the application flow have been encountered.
@@ -16,13 +18,14 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
 final class SettingsCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasBiometricsService
+        & HasErrorReporter
         & HasSettingsRepository
 
     // MARK: Properties
 
     /// The delegate for this coordinator, used to notify when the user logs out.
-    weak var delegate: SettingsCoordinatorDelegate?
+    private weak var delegate: SettingsCoordinatorDelegate?
 
     /// The services used by this coordinator.
     let services: Services
@@ -53,6 +56,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: SettingsRoute, context: AnyObject?) {
         switch route {
+        case .accountSecurity:
+            showAccountSecurity()
         case let .alert(alert):
             stackNavigator.present(alert)
         case .logout:
@@ -68,12 +73,26 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
+    /// Shows the account security screen.
+    ///
+    private func showAccountSecurity() {
+        let processor = AccountSecurityProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AccountSecurityState()
+        )
+
+        let view = AccountSecurityView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
     /// Shows the settings screen.
     ///
     private func showSettings() {
         let processor = SettingsProcessor(
             coordinator: asAnyCoordinator(),
-            services: services,
             state: SettingsState()
         )
         let view = SettingsView(store: Store(processor: processor))

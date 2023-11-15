@@ -1,3 +1,5 @@
+import UIKit
+
 extension GeneratorState {
     /// Data model containing the data to display a section of fields in a form.
     ///
@@ -34,6 +36,9 @@ extension GeneratorState {
             /// A menu field for the user generator type.
             case menuUsernameGeneratorType(FormMenuField<State, UsernameState.UsernameGeneratorType>)
 
+            /// A menu field for username forwarded email service.
+            case menuUsernameForwardedEmailService(FormMenuField<State, UsernameState.ForwardedEmailService>)
+
             /// A slider field.
             case slider(SliderField<State>)
 
@@ -57,6 +62,8 @@ extension GeneratorState {
                 case let .menuPasswordGeneratorType(field):
                     return field.id
                 case let .menuUsernameGeneratorType(field):
+                    return field.id
+                case let .menuUsernameForwardedEmailService(field):
                     return field.id
                 case let .slider(field):
                     return field.id
@@ -181,19 +188,34 @@ extension GeneratorState {
     /// - Parameters:
     ///   - autocapitalization: The behavior for when the input should be automatically capitalized.
     ///     Defaults to `.never`.
+    ///   - isAutocorrectDisabled: Whether autocorrect is disabled in the text field. Defaults to
+    ///     `true`.
+    ///   - isPasswordVisibleKeyPath: A key path for updating whether a password displayed in the
+    ///     text field is visible.
+    ///   - keyboardType: The type of keyboard to display.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
+    ///   - textContentType: The expected type of content input in the text field. Defaults to `nil`.
     ///   - title: The title of the field.
     /// - Returns: A form field for a generated value field.
     ///
     func textField(
         autocapitalization: FormTextField<Self>.Autocapitalization = .never,
+        isAutocorrectDisabled: Bool = true,
+        isPasswordVisibleKeyPath: WritableKeyPath<GeneratorState, Bool>? = nil,
+        keyboardType: UIKeyboardType = .default,
         keyPath: WritableKeyPath<GeneratorState, String>,
+        textContentType: UITextContentType? = nil,
         title: String
     ) -> FormField<Self> {
         FormField(fieldType: .text(
             FormTextField(
                 autocapitalization: autocapitalization,
+                isAutocorrectDisabled: isAutocorrectDisabled,
+                isPasswordVisible: isPasswordVisibleKeyPath.map { self[keyPath: $0] },
+                isPasswordVisibleKeyPath: isPasswordVisibleKeyPath,
+                keyboardType: keyboardType,
                 keyPath: keyPath,
+                textContentType: textContentType,
                 title: title,
                 value: self[keyPath: keyPath]
             )

@@ -42,7 +42,7 @@ struct AddItemView: View {
                             .init(
                                 accessibilityLabel: Localizations.generateUsername,
                                 action: { store.send(.generateUsernamePressed) },
-                                icon: Asset.Images.restart
+                                icon: Asset.Images.restart2
                             ),
                         ],
                         text: store.binding(
@@ -65,7 +65,7 @@ struct AddItemView: View {
                             .init(
                                 accessibilityLabel: Localizations.generatePassword,
                                 action: { store.send(.generatePasswordPressed) },
-                                icon: Asset.Images.restart
+                                icon: Asset.Images.restart2
                             ),
                         ],
                         isPasswordVisible: store.binding(
