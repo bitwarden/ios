@@ -37,7 +37,7 @@ extension ViewItemState {
                         ViewLoginItemState(
                             customFields: cipherView.fields ?? [],
                             folder: cipherView.folderId,
-                            isPasswordVisible: cipherView.viewPassword,
+                            isPasswordVisible: false,
                             name: cipherView.name,
                             notes: cipherView.notes,
                             password: loginItem.password,
