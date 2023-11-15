@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class StateServiceTests: BitwardenTestCase {
+class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
@@ -146,6 +146,31 @@ class StateServiceTests: BitwardenTestCase {
         XCTAssertEqual(fetchedOptionsActiveAccount, options1)
 
         let fetchedOptionsNoAccount = try await subject.getPasswordGenerationOptions(userId: "-1")
+        XCTAssertNil(fetchedOptionsNoAccount)
+    }
+
+    /// `getUsernameGenerationOptions()` gets the saved username generation options for the account.
+    func test_getUsernameGenerationOptions() async throws {
+        let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
+        let options2 = UsernameGenerationOptions(catchAllEmailDomain: "bitwarden.com")
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        appSettingsStore.usernameGenerationOptions = [
+            "1": options1,
+            "2": options2,
+        ]
+
+        let fetchedOptions1 = try await subject.getUsernameGenerationOptions(userId: "1")
+        XCTAssertEqual(fetchedOptions1, options1)
+
+        let fetchedOptions2 = try await subject.getUsernameGenerationOptions(userId: "2")
+        XCTAssertEqual(fetchedOptions2, options2)
+
+        let fetchedOptionsActiveAccount = try await subject.getUsernameGenerationOptions()
+        XCTAssertEqual(fetchedOptionsActiveAccount, options1)
+
+        let fetchedOptionsNoAccount = try await subject.getUsernameGenerationOptions(userId: "-1")
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 
@@ -328,5 +353,19 @@ class StateServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["1"], options1)
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["2"], options2)
+    }
+
+    /// `setUsernameGenerationOptions` sets the username generation options for an account.
+    func test_setUsernameGenerationOptions() async throws {
+        let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
+        let options2 = UsernameGenerationOptions(catchAllEmailDomain: "bitwarden.com")
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setUsernameGenerationOptions(options1)
+        try await subject.setUsernameGenerationOptions(options2, userId: "2")
+
+        XCTAssertEqual(appSettingsStore.usernameGenerationOptions["1"], options1)
+        XCTAssertEqual(appSettingsStore.usernameGenerationOptions["2"], options2)
     }
 }
