@@ -13,15 +13,9 @@ struct SettingsView: View {
     // MARK: View
 
     var body: some View {
-        ScrollView {
-            VStack {
-                settingsItems
-            }
-            .padding(16)
-        }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle(Localizations.settings)
-        .navigationBarTitleDisplayMode(.large)
+        settingsItems
+            .scrollView()
+            .navigationBar(title: Localizations.settings, titleDisplayMode: .large)
     }
 
     // MARK: Private views
