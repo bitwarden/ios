@@ -52,11 +52,13 @@ struct LoginView: View {
     @ViewBuilder var textField: some View {
         VStack(alignment: .leading, spacing: 8) {
             BitwardenTextField(
+                accessibilityIdentifier: "MasterPasswordEntry",
                 title: Localizations.masterPassword,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: LoginAction.revealMasterPasswordFieldPressed
                 ),
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 text: store.binding(
                     get: \.masterPassword,
                     send: LoginAction.masterPasswordChanged
@@ -68,6 +70,7 @@ struct LoginView: View {
             Button(Localizations.getMasterPasswordwordHint) {
                 store.send(.getMasterPasswordHintPressed)
             }
+            .accessibilityIdentifier("GetMasterPasswordHintLabel")
             .font(.styleGuide(.subheadline))
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
@@ -81,6 +84,7 @@ struct LoginView: View {
                     await store.perform(.loginWithMasterPasswordPressed)
                 }
             }
+            .accessibilityIdentifier("LogInWithMasterPasswordButton")
             .buttonStyle(.primary())
 
             if store.state.isLoginWithDeviceVisible {
@@ -92,6 +96,7 @@ struct LoginView: View {
                         Text(Localizations.logInWithDevice)
                     }
                 }
+                .accessibilityIdentifier("LogInWithAnotherDeviceButton")
                 .buttonStyle(.secondary())
             }
 
@@ -103,6 +108,7 @@ struct LoginView: View {
                     Text(Localizations.logInSso)
                 }
             }
+            .accessibilityIdentifier("LogInWithSsoButton")
             .buttonStyle(.secondary())
         }
     }
@@ -111,11 +117,13 @@ struct LoginView: View {
     @ViewBuilder var loggingInAs: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(Localizations.loggedInAsOn(store.state.username, store.state.region.baseUrlDescription))
+                .accessibilityIdentifier("LoggingInAsLabel")
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
             Button(Localizations.notYou) {
                 store.send(.notYouPressed)
             }
+            .accessibilityIdentifier("NotYouLabel")
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
         .font(.styleGuide(.footnote))
