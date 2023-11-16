@@ -61,6 +61,16 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case let .copyPressed(value):
             // TODO: BIT-1121 Copy value to clipboard
             print("copy: \(value)")
+        case let .customFieldVisibilityPressed(customFieldState):
+            switch state.loadingState {
+            case var .data(.login(loginState)):
+                if let index = loginState.customFields.firstIndex(of: customFieldState) {
+                    loginState.customFields[index].isPasswordVisible.toggle()
+                }
+                state.loadingState = .data(.login(loginState))
+            default:
+                assertionFailure("Cannot toggle password for non-login item.")
+            }
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
         case .editPressed:

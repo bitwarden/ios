@@ -15,16 +15,10 @@ struct ViewLoginItemView: View {
 
     var body: some View {
         section(title: Localizations.itemInformation) {
-            BitwardenField(title: Localizations.name) {
-                Text(store.state.name)
-            }
+            BitwardenTextValueField(title: Localizations.name, value: store.state.name)
 
             if let username = store.state.username {
-                BitwardenField(title: Localizations.username) {
-                    Text(username)
-                        .font(.styleGuide(.body))
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                } accessoryContent: {
+                BitwardenTextValueField(title: Localizations.username, value: username) {
                     Button {
                         store.send(.copyPressed(value: username))
                     } label: {
@@ -77,10 +71,7 @@ struct ViewLoginItemView: View {
             section(title: Localizations.urIs) {
                 ForEach(store.state.uris, id: \.self) { uri in
                     if let uri = uri.uri {
-                        BitwardenField(title: Localizations.uri) {
-                            Text(uri)
-                                .lineLimit(1)
-                        } accessoryContent: {
+                        BitwardenTextValueField(title: Localizations.uri, value: uri) {
                             Button {
                                 guard let url = URL(string: uri) else {
                                     return
@@ -109,12 +100,7 @@ struct ViewLoginItemView: View {
 
         if let notes = store.state.notes {
             section(title: Localizations.notes) {
-                BitwardenField {
-                    Text(notes)
-                        .font(.styleGuide(.body))
-                        .multilineTextAlignment(.leading)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                }
+                BitwardenTextValueField(value: notes)
             }
         }
 
@@ -122,19 +108,85 @@ struct ViewLoginItemView: View {
             section(title: Localizations.customFields) {
                 ForEach(store.state.customFields, id: \.self) { customField in
                     BitwardenField(title: customField.name) {
+                        switch customField.type {
+                        case .boolean:
+                            let image = customField.booleanValue
+                                ? Asset.Images.checkSquare.swiftUIImage
+                                : Asset.Images.square.swiftUIImage
+                            image
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        case .hidden:
+                            if let value = customField.value {
+                                PasswordText(
+                                    password: value,
+                                    isPasswordVisible: customField.isPasswordVisible
+                                )
+                            }
+                        case .text:
+                            if let value = customField.value {
+                                Text(value)
+                            }
+                        case .linked:
+                            if let linkedIdType = customField.linkedIdType {
+                                HStack(spacing: 8) {
+                                    Asset.Images.link.swiftUIImage
+                                        .resizable()
+                                        .frame(width: 16, height: 16)
+                                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                                    Text(linkedIdType.localizedName)
+                                }
+                            }
+                        }
+                    } accessoryContent: {
                         if let value = customField.value {
-                            Text(value)
+                            switch customField.type {
+                            case .hidden:
+                                PasswordVisibilityButton(isPasswordVisible: customField.isPasswordVisible) {
+                                    store.send(.customFieldVisibilityPressed(customField))
+                                }
+                                Button {
+                                    store.send(.copyPressed(value: value))
+                                } label: {
+                                    Asset.Images.copy.swiftUIImage
+                                        .resizable()
+                                        .frame(width: 16, height: 16)
+                                }
+                            case .text:
+                                Button {
+                                    store.send(.copyPressed(value: value))
+                                } label: {
+                                    Asset.Images.copy.swiftUIImage
+                                        .resizable()
+                                        .frame(width: 16, height: 16)
+                                }
+                            case .boolean,
+                                 .linked:
+                                EmptyView()
+                            }
                         }
                     }
                 }
             }
         }
 
-        let formattedDate = store.state.updatedDate.formatted(date: .numeric, time: .shortened)
-        Text("\(Localizations.dateUpdated): \(formattedDate)")
-            .font(.subheadline)
-            .multilineTextAlignment(.leading)
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+        VStack(alignment: .leading, spacing: 0) {
+            let formattedUpdatedDate = store.state.updatedDate.formatted(date: .numeric, time: .shortened)
+            Text("\(Localizations.dateUpdated): \(formattedUpdatedDate)")
+
+            if let passwordUpdatedDate = store.state.passwordUpdatedDate {
+                let formattedPasswordUpdatedDate = passwordUpdatedDate.formatted(
+                    date: .numeric,
+                    time: .shortened
+                )
+                Text("\(Localizations.datePasswordUpdated): \(formattedPasswordUpdatedDate)")
+            }
+        }
+        .font(.subheadline)
+        .multilineTextAlignment(.leading)
+        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
     }
 
     // MARK: Private Methods

@@ -66,10 +66,11 @@ class ViewItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loadingState, .data(.login(ViewLoginItemState(
             customFields: [],
             folder: nil,
-            isPasswordVisible: true,
+            isPasswordVisible: false,
             name: "Name",
             notes: "Notes",
             password: "password",
+            passwordUpdatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
             updatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
             uris: [],
             username: "username"
@@ -87,6 +88,52 @@ class ViewItemProcessorTests: BitwardenTestCase {
     func test_receive_copyPressed() {
         subject.receive(.copyPressed(value: "value"))
         // TODO: BIT-1121 Assertion for pasteboard service
+    }
+
+    func test_receive_customFieldVisiblePressed_withValidField() throws {
+        let customField1 = CustomFieldState(
+            isPasswordVisible: false,
+            linkedIdType: nil,
+            name: "name 1",
+            type: .hidden,
+            value: "value 1"
+        )
+        let customField2 = CustomFieldState(
+            isPasswordVisible: false,
+            linkedIdType: nil,
+            name: "name 2",
+            type: .hidden,
+            value: "value 2"
+        )
+        let customField3 = CustomFieldState(
+            isPasswordVisible: false,
+            linkedIdType: nil,
+            name: "name 3",
+            type: .hidden,
+            value: "value 3"
+        )
+        let state = ViewItemState(
+            loadingState: .data(.login(
+                ViewLoginItemState(
+                    customFields: [customField1, customField2, customField3],
+                    name: "name",
+                    updatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+                )
+            ))
+        )
+        subject.state = state
+
+        subject.receive(.customFieldVisibilityPressed(customField2))
+        let newLoadingState = try XCTUnwrap(subject.state.loadingState.wrappedData)
+        guard case let ViewItemState.ItemTypeState.login(alteredState) = newLoadingState else {
+            XCTFail("ViewItemState has incorrect value: \(newLoadingState)")
+            return
+        }
+        let customFields = alteredState.customFields
+        XCTAssertEqual(customFields.count, 3)
+        XCTAssertFalse(customFields[0].isPasswordVisible)
+        XCTAssertTrue(customFields[1].isPasswordVisible)
+        XCTAssertFalse(customFields[2].isPasswordVisible)
     }
 
     /// `receive` with `.dismissPressed` navigates to the `.dismiss` route.

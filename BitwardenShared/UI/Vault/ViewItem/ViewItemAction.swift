@@ -21,4 +21,6 @@ enum ViewItemAction: Equatable {
 
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
+
+    case customFieldVisibilityPressed(CustomFieldState)
 }

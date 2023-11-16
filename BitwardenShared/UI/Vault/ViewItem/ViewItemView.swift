@@ -103,11 +103,11 @@ struct ViewItemView_Previews: PreviewProvider {
                         state: ViewItemState(
                             loadingState: .data(.login(.init(
                                 customFields: [
-                                    FieldView(
+                                    CustomFieldState(
+                                        linkedIdType: nil,
                                         name: "Field Name",
-                                        value: "Value",
                                         type: .text,
-                                        linkedId: nil
+                                        value: "Value"
                                     ),
                                 ],
                                 folder: "Folder",
@@ -117,13 +117,13 @@ struct ViewItemView_Previews: PreviewProvider {
                                 password: "Password1!",
                                 updatedDate: Date(),
                                 uris: [
-                                    LoginUriView(
-                                        uri: "https://www.example.com",
-                                        match: .startsWith
+                                    CipherLoginUriModel(
+                                        match: .startsWith,
+                                        uri: "https://www.example.com"
                                     ),
-                                    LoginUriView(
-                                        uri: "https://www.example.com/account/login",
-                                        match: .exact
+                                    CipherLoginUriModel(
+                                        match: .exact,
+                                        uri: "https://www.example.com/account/login"
                                     ),
                                 ],
                                 username: "email@example.com"

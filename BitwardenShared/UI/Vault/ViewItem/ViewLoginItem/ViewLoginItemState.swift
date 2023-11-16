@@ -8,7 +8,7 @@ struct ViewLoginItemState: Equatable {
     // MARK: Properties
 
     /// The custom fields in this item.
-    var customFields: [FieldView] = []
+    var customFields: [CustomFieldState] = []
 
     /// The folder this object resides in.
     var folder: String?
@@ -25,11 +25,14 @@ struct ViewLoginItemState: Equatable {
     /// The password for this item.
     var password: String?
 
-    /// A formatted date for this item.
+    /// When the password for this item was last updated.
+    var passwordUpdatedDate: Date?
+
+    /// When this item was last updated.
     var updatedDate: Date
 
     /// A list of uris associated with this item.
-    var uris: [LoginUriView] = []
+    var uris: [CipherLoginUriModel] = []
 
     /// The username for this item.
     var username: String?

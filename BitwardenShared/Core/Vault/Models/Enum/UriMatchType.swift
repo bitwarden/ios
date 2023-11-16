@@ -1,6 +1,6 @@
 /// An enum that describes how a URI should be matched for autofill to occur.
 ///
-enum UriMatchType: Int, Codable {
+enum UriMatchType: Int, Codable, Equatable, Hashable {
     /// Matching of the URI is based on the domain.
     case domain = 0
 

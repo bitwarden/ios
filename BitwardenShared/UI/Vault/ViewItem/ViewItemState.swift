@@ -35,14 +35,15 @@ extension ViewItemState {
                 loadingState: .data(
                     .login(
                         ViewLoginItemState(
-                            customFields: cipherView.fields ?? [],
+                            customFields: cipherView.fields?.map(CustomFieldState.init) ?? [],
                             folder: cipherView.folderId,
                             isPasswordVisible: false,
                             name: cipherView.name,
                             notes: cipherView.notes,
                             password: loginItem.password,
+                            passwordUpdatedDate: loginItem.passwordRevisionDate,
                             updatedDate: cipherView.revisionDate,
-                            uris: loginItem.uris ?? [],
+                            uris: loginItem.uris?.map(CipherLoginUriModel.init) ?? [],
                             username: loginItem.username
                         )
                     )
