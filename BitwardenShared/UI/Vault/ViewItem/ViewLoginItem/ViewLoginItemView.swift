@@ -42,18 +42,9 @@ struct ViewLoginItemView: View {
                         .font(.styleGuide(.body))
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 } accessoryContent: {
-                    Button {
+                    PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
                         store.send(.passwordVisibilityPressed)
-                    } label: {
-                        (
-                            store.state.isPasswordVisible
-                                ? Asset.Images.hidden.swiftUIImage
-                                : Asset.Images.visible.swiftUIImage
-                        )
-                        .resizable()
-                        .frame(width: 16, height: 16)
                     }
-                    .accessibilityLabel(Localizations.toggleVisibility)
 
                     Button {
                         store.send(.checkPasswordPressed)
