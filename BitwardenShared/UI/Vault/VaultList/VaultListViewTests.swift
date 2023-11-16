@@ -43,6 +43,7 @@ class VaultListViewTests: BitwardenTestCase {
 
     /// Tapping the add an item button dispatches the `.addItemPressed` action.
     func test_addItemButton_tap() throws {
+        processor.state.loadingState = .data([])
         let button = try subject.inspect().find(button: Localizations.addAnItem)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
@@ -95,7 +96,7 @@ class VaultListViewTests: BitwardenTestCase {
 
     func test_vaultItem_tap() throws {
         let item = VaultListItem(id: "1", itemType: .group(.login, 123))
-        processor.state.sections = [VaultListSection(id: "1", items: [item], name: "Group")]
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
         let button = try subject.inspect().find(button: Localizations.typeLogin)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: item))
@@ -103,7 +104,7 @@ class VaultListViewTests: BitwardenTestCase {
 
     func test_vaultItemMoreButton_tap() throws {
         let item = VaultListItem.fixture()
-        processor.state.sections = [VaultListSection(id: "1", items: [item], name: "Group")]
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.more)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .morePressed(item: item))
@@ -113,18 +114,25 @@ class VaultListViewTests: BitwardenTestCase {
 
     func test_snapshot_empty() {
         processor.state.profileSwitcherState.isVisible = false
+        processor.state.loadingState = .data([])
 
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_empty_singleAccountProfileSwitcher() {
         processor.state.profileSwitcherState.isVisible = true
+        processor.state.loadingState = .data([])
 
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    func test_snapshot_loading() {
+        processor.state.loadingState = .loading
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     func test_snapshot_myVault() {
-        processor.state.sections = [
+        processor.state.loadingState = .data([
             VaultListSection(
                 id: "",
                 items: [
@@ -155,7 +163,7 @@ class VaultListViewTests: BitwardenTestCase {
                 ],
                 name: "Types"
             ),
-        ]
+        ])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
