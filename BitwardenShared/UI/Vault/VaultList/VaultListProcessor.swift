@@ -52,7 +52,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .appeared:
             await refreshVault()
             for await value in services.vaultRepository.vaultListPublisher() {
-                state.sections = value
+                state.loadingState = .data(value)
             }
         case .refresh:
             await refreshVault()
