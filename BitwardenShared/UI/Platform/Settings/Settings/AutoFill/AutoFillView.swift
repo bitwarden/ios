@@ -30,7 +30,7 @@ struct AutoFillView: View {
             sectionHeader(Localizations.additionalOptions)
 
             VStack(alignment: .leading, spacing: 6) {
-                toggle(
+                ToggleView(
                     isOn: store.binding(
                         get: \.isCopyTOTPToggleOn,
                         send: AutoFillAction.toggleCopyTOTPToggle
@@ -44,12 +44,12 @@ struct AutoFillView: View {
             }
             .padding(.bottom, 12)
 
-            VStack {
+            VStack(spacing: 2) {
                 SettingsListItem(
                     Localizations.defaultUriMatchDetection,
                     hasDivider: false
                 ) {} trailingContent: {
-                    Text(Localizations.baseDomain)
+                    Text(Localizations.baseDomain) // TODO: BIT-1185 Dynamic value
                 }
                 .cornerRadius(10)
                 .padding(.bottom, 8)
@@ -81,20 +81,10 @@ struct AutoFillView: View {
     /// A section header.
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
+            .accessibilityAddTraits(.isHeader)
             .font(.styleGuide(.footnote))
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .textCase(.uppercase)
-    }
-
-    /// A toggle with stylized text.
-    private func toggle(
-        isOn: Binding<Bool>,
-        description: String
-    ) -> some View {
-        Toggle(isOn: isOn) {
-            Text(description)
-        }
-        .toggleStyle(.bitwarden)
     }
 }
 

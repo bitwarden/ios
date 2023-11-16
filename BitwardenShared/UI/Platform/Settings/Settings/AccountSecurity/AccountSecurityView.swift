@@ -15,8 +15,11 @@ struct AccountSecurityView: View {
     var body: some View {
         VStack(spacing: 20) {
             approveLoginRequestsSection
+
             unlockOptionsSection
+
             sessionTimeoutSection
+
             otherSection
         }
         .scrollView()
@@ -31,7 +34,7 @@ struct AccountSecurityView: View {
         VStack(alignment: .leading) {
             sectionHeader(Localizations.approveLoginRequests)
 
-            toggle(
+            ToggleView(
                 isOn: store.binding(
                     get: \.isApproveLoginRequestsToggleOn,
                     send: AccountSecurityAction.toggleApproveLoginRequestsToggle
@@ -107,7 +110,7 @@ struct AccountSecurityView: View {
 
             VStack(spacing: 24) {
                 if store.state.biometricAuthenticationType == .touchID {
-                    toggle(
+                    ToggleView(
                         isOn: store.binding(
                             get: \.isUnlockWithTouchIDToggleOn,
                             send: AccountSecurityAction.toggleUnlockWithTouchID
@@ -117,7 +120,7 @@ struct AccountSecurityView: View {
                 }
 
                 if store.state.biometricAuthenticationType == .faceID {
-                    toggle(
+                    ToggleView(
                         isOn: store.binding(
                             get: \.isUnlockWithFaceIDOn,
                             send: AccountSecurityAction.toggleUnlockWithFaceID
@@ -126,7 +129,7 @@ struct AccountSecurityView: View {
                     )
                 }
 
-                toggle(
+                ToggleView(
                     isOn: store.binding(
                         get: \.isUnlockWithPINCodeOn,
                         send: AccountSecurityAction.toggleUnlockWithPINCode
@@ -144,17 +147,6 @@ struct AccountSecurityView: View {
             .font(.styleGuide(.footnote))
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .textCase(.uppercase)
-    }
-
-    /// A toggle with stylized text.
-    private func toggle(
-        isOn: Binding<Bool>,
-        description: String
-    ) -> some View {
-        Toggle(isOn: isOn) {
-            Text(description)
-        }
-        .toggleStyle(.bitwarden)
     }
 }
 
