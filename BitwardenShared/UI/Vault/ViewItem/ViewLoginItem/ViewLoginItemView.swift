@@ -60,6 +60,7 @@ struct ViewLoginItemView: View {
                 }
             }
 
+            // TODO: BIT-1120 Add full support for TOTP display
             BitwardenField(title: Localizations.verificationCodeTotp) {
                 Text(Localizations.premiumSubscriptionRequired)
                     .font(.styleGuide(.footnote))
@@ -183,6 +184,8 @@ struct ViewLoginItemView: View {
                 )
                 Text("\(Localizations.datePasswordUpdated): \(formattedPasswordUpdatedDate)")
             }
+
+            // TODO: BIT-1186 Display the password history button here
         }
         .font(.subheadline)
         .multilineTextAlignment(.leading)
