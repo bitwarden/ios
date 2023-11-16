@@ -33,6 +33,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
         super.tearDown()
         coordinator = nil
         subject = nil
+        vaultRepository = nil
     }
 
     // MARK: Tests
