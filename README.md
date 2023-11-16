@@ -12,7 +12,7 @@
 - **Minimum iOS**: 15.0
 - **Target SDK**: 15.0
 - **Device Types Supported**: iPhone
-- **Screen Sizes Supported**: iPhone SE to iPhone 14 Pro Max
+- **Screen Sizes Supported**: iPhone SE to iPhone 15 Pro Max
 - **Orientations Supported**: Portrait, Landscape
 
 ## Setup
@@ -59,7 +59,7 @@
 
 ### Run the App
 
-1. Open the project in Xcode 14.3+.
+1. Open the project in Xcode 15.0+.
 2. Run the app in the Simulator with the `Bitwarden` target.
 
 ### Running Tests
@@ -127,6 +127,10 @@ The following dependencies are used in the development environment only. They ar
 - **XcodeGen**
     - https://github.com/yonaskolb/XcodeGen
     - Purpose: Generates the Xcode project using the folder structure and a project spec.
+    - License: MIT
+- **yeetd**
+    - https://github.com/biscuitehh/yeetd
+    - Purpose: Improves the performance of Xcode 15 simulators while executing unit tests in a CI environment.
     - License: MIT
 
 ## Project Structure

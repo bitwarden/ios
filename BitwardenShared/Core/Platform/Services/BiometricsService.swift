@@ -30,7 +30,8 @@ class DefaultBiometricsService: BiometricsService {
         }
 
         switch authContext.biometryType {
-        case .none:
+        case .none,
+             .opticID:
             return .none
         case .touchID:
             return .touchID
