@@ -41,6 +41,12 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      coverageTargets:
+        - Bitwarden
+        - BitwardenActionExtension
+        - BitwardenAutoFillExtension
+        - BitwardenShareExtension
+        - BitwardenShared
       targets:
         - BitwardenTests
         - BitwardenActionExtensionTests

@@ -5,15 +5,15 @@ on:
   pull_request:
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_14.3.1.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
-  SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 14 Pro,OS=16.4
+  SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
 
 jobs:
   test:
     name: Test
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -39,6 +39,12 @@ jobs:
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
+
+      - name: Install yeetd
+        run: |
+          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
+          sudo installer -pkg yeetd-normal.pkg -target /
+          yeetd &
 
       - name: Setup
         run: |
