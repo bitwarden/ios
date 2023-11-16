@@ -16,7 +16,7 @@ struct PasswordText: View {
         (
             isPasswordVisible
                 ? colorCodedText(for: password)
-                : Text(String(repeating: "•", count: password.count))
+                : Text(String(repeating: "•", count: Constants.hiddenPasswordLength))
         )
         .font(.styleGuide(.bodyMonospaced))
     }
