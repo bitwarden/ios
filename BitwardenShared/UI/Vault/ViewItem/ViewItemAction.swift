@@ -10,6 +10,9 @@ enum ViewItemAction: Equatable {
     /// - Parameter value: The value to copy.
     case copyPressed(value: String)
 
+    /// The visibility button was pressed for the specified custom field.
+    case customFieldVisibilityPressed(CustomFieldState)
+
     /// The dismiss button was pressed.
     case dismissPressed
 
@@ -21,6 +24,4 @@ enum ViewItemAction: Equatable {
 
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
-
-    case customFieldVisibilityPressed(CustomFieldState)
 }
