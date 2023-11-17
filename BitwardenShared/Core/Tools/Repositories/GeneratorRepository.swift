@@ -119,7 +119,11 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     }
 
     func getUsernameGenerationOptions() async throws -> UsernameGenerationOptions {
-        try await stateService.getUsernameGenerationOptions() ?? UsernameGenerationOptions()
+        var options = try await stateService.getUsernameGenerationOptions() ?? UsernameGenerationOptions()
+        if options.plusAddressedEmail?.isEmpty ?? true {
+            options.plusAddressedEmail = try? await stateService.getActiveAccount().profile.email
+        }
+        return options
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions) async throws {
