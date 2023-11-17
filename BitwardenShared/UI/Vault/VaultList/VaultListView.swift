@@ -242,12 +242,8 @@ struct VaultListView: View {
                 }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button {
+                AddItemButton {
                     store.send(.addItemPressed)
-                } label: {
-                    AddItemButton {
-                        store.send(.addItemPressed)
-                    }
                 }
             }
         }

@@ -11,18 +11,7 @@ extension View {
     ///
     func cancelToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
-                action()
-            } label: {
-                Label {
-                    Text(Localizations.cancel)
-                } icon: {
-                    Image(asset: Asset.Images.cancel)
-                        .resizable()
-                        .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
-                        .frame(width: 24, height: 24)
-                }
-            }
+            ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel, action: action)
         }
     }
 

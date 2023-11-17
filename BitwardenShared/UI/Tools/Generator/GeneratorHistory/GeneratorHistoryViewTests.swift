@@ -43,7 +43,7 @@ class GeneratorHistoryViewTests: BitwardenTestCase {
 
     /// Tapping the close button dispatches the `.dismiss` action.
     func test_close_tapped() throws {
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close)
+        let button = try subject.inspect().find(button: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }

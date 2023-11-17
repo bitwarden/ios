@@ -34,15 +34,9 @@ struct GeneratorHistoryView: View {
                         .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                 }
 
-                Button {
+                ToolbarButton(asset: Asset.Images.cancel, label: Localizations.close) {
                     store.send(.dismiss)
-                } label: {
-                    Asset.Images.cancel.swiftUIImage
-                        .resizable()
-                        .frame(width: 19, height: 19)
                 }
-                .accessibilityLabel(Localizations.close)
-                .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
             }
         }
     }

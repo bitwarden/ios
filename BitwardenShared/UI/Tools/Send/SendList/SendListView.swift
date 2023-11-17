@@ -28,23 +28,16 @@ struct SendListView: View {
                     Button {
                         store.send(.infoButtonPressed)
                     } label: {
-                        Image(asset: Asset.Images.infoRound)
+                        Image(asset: Asset.Images.infoRound, label: Text(Localizations.aboutSend))
                             .resizable()
-                            .frame(width: 19, height: 19)
+                            .frame(width: 22, height: 22)
                     }
+                    .buttonStyle(.toolbar)
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
+                    AddItemButton {
                         store.send(.addItemPressed)
-                    } label: {
-                        Label {
-                            Text(Localizations.addAnItem)
-                        } icon: {
-                            Asset.Images.plus.swiftUIImage
-                                .resizable()
-                                .frame(width: 19, height: 19)
-                        }
                     }
                 }
             }
