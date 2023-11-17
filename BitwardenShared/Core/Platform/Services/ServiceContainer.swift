@@ -146,13 +146,14 @@ public class ServiceContainer: Services {
         let tokenService = DefaultTokenService(stateService: stateService)
 
         let apiService = APIService(baseUrlService: baseUrlService, tokenService: tokenService)
+
+        let vaultTimeoutService = DefaultVaultTimeoutService()
+
         let authRepository = DefaultAuthRepository(
             clientCrypto: clientService.clientCrypto(),
             stateService: stateService
         )
         let generatorRepository = DefaultGeneratorRepository(clientGenerators: clientService.clientGenerator())
-
-        let vaultTimeoutService = DefaultVaultTimeoutService()
 
         let settingsRepository = DefaultSettingsRepository(
             stateService: stateService,
