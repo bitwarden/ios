@@ -3,4 +3,7 @@
 enum SettingsAction: Equatable {
     /// The account security button was pressed.
     case accountSecurityPressed
+
+    /// The auto-fill button was pressed.
+    case autoFillPressed
 }

@@ -29,6 +29,13 @@ class SettingsProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Receiving `.autoFillPressed` navigates to the auto-fill screen.
+    func test_receive_autoFillPressed() {
+        subject.receive(.autoFillPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .autoFill)
+    }
+
     /// Receiving `.accountSecurityPressed` navigates to the account security screen.
     func test_receive_accountSecurityPressed() {
         subject.receive(.accountSecurityPressed)

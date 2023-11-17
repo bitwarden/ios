@@ -38,7 +38,7 @@ struct SettingsListItem<Content: View>: View {
                     trailingContent()
                         .font(.styleGuide(.body))
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .multilineTextAlignment(.leading)
+                        .multilineTextAlignment(.trailing)
                 }
                 .padding(.horizontal, 16)
 
