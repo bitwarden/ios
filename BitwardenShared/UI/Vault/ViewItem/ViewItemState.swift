@@ -43,7 +43,7 @@ extension ViewItemState {
                             password: loginItem.password,
                             passwordUpdatedDate: loginItem.passwordRevisionDate,
                             updatedDate: cipherView.revisionDate,
-                            uris: loginItem.uris?.map(CipherLoginUriModel.init) ?? [],
+                            uris: loginItem.uris ?? [],
                             username: loginItem.username
                         )
                     )

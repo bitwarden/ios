@@ -117,13 +117,13 @@ struct ViewItemView_Previews: PreviewProvider {
                                 password: "Password1!",
                                 updatedDate: Date(),
                                 uris: [
-                                    CipherLoginUriModel(
-                                        match: .startsWith,
-                                        uri: "https://www.example.com"
+                                    LoginUriView(
+                                        uri: "https://www.example.com",
+                                        match: .startsWith
                                     ),
-                                    CipherLoginUriModel(
-                                        match: .exact,
-                                        uri: "https://www.example.com/account/login"
+                                    LoginUriView(
+                                        uri: "https://www.example.com/account/login",
+                                        match: .exact
                                     ),
                                 ],
                                 username: "email@example.com"

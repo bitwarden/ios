@@ -32,7 +32,7 @@ struct ViewLoginItemState: Equatable {
     var updatedDate: Date
 
     /// A list of uris associated with this item.
-    var uris: [CipherLoginUriModel] = []
+    var uris: [LoginUriView] = []
 
     /// The username for this item.
     var username: String?

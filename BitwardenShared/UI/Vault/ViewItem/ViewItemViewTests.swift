@@ -73,7 +73,7 @@ class ViewItemViewTests: BitwardenTestCase {
             name: "Name",
             updatedDate: Date(),
             uris: [
-                .init(match: nil, uri: "www.example.com"),
+                .init(uri: "www.example.com", match: nil),
             ]
         )))
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -160,12 +160,12 @@ class ViewItemViewTests: BitwardenTestCase {
             updatedDate: Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41),
             uris: [
                 .init(
-                    match: .startsWith,
-                    uri: "https://www.example.com"
+                    uri: "https://www.example.com",
+                    match: .startsWith
                 ),
                 .init(
-                    match: .exact,
-                    uri: "https://www.example.com/account/login"
+                    uri: "https://www.example.com/account/login",
+                    match: .exact
                 ),
             ],
             username: "email@example.com"
