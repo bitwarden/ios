@@ -88,3 +88,65 @@ enum LinkedIdType: UInt32, Codable {
     /// The field is linked to the identity's full name.
     case identityFullName = 418
 }
+
+extension LinkedIdType {
+    /// A localized name value. This is used to describe this value in the UI.
+    var localizedName: String {
+        switch self {
+        case .loginUsername:
+            Localizations.username
+        case .loginPassword:
+            Localizations.passkey
+        case .cardCardholderName:
+            Localizations.cardholderName
+        case .cardExpMonth:
+            Localizations.expirationMonth
+        case .cardExpYear:
+            Localizations.expirationYear
+        case .cardCode:
+            Localizations.securityCode
+        case .cardBrand:
+            Localizations.brand
+        case .cardNumber:
+            Localizations.number
+        case .identityTitle:
+            Localizations.title
+        case .identityMiddleName:
+            Localizations.middleName
+        case .identityAddress1:
+            Localizations.address1
+        case .identityAddress2:
+            Localizations.address2
+        case .identityAddress3:
+            Localizations.address3
+        case .identityCity:
+            Localizations.cityTown
+        case .identityState:
+            Localizations.stateProvince
+        case .identityPostalCode:
+            Localizations.zipPostalCode
+        case .identityCountry:
+            Localizations.country
+        case .identityCompany:
+            Localizations.company
+        case .identityEmail:
+            Localizations.email
+        case .identityPhone:
+            Localizations.phone
+        case .identitySsn:
+            Localizations.ssn
+        case .identityUsername:
+            Localizations.username
+        case .identityPassportNumber:
+            Localizations.passportNumber
+        case .identityLicenseNumber:
+            Localizations.licenseNumber
+        case .identityFirstName:
+            Localizations.firstName
+        case .identityLastName:
+            Localizations.lastName
+        case .identityFullName:
+            Localizations.fullName
+        }
+    }
+}

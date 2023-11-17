@@ -102,9 +102,10 @@ class VaultListProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     func test_receive_itemPressed() {
-        subject.receive(.itemPressed(item: .fixture()))
+        let item = VaultListItem.fixture()
+        subject.receive(.itemPressed(item: item))
 
-        XCTAssertEqual(coordinator.routes.last, .viewItem)
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
     }
 
     /// `receive(_:)` with `ProfileSwitcherAction.backgroundPressed` turns off the Profile Switcher Visibility.

@@ -66,8 +66,8 @@ class VaultGroupProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     func test_receive_itemPressed() {
-        subject.receive(.itemPressed(.fixture()))
-        XCTAssertEqual(coordinator.routes.last, .viewItem)
+        subject.receive(.itemPressed(.fixture(cipherListView: .fixture(id: "id"))))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id"))
     }
 
     /// `receive(_:)` with `.morePressed` navigates to the more menu.

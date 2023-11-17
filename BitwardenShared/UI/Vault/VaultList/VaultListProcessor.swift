@@ -67,7 +67,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
-                coordinator.navigate(to: .viewItem)
+                coordinator.navigate(to: .viewItem(id: item.id))
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
             }
