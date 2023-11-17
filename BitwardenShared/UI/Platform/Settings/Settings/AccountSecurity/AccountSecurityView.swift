@@ -8,7 +8,7 @@ struct AccountSecurityView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<AccountSecurityState, AccountSecurityAction, Void>
+    @ObservedObject var store: Store<AccountSecurityState, AccountSecurityAction, AccountSecurityEffect>
 
     // MARK: View
 
@@ -67,7 +67,11 @@ struct AccountSecurityView: View {
                         .frame(width: 22, height: 22)
                 }
 
-                SettingsListItem(Localizations.lockNow) {}
+                SettingsListItem(Localizations.lockNow) {
+                    Task {
+                        await store.perform(.lockVault)
+                    }
+                }
 
                 SettingsListItem(
                     Localizations.logOut,

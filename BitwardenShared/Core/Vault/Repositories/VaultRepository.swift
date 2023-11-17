@@ -64,7 +64,10 @@ class DefaultVaultRepository {
     /// The API service used to perform sync API requests.
     let syncAPIService: SyncAPIService
 
-    /// A subject containing the sync response
+    /// The service used by the application to manage vault access.
+    let vaultTimeoutService: VaultTimeoutService
+
+    /// A subject containing the sync response.
     var syncResponseSubject = CurrentValueSubject<SyncResponseModel?, Never>(nil)
 
     // MARK: Initialization
@@ -76,17 +79,27 @@ class DefaultVaultRepository {
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncAPIService: The API service used to perform sync API requests.
+    ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
         cipherAPIService: CipherAPIService,
         clientVault: ClientVaultService,
         stateService: StateService,
-        syncAPIService: SyncAPIService
+        syncAPIService: SyncAPIService,
+        vaultTimeoutService: VaultTimeoutService
     ) {
         self.cipherAPIService = cipherAPIService
         self.clientVault = clientVault
         self.stateService = stateService
         self.syncAPIService = syncAPIService
+        self.vaultTimeoutService = vaultTimeoutService
+
+        Task {
+            for await isLocked in vaultTimeoutService.isLockedPublisher() {
+                guard isLocked else { continue }
+                syncResponseSubject.value = nil
+            }
+        }
     }
 
     // MARK: Private

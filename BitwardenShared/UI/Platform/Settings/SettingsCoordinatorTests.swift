@@ -55,6 +55,13 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.alerts, [alert])
     }
 
+    /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
+    func test_navigateTo_lockVault() throws {
+        subject.navigate(to: .lockVault(account: .fixture()))
+
+        XCTAssertTrue(delegate.didLockVaultCalled)
+    }
+
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
     func test_navigateTo_logout() throws {
         subject.navigate(to: .logout)
@@ -95,7 +102,12 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
+    var didLockVaultCalled = false
     var didLogoutCalled = false
+
+    func didLockVault(account: Account) {
+        didLockVaultCalled = true
+    }
 
     func didLogout() {
         didLogoutCalled = true

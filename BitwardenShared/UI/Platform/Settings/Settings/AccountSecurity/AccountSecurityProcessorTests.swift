@@ -7,6 +7,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<SettingsRoute>!
     var settingsRepository: MockSettingsRepository!
+    var stateService: MockStateService!
     var subject: AccountSecurityProcessor!
 
     // MARK: Setup & Teardown
@@ -16,9 +17,13 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         coordinator = MockCoordinator<SettingsRoute>()
         settingsRepository = MockSettingsRepository()
+        stateService = MockStateService()
         subject = AccountSecurityProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(settingsRepository: settingsRepository),
+            services: ServiceContainer.withMocks(
+                settingsRepository: settingsRepository,
+                stateService: stateService
+            ),
             state: AccountSecurityState()
         )
     }
@@ -32,6 +37,24 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.lockVault` locks the user's vault.
+    func test_perform_lockVault() async {
+        let account: Account = .fixtureAccountLogin()
+        stateService.activeAccount = account
+
+        await subject.perform(.lockVault)
+
+        XCTAssertTrue(settingsRepository.lockVaultCalled)
+    }
+
+    /// `perform(_:)` with `.lockVault` fails, locks the vault and navigates to the landing screen.
+    func test_perform_lockVault_failure() async {
+        await subject.perform(.lockVault)
+
+        XCTAssertTrue(settingsRepository.lockVaultCalled)
+        XCTAssertEqual(coordinator.routes.last, .logout)
+    }
 
     /// `receive(_:)` with `.logout` presents a logout confirmation alert.
     func test_receive_logout() async throws {

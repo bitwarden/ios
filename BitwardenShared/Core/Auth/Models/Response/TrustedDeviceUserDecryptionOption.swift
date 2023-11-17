@@ -1,6 +1,6 @@
 /// API response model for a user's trusted device decryption option.
 ///
-struct TrustedDeviceUserDecryptionOption: Codable, Equatable {
+struct TrustedDeviceUserDecryptionOption: Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// The user's encrypted private key.

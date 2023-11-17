@@ -10,6 +10,13 @@ public enum SettingsRoute: Equatable, Hashable {
     ///
     case alert(_ alert: Alert)
 
+    /// A route to the login screen after the vault has been locked.
+    ///
+    /// - Parameters:
+    ///   - account: The user's account
+    ///
+    case lockVault(account: Account)
+
     /// A route to log the user out.
     case logout
 
