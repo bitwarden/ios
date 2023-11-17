@@ -32,7 +32,7 @@ struct AccountSecurityView: View {
     /// The approve login requests section.
     private var approveLoginRequestsSection: some View {
         VStack(alignment: .leading) {
-            sectionHeader(Localizations.approveLoginRequests)
+            SectionHeaderView(Localizations.approveLoginRequests)
 
             ToggleView(
                 isOn: store.binding(
@@ -55,7 +55,7 @@ struct AccountSecurityView: View {
     /// The other section.
     private var otherSection: some View {
         VStack(alignment: .leading) {
-            sectionHeader(Localizations.other)
+            SectionHeaderView(Localizations.other)
 
             VStack(spacing: 0) {
                 SettingsListItem(Localizations.accountFingerprintPhrase) {}
@@ -82,7 +82,7 @@ struct AccountSecurityView: View {
     /// The session timeout section.
     private var sessionTimeoutSection: some View {
         VStack(alignment: .leading) {
-            sectionHeader(Localizations.sessionTimeout)
+            SectionHeaderView(Localizations.sessionTimeout)
 
             VStack(spacing: 0) {
                 SettingsListItem(
@@ -106,7 +106,7 @@ struct AccountSecurityView: View {
     /// The unlock options section.
     private var unlockOptionsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            sectionHeader(Localizations.unlockOptions)
+            SectionHeaderView(Localizations.unlockOptions)
 
             VStack(spacing: 24) {
                 if store.state.biometricAuthenticationType == .touchID {
@@ -138,15 +138,6 @@ struct AccountSecurityView: View {
                 )
             }
         }
-    }
-
-    /// A section header.
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .accessibilityAddTraits(.isHeader)
-            .font(.styleGuide(.footnote))
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-            .textCase(.uppercase)
     }
 }
 

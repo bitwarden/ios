@@ -28,7 +28,7 @@ struct AutoFillView: View {
     /// The additional options section.
     private var additionalOptionsSection: some View {
         VStack(alignment: .leading) {
-            sectionHeader(Localizations.additionalOptions)
+            SectionHeaderView(Localizations.additionalOptions)
 
             VStack(alignment: .leading, spacing: 6) {
                 ToggleView(
@@ -65,7 +65,7 @@ struct AutoFillView: View {
     /// The auto-fill section.
     private var autoFillSection: some View {
         VStack(alignment: .leading) {
-            sectionHeader(Localizations.autofill)
+            SectionHeaderView(Localizations.autofill)
 
             VStack(spacing: 0) {
                 SettingsListItem(Localizations.passwordAutofill) {}
@@ -77,15 +77,6 @@ struct AutoFillView: View {
             }
             .cornerRadius(10)
         }
-    }
-
-    /// A section header.
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .accessibilityAddTraits(.isHeader)
-            .font(.styleGuide(.footnote))
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-            .textCase(.uppercase)
     }
 }
 

@@ -18,6 +18,8 @@ struct ToggleView: View {
     var body: some View {
         Toggle(isOn: isOn) {
             Text(description)
+                .font(.styleGuide(.body))
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
         }
         .toggleStyle(.bitwarden)
     }
