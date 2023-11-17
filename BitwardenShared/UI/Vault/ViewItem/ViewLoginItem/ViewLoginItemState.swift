@@ -36,4 +36,16 @@ struct ViewLoginItemState: Equatable {
 
     /// The username for this item.
     var username: String?
+
+    // MARK: Methods
+
+    /// Toggles the password visibility for the specified custom field.
+    ///
+    /// - Parameter customFieldState: The custom field to update.
+    ///
+    mutating func togglePasswordVisibility(for customFieldState: CustomFieldState) {
+        if let index = customFields.firstIndex(of: customFieldState) {
+            customFields[index].isPasswordVisible.toggle()
+        }
+    }
 }

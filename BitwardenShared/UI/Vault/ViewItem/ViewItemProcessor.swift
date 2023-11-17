@@ -64,9 +64,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case let .customFieldVisibilityPressed(customFieldState):
             switch state.loadingState {
             case var .data(.login(loginState)):
-                if let index = loginState.customFields.firstIndex(of: customFieldState) {
-                    loginState.customFields[index].isPasswordVisible.toggle()
-                }
+                loginState.togglePasswordVisibility(for: customFieldState)
                 state.loadingState = .data(.login(loginState))
             default:
                 assertionFailure("Cannot toggle password for non-login item.")
