@@ -136,16 +136,16 @@ class StateServiceTests: BitwardenTestCase {
             "2": options2,
         ]
 
-        let fetchedOptions1 = await subject.getPasswordGenerationOptions(userId: "1")
+        let fetchedOptions1 = try await subject.getPasswordGenerationOptions(userId: "1")
         XCTAssertEqual(fetchedOptions1, options1)
 
-        let fetchedOptions2 = await subject.getPasswordGenerationOptions(userId: "2")
+        let fetchedOptions2 = try await subject.getPasswordGenerationOptions(userId: "2")
         XCTAssertEqual(fetchedOptions2, options2)
 
-        let fetchedOptionsActiveAccount = await subject.getPasswordGenerationOptions()
+        let fetchedOptionsActiveAccount = try await subject.getPasswordGenerationOptions()
         XCTAssertEqual(fetchedOptionsActiveAccount, options1)
 
-        let fetchedOptionsNoAccount = await subject.getPasswordGenerationOptions(userId: "-1")
+        let fetchedOptionsNoAccount = try await subject.getPasswordGenerationOptions(userId: "-1")
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 

@@ -29,7 +29,7 @@ class MockGeneratorRepository: GeneratorRepository {
         return try usernamePlusAddressEmailResult.get()
     }
 
-    func getPasswordGenerationOptions() async -> PasswordGenerationOptions {
+    func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {
         passwordGenerationOptions
     }
 

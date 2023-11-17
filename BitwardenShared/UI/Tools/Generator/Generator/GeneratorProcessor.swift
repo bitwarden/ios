@@ -195,8 +195,12 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Fetches the user's saved generator options and updates the state with the previous selections.
     ///
     func loadGeneratorOptions() async {
-        let passwordOptions = await services.generatorRepository.getPasswordGenerationOptions()
-        state.passwordState.update(with: passwordOptions)
+        do {
+            let passwordOptions = try await services.generatorRepository.getPasswordGenerationOptions()
+            state.passwordState.update(with: passwordOptions)
+        } catch {
+            services.errorReporter.log(error: BitwardenError.generatorOptionsError(error: error))
+        }
     }
 
     /// Saves the user's generation options so their selections can be persisted across app launches.

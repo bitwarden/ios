@@ -170,25 +170,25 @@ class GeneratorRepositoryTests: BitwardenTestCase {
     }
 
     /// `getPasswordGenerationOptions` returns the saved password generation options for the active account.
-    func test_getPasswordGenerationOptions() async {
+    func test_getPasswordGenerationOptions() async throws {
         let options = PasswordGenerationOptions(length: 30)
 
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.passwordGenerationOptions = [account.profile.userId: options]
 
-        let fetchedOptions = await subject.getPasswordGenerationOptions()
+        let fetchedOptions = try await subject.getPasswordGenerationOptions()
 
         XCTAssertEqual(fetchedOptions, options)
     }
 
     /// `getPasswordGenerationOptions` returns an empty set of options if they haven't previously
     /// been saved for the active account.
-    func test_getPasswordGenerationOptions_notSet() async {
+    func test_getPasswordGenerationOptions_notSet() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
 
-        let fetchedOptions = await subject.getPasswordGenerationOptions()
+        let fetchedOptions = try await subject.getPasswordGenerationOptions()
 
         XCTAssertEqual(fetchedOptions, PasswordGenerationOptions())
     }

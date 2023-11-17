@@ -31,7 +31,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID associated with the password generation options.
     /// - Returns: The password generation options for the user ID.
     ///
-    func getPasswordGenerationOptions(userId: String?) async -> PasswordGenerationOptions?
+    func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions?
 
     /// Logs the user out of an account.
     ///
@@ -79,8 +79,8 @@ extension StateService {
     ///
     /// - Returns: The password generation options for the user ID.
     ///
-    func getPasswordGenerationOptions() async -> PasswordGenerationOptions? {
-        await getPasswordGenerationOptions(userId: nil)
+    func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions? {
+        try await getPasswordGenerationOptions(userId: nil)
     }
 
     /// Logs the user out of the active account.
@@ -185,8 +185,8 @@ actor DefaultStateService: StateService {
         return activeAccount
     }
 
-    func getPasswordGenerationOptions(userId: String?) async -> PasswordGenerationOptions? {
-        guard let userId = try? userId ?? getActiveAccountUserId() else { return nil }
+    func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
+        let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.passwordGenerationOptions(userId: userId)
     }
 

@@ -27,7 +27,7 @@ protocol GeneratorRepository: AnyObject {
     ///
     /// - Returns: The password generation options for the account.
     ///
-    func getPasswordGenerationOptions() async -> PasswordGenerationOptions
+    func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions
 
     /// Sets the password generation options for the active account.
     ///
@@ -102,8 +102,8 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         return email
     }
 
-    func getPasswordGenerationOptions() async -> PasswordGenerationOptions {
-        await stateService.getPasswordGenerationOptions() ?? PasswordGenerationOptions()
+    func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {
+        try await stateService.getPasswordGenerationOptions() ?? PasswordGenerationOptions()
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions) async throws {
