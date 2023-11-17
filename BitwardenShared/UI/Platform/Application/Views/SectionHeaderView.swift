@@ -2,6 +2,8 @@ import SwiftUI
 
 // MARK: - SectionHeaderView
 
+/// A section header.
+///
 struct SectionHeaderView: View {
     // MARK: Properties
 
