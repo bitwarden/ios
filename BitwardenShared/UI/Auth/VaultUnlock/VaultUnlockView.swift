@@ -55,7 +55,7 @@ struct VaultUnlockView: View {
                     Label {
                         Text(Localizations.options)
                     } icon: {
-                        Asset.Images.moreVert.swiftUIImage
+                        Asset.Images.verticalKabob.swiftUIImage
                     }
                 }
                 .tint(Asset.Colors.primaryBitwarden.swiftUIColor)

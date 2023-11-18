@@ -47,6 +47,13 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.authCoordinator.routes, [.landing])
     }
 
+    /// `didTapAddAccount()` triggers the login sequence from the llanding page
+    func test_didTapAddAccount() {
+        subject.didTapAddAccount()
+        XCTAssertTrue(module.authCoordinator.isStarted)
+        XCTAssertEqual(module.authCoordinator.routes, [.landing])
+    }
+
     /// `navigate(to:)` with `.onboarding` starts the auth coordinator and navigates to the proper auth route.
     func test_navigateTo_auth() throws {
         subject.navigate(to: .auth(.landing))

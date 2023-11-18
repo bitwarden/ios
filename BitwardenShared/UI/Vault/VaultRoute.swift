@@ -4,6 +4,9 @@ import Foundation
 
 /// A route to a specific screen in the vault tab.
 public enum VaultRoute: Equatable, Hashable {
+    /// A route to the add account flow.
+    case addAccount
+
     /// A route to the add item screen.
     ///
     /// - Parameter group: An optional `VaultListGroup` that the user wants to add an item for.
@@ -14,7 +17,7 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameter alert: The alert to display.
     case alert(_ alert: Alert)
 
-    /// A route to dismiss the last presented view.
+    /// A route to dismiss the screen currently presented modally.
     case dismiss
 
     /// A route to the username/password generator screen.
@@ -32,5 +35,7 @@ public enum VaultRoute: Equatable, Hashable {
     case setupTotpCamera
 
     /// A route to the view item screen.
-    case viewItem // TODO: BIT-219 Add an associated type to pass the item to the screen
+    ///
+    /// - Parameter id: The id of the item to display.
+    case viewItem(id: String)
 }

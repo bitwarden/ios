@@ -1,3 +1,5 @@
+import SwiftUI
+
 // MARK: - GeneratorCoordinatorDelegate
 
 /// An object that is signaled when specific circumstances in the generator flow have been
@@ -26,6 +28,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasGeneratorRepository
+        & HasPasteboardService
 
     // MARK: Private Properties
 
@@ -67,8 +70,12 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
             delegate?.didCancelGenerator()
         case let .complete(type, value):
             delegate?.didCompleteGenerator(for: type, with: value)
+        case .dismiss:
+            stackNavigator.dismiss()
         case let .generator(type):
             showGenerator(for: type)
+        case .generatorHistory:
+            showGeneratorHistory()
         }
     }
 
@@ -98,5 +105,18 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         )
         let view = GeneratorView(store: Store(processor: processor))
         stackNavigator.replace(view)
+    }
+
+    /// Shows the generator history screen.
+    ///
+    private func showGeneratorHistory() {
+        let processor = GeneratorHistoryProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: GeneratorHistoryState()
+        )
+        let view = GeneratorHistoryView(store: Store(processor: processor))
+        let hostingController = UIHostingController(rootView: view)
+        stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }
 }

@@ -87,7 +87,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let coordinator = module.makeTabCoordinator(
                 rootNavigator: rootNavigator,
                 settingsDelegate: self,
-                tabNavigator: tabNavigator
+                tabNavigator: tabNavigator,
+                vaultDelegate: self
             )
             coordinator.start()
             coordinator.navigate(to: route)
@@ -108,6 +109,14 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 
 extension AppCoordinator: SettingsCoordinatorDelegate {
     func didLogout() {
+        showAuth(route: .landing)
+    }
+}
+
+// MARK: - VaultCoordinatorDelegate
+
+extension AppCoordinator: VaultCoordinatorDelegate {
+    func didTapAddAccount() {
         showAuth(route: .landing)
     }
 }

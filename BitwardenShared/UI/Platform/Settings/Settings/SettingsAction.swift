@@ -1,6 +1,9 @@
 /// Actions that can be processed by a `SettingsProcessor`.
 ///
 enum SettingsAction: Equatable {
-    /// The logout button was pressed.
-    case logout
+    /// The account security button was pressed.
+    case accountSecurityPressed
+
+    /// The auto-fill button was pressed.
+    case autoFillPressed
 }

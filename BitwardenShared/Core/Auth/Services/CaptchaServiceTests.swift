@@ -30,13 +30,14 @@ class CaptchaServiceTests: BitwardenTestCase {
     }
 
     func test_generateCaptchaUrl() throws {
+        CaptchaRequestModel.encoder.outputFormatting = .sortedKeys
         let url = try subject.generateCaptchaUrl(with: "12345")
 
         var correctUrlComponents = URLComponents(string: "https://example.com/captcha-mobile-connector.html")
         correctUrlComponents?.queryItems = [
             URLQueryItem(
                 name: "data",
-                value: "eyJsb2NhbGUiOiJlbiIsImNhbGxiYWNrVXJpIjoiYml0d2FyZGVuOlwvXC9jYXB0Y2hhLWNhbGxiYWNrIiwiY2FwdGNoYVJlcXVpcmVkVGV4dCI6IkNhcHRjaGEgcmVxdWlyZWQiLCJzaXRlS2V5IjoiMTIzNDUifQ==" // swiftlint:disable:this line_length
+                value: "eyJjYWxsYmFja1VyaSI6ImJpdHdhcmRlbjpcL1wvY2FwdGNoYS1jYWxsYmFjayIsImNhcHRjaGFSZXF1aXJlZFRleHQiOiJDYXB0Y2hhIHJlcXVpcmVkIiwibG9jYWxlIjoiZW4iLCJzaXRlS2V5IjoiMTIzNDUifQ==" // swiftlint:disable:this line_length
             ),
             URLQueryItem(name: "parent", value: "bitwarden://captcha-callback"),
             URLQueryItem(name: "v", value: "1"),

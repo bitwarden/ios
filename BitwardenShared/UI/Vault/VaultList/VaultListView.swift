@@ -69,19 +69,6 @@ private struct VaultMainView: View {
         }
     }
 
-    /// A view that displays the main vault interface, including sections for groups and
-    /// vault items.
-    @ViewBuilder private var myVault: some View {
-        ScrollView {
-            LazyVStack(spacing: 20) {
-                ForEach(store.state.sections) { section in
-                    vaultSection(title: section.name, items: section.items)
-                }
-            }
-            .padding(16)
-        }
-    }
-
     /// A view that displays the search interface, including search results, an empty search
     /// interface, and a message indicating that no results were found.
     @ViewBuilder private var search: some View {
@@ -123,14 +110,33 @@ private struct VaultMainView: View {
 
     /// A view that displays either the my vault or empty vault interface.
     @ViewBuilder private var vault: some View {
-        if store.state.sections.isEmpty {
-            emptyVault
-        } else {
-            myVault
+        LoadingView(state: store.state.loadingState) { sections in
+            if sections.isEmpty {
+                emptyVault
+            } else {
+                vaultContents(with: sections)
+            }
         }
     }
 
     // MARK: Private Methods
+
+    /// A view that displays the main vault interface, including sections for groups and
+    /// vault items.
+    ///
+    /// - Parameter sections: The sections of the vault list to display.
+    ///
+    @ViewBuilder
+    private func vaultContents(with sections: [VaultListSection]) -> some View {
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                ForEach(sections) { section in
+                    vaultSection(title: section.name, items: section.items)
+                }
+            }
+            .padding(16)
+        }
+    }
 
     /// Creates a row in the list for the provided item.
     ///
@@ -271,6 +277,7 @@ struct VaultListView: View {
 // MARK: Previews
 
 #if DEBUG
+// swiftlint:disable:next type_body_length
 struct VaultListView_Previews: PreviewProvider {
     static let singleAccountState = ProfileSwitcherState(
         currentAccountProfile: ProfileSwitcherItem(
@@ -304,6 +311,21 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
+                            loadingState: .loading,
+                            profileSwitcherState: .empty
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Loading")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            loadingState: .data([]),
                             profileSwitcherState: .empty
                         )
                     )
@@ -317,8 +339,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            profileSwitcherState: .empty,
-                            sections: [
+                            loadingState: .data([
                                 VaultListSection(
                                     id: "1",
                                     items: [
@@ -381,7 +402,8 @@ struct VaultListView_Previews: PreviewProvider {
                                     ],
                                     name: "Types"
                                 ),
-                            ]
+                            ]),
+                            profileSwitcherState: .empty
                         )
                     )
                 )
@@ -395,7 +417,6 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             profileSwitcherState: .empty,
-                            searchText: "Exam",
                             searchResults: [
                                 .init(cipherListView: .init(
                                     id: UUID().uuidString,
@@ -414,7 +435,8 @@ struct VaultListView_Previews: PreviewProvider {
                                     deletedDate: nil,
                                     revisionDate: Date()
                                 ))!,
-                            ]
+                            ],
+                            searchText: "Exam"
                         )
                     )
                 )
@@ -428,7 +450,6 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             profileSwitcherState: .empty,
-                            searchText: "Exam",
                             searchResults: [
                                 .init(cipherListView: .init(
                                     id: UUID().uuidString,
@@ -481,7 +502,8 @@ struct VaultListView_Previews: PreviewProvider {
                                     deletedDate: nil,
                                     revisionDate: Date()
                                 ))!,
-                            ]
+                            ],
+                            searchText: "Exam"
                         )
                     )
                 )
@@ -495,8 +517,8 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             profileSwitcherState: .empty,
-                            searchText: "Exam",
-                            searchResults: []
+                            searchResults: [],
+                            searchText: "Exam"
                         )
                     )
                 )

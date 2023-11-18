@@ -1,4 +1,4 @@
-import OSLog
+// MARK: - SettingsProcessor
 
 /// The processor used to manage state and handle actions for the settings screen.
 ///
@@ -13,25 +13,19 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<SettingsRoute>
 
-    /// The services used by this processor.
-    private var services: Services
-
     // MARK: Initialization
 
     /// Creates a new `SettingsProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
-    ///   - services: The services used by the processor.
     ///   - state: The initial state of the processor.
     ///
     init(
         coordinator: AnyCoordinator<SettingsRoute>,
-        services: Services,
         state: SettingsState
     ) {
         self.coordinator = coordinator
-        self.services = services
         super.init(state: state)
     }
 
@@ -39,24 +33,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
 
     override func receive(_ action: SettingsAction) {
         switch action {
-        case .logout:
-            showLogoutConfirmation()
+        case .accountSecurityPressed:
+            coordinator.navigate(to: .accountSecurity)
+        case .autoFillPressed:
+            coordinator.navigate(to: .autoFill)
         }
-    }
-
-    // MARK: Private
-
-    /// Shows an alert asking the user to confirm that they want to logout.
-    ///
-    private func showLogoutConfirmation() {
-        let alert = Alert.logoutConfirmation {
-            do {
-                try await self.services.settingsRepository.logout()
-            } catch {
-                self.services.errorReporter.log(error: BitwardenError.logoutError(error: error))
-            }
-            self.coordinator.navigate(to: .logout)
-        }
-        coordinator.navigate(to: .alert(alert))
     }
 }

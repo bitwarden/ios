@@ -26,6 +26,7 @@ struct LandingView: View {
                     .frame(maxWidth: .infinity)
 
                 BitwardenTextField(
+                    accessibilityIdentifier: "EmailAddressEntry",
                     title: Localizations.emailAddress,
                     text: store.binding(
                         get: \.email,
@@ -55,17 +56,20 @@ struct LandingView: View {
                             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                     }
                 }
+                .accessibilityIdentifier("RegionSelectorDropdown")
 
                 Toggle(Localizations.rememberMe, isOn: store.binding(
                     get: { $0.isRememberMeOn },
                     send: { .rememberMeChanged($0) }
                 ))
+                .accessibilityIdentifier("RememberMeSwitch")
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 .toggleStyle(.bitwarden)
 
                 Button(Localizations.continue) {
                     store.send(.continuePressed)
                 }
+                .accessibilityIdentifier("ContinueButton")
                 .disabled(!store.state.isContinueButtonEnabled)
                 .buttonStyle(.primary())
 

@@ -47,6 +47,9 @@ struct GeneratorState: Equatable {
     /// The options used to generate a password.
     var passwordState = PasswordState()
 
+    /// A toast message to show in the view.
+    var toast: Toast?
+
     /// The options used to generate a username.
     var usernameState = UsernameState()
 
@@ -137,7 +140,61 @@ struct GeneratorState: Equatable {
                     ),
                 ])
             case .forwardedEmail:
-                break
+                optionFields.append(FormField(fieldType: .menuUsernameForwardedEmailService(
+                    FormMenuField(
+                        keyPath: \.usernameState.forwardedEmailService,
+                        options: UsernameState.ForwardedEmailService.allCases,
+                        selection: usernameState.forwardedEmailService,
+                        title: Localizations.service
+                    )
+                )))
+
+                switch usernameState.forwardedEmailService {
+                case .addyIO:
+                    optionFields.append(contentsOf: [
+                        textField(
+                            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
+                            keyPath: \.usernameState.addyIOAPIAccessToken,
+                            title: Localizations.apiAccessToken
+                        ),
+                        textField(
+                            keyPath: \.usernameState.addyIODomainName,
+                            title: Localizations.domainNameRequiredParenthesis
+                        ),
+                    ])
+                case .duckDuckGo:
+                    optionFields.append(
+                        textField(
+                            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
+                            keyPath: \.usernameState.duckDuckGoAPIKey,
+                            title: Localizations.apiKeyRequiredParenthesis
+                        )
+                    )
+                case .fastmail:
+                    optionFields.append(
+                        textField(
+                            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
+                            keyPath: \.usernameState.fastmailAPIKey,
+                            title: Localizations.apiKeyRequiredParenthesis
+                        )
+                    )
+                case .firefoxRelay:
+                    optionFields.append(
+                        textField(
+                            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
+                            keyPath: \.usernameState.firefoxRelayAPIAccessToken,
+                            title: Localizations.apiAccessToken
+                        )
+                    )
+                case .simpleLogin:
+                    optionFields.append(
+                        textField(
+                            isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
+                            keyPath: \.usernameState.simpleLoginAPIKey,
+                            title: Localizations.apiKeyRequiredParenthesis
+                        )
+                    )
+                }
             case .plusAddressedEmail:
                 optionFields.append(contentsOf: [
                     textField(
@@ -148,7 +205,10 @@ struct GeneratorState: Equatable {
                     ),
                 ])
             case .randomWord:
-                break
+                optionFields.append(contentsOf: [
+                    toggleField(keyPath: \.usernameState.capitalize, title: Localizations.capitalize),
+                    toggleField(keyPath: \.usernameState.includeNumber, title: Localizations.includeNumber),
+                ])
             }
         }
 
@@ -182,5 +242,25 @@ struct GeneratorState: Equatable {
                 title: Localizations.options
             ),
         ]
+    }
+
+    // MARK: Methods
+
+    /// Updates the state to show a toast for the value that was copied.
+    ///
+    mutating func showCopiedValueToast() {
+        let valueCopied: String
+        switch generatorType {
+        case .password:
+            switch passwordState.passwordGeneratorType {
+            case .passphrase:
+                valueCopied = Localizations.passphrase
+            case .password:
+                valueCopied = Localizations.password
+            }
+        case .username:
+            valueCopied = Localizations.username
+        }
+        toast = Toast(text: Localizations.valueHasBeenCopied(valueCopied))
     }
 }

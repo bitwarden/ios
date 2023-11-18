@@ -66,7 +66,6 @@ struct CreateAccountView: View {
             send: CreateAccountAction.toggleCheckDataBreaches
         )) {
             Text(Localizations.checkKnownDataBreachesForThisPassword)
-                .foregroundColor(Color(asset: Asset.Colors.textPrimary))
                 .font(.styleGuide(.footnote))
         }
         .accessibilityIdentifier("CheckExposedMasterPasswordToggle")
@@ -155,6 +154,7 @@ struct CreateAccountView: View {
         } label: {
             Text(Localizations.submit)
         }
+        .accessibilityIdentifier("CreateAccountLabel")
         .buttonStyle(.primary())
     }
 

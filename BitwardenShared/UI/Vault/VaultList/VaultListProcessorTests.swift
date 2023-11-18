@@ -39,7 +39,7 @@ class VaultListProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
-    func test_perform_appeared() {
+    func test_perform_appeared() throws {
         let vaultListItem = VaultListItem.fixture()
         vaultRepository.vaultListSubject.send([
             VaultListSection(
@@ -53,11 +53,12 @@ class VaultListProcessorTests: BitwardenTestCase {
             await subject.perform(.appeared)
         }
 
-        waitFor(!subject.state.sections.isEmpty)
+        waitFor(subject.state.loadingState != .loading)
         task.cancel()
 
-        XCTAssertEqual(subject.state.sections.count, 1)
-        XCTAssertEqual(subject.state.sections[0].items, [vaultListItem])
+        let sections = try XCTUnwrap(subject.state.loadingState.wrappedData)
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[0].items, [vaultListItem])
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
@@ -81,7 +82,7 @@ class VaultListProcessorTests: BitwardenTestCase {
         subject.state.profileSwitcherState.isVisible = true
         subject.receive(.profileSwitcherAction(.addAccountPressed))
 
-        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
@@ -101,9 +102,10 @@ class VaultListProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     func test_receive_itemPressed() {
-        subject.receive(.itemPressed(item: .fixture()))
+        let item = VaultListItem.fixture()
+        subject.receive(.itemPressed(item: item))
 
-        XCTAssertEqual(coordinator.routes.last, .viewItem)
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
     }
 
     /// `receive(_:)` with `ProfileSwitcherAction.backgroundPressed` turns off the Profile Switcher Visibility.

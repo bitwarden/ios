@@ -6,7 +6,6 @@ class SettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute>!
-    var settingsRepository: MockSettingsRepository!
     var subject: SettingsProcessor!
 
     // MARK: Setup & Teardown
@@ -15,13 +14,8 @@ class SettingsProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator()
-        settingsRepository = MockSettingsRepository()
-
         subject = SettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(
-                settingsRepository: settingsRepository
-            ),
             state: SettingsState()
         )
     }
@@ -35,22 +29,17 @@ class SettingsProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `receive(_:)` with `.logout` presents a logout confirmation alert.
-    func test_receive_logout() async throws {
-        subject.receive(.logout)
+    /// Receiving `.autoFillPressed` navigates to the auto-fill screen.
+    func test_receive_autoFillPressed() {
+        subject.receive(.autoFillPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
-        XCTAssertEqual(alert.title, Localizations.logOut)
-        XCTAssertEqual(alert.message, Localizations.logoutConfirmation)
-        XCTAssertEqual(alert.preferredStyle, .alert)
-        XCTAssertEqual(alert.alertActions.count, 2)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.yes)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(coordinator.routes.last, .autoFill)
+    }
 
-        // Tapping yes logs the user out.
-        await alert.alertActions[0].handler?(alert.alertActions[0])
+    /// Receiving `.accountSecurityPressed` navigates to the account security screen.
+    func test_receive_accountSecurityPressed() {
+        subject.receive(.accountSecurityPressed)
 
-        XCTAssertTrue(settingsRepository.logoutCalled)
-        XCTAssertEqual(coordinator.routes.last, .logout)
+        XCTAssertEqual(coordinator.routes.last, .accountSecurity)
     }
 }

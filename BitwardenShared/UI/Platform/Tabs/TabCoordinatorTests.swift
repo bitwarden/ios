@@ -13,6 +13,7 @@ class TabCoordinatorTests: BitwardenTestCase {
     var settingsDelegate: MockSettingsCoordinatorDelegate!
     var subject: TabCoordinator!
     var tabNavigator: MockTabNavigator!
+    var vaultDelegate: MockVaultCoordinatorDelegate!
 
     // MARK: Setup & Teardown
 
@@ -22,11 +23,13 @@ class TabCoordinatorTests: BitwardenTestCase {
         rootNavigator = MockRootNavigator()
         tabNavigator = MockTabNavigator()
         settingsDelegate = MockSettingsCoordinatorDelegate()
+        vaultDelegate = MockVaultCoordinatorDelegate()
         subject = TabCoordinator(
             module: module,
             rootNavigator: rootNavigator,
             settingsDelegate: settingsDelegate,
-            tabNavigator: tabNavigator
+            tabNavigator: tabNavigator,
+            vaultDelegate: vaultDelegate
         )
     }
 
@@ -36,6 +39,7 @@ class TabCoordinatorTests: BitwardenTestCase {
         rootNavigator = nil
         subject = nil
         tabNavigator = nil
+        vaultDelegate = nil
     }
 
     // MARK: Tests
@@ -73,7 +77,8 @@ class TabCoordinatorTests: BitwardenTestCase {
             module: module,
             rootNavigator: rootNavigator!,
             settingsDelegate: MockSettingsCoordinatorDelegate(),
-            tabNavigator: tabNavigator
+            tabNavigator: tabNavigator,
+            vaultDelegate: MockVaultCoordinatorDelegate()
         )
         XCTAssertNotNil(subject.rootNavigator)
 

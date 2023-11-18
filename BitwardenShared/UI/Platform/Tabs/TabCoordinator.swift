@@ -42,6 +42,9 @@ internal final class TabCoordinator: Coordinator, HasTabNavigator {
     /// The coordinator used to navigate to `VaultRoute`s.
     private var vaultCoordinator: AnyCoordinator<VaultRoute>?
 
+    /// A delegate of the `VaultCoordinator`.
+    private weak var vaultDelegate: VaultCoordinatorDelegate?
+
     // MARK: Initialization
 
     /// Creates a new `TabCoordinator`.
@@ -51,17 +54,20 @@ internal final class TabCoordinator: Coordinator, HasTabNavigator {
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
     ///   - settingsDelegate: A delegate of the `SettingsCoordinator`.
     ///   - tabNavigator: The tab navigator that is managed by this coordinator.
+    ///   - vaultDelegate: A delegate of the `VaultCoordinator`.
     ///
     init(
         module: Module,
         rootNavigator: RootNavigator,
         settingsDelegate: SettingsCoordinatorDelegate,
-        tabNavigator: TabNavigator
+        tabNavigator: TabNavigator,
+        vaultDelegate: VaultCoordinatorDelegate
     ) {
         self.module = module
         self.rootNavigator = rootNavigator
         self.settingsDelegate = settingsDelegate
         self.tabNavigator = tabNavigator
+        self.vaultDelegate = vaultDelegate
     }
 
     // MARK: Methods
@@ -87,13 +93,14 @@ internal final class TabCoordinator: Coordinator, HasTabNavigator {
     }
 
     func start() {
-        guard let rootNavigator, let settingsDelegate else { return }
+        guard let rootNavigator, let settingsDelegate, let vaultDelegate else { return }
 
         rootNavigator.show(child: tabNavigator)
 
         let vaultNavigator = UINavigationController()
         vaultNavigator.navigationBar.prefersLargeTitles = true
         vaultCoordinator = module.makeVaultCoordinator(
+            delegate: vaultDelegate,
             stackNavigator: vaultNavigator
         )
 

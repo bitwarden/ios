@@ -14,7 +14,21 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: .iPhone13(.portrait)),
-            traits: .init(userInterfaceStyle: .light)
+            traits: UITraitCollection(userInterfaceStyle: .light)
+        )
+    }
+
+    /// A default snapshot in portrait on iPhone 13, with precision 1 and perceptual precision of 0.95.
+    /// This also sets the preferred content size category to AX5.
+    static var defaultPortraitAX5: Snapshotting {
+        .image(
+            precision: defaultPrecision,
+            perceptualPrecision: defaultPerceptualPrecision,
+            layout: .device(config: .iPhone13(.portrait)),
+            traits: UITraitCollection(traitsFrom: [
+                UITraitCollection(userInterfaceStyle: .light),
+                UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge),
+            ])
         )
     }
 

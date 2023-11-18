@@ -1,3 +1,4 @@
+import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
@@ -16,6 +17,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
         delegate = MockGeneratorCoordinatorDelegate()
         stackNavigator = MockStackNavigator()
+
         subject = GeneratorCoordinator(
             delegate: delegate,
             services: ServiceContainer.withMocks(),
@@ -26,7 +28,6 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        delegate = nil
         stackNavigator = nil
         subject = nil
     }
@@ -112,6 +113,34 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
         XCTAssertFalse(store.state.isDismissButtonVisible)
         XCTAssertEqual(store.state.generatorType, .password)
         XCTAssertTrue(store.state.isTypeFieldVisible)
+    }
+
+    /// `navigate(to:)` with `.dismiss` dismisses the presented view.
+    func test_navigate_dismiss() throws {
+        subject.navigate(to: .generatorHistory)
+        subject.navigate(to: .dismiss)
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .dismissed)
+    }
+
+    /// `navigate(to:)` with `.generator` pushes the generator view onto the stack navigator.
+    func test_navigateTo_generator() throws {
+        subject.navigate(to: .generator())
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is GeneratorView)
+    }
+
+    /// `navigate(to:)` with `.generatorHistory` presents the generator history view.
+    func test_navigateTo_generatorHistory() throws {
+        subject.navigate(to: .generatorHistory)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.topViewController is UIHostingController<GeneratorHistoryView>)
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.

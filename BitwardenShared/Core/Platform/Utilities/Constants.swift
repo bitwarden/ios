@@ -13,11 +13,17 @@ enum Constants {
     /// The client type corresponding to the app.
     static let clientType: ClientType = "mobile"
 
+    /// The default generated username if there isn't enough information to generate a username.
+    static let defaultGeneratedUsername = "-"
+
     /// The URL for the web vault if the user account doesn't have one specified.
     static let defaultWebVaultHost = "bitwarden.com"
 
     /// The device type, iOS = 1.
     static let deviceType: DeviceType = 1
+
+    /// The length of a masked password.
+    static let hiddenPasswordLength = 8
 
     /// A default value for the argon memory argument in the KDF algorithm.
     static let kdfArgonMemory = 64

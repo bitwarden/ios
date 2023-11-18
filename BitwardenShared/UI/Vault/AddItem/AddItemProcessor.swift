@@ -48,7 +48,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     override func receive(_ action: AddItemAction) {
         switch action {
         case .dismissPressed:
-            coordinator.navigate(to: .list)
+            coordinator.navigate(to: .dismiss)
         case let .favoriteChanged(newValue):
             state.isFavoriteOn = newValue
         case let .folderChanged(newValue):
@@ -175,7 +175,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         do {
             try await services.vaultRepository.addCipher(state.cipher())
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .list)
+            coordinator.navigate(to: .dismiss)
         } catch {
             print(error)
         }

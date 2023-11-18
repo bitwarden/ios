@@ -1,3 +1,4 @@
+import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
@@ -34,6 +35,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `navigate(to:)` with `.accountSecurity` pushes the account security view onto the stack navigator.
+    func test_navigateTo_accountSecurity() throws {
+        subject.navigate(to: .accountSecurity)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<AccountSecurityView>)
+    }
+
     /// `navigate(to:)` with `.alert` has the stack navigator present the alert.
     func test_navigateTo_alert() throws {
         let alert = Alert.defaultAlert(
@@ -43,6 +53,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .alert(alert))
 
         XCTAssertEqual(stackNavigator.alerts, [alert])
+    }
+
+    /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
+    func test_navigateTo_autoFill() throws {
+        subject.navigate(to: .autoFill)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<AutoFillView>)
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.

@@ -8,6 +8,7 @@ import XCTest
 class VaultCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var delegate: MockVaultCoordinatorDelegate!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultCoordinator!
@@ -17,9 +18,11 @@ class VaultCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        delegate = MockVaultCoordinatorDelegate()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
         subject = VaultCoordinator(
+            delegate: delegate,
             module: module,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
@@ -29,11 +32,19 @@ class VaultCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        delegate = nil
         stackNavigator = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `navigate(to:)` with `. addAccount ` informs the delegate that the user wants to add an account.
+    func test_navigateTo_addAccount() throws {
+        subject.navigate(to: .addAccount)
+
+        XCTAssertTrue(delegate.addAccountTapped)
+    }
 
     /// `navigate(to:)` with `.addItem` pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem() throws {
@@ -142,11 +153,13 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
     func test_navigateTo_viewItem() throws {
-        subject.navigate(to: .viewItem)
+        subject.navigate(to: .viewItem(id: "id"))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
+
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ViewItemView>)
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
@@ -178,5 +191,13 @@ class VaultCoordinatorTests: BitwardenTestCase {
         subject.start()
 
         XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+}
+
+class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
+    var addAccountTapped = false
+
+    func didTapAddAccount() {
+        addAccountTapped = true
     }
 }

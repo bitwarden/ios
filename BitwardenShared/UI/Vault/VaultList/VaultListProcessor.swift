@@ -52,7 +52,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .appeared:
             await refreshVault()
             for await value in services.vaultRepository.vaultListPublisher() {
-                state.sections = value
+                state.loadingState = .data(value)
             }
         case .refresh:
             await refreshVault()
@@ -67,7 +67,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
-                coordinator.navigate(to: .viewItem)
+                coordinator.navigate(to: .viewItem(id: item.id))
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
             }
@@ -80,8 +80,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
                 // TODO: BIT-124 Switch account
                 state.profileSwitcherState.isVisible = false
             case .addAccountPressed:
-                // TODO: BIT-124 Switch account
-                state.profileSwitcherState.isVisible = false
+                addAccount()
             case .backgroundPressed:
                 state.profileSwitcherState.isVisible = false
             case let .scrollOffsetChanged(newOffset):
@@ -99,6 +98,12 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     }
 
     // MARK: - Private Methods
+
+    /// Navigates to login to initiate the add account flow.
+    ///
+    private func addAccount() {
+        coordinator.navigate(to: .addAccount)
+    }
 
     /// Refreshes the vault's contents.
     ///

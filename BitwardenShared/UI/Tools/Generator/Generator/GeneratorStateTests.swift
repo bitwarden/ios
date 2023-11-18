@@ -4,8 +4,9 @@ import XCTest
 
 @testable import BitwardenShared
 
-// swiftlint:disable:next type_body_length
-class GeneratorStateTests: XCTestCase {
+// swiftlint:disable file_length
+
+class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     /// `formSections` returns the sections and fields for generating a passphrase.
@@ -152,6 +153,142 @@ class GeneratorStateTests: XCTestCase {
         }
     }
 
+    /// `formSections` returns the sections and fields for generating a forwarded email alias using addy.io.
+    func test_formSections_username_forwardedEmail_addyIO() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .forwardedEmail
+        subject.usernameState.forwardedEmailService = .addyIO
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Forwarded email alias
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Generate an email alias with an external forwarding service.
+              Menu: Service
+                Selection: addy.io
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, SimpleLogin
+              Text: API access token Value: (empty)
+              Text: Domain name (required) Value: (empty)
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a forwarded email alias using DuckDuckGo.
+    func test_formSections_username_forwardedEmail_duckDuckGo() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .forwardedEmail
+        subject.usernameState.forwardedEmailService = .duckDuckGo
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Forwarded email alias
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Generate an email alias with an external forwarding service.
+              Menu: Service
+                Selection: DuckDuckGo
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, SimpleLogin
+              Text: API key (required) Value: (empty)
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a forwarded email alias using Fastmail.
+    func test_formSections_username_forwardedEmail_fastmail() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .forwardedEmail
+        subject.usernameState.forwardedEmailService = .fastmail
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Forwarded email alias
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Generate an email alias with an external forwarding service.
+              Menu: Service
+                Selection: Fastmail
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, SimpleLogin
+              Text: API key (required) Value: (empty)
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a forwarded email alias using Firefox Relay.
+    func test_formSections_username_forwardedEmail_firefoxRelay() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .forwardedEmail
+        subject.usernameState.forwardedEmailService = .firefoxRelay
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Forwarded email alias
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Generate an email alias with an external forwarding service.
+              Menu: Service
+                Selection: Firefox Relay
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, SimpleLogin
+              Text: API access token Value: (empty)
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a forwarded email alias using SimpleLogin.
+    func test_formSections_username_forwardedEmail_simpleLogin() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .forwardedEmail
+        subject.usernameState.forwardedEmailService = .simpleLogin
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Forwarded email alias
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Generate an email alias with an external forwarding service.
+              Menu: Service
+                Selection: SimpleLogin
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, SimpleLogin
+              Text: API key (required) Value: (empty)
+            """
+        }
+    }
+
     /// `formSections` returns the sections and fields for generating a plus-address email username.
     func test_formSections_username_plusAddressedEmail() {
         var subject = GeneratorState()
@@ -192,6 +329,29 @@ class GeneratorStateTests: XCTestCase {
                 Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
                 Footer: Use your email provider's subaddress capabilities
               Text: Email (required) Value: (empty)
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a random word username.
+    func test_formSections_username_randomWord() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .randomWord
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Random word
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+              Toggle: Capitalize Value: false
+              Toggle: Include number Value: false
             """
         }
     }
@@ -283,6 +443,8 @@ class GeneratorStateTests: XCTestCase {
             case let .menuGeneratorType(menu):
                 result.append(menu.dumpField(indent: indent))
             case let .menuPasswordGeneratorType(menu):
+                result.append(menu.dumpField(indent: indent))
+            case let .menuUsernameForwardedEmailService(menu):
                 result.append(menu.dumpField(indent: indent))
             case let .menuUsernameGeneratorType(menu):
                 result.append(menu.dumpField(indent: indent))

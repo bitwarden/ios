@@ -68,7 +68,7 @@ extension GeneratorState {
 
         // MARK: Passphrase Properties
 
-        /// Whether the capitalize the passphrase words.
+        /// Whether to capitalize the passphrase words.
         var capitalize: Bool = false
 
         /// Whether the passphrase should include numbers.

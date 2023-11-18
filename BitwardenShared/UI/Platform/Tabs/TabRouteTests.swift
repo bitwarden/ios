@@ -8,9 +8,9 @@ import XCTest
 class TabRouteTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `.generator` image is the `.restart` asset.
+    /// `.generator` image is the `.restartFilled` asset.
     func test_generator_image() {
-        XCTAssertEqual(TabRoute.generator(.generator()).image?.pngData(), Asset.Images.restart.image.pngData())
+        XCTAssertEqual(TabRoute.generator(.generator()).image?.pngData(), Asset.Images.restartFilled.image.pngData())
     }
 
     /// `.generator` is the third tab.
@@ -31,9 +31,9 @@ class TabRouteTests: BitwardenTestCase {
         XCTAssertEqual(TabRoute.generator(.generator()).title, Localizations.generator)
     }
 
-    /// `.send` image is the `.send` asset.
+    /// `.send` image is the `.sendFilled` asset.
     func test_send_image() {
-        XCTAssertEqual(TabRoute.send.image?.pngData(), Asset.Images.send.image.pngData())
+        XCTAssertEqual(TabRoute.send.image?.pngData(), Asset.Images.sendFilled.image.pngData())
     }
 
     /// `.send` is the second tab.
@@ -51,9 +51,9 @@ class TabRouteTests: BitwardenTestCase {
         XCTAssertEqual(TabRoute.send.title, Localizations.send)
     }
 
-    /// `.settings` image is the `.gear` asset.
+    /// `.settings` image is the `.gearFilled` asset.
     func test_settings_image() {
-        XCTAssertEqual(TabRoute.settings(.settings).image?.pngData(), Asset.Images.gear.image.pngData())
+        XCTAssertEqual(TabRoute.settings(.settings).image?.pngData(), Asset.Images.gearFilled.image.pngData())
     }
 
     /// `.settings` is the fourth tab.
@@ -71,9 +71,9 @@ class TabRouteTests: BitwardenTestCase {
         XCTAssertEqual(TabRoute.settings(.settings).title, Localizations.settings)
     }
 
-    /// `.vault` image is the `.locked` asset.
+    /// `.vault` image is the `.lockedFilled` asset.
     func test_vault_image() {
-        XCTAssertEqual(TabRoute.vault(.list).image?.pngData(), Asset.Images.locked.image.pngData())
+        XCTAssertEqual(TabRoute.vault(.list).image?.pngData(), Asset.Images.lockedFilled.image.pngData())
     }
 
     /// `.vault` is the first tab.
