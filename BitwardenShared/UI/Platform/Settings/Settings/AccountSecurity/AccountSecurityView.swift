@@ -13,19 +13,18 @@ struct AccountSecurityView: View {
     // MARK: View
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 20) {
-                approveLoginRequestsSection
-                unlockOptionsSection
-                sessionTimeoutSection
-                otherSection
-            }
-            .padding([.top, .bottom], 16)
-            .padding(.horizontal, 12)
+        VStack(spacing: 20) {
+            approveLoginRequestsSection
+
+            unlockOptionsSection
+
+            sessionTimeoutSection
+
+            otherSection
         }
+        .scrollView()
+        .navigationBar(title: Localizations.accountSecurity, titleDisplayMode: .inline)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle(Localizations.accountSecurity)
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     // MARK: Private views
@@ -33,9 +32,9 @@ struct AccountSecurityView: View {
     /// The approve login requests section.
     private var approveLoginRequestsSection: some View {
         VStack(alignment: .leading) {
-            sectionHeader(Localizations.approveLoginRequests)
+            SectionHeaderView(Localizations.approveLoginRequests)
 
-            toggle(
+            ToggleView(
                 isOn: store.binding(
                     get: \.isApproveLoginRequestsToggleOn,
                     send: AccountSecurityAction.toggleApproveLoginRequestsToggle
@@ -56,7 +55,7 @@ struct AccountSecurityView: View {
     /// The other section.
     private var otherSection: some View {
         VStack(alignment: .leading) {
-            sectionHeader(Localizations.other)
+            SectionHeaderView(Localizations.other)
 
             VStack(spacing: 0) {
                 SettingsListItem(Localizations.accountFingerprintPhrase) {}
@@ -87,7 +86,7 @@ struct AccountSecurityView: View {
     /// The session timeout section.
     private var sessionTimeoutSection: some View {
         VStack(alignment: .leading) {
-            sectionHeader(Localizations.sessionTimeout)
+            SectionHeaderView(Localizations.sessionTimeout)
 
             VStack(spacing: 0) {
                 SettingsListItem(
@@ -111,11 +110,11 @@ struct AccountSecurityView: View {
     /// The unlock options section.
     private var unlockOptionsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            sectionHeader(Localizations.unlockOptions)
+            SectionHeaderView(Localizations.unlockOptions)
 
             VStack(spacing: 24) {
                 if store.state.biometricAuthenticationType == .touchID {
-                    toggle(
+                    ToggleView(
                         isOn: store.binding(
                             get: \.isUnlockWithTouchIDToggleOn,
                             send: AccountSecurityAction.toggleUnlockWithTouchID
@@ -125,7 +124,7 @@ struct AccountSecurityView: View {
                 }
 
                 if store.state.biometricAuthenticationType == .faceID {
-                    toggle(
+                    ToggleView(
                         isOn: store.binding(
                             get: \.isUnlockWithFaceIDOn,
                             send: AccountSecurityAction.toggleUnlockWithFaceID
@@ -134,7 +133,7 @@ struct AccountSecurityView: View {
                     )
                 }
 
-                toggle(
+                ToggleView(
                     isOn: store.binding(
                         get: \.isUnlockWithPINCodeOn,
                         send: AccountSecurityAction.toggleUnlockWithPINCode
@@ -143,26 +142,6 @@ struct AccountSecurityView: View {
                 )
             }
         }
-    }
-
-    /// A section header.
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .accessibilityAddTraits(.isHeader)
-            .font(.styleGuide(.footnote))
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-            .textCase(.uppercase)
-    }
-
-    /// A toggle with stylized text.
-    private func toggle(
-        isOn: Binding<Bool>,
-        description: String
-    ) -> some View {
-        Toggle(isOn: isOn) {
-            Text(description)
-        }
-        .toggleStyle(.bitwarden)
     }
 }
 

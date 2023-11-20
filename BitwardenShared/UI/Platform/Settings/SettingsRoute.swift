@@ -10,6 +10,9 @@ public enum SettingsRoute: Equatable, Hashable {
     ///
     case alert(_ alert: Alert)
 
+    /// A route to the auto-fill screen.
+    case autoFill
+
     /// A route to the login screen after the vault has been locked.
     ///
     /// - Parameters:

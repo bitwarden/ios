@@ -64,7 +64,7 @@ extension CipherView {
         attachments: [AttachmentView]? = nil,
         card: CardView? = nil,
         collectionIds: [String] = [],
-        creationDate: DateTime = Date(),
+        creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: Date? = nil,
         edit: Bool = true,
         favorite: Bool = false,
@@ -80,7 +80,7 @@ extension CipherView {
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistoryView]? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
-        revisionDate: Date = Date(),
+        revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         secureNote: SecureNoteView? = nil,
         type: BitwardenSdk.CipherType = .login,
         viewPassword: Bool = true

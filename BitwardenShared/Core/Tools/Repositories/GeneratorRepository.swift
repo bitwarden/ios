@@ -22,6 +22,18 @@ protocol GeneratorRepository: AnyObject {
     /// - Returns: The generated plus-addressed email.
     ///
     func generateUsernamePlusAddressedEmail(email: String) async throws -> String
+
+    /// Gets the password generation options for the active account.
+    ///
+    /// - Returns: The password generation options for the account.
+    ///
+    func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions
+
+    /// Sets the password generation options for the active account.
+    ///
+    /// - Parameter options: The user's password generation options.
+    ///
+    func setPasswordGenerationOptions(_ options: PasswordGenerationOptions) async throws
 }
 
 // MARK: - DefaultGeneratorRepository
@@ -37,6 +49,9 @@ class DefaultGeneratorRepository {
     /// The service used to handle cryptographic operations.
     let cryptoService: CryptoService
 
+    /// The service used by the application to manage account state.
+    let stateService: StateService
+
     // MARK: Initialization
 
     /// Initialize a `DefaultGeneratorRepository`
@@ -44,13 +59,16 @@ class DefaultGeneratorRepository {
     /// - Parameters:
     ///   - clientGenerators: The client used for generating passwords and passphrases.
     ///   - cryptoService: The service used to handle cryptographic operations.
+    ///   - stateService: The service used by the application to manage account state.
     ///
     init(
         clientGenerators: ClientGeneratorsProtocol,
-        cryptoService: CryptoService = DefaultCryptoService(randomNumberGenerator: SecureRandomNumberGenerator())
+        cryptoService: CryptoService = DefaultCryptoService(randomNumberGenerator: SecureRandomNumberGenerator()),
+        stateService: StateService
     ) {
         self.clientGenerators = clientGenerators
         self.cryptoService = cryptoService
+        self.stateService = stateService
     }
 }
 
@@ -82,5 +100,13 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         var email = email
         email.insert(contentsOf: "+\(randomString)", at: atIndex)
         return email
+    }
+
+    func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {
+        try await stateService.getPasswordGenerationOptions() ?? PasswordGenerationOptions()
+    }
+
+    func setPasswordGenerationOptions(_ options: PasswordGenerationOptions) async throws {
+        try await stateService.setPasswordGenerationOptions(options)
     }
 }

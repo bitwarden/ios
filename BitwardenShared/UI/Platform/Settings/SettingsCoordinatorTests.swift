@@ -55,6 +55,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.alerts, [alert])
     }
 
+    /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
+    func test_navigateTo_autoFill() throws {
+        subject.navigate(to: .autoFill)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.viewController is UIHostingController<AutoFillView>)
+    }
+
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
     func test_navigateTo_lockVault() throws {
         subject.navigate(to: .lockVault(account: .fixture()))

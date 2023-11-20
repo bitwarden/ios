@@ -25,6 +25,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedUserKey(userId: String) -> String?
 
+    /// Gets the password generation options for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the password generation options.
+    /// - Returns: The password generation options for the user ID.
+    ///
+    func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions?
+
     /// Sets the encrypted private key for a user ID.
     ///
     /// - Parameters:
@@ -40,6 +47,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the encrypted user key.
     ///
     func setEncryptedUserKey(key: String?, userId: String)
+
+    /// Sets the password generation options for a user ID.
+    ///
+    /// - Parameters:
+    ///   - options: The user's password generation options.
+    ///   - userId: The user ID associated with the password generation options.
+    ///
+    func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -134,6 +149,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appId
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
+        case passwordGenerationOptions(userId: String)
         case rememberedEmail
         case state
 
@@ -147,6 +163,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
                 key = "encPrivateKey_\(userId)"
+            case let .passwordGenerationOptions(userId):
+                key = "passwordGenerationOptions_\(userId)"
             case .rememberedEmail:
                 key = "rememberedEmail"
             case .state:
@@ -179,11 +197,19 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .encryptedUserKey(userId: userId))
     }
 
+    func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
+        fetch(for: .passwordGenerationOptions(userId: userId))
+    }
+
     func setEncryptedPrivateKey(key: String?, userId: String) {
         store(key, for: .encryptedPrivateKey(userId: userId))
     }
 
     func setEncryptedUserKey(key: String?, userId: String) {
         store(key, for: .encryptedUserKey(userId: userId))
+    }
+
+    func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
+        store(options, for: .passwordGenerationOptions(userId: userId))
     }
 }

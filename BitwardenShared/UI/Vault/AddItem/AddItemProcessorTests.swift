@@ -72,14 +72,14 @@ class AddItemProcessorTests: BitwardenTestCase {
         vaultRepository.addCipherCiphers[0].revisionDate = creationDate
 
         XCTAssertEqual(vaultRepository.addCipherCiphers, [subject.state.cipher(creationDate: creationDate)])
-        XCTAssertEqual(coordinator.routes.last, .list)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// `receive(_:)` with `.dismiss` navigates to the `.list` route.
     func test_receive_dismiss() {
         subject.receive(.dismissPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .list)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// `receive(_:)` with `.favoriteChanged` with `true` updates the state correctly.
