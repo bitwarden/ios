@@ -6,4 +6,7 @@ enum SettingsAction: Equatable {
 
     /// The auto-fill button was pressed.
     case autoFillPressed
+
+    /// The other button was pressed.
+    case otherPressed
 }

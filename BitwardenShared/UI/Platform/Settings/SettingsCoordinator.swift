@@ -64,6 +64,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showAutoFill()
         case .logout:
             delegate?.didLogout()
+        case .other:
+            showOtherScreen()
         case .settings:
             showSettings()
         }
@@ -98,6 +100,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             state: AutoFillState()
         )
         let view = AutoFillView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
+    /// Shows the other screen.
+    ///
+    private func showOtherScreen() {
+        let processor = OtherProcessor(
+            coordinator: asAnyCoordinator(),
+            state: OtherState()
+        )
+
+        let view = OtherView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController)

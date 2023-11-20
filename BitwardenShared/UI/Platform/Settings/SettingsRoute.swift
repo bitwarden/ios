@@ -16,6 +16,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to log the user out.
     case logout
 
+    /// A route to the other view.
+    case other
+
     /// A route to the settings screen.
     case settings
 }
