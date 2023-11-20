@@ -81,8 +81,10 @@ extension GeneratorAction {
     var shouldPersistGeneratorOptions: Bool {
         switch self {
         case .copyGeneratedValue,
+             .dismissPressed,
              .generatorTypeChanged,
              .refreshGeneratedValue,
+             .selectButtonPressed,
              .showPasswordHistory,
              .textFieldFocusChanged,
              .textFieldIsPasswordVisibleChanged,
