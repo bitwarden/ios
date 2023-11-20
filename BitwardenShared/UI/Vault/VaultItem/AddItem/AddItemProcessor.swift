@@ -10,7 +10,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultRoute>
+    private var coordinator: AnyCoordinator<VaultItemRoute>
 
     /// The services required by this processor.
     private let services: Services
@@ -25,7 +25,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     ///   - state: The initial state for the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultRoute>,
+        coordinator: AnyCoordinator<VaultItemRoute>,
         services: Services,
         state: AddItemState
     ) {

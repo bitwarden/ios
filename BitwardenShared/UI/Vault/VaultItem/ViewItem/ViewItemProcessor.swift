@@ -11,7 +11,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
-    private let coordinator: any Coordinator<VaultRoute>
+    private let coordinator: any Coordinator<VaultItemRoute>
 
     /// The ID of the item being viewed.
     private let itemId: String
@@ -30,7 +30,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<VaultRoute>,
+        coordinator: any Coordinator<VaultItemRoute>,
         itemId: String,
         services: Services,
         state: ViewItemState

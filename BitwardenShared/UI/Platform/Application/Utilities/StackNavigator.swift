@@ -8,12 +8,9 @@ import SwiftUI
 public protocol StackNavigator: Navigator {
     /// Dismisses the view that was presented modally by the navigator.
     ///
-    /// - Parameters:
-    ///   - all: Whether all of the presented views should be dismissed or not. If `false`, only the
-    ///     top most view will be dismissed.
-    ///   - animated: Whether the transition should be animated.
+    /// - Parameters animated: Whether the transition should be animated.
     ///
-    func dismiss(all: Bool, animated: Bool)
+    func dismiss(animated: Bool)
 
     /// Pushes a view onto the navigator's stack.
     ///
@@ -78,11 +75,8 @@ extension StackNavigator {
     /// Dismisses the view that was presented modally by the navigator. Animation is controlled by
     /// `UI.animated`.
     ///
-    /// - Parameter all: Whether all of the presented views should be dismissed or not. If `false`,
-    ///   only the top most view will be dismissed.
-    ///
-    func dismiss(all: Bool = true) {
-        dismiss(all: all, animated: UI.animated)
+    func dismiss() {
+        dismiss(animated: UI.animated)
     }
 
     /// Pushes a view onto the navigator's stack.
@@ -159,12 +153,8 @@ extension UINavigationController: StackNavigator {
         self
     }
 
-    public func dismiss(all: Bool, animated: Bool) {
-        if all {
-            dismiss(animated: animated, completion: nil)
-        } else {
-            topmostViewController().dismiss(animated: animated)
-        }
+    public func dismiss(animated: Bool) {
+        dismiss(animated: animated, completion: nil)
     }
 
     @discardableResult

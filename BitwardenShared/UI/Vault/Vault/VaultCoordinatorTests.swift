@@ -46,15 +46,16 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(delegate.addAccountTapped)
     }
 
-    /// `navigate(to:)` with `.addItem` pushes the add item view onto the stack navigator.
+    /// `navigate(to:)` with `.addItem` presents the add item view onto the stack navigator.
     func test_navigateTo_addItem() throws {
+        let coordinator = MockCoordinator<VaultItemRoute>()
+        module.vaultItemCoordinator = coordinator
         subject.navigate(to: .addItem())
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<AddItemView>)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem())
     }
 
     /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
@@ -81,55 +82,17 @@ class VaultCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .dismiss)
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .dismissed)
-        XCTAssertEqual(action.dismissAll, false)
     }
 
-    /// `navigate(to:)` with `.generator`, `.password`, and a delegate presents the generator
-    /// screen.
-    func test_navigateTo_generator_withPassword_withDelegate() throws {
-        let generatorCoordinator = MockCoordinator<GeneratorRoute>()
-        let delegate = MockGeneratorCoordinatorDelegate()
-        module.generatorCoordinator = generatorCoordinator
-        subject.navigate(to: .generator(.password), context: delegate)
+    /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
+    func test_navigateTo_group() throws {
+        subject.navigate(to: .group(.identity))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertEqual(action.type, .pushed)
 
-        XCTAssertTrue(generatorCoordinator.isStarted)
-        XCTAssertEqual(generatorCoordinator.routes.last, .generator(staticType: .password))
-    }
-
-    /// `navigate(to:)` with `.generator`, `.password`, and without a delegate does not present the
-    /// generator screen.
-    func test_navigateTo_generator_withPassword_withoutDelegate() throws {
-        subject.navigate(to: .generator(.password), context: nil)
-
-        XCTAssertNil(stackNavigator.actions.last)
-    }
-
-    /// `navigate(to:)` with `.generator`, `.username`, and a delegate presents the generator
-    /// screen.
-    func test_navigateTo_generator_withUsername_withDelegate() throws {
-        let generatorCoordinator = MockCoordinator<GeneratorRoute>()
-        let delegate = MockGeneratorCoordinatorDelegate()
-        module.generatorCoordinator = generatorCoordinator
-        subject.navigate(to: .generator(.username), context: delegate)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is UINavigationController)
-
-        XCTAssertTrue(generatorCoordinator.isStarted)
-        XCTAssertEqual(generatorCoordinator.routes.last, .generator(staticType: .username))
-    }
-
-    /// `navigate(to:)` with `.generator`, `.username`, and without a delegate does not present the
-    /// generator screen.
-    func test_navigateTo_generator_withUsername_withoutDelegate() throws {
-        subject.navigate(to: .generator(.username), context: nil)
-
-        XCTAssertNil(stackNavigator.actions.last)
+        let view = try XCTUnwrap((action.view as? UIHostingController<VaultGroupView>)?.rootView)
+        XCTAssertEqual(view.store.state.group, .identity)
     }
 
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.
@@ -157,9 +120,8 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ViewItemView>)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .viewItem(id: "id"))
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
@@ -175,15 +137,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         subject.hideLoadingOverlay()
         waitFor { window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag) == nil }
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
-    }
-
-    /// `navigate(to:)` with `.setupTotpCamera` presents the camera screen.
-    func test_navigateTo_setupTotpCamera() throws {
-        subject.navigate(to: .setupTotpCamera)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
     }
 
     /// `start()` has no effect.

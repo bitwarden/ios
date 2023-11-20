@@ -78,3 +78,17 @@ extension MockCoordinator<VaultRoute> {
         return alert
     }
 }
+
+extension MockCoordinator<VaultItemRoute> {
+    func unwrapLastRouteAsAlert(file: StaticString = #file, line: UInt = #line) throws -> Alert {
+        guard case let .alert(alert) = routes.last else {
+            XCTFail(
+                "Expected an `.alert` route, but found \(String(describing: routes.last))",
+                file: file,
+                line: line
+            )
+            throw MockCoordinatorError.alertRouteNotFound
+        }
+        return alert
+    }
+}

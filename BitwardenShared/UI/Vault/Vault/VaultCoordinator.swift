@@ -19,10 +19,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = GeneratorModule
+        & VaultItemModule
 
     typealias Services = HasVaultRepository
-
-        & GeneratorCoordinator.Services
+        & VaultItemCoordinator.Services
 
     // MARK: Private Properties
 
@@ -71,73 +71,23 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         case .addAccount:
             delegate?.didTapAddAccount()
         case let .addItem(group):
-            showAddItem(for: group.flatMap(CipherType.init))
+            showVaultItem(route: .addItem(group: group))
         case let .alert(alert):
             stackNavigator.present(alert)
         case .dismiss:
-            stackNavigator.dismiss(all: false)
-        case let .generator(type):
-            guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
-            showGenerator(for: type, delegate: delegate)
+            stackNavigator.dismiss()
         case let .group(group):
             showGroup(group)
         case .list:
             showList()
-        case .setupTotpCamera:
-            showCamera()
         case let .viewItem(id):
-            showViewItem(id: id)
+            showVaultItem(route: .viewItem(id: id))
         }
     }
 
     func start() {}
 
     // MARK: Private Methods
-
-    /// Shows the add item screen.
-    ///
-    /// - Parameter type: An optional `CipherType` to initialize this view with.
-    ///
-    private func showAddItem(for type: CipherType?) {
-        let state = AddItemState(
-            type: type ?? .login
-        )
-        let processor = AddItemProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: state
-        )
-        let store = Store(processor: processor)
-        let view = AddItemView(store: store)
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator.present(navigationController)
-    }
-
-    /// Shows the totp camera setup screen.
-    ///
-    private func showCamera() {
-        // TODO: BIT-874 Update to show the actual camera screen
-        let view = Text("Camera")
-        stackNavigator.present(view)
-    }
-
-    /// Shows the generator screen for the the specified type.
-    ///
-    /// - Parameters:
-    ///   - type: The type to generate.
-    ///   - delegate: The delegate for this generator flow.
-    ///
-    private func showGenerator(for type: GeneratorType, delegate: GeneratorCoordinatorDelegate) {
-        let navigationController = UINavigationController()
-        let coordinator = module.makeGeneratorCoordinator(
-            delegate: delegate,
-            stackNavigator: navigationController
-        )
-        coordinator.start()
-        coordinator.navigate(to: .generator(staticType: type))
-        stackNavigator.present(navigationController)
-    }
 
     /// Shows the vault group screen.
     ///
@@ -189,21 +139,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         }
     }
 
-    /// Shows the view item screen.
+    /// Presents a vault item coordinator, which will navigate to the provided route.
     ///
-    /// - Parameter id: The id of the item to show.
+    /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showViewItem(id: String) {
-        let processor = ViewItemProcessor(
-            coordinator: self,
-            itemId: id,
-            services: services,
-            state: ViewItemState()
-        )
-        let store = Store(processor: processor)
-        let view = ViewItemView(store: store)
-        let stackNavigator = UINavigationController()
-        stackNavigator.replace(view)
-        self.stackNavigator.present(stackNavigator)
+    private func showVaultItem(route: VaultItemRoute) {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: route)
+
+        stackNavigator.present(navigationController)
     }
 }

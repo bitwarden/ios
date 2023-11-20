@@ -20,19 +20,11 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to dismiss the screen currently presented modally.
     case dismiss
 
-    /// A route to the username/password generator screen.
-    ///
-    /// - Parameter type: The type to generate.
-    case generator(_ type: GeneratorType)
-
     /// A route to the vault item list screen for the specified group.
     case group(_ group: VaultListGroup)
 
     /// A route to the vault list screen.
     case list
-
-    /// A route to the camera screen for setting up TOTP.
-    case setupTotpCamera
 
     /// A route to the view item screen.
     ///

@@ -8,7 +8,6 @@ final class MockStackNavigator: StackNavigator {
         var animated: Bool
         var hidesBottomBar: Bool?
         var overFullscreen: Bool?
-        var dismissAll: Bool?
     }
 
     enum NavigationType {
@@ -28,8 +27,8 @@ final class MockStackNavigator: StackNavigator {
 
     var viewControllersToPop: [UIViewController] = []
 
-    func dismiss(all: Bool, animated: Bool) {
-        actions.append(NavigationAction(type: .dismissed, animated: animated, dismissAll: all))
+    func dismiss(animated: Bool) {
+        actions.append(NavigationAction(type: .dismissed, animated: animated))
     }
 
     func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {
