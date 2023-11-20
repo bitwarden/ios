@@ -12,6 +12,7 @@ class VaultRepositoryTests: BitwardenTestCase {
     var clientVault: MockClientVaultService!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
+    var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
 
@@ -21,6 +22,7 @@ class VaultRepositoryTests: BitwardenTestCase {
         client = MockHTTPClient()
         clientCiphers = MockClientCiphers()
         clientVault = MockClientVaultService()
+        vaultTimeoutService = MockVaultTimeoutService()
 
         clientVault.clientCiphers = clientCiphers
 
@@ -30,7 +32,8 @@ class VaultRepositoryTests: BitwardenTestCase {
             cipherAPIService: APIService(client: client),
             clientVault: clientVault,
             stateService: stateService,
-            syncAPIService: APIService(client: client)
+            syncAPIService: APIService(client: client),
+            vaultTimeoutService: vaultTimeoutService
         )
     }
 
@@ -43,6 +46,18 @@ class VaultRepositoryTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// Tests `vaultTimeoutService.lock()` publishes the correct value for whether or not the vault was locked.
+    func test_vault_isLocked() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+
+        try await subject.fetchSync()
+        XCTAssertNotNil(subject.syncResponseSubject.value)
+
+        subject.vaultTimeoutService.lock()
+        waitFor(subject.syncResponseSubject.value == nil)
+        XCTAssertNil(subject.syncResponseSubject.value)
+    }
 
     /// `addCipher()` makes the add cipher API request and updates the vault.
     func test_addCipher() async throws {

@@ -2,7 +2,7 @@ import Foundation
 
 /// Domain model containing the environment URLs for an account.
 ///
-struct EnvironmentUrlData: Codable, Equatable {
+struct EnvironmentUrlData: Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// The URL for the API.

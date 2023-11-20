@@ -1,6 +1,6 @@
 /// An enum describing the reasoning for why a forced password reset may be required.
 ///
-enum ForcePasswordResetReason: Int, Codable, Equatable {
+enum ForcePasswordResetReason: Int, Codable, Equatable, Hashable {
     /// Occurs when an organization admin forces a user to reset their password.
     case adminForcePasswordReset
 

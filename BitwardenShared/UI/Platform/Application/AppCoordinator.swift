@@ -108,6 +108,10 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 // MARK: - SettingsCoordinatorDelegate
 
 extension AppCoordinator: SettingsCoordinatorDelegate {
+    func didLockVault(account: Account) {
+        showAuth(route: .vaultUnlock(account))
+    }
+
     func didLogout() {
         showAuth(route: .landing)
     }

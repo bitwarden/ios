@@ -6,6 +6,13 @@ import SwiftUI
 ///
 @MainActor
 public protocol SettingsCoordinatorDelegate: AnyObject {
+    /// Called when the user locks their vault.
+    ///
+    /// - Parameters:
+    ///   - account: The user's account.
+    ///
+    func didLockVault(account: Account)
+
     /// Called when the user has been logged out.
     ///
     func didLogout()
@@ -21,6 +28,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     typealias Services = HasBiometricsService
         & HasErrorReporter
         & HasSettingsRepository
+        & HasStateService
+        & HasVaultRepository
 
     // MARK: Properties
 
@@ -62,6 +71,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             stackNavigator.present(alert)
         case .autoFill:
             showAutoFill()
+        case let .lockVault(account):
+            delegate?.didLockVault(account: account)
         case .logout:
             delegate?.didLogout()
         case .settings:
