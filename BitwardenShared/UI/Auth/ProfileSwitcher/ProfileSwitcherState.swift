@@ -5,6 +5,11 @@ import SwiftUI
 /// An object that defines the current state of profile selection.
 ///
 struct ProfileSwitcherState: Equatable {
+    // MARK: Static Properties
+
+    /// The maximum number of accounts permitted
+    static let maxAcccounts: Int = 5
+
     // MARK: Properties
 
     /// All accounts/profiles
@@ -42,8 +47,7 @@ struct ProfileSwitcherState: Equatable {
 
     /// The visibility of the add account row
     var showsAddAccount: Bool {
-        // TODO: BIT-1150 Enforce maximum account limit
-        !shouldAlwaysHideAddAccount
+        !shouldAlwaysHideAddAccount && accounts.count < ProfileSwitcherState.maxAcccounts
     }
 
     // MARK: Initialization
