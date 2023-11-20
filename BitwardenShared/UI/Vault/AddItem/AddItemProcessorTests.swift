@@ -79,6 +79,33 @@ class AddItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
+    /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
+    /// `.setupTotpCamera` route.
+    func test_perform_setupTotpPressed_cameraAuthorizationAuthorized() async {
+        cameraAuthorizationService.cameraAuthorizationStatus = .authorized
+        await subject.perform(.setupTotpPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
+    }
+
+    /// `perform(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the
+    /// `.setupTotpManual` route.
+    func test_perform_setupTotpPressed_cameraAuthorizationDenied() async {
+        cameraAuthorizationService.cameraAuthorizationStatus = .denied
+        await subject.perform(.setupTotpPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
+    /// `perform(_:)` with `.setupTotpPressed` with camera authorization restricted navigates to the
+    /// `.setupTotpManual` route.
+    func test_perform_setupTotpPressed_cameraAuthorizationRestricted() async {
+        cameraAuthorizationService.cameraAuthorizationStatus = .restricted
+        await subject.perform(.setupTotpPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
     /// `receive(_:)` with `.dismiss` navigates to the `.list` route.
     func test_receive_dismiss() {
         subject.receive(.dismissPressed)
@@ -237,50 +264,6 @@ class AddItemProcessorTests: BitwardenTestCase {
         subject.receive(.passwordChanged(""))
 
         XCTAssertEqual(subject.state.password, "")
-    }
-
-    /// `receive(_:)` with `.setupTotpPressed` with camera authorization initial not determined, but
-    /// then authorized, navigates to the `.setupTotpCamera` route.
-    func test_receive_setupTotpPressed_cameraAuthorizationNotDetermined_authorizationGranted() {
-        cameraAuthorizationService.cameraAuthorizationStatus = .notDetermined
-        cameraAuthorizationService.requestCameraAuthorizationResult = .authorized
-        subject.receive(.setupTotpPressed)
-
-        waitFor(!coordinator.routes.isEmpty)
-        XCTAssertTrue(cameraAuthorizationService.requestCameraAuthorizationCalled)
-        XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
-    }
-
-    /// `receive(_:)` with `.setupTotpPressed` with camera authorization initial not determined, but
-    /// then denied, navigates to the `.setupTotpManual` route.
-    func test_receive_setupTotpPressed_cameraAuthorizationNotDetermined_authorizationDenied() {
-        cameraAuthorizationService.cameraAuthorizationStatus = .notDetermined
-        cameraAuthorizationService.requestCameraAuthorizationResult = .denied
-        subject.receive(.setupTotpPressed)
-
-        waitFor(!coordinator.routes.isEmpty)
-        XCTAssertTrue(cameraAuthorizationService.requestCameraAuthorizationCalled)
-        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
-    }
-
-    /// `receive(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
-    /// `.setupTotpCamera` route.
-    func test_receive_setupTotpPressed_cameraAuthorizationAuthorized() {
-        cameraAuthorizationService.cameraAuthorizationStatus = .authorized
-        subject.receive(.setupTotpPressed)
-
-        XCTAssertFalse(cameraAuthorizationService.requestCameraAuthorizationCalled)
-        XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
-    }
-
-    /// `receive(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the
-    /// `.setupTotpManual` route.
-    func test_receive_setupTotpPressed_cameraAuthorizationDenied() {
-        cameraAuthorizationService.cameraAuthorizationStatus = .denied
-        subject.receive(.setupTotpPressed)
-
-        XCTAssertFalse(cameraAuthorizationService.requestCameraAuthorizationCalled)
-        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.

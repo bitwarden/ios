@@ -1,15 +1,11 @@
 @testable import BitwardenShared
 
 class MockCameraAuthorizationService: CameraAuthorizationService {
-    var requestCameraAuthorizationCalled = false
-    var requestCameraAuthorizationResult: CameraAuthorizationStatus = .authorized
+    var cameraAuthorizationStatus: CameraAuthorizationStatus = .notDetermined
 
     // MARK: CameraAuthorizationService
 
-    var cameraAuthorizationStatus: CameraAuthorizationStatus = .notDetermined
-
-    func requestCameraAuthorization() async -> CameraAuthorizationStatus {
-        requestCameraAuthorizationCalled = true
-        return requestCameraAuthorizationResult
+    func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus {
+        cameraAuthorizationStatus
     }
 }

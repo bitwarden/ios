@@ -38,9 +38,6 @@ enum AddItemAction: Equatable {
     /// The password field was changed.
     case passwordChanged(String)
 
-    /// The setup totp button was pressed.
-    case setupTotpPressed
-
     /// The toggle password visibility button was changed.
     case togglePasswordVisibilityChanged(Bool)
 

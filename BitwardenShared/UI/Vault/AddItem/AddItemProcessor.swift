@@ -43,6 +43,8 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
             await checkPassword()
         case .savePressed:
             await saveItem()
+        case .setupTotpPressed:
+            await setupTotp()
         }
     }
 
@@ -73,8 +75,6 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
             state.owner = newValue
         case let .passwordChanged(newValue):
             state.password = newValue
-        case .setupTotpPressed:
-            setupTotp()
         case let .togglePasswordVisibilityChanged(newValue):
             state.isPasswordVisible = newValue
         case let .typeChanged(newValue):
@@ -146,33 +146,12 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
 
     /// Kicks off the TOTP setup flow.
     ///
-    private func setupTotp() {
-        let status = services.cameraAuthorizationService.cameraAuthorizationStatus
-        if status == .notDetermined {
-            Task {
-                let status = await services.cameraAuthorizationService.requestCameraAuthorization()
-                navigateToSetupTotpRoute(for: status)
-            }
-        } else {
-            navigateToSetupTotpRoute(for: status)
-        }
-    }
-
-    /// Navigates to the correct totp setup route for the provided status.
-    ///
-    /// - Parameter status: The camera authorization status to use when determining which route to
-    ///   navigate to.
-    ///
-    private func navigateToSetupTotpRoute(for status: CameraAuthorizationStatus) {
-        switch status {
-        case .authorized:
+    private func setupTotp() async {
+        let status = await services.cameraAuthorizationService.checkStatusOrRequestCameraAuthorization()
+        if status == .authorized {
             coordinator.navigate(to: .setupTotpCamera)
-        case .denied,
-             .restricted:
+        } else {
             coordinator.navigate(to: .setupTotpManual)
-        case .notDetermined:
-            assertionFailure("Navigating to the `.notDetermined` camera authorization status should be impossible.")
-            setupTotp()
         }
     }
 }

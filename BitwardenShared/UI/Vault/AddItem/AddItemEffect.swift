@@ -9,4 +9,7 @@ enum AddItemEffect {
 
     /// The save button was pressed.
     case savePressed
+
+    /// The setup totp button was pressed.
+    case setupTotpPressed
 }
