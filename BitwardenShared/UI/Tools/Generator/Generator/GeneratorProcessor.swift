@@ -3,10 +3,11 @@ import OSLog
 
 /// The processor used to manage state and handle actions for the generator screen.
 ///
-final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, Void> {
+final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, GeneratorEffect> {
     // MARK: Types
 
-    typealias Services = HasGeneratorRepository
+    typealias Services = HasErrorReporter
+        & HasGeneratorRepository
         & HasPasteboardService
 
     // MARK: Private Properties
@@ -40,17 +41,25 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         self.coordinator = coordinator
         self.services = services
         super.init(state: state)
+
+        Task {
+            await loadGeneratorOptions()
+        }
     }
 
     // MARK: Methods
 
-    // swiftlint:disable:next function_body_length
-    override func receive(_ action: GeneratorAction) {
+    override func perform(_ effect: GeneratorEffect) async {
+        switch effect {
+        case .appeared:
+            await generateValue()
+        }
+    }
+
+    override func receive(_ action: GeneratorAction) { // swiftlint:disable:this function_body_length
         var shouldGenerateNewValue = action.shouldGenerateNewValue
 
         switch action {
-        case .appeared:
-            break
         case .copyGeneratedValue:
             services.pasteboardService.copy(state.generatedValue)
             state.showCopiedValueToast()
@@ -109,6 +118,12 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             generateValueTask?.cancel()
             generateValueTask = Task {
                 await generateValue()
+            }
+        }
+
+        if action.shouldPersistGeneratorOptions {
+            Task {
+                await saveGeneratorOptions()
             }
         }
     }
@@ -183,6 +198,29 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             }
         case .username:
             await generateUsername()
+        }
+    }
+
+    /// Fetches the user's saved generator options and updates the state with the previous selections.
+    ///
+    func loadGeneratorOptions() async {
+        do {
+            let passwordOptions = try await services.generatorRepository.getPasswordGenerationOptions()
+            state.passwordState.update(with: passwordOptions)
+        } catch {
+            services.errorReporter.log(error: BitwardenError.generatorOptionsError(error: error))
+        }
+    }
+
+    /// Saves the user's generation options so their selections can be persisted across app launches.
+    ///
+    func saveGeneratorOptions() async {
+        do {
+            try await services.generatorRepository.setPasswordGenerationOptions(
+                state.passwordState.passwordGenerationOptions
+            )
+        } catch {
+            services.errorReporter.log(error: BitwardenError.generatorOptionsError(error: error))
         }
     }
 }

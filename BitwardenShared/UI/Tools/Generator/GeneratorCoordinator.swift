@@ -27,7 +27,8 @@ protocol GeneratorCoordinatorDelegate: AnyObject {
 final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasGeneratorRepository
+    typealias Services = HasErrorReporter
+        & HasGeneratorRepository
         & HasPasteboardService
 
     // MARK: Private Properties

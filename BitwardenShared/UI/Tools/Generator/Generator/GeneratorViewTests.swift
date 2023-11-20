@@ -7,7 +7,7 @@ import XCTest
 class GeneratorViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<GeneratorState, GeneratorAction, Void>!
+    var processor: MockProcessor<GeneratorState, GeneratorAction, GeneratorEffect>!
     var subject: GeneratorView!
 
     // MARK: Setup & Teardown
@@ -64,7 +64,7 @@ class GeneratorViewTests: BitwardenTestCase {
     func test_menuPasswordGeneratorTypeChanged() throws {
         processor.state.passwordState.passwordGeneratorType = .password
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.passwordType)
-        try menuField.select(newValue: GeneratorState.PasswordState.PasswordGeneratorType.passphrase)
+        try menuField.select(newValue: PasswordGeneratorType.passphrase)
         XCTAssertEqual(processor.dispatchedActions.last, .passwordGeneratorTypeChanged(.passphrase))
     }
 

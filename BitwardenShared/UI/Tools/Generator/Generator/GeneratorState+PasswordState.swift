@@ -4,30 +4,6 @@ extension GeneratorState {
     /// Data model for the values that can be set for generating a password.
     ///
     struct PasswordState: Equatable {
-        // MARK: Types
-
-        /// The type of password to generate.
-        ///
-        enum PasswordGeneratorType: CaseIterable, Equatable, Menuable { // swiftlint:disable:this nesting
-            /// Generate a passphrase.
-            case passphrase
-
-            /// Generate a password.
-            case password
-
-            /// All of the cases to show in the menu.
-            static let allCases: [Self] = [.password, .passphrase]
-
-            var localizedName: String {
-                switch self {
-                case .password:
-                    return Localizations.password
-                case .passphrase:
-                    return Localizations.passphrase
-                }
-            }
-        }
-
         // MARK: Properties
 
         /// The type of password to generate.
@@ -79,6 +55,32 @@ extension GeneratorState {
 
         /// The separator to put between words in the passphrase.
         var wordSeparator: String = "-"
+
+        // MARK: Methods
+
+        /// Updates the state based on the user's persisted password generation options.
+        ///
+        /// - Parameter options: The user's saved options.
+        ///
+        mutating func update(with options: PasswordGenerationOptions) {
+            passwordGeneratorType = options.type ?? passwordGeneratorType
+
+            // Password Properties
+            avoidAmbiguous = !(options.allowAmbiguousChar ?? !avoidAmbiguous)
+            containsLowercase = options.lowercase ?? containsLowercase
+            containsNumbers = options.number ?? containsNumbers
+            containsSpecial = options.special ?? containsSpecial
+            containsUppercase = options.uppercase ?? containsUppercase
+            length = options.length ?? length
+            minimumNumber = options.minNumber ?? minimumNumber
+            minimumSpecial = options.minSpecial ?? minimumSpecial
+
+            // Passphrase Properties
+            capitalize = options.capitalize ?? capitalize
+            includeNumber = options.includeNumber ?? includeNumber
+            numberOfWords = options.numWords ?? numberOfWords
+            wordSeparator = options.wordSeparator ?? wordSeparator
+        }
     }
 }
 
@@ -108,6 +110,28 @@ extension GeneratorState.PasswordState {
             minUppercase: nil,
             minNumber: nil, // TODO: BIT-980 Fix type mismatch with SDK (SDK expects bool not int).
             minSpecial: nil // TODO: BIT-980 Fix type mismatch with SDK (SDK expects bool not int).
+        )
+    }
+
+    /// Returns a `PasswordGenerationOptions` containing the user selected settings for generating
+    /// a password used to persist the options between app launches.
+    var passwordGenerationOptions: PasswordGenerationOptions {
+        PasswordGenerationOptions(
+            allowAmbiguousChar: !avoidAmbiguous,
+            capitalize: capitalize,
+            includeNumber: includeNumber,
+            length: length,
+            lowercase: containsLowercase,
+            minLowercase: nil,
+            minNumber: minimumNumber,
+            minSpecial: minimumSpecial,
+            minUppercase: nil,
+            number: containsNumbers,
+            numWords: numberOfWords,
+            special: containsSpecial,
+            type: passwordGeneratorType,
+            uppercase: containsUppercase,
+            wordSeparator: wordSeparator
         )
     }
 }

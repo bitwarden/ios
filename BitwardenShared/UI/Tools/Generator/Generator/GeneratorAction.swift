@@ -1,9 +1,6 @@
 /// Actions that can be processed by a `GeneratorProcessor`.
 ///
 enum GeneratorAction: Equatable {
-    /// The generator view appeared on screen.
-    case appeared
-
     /// The copy generated value button was pressed.
     case copyGeneratedValue
 
@@ -14,7 +11,7 @@ enum GeneratorAction: Equatable {
     case generatorTypeChanged(GeneratorType)
 
     /// The password generator type was changed.
-    case passwordGeneratorTypeChanged(GeneratorState.PasswordState.PasswordGeneratorType)
+    case passwordGeneratorTypeChanged(PasswordGeneratorType)
 
     /// The refresh generated value button was pressed.
     case refreshGeneratedValue
@@ -59,8 +56,7 @@ extension GeneratorAction {
     /// Whether this action should result in the processor generating a new generated value.
     var shouldGenerateNewValue: Bool {
         switch self {
-        case .appeared,
-             .generatorTypeChanged,
+        case .generatorTypeChanged,
              .passwordGeneratorTypeChanged,
              .refreshGeneratedValue,
              .sliderValueChanged,
@@ -78,6 +74,28 @@ extension GeneratorAction {
              .textFieldIsPasswordVisibleChanged,
              .toastShown:
             return false
+        }
+    }
+
+    /// Whether the action should result in the processor persisting the user's generator options.
+    var shouldPersistGeneratorOptions: Bool {
+        switch self {
+        case .copyGeneratedValue,
+             .generatorTypeChanged,
+             .refreshGeneratedValue,
+             .showPasswordHistory,
+             .textFieldFocusChanged,
+             .textFieldIsPasswordVisibleChanged,
+             .toastShown:
+            return false
+        case .passwordGeneratorTypeChanged,
+             .sliderValueChanged,
+             .stepperValueChanged,
+             .textValueChanged,
+             .toggleValueChanged,
+             .usernameForwardedEmailServiceChanged,
+             .usernameGeneratorTypeChanged:
+            return true
         }
     }
 }

@@ -63,6 +63,9 @@ public class ServiceContainer: Services {
     /// The repository used by the application to manage vault data for the UI layer.
     let vaultRepository: VaultRepository
 
+    /// The service used by the application to manage vault access.
+    let vaultTimeoutService: VaultTimeoutService
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -84,6 +87,7 @@ public class ServiceContainer: Services {
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - tokenService: The service used by the application to manage account access tokens.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
+    ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
         apiService: APIService,
@@ -100,7 +104,8 @@ public class ServiceContainer: Services {
         stateService: StateService,
         systemDevice: SystemDevice,
         tokenService: TokenService,
-        vaultRepository: VaultRepository
+        vaultRepository: VaultRepository,
+        vaultTimeoutService: VaultTimeoutService
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
@@ -117,6 +122,7 @@ public class ServiceContainer: Services {
         self.systemDevice = systemDevice
         self.tokenService = tokenService
         self.vaultRepository = vaultRepository
+        self.vaultTimeoutService = vaultTimeoutService
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
     }
@@ -140,17 +146,30 @@ public class ServiceContainer: Services {
         let tokenService = DefaultTokenService(stateService: stateService)
 
         let apiService = APIService(baseUrlService: baseUrlService, tokenService: tokenService)
+
+        let vaultTimeoutService = DefaultVaultTimeoutService()
+
         let authRepository = DefaultAuthRepository(
             clientCrypto: clientService.clientCrypto(),
             stateService: stateService
         )
-        let generatorRepository = DefaultGeneratorRepository(clientGenerators: clientService.clientGenerator())
-        let settingsRepository = DefaultSettingsRepository(stateService: stateService)
+
+        let generatorRepository = DefaultGeneratorRepository(
+            clientGenerators: clientService.clientGenerator(),
+            stateService: stateService
+        )
+
+        let settingsRepository = DefaultSettingsRepository(
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
+        )
+
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
             clientVault: clientService.clientVault(),
             stateService: stateService,
-            syncAPIService: apiService
+            syncAPIService: apiService,
+            vaultTimeoutService: vaultTimeoutService
         )
 
         self.init(
@@ -168,7 +187,8 @@ public class ServiceContainer: Services {
             stateService: stateService,
             systemDevice: UIDevice.current,
             tokenService: tokenService,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
+            vaultTimeoutService: vaultTimeoutService
         )
     }
 }

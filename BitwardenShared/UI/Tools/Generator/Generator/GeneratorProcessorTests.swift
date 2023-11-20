@@ -3,7 +3,9 @@ import XCTest
 
 @testable import BitwardenShared
 
-class GeneratorProcessorTests: BitwardenTestCase {
+// swiftlint:disable file_length
+
+class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var coordinator: MockCoordinator<GeneratorRoute>!
@@ -41,15 +43,69 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `receive(_:)` with `.appeared` generates a new generated value.
-    func test_receive_appear() {
+    /// `perform(_:)` with `.appeared` generates a new generated value.
+    func test_perform_appear_generatesValue() async {
         subject.state.generatorType = .password
         subject.state.passwordState.passwordGeneratorType = .password
 
-        subject.receive(.appeared)
+        await subject.perform(.appeared)
 
-        waitFor { generatorRepository.passwordGeneratorRequest != nil }
         XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+    }
+
+    /// `perform(_:)` with `.appeared` loads the password generation options and doesn't change the
+    /// defaults if the options are empty.
+    func test_perform_appear_loadsPasswordOptions_empty() async {
+        generatorRepository.passwordGenerationOptions = PasswordGenerationOptions()
+
+        let passwordState = subject.state.passwordState
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.passwordState, passwordState)
+    }
+
+    /// `perform(_:)` with `.appeared` loads the password generation options and updates the state
+    /// based on the previously selected options.
+    func test_perform_appear_loadsPasswordOptions_withValues() async {
+        generatorRepository.passwordGenerationOptions = PasswordGenerationOptions(
+            allowAmbiguousChar: false,
+            capitalize: true,
+            includeNumber: true,
+            length: 30,
+            lowercase: false,
+            minLowercase: nil,
+            minNumber: 3,
+            minSpecial: 1,
+            minUppercase: nil,
+            number: false,
+            numWords: 5,
+            special: true,
+            type: .passphrase,
+            uppercase: false,
+            wordSeparator: "*"
+        )
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(
+            subject.state.passwordState,
+            GeneratorState.PasswordState(
+                passwordGeneratorType: .passphrase,
+                avoidAmbiguous: true,
+                containsLowercase: false,
+                containsNumbers: false,
+                containsSpecial: true,
+                containsUppercase: false,
+                length: 30,
+                minimumNumber: 3,
+                minimumSpecial: 1,
+                capitalize: true,
+                includeNumber: true,
+                numberOfWords: 5,
+                wordSeparator: "*"
+            )
+        )
     }
 
     /// `receive(_:)` with `.copyGeneratedValue` copies the generated password to the system
@@ -189,13 +245,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.sliderValueChanged` updates the state's value for the slider field.
     func test_receive_sliderValueChanged() {
-        let field = SliderField<GeneratorState>(
-            keyPath: \.passwordState.lengthDouble,
-            range: 5 ... 128,
-            step: 1,
-            title: Localizations.length,
-            value: 14
-        )
+        let field = sliderField(keyPath: \.passwordState.lengthDouble)
 
         subject.receive(.sliderValueChanged(field: field, value: 10))
         XCTAssertEqual(subject.state.passwordState.length, 10)
@@ -206,12 +256,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.stepperValueChanged` updates the state's value for the stepper field.
     func test_receive_stepperValueChanged() {
-        let field = StepperField<GeneratorState>(
-            keyPath: \.passwordState.minimumNumber,
-            range: 0 ... 5,
-            title: Localizations.minNumbers,
-            value: 1
-        )
+        let field = stepperField(keyPath: \.passwordState.minimumNumber)
 
         subject.receive(.stepperValueChanged(field: field, value: 3))
         XCTAssertEqual(subject.state.passwordState.minimumNumber, 3)
@@ -265,11 +310,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.textValueChanged` updates the state's value for the text field.
     func test_receive_textValueChanged() {
-        let field = FormTextField<GeneratorState>(
-            keyPath: \.passwordState.wordSeparator,
-            title: Localizations.wordSeparator,
-            value: "-"
-        )
+        let field = textField(keyPath: \.passwordState.wordSeparator)
 
         subject.receive(.textValueChanged(field: field, value: "*"))
         XCTAssertEqual(subject.state.passwordState.wordSeparator, "*")
@@ -305,12 +346,7 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.toggleValueChanged` updates the state's value for the toggle field.
     func test_receive_toggleValueChanged() {
-        let field = ToggleField<GeneratorState>(
-            accessibilityLabel: Localizations.lowercaseAtoZ,
-            isOn: true,
-            keyPath: \.passwordState.containsLowercase,
-            title: "a-z"
-        )
+        let field = toggleField(keyPath: \.passwordState.containsLowercase)
 
         subject.receive(.toggleValueChanged(field: field, isOn: true))
         XCTAssertTrue(subject.state.passwordState.containsLowercase)
@@ -336,5 +372,92 @@ class GeneratorProcessorTests: BitwardenTestCase {
 
         subject.receive(.usernameGeneratorTypeChanged(.catchAllEmail))
         XCTAssertEqual(subject.state.usernameState.usernameGeneratorType, .catchAllEmail)
+    }
+
+    /// The user's password options are saved when any of the password options are changed.
+    func test_saveGeneratorOptions_password() {
+        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
+        waitFor { generatorRepository.passwordGenerationOptions.type == .passphrase }
+        XCTAssertEqual(
+            generatorRepository.passwordGenerationOptions,
+            PasswordGenerationOptions(
+                allowAmbiguousChar: true,
+                capitalize: false,
+                includeNumber: false,
+                length: 14,
+                lowercase: true,
+                minLowercase: nil,
+                minNumber: 1,
+                minSpecial: 1,
+                minUppercase: nil,
+                number: true,
+                numWords: 3,
+                special: false,
+                type: .passphrase,
+                uppercase: true,
+                wordSeparator: "-"
+            )
+        )
+
+        subject.receive(.sliderValueChanged(field: sliderField(keyPath: \.passwordState.lengthDouble), value: 30))
+        waitFor { generatorRepository.passwordGenerationOptions.length == 30 }
+        XCTAssertEqual(generatorRepository.passwordGenerationOptions.length, 30)
+
+        subject.receive(.stepperValueChanged(field: stepperField(keyPath: \.passwordState.minimumNumber), value: 4))
+        waitFor { generatorRepository.passwordGenerationOptions.minNumber == 4 }
+        XCTAssertEqual(generatorRepository.passwordGenerationOptions.minNumber, 4)
+
+        subject.receive(.textValueChanged(field: textField(keyPath: \.passwordState.wordSeparator), value: "$"))
+        waitFor { generatorRepository.passwordGenerationOptions.wordSeparator == "$" }
+        XCTAssertEqual(generatorRepository.passwordGenerationOptions.wordSeparator, "$")
+
+        subject.receive(.toggleValueChanged(
+            field: toggleField(keyPath: \.passwordState.containsLowercase),
+            isOn: false
+        ))
+        waitFor { generatorRepository.passwordGenerationOptions.lowercase == false }
+        XCTAssertEqual(generatorRepository.passwordGenerationOptions.lowercase, false)
+    }
+
+    // MARK: Private
+
+    /// Creates a `SliderField` with the specified key path.
+    private func sliderField(keyPath: WritableKeyPath<GeneratorState, Double>) -> SliderField<GeneratorState> {
+        SliderField<GeneratorState>(
+            keyPath: keyPath,
+            range: 5 ... 128,
+            step: 1,
+            title: Localizations.length,
+            value: 14
+        )
+    }
+
+    /// Creates a `StepperField` with the specified key path.
+    private func stepperField(keyPath: WritableKeyPath<GeneratorState, Int>) -> StepperField<GeneratorState> {
+        StepperField<GeneratorState>(
+            keyPath: keyPath,
+            range: 0 ... 5,
+            title: Localizations.minNumbers,
+            value: 1
+        )
+    }
+
+    /// Creates a `FormTextField` with the specified key path.
+    private func textField(keyPath: WritableKeyPath<GeneratorState, String>) -> FormTextField<GeneratorState> {
+        FormTextField<GeneratorState>(
+            keyPath: keyPath,
+            title: Localizations.wordSeparator,
+            value: "-"
+        )
+    }
+
+    /// Creates a `ToggleField` with the specified key path.
+    private func toggleField(keyPath: WritableKeyPath<GeneratorState, Bool>) -> ToggleField<GeneratorState> {
+        ToggleField<GeneratorState>(
+            accessibilityLabel: Localizations.lowercaseAtoZ,
+            isOn: true,
+            keyPath: keyPath,
+            title: "a-z"
+        )
     }
 }
