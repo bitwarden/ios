@@ -60,6 +60,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showAccountSecurity()
         case let .alert(alert):
             stackNavigator.present(alert)
+        case .autoFill:
+            showAutoFill()
         case .logout:
             delegate?.didLogout()
         case .settings:
@@ -83,6 +85,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
 
         let view = AccountSecurityView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
+    /// Shows the auto-fill screen.
+    ///
+    private func showAutoFill() {
+        let processor = AutoFillProcessor(
+            coordinator: asAnyCoordinator(),
+            state: AutoFillState()
+        )
+        let view = AutoFillView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController)

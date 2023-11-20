@@ -12,7 +12,7 @@ struct GeneratorView: View {
     @Environment(\.openURL) private var openURL
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<GeneratorState, GeneratorAction, Void>
+    @ObservedObject var store: Store<GeneratorState, GeneratorAction, GeneratorEffect>
 
     var body: some View {
         ScrollView {
@@ -26,7 +26,7 @@ struct GeneratorView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .navigationBarTitleDisplayMode(.large)
         .navigationTitle(Localizations.generator)
-        .onAppear { store.send(.appeared) }
+        .task { await store.perform(.appeared) }
         .onChange(of: focusedFieldKeyPath) { newValue in
             store.send(.textFieldFocusChanged(keyPath: newValue))
         }

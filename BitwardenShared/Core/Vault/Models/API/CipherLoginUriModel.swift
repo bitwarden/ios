@@ -2,7 +2,7 @@ import Foundation
 
 /// API model for a cipher login URI.
 ///
-struct CipherLoginUriModel: Codable, Equatable {
+struct CipherLoginUriModel: Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// How the URI should be matched for autofill to occur.

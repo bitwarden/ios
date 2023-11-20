@@ -17,6 +17,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameter alert: The alert to display.
     case alert(_ alert: Alert)
 
+    /// A route to dismiss the screen currently presented modally.
+    case dismiss
+
     /// A route to the username/password generator screen.
     case generator
 
@@ -33,5 +36,7 @@ public enum VaultRoute: Equatable, Hashable {
     case setupTotpManual
 
     /// A route to the view item screen.
-    case viewItem // TODO: BIT-219 Add an associated type to pass the item to the screen
+    ///
+    /// - Parameter id: The id of the item to display.
+    case viewItem(id: String)
 }

@@ -84,6 +84,13 @@ extension CipherLoginUriModel {
             uri: loginUri.uri
         )
     }
+
+    init(loginUriView: BitwardenSdk.LoginUriView) {
+        self.init(
+            match: loginUriView.match.map(UriMatchType.init),
+            uri: loginUriView.uri
+        )
+    }
 }
 
 extension CipherPasswordHistoryModel {

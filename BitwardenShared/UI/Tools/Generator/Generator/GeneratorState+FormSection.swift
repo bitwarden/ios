@@ -31,7 +31,7 @@ extension GeneratorState {
             case menuGeneratorType(FormMenuField<State, GeneratorType>)
 
             /// A menu field for the password generator type.
-            case menuPasswordGeneratorType(FormMenuField<State, PasswordState.PasswordGeneratorType>)
+            case menuPasswordGeneratorType(FormMenuField<State, PasswordGeneratorType>)
 
             /// A menu field for the user generator type.
             case menuUsernameGeneratorType(FormMenuField<State, UsernameState.UsernameGeneratorType>)
@@ -127,7 +127,7 @@ extension GeneratorState {
         FormField(fieldType: .menuPasswordGeneratorType(
             FormMenuField(
                 keyPath: \.passwordState.passwordGeneratorType,
-                options: PasswordState.PasswordGeneratorType.allCases,
+                options: PasswordGeneratorType.allCases,
                 selection: passwordState.passwordGeneratorType,
                 title: Localizations.passwordType
             )
