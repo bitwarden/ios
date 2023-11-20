@@ -5,7 +5,8 @@ import SwiftUI
 final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasGeneratorRepository
+    typealias Services = HasErrorReporter
+        & HasGeneratorRepository
         & HasPasteboardService
 
     // MARK: Properties
