@@ -38,7 +38,9 @@ protocol VaultRepository: AnyObject {
 
     /// Removes an account id.
     ///
-    func remove(userId: String)
+    ///  - Parameter userId: An optional userId. Defaults to the active user id.
+    ///
+    func remove(userId: String?) async
 
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
@@ -228,8 +230,8 @@ extension DefaultVaultRepository: VaultRepository {
         return active.profile.userId
     }
 
-    func remove(userId: String) {
-        vaultTimeoutService.remove(userId: userId)
+    func remove(userId: String?) async {
+        await vaultTimeoutService.remove(userId: userId)
     }
 
     // MARK: Publishers

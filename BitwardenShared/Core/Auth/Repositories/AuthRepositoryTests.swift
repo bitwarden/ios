@@ -353,7 +353,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let task = Task {
             try await subject.logout()
         }
-        waitFor(vaultTimeoutService.timeoutStore.isEmpty)
+        waitFor(!vaultTimeoutService.removedIds.isEmpty)
         task.cancel()
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)

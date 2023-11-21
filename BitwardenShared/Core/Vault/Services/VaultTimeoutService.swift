@@ -46,7 +46,7 @@ protocol VaultTimeoutService: AnyObject {
 
     /// Removes an account id.
     ///
-    func remove(userId: String)
+    func remove(userId: String?) async
 }
 
 // MARK: - DefaultVaultTimeoutService
@@ -108,7 +108,12 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         }
     }
 
-    func remove(userId: String) {
-        timeoutStore = timeoutStore.filter { $0.key != userId }
+    func remove(userId: String?) async {
+        if let userId {
+            timeoutStore = timeoutStore.filter { $0.key != userId }
+        } else {
+            guard let activeId = try? await service.getActiveAccount().profile.userId else { return }
+            timeoutStore = timeoutStore.filter { $0.key != activeId }
+        }
     }
 }

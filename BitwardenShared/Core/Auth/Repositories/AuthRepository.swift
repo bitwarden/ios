@@ -105,9 +105,8 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func logout() async throws {
-        let account = try await stateService.getActiveAccount()
+        await vaultTimeoutService.remove(userId: nil)
         try await stateService.logoutAccount()
-        vaultTimeoutService.remove(userId: account.profile.userId)
     }
 
     func setActiveAccount(userId: String) async throws -> Account {

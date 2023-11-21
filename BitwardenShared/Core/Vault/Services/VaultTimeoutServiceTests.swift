@@ -96,7 +96,6 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
 
     /// `lockVault(userId: nil)` should do nothing for no active account.
     func test_lock_nil_noActive() async {
-        let account = Account.fixtureAccountLogin()
         stateService.activeAccount = nil
         subject.timeoutStore = [:]
         await subject.lockVault(userId: nil)
@@ -162,7 +161,6 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
 
     /// `unlockVault(userId: nil)` should do nothing for no active account.
     func test_unlock_nil_noActive() async {
-        let account = Account.fixtureAccountLogin()
         stateService.activeAccount = nil
         subject.timeoutStore = [:]
         await subject.unlockVault(userId: nil)
@@ -218,7 +216,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         subject.timeoutStore = [
             account.profile.userId: false,
         ]
-        subject.remove(userId: account.profile.userId)
+        await subject.remove(userId: account.profile.userId)
         XCTAssertTrue(subject.timeoutStore.isEmpty)
     }
 
@@ -228,7 +226,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         subject.timeoutStore = [
             account.profile.userId: true,
         ]
-        subject.remove(userId: account.profile.userId)
+        await subject.remove(userId: account.profile.userId)
         XCTAssertTrue(subject.timeoutStore.isEmpty)
     }
 
@@ -238,7 +236,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         subject.timeoutStore = [
             account.profile.userId: false,
         ]
-        subject.remove(userId: "123")
+        await subject.remove(userId: "123")
         XCTAssertEqual(
             [
                 account.profile.userId: false,

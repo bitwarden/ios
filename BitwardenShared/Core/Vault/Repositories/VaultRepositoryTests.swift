@@ -144,22 +144,22 @@ class VaultRepositoryTests: BitwardenTestCase {
     }
 
     /// `remove(userId:)` Removes an account id from the vault timeout service.
-    func test_removeAccountId_success_unlocked() {
+    func test_removeAccountId_success_unlocked() async {
         let account = Account.fixtureAccountLogin()
         vaultTimeoutService.timeoutStore = [
             account.profile.userId: false,
         ]
-        subject.remove(userId: account.profile.userId)
+        await subject.remove(userId: account.profile.userId)
         XCTAssertEqual([:], vaultTimeoutService.timeoutStore)
     }
 
     /// `remove(userId:)` Removes an account id from the vault timeout service.
-    func test_removeAccountId_success_locked() {
+    func test_removeAccountId_success_locked() async {
         let account = Account.fixtureAccountLogin()
         vaultTimeoutService.timeoutStore = [
             account.profile.userId: true,
         ]
-        subject.remove(userId: account.profile.userId)
+        await subject.remove(userId: account.profile.userId)
         XCTAssertEqual([:], vaultTimeoutService.timeoutStore)
     }
 
@@ -169,7 +169,7 @@ class VaultRepositoryTests: BitwardenTestCase {
         vaultTimeoutService.timeoutStore = [
             account.profile.userId: false,
         ]
-        subject.remove(userId: "123")
+        await subject.remove(userId: "123")
         XCTAssertEqual(
             [
                 account.profile.userId: false,

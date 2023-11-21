@@ -10,6 +10,15 @@ class MockVaultTimeoutService: VaultTimeoutService {
         }
     }
 
+    /// ids set as locked
+    var lockedIds = [String?]()
+
+    /// ids removed
+    var removedIds = [String?]()
+
+    /// ids set as unlocked
+    var unlockedIds = [String?]()
+
     lazy var isLockedSubject = CurrentValueSubject<[String: Bool], Never>(self.timeoutStore)
 
     func isLocked(userId: String) throws -> Bool {
@@ -24,16 +33,20 @@ class MockVaultTimeoutService: VaultTimeoutService {
     }
 
     func lockVault(userId: String?) async {
+        lockedIds.append(userId)
         guard let userId else { return }
         timeoutStore[userId] = true
     }
 
     func unlockVault(userId: String?) async {
+        unlockedIds.append(userId)
         guard let userId else { return }
         timeoutStore[userId] = false
     }
 
-    func remove(userId: String) {
+    func remove(userId: String?) async {
+        removedIds.append(userId)
+        guard let userId else { return }
         timeoutStore = timeoutStore.filter { $0.key != userId }
     }
 }
