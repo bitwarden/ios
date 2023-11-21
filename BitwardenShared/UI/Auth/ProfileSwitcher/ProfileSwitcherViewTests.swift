@@ -117,7 +117,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
 
     /// Tests the add account visibility below the maximum account limit
     func test_addAccountRow_subMaximumAccounts_hideAdd() throws {
-        var state = ProfileSwitcherState(
+        let state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
                 ProfileSwitcherItem(
