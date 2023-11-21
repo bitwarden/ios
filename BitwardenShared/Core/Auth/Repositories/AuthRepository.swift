@@ -84,14 +84,14 @@ class DefaultAuthRepository {
 extension DefaultAuthRepository: AuthRepository {
     func getAccounts() async throws -> [ProfileSwitcherItem] {
         let accounts = try await stateService.getAccounts()
-        return accounts.map { account in
-            profileItem(from: account)
+        return await accounts.asyncMap { account in
+            await profileItem(from: account)
         }
     }
 
     func getActiveAccount() async throws -> ProfileSwitcherItem {
         let active = try await stateService.getActiveAccount()
-        return profileItem(from: active)
+        return await profileItem(from: active)
     }
 
     func getAccount(for userId: String) async throws -> Account {
@@ -128,7 +128,7 @@ extension DefaultAuthRepository: AuthRepository {
                 organizationKeys: [:]
             )
         )
-        vaultTimeoutService.unlockVault(userId: account.profile.userId)
+        await vaultTimeoutService.unlockVault(userId: account.profile.userId)
     }
 
     /// A function to convert an `Account` to a `ProfileSwitcherItem`
@@ -136,7 +136,7 @@ extension DefaultAuthRepository: AuthRepository {
     ///   - Parameter account: The account to convert.
     ///   - Returns: The `ProfileSwitcherItem` representing the account.
     ///
-    func profileItem(from account: Account) -> ProfileSwitcherItem {
+    func profileItem(from account: Account) async -> ProfileSwitcherItem {
         var profile = ProfileSwitcherItem(
             email: account.profile.email,
             userId: account.profile.userId,
@@ -149,7 +149,8 @@ extension DefaultAuthRepository: AuthRepository {
             return profile
         } catch {
             profile.isUnlocked = false
-            vaultTimeoutService.lockVault(userId: profile.userId)
+            let userId = profile.userId
+            await vaultTimeoutService.lockVault(userId: userId)
             return profile
         }
     }

@@ -7,6 +7,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var cancellables: Set<AnyCancellable>!
+    var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
 
     // MARK: Setup & Teardown
@@ -15,7 +16,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         super.setUp()
 
         cancellables = []
-        subject = DefaultVaultTimeoutService()
+        stateService = MockStateService()
+        subject = DefaultVaultTimeoutService(service: stateService)
     }
 
     override func tearDown() {
@@ -23,6 +25,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
 
         cancellables = nil
         subject = nil
+        stateService = nil
     }
 
     /// Setting the timeoutStore should trigger the `isLockedPublisher` with the new values.
@@ -77,13 +80,36 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         XCTAssertThrowsError(try subject.isLocked(userId: "123"))
     }
 
+    /// `lockVault(userId: nil)` should lock the active account.
+    func test_lock_nil_active() async {
+        let account = Account.fixtureAccountLogin()
+        stateService.activeAccount = account
+        subject.timeoutStore = [:]
+        await subject.lockVault(userId: nil)
+        XCTAssertEqual(
+            [
+                account.profile.userId: true,
+            ],
+            subject.timeoutStore
+        )
+    }
+
+    /// `lockVault(userId: nil)` should do nothing for no active account.
+    func test_lock_nil_noActive() async {
+        let account = Account.fixtureAccountLogin()
+        stateService.activeAccount = nil
+        subject.timeoutStore = [:]
+        await subject.lockVault(userId: nil)
+        XCTAssertEqual([:], subject.timeoutStore)
+    }
+
     /// `lockVault(userId:)` should lock an unlocked account.
     func test_lock_unlocked() async {
         let account = Account.fixtureAccountLogin()
         subject.timeoutStore = [
             account.profile.userId: false,
         ]
-        subject.lockVault(userId: account.profile.userId)
+        await subject.lockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: true,
@@ -98,7 +124,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         subject.timeoutStore = [
             account.profile.userId: true,
         ]
-        subject.lockVault(userId: account.profile.userId)
+        await subject.lockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: true,
@@ -111,7 +137,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
     func test_lock_notFound() async {
         let account = Account.fixtureAccountLogin()
         subject.timeoutStore = [:]
-        subject.lockVault(userId: account.profile.userId)
+        await subject.lockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: true,
@@ -120,13 +146,36 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         )
     }
 
+    /// `unlockVault(userId: nil)` should lock the active account.
+    func test_unlock_nil_active() async {
+        let account = Account.fixtureAccountLogin()
+        stateService.activeAccount = account
+        subject.timeoutStore = [:]
+        await subject.unlockVault(userId: nil)
+        XCTAssertEqual(
+            [
+                account.profile.userId: false,
+            ],
+            subject.timeoutStore
+        )
+    }
+
+    /// `unlockVault(userId: nil)` should do nothing for no active account.
+    func test_unlock_nil_noActive() async {
+        let account = Account.fixtureAccountLogin()
+        stateService.activeAccount = nil
+        subject.timeoutStore = [:]
+        await subject.unlockVault(userId: nil)
+        XCTAssertEqual([:], subject.timeoutStore)
+    }
+
     /// `unlockVault(userId:)` preserves the unlocked status of an unlocked account.
     func test_unlock_unlocked() async {
         let account = Account.fixtureAccountLogin()
         subject.timeoutStore = [
             account.profile.userId: false,
         ]
-        subject.unlockVault(userId: account.profile.userId)
+        await subject.unlockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: false,
@@ -141,7 +190,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         subject.timeoutStore = [
             account.profile.userId: true,
         ]
-        subject.unlockVault(userId: account.profile.userId)
+        await subject.unlockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: false,
@@ -154,7 +203,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
     func test_unlock_notFound() async {
         let account = Account.fixtureAccountLogin()
         subject.timeoutStore = [:]
-        subject.unlockVault(userId: account.profile.userId)
+        await subject.unlockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: false,

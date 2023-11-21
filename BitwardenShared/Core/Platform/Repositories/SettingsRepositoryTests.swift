@@ -34,16 +34,21 @@ class SettingsRepositoryTests: BitwardenTestCase {
         vaultTimeoutService.timeoutStore = [:]
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, [:])
 
-        subject.unlockVault(userId: "123")
+        let task = Task {
+            await subject.unlockVault(userId: "123")
+        }
+        waitFor(!vaultTimeoutService.isLockedSubject.value.isEmpty)
+        task.cancel()
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
     }
 
     /// `unlockVault(userId:)` can unlock a user's vault.
-    func test_lockVault_false_knownUser() {
+    func test_lockVault_false_knownUser() async {
         vaultTimeoutService.timeoutStore = ["123": true]
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
 
-        subject.unlockVault(userId: "123")
+        await subject.unlockVault(userId: "123")
+        waitFor(!vaultTimeoutService.isLockedSubject.value.isEmpty)
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
     }
 
@@ -52,16 +57,21 @@ class SettingsRepositoryTests: BitwardenTestCase {
         vaultTimeoutService.timeoutStore = [:]
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, [:])
 
-        subject.lockVault(userId: "123")
+        let task = Task {
+            await subject.lockVault(userId: "123")
+        }
+        waitFor(!vaultTimeoutService.isLockedSubject.value.isEmpty)
+        task.cancel()
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
     }
 
     /// `lockVault` can lock a user's vault.
-    func test_lockVault_true_knownUser() {
+    func test_lockVault_true_knownUser() async {
         vaultTimeoutService.timeoutStore = ["123": false]
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
 
-        subject.lockVault(userId: "123")
+        await subject.lockVault(userId: "123")
+        waitFor(!vaultTimeoutService.isLockedSubject.value.isEmpty)
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
     }
 

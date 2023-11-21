@@ -54,7 +54,7 @@ class VaultRepositoryTests: BitwardenTestCase {
         try await subject.fetchSync()
         XCTAssertNotNil(subject.syncResponseSubject.value)
 
-        subject.vaultTimeoutService.lockVault(userId: "")
+        await subject.vaultTimeoutService.lockVault(userId: "")
         waitFor(subject.syncResponseSubject.value == nil)
         XCTAssertNil(subject.syncResponseSubject.value)
     }

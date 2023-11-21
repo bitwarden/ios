@@ -25,14 +25,16 @@ protocol VaultTimeoutService: AnyObject {
     /// Locks the user's vault
     ///
     /// - Parameter userId: The userId of the account to lock.
+    ///     Defaults to the active account if nil
     ///
-    func lockVault(userId: String)
+    func lockVault(userId: String?) async
 
     /// Unlocks the user's vault
     ///
     /// - Parameter userId: The userId of the account to unlock.
+    ///     Defaults to the active account if nil
     ///
-    func unlockVault(userId: String)
+    func unlockVault(userId: String?) async
 
     // MARK: Publishers
 
@@ -50,6 +52,11 @@ protocol VaultTimeoutService: AnyObject {
 // MARK: - DefaultVaultTimeoutService
 
 class DefaultVaultTimeoutService: VaultTimeoutService {
+    // MARK: Properties
+
+    /// The services used by this Default Service.
+    private var service: StateService
+
     /// The store of locked status for known accounts
     var timeoutStore = [String: Bool]() {
         didSet {
@@ -59,6 +66,16 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     /// A subject containing a `Bool` for whether or not the vault is locked.
     lazy var isLockedSubject = CurrentValueSubject<[String: Bool], Never>(self.timeoutStore)
+
+    // MARK: Initialization
+
+    /// Creates a new `DefaultVaultTimeoutService`.
+    ///
+    /// - Parameter service: The StateService used by DefaultVaultTimeoutService.
+    ///
+    init(service: StateService) {
+        self.service = service
+    }
 
     func isLocked(userId: String) throws -> Bool {
         guard let pair = timeoutStore.first(where: { $0.key == userId }) else {
@@ -73,12 +90,22 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             .values
     }
 
-    func lockVault(userId: String) {
-        timeoutStore[userId] = true
+    func lockVault(userId: String?) async {
+        if let userId {
+            timeoutStore[userId] = true
+        } else {
+            guard let activeId = try? await service.getActiveAccount().profile.userId else { return }
+            timeoutStore[activeId] = true
+        }
     }
 
-    func unlockVault(userId: String) {
-        timeoutStore[userId] = false
+    func unlockVault(userId: String?) async {
+        if let userId {
+            timeoutStore[userId] = false
+        } else {
+            guard let activeId = try? await service.getActiveAccount().profile.userId else { return }
+            timeoutStore[activeId] = false
+        }
     }
 
     func remove(userId: String) {
