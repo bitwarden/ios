@@ -65,6 +65,8 @@ final class AccountSecurityProcessor: StateProcessor<
 
     override func receive(_ action: AccountSecurityAction) {
         switch action {
+        case .deleteAccountPressed:
+            coordinator.navigate(to: .deleteAccount)
         case .logout:
             showLogoutConfirmation()
         case let .toggleApproveLoginRequestsToggle(isOn):
