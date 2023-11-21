@@ -7,6 +7,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
     var stateService: MockStateService!
     var subject: DefaultSettingsRepository!
+    var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
 
@@ -14,8 +15,9 @@ class SettingsRepositoryTests: BitwardenTestCase {
         super.setUp()
 
         stateService = MockStateService()
+        vaultTimeoutService = MockVaultTimeoutService()
 
-        subject = DefaultSettingsRepository(stateService: stateService)
+        subject = DefaultSettingsRepository(stateService: stateService, vaultTimeoutService: vaultTimeoutService)
     }
 
     override func tearDown() {
@@ -26,6 +28,14 @@ class SettingsRepositoryTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `lockVault` locks the user's vault.
+    func test_lockVault() {
+        XCTAssertFalse(vaultTimeoutService.isLockedSubject.value)
+
+        subject.lockVault()
+        XCTAssertTrue(vaultTimeoutService.isLockedSubject.value)
+    }
 
     /// `logout()` has the state service log the user out.
     func test_logout() async throws {

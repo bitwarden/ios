@@ -11,21 +11,23 @@ import XCTest
 class ProfileSwitcherViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, Void>!
+    var processor: MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>!
     var subject: ProfileSwitcherView!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-
+        let account = ProfileSwitcherItem(
+            color: .purple,
+            email: "anne.account@bitwarden.com",
+            userInitials: "AA"
+        )
         let state = ProfileSwitcherState(
-            currentAccountProfile: ProfileSwitcherItem(
-                color: .purple,
-                email: "anne.account@bitwarden.com",
-                userInitials: "AA"
-            ),
-            isVisible: true
+            accounts: [account],
+            activeAccountId: account.userId,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: false
         )
         processor = MockProcessor(state: state)
         subject = ProfileSwitcherView(store: Store(processor: processor))
@@ -44,7 +46,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
     func test_accountRow_tap_currentAccount() throws {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         try accountRow.tap()
-        let currentAccount = processor.state.currentAccountProfile
+        let currentAccount = processor.state.activeAccountProfile!
 
         XCTAssertEqual(processor.dispatchedActions.last, .accountPressed(currentAccount))
     }
@@ -63,9 +65,13 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
             email: "alternate@bitwarden.com",
             userInitials: "NA"
         )
+        let current = processor.state.activeAccountProfile!
         processor.state = ProfileSwitcherState(
-            alternateAccounts: [alternate],
-            currentAccountProfile: processor.state.currentAccountProfile,
+            accounts: [
+                alternate,
+                current,
+            ],
+            activeAccountId: current.userId,
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
@@ -86,9 +92,10 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
             alternate,
             secondAlternate,
         ]
+        let current = processor.state.activeAccountProfile!
         processor.state = ProfileSwitcherState(
-            alternateAccounts: alternateAccounts,
-            currentAccountProfile: processor.state.currentAccountProfile,
+            accounts: alternateAccounts + [current],
+            activeAccountId: current.userId,
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "")
@@ -113,8 +120,14 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
     }
 
     func test_snapshot_multiAccount_unlocked() {
+        let active = ProfileSwitcherItem(
+            color: .purple,
+            email: "anne.account@bitwarden.com",
+            userInitials: "AA"
+        )
         processor.state = ProfileSwitcherState(
-            alternateAccounts: [
+            accounts: [
+                active,
                 ProfileSwitcherItem(
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
@@ -140,19 +153,20 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
                     userInitials: "EE"
                 ),
             ],
-            currentAccountProfile: ProfileSwitcherItem(
-                color: .purple,
-                email: "anne.account@bitwarden.com",
-                userInitials: "AA"
-            ),
+            activeAccountId: active.userId,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_multiAccount_locked() {
+        let active = ProfileSwitcherItem(
+            color: .purple,
+            email: "anne.account@bitwarden.com",
+            userInitials: "AA"
+        )
         processor.state = ProfileSwitcherState(
-            alternateAccounts: [
+            accounts: [
                 ProfileSwitcherItem(
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
@@ -165,6 +179,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
                     isUnlocked: false,
                     userInitials: "CC"
                 ),
+                active,
                 ProfileSwitcherItem(
                     color: .indigo,
                     email: "double.dip@bitwarde.com",
@@ -178,11 +193,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
                     userInitials: "EE"
                 ),
             ],
-            currentAccountProfile: ProfileSwitcherItem(
-                color: .purple,
-                email: "anne.account@bitwarden.com",
-                userInitials: "AA"
-            ),
+            activeAccountId: active.userId,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)

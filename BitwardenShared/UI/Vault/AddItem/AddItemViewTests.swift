@@ -165,10 +165,10 @@ class AddItemViewTests: BitwardenTestCase {
     }
 
     /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
-    func test_setupTotpButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.setupTotp)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .setupTotpPressed)
+    func test_setupTotpButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.setupTotp)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .setupTotpPressed)
     }
 
     func test_typeMenuField_updateValue() throws {

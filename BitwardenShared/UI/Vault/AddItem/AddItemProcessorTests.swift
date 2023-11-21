@@ -7,6 +7,7 @@ import XCTest
 class AddItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var cameraAuthorizationService: MockCameraAuthorizationService!
     var coordinator: MockCoordinator<VaultRoute>!
     var subject: AddItemProcessor!
     var vaultRepository: MockVaultRepository!
@@ -15,11 +16,14 @@ class AddItemProcessorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+
+        cameraAuthorizationService = MockCameraAuthorizationService()
         coordinator = MockCoordinator()
         vaultRepository = MockVaultRepository()
         subject = AddItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                cameraAuthorizationService: cameraAuthorizationService,
                 vaultRepository: vaultRepository
             ),
             state: AddItemState()
@@ -73,6 +77,33 @@ class AddItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(vaultRepository.addCipherCiphers, [subject.state.cipher(creationDate: creationDate)])
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
+    /// `.setupTotpCamera` route.
+    func test_perform_setupTotpPressed_cameraAuthorizationAuthorized() async {
+        cameraAuthorizationService.cameraAuthorizationStatus = .authorized
+        await subject.perform(.setupTotpPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
+    }
+
+    /// `perform(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the
+    /// `.setupTotpManual` route.
+    func test_perform_setupTotpPressed_cameraAuthorizationDenied() async {
+        cameraAuthorizationService.cameraAuthorizationStatus = .denied
+        await subject.perform(.setupTotpPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
+    /// `perform(_:)` with `.setupTotpPressed` with camera authorization restricted navigates to the
+    /// `.setupTotpManual` route.
+    func test_perform_setupTotpPressed_cameraAuthorizationRestricted() async {
+        cameraAuthorizationService.cameraAuthorizationStatus = .restricted
+        await subject.perform(.setupTotpPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
     }
 
     /// `receive(_:)` with `.dismiss` navigates to the `.list` route.
@@ -233,13 +264,6 @@ class AddItemProcessorTests: BitwardenTestCase {
         subject.receive(.passwordChanged(""))
 
         XCTAssertEqual(subject.state.password, "")
-    }
-
-    /// `receive(_:)` with `.setupTotpPressed` navigates to the `.setupTotpCamera` route.
-    func test_receive_setupTotpPressed() {
-        subject.receive(.setupTotpPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.

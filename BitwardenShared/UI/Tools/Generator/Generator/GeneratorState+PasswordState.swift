@@ -81,6 +81,23 @@ extension GeneratorState {
             numberOfWords = options.numWords ?? numberOfWords
             wordSeparator = options.wordSeparator ?? wordSeparator
         }
+
+        /// Validates and updates the password generation options to ensure no invalid combinations.
+        ///
+        mutating func validateOptions() {
+            if !containsLowercase, !containsNumbers, !containsSpecial, !containsUppercase {
+                containsLowercase = true
+            }
+
+            let minimumLowercase = containsLowercase ? 1 : 0
+            let minimumUppercase = containsUppercase ? 1 : 0
+            let minimumNumber = containsNumbers ? minimumNumber : 0
+            let minimumSpecial = containsSpecial ? minimumSpecial : 0
+            let minimumLength = minimumLowercase + minimumUppercase + minimumNumber + minimumSpecial
+            if length < minimumLength {
+                length = minimumLength
+            }
+        }
     }
 }
 

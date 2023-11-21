@@ -9,6 +9,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     // MARK: Properties
 
     var coordinator: MockCoordinator<GeneratorRoute>!
+    var errorReporter: MockErrorReporter!
     var generatorRepository: MockGeneratorRepository!
     var pasteboardService: MockPasteboardService!
     var subject: GeneratorProcessor!
@@ -19,56 +20,79 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         super.setUp()
 
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         generatorRepository = MockGeneratorRepository()
         pasteboardService = MockPasteboardService()
 
-        subject = GeneratorProcessor(
-            coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(
-                generatorRepository: generatorRepository,
-                pasteboardService: pasteboardService
-            ),
-            state: GeneratorState()
-        )
+        setUpSubject()
     }
 
     override func tearDown() {
         super.tearDown()
 
         coordinator = nil
+        errorReporter = nil
         generatorRepository = nil
         pasteboardService = nil
         subject = nil
     }
 
+    func setUpSubject(generatorRepository: MockGeneratorRepository? = nil) {
+        subject = GeneratorProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                generatorRepository: generatorRepository ?? self.generatorRepository,
+                pasteboardService: pasteboardService
+            ),
+            state: GeneratorState()
+        )
+    }
+
     // MARK: Tests
 
-    /// `perform(_:)` with `.appeared` generates a new generated value.
-    func test_perform_appear_generatesValue() async {
-        subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .password
+    /// `init` loads the password generation options and doesn't change the defaults if the options
+    /// are empty.
+    func test_init_loadsPasswordOptions_empty() {
+        waitFor { generatorRepository.getPasswordGenerationOptionsCalled }
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
 
-        await subject.perform(.appeared)
-
-        XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+        XCTAssertEqual(
+            subject.state.passwordState,
+            GeneratorState.PasswordState(
+                passwordGeneratorType: .password,
+                avoidAmbiguous: false,
+                containsLowercase: true,
+                containsNumbers: true,
+                containsSpecial: false,
+                containsUppercase: true,
+                length: 14,
+                minimumNumber: 1,
+                minimumSpecial: 1,
+                capitalize: false,
+                includeNumber: false,
+                numberOfWords: 3,
+                wordSeparator: "-"
+            )
+        )
     }
 
-    /// `perform(_:)` with `.appeared` loads the password generation options and doesn't change the
-    /// defaults if the options are empty.
-    func test_perform_appear_loadsPasswordOptions_empty() async {
-        generatorRepository.passwordGenerationOptions = PasswordGenerationOptions()
-
-        let passwordState = subject.state.passwordState
-
-        await subject.perform(.appeared)
-
-        XCTAssertEqual(subject.state.passwordState, passwordState)
+    /// `init` loads the password generation options and logs an error if one occurs.
+    func test_init_loadsPasswordOptions_error() {
+        generatorRepository.getPasswordGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
+        setUpSubject()
+        waitFor { !errorReporter.errors.isEmpty }
+        XCTAssertEqual(
+            errorReporter.errors[0] as NSError,
+            BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount)
+        )
     }
 
-    /// `perform(_:)` with `.appeared` loads the password generation options and updates the state
+    /// `init` loads the password generation options and updates the state
     /// based on the previously selected options.
-    func test_perform_appear_loadsPasswordOptions_withValues() async {
-        generatorRepository.passwordGenerationOptions = PasswordGenerationOptions(
+    func test_init_loadsPasswordOptions_withValues() {
+        let generatorRepository = MockGeneratorRepository()
+        generatorRepository.getPasswordGenerationOptionsResult = .success(PasswordGenerationOptions(
             allowAmbiguousChar: false,
             capitalize: true,
             includeNumber: true,
@@ -84,9 +108,10 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             type: .passphrase,
             uppercase: false,
             wordSeparator: "*"
-        )
+        ))
 
-        await subject.perform(.appeared)
+        setUpSubject(generatorRepository: generatorRepository)
+        waitFor { subject.state.passwordState.length == 30 }
 
         XCTAssertEqual(
             subject.state.passwordState,
@@ -106,6 +131,116 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "*"
             )
         )
+    }
+
+    /// Generating a new password validates the password options before generating the value.
+    func test_generatePassword_validatesOptions() {
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .password
+
+        subject.state.passwordState.containsLowercase = false
+        subject.state.passwordState.containsNumbers = false
+        subject.state.passwordState.containsSpecial = false
+        subject.state.passwordState.containsUppercase = false
+
+        subject.receive(.refreshGeneratedValue)
+        waitFor { subject.state.passwordState.containsLowercase }
+
+        XCTAssertTrue(subject.state.passwordState.containsLowercase)
+        XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.lowercase, true)
+    }
+
+    /// `init` loads the username generation options and doesn't change the defaults if the options
+    /// are empty.
+    func test_init_loadsUsernameOptions_empty() {
+        waitFor { generatorRepository.getUsernameGenerationOptionsCalled }
+        XCTAssertTrue(generatorRepository.getUsernameGenerationOptionsCalled)
+
+        XCTAssertEqual(
+            subject.state.usernameState,
+            GeneratorState.UsernameState(
+                usernameGeneratorType: .plusAddressedEmail,
+                catchAllEmailType: .random,
+                domain: "",
+                addyIOAPIAccessToken: "",
+                addyIODomainName: "",
+                duckDuckGoAPIKey: "",
+                fastmailAPIKey: "",
+                firefoxRelayAPIAccessToken: "",
+                forwardedEmailService: .addyIO,
+                simpleLoginAPIKey: "",
+                email: "",
+                plusAddressedEmailType: .random,
+                capitalize: false,
+                includeNumber: false
+            )
+        )
+    }
+
+    /// `init` loads the username generation options and logs an error if one occurs.
+    func test_init_loadsUsernameOptions_error() {
+        generatorRepository.getUsernameGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
+        setUpSubject()
+        waitFor { !errorReporter.errors.isEmpty }
+        XCTAssertEqual(
+            errorReporter.errors[0] as NSError,
+            BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount)
+        )
+    }
+
+    /// `perform(_:)` with `.appeared` loads the username generation options and updates the state
+    /// based on the previously selected options.
+    func test_init_loadsUsernameOptions_withValues() {
+        let generatorRepository = MockGeneratorRepository()
+        generatorRepository.getUsernameGenerationOptionsResult = .success(UsernameGenerationOptions(
+            anonAddyApiAccessToken: "ADDYIO_API_TOKEN",
+            anonAddyDomainName: "bitwarden.com",
+            capitalizeRandomWordUsername: true,
+            catchAllEmailDomain: "bitwarden.com",
+            catchAllEmailType: .random,
+            duckDuckGoApiKey: "DUCKDUCKGO_API_KEY",
+            fastMailApiKey: "FASTMAIL_API_KEY",
+            firefoxRelayApiAccessToken: "FIREFOX_API_TOKEN",
+            includeNumberRandomWordUsername: true,
+            plusAddressedEmail: "user@bitwarden.com",
+            plusAddressedEmailType: .website,
+            serviceType: .fastmail,
+            simpleLoginApiKey: "SIMPLELOGIN_API_KEY",
+            type: .randomWord
+        ))
+
+        setUpSubject(generatorRepository: generatorRepository)
+        waitFor { subject.state.usernameState.usernameGeneratorType == .randomWord }
+
+        XCTAssertEqual(
+            subject.state.usernameState,
+            GeneratorState.UsernameState(
+                usernameGeneratorType: .randomWord,
+                catchAllEmailType: .random,
+                domain: "bitwarden.com",
+                addyIOAPIAccessToken: "ADDYIO_API_TOKEN",
+                addyIODomainName: "bitwarden.com",
+                duckDuckGoAPIKey: "DUCKDUCKGO_API_KEY",
+                fastmailAPIKey: "FASTMAIL_API_KEY",
+                firefoxRelayAPIAccessToken: "FIREFOX_API_TOKEN",
+                forwardedEmailService: .fastmail,
+                simpleLoginAPIKey: "SIMPLELOGIN_API_KEY",
+                email: "user@bitwarden.com",
+                plusAddressedEmailType: .website,
+                capitalize: true,
+                includeNumber: true
+            )
+        )
+    }
+
+    /// `perform(_:)` with `.appeared` generates a new generated value.
+    func test_perform_appear_generatesValue() async {
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .password
+
+        await subject.perform(.appeared)
+
+        XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
     }
 
     /// `receive(_:)` with `.copyGeneratedValue` copies the generated password to the system
@@ -362,6 +497,9 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// The user's password options are saved when any of the password options are changed.
     func test_saveGeneratorOptions_password() {
+        // Wait for the initial loading of the generation options to complete before making changes.
+        waitFor { generatorRepository.getPasswordGenerationOptionsCalled }
+
         subject.receive(.passwordGeneratorTypeChanged(.passphrase))
         waitFor { generatorRepository.passwordGenerationOptions.type == .passphrase }
         XCTAssertEqual(
@@ -403,6 +541,73 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         ))
         waitFor { generatorRepository.passwordGenerationOptions.lowercase == false }
         XCTAssertEqual(generatorRepository.passwordGenerationOptions.lowercase, false)
+    }
+
+    /// Saving the password generation options logs an error if one occurs.
+    func test_saveGeneratorOptions_password_error() {
+        generatorRepository.setPasswordGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
+
+        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
+
+        waitFor { !errorReporter.errors.isEmpty }
+        XCTAssertEqual(
+            errorReporter.errors[0] as NSError,
+            BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount)
+        )
+    }
+
+    /// The user's username options are saved when any of the username options are changed.
+    func test_saveGeneratorOptions_username() {
+        // Wait for the initial loading of the generation options to complete before making changes.
+        waitFor { generatorRepository.getUsernameGenerationOptionsCalled }
+
+        subject.state.generatorType = .username
+
+        subject.receive(.usernameGeneratorTypeChanged(.catchAllEmail))
+        waitFor { generatorRepository.usernameGenerationOptions.type == .catchAllEmail }
+        XCTAssertEqual(
+            generatorRepository.usernameGenerationOptions,
+            UsernameGenerationOptions(
+                capitalizeRandomWordUsername: false,
+                catchAllEmailType: .random,
+                includeNumberRandomWordUsername: false,
+                plusAddressedEmailType: .random,
+                serviceType: .addyIO,
+                type: .catchAllEmail
+            )
+        )
+
+        subject.receive(.usernameForwardedEmailServiceChanged(.duckDuckGo))
+        waitFor { generatorRepository.usernameGenerationOptions.serviceType == .duckDuckGo }
+        XCTAssertEqual(generatorRepository.usernameGenerationOptions.serviceType, .duckDuckGo)
+
+        subject.receive(.textValueChanged(
+            field: textField(keyPath: \.usernameState.duckDuckGoAPIKey),
+            value: "API_KEY"
+        ))
+        waitFor { generatorRepository.usernameGenerationOptions.duckDuckGoApiKey == "API_KEY" }
+        XCTAssertEqual(generatorRepository.usernameGenerationOptions.duckDuckGoApiKey, "API_KEY")
+
+        subject.receive(.toggleValueChanged(
+            field: toggleField(keyPath: \.usernameState.capitalize),
+            isOn: true
+        ))
+        waitFor { generatorRepository.usernameGenerationOptions.capitalizeRandomWordUsername == true }
+        XCTAssertEqual(generatorRepository.usernameGenerationOptions.capitalizeRandomWordUsername, true)
+    }
+
+    /// Saving the username generation options logs an error if one occurs.
+    func test_saveGeneratorOptions_username_error() {
+        generatorRepository.setUsernameGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
+
+        subject.state.generatorType = .username
+        subject.receive(.usernameGeneratorTypeChanged(.catchAllEmail))
+
+        waitFor { !errorReporter.errors.isEmpty }
+        XCTAssertEqual(
+            errorReporter.errors[0] as NSError,
+            BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount)
+        )
     }
 
     // MARK: Private

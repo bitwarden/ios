@@ -151,7 +151,7 @@ struct GeneratorView: View {
     /// - Parameter field: The data for displaying the menu field.
     ///
     func menuUsernameGeneratorTypeView(
-        field: FormMenuField<GeneratorState, GeneratorState.UsernameState.UsernameGeneratorType>
+        field: FormMenuField<GeneratorState, UsernameGeneratorType>
     ) -> some View {
         FormMenuFieldView(field: field) { newValue in
             store.send(.usernameGeneratorTypeChanged(newValue))

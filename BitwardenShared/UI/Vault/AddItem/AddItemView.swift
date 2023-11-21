@@ -86,8 +86,8 @@ struct AddItemView: View {
                             .bold()
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
-                        Button {
-                            store.send(.setupTotpPressed)
+                        AsyncButton {
+                            await store.perform(.setupTotpPressed)
                         } label: {
                             HStack(alignment: .center, spacing: 4) {
                                 Asset.Images.camera.swiftUIImage
@@ -195,17 +195,8 @@ struct AddItemView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
+                ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
                     store.send(.dismissPressed)
-                } label: {
-                    Label {
-                        Text(Localizations.cancel)
-                    } icon: {
-                        Image(asset: Asset.Images.cancel)
-                            .resizable()
-                            .foregroundColor(Color(asset: Asset.Colors.primaryBitwarden))
-                            .frame(width: 24, height: 24)
-                    }
                 }
             }
         }

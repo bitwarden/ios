@@ -181,6 +181,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     func generateValue() async {
         switch state.generatorType {
         case .password:
+            state.passwordState.validateOptions()
             switch state.passwordState.passwordGeneratorType {
             case .passphrase:
                 await generatePassphrase()
@@ -198,6 +199,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         do {
             let passwordOptions = try await services.generatorRepository.getPasswordGenerationOptions()
             state.passwordState.update(with: passwordOptions)
+
+            let usernameOptions = try await services.generatorRepository.getUsernameGenerationOptions()
+            state.usernameState.update(with: usernameOptions)
         } catch {
             services.errorReporter.log(error: BitwardenError.generatorOptionsError(error: error))
         }
@@ -207,9 +211,16 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     ///
     func saveGeneratorOptions() async {
         do {
-            try await services.generatorRepository.setPasswordGenerationOptions(
-                state.passwordState.passwordGenerationOptions
-            )
+            switch state.generatorType {
+            case .password:
+                try await services.generatorRepository.setPasswordGenerationOptions(
+                    state.passwordState.passwordGenerationOptions
+                )
+            case .username:
+                try await services.generatorRepository.setUsernameGenerationOptions(
+                    state.usernameState.usernameGenerationOptions
+                )
+            }
         } catch {
             services.errorReporter.log(error: BitwardenError.generatorOptionsError(error: error))
         }

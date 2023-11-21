@@ -19,6 +19,13 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route that dismisses the current view.
     case dismiss
 
+    /// A route to the login screen after the vault has been locked.
+    ///
+    /// - Parameters:
+    ///   - account: The user's account
+    ///
+    case lockVault(account: Account)
+
     /// A route to log the user out.
     case logout
 
