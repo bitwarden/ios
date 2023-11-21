@@ -37,7 +37,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_formSections_passphrase_withoutTypeField() {
         var subject = GeneratorState()
         subject.passwordState.passwordGeneratorType = .passphrase
-        subject.isTypeFieldVisible = false
+        subject.presentationMode = .inPlace
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -87,7 +87,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_formSections_password_withoutTypeField() {
         var subject = GeneratorState()
         subject.passwordState.passwordGeneratorType = .password
-        subject.isTypeFieldVisible = false
+        subject.presentationMode = .inPlace
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -137,7 +137,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         var subject = GeneratorState()
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .catchAllEmail
-        subject.isTypeFieldVisible = false
+        subject.presentationMode = .inPlace
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -317,7 +317,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         var subject = GeneratorState()
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .plusAddressedEmail
-        subject.isTypeFieldVisible = false
+        subject.presentationMode = .inPlace
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """

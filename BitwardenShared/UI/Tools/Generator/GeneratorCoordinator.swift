@@ -34,7 +34,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Private Properties
 
     /// A delegate that responds to events in this coordinator.
-    private let delegate: GeneratorCoordinatorDelegate?
+    private weak var delegate: GeneratorCoordinatorDelegate?
 
     // MARK: Properties
 
@@ -95,9 +95,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     private func showGenerator(for type: GeneratorType?) {
         let state = GeneratorState(
             generatorType: type ?? .password,
-            isDismissButtonVisible: delegate != nil,
-            isSelectButtonVisible: delegate != nil,
-            isTypeFieldVisible: type == nil
+            presentationMode: type == nil ? .tab : .inPlace
         )
         let processor = GeneratorProcessor(
             coordinator: asAnyCoordinator(),

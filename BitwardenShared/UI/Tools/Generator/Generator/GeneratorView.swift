@@ -21,7 +21,7 @@ struct GeneratorView: View {
                     sectionView(section)
                 }
 
-                if store.state.isSelectButtonVisible {
+                if store.state.presentationMode.isSelectButtonVisible {
                     Button(Localizations.select) {
                         store.send(.selectButtonPressed)
                     }
@@ -57,7 +57,7 @@ struct GeneratorView: View {
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
-                if store.state.isDismissButtonVisible {
+                if store.state.presentationMode.isDismissButtonVisible {
                     Button {
                         store.send(.dismissPressed)
                     } label: {

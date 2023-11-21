@@ -8,7 +8,7 @@ protocol VaultItemModule {
     /// Initializes a coordinator for navigating between `VaultItemRoute`s.
     ///
     /// - Parameters stackNavigator: The stack navigator that will be used to navigate between routes.
-    /// - Returns: A coordinator that can navigate to `VaultRoute`s.
+    /// - Returns: A coordinator that can navigate to `VaultItemRoute`s.
     ///
     func makeVaultItemCoordinator(
         stackNavigator: StackNavigator

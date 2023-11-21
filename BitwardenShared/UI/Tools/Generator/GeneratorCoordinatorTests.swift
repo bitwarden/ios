@@ -60,10 +60,8 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is GeneratorView)
 
         let store = try XCTUnwrap((action.view as? GeneratorView)?.store)
-        XCTAssertTrue(store.state.isSelectButtonVisible)
-        XCTAssertTrue(store.state.isDismissButtonVisible)
+        XCTAssertEqual(store.state.presentationMode, .tab)
         XCTAssertEqual(store.state.generatorType, .password)
-        XCTAssertTrue(store.state.isTypeFieldVisible)
     }
 
     /// `navigate(to:)` with `.generator` and `.password` pushes the generator view onto the stack
@@ -77,7 +75,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
         let store = try XCTUnwrap((action.view as? GeneratorView)?.store)
         XCTAssertEqual(store.state.generatorType, .password)
-        XCTAssertFalse(store.state.isTypeFieldVisible)
+        XCTAssertEqual(store.state.presentationMode, .inPlace)
     }
 
     /// `navigate(to:)` with `.generator` and `.username` pushes the generator view onto the stack
@@ -91,7 +89,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
         let store = try XCTUnwrap((action.view as? GeneratorView)?.store)
         XCTAssertEqual(store.state.generatorType, .username)
-        XCTAssertFalse(store.state.isTypeFieldVisible)
+        XCTAssertEqual(store.state.presentationMode, .inPlace)
     }
 
     /// `navigate(to:)` with `.generator` and without a delegate pushes the generator view onto the
@@ -109,10 +107,8 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is GeneratorView)
 
         let store = try XCTUnwrap((action.view as? GeneratorView)?.store)
-        XCTAssertFalse(store.state.isSelectButtonVisible)
-        XCTAssertFalse(store.state.isDismissButtonVisible)
+        XCTAssertEqual(store.state.presentationMode, .tab)
         XCTAssertEqual(store.state.generatorType, .password)
-        XCTAssertTrue(store.state.isTypeFieldVisible)
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the presented view.

@@ -32,7 +32,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Tapping on the dismiss button dispatches the `.dismissPressed` action.
     func test_dismissButton_tap() throws {
-        processor.state.isDismissButtonVisible = true
+        processor.state.presentationMode = .inPlace
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -88,7 +88,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Tapping the select button dispatches the `.selectButtonPressed` action.
     func test_selectButton_tap() throws {
-        processor.state.isSelectButtonVisible = true
+        processor.state.presentationMode = .inPlace
         let button = try subject.inspect().find(button: Localizations.select)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .selectButtonPressed)
@@ -189,9 +189,9 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the password generation view with the select button.
-    func test_snapshot_generatorViewPassword_withSelectButton() {
+    func test_snapshot_generatorViewPassword_inPlace() {
         processor.state.passwordState.passwordGeneratorType = .password
-        processor.state.isSelectButtonVisible = true
+        processor.state.presentationMode = .inPlace
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
@@ -226,10 +226,10 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the plus addressed username generation view with the select button.
-    func test_snapshot_generatorViewUsernamePlusAddressed_withSelectButton() {
+    func test_snapshot_generatorViewUsernamePlusAddressed_inPlace() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
-        processor.state.isSelectButtonVisible = true
+        processor.state.presentationMode = .inPlace
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 

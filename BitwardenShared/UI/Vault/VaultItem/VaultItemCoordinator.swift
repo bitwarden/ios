@@ -2,6 +2,8 @@ import SwiftUI
 
 // MARK: - VaultItemCoordinator
 
+/// A coordinator that manages navigation for displaying, editing, and adding individual vault items.
+///
 class VaultItemCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 

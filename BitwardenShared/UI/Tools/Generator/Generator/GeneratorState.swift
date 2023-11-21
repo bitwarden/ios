@@ -27,6 +27,41 @@ public enum GeneratorType: CaseIterable, Equatable, Menuable {
 /// An object that defines the current state of a `GeneratorView`.
 ///
 struct GeneratorState: Equatable {
+    // MARK: Types
+
+    /// The presentation mode for the generator. Used to determine if specific UI elements are shown.
+    enum PresentationMode: Equatable {
+        /// The generator is being presented in its own tab for a generic generation task.
+        case tab
+
+        /// The generator is being presented in place for a specific generation task.
+        case inPlace
+
+        /// A flag indicating if the dismiss button is visible.
+        var isDismissButtonVisible: Bool {
+            switch self {
+            case .tab: false
+            case .inPlace: true
+            }
+        }
+
+        /// A flag indicating if the select button is visible.
+        var isSelectButtonVisible: Bool {
+            switch self {
+            case .tab: false
+            case .inPlace: true
+            }
+        }
+
+        /// A flag indicating if the generator type field is visible.
+        var isTypeFieldVisible: Bool {
+            switch self {
+            case .tab: true
+            case .inPlace: false
+            }
+        }
+    }
+
     // MARK: Properties
 
     /// The type of value to generate.
@@ -35,17 +70,12 @@ struct GeneratorState: Equatable {
     /// The generated value (password, passphrase or username).
     var generatedValue: String = ""
 
-    /// A flag indicating if the dismiss button is visible.
-    var isDismissButtonVisible = false
-
-    /// A flag indicating if the select button is visible.
-    var isSelectButtonVisible = false
-
-    /// A flag indicating if the generator type field is visible.
-    var isTypeFieldVisible = true
-
     /// The options used to generate a password.
     var passwordState = PasswordState()
+
+    /// The mode the generator is currently in. This value determines if the UI should show specific
+    /// elements.
+    var presentationMode: PresentationMode = .tab
 
     /// A toast message to show in the view.
     var toast: Toast?
@@ -213,7 +243,7 @@ struct GeneratorState: Equatable {
         }
 
         let generatorFields: [FormField<Self>]
-        if isTypeFieldVisible {
+        if presentationMode.isTypeFieldVisible {
             generatorFields = [
                 generatedValueField(keyPath: \.generatedValue),
                 FormField(fieldType: .menuGeneratorType(FormMenuField(
