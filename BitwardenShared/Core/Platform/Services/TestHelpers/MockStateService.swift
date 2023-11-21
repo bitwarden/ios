@@ -24,7 +24,6 @@ class MockStateService: StateService {
     }
 
     func getAccounts() async throws -> [BitwardenShared.Account] {
-        // TODO: BIT-1132 - Profile Switcher UI on Auth
         guard let accounts else { throw StateServiceError.noAccounts }
         return accounts
     }

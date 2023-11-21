@@ -5,26 +5,31 @@ import SwiftUI
 /// An object that defines the current state of profile selection.
 ///
 struct ProfileSwitcherState: Equatable {
-    // MARK: Static Properties
-
-    /// An empty state with an empty currenct account profile
-    static var empty: Self {
-        ProfileSwitcherState(
-            currentAccountProfile: ProfileSwitcherItem(),
-            isVisible: false
-        )
-    }
-
     // MARK: Properties
 
-    /// A list of alternate accounts/profiles
-    var alternateAccounts: [ProfileSwitcherItem]
+    /// All accounts/profiles
+    var accounts: [ProfileSwitcherItem]
 
-    // MARK: Private(set) Properties
+    /// The user id of the active account
+    var activeAccountId: String?
 
     /// The account profile currently in use
-    private(set)
-    var currentAccountProfile: ProfileSwitcherItem
+    var activeAccountProfile: ProfileSwitcherItem? {
+        accounts.first(where: { $0.userId == activeAccountId })
+    }
+
+    /// The user id of the active account
+    var activeAccountInitials: String {
+        activeAccountProfile?.userInitials ?? ".."
+    }
+
+    /// A list of alternate accounts/profiles
+    var alternateAccounts: [ProfileSwitcherItem] {
+        accounts.filter { $0.userId != activeAccountId }
+    }
+
+    /// A flag for tracking accessibility focus
+    var hasSetAccessibilityFocus: Bool = false
 
     /// A flag for view visibility
     var isVisible: Bool
@@ -32,13 +37,13 @@ struct ProfileSwitcherState: Equatable {
     /// The observed offset of the scrollView
     var scrollOffset: CGPoint
 
-    // MARK: Derived Properties
+    /// A flag to indicate if an add account row should be visible
+    private let shouldAlwaysHideAddAccount: Bool
 
-    /// All accounts, with the current account last
-    var accounts: [ProfileSwitcherItem] {
-        alternateAccounts
-            .filter { $0.userId != currentAccountProfile.userId }
-            + [currentAccountProfile]
+    /// The visibility of the add account row
+    var showsAddAccount: Bool {
+        // TODO: BIT-1150 Enforce maximum account limit
+        !shouldAlwaysHideAddAccount
     }
 
     // MARK: Initialization
@@ -50,27 +55,31 @@ struct ProfileSwitcherState: Equatable {
     ///   - currentAccountProfile: The current `ProfileSwitcherItem` profile
     ///   - isVisible: The visibility of the view
     ///   - scrollOffset: The offset of the scroll view
+    ///   - shouldAlwaysHideAddAccount: Overrides visibility of the add account row
     ///
     init(
-        alternateAccounts: [ProfileSwitcherItem] = [],
-        currentAccountProfile: ProfileSwitcherItem,
+        accounts: [ProfileSwitcherItem],
+        activeAccountId: String?,
         isVisible: Bool,
-        scrollOffset: CGPoint = .zero
+        scrollOffset: CGPoint = .zero,
+        shouldAlwaysHideAddAccount: Bool = false
     ) {
-        self.alternateAccounts = alternateAccounts
-        self.currentAccountProfile = currentAccountProfile
+        self.accounts = accounts
+        self.activeAccountId = activeAccountId
         self.isVisible = isVisible
         self.scrollOffset = scrollOffset
+        self.shouldAlwaysHideAddAccount = shouldAlwaysHideAddAccount
     }
 
-    // MARK: Functions
+    /// Determines if a row type should take accessibility focus.
+    /// - Parameter rowType: The row type.
+    /// - Returns: A boolean
+    ///
+    func shouldSetAccessibilityFocus(for rowType: ProfileSwitcherRowState.RowType) -> Bool {
+        guard case .active = rowType else {
+            return false
+        }
 
-    /// A  mutating method to select an account by its identifier
-    mutating func selectAccount(_ selected: ProfileSwitcherItem) {
-        guard alternateAccounts.contains(where: { $0.userId == selected.userId }) else { return }
-        alternateAccounts = alternateAccounts
-            .filter { $0.userId != selected.userId }
-            + [currentAccountProfile]
-        currentAccountProfile = selected
+        return isVisible && !hasSetAccessibilityFocus
     }
 }

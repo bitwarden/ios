@@ -18,7 +18,9 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasCameraAuthorizationService
+    typealias Services = HasAuthRepository
+        & HasCameraAuthorizationService
+        & HasErrorReporter
         & HasVaultRepository
 
     // MARK: Properties

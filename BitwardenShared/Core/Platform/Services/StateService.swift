@@ -92,7 +92,7 @@ extension StateService {
     /// Sets the account encryption keys for the active account.
     ///
     /// - Parameters:
-    ///   - encryptionKeys:  The account encryption keys.
+    ///   - encryptionKeys: The account encryption keys.
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
         try await setAccountEncryptionKeys(encryptionKeys, userId: nil)
