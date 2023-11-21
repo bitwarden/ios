@@ -1,6 +1,6 @@
 // MARK: - OtherSettingsProcessor
 
-/// The processor used to manage state and handle actions for the `OtherView`.
+/// The processor used to manage state and handle actions for the `OtherSettingsView`.
 ///
 final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSettingsAction, Void> {
     // MARK: Properties

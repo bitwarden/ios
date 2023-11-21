@@ -105,7 +105,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.push(viewController)
     }
 
-    /// Shows the other screen.
+    /// Shows the other settings screen.
     ///
     private func showOtherScreen() {
         let processor = OtherSettingsProcessor(
