@@ -1,5 +1,6 @@
 import AVFoundation
 import Foundation
+import OSLog
 
 /// All enumerations of the user's decision to authorize camera access.
 enum CameraAuthorizationStatus: Equatable {
@@ -28,7 +29,9 @@ extension CameraAuthorizationStatus {
         case .restricted:
             self = .restricted
         @unknown default:
-            assertionFailure("Unhandled AVAuthorizationStatus detected: \(avAuthorizationStatus)")
+            Logger.application.warning(
+                "Unhandled AVAuthorizationStatus detected: \(String(describing: avAuthorizationStatus))"
+            )
             self = .denied
         }
     }
