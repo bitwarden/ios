@@ -112,7 +112,7 @@ struct GeneratorState: Equatable {
                 FormField(fieldType: .menuUsernameGeneratorType(FormMenuField(
                     footer: usernameState.usernameGeneratorType.localizedDescription,
                     keyPath: \.usernameState.usernameGeneratorType,
-                    options: UsernameState.UsernameGeneratorType.allCases,
+                    options: UsernameGeneratorType.allCases,
                     selection: usernameState.usernameGeneratorType,
                     title: Localizations.usernameType
                 ))),
@@ -132,7 +132,7 @@ struct GeneratorState: Equatable {
                 optionFields.append(FormField(fieldType: .menuUsernameForwardedEmailService(
                     FormMenuField(
                         keyPath: \.usernameState.forwardedEmailService,
-                        options: UsernameState.ForwardedEmailService.allCases,
+                        options: ForwardedEmailServiceType.allCases,
                         selection: usernameState.forwardedEmailService,
                         title: Localizations.service
                     )

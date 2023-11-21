@@ -34,10 +34,10 @@ extension GeneratorState {
             case menuPasswordGeneratorType(FormMenuField<State, PasswordGeneratorType>)
 
             /// A menu field for the user generator type.
-            case menuUsernameGeneratorType(FormMenuField<State, UsernameState.UsernameGeneratorType>)
+            case menuUsernameGeneratorType(FormMenuField<State, UsernameGeneratorType>)
 
             /// A menu field for username forwarded email service.
-            case menuUsernameForwardedEmailService(FormMenuField<State, UsernameState.ForwardedEmailService>)
+            case menuUsernameForwardedEmailService(FormMenuField<State, ForwardedEmailServiceType>)
 
             /// A slider field.
             case slider(SliderField<State>)

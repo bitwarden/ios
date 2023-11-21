@@ -38,10 +38,10 @@ enum GeneratorAction: Equatable {
     case toggleValueChanged(field: ToggleField<GeneratorState>, isOn: Bool)
 
     /// The username forwarded email service was changed.
-    case usernameForwardedEmailServiceChanged(GeneratorState.UsernameState.ForwardedEmailService)
+    case usernameForwardedEmailServiceChanged(ForwardedEmailServiceType)
 
     /// The username generator type was changed.
-    case usernameGeneratorTypeChanged(GeneratorState.UsernameState.UsernameGeneratorType)
+    case usernameGeneratorTypeChanged(UsernameGeneratorType)
 }
 
 extension GeneratorAction {
