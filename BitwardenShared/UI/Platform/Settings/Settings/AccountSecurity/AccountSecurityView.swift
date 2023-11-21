@@ -41,7 +41,6 @@ struct AccountSecurityView: View {
                 Text(Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices)
             }
             .toggleStyle(.bitwarden)
-            .font(.styleGuide(.body))
 
             if store.state.isApproveLoginRequestsToggleOn {
                 SettingsListItem(
@@ -118,7 +117,6 @@ struct AccountSecurityView: View {
                         Text(Localizations.unlockWith(Localizations.touchID))
                     }
                     .toggleStyle(.bitwarden)
-                    .font(.styleGuide(.body))
                 }
 
                 if store.state.biometricAuthenticationType == .faceID {
@@ -129,7 +127,6 @@ struct AccountSecurityView: View {
                         Text(Localizations.unlockWith(Localizations.faceID))
                     }
                     .toggleStyle(.bitwarden)
-                    .font(.styleGuide(.body))
                 }
 
                 Toggle(isOn: store.binding(
