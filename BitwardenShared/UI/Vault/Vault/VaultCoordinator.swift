@@ -26,7 +26,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasErrorReporter
         & HasVaultRepository
         & VaultItemCoordinator.Services
-        & HasErrorReporter
 
     // MARK: Private Properties
 

@@ -9,7 +9,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = GeneratorModule
 
-    typealias Services = HasVaultRepository
+    typealias Services = HasCameraAuthorizationService
+        & HasVaultRepository
         & GeneratorCoordinator.Services
 
     // MARK: - Private Properties
@@ -57,6 +58,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             showGenerator(for: type, delegate: delegate)
         case .setupTotpCamera:
             showCamera()
+        case .setupTotpManual:
+            showManualTotp()
         case let .viewItem(id):
             showViewItem(id: id)
         }
@@ -89,6 +92,13 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     private func showCamera() {
         // TODO: BIT-874 Update to show the actual camera screen
         let view = Text("Camera")
+        stackNavigator.present(view)
+    }
+
+    /// Shows the totp manual setup screen.
+    ///
+    private func showManualTotp() {
+        let view = Text("Manual Totp")
         stackNavigator.present(view)
     }
 

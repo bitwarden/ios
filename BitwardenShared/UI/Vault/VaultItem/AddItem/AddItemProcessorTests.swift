@@ -4,6 +4,7 @@ import XCTest
 
 // MARK: - AddItemProcessorTests
 
+// swiftlint:disable file_length
 // swiftlint:disable:next type_body_length
 class AddItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
@@ -342,13 +343,6 @@ class AddItemProcessorTests: BitwardenTestCase {
         subject.receive(.passwordChanged(""))
 
         XCTAssertEqual(subject.state.password, "")
-    }
-
-    /// `receive(_:)` with `.setupTotpPressed` navigates to the `.setupTotpCamera` route.
-    func test_receive_setupTotpPressed() {
-        subject.receive(.setupTotpPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.

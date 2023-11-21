@@ -132,9 +132,18 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         XCTAssertNil(stackNavigator.actions.last)
     }
 
-    /// `navigate(to:)` with `.setupTotpCamera` presents the camera screen.
+    /// `navigate(to:)` with `.setupTotpCamera` presents the camera totp setup screen.
     func test_navigateTo_setupTotpCamera() throws {
         subject.navigate(to: .setupTotpCamera)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is Text)
+    }
+
+    /// `navigate(to:)` with `.setupTotpManual` presents the manual totp setup screen.
+    func test_navigateTo_setupTotpManual() throws {
+        subject.navigate(to: .setupTotpManual)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
