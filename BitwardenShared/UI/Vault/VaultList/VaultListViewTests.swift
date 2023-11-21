@@ -19,13 +19,16 @@ class VaultListViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        let account = ProfileSwitcherItem(
+            email: "anne.account@bitwarden.com",
+            userInitials: "AA"
+        )
         let state = VaultListState(
             profileSwitcherState: ProfileSwitcherState(
-                currentAccountProfile: ProfileSwitcherItem(
-                    email: "anne.account@bitwarden.com",
-                    userInitials: "AA"
-                ),
-                isVisible: false
+                accounts: [account],
+                activeAccountId: account.userId,
+                isVisible: false,
+                shouldAlwaysHideAddAccount: false
             )
         )
         processor = MockProcessor(state: state)
@@ -53,8 +56,8 @@ class VaultListViewTests: BitwardenTestCase {
     func test_accountRow_tap_currentAccount() throws {
         processor.state.profileSwitcherState.isVisible = true
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
+        let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
         try accountRow.tap()
-        let currentAccount = processor.state.profileSwitcherState.currentAccountProfile
 
         XCTAssertEqual(processor.dispatchedActions.last, .profileSwitcherAction(.accountPressed(currentAccount)))
     }

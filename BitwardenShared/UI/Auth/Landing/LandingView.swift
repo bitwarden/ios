@@ -9,9 +9,66 @@ struct LandingView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject public var store: Store<LandingState, LandingAction, Void>
+    @ObservedObject public var store: Store<LandingState, LandingAction, LandingEffect>
 
     var body: some View {
+        ZStack {
+            scrollingContent
+            profileSwitcher
+        }
+        .navigationBarTitle(Localizations.bitwarden, displayMode: .inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                profileSwitcherToolbarItem
+            }
+        }
+        .task {
+            await store.perform(.appeared)
+        }
+    }
+
+    /// The Toolbar item for the profile switcher view
+    @ViewBuilder var profileSwitcherToolbarItem: some View {
+        Button {
+            store.send(.requestedProfileSwitcher(visible: !store.state.profileSwitcherState.isVisible))
+        } label: {
+            if !store.state.profileSwitcherState.accounts.isEmpty {
+                HStack {
+                    Text(store.state.profileSwitcherState.activeAccountInitials)
+                        .font(.styleGuide(.caption2Monospaced))
+                        .foregroundColor(.white)
+                        .padding(4)
+                        .background(Color.purple)
+                        .clipShape(Circle())
+                    Spacer()
+                }
+                .frame(minWidth: 50)
+                .fixedSize()
+            } else {
+                EmptyView()
+            }
+        }
+    }
+
+    /// A view that displays the ability to add or switch between account profiles
+    @ViewBuilder private var profileSwitcher: some View {
+        ProfileSwitcherView(
+            store: store.child(
+                state: { mainState in
+                    mainState.profileSwitcherState
+                },
+                mapAction: { action in
+                    .profileSwitcherAction(action)
+                },
+                mapEffect: { profileEffect in
+                    .profileSwitcher(profileEffect)
+                }
+            )
+        )
+    }
+
+    /// The main scrollable content of the view
+    var scrollingContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Image(decorative: Asset.Images.logo)
@@ -86,7 +143,6 @@ struct LandingView: View {
             .padding([.horizontal, .bottom], 16)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .navigationBarTitle(Localizations.bitwarden, displayMode: .inline)
     }
 }
 
@@ -121,5 +177,55 @@ struct LandingView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Example Email")
+
+        NavigationView {
+            LandingView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: LandingState(
+                            email: "",
+                            isRememberMeOn: false,
+                            profileSwitcherState: ProfileSwitcherState(
+                                accounts: [
+                                    ProfileSwitcherItem(
+                                        email: "max.protecc@bitwarden.com",
+                                        userId: "123",
+                                        userInitials: "MP"
+                                    ),
+                                ],
+                                activeAccountId: "123",
+                                isVisible: false
+                            )
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Profiles Closed")
+
+        NavigationView {
+            LandingView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: LandingState(
+                            email: "",
+                            isRememberMeOn: false,
+                            profileSwitcherState: ProfileSwitcherState(
+                                accounts: [
+                                    ProfileSwitcherItem(
+                                        email: "max.protecc@bitwarden.com",
+                                        userId: "123",
+                                        userInitials: "MP"
+                                    ),
+                                ],
+                                activeAccountId: "123",
+                                isVisible: true
+                            )
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Profiles Open")
     }
 }
