@@ -84,14 +84,14 @@ class AuthRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `getAccounts()` throws an error when the accounts are nil
+    /// `getAccounts()` throws an error when the accounts are nil.
     func test_getAccounts_empty() async throws {
         await assertAsyncThrows(error: StateServiceError.noAccounts) {
             _ = try await subject.getAccounts()
         }
     }
 
-    /// `getAccounts()` returns all known accounts
+    /// `getAccounts()` returns all known accounts.
     ///
     func test_getAccounts_valid() async throws { // swiftlint:disable:this function_body_length
         stateService.accounts = [
@@ -154,7 +154,7 @@ class AuthRepositoryTests: BitwardenTestCase {
         )
     }
 
-    /// `getActiveAccount()` returns a profile switcher item
+    /// `getActiveAccount()` returns a profile switcher item.
     func test_getActiveAccount_empty() async throws {
         stateService.accounts = [
             anneAccount,
@@ -165,7 +165,7 @@ class AuthRepositoryTests: BitwardenTestCase {
         }
     }
 
-    /// `getActiveAccount()` returns an account when the active account is valid
+    /// `getActiveAccount()` returns an account when the active account is valid.
     func test_getActiveAccount_valid() async throws {
         stateService.accounts = [
             anneAccount,
@@ -183,7 +183,7 @@ class AuthRepositoryTests: BitwardenTestCase {
         )
     }
 
-    /// `getAccount(for: )` returns an account when there is a match
+    /// `getAccount(for:)` returns an account when there is a match.
     func test_getAccountForProfile_match() async throws {
         stateService.accounts = [
             anneAccount,
@@ -202,7 +202,7 @@ class AuthRepositoryTests: BitwardenTestCase {
         )
     }
 
-    /// `getAccount(for: )` returns an error when there is no match
+    /// `getAccount(for:)` returns an error when there is no match.
     func test_getAccountForProfile_noMatch() async throws {
         stateService.accounts = [
             anneAccount,

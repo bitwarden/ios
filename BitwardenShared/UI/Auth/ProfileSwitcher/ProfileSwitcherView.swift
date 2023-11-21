@@ -136,8 +136,8 @@ struct ProfileSwitcherView: View {
 struct ProfileSwitcherView_Previews: PreviewProvider {
     static let selectedAccount = ProfileSwitcherItem(
         color: .purple,
-        email: "Anne.Account@bitwarden.com",
-        isUnlocked: true,
+        email: "anne.account@bitwarden.com",
+        userId: "1",
         userInitials: "AA"
     )
 
@@ -207,17 +207,47 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     isUnlocked: true,
                                     userInitials: "DD"
                                 ),
+                            ],
+                            activeAccountId: "1",
+                            isVisible: true,
+                            shouldAlwaysHideAddAccount: false
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Many Accounts")
+
+        NavigationView {
+            ProfileSwitcherView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ProfileSwitcherState(
+                            accounts: [
+                                selectedAccount,
+                                ProfileSwitcherItem(
+                                    color: .yellow,
+                                    email: "bonus.bridge@bitwarden.com",
+                                    isUnlocked: true,
+                                    userInitials: "BB"
+                                ),
+                                ProfileSwitcherItem(
+                                    color: .teal,
+                                    email: "concurrent.claim@bitarden.com",
+                                    isUnlocked: true,
+                                    userInitials: "CC"
+                                ),
+                                ProfileSwitcherItem(
+                                    color: .indigo,
+                                    email: "double.dip@bitwarde.com",
+                                    isUnlocked: true,
+                                    userInitials: "DD"
+                                ),
                                 ProfileSwitcherItem(
                                     color: .green,
                                     email: "extra.edition@bitwarden.com",
                                     isUnlocked: false,
                                     userInitials: "EE"
-                                ),
-                                ProfileSwitcherItem(
-                                    color: .purple,
-                                    email: "anne.account@bitwarden.com",
-                                    userId: "1",
-                                    userInitials: "AA"
                                 ),
                             ],
                             activeAccountId: "1",
@@ -227,6 +257,6 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                 )
             )
         }
-        .previewDisplayName("Multi Account")
+        .previewDisplayName("Max Accounts")
     }
 }
