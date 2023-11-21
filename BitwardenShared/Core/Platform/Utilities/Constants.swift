@@ -31,6 +31,9 @@ enum Constants {
     /// A default value for the argon parallelism argument in the KDF algorithm.
     static let kdfArgonParallelism = 4
 
+    /// The maximum number of accounts permitted for a user.
+    static let maxAcccounts: Int = 5
+
     /// A default value for the minimum number of characters required when creating a password.
     static let minimumPasswordCharacters: Int = 12
 
