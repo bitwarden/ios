@@ -1,13 +1,6 @@
 /// A protocol for a `SettingsRepository` which manages access to the data needed by the UI layer.
 ///
 protocol SettingsRepository: AnyObject {
-    /// Checks the locked status of a user vault by user id
-    ///
-    ///  - Parameter userId: The userId of the account
-    ///  - Returns: A bool, true if locked, false if unlocked.
-    ///
-    func isLocked(userId: String) throws -> Bool
-
     /// Locks the user's vault and clears decrypted data from memory.
     ///
     ///  - Parameter userId: The userId of the account to lock.
@@ -58,10 +51,6 @@ class DefaultSettingsRepository {
 // MARK: - SettingsRepository
 
 extension DefaultSettingsRepository: SettingsRepository {
-    func isLocked(userId: String) throws -> Bool {
-        try vaultTimeoutService.isLocked(userId: userId)
-    }
-
     func lockVault(userId: String) {
         vaultTimeoutService.lockVault(userId: userId)
     }

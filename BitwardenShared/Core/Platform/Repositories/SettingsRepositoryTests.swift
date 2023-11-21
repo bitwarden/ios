@@ -29,35 +29,6 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `isLocked` throws if no account exists
-    func test_isLocked_unknownUser() {
-        vaultTimeoutService.timeoutStore = [:]
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, [:])
-
-        XCTAssertThrowsError(try subject.isLocked(userId: "1")) { error in
-            XCTAssertEqual(
-                error as? VaultTimeoutServiceError,
-                .noAccountFound
-            )
-        }
-    }
-
-    /// `isLocked` returns true for locked accounts
-    func test_isLocked_lockedUser() {
-        vaultTimeoutService.timeoutStore = ["123": true]
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
-
-        XCTAssertTrue(try vaultTimeoutService.isLocked(userId: "123"))
-    }
-
-    /// `isLocked` returns false for unlocked accounts
-    func test_isLocked_unlockedUser() {
-        vaultTimeoutService.timeoutStore = ["123": false]
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
-
-        XCTAssertFalse(try vaultTimeoutService.isLocked(userId: "123"))
-    }
-
     /// `unlockVault(userId:)` can unlock a user's vault.
     func test_lockVault_false_unknownUser() {
         vaultTimeoutService.timeoutStore = [:]
