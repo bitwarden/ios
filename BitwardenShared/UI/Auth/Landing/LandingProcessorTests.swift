@@ -376,7 +376,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(
             coordinator.routes,
-            [.switchAccount(userId: profile.userId, isUnlocked: profile.isUnlocked)]
+            [.switchAccount(userId: profile.userId)]
         )
     }
 
@@ -405,7 +405,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(
             coordinator.routes,
-            [.switchAccount(userId: profile.userId, isUnlocked: profile.isUnlocked)]
+            [.switchAccount(userId: profile.userId)]
         )
     }
 
@@ -434,7 +434,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(
             coordinator.routes,
-            [.switchAccount(userId: profile.userId, isUnlocked: profile.isUnlocked)]
+            [.switchAccount(userId: profile.userId)]
         )
     }
 
@@ -463,7 +463,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(
             coordinator.routes,
-            [.switchAccount(userId: profile.userId, isUnlocked: profile.isUnlocked)]
+            [.switchAccount(userId: profile.userId)]
         )
     }
 
@@ -488,7 +488,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(
             coordinator.routes,
-            [.switchAccount(userId: profile.userId, isUnlocked: profile.isUnlocked)]
+            [.switchAccount(userId: profile.userId)]
         )
     }
 

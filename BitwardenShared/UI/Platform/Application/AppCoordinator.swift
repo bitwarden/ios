@@ -124,7 +124,7 @@ extension AppCoordinator: VaultCoordinatorDelegate {
         showAuth(route: .landing)
     }
 
-    func didTapAccount(userId: String, isUnlocked: Bool) {
-        showAuth(route: .switchAccount(userId: userId, isUnlocked: isUnlocked))
+    func didTapAccount(userId: String) {
+        showAuth(route: .switchAccount(userId: userId))
     }
 }

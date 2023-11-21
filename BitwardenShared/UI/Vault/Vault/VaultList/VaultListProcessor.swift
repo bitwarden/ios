@@ -114,10 +114,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         defer { setProfileSwitcher(visible: false) }
         guard state.profileSwitcherState.activeAccountId != selectedAccount.userId else { return }
         coordinator.navigate(
-            to: .switchAccount(
-                userId: selectedAccount.userId,
-                isUnlocked: selectedAccount.isUnlocked
-            )
+            to: .switchAccount(userId: selectedAccount.userId)
         )
     }
 

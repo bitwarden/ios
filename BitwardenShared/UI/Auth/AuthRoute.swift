@@ -49,10 +49,10 @@ public enum AuthRoute: Equatable {
     case selfHosted
 
     /// A route to switch accounts.
-    /// - Parameters:
-    ///   - userId: The user Id of the selected account.
-    ///   - isUnlocked: The locked status of the account.
-    case switchAccount(userId: String, isUnlocked: Bool)
+    ///
+    /// - Parameter userId: The user Id of the selected account.
+    ///
+    case switchAccount(userId: String)
 
     /// A route to the unlock vault screen.
     case vaultUnlock(Account)

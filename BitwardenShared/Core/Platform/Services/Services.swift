@@ -19,6 +19,7 @@ typealias Services = HasAccountAPIService
     & HasStateService
     & HasSystemDevice
     & HasVaultRepository
+    & HasVaultTimeoutService
 
 /// Protocol for an object that provides an `AccountAPIService`.
 ///
@@ -147,4 +148,11 @@ protocol HasSystemDevice {
 protocol HasVaultRepository {
     /// The repository used by the application to manage vault data for the UI layer.
     var vaultRepository: VaultRepository { get }
+}
+
+/// Protocol for an object that provides a `VaultTimeoutService`.
+///
+protocol HasVaultTimeoutService {
+    /// The repository used by the application to manage vault data for the UI layer.
+    var vaultTimeoutService: VaultTimeoutService { get }
 }

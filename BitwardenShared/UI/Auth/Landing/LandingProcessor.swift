@@ -127,10 +127,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
         defer { state.profileSwitcherState.isVisible = false }
         coordinator.navigate(
-            to: .switchAccount(
-                userId: selectedAccount.userId,
-                isUnlocked: selectedAccount.isUnlocked
-            )
+            to: .switchAccount(userId: selectedAccount.userId)
         )
     }
 

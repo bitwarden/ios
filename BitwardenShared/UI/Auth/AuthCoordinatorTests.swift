@@ -13,6 +13,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     var rootNavigator: MockRootNavigator!
     var stackNavigator: MockStackNavigator!
     var subject: AuthCoordinator!
+    var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
 
@@ -22,11 +23,13 @@ class AuthCoordinatorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         rootNavigator = MockRootNavigator()
         stackNavigator = MockStackNavigator()
+        vaultTimeoutService = MockVaultTimeoutService()
         subject = AuthCoordinator(
             delegate: authDelegate,
             rootNavigator: rootNavigator,
             services: ServiceContainer.withMocks(
-                authRepository: authRepository
+                authRepository: authRepository,
+                vaultTimeoutService: vaultTimeoutService
             ),
             stackNavigator: stackNavigator
         )
@@ -38,6 +41,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         authRepository = nil
         rootNavigator = nil
         stackNavigator = nil
+        vaultTimeoutService = nil
         subject = nil
     }
 
@@ -150,9 +154,10 @@ class AuthCoordinatorTests: BitwardenTestCase {
     func test_navigate_switchAccount_locked() {
         let account = Account.fixture()
         authRepository.setActiveAccountResult = .success(account)
+        vaultTimeoutService.timeoutStore = [account.profile.userId: true]
 
         let task = Task {
-            subject.navigate(to: .switchAccount(userId: account.profile.userId, isUnlocked: false))
+            subject.navigate(to: .switchAccount(userId: account.profile.userId))
         }
         waitFor(stackNavigator.actions.last?.type == .pushed)
         task.cancel()
@@ -163,9 +168,10 @@ class AuthCoordinatorTests: BitwardenTestCase {
     func test_navigate_switchAccount_unlocked() {
         let account = Account.fixture()
         authRepository.setActiveAccountResult = .success(account)
+        vaultTimeoutService.timeoutStore = [account.profile.userId: false]
 
         let task = Task {
-            subject.navigate(to: .switchAccount(userId: account.profile.userId, isUnlocked: true))
+            subject.navigate(to: .switchAccount(userId: account.profile.userId))
         }
         waitFor(authDelegate.didCompleteAuthCalled)
         task.cancel()
@@ -173,11 +179,25 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
     }
 
+    /// `navigate(to:)` with `.switchAccount` with an unknonw account triggers completion
+    func test_navigate_switchAccount_unknownLock() {
+        let account = Account.fixture()
+        authRepository.setActiveAccountResult = .success(account)
+        vaultTimeoutService.timeoutStore = [:]
+
+        let task = Task {
+            subject.navigate(to: .switchAccount(userId: account.profile.userId))
+        }
+        waitFor(stackNavigator.actions.last?.view is LandingView)
+        task.cancel()
+        XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
+    }
+
     /// `navigate(to:)` with `.switchAccount` with an invalid account navigates to landing
     func test_navigate_switchAccount_notFound() {
         let account = Account.fixture()
         let task = Task {
-            subject.navigate(to: .switchAccount(userId: account.profile.userId, isUnlocked: true))
+            subject.navigate(to: .switchAccount(userId: account.profile.userId))
         }
         waitFor(stackNavigator.actions.last?.view is LandingView)
         task.cancel()
