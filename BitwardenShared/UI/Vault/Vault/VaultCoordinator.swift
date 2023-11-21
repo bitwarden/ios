@@ -21,8 +21,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     typealias Module = GeneratorModule
         & VaultItemModule
 
-    typealias Services = HasVaultRepository
+    typealias Services = HasAuthRepository
+        & HasVaultRepository
         & VaultItemCoordinator.Services
+        & HasErrorReporter
 
     // MARK: Private Properties
 

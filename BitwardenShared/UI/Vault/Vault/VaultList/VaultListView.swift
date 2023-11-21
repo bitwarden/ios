@@ -217,7 +217,7 @@ struct VaultListView: View {
                     prompt: Localizations.search
                 )
                 .refreshable {
-                    await store.perform(.refresh)
+                    await store.perform(.refreshVault)
                 }
             profileSwitcher
         }
@@ -242,14 +242,13 @@ struct VaultListView: View {
                 }
             }
             ToolbarItem(placement: .primaryAction) {
-                Button {
+                AddItemButton {
                     store.send(.addItemPressed)
-                } label: {
-                    AddItemButton {
-                        store.send(.addItemPressed)
-                    }
                 }
             }
+        }
+        .task {
+            await store.perform(.refreshAccountProfiles)
         }
         .task {
             await store.perform(.appeared)
@@ -279,30 +278,29 @@ struct VaultListView: View {
 #if DEBUG
 // swiftlint:disable:next type_body_length
 struct VaultListView_Previews: PreviewProvider {
+    static let account1 = ProfileSwitcherItem(
+        color: .purple,
+        email: "Anne.Account@bitwarden.com",
+        userInitials: "AA"
+    )
+
+    static let account2 = ProfileSwitcherItem(
+        color: .green,
+        email: "bonus.bridge@bitwarden.com",
+        isUnlocked: true,
+        userInitials: "BB"
+    )
+
     static let singleAccountState = ProfileSwitcherState(
-        currentAccountProfile: ProfileSwitcherItem(
-            color: .purple,
-            email: "Anne.Account@bitwarden.com",
-            userInitials: "AA"
-        ),
+        accounts: [account1],
+        activeAccountId: account1.userId,
         isVisible: false
     )
 
     static let dualAccountState = ProfileSwitcherState(
-        alternateAccounts: [
-            ProfileSwitcherItem(
-                color: .green,
-                email: "bonus.bridge@bitwarden.com",
-                isUnlocked: true,
-                userInitials: "BB"
-            ),
-        ],
-        currentAccountProfile: ProfileSwitcherItem(
-            color: .purple,
-            email: "Anne.Account@bitwarden.com",
-            userInitials: "AA"
-        ),
-        isVisible: true
+        accounts: [account1, account2],
+        activeAccountId: account1.userId,
+        isVisible: false
     )
 
     static var previews: some View {
@@ -310,10 +308,7 @@ struct VaultListView_Previews: PreviewProvider {
             VaultListView(
                 store: Store(
                     processor: StateProcessor(
-                        state: VaultListState(
-                            loadingState: .loading,
-                            profileSwitcherState: .empty
-                        )
+                        state: VaultListState()
                     )
                 )
             )
@@ -325,8 +320,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            loadingState: .data([]),
-                            profileSwitcherState: .empty
+                            loadingState: .data([])
                         )
                     )
                 )
@@ -402,8 +396,7 @@ struct VaultListView_Previews: PreviewProvider {
                                     ],
                                     name: "Types"
                                 ),
-                            ]),
-                            profileSwitcherState: .empty
+                            ])
                         )
                     )
                 )
@@ -416,7 +409,11 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            profileSwitcherState: .empty,
+                            profileSwitcherState: ProfileSwitcherState(
+                                accounts: [],
+                                activeAccountId: nil,
+                                isVisible: false
+                            ),
                             searchResults: [
                                 .init(cipherListView: .init(
                                     id: UUID().uuidString,
@@ -449,7 +446,6 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            profileSwitcherState: .empty,
                             searchResults: [
                                 .init(cipherListView: .init(
                                     id: UUID().uuidString,
@@ -516,7 +512,6 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            profileSwitcherState: .empty,
                             searchResults: [],
                             searchText: "Exam"
                         )

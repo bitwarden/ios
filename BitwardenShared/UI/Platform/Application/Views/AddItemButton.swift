@@ -8,14 +8,6 @@ struct AddItemButton: View {
     var action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Label {
-                Text(Localizations.addItem)
-            } icon: {
-                Asset.Images.plus.swiftUIImage
-                    .resizable()
-                    .frame(width: 16, height: 16)
-            }
-        }
+        ToolbarButton(asset: Asset.Images.plus, label: Localizations.addItem, action: action)
     }
 }

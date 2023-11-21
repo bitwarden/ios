@@ -31,16 +31,9 @@ struct LoginView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
+                ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options) {
                     store.send(.morePressed)
-                } label: {
-                    Label {
-                        Text(Localizations.options)
-                    } icon: {
-                        Asset.Images.verticalKabob.swiftUIImage
-                    }
                 }
-                .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
             }
         }
         .task {
