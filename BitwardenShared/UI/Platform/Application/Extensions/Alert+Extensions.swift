@@ -1,6 +1,8 @@
 // MARK: - Alert
 
 extension Alert {
+    // MARK: Static Properties
+
     /// An invalid email error alert.
     ///
     static var invalidEmail: Alert {
@@ -65,6 +67,36 @@ extension Alert {
             message: Localizations.validationFieldRequired(fieldName),
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
+    // MARK: Static Methods
+
+    /// An alert to show when the user needs to confirm their master password.
+    ///
+    static func masterPasswordPrompt(completion: @escaping (String) -> Void) -> Alert {
+        Alert(
+            title: Localizations.passwordConfirmation,
+            message: Localizations.passwordConfirmationDesc,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.submit,
+                    style: .default,
+                    handler: { _, alertTextFields in
+                        guard let password = alertTextFields.first(where: { $0.id == "password" })?.text else { return }
+                        completion(password)
+                    }
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+            alertTextFields: [
+                AlertTextField(
+                    id: "password",
+                    autocapitalizationType: .none,
+                    autocorrectionType: .no,
+                    isSecureTextEntry: true
+                ),
             ]
         )
     }

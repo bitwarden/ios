@@ -97,7 +97,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase {
         XCTAssertEqual(optionsAlert.alertActions[0].title, Localizations.logOut)
         XCTAssertEqual(optionsAlert.alertActions[1].title, Localizations.cancel)
 
-        await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0])
+        await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
 
         let logoutConfirmationAlert = try coordinator.unwrapLastRouteAsAlert()
         XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
@@ -107,7 +107,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase {
         XCTAssertEqual(logoutConfirmationAlert.alertActions[0].title, Localizations.yes)
         XCTAssertEqual(logoutConfirmationAlert.alertActions[1].title, Localizations.cancel)
 
-        await logoutConfirmationAlert.alertActions[0].handler?(optionsAlert.alertActions[0])
+        await logoutConfirmationAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(coordinator.routes.last, .landing)
