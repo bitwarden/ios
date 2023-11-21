@@ -2,94 +2,15 @@ extension GeneratorState {
     /// Data model for the values that can be set for generating a username.
     ///
     struct UsernameState: Equatable {
-        // MARK: Types
-
-        /// The type of username to generate.
-        ///
-        enum UsernameGeneratorType: CaseIterable, Equatable, Menuable { // swiftlint:disable:this nesting
-            /// Generate a catch all email.
-            case catchAllEmail
-
-            /// Generate a forwarded email.
-            case forwardedEmail
-
-            /// Generate a plus addressed email.
-            case plusAddressedEmail
-
-            /// Generate a random word.
-            case randomWord
-
-            /// All of the cases to show in the menu.
-            static let allCases: [Self] = [.plusAddressedEmail, .catchAllEmail, .forwardedEmail, .randomWord]
-
-            var localizedName: String {
-                switch self {
-                case .catchAllEmail:
-                    return Localizations.catchAllEmail
-                case .forwardedEmail:
-                    return Localizations.forwardedEmailAlias
-                case .plusAddressedEmail:
-                    return Localizations.plusAddressedEmail
-                case .randomWord:
-                    return Localizations.randomWord
-                }
-            }
-
-            /// A localized description of the field, used as the footer text below the menu value in the UI.
-            var localizedDescription: String? {
-                switch self {
-                case .catchAllEmail:
-                    return Localizations.catchAllEmailDescription
-                case .forwardedEmail:
-                    return Localizations.forwardedEmailDescription
-                case .plusAddressedEmail:
-                    return Localizations.plusAddressedEmailDescription
-                case .randomWord:
-                    return nil
-                }
-            }
-        }
-
-        /// The service used to generate a forwarded email alias.
-        ///
-        enum ForwardedEmailService: CaseIterable, Equatable, Menuable { // swiftlint:disable:this nesting
-            /// Generate a forwarded email using addy.io.
-            case addyIO
-
-            /// Generate a forwarded email using DuckDuckGo.
-            case duckDuckGo
-
-            /// Generate a forwarded email using Fastmail.
-            case fastmail
-
-            /// Generate a forwarded email using Firefox Relay.
-            case firefoxRelay
-
-            /// Generate a forwarded email using SimpleLogin.
-            case simpleLogin
-
-            var localizedName: String {
-                switch self {
-                case .addyIO:
-                    return Localizations.addyIo
-                case .duckDuckGo:
-                    return Localizations.duckDuckGo
-                case .fastmail:
-                    return Localizations.fastmail
-                case .firefoxRelay:
-                    return Localizations.firefoxRelay
-                case .simpleLogin:
-                    return Localizations.simpleLogin
-                }
-            }
-        }
-
         // MARK: Properties
 
         /// The type of username to generate.
         var usernameGeneratorType = UsernameGeneratorType.plusAddressedEmail
 
         // MARK: Catch All Email Properties
+
+        /// The type of value to use when generating a catch-all email.
+        var catchAllEmailType: UsernameEmailType = .random
 
         /// The user's domain for generating catch all emails.
         var domain: String = ""
@@ -105,25 +26,28 @@ extension GeneratorState {
         /// The DuckDuckGo API key used to generate a forwarded email alias.
         var duckDuckGoAPIKey: String = ""
 
-        /// The Fastmail API Key used to generate a forwarded email alias
+        /// The Fastmail API Key used to generate a forwarded email alias.
         var fastmailAPIKey: String = ""
 
-        /// The Firefox Relay API access token used to generate a forwarded email alias
+        /// The Firefox Relay API access token used to generate a forwarded email alias.
         var firefoxRelayAPIAccessToken: String = ""
 
         /// The service used to generate a forwarded email alias.
-        var forwardedEmailService = ForwardedEmailService.addyIO
+        var forwardedEmailService = ForwardedEmailServiceType.addyIO
 
         /// Whether the service's API key is visible or not.
         var isAPIKeyVisible = false
 
-        /// The simple login API key used to generate a forwarded email alias
+        /// The simple login API key used to generate a forwarded email alias.
         var simpleLoginAPIKey: String = ""
 
         // MARK: Plus Addressed Email Properties
 
         /// The user's email for generating plus addressed emails.
         var email: String = ""
+
+        /// The type of value to use when generating a plus-addressed email.
+        var plusAddressedEmailType: UsernameEmailType = .random
 
         // MARK: Random Word Properties
 
@@ -132,5 +56,59 @@ extension GeneratorState {
 
         /// Whether the random word should include numbers.
         var includeNumber: Bool = false
+
+        // MARK: Methods
+
+        /// Updates the state based on the user's persisted username generation options.
+        ///
+        /// - Parameter options: The user's saved options.
+        ///
+        mutating func update(with options: UsernameGenerationOptions) {
+            usernameGeneratorType = options.type ?? usernameGeneratorType
+
+            // Catch All Properties
+            catchAllEmailType = options.catchAllEmailType ?? catchAllEmailType
+            domain = options.catchAllEmailDomain ?? domain
+
+            // Forwarded Email Properties
+            addyIOAPIAccessToken = options.anonAddyApiAccessToken ?? addyIOAPIAccessToken
+            addyIODomainName = options.anonAddyDomainName ?? addyIODomainName
+            duckDuckGoAPIKey = options.duckDuckGoApiKey ?? duckDuckGoAPIKey
+            fastmailAPIKey = options.fastMailApiKey ?? fastmailAPIKey
+            firefoxRelayAPIAccessToken = options.firefoxRelayApiAccessToken ?? firefoxRelayAPIAccessToken
+            forwardedEmailService = options.serviceType ?? forwardedEmailService
+            simpleLoginAPIKey = options.simpleLoginApiKey ?? simpleLoginAPIKey
+
+            // Plus Address Email Properties
+            email = options.plusAddressedEmail ?? email
+            plusAddressedEmailType = options.plusAddressedEmailType ?? plusAddressedEmailType
+
+            // Random Word Properties
+            capitalize = options.capitalizeRandomWordUsername ?? capitalize
+            includeNumber = options.includeNumberRandomWordUsername ?? includeNumber
+        }
+    }
+}
+
+extension GeneratorState.UsernameState {
+    /// Returns a `UsernameGenerationOptions` containing the user selected settings for generating
+    /// a username used to persist the options between app launches.
+    var usernameGenerationOptions: UsernameGenerationOptions {
+        UsernameGenerationOptions(
+            anonAddyApiAccessToken: addyIOAPIAccessToken.nilIfEmpty,
+            anonAddyDomainName: addyIODomainName.nilIfEmpty,
+            capitalizeRandomWordUsername: capitalize,
+            catchAllEmailDomain: domain.nilIfEmpty,
+            catchAllEmailType: catchAllEmailType,
+            duckDuckGoApiKey: duckDuckGoAPIKey.nilIfEmpty,
+            fastMailApiKey: fastmailAPIKey.nilIfEmpty,
+            firefoxRelayApiAccessToken: firefoxRelayAPIAccessToken.nilIfEmpty,
+            includeNumberRandomWordUsername: includeNumber,
+            plusAddressedEmail: email.nilIfEmpty,
+            plusAddressedEmailType: plusAddressedEmailType,
+            serviceType: forwardedEmailService,
+            simpleLoginApiKey: simpleLoginAPIKey.nilIfEmpty,
+            type: usernameGeneratorType
+        )
     }
 }

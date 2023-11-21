@@ -5,13 +5,8 @@ import SwiftUI
 /// A view that allows the user to view, select, and add profiles.
 ///
 struct ProfileSwitcherView: View {
-    @Environment(\.accessibilityVoiceOverEnabled) private var isVoiceoverEnabled: Bool
-
-    /// Defines the accessibility focus state
-    @AccessibilityFocusState var isCurrentAccountFocused: Bool
-
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ProfileSwitcherState, ProfileSwitcherAction, Void>
+    @ObservedObject var store: Store<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>
 
     var body: some View {
         OffsetObservingScrollView(
@@ -21,31 +16,30 @@ struct ProfileSwitcherView: View {
                 set: { store.send(.scrollOffsetChanged($0)) }
             )
         ) {
-            LazyVStack(spacing: 0.0) {
+            VStack(spacing: 0.0) {
                 accounts
-                    .onChange(of: store.state.isVisible) { isVisible in
-                        guard isVisible, isVoiceoverEnabled else { return }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            isCurrentAccountFocused = true
-                        }
-                    }
-                addAccountRow
+                if store.state.showsAddAccount {
+                    addAccountRow
+                }
             }
-            .transition(.move(edge: .top))
             .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .transition(.move(edge: .top))
             .hidden(!store.state.isVisible)
             .fixedSize(horizontal: false, vertical: true)
         }
         .background {
             backgroundView
+                .hidden(!store.state.isVisible)
+                .accessibilityHidden(!store.state.isVisible)
+                .accessibilityLabel(Localizations.close)
+                .accessibility(addTraits: .isButton)
+                .accessibilityAction {
+                    store.send(.backgroundPressed)
+                }
         }
         .onTapGesture {
             store.send(.backgroundPressed)
         }
-        .accessibilityAction {
-            store.send(.backgroundPressed)
-        }
-        .accessibilityLabel(Localizations.close)
         .allowsHitTesting(store.state.isVisible)
         .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
     }
@@ -54,21 +48,17 @@ struct ProfileSwitcherView: View {
 
     /// A row to add an account
     @ViewBuilder private var addAccountRow: some View {
-        Button {
-            store.send(.addAccountPressed)
-        } label: {
-            profileSwitcherRowView(
-                leadingIcon: {
-                    Asset.Images.plus.swiftUIImage
-                        .resizable()
-                        .frame(width: 19, height: 19)
-                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                        .padding(4)
-                },
-                shouldShowDivider: false,
-                title: Localizations.addAccount
-            )
-        }
+        ProfileSwitcherRow(store: store.child(
+            state: { _ in
+                .init(
+                    shouldTakeAccessibilityFocus: false,
+                    showDivider: false,
+                    rowType: .addAccount
+                )
+            },
+            mapAction: { _ in .addAccountPressed },
+            mapEffect: nil
+        ))
     }
 
     /// A background view with accessibility enabled
@@ -90,89 +80,33 @@ struct ProfileSwitcherView: View {
                 let account = store.state.alternateAccounts[index]
                 unselectedProfileSwitcherRow(accountProfile: account)
             }
-            selectedProfileSwitcherRow(accountProfile: store.state.currentAccountProfile)
+            selectedProfileSwitcherRow
         }
-    }
-
-    // MARK: Private functions
-
-    /// A generic row styled for the profile switcher
-    @ViewBuilder
-    private func profileSwitcherRowView(
-        leadingIcon: () -> some View,
-        shouldShowDivider: Bool = true,
-        subtitle: String? = nil,
-        title: String,
-        trailingIcon: Image? = nil
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 0.0) {
-            HStack(spacing: 0) {
-                leadingIcon()
-                    .padding(.trailing, 16)
-                VStack(alignment: .leading, spacing: 0) {
-                    HStack(spacing: 0) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(title)
-                                .font(.styleGuide(.body))
-                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                            if let subtitle {
-                                Text(subtitle)
-                                    .font(.styleGuide(.subheadline))
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                            }
-                        }
-                        Spacer()
-                        trailingIcon?
-                            .resizable()
-                            .frame(width: 22, height: 22)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    }
-                    .padding([.top, .bottom], subtitle != nil ? 9 : 19)
-                    .padding([.trailing], 16)
-                    if shouldShowDivider {
-                        Rectangle()
-                            .frame(height: 1.0)
-                            .frame(maxWidth: .infinity)
-                            .foregroundColor(Asset.Colors.separatorOpaque.swiftUIColor)
-                    }
-                }
-                .padding([.leading], 4)
-            }
-            .padding([.leading], 16)
-        }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
     }
 
     /// A row to display the active account profile
     ///
     /// - Parameter accountProfile: A `ProfileSwitcherItem` to display in row format
     ///
-    @ViewBuilder
-    private func selectedProfileSwitcherRow(
-        accountProfile: ProfileSwitcherItem
-    ) -> some View {
-        Button {
-            store.send(.accountPressed(accountProfile))
-        } label: {
-            profileSwitcherRowView(
-                leadingIcon: {
-                    Text(accountProfile.userInitials)
-                        .font(.styleGuide(.caption2Monospaced))
-                        .foregroundColor(.white)
-                        .padding(4)
-                        .background(accountProfile.color)
-                        .clipShape(Circle())
-                        .frame(minWidth: 22)
-                        .accessibilityLabel(Localizations.account)
-                },
-                subtitle: nil,
-                title: accountProfile.email,
-                trailingIcon: Asset.Images.roundCheck.swiftUIImage
-            )
-        }
-        .accessibility(addTraits: .isSelected)
-        .accessibilityFocused($isCurrentAccountFocused)
+    private var selectedProfileSwitcherRow: some View {
+        ProfileSwitcherRow(store: store.child(
+            state: { state in
+                ProfileSwitcherRowState(
+                    shouldTakeAccessibilityFocus: state.isVisible,
+                    showDivider: state.showsAddAccount,
+                    rowType: .active(
+                        state.activeAccountProfile ?? ProfileSwitcherItem()
+                    )
+                )
+            },
+            mapAction: { _ in
+                .accountPressed(store.state.activeAccountProfile ?? ProfileSwitcherItem())
+            },
+            mapEffect: nil
+        ))
     }
+
+    // MARK: Private Methods
 
     /// A row to display an alternate account profile
     ///
@@ -182,38 +116,27 @@ struct ProfileSwitcherView: View {
     private func unselectedProfileSwitcherRow(
         accountProfile: ProfileSwitcherItem
     ) -> some View {
-        Button {
-            store.send(.accountPressed(accountProfile))
-        } label: {
-            profileSwitcherRowView(
-                leadingIcon: {
-                    Text(accountProfile.userInitials)
-                        .font(.styleGuide(.caption2Monospaced))
-                        .foregroundColor(.white)
-                        .padding(4)
-                        .background(accountProfile.color)
-                        .clipShape(Circle())
-                        .frame(minWidth: 22)
-                        .accessibilityLabel(Localizations.account)
+        ProfileSwitcherRow(
+            store: store.child(
+                state: { _ in
+                    ProfileSwitcherRowState(
+                        shouldTakeAccessibilityFocus: false,
+                        rowType: .alternate(accountProfile)
+                    )
                 },
-                subtitle: accountProfile.isUnlocked
-                    ? Localizations.accountUnlocked.lowercased()
-                    : Localizations.accountLocked.lowercased(),
-                title: accountProfile.email,
-                trailingIcon: accountProfile.isUnlocked
-                    ? Asset.Images.unlocked.swiftUIImage
-                    : Asset.Images.locked.swiftUIImage
+                mapAction: { _ in .accountPressed(accountProfile) },
+                mapEffect: nil
             )
-        }
+        )
     }
 }
 
 // MARK: Previews
 
 struct ProfileSwitcherView_Previews: PreviewProvider {
-    static var selectedAccount = ProfileSwitcherItem(
+    static let selectedAccount = ProfileSwitcherItem(
         color: .purple,
-        email: "anne.account@bitwarden.com",
+        email: "Anne.Account@bitwarden.com",
         isUnlocked: true,
         userInitials: "AA"
     )
@@ -224,7 +147,10 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ProfileSwitcherState(
-                            currentAccountProfile: selectedAccount,
+                            accounts: [
+                                selectedAccount,
+                            ],
+                            activeAccountId: selectedAccount.userId,
                             isVisible: true
                         )
                     )
@@ -238,7 +164,8 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ProfileSwitcherState(
-                            alternateAccounts: [
+                            accounts: [
+                                selectedAccount,
                                 ProfileSwitcherItem(
                                     color: .green,
                                     email: "bonus.bridge@bitwarde.com",
@@ -246,7 +173,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     userInitials: "BB"
                                 ),
                             ],
-                            currentAccountProfile: selectedAccount,
+                            activeAccountId: selectedAccount.userId,
                             isVisible: true
                         )
                     )
@@ -260,7 +187,8 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ProfileSwitcherState(
-                            alternateAccounts: [
+                            accounts: [
+                                selectedAccount,
                                 ProfileSwitcherItem(
                                     color: .yellow,
                                     email: "bonus.bridge@bitwarden.com",
@@ -285,12 +213,14 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     isUnlocked: false,
                                     userInitials: "EE"
                                 ),
+                                ProfileSwitcherItem(
+                                    color: .purple,
+                                    email: "anne.account@bitwarden.com",
+                                    userId: "1",
+                                    userInitials: "AA"
+                                ),
                             ],
-                            currentAccountProfile: ProfileSwitcherItem(
-                                color: .purple,
-                                email: "anne.account@bitwarden.com",
-                                userInitials: "AA"
-                            ),
+                            activeAccountId: "1",
                             isVisible: true
                         )
                     )

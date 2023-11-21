@@ -193,6 +193,30 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(fetchedOptions, PasswordGenerationOptions())
     }
 
+    /// `getUsernameGenerationOptions` returns the saved username generation options for the active account.
+    func test_getUsernameGenerationOptions() async throws {
+        let options = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
+
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.usernameGenerationOptions = [account.profile.userId: options]
+
+        let fetchedOptions = try await subject.getUsernameGenerationOptions()
+
+        XCTAssertEqual(fetchedOptions, options)
+    }
+
+    /// `getUsernameGenerationOptions` returns an empty set of options if they haven't previously
+    /// been saved for the active account.
+    func test_getUsernameGenerationOptions_notSet() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        let fetchedOptions = try await subject.getUsernameGenerationOptions()
+
+        XCTAssertEqual(fetchedOptions, UsernameGenerationOptions())
+    }
+
     /// `setPasswordGenerationOptions` sets the password generation options for the active account.
     func test_setPasswordGenerationOptions() async throws {
         let account = Account.fixture()
@@ -203,5 +227,17 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         try await subject.setPasswordGenerationOptions(options)
 
         XCTAssertEqual(stateService.passwordGenerationOptions, [account.profile.userId: options])
+    }
+
+    /// `setUsernameGenerationOptions` sets the username generation options for the active account.
+    func test_setUsernameGenerationOptions() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        let options = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
+
+        try await subject.setUsernameGenerationOptions(options)
+
+        XCTAssertEqual(stateService.usernameGenerationOptions, [account.profile.userId: options])
     }
 }
