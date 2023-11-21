@@ -54,10 +54,10 @@ final class AccountSecurityProcessor: StateProcessor<
             do {
                 let account = try await services.stateService.getActiveAccount()
                 if account.profile.userId == userId {
-                    services.settingsRepository.lockVault(true, userId: account.profile.userId)
+                    services.settingsRepository.lockVault(userId: account.profile.userId)
                     coordinator.navigate(to: .lockVault(account: account))
                 } else {
-                    services.settingsRepository.lockVault(true, userId: userId)
+                    services.settingsRepository.lockVault(userId: userId)
                 }
             } catch {
                 coordinator.navigate(to: .logout)

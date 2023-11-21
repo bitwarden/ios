@@ -128,7 +128,7 @@ extension DefaultAuthRepository: AuthRepository {
                 organizationKeys: [:]
             )
         )
-        vaultTimeoutService.lockVault(false, userId: account.profile.userId)
+        vaultTimeoutService.unlockVault(userId: account.profile.userId)
     }
 
     /// A function to convert an `Account` to a `ProfileSwitcherItem`
@@ -149,10 +149,7 @@ extension DefaultAuthRepository: AuthRepository {
             return profile
         } catch {
             profile.isUnlocked = false
-            vaultTimeoutService.lockVault(
-                true,
-                userId: profile.userId
-            )
+            vaultTimeoutService.lockVault(userId: profile.userId)
             return profile
         }
     }

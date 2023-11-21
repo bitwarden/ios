@@ -49,8 +49,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         await subject.perform(.lockVault(userId: account.profile.userId))
 
-        XCTAssertEqual(settingsRepository.lockVaultCalled?.0, true)
-        XCTAssertEqual(settingsRepository.lockVaultCalled?.1, account.profile.userId)
+        XCTAssertEqual(settingsRepository.lockVaultCalls, [account.profile.userId])
         XCTAssertEqual(coordinator.routes.last, .lockVault(account: account))
     }
 
@@ -66,8 +65,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         await subject.perform(.lockVault(userId: alternate.profile.userId))
 
-        XCTAssertEqual(settingsRepository.lockVaultCalled?.0, true)
-        XCTAssertEqual(settingsRepository.lockVaultCalled?.1, alternate.profile.userId)
+        XCTAssertEqual(settingsRepository.lockVaultCalls, [alternate.profile.userId])
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 

@@ -23,11 +23,16 @@ protocol VaultTimeoutService: AnyObject {
     func isLocked(userId: String) throws -> Bool
 
     /// Locks the user's vault
-    /// - Parameters:
-    ///    - shouldLock: the lock status for the account.
-    ///    - userId: The userId of the account to lock.
     ///
-    func lockVault(_ shouldLock: Bool, userId: String)
+    /// - Parameter userId: The userId of the account to lock.
+    ///
+    func lockVault(userId: String)
+
+    /// Unlocks the user's vault
+    ///
+    /// - Parameter userId: The userId of the account to unlock.
+    ///
+    func unlockVault(userId: String)
 
     // MARK: Publishers
 
@@ -68,8 +73,12 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             .values
     }
 
-    func lockVault(_ shouldLock: Bool, userId: String) {
-        timeoutStore[userId] = shouldLock
+    func lockVault(userId: String) {
+        timeoutStore[userId] = true
+    }
+
+    func unlockVault(userId: String) {
+        timeoutStore[userId] = false
     }
 
     func remove(userId: String) {

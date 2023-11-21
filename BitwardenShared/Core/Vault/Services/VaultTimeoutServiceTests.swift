@@ -83,7 +83,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         subject.timeoutStore = [
             account.profile.userId: false,
         ]
-        subject.lockVault(true, userId: account.profile.userId)
+        subject.lockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: true,
@@ -98,7 +98,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         subject.timeoutStore = [
             account.profile.userId: true,
         ]
-        subject.lockVault(true, userId: account.profile.userId)
+        subject.lockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: true,
@@ -111,10 +111,53 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
     func test_lock_notFound() async {
         let account = Account.fixtureAccountLogin()
         subject.timeoutStore = [:]
-        subject.lockVault(true, userId: account.profile.userId)
+        subject.lockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: true,
+            ],
+            subject.timeoutStore
+        )
+    }
+
+    /// `unlockVault(userId:)` preserves the unlocked status of an unlocked account.
+    func test_unlock_unlocked() async {
+        let account = Account.fixtureAccountLogin()
+        subject.timeoutStore = [
+            account.profile.userId: false,
+        ]
+        subject.unlockVault(userId: account.profile.userId)
+        XCTAssertEqual(
+            [
+                account.profile.userId: false,
+            ],
+            subject.timeoutStore
+        )
+    }
+
+    /// `unlockVault(userId:)` should unlock an locked account.
+    func test_unlock_locked() async {
+        let account = Account.fixtureAccountLogin()
+        subject.timeoutStore = [
+            account.profile.userId: true,
+        ]
+        subject.unlockVault(userId: account.profile.userId)
+        XCTAssertEqual(
+            [
+                account.profile.userId: false,
+            ],
+            subject.timeoutStore
+        )
+    }
+
+    /// `unlockVault(userId:)` should unlock an unknown account.
+    func test_unlock_notFound() async {
+        let account = Account.fixtureAccountLogin()
+        subject.timeoutStore = [:]
+        subject.unlockVault(userId: account.profile.userId)
+        XCTAssertEqual(
+            [
+                account.profile.userId: false,
             ],
             subject.timeoutStore
         )

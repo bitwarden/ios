@@ -58,21 +58,21 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertFalse(try vaultTimeoutService.isLocked(userId: "123"))
     }
 
-    /// `lockVault` can unlock a user's vault.
+    /// `unlockVault(userId:)` can unlock a user's vault.
     func test_lockVault_false_unknownUser() {
         vaultTimeoutService.timeoutStore = [:]
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, [:])
 
-        subject.lockVault(false, userId: "123")
+        subject.unlockVault(userId: "123")
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
     }
 
-    /// `lockVault` can unlock a user's vault.
+    /// `unlockVault(userId:)` can unlock a user's vault.
     func test_lockVault_false_knownUser() {
         vaultTimeoutService.timeoutStore = ["123": true]
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
 
-        subject.lockVault(false, userId: "123")
+        subject.unlockVault(userId: "123")
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
     }
 
@@ -81,7 +81,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         vaultTimeoutService.timeoutStore = [:]
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, [:])
 
-        subject.lockVault(true, userId: "123")
+        subject.lockVault(userId: "123")
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
     }
 
@@ -90,7 +90,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         vaultTimeoutService.timeoutStore = ["123": false]
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
 
-        subject.lockVault(true, userId: "123")
+        subject.lockVault(userId: "123")
         XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
     }
 

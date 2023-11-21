@@ -2,15 +2,20 @@
 
 class MockSettingsRepository: SettingsRepository {
     var isLockedResult: Result<Bool, VaultTimeoutServiceError> = .failure(.noAccountFound)
-    var lockVaultCalled: (Bool, String)?
+    var lockVaultCalls = [String]()
+    var unlockVaultCalls = [String]()
     var logoutResult: Result<Void, StateServiceError> = .failure(.noActiveAccount)
 
     func isLocked(userId: String) throws -> Bool {
         try isLockedResult.get()
     }
 
-    func lockVault(_ shouldLock: Bool, userId: String) {
-        lockVaultCalled = (shouldLock, userId)
+    func lockVault(userId: String) {
+        lockVaultCalls.append(userId)
+    }
+
+    func unlockVault(userId: String) {
+        lockVaultCalls.append(userId)
     }
 
     func logout() async throws {

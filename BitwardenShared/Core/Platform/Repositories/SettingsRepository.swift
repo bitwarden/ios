@@ -10,11 +10,15 @@ protocol SettingsRepository: AnyObject {
 
     /// Locks the user's vault and clears decrypted data from memory.
     ///
-    ///  - Parameters:
-    ///   - shouldLock: The lock status of the account.
-    ///   - userId: The userId of the account to lock.
+    ///  - Parameter userId: The userId of the account to lock.
     ///
-    func lockVault(_ shouldLock: Bool, userId: String)
+    func lockVault(userId: String)
+
+    /// Unlocks the user's vault.
+    ///
+    ///  - Parameter userId: The userId of the account to unlock.
+    ///
+    func unlockVault(userId: String)
 
     /// Logs the active user out of the application.
     ///
@@ -58,8 +62,12 @@ extension DefaultSettingsRepository: SettingsRepository {
         try vaultTimeoutService.isLocked(userId: userId)
     }
 
-    func lockVault(_ shouldLock: Bool, userId: String) {
-        vaultTimeoutService.lockVault(shouldLock, userId: userId)
+    func lockVault(userId: String) {
+        vaultTimeoutService.lockVault(userId: userId)
+    }
+
+    func unlockVault(userId: String) {
+        vaultTimeoutService.unlockVault(userId: userId)
     }
 
     func logout() async throws {

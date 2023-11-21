@@ -23,8 +23,12 @@ class MockVaultTimeoutService: VaultTimeoutService {
         isLockedSubject.eraseToAnyPublisher().values
     }
 
-    func lockVault(_ shouldLock: Bool, userId: String) {
-        timeoutStore[userId] = shouldLock
+    func lockVault(userId: String) {
+        timeoutStore[userId] = true
+    }
+
+    func unlockVault(userId: String) {
+        timeoutStore[userId] = false
     }
 
     func remove(userId: String) {
