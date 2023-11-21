@@ -104,13 +104,9 @@ final class AccountSecurityProcessor: StateProcessor<
     /// navigated to the web app.
     ///
     private func showTwoStepLoginAlert() {
-        defer {
-            state.twoStepLoginUrl = nil
-        }
+        state.twoStepLoginUrl = nil
         coordinator.navigate(to: .alert(.twoStepLoginAlert {
-            self.state.twoStepLoginUrl = URL(
-                string: self.services.baseUrlService.baseUrl.absoluteString + "/#/settings"
-            )
+            self.state.twoStepLoginUrl = self.services.baseUrlService.baseUrl.appendingPathExtension("/#/settings")
         }))
     }
 }

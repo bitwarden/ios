@@ -28,10 +28,8 @@ struct AccountSecurityView: View {
         .scrollView()
         .navigationBar(title: Localizations.accountSecurity, titleDisplayMode: .inline)
         .onChange(of: store.state.twoStepLoginUrl) { newValue in
-            if newValue != nil {
-                guard let url = store.state.twoStepLoginUrl else { return }
-                openURL(url)
-            }
+            guard let url = newValue else { return }
+            openURL(url)
         }
     }
 

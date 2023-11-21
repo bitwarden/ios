@@ -137,6 +137,9 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
         await alert.alertActions[1].handler?(alert.alertActions[1])
-        XCTAssertEqual(subject.state.twoStepLoginUrl, URL(string: "https://example.com/#/settings"))
+        XCTAssertEqual(
+            subject.state.twoStepLoginUrl,
+            URL(string: "https://example.com")!.appendingPathExtension("#/settings")
+        )
     }
 }
