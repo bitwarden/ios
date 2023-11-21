@@ -220,6 +220,15 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(fetchedOptions, options)
     }
 
+    /// `getUsernameGenerationOptions` throws an error if there isn't an active account.
+    func test_getUsernameGenerationOptions_noAccount() async {
+        stateService.activeAccount = nil
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getUsernameGenerationOptions()
+        }
+    }
+
     /// `getUsernameGenerationOptions` returns an empty set of options, pre-populated with the
     /// users email if they haven't previously been saved for the active account.
     func test_getUsernameGenerationOptions_notSet() async throws {
