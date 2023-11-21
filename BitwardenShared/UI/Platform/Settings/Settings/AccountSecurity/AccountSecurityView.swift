@@ -68,7 +68,7 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(Localizations.lockNow) {
                     Task {
-                        await store.perform(.lockVault(userId: store.state.userId))
+                        await store.perform(.lockVault)
                     }
                 }
 

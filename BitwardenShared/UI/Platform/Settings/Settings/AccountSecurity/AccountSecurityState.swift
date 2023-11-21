@@ -17,7 +17,4 @@ struct AccountSecurityState: Equatable {
 
     /// Whether the unlock with touch ID toggle is on.
     var isUnlockWithTouchIDToggleOn: Bool = false
-
-    /// The userId of the account
-    var userId: String = ""
 }

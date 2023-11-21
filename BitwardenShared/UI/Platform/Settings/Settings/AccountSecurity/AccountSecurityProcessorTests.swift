@@ -43,35 +43,19 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(_:)` with `.lockVault` locks the user's vault.
-    func test_perform_lockVault_active() async {
+    func test_perform_lockVault() async {
         let account: Account = .fixtureAccountLogin()
         stateService.activeAccount = account
 
-        await subject.perform(.lockVault(userId: account.profile.userId))
+        await subject.perform(.lockVault)
 
         XCTAssertEqual(settingsRepository.lockVaultCalls, [account.profile.userId])
         XCTAssertEqual(coordinator.routes.last, .lockVault(account: account))
     }
 
-    /// `perform(_:)` with `.lockVault` locks the user's vault.
-    func test_perform_lockVault_alternate() async {
-        let account: Account = .fixtureAccountLogin()
-        let alternate = Account.fixture(
-            profile: .fixture(
-                userId: "123"
-            )
-        )
-        stateService.activeAccount = account
-
-        await subject.perform(.lockVault(userId: alternate.profile.userId))
-
-        XCTAssertEqual(settingsRepository.lockVaultCalls, [alternate.profile.userId])
-        XCTAssertTrue(coordinator.routes.isEmpty)
-    }
-
     /// `perform(_:)` with `.lockVault` fails, locks the vault and navigates to the landing screen.
     func test_perform_lockVault_failure() async {
-        await subject.perform(.lockVault(userId: Account.fixtureAccountLogin().profile.userId))
+        await subject.perform(.lockVault)
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [StateServiceError.noActiveAccount])
         XCTAssertEqual(coordinator.routes.last, .logout)

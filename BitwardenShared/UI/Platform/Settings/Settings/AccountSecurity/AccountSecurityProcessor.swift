@@ -50,15 +50,11 @@ final class AccountSecurityProcessor: StateProcessor<
 
     override func perform(_ effect: AccountSecurityEffect) async {
         switch effect {
-        case let .lockVault(userId: userId):
+        case .lockVault:
             do {
                 let account = try await services.stateService.getActiveAccount()
-                if account.profile.userId == userId {
-                    services.settingsRepository.lockVault(userId: account.profile.userId)
-                    coordinator.navigate(to: .lockVault(account: account))
-                } else {
-                    services.settingsRepository.lockVault(userId: userId)
-                }
+                services.settingsRepository.lockVault(userId: account.profile.userId)
+                coordinator.navigate(to: .lockVault(account: account))
             } catch {
                 coordinator.navigate(to: .logout)
                 services.errorReporter.log(error: error)
