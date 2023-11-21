@@ -86,8 +86,8 @@ struct AddItemView: View {
                             .bold()
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
-                        Button {
-                            store.send(.setupTotpPressed)
+                        AsyncButton {
+                            await store.perform(.setupTotpPressed)
                         } label: {
                             HStack(alignment: .center, spacing: 4) {
                                 Asset.Images.camera.swiftUIImage

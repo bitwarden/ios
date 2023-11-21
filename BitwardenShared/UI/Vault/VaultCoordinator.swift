@@ -18,9 +18,10 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasVaultRepository
-        & HasAuthRepository
+    typealias Services = HasAuthRepository
+        & HasCameraAuthorizationService
         & HasErrorReporter
+        & HasVaultRepository
 
     // MARK: Properties
 
@@ -74,6 +75,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case .setupTotpCamera:
             showCamera()
+        case .setupTotpManual:
+            showManualTotp()
         case let .viewItem(id):
             showViewItem(id: id)
         }
@@ -108,6 +111,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     private func showCamera() {
         // TODO: BIT-874 Update to show the actual camera screen
         let view = Text("Camera")
+        stackNavigator.present(view)
+    }
+
+    /// Shows the totp manual setup screen.
+    ///
+    private func showManualTotp() {
+        // TODO: BIT-873 Update to show the actual manual totp entry screen
+        let view = Text("Manual TOTP")
         stackNavigator.present(view)
     }
 

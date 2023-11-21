@@ -32,6 +32,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the camera screen for setting up TOTP.
     case setupTotpCamera
 
+    /// A route to the manual totp entry screen for setting up TOTP.
+    case setupTotpManual
+
     /// A route to the view item screen.
     ///
     /// - Parameter id: The id of the item to display.

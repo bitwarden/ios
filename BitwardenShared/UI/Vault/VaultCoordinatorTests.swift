@@ -100,6 +100,24 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.setupTotpCamera` presents the camera totp setup screen.
+    func test_navigateTo_setupTotpCamera() throws {
+        subject.navigate(to: .setupTotpCamera)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is Text)
+    }
+
+    /// `navigate(to:)` with `.setupTotpManual` presents the manual totp setup screen.
+    func test_navigateTo_setupTotpManual() throws {
+        subject.navigate(to: .setupTotpManual)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is Text)
+    }
+
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
     func test_navigateTo_viewItem() throws {
         subject.navigate(to: .viewItem(id: "id"))
@@ -124,15 +142,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         subject.hideLoadingOverlay()
         waitFor { window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag) == nil }
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
-    }
-
-    /// `navigate(to:)` with `.setupTotpCamera` presents the camera screen.
-    func test_navigateTo_setupTotpCamera() throws {
-        subject.navigate(to: .setupTotpCamera)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
     }
 
     /// `start()` has no effect.
