@@ -181,6 +181,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     func generateValue() async {
         switch state.generatorType {
         case .password:
+            state.passwordState.validateOptions()
             switch state.passwordState.passwordGeneratorType {
             case .passphrase:
                 await generatePassphrase()

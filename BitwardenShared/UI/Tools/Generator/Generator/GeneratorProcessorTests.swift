@@ -133,6 +133,23 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
+    /// Generating a new password validates the password options before generating the value.
+    func test_generatePassword_validatesOptions() {
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .password
+
+        subject.state.passwordState.containsLowercase = false
+        subject.state.passwordState.containsNumbers = false
+        subject.state.passwordState.containsSpecial = false
+        subject.state.passwordState.containsUppercase = false
+
+        subject.receive(.refreshGeneratedValue)
+        waitFor { subject.state.passwordState.containsLowercase }
+
+        XCTAssertTrue(subject.state.passwordState.containsLowercase)
+        XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.lowercase, true)
+    }
+
     /// `init` loads the username generation options and doesn't change the defaults if the options
     /// are empty.
     func test_init_loadsUsernameOptions_empty() {
