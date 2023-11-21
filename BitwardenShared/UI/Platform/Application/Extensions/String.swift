@@ -19,6 +19,11 @@ enum URLDecodingError: Error, Equatable {
 // MARK: - String
 
 extension String {
+    // MARK: Type Properties
+
+    /// A zero width space. https://symbl.cc/en/200B/
+    static let zeroWidthSpace = "\u{200B}"
+
     // MARK: Properties
 
     /// A flag indicating if this string is considered a valid email address or not.
