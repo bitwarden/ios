@@ -25,7 +25,8 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
 final class SettingsCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasBiometricsService
+    typealias Services = HasBaseUrlService
+        & HasBiometricsService
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService

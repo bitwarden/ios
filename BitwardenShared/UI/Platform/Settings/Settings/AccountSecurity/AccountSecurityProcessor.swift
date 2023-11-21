@@ -1,3 +1,4 @@
+import Foundation
 import OSLog
 
 // MARK: - AccountSecurityProcessor
@@ -11,7 +12,8 @@ final class AccountSecurityProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasBiometricsService
+    typealias Services = HasBaseUrlService
+        & HasBiometricsService
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
@@ -77,6 +79,8 @@ final class AccountSecurityProcessor: StateProcessor<
             state.isUnlockWithPINCodeOn = isOn
         case let .toggleUnlockWithTouchID(isOn):
             state.isUnlockWithTouchIDToggleOn = isOn
+        case .twoStepLoginPressed:
+            showTwoStepLoginAlert()
         }
     }
 
@@ -94,5 +98,19 @@ final class AccountSecurityProcessor: StateProcessor<
             self.coordinator.navigate(to: .logout)
         }
         coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Shows the two step login alert. If `Yes` is selected, the user will be
+    /// navigated to the web app.
+    ///
+    private func showTwoStepLoginAlert() {
+        defer {
+            state.twoStepLoginUrl = nil
+        }
+        coordinator.navigate(to: .alert(.twoStepLoginAlert {
+            self.state.twoStepLoginUrl = URL(
+                string: self.services.baseUrlService.baseUrl.absoluteString + "/#/settings"
+            )
+        }))
     }
 }

@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - AccountSecurityState
 
 /// An object that defines the current state of the `AccountSecurityView`.
@@ -17,4 +19,7 @@ struct AccountSecurityState: Equatable {
 
     /// Whether the unlock with touch ID toggle is on.
     var isUnlockWithTouchIDToggleOn: Bool = false
+
+    /// The URL for two step login external link.
+    var twoStepLoginUrl: URL?
 }

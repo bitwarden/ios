@@ -113,4 +113,30 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(subject.state.isUnlockWithTouchIDToggleOn)
     }
+
+    /// `receive(_:)` with `.twoStepLoginPressed` shows the two step login alert.
+    func test_receive_twoStepLoginPressed() async throws {
+        subject.receive(.twoStepLoginPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.continueToWebApp)
+        XCTAssertEqual(alert.message, Localizations.twoStepLoginDescriptionLong)
+        XCTAssertEqual(alert.preferredStyle, .alert)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.yes)
+
+        // Tapping yes navigates the user to the web app.
+        await alert.alertActions[1].handler?(alert.alertActions[1])
+        XCTAssertNotNil(subject.state.twoStepLoginUrl)
+    }
+
+    /// `state.twoStepLoginUrl` is initialized with the correct value.
+    func test_twoStepLoginUrl() async throws {
+        subject.receive(.twoStepLoginPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        await alert.alertActions[1].handler?(alert.alertActions[1])
+        XCTAssertEqual(subject.state.twoStepLoginUrl, URL(string: "https://example.com/#/settings"))
+    }
 }

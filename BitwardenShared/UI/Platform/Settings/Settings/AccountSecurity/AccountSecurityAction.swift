@@ -20,4 +20,7 @@ enum AccountSecurityAction {
 
     /// Unlock with touch ID was toggled.
     case toggleUnlockWithTouchID(Bool)
+
+    /// The two step login button was pressed.
+    case twoStepLoginPressed
 }

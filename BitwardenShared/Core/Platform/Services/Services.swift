@@ -7,6 +7,7 @@ typealias Services = HasAccountAPIService
     & HasAppSettingsStore
     & HasAuthAPIService
     & HasAuthRepository
+    & HasBaseUrlService
     & HasBiometricsService
     & HasCaptchaService
     & HasCameraAuthorizationService
