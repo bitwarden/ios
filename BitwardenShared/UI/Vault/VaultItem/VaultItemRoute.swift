@@ -17,8 +17,10 @@ enum VaultItemRoute: Equatable, Hashable {
 
     /// A route to the username/password generator screen.
     ///
-    /// - Parameter type: The type to generate.
-    case generator(_ type: GeneratorType)
+    /// - Parameters:
+    ///   - type: The type to generate.
+    ///   - emailWebsite: An optional website host used to generate usernames.
+    case generator(_ type: GeneratorType, emailWebsite: String? = nil)
 
     /// A route to the camera screen for setting up TOTP.
     case setupTotpCamera

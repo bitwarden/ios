@@ -1,6 +1,19 @@
 import Foundation
 
 extension URL {
+    // MARK: Properties
+
+    /// Returns a sanitized version of the URL. This will add a https scheme to the URL if the
+    /// scheme is missing.
+    var sanitized: URL {
+        guard absoluteString.starts(with: "https://") || absoluteString.starts(with: "http://") else {
+            return URL(string: "https://" + absoluteString) ?? self
+        }
+        return self
+    }
+
+    // MARK: Methods
+
     /// Creates a new `URL` appending the provided query items to the url.
     ///
     /// On iOS 16+, this method uses the method with the same name in Foundation. On iOS 15, this method

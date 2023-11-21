@@ -65,6 +65,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.showCopiedValueToast()
         case .dismissPressed:
             coordinator.navigate(to: .cancel)
+        case let .emailTypeChanged(emailType):
+            state.usernameState.updateEmailType(emailType)
         case let .generatorTypeChanged(generatorType):
             state.generatorType = generatorType
         case let .passwordGeneratorTypeChanged(passwordGeneratorType):

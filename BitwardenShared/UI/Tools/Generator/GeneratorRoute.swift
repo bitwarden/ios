@@ -11,7 +11,7 @@ public enum GeneratorRoute: Equatable, Hashable {
     case dismiss
 
     /// A route to the generator screen.
-    case generator(staticType: GeneratorType? = nil)
+    case generator(staticType: GeneratorType? = nil, emailWebsite: String? = nil)
 
     /// A route to the generator history screen.
     case generatorHistory

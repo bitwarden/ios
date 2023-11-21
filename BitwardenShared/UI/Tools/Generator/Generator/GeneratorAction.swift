@@ -7,6 +7,9 @@ enum GeneratorAction: Equatable {
     /// The dismiss button was pressed
     case dismissPressed
 
+    /// The email type was changed.
+    case emailTypeChanged(UsernameEmailType)
+
     /// The generator type was changed.
     case generatorTypeChanged(GeneratorType)
 
@@ -56,7 +59,8 @@ extension GeneratorAction {
     /// Whether this action should result in the processor generating a new generated value.
     var shouldGenerateNewValue: Bool {
         switch self {
-        case .generatorTypeChanged,
+        case .emailTypeChanged,
+             .generatorTypeChanged,
              .passwordGeneratorTypeChanged,
              .refreshGeneratedValue,
              .sliderValueChanged,
@@ -90,7 +94,8 @@ extension GeneratorAction {
              .textFieldIsPasswordVisibleChanged,
              .toastShown:
             return false
-        case .passwordGeneratorTypeChanged,
+        case .emailTypeChanged,
+             .passwordGeneratorTypeChanged,
              .sliderValueChanged,
              .stepperValueChanged,
              .textValueChanged,
