@@ -252,7 +252,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `setActiveAccount(userId: )` succeeds when there is a match
+    /// `setActiveAccount(userId: )` succeeds when there is a match.
     func test_setActiveAccount_match_active() async throws {
         stateService.accounts = [
             anneAccount,
@@ -262,7 +262,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.activeAccount, anneAccount)
     }
 
-    /// `setActiveAccount(userId: )` succeeds when there is a match
+    /// `setActiveAccount(userId: )` succeeds when there is a match.
     func test_setActiveAccount_match_inactive() async throws {
         stateService.accounts = [
             anneAccount,
@@ -273,7 +273,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.activeAccount, beeAccount)
     }
 
-    /// `setActiveAccount(userId: )` returns an error when there is no match
+    /// `setActiveAccount(userId: )` returns an error when there is no match.
     func test_setActiveAccount_noMatch_incorrectId() async throws {
         stateService.accounts = [
             anneAccount,
@@ -284,7 +284,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `setActiveAccount(userId: )` returns an error when there is no match
+    /// `setActiveAccount(userId: )` returns an error when there is no match.
     func test_setActiveAccount_noMatch_noAccounts() async throws {
         stateService.accounts = []
         stateService.activeAccount = nil
@@ -325,7 +325,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `logout` throws an error with no accounts
+    /// `logout` throws an error with no accounts.
     func test_logout_noAccounts() async {
         stateService.accounts = []
         stateService.activeAccount = nil
@@ -334,7 +334,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `logout` throws an error with no active account
+    /// `logout` throws an error with no active account.
     func test_logout_noActiveAccount() async {
         let account = Account.fixtureAccountLogin()
         stateService.accounts = [account]
@@ -344,7 +344,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `logout` successfully logs out a user
+    /// `logout` successfully logs out a user.
     func test_logout_success() {
         let account = Account.fixtureAccountLogin()
         stateService.accounts = [account]

@@ -19,6 +19,7 @@ protocol AuthRepository: AnyObject {
     func getActiveAccount() async throws -> ProfileSwitcherItem
 
     /// Gets the account for a `ProfileSwitcherItem`.
+    ///
     /// - Parameter userId: The user Id to be mapped to an account.
     /// - Returns: The user account.
     ///
@@ -29,8 +30,10 @@ protocol AuthRepository: AnyObject {
     func logout() async throws
 
     /// Sets the active account by User Id.
+    ///
     /// - Parameter userId: The user Id to be set as active.
     /// - Returns: The new active account.
+    ///
     func setActiveAccount(userId: String) async throws -> Account
 
     /// Attempts to unlock the user's vault with their master password.
@@ -130,8 +133,8 @@ extension DefaultAuthRepository: AuthRepository {
 
     /// A function to convert an `Account` to a `ProfileSwitcherItem`
     ///
-    ///   - Parameter account: The account to convert
-    ///   - Returns: The `ProfileSwitcherItem` representing the account
+    ///   - Parameter account: The account to convert.
+    ///   - Returns: The `ProfileSwitcherItem` representing the account.
     ///
     func profileItem(from account: Account) -> ProfileSwitcherItem {
         var profile = ProfileSwitcherItem(

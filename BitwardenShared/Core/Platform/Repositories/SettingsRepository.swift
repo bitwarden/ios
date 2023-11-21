@@ -2,12 +2,14 @@
 ///
 protocol SettingsRepository: AnyObject {
     /// Checks the locked status of a user vault by user id
+    ///
     ///  - Parameter userId: The userId of the account
     ///  - Returns: A bool, true if locked, false if unlocked.
     ///
     func isLocked(userId: String) throws -> Bool
 
     /// Locks the user's vault and clears decrypted data from memory.
+    ///
     ///  - Parameters:
     ///   - shouldLock: The lock status of the account.
     ///   - userId: The userId of the account to lock.
