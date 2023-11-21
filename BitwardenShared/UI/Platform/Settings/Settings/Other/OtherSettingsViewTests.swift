@@ -3,10 +3,10 @@ import XCTest
 
 @testable import BitwardenShared
 
-class OtherViewTests: BitwardenTestCase {
+class OtherSettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    let subject = OtherView(store: Store(processor: StateProcessor(state: OtherState())))
+    let subject = OtherSettingsView(store: Store(processor: StateProcessor(state: OtherSettingsState())))
 
     // MARK: Tests
 

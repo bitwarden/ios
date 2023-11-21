@@ -1,8 +1,8 @@
-// MARK: - OtherState
+// MARK: - OtherSettingsState
 
 /// An object that defines the current state of the `OtherView`.
 ///
-struct OtherState {
+struct OtherSettingsState {
     /// Whether the allow sync on refresh toggle is on.
     var isAllowSyncOnRefreshToggleOn: Bool = false
 

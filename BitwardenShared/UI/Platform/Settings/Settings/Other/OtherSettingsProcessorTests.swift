@@ -2,11 +2,11 @@ import XCTest
 
 @testable import BitwardenShared
 
-class OtherProcessorTests: BitwardenTestCase {
+class OtherSettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute>!
-    var subject: OtherProcessor!
+    var subject: OtherSettingsProcessor!
 
     // MARK: Setup and Teardown
 
@@ -14,7 +14,7 @@ class OtherProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator<SettingsRoute>()
-        subject = OtherProcessor(coordinator: coordinator.asAnyCoordinator(), state: OtherState())
+        subject = OtherSettingsProcessor(coordinator: coordinator.asAnyCoordinator(), state: OtherSettingsState())
     }
 
     override func tearDown() {

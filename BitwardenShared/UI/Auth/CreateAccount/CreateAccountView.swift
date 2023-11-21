@@ -66,10 +66,10 @@ struct CreateAccountView: View {
             send: CreateAccountAction.toggleCheckDataBreaches
         )) {
             Text(Localizations.checkKnownDataBreachesForThisPassword)
-                .font(.styleGuide(.footnote))
         }
         .accessibilityIdentifier("CheckExposedMasterPasswordToggle")
         .toggleStyle(.bitwarden)
+        .font(.styleGuide(.footnote))
         .id(ViewIdentifier.CreateAccount.checkBreaches)
     }
 

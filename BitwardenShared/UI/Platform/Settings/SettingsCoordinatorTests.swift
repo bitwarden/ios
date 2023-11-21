@@ -77,7 +77,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
-        XCTAssertTrue(action.viewController is UIHostingController<OtherView>)
+        XCTAssertTrue(action.viewController is UIHostingController<OtherSettingsView>)
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.

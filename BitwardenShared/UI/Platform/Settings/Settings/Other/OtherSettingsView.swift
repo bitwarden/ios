@@ -1,11 +1,13 @@
 import SwiftUI
 
-// MARK: - OtherView
+// MARK: - OtherSettingsView
 
-struct OtherView: View {
+/// A view that allows users to configure miscellaneous settings.
+///
+struct OtherSettingsView: View {
     // MARK: Properties
 
-    @ObservedObject var store: Store<OtherState, OtherAction, Void>
+    @ObservedObject var store: Store<OtherSettingsState, OtherSettingsAction, Void>
 
     // MARK: View
 
@@ -28,13 +30,14 @@ struct OtherView: View {
     /// The allow sync on refresh toggle and description.
     private var allowSyncOnRefresh: some View {
         VStack(alignment: .leading, spacing: 4) {
-            ToggleView(
-                isOn: store.binding(
-                    get: \.isAllowSyncOnRefreshToggleOn,
-                    send: OtherAction.toggleAllowSyncOnRefresh
-                ),
-                description: Localizations.enableSyncOnRefresh
-            )
+            Toggle(isOn: store.binding(
+                get: \.isAllowSyncOnRefreshToggleOn,
+                send: OtherSettingsAction.toggleAllowSyncOnRefresh
+            )) {
+                Text(Localizations.enableSyncOnRefresh)
+            }
+            .toggleStyle(.bitwarden)
+            .font(.styleGuide(.body))
 
             Text(Localizations.enableSyncOnRefreshDescription)
                 .font(.styleGuide(.footnote))
@@ -46,7 +49,10 @@ struct OtherView: View {
     /// The clear clipboard button and description.
     private var clearClipboard: some View {
         VStack(alignment: .leading, spacing: 5) {
-            SettingsListItem(Localizations.clearClipboard) {} trailingContent: {
+            SettingsListItem(
+                Localizations.clearClipboard,
+                hasDivider: false
+            ) {} trailingContent: {
                 Text(Localizations.fiveMinutes) // TODO: BIT-1183 Dynamic value
             }
             .cornerRadius(10)
@@ -60,13 +66,14 @@ struct OtherView: View {
 
     /// The connect to watch toggle.
     private var connectToWatch: some View {
-        ToggleView(
-            isOn: store.binding(
-                get: \.isConnectToWatchToggleOn,
-                send: OtherAction.toggleConnectToWatch
-            ),
-            description: Localizations.connectToWatch
-        )
+        Toggle(isOn: store.binding(
+            get: \.isConnectToWatchToggleOn,
+            send: OtherSettingsAction.toggleConnectToWatch
+        )) {
+            Text(Localizations.connectToWatch)
+        }
+        .toggleStyle(.bitwarden)
+        .font(.styleGuide(.body))
         .padding(.top, 8)
     }
 
@@ -91,8 +98,8 @@ struct OtherView: View {
 
 // MARK: Previews
 
-struct OtherView_Previews: PreviewProvider {
+struct OtherSettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        OtherView(store: Store(processor: StateProcessor(state: OtherState())))
+        OtherSettingsView(store: Store(processor: StateProcessor(state: OtherSettingsState())))
     }
 }

@@ -154,6 +154,7 @@ struct AddItemView: View {
                         }
                     }
                     .toggleStyle(.bitwarden)
+                    .font(.styleGuide(.body))
                 }
 
                 section(title: Localizations.notes) {

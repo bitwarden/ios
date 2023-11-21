@@ -108,12 +108,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// Shows the other screen.
     ///
     private func showOtherScreen() {
-        let processor = OtherProcessor(
+        let processor = OtherSettingsProcessor(
             coordinator: asAnyCoordinator(),
-            state: OtherState()
+            state: OtherSettingsState()
         )
 
-        let view = OtherView(store: Store(processor: processor))
+        let view = OtherSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController)

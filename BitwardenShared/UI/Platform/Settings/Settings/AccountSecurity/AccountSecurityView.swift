@@ -34,13 +34,14 @@ struct AccountSecurityView: View {
         VStack(alignment: .leading) {
             SectionHeaderView(Localizations.approveLoginRequests)
 
-            ToggleView(
-                isOn: store.binding(
-                    get: \.isApproveLoginRequestsToggleOn,
-                    send: AccountSecurityAction.toggleApproveLoginRequestsToggle
-                ),
-                description: Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices
-            )
+            Toggle(isOn: store.binding(
+                get: \.isApproveLoginRequestsToggleOn,
+                send: AccountSecurityAction.toggleApproveLoginRequestsToggle
+            )) {
+                Text(Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices)
+            }
+            .toggleStyle(.bitwarden)
+            .font(.styleGuide(.body))
 
             if store.state.isApproveLoginRequestsToggleOn {
                 SettingsListItem(
@@ -110,32 +111,35 @@ struct AccountSecurityView: View {
 
             VStack(spacing: 24) {
                 if store.state.biometricAuthenticationType == .touchID {
-                    ToggleView(
-                        isOn: store.binding(
-                            get: \.isUnlockWithTouchIDToggleOn,
-                            send: AccountSecurityAction.toggleUnlockWithTouchID
-                        ),
-                        description: Localizations.unlockWith(Localizations.touchID)
-                    )
+                    Toggle(isOn: store.binding(
+                        get: \.isUnlockWithTouchIDToggleOn,
+                        send: AccountSecurityAction.toggleUnlockWithTouchID
+                    )) {
+                        Text(Localizations.unlockWith(Localizations.touchID))
+                    }
+                    .toggleStyle(.bitwarden)
+                    .font(.styleGuide(.body))
                 }
 
                 if store.state.biometricAuthenticationType == .faceID {
-                    ToggleView(
-                        isOn: store.binding(
-                            get: \.isUnlockWithFaceIDOn,
-                            send: AccountSecurityAction.toggleUnlockWithFaceID
-                        ),
-                        description: Localizations.unlockWith(Localizations.faceID)
-                    )
+                    Toggle(isOn: store.binding(
+                        get: \.isUnlockWithFaceIDOn,
+                        send: AccountSecurityAction.toggleUnlockWithFaceID
+                    )) {
+                        Text(Localizations.unlockWith(Localizations.faceID))
+                    }
+                    .toggleStyle(.bitwarden)
+                    .font(.styleGuide(.body))
                 }
 
-                ToggleView(
-                    isOn: store.binding(
-                        get: \.isUnlockWithPINCodeOn,
-                        send: AccountSecurityAction.toggleUnlockWithPINCode
-                    ),
-                    description: Localizations.unlockWithPIN
-                )
+                Toggle(isOn: store.binding(
+                    get: \.isUnlockWithPINCodeOn,
+                    send: AccountSecurityAction.toggleUnlockWithPINCode
+                )) {
+                    Text(Localizations.unlockWithPIN)
+                }
+                .toggleStyle(.bitwarden)
+                .font(.styleGuide(.body))
             }
         }
     }

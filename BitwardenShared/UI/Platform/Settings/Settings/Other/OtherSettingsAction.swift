@@ -1,8 +1,8 @@
-// MARK: - OtherAction
+// MARK: - OtherSettingsAction
 
-/// Actions handled by the `OtherProcessor`.
+/// Actions handled by the `OtherSettingsProcessor`.
 ///
-enum OtherAction {
+enum OtherSettingsAction {
     /// The allow sync on refresh toggle value changed.
     case toggleAllowSyncOnRefresh(Bool)
 
