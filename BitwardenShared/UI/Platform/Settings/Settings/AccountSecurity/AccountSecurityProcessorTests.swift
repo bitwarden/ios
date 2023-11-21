@@ -33,6 +33,13 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `receive(_:)` with `.deleteAccountPressed` shows the `DeleteAccountView`.
+    func test_receive_deleteAccountPressed() throws {
+        subject.receive(.deleteAccountPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .deleteAccount)
+    }
+
     /// `receive(_:)` with `.logout` presents a logout confirmation alert.
     func test_receive_logout() async throws {
         subject.receive(.logout)

@@ -62,6 +62,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             stackNavigator.present(alert)
         case .autoFill:
             showAutoFill()
+        case .deleteAccount:
+            showDeleteAccount()
+        case .dismiss:
+            stackNavigator.dismiss()
         case .logout:
             delegate?.didLogout()
         case .settings:
@@ -101,6 +105,18 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController)
+    }
+
+    /// Shows the delete account screen.
+    ///
+    private func showDeleteAccount() {
+        let processor = DeleteAccountProcessor(
+            coordinator: asAnyCoordinator(),
+            state: DeleteAccountState()
+        )
+        let view = DeleteAccountView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
     }
 
     /// Shows the settings screen.

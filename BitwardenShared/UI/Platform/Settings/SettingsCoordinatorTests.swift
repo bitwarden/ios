@@ -64,6 +64,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.viewController is UIHostingController<AutoFillView>)
     }
 
+    /// `navigate(to:)` with `.deleteAccount` presents the delete account view.
+    func test_navigateTo_deleteAccount() throws {
+        subject.navigate(to: .deleteAccount)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<DeleteAccountView>)
+    }
+
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
     func test_navigateTo_logout() throws {
         subject.navigate(to: .logout)

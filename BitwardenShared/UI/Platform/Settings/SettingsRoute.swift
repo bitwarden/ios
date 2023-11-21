@@ -13,6 +13,12 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the auto-fill screen.
     case autoFill
 
+    /// A route to the delete account screen.
+    case deleteAccount
+
+    /// A route that dismisses the current view.
+    case dismiss
+
     /// A route to log the user out.
     case logout
 

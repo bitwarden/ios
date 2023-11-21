@@ -68,11 +68,15 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(Localizations.lockNow) {}
 
+                SettingsListItem(Localizations.logOut) {
+                    store.send(.logout)
+                }
+
                 SettingsListItem(
-                    Localizations.logOut,
+                    Localizations.deleteAccount,
                     hasDivider: false
                 ) {
-                    store.send(.logout)
+                    store.send(.deleteAccountPressed)
                 }
             }
             .cornerRadius(10)

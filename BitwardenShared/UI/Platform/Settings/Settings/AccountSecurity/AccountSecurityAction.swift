@@ -3,6 +3,9 @@
 /// Actions handled by the `AccountSecurityProcessor`.
 ///
 enum AccountSecurityAction {
+    /// The delete account button was pressed.
+    case deleteAccountPressed
+
     /// The logout button was pressed.
     case logout
 
