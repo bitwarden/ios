@@ -73,6 +73,14 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<DeleteAccountView>)
     }
 
+    /// `navigate(to:)` with `.dismiss` dismisses the presented view.
+    func test_navigateTo_dismiss() throws {
+        subject.navigate(to: .dismiss)
+
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .dismissed)
+    }
+
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
     func test_navigateTo_lockVault() throws {
         subject.navigate(to: .lockVault(account: .fixture()))
