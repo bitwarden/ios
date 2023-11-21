@@ -9,6 +9,7 @@ typealias Services = HasAccountAPIService
     & HasAuthRepository
     & HasBiometricsService
     & HasCaptchaService
+    & HasCameraAuthorizationService
     & HasClientAuth
     & HasDeviceAPIService
     & HasErrorReporter
@@ -72,6 +73,13 @@ protocol HasBaseUrlService {
 ///
 protocol HasBiometricsService {
     var biometricsService: BiometricsService { get }
+}
+
+/// Protocol for an object that provides a `CameraAuthorizationService`.
+///
+protocol HasCameraAuthorizationService {
+    /// The service used by the application to query for and request camera authorization.
+    var cameraAuthorizationService: CameraAuthorizationService { get }
 }
 
 /// Protocol for an object that provides a `CaptchaService`.

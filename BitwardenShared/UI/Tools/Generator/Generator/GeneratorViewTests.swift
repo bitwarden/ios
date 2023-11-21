@@ -75,7 +75,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.usernameState.usernameGeneratorType = .forwardedEmail
         processor.state.usernameState.forwardedEmailService = .addyIO
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.service)
-        try menuField.select(newValue: GeneratorState.UsernameState.ForwardedEmailService.fastmail)
+        try menuField.select(newValue: ForwardedEmailServiceType.fastmail)
         XCTAssertEqual(processor.dispatchedActions.last, .usernameForwardedEmailServiceChanged(.fastmail))
     }
 

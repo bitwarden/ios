@@ -430,6 +430,67 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    /// `passwordState.validateOptions()` doesn't change any options if they are already valid.
+    func test_passwordState_validateOptions_isValid() {
+        var subject = GeneratorState().passwordState
+
+        let subjectBeforeValidation = subject
+        subject.validateOptions()
+
+        XCTAssertEqual(subject, subjectBeforeValidation)
+    }
+
+    /// `passwordState.validateOptions()` enables lowercase characters if all character set toggled
+    /// have been turned off.
+    func test_passwordState_validateOptions_allCharacterSetsOff() {
+        var subject = GeneratorState().passwordState
+
+        subject.containsLowercase = false
+        subject.containsNumbers = false
+        subject.containsSpecial = false
+        subject.containsUppercase = false
+
+        var subjectWithLowercaseEnabled = subject
+        subjectWithLowercaseEnabled.containsLowercase = true
+
+        subject.validateOptions()
+
+        XCTAssertEqual(subject, subjectWithLowercaseEnabled)
+    }
+
+    /// `passwordState.validateOptions()` sets the length based on the minimum length calculated
+    /// based on the enabled options.
+    func test_passwordState_validateOptions_minimumLength() {
+        var subject = GeneratorState().passwordState
+
+        subject.containsNumbers = false
+        subject.containsSpecial = false
+        subject.containsUppercase = false
+        subject.minimumNumber = 5
+        subject.minimumSpecial = 5
+        subject.length = 5
+
+        subject.validateOptions()
+        XCTAssertEqual(subject.length, 5)
+
+        subject.containsNumbers = true
+        subject.validateOptions()
+        XCTAssertEqual(subject.length, 6)
+
+        subject.containsSpecial = true
+        subject.validateOptions()
+        XCTAssertEqual(subject.length, 11)
+
+        // Decreasing `minimumNumber` doesn't change the length.
+        subject.minimumNumber = 1
+        subject.validateOptions()
+        XCTAssertEqual(subject.length, 11)
+
+        subject.length = 5
+        subject.validateOptions()
+        XCTAssertEqual(subject.length, 7)
+    }
+
     // MARK: Private
 
     /// Returns a string containing a description of the vault list items.

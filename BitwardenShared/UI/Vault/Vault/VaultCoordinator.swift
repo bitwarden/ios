@@ -22,6 +22,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & VaultItemModule
 
     typealias Services = HasAuthRepository
+        & HasCameraAuthorizationService
+        & HasErrorReporter
         & HasVaultRepository
         & VaultItemCoordinator.Services
         & HasErrorReporter

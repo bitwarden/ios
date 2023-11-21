@@ -8,6 +8,7 @@ class MockStateService: StateService {
     var activeAccount: Account?
     var accounts: [Account]?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
@@ -33,9 +34,14 @@ class MockStateService: StateService {
         return activeAccount
     }
 
-    func getPasswordGenerationOptions(userId: String?) async -> PasswordGenerationOptions? {
-        guard let userId = try? userId ?? getActiveAccount().profile.userId else { return nil }
+    func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
+        let userId = try userId ?? getActiveAccount().profile.userId
         return passwordGenerationOptions[userId]
+    }
+
+    func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return usernameGenerationOptions[userId]
     }
 
     func logoutAccount(userId: String?) async throws {
@@ -55,5 +61,10 @@ class MockStateService: StateService {
 
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
+    }
+
+    func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        usernameGenerationOptions[userId] = options
     }
 }

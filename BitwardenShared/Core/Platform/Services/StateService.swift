@@ -33,6 +33,13 @@ protocol StateService: AnyObject {
     ///
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions?
 
+    /// Gets the username generation options for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the username generation options.
+    /// - Returns: The username generation options for the user ID.
+    ///
+    func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions?
+
     /// Logs the user out of an account.
     ///
     /// - Parameter userId: The user ID of the account to log out of. Defaults to the active
@@ -64,6 +71,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
+
+    /// Sets the username generation options for a user ID.
+    ///
+    /// - Parameters:
+    ///   - options: The user's username generation options.
+    ///   - userId: The user ID associated with the username generation options.
+    ///
+    func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws
 }
 
 extension StateService {
@@ -81,6 +96,14 @@ extension StateService {
     ///
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions? {
         try await getPasswordGenerationOptions(userId: nil)
+    }
+
+    /// Gets the username generation options for the active account.
+    ///
+    /// - Returns: The username generation options for the user ID.
+    ///
+    func getUsernameGenerationOptions() async throws -> UsernameGenerationOptions? {
+        try await getUsernameGenerationOptions(userId: nil)
     }
 
     /// Logs the user out of the active account.
@@ -114,6 +137,14 @@ extension StateService {
     ///
     func setTokens(accessToken: String, refreshToken: String) async throws {
         try await setTokens(accessToken: accessToken, refreshToken: refreshToken, userId: nil)
+    }
+
+    /// Sets the username generation options for the active account.
+    ///
+    /// - Parameters options: The user's username generation options.
+    ///
+    func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?) async throws {
+        try await setUsernameGenerationOptions(options, userId: nil)
     }
 }
 
@@ -190,6 +221,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.passwordGenerationOptions(userId: userId)
     }
 
+    func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.usernameGenerationOptions(userId: userId)
+    }
+
     func logoutAccount(userId: String?) async throws {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
@@ -229,6 +265,11 @@ actor DefaultStateService: StateService {
             refreshToken: refreshToken
         )
         appSettingsStore.state = state
+    }
+
+    func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
     }
 
     // MARK: Private

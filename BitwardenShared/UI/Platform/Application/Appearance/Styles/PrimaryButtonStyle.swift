@@ -7,14 +7,21 @@ import SwiftUI
 struct PrimaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) var isEnabled: Bool
 
+    /// Whether the button is destructive.
+    var isDestructive = false
+
     /// If this button should fill to take up as much width as possible.
     var shouldFillWidth = true
 
     /// The background color of this button.
     var backgroundColor: Color {
-        isEnabled
-            ? Asset.Colors.primaryBitwarden.swiftUIColor
-            : Asset.Colors.fillTertiary.swiftUIColor
+        if isDestructive {
+            Asset.Colors.loadingRed.swiftUIColor
+        } else {
+            isEnabled
+                ? Asset.Colors.primaryBitwarden.swiftUIColor
+                : Asset.Colors.fillTertiary.swiftUIColor
+        }
     }
 
     /// The color of the foreground elements in this button, including text and template
@@ -42,10 +49,12 @@ struct PrimaryButtonStyle: ButtonStyle {
 extension ButtonStyle where Self == PrimaryButtonStyle {
     /// The style for all primary buttons in this application.
     ///
-    /// - Parameter shouldFillWidth: A flag indicating if this button should fill all available space.
+    /// - Parameters:
+    ///   - isDestructive: Whether the button is destructive.
+    ///   - shouldFillWidth: A flag indicating if this button should fill all available space.
     ///
-    static func primary(shouldFillWidth: Bool = true) -> PrimaryButtonStyle {
-        PrimaryButtonStyle(shouldFillWidth: shouldFillWidth)
+    static func primary(isDestructive: Bool = false, shouldFillWidth: Bool = true) -> PrimaryButtonStyle {
+        PrimaryButtonStyle(isDestructive: isDestructive, shouldFillWidth: shouldFillWidth)
     }
 }
 
@@ -61,5 +70,9 @@ struct PrimaryButtonStyle_Previews: PreviewProvider {
             .buttonStyle(.primary())
             .disabled(true)
             .previewDisplayName("Disabled")
+
+        Button("Hello World!") {}
+            .buttonStyle(.primary(isDestructive: true))
+            .previewDisplayName("Destructive")
     }
 }

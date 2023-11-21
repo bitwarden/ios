@@ -5,7 +5,8 @@
 final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddItemEffect> {
     // MARK: Types
 
-    typealias Services = HasVaultRepository
+    typealias Services = HasCameraAuthorizationService
+        & HasVaultRepository
 
     // MARK: Properties
 
@@ -42,6 +43,8 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
             await checkPassword()
         case .savePressed:
             await saveItem()
+        case .setupTotpPressed:
+            await setupTotp()
         }
     }
 
@@ -80,8 +83,6 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
             state.owner = newValue
         case let .passwordChanged(newValue):
             state.password = newValue
-        case .setupTotpPressed:
-            coordinator.navigate(to: .setupTotpCamera)
         case let .togglePasswordVisibilityChanged(newValue):
             state.isPasswordVisible = newValue
         case let .typeChanged(newValue):
@@ -178,6 +179,17 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
             coordinator.navigate(to: .dismiss)
         } catch {
             print(error)
+        }
+    }
+
+    /// Kicks off the TOTP setup flow.
+    ///
+    private func setupTotp() async {
+        let status = await services.cameraAuthorizationService.checkStatusOrRequestCameraAuthorization()
+        if status == .authorized {
+            coordinator.navigate(to: .setupTotpCamera)
+        } else {
+            coordinator.navigate(to: .setupTotpManual)
         }
     }
 }

@@ -95,7 +95,7 @@ struct SelfHostedView: View {
         } label: {
             Text(Localizations.save)
         }
-        .buttonStyle(PrimaryButtonStyle())
+        .buttonStyle(.primary())
         .padding(.top, 8)
     }
 
