@@ -4,11 +4,13 @@ import XCTest
 
 // MARK: - AddItemProcessorTests
 
+// swiftlint:disable file_length
+// swiftlint:disable:next type_body_length
 class AddItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraAuthorizationService: MockCameraAuthorizationService!
-    var coordinator: MockCoordinator<VaultRoute>!
+    var coordinator: MockCoordinator<VaultItemRoute>!
     var subject: AddItemProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -38,6 +40,34 @@ class AddItemProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `didCancelGenerator()` navigates to the `.dismiss` route.
+    func test_didCancelGenerator() {
+        subject.didCancelGenerator()
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `didCompleteGenerator` with a password value updates the state with the new password value
+    /// and navigates to the `.dismiss` route.
+    func test_didCompleteGenerator_withPassword() {
+        subject.state.username = "username123"
+        subject.state.password = "password123"
+        subject.didCompleteGenerator(for: .password, with: "password")
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(subject.state.password, "password")
+        XCTAssertEqual(subject.state.username, "username123")
+    }
+
+    /// `didCompleteGenerator` with a username value updates the state with the new username value
+    /// and navigates to the `.dismiss` route.
+    func test_didCompleteGenerator_withUsername() {
+        subject.state.username = "username123"
+        subject.state.password = "password123"
+        subject.didCompleteGenerator(for: .username, with: "email@example.com")
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(subject.state.username, "email@example.com")
+        XCTAssertEqual(subject.state.password, "password123")
+    }
 
     /// `perform(_:)` with `.checkPasswordPressed` checks the password.
     func test_perform_checkPasswordPressed() async {
@@ -153,16 +183,65 @@ class AddItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.generatePasswordPressed` navigates to the `.generator` route.
     func test_receive_generatePasswordPressed() {
+        subject.state.password = ""
         subject.receive(.generatePasswordPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .generator)
+        XCTAssertEqual(coordinator.routes.last, .generator(.password))
     }
 
-    /// `receive(_:)` with `.generateUsernamePressed` navigates to the `.generator` route.
-    func test_receive_generateUsernamePressed() {
+    /// `receive(_:)` with `.generateUsernamePressed` and with a password value in the state
+    /// navigates to the `.alert` route.
+    func test_receive_generatePasswordPressed_withUsernameValue() async throws {
+        subject.state.password = "password"
+        subject.receive(.generatePasswordPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.passwordOverrideAlert)
+        XCTAssertNil(alert.message)
+        XCTAssertEqual(alert.alertActions.count, 2)
+
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.no)
+        XCTAssertEqual(alert.alertActions[0].style, .default)
+        XCTAssertNil(alert.alertActions[0].handler)
+
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.yes)
+        XCTAssertEqual(alert.alertActions[1].style, .default)
+        XCTAssertNotNil(alert.alertActions[1].handler)
+        await alert.alertActions[1].handler?(alert.alertActions[1])
+
+        XCTAssertEqual(coordinator.routes.last, .generator(.password))
+    }
+
+    /// `receive(_:)` with `.generateUsernamePressed` and without a username value in the state
+    /// navigates to the `.generator` route.
+    func test_receive_generateUsernamePressed_withoutUsernameValue() {
+        subject.state.username = ""
         subject.receive(.generateUsernamePressed)
 
-        XCTAssertEqual(coordinator.routes.last, .generator)
+        XCTAssertEqual(coordinator.routes.last, .generator(.username))
+    }
+
+    /// `receive(_:)` with `.generateUsernamePressed` and with a username value in the state
+    /// navigates to the `.alert` route.
+    func test_receive_generateUsernamePressed_withUsernameValue() async throws {
+        subject.state.username = "username"
+        subject.receive(.generateUsernamePressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.areYouSureYouWantToOverwriteTheCurrentUsername)
+        XCTAssertNil(alert.message)
+        XCTAssertEqual(alert.alertActions.count, 2)
+
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.no)
+        XCTAssertEqual(alert.alertActions[0].style, .default)
+        XCTAssertNil(alert.alertActions[0].handler)
+
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.yes)
+        XCTAssertEqual(alert.alertActions[1].style, .default)
+        XCTAssertNotNil(alert.alertActions[1].handler)
+        await alert.alertActions[1].handler?(alert.alertActions[1])
+
+        XCTAssertEqual(coordinator.routes.last, .generator(.username))
     }
 
     /// `receive(_:)` with `.masterPasswordRePromptChanged` with `true` updates the state correctly.

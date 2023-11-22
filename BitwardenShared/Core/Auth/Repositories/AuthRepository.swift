@@ -110,6 +110,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     /// A function to convert an `Account` to a `ProfileSwitcherItem`
+    ///
     ///   - Parameter account: The account to convert
     ///   - Returns: The `ProfileSwitcherItem` representing the account
     ///

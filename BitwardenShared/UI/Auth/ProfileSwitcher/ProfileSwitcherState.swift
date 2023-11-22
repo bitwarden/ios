@@ -5,45 +5,46 @@ import SwiftUI
 /// An object that defines the current state of profile selection.
 ///
 struct ProfileSwitcherState: Equatable {
+    // MARK: Static Properties
+
     // MARK: Properties
 
-    /// All accounts/profiles
+    /// All accounts/profiles.
     var accounts: [ProfileSwitcherItem]
 
-    /// The user id of the active account
+    /// The user id of the active account.
     var activeAccountId: String?
 
-    /// The account profile currently in use
+    /// The account profile currently in use.
     var activeAccountProfile: ProfileSwitcherItem? {
         accounts.first(where: { $0.userId == activeAccountId })
     }
 
-    /// The user id of the active account
+    /// The user id of the active account.
     var activeAccountInitials: String {
         activeAccountProfile?.userInitials ?? ".."
     }
 
-    /// A list of alternate accounts/profiles
+    /// A list of alternate accounts/profiles.
     var alternateAccounts: [ProfileSwitcherItem] {
         accounts.filter { $0.userId != activeAccountId }
     }
 
-    /// A flag for tracking accessibility focus
+    /// A flag for tracking accessibility focus.
     var hasSetAccessibilityFocus: Bool = false
 
-    /// A flag for view visibility
+    /// A flag for view visibility.
     var isVisible: Bool
 
-    /// The observed offset of the scrollView
+    /// The observed offset of the scrollView.
     var scrollOffset: CGPoint
 
-    /// A flag to indicate if an add account row should be visible
+    /// A flag to indicate if an add account row should be visible.
     private let shouldAlwaysHideAddAccount: Bool
 
-    /// The visibility of the add account row
+    /// The visibility of the add account row.
     var showsAddAccount: Bool {
-        // TODO: BIT-1150 Enforce maximum account limit
-        !shouldAlwaysHideAddAccount
+        !shouldAlwaysHideAddAccount && accounts.count < Constants.maxAcccounts
     }
 
     // MARK: Initialization

@@ -25,6 +25,7 @@ extension DefaultAppModule: VaultModule {
     ) -> AnyCoordinator<VaultRoute> {
         VaultCoordinator(
             delegate: delegate,
+            module: self,
             services: services,
             stackNavigator: stackNavigator
         ).asAnyCoordinator()

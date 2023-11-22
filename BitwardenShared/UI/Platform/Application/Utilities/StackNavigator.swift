@@ -8,7 +8,7 @@ import SwiftUI
 public protocol StackNavigator: Navigator {
     /// Dismisses the view that was presented modally by the navigator.
     ///
-    /// - Parameter animated: Whether the transition should be animated.
+    /// - Parameters animated: Whether the transition should be animated.
     ///
     func dismiss(animated: Bool)
 
@@ -72,7 +72,8 @@ public protocol StackNavigator: Navigator {
 }
 
 extension StackNavigator {
-    /// Dismisses the view that was presented modally by the navigator. Animation is controlled by `UI.animated`.
+    /// Dismisses the view that was presented modally by the navigator. Animation is controlled by
+    /// `UI.animated`.
     ///
     func dismiss() {
         dismiss(animated: UI.animated)

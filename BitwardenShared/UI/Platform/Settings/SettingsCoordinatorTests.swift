@@ -41,7 +41,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
-        XCTAssertTrue(action.viewController is UIHostingController<AccountSecurityView>)
+        XCTAssertTrue(action.view is UIHostingController<AccountSecurityView>)
     }
 
     /// `navigate(to:)` with `.alert` has the stack navigator present the alert.
@@ -61,7 +61,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
-        XCTAssertTrue(action.viewController is UIHostingController<AutoFillView>)
+        XCTAssertTrue(action.view is UIHostingController<AutoFillView>)
     }
 
     /// `navigate(to:)` with `.deleteAccount` presents the delete account view.
