@@ -66,6 +66,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loadingState, .data(.login(ViewLoginItemState(
             customFields: [],
             folder: nil,
+            isMasterPasswordRequired: false,
             isPasswordVisible: false,
             name: "Name",
             notes: "Notes",
@@ -116,6 +117,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
             loadingState: .data(.login(
                 ViewLoginItemState(
                     customFields: [customField1, customField2, customField3],
+                    isMasterPasswordRequired: false,
                     name: "name",
                     updatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
                 )
@@ -158,6 +160,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
     /// for `isPasswordVisible`.
     func test_receive_passwordVisibilityPressed_withLoginState() {
         var loginState = ViewLoginItemState(
+            isMasterPasswordRequired: false,
             isPasswordVisible: false,
             name: "name",
             updatedDate: Date()
@@ -165,6 +168,43 @@ class ViewItemProcessorTests: BitwardenTestCase {
         subject.state.loadingState = .data(.login(loginState))
         subject.receive(.passwordVisibilityPressed)
 
+        loginState.isPasswordVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(.login(loginState)))
+    }
+
+    /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
+    /// for `isPasswordVisible`.
+    func test_receive_passwordVisibilityPressed_withLoginState_withMasterPasswordReprompt() throws {
+        let loginState = ViewLoginItemState(
+            isMasterPasswordRequired: true,
+            isPasswordVisible: false,
+            name: "name",
+            updatedDate: Date()
+        )
+        subject.state.loadingState = .data(.login(loginState))
+        subject.receive(.passwordVisibilityPressed)
+
+        XCTAssertEqual(try coordinator.unwrapLastRouteAsAlert(), .masterPasswordPrompt(completion: { _ in }))
+    }
+
+    /// Tapping the "Submit" button in the master password reprompt alert validates the entered
+    /// password and completes the action.
+    func test_masterPasswordReprompt_submitButtonPressed() async throws {
+        var loginState = ViewLoginItemState(
+            isMasterPasswordRequired: true,
+            isPasswordVisible: false,
+            name: "name",
+            updatedDate: Date()
+        )
+        subject.state.loadingState = .data(.login(loginState))
+        subject.receive(.passwordVisibilityPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let textField = try XCTUnwrap(alert.alertTextFields.first)
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, alert.alertTextFields)
+
+        loginState.isMasterPasswordRequired = false
         loginState.isPasswordVisible = true
         XCTAssertEqual(subject.state.loadingState, .data(.login(loginState)))
     }

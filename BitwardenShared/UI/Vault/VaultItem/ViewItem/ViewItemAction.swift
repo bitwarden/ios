@@ -24,4 +24,21 @@ enum ViewItemAction: Equatable {
 
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
+
+    /// A flag indicating if this action requires the user to reenter their master password to
+    /// complete. This value works hand-in-hand with the `isMasterPasswordRequired` value in
+    /// `ViewItemState`.
+    var requiresMasterPasswordReprompt: Bool {
+        switch self {
+        case .copyPressed,
+             .customFieldVisibilityPressed,
+             .editPressed,
+             .passwordVisibilityPressed:
+            true
+        case .checkPasswordPressed,
+             .dismissPressed,
+             .morePressed:
+            false
+        }
+    }
 }

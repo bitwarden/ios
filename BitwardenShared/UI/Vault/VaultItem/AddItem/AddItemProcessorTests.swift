@@ -207,7 +207,7 @@ class AddItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[1].title, Localizations.yes)
         XCTAssertEqual(alert.alertActions[1].style, .default)
         XCTAssertNotNil(alert.alertActions[1].handler)
-        await alert.alertActions[1].handler?(alert.alertActions[1])
+        await alert.alertActions[1].handler?(alert.alertActions[1], [])
 
         XCTAssertEqual(coordinator.routes.last, .generator(.password))
     }
@@ -239,7 +239,7 @@ class AddItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[1].title, Localizations.yes)
         XCTAssertEqual(alert.alertActions[1].style, .default)
         XCTAssertNotNil(alert.alertActions[1].handler)
-        await alert.alertActions[1].handler?(alert.alertActions[1])
+        await alert.alertActions[1].handler?(alert.alertActions[1], [])
 
         XCTAssertEqual(coordinator.routes.last, .generator(.username))
     }

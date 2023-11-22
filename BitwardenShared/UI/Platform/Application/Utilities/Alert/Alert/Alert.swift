@@ -133,6 +133,7 @@ public class Alert {
 }
 
 // swiftlint:disable line_length
+
 extension Alert: CustomDebugStringConvertible {
     public var debugDescription: String {
         """
@@ -140,6 +141,7 @@ extension Alert: CustomDebugStringConvertible {
         """
     }
 }
+
 // swiftlint:enable line_length
 
 extension Alert: Equatable {

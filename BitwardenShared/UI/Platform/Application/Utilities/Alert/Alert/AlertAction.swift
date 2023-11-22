@@ -54,10 +54,6 @@ public class AlertAction {
             await handler(action)
         }
     }
-
-    deinit {
-        print("deinit action: \(title)")
-    }
 }
 
 extension AlertAction: Equatable {

@@ -64,15 +64,24 @@ public class AlertTextField {
 
 extension AlertTextField: Equatable {
     public static func == (lhs: AlertTextField, rhs: AlertTextField) -> Bool {
-        lhs.id == rhs.id
+        lhs.autocapitalizationType == rhs.autocapitalizationType
+            && lhs.autocorrectionType == rhs.autocorrectionType
+            && lhs.id == rhs.id
+            && lhs.isSecureTextEntry == rhs.isSecureTextEntry
+            && lhs.keyboardType == rhs.keyboardType
             && lhs.placeholder == rhs.placeholder
-        // TODO: Add the extra types
+            && lhs.text == rhs.text
     }
 }
 
 extension AlertTextField: Hashable {
     public func hash(into hasher: inout Hasher) {
+        hasher.combine(autocapitalizationType)
+        hasher.combine(autocorrectionType)
         hasher.combine(id)
+        hasher.combine(isSecureTextEntry)
+        hasher.combine(keyboardType)
         hasher.combine(placeholder)
+        hasher.combine(text)
     }
 }
