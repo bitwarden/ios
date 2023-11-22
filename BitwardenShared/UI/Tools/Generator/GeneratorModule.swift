@@ -6,19 +6,24 @@
 protocol GeneratorModule {
     /// Initializes a coordinator for navigating between `GeneratorRoute`s.
     ///
-    /// - Parameter stackNavigator: The stack navigator that will be used to navigate between routes.
+    /// - Parameters:
+    ///   - delegate: An optional delegate for the coordinator.
+    ///   - stackNavigator: The stack navigator that will be used to navigate between routes.
     /// - Returns: A coordinator that can navigate to `GeneratorRoute`s.
     ///
     func makeGeneratorCoordinator(
+        delegate: GeneratorCoordinatorDelegate?,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<GeneratorRoute>
 }
 
 extension DefaultAppModule: GeneratorModule {
     func makeGeneratorCoordinator(
+        delegate: GeneratorCoordinatorDelegate?,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<GeneratorRoute> {
         GeneratorCoordinator(
+            delegate: delegate,
             services: services,
             stackNavigator: stackNavigator
         ).asAnyCoordinator()

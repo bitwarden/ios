@@ -1,26 +1,63 @@
+// MARK: - GeneratorType
+
+/// The type of value to generate.
+///
+public enum GeneratorType: CaseIterable, Equatable, Menuable {
+    /// Generate a password or passphrase.
+    case password
+
+    /// Generate a username.
+    case username
+
+    /// All of the cases to show in the menu.
+    public static let allCases: [Self] = [.password, .username]
+
+    var localizedName: String {
+        switch self {
+        case .password:
+            return Localizations.password
+        case .username:
+            return Localizations.username
+        }
+    }
+}
+
+// MARK: - GeneratorState
+
 /// An object that defines the current state of a `GeneratorView`.
 ///
 struct GeneratorState: Equatable {
     // MARK: Types
 
-    /// The type of value to generate.
-    ///
-    enum GeneratorType: CaseIterable, Equatable, Menuable {
-        /// Generate a password or passphrase.
-        case password
+    /// The presentation mode for the generator. Used to determine if specific UI elements are shown.
+    enum PresentationMode: Equatable {
+        /// The generator is being presented in its own tab for a generic generation task.
+        case tab
 
-        /// Generate a username.
-        case username
+        /// The generator is being presented in place for a specific generation task.
+        case inPlace
 
-        /// All of the cases to show in the menu.
-        static let allCases: [Self] = [.password, .username]
-
-        var localizedName: String {
+        /// A flag indicating if the dismiss button is visible.
+        var isDismissButtonVisible: Bool {
             switch self {
-            case .password:
-                return Localizations.password
-            case .username:
-                return Localizations.username
+            case .tab: false
+            case .inPlace: true
+            }
+        }
+
+        /// A flag indicating if the select button is visible.
+        var isSelectButtonVisible: Bool {
+            switch self {
+            case .tab: false
+            case .inPlace: true
+            }
+        }
+
+        /// A flag indicating if the generator type field is visible.
+        var isTypeFieldVisible: Bool {
+            switch self {
+            case .tab: true
+            case .inPlace: false
             }
         }
     }
@@ -35,6 +72,10 @@ struct GeneratorState: Equatable {
 
     /// The options used to generate a password.
     var passwordState = PasswordState()
+
+    /// The mode the generator is currently in. This value determines if the UI should show specific
+    /// elements.
+    var presentationMode: PresentationMode = .tab
 
     /// A toast message to show in the view.
     var toast: Toast?
@@ -201,17 +242,26 @@ struct GeneratorState: Equatable {
             }
         }
 
+        let generatorFields: [FormField<Self>]
+        if presentationMode.isTypeFieldVisible {
+            generatorFields = [
+                generatedValueField(keyPath: \.generatedValue),
+                FormField(fieldType: .menuGeneratorType(FormMenuField(
+                    keyPath: \.generatorType,
+                    options: GeneratorType.allCases,
+                    selection: generatorType,
+                    title: Localizations.whatWouldYouLikeToGenerate
+                ))),
+            ]
+        } else {
+            generatorFields = [
+                generatedValueField(keyPath: \.generatedValue),
+            ]
+        }
+
         return [
             FormSection(
-                fields: [
-                    generatedValueField(keyPath: \.generatedValue),
-                    FormField(fieldType: .menuGeneratorType(FormMenuField(
-                        keyPath: \.generatorType,
-                        options: GeneratorType.allCases,
-                        selection: generatorType,
-                        title: Localizations.whatWouldYouLikeToGenerate
-                    ))),
-                ],
+                fields: generatorFields,
                 id: "Generator",
                 title: nil
             ),

@@ -30,6 +30,14 @@ class GeneratorViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping on the dismiss button dispatches the `.dismissPressed` action.
+    func test_dismissButton_tap() throws {
+        processor.state.presentationMode = .inPlace
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.cancel)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
+    }
+
     /// Tapping on the copy button dispatches the `.copyGeneratedValue` action.
     func test_generatedValue_copyTap() throws {
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyPassword)
@@ -48,7 +56,7 @@ class GeneratorViewTests: BitwardenTestCase {
     func test_menuGeneratorTypeChanged() throws {
         processor.state.generatorType = .password
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whatWouldYouLikeToGenerate)
-        try menuField.select(newValue: GeneratorState.GeneratorType.username)
+        try menuField.select(newValue: GeneratorType.username)
         XCTAssertEqual(processor.dispatchedActions.last, .generatorTypeChanged(.username))
     }
 
@@ -76,6 +84,14 @@ class GeneratorViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.passwordHistory)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .showPasswordHistory)
+    }
+
+    /// Tapping the select button dispatches the `.selectButtonPressed` action.
+    func test_selectButton_tap() throws {
+        processor.state.presentationMode = .inPlace
+        let button = try subject.inspect().find(button: Localizations.select)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .selectButtonPressed)
     }
 
     /// Updating the slider value dispatches the `.sliderValueChanged` action.
@@ -172,6 +188,13 @@ class GeneratorViewTests: BitwardenTestCase {
         )
     }
 
+    /// Test a snapshot of the password generation view with the select button.
+    func test_snapshot_generatorViewPassword_inPlace() {
+        processor.state.passwordState.passwordGeneratorType = .password
+        processor.state.presentationMode = .inPlace
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
     /// Test a snapshot of the catch-all username generation view.
     func test_snapshot_generatorViewUsernameCatchAll() {
         processor.state.generatorType = .username
@@ -200,6 +223,14 @@ class GeneratorViewTests: BitwardenTestCase {
             matching: subject,
             as: .defaultPortrait
         )
+    }
+
+    /// Test a snapshot of the plus addressed username generation view with the select button.
+    func test_snapshot_generatorViewUsernamePlusAddressed_inPlace() {
+        processor.state.generatorType = .username
+        processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
+        processor.state.presentationMode = .inPlace
+        assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the random word username generation view.

@@ -63,6 +63,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .copyGeneratedValue:
             services.pasteboardService.copy(state.generatedValue)
             state.showCopiedValueToast()
+        case .dismissPressed:
+            coordinator.navigate(to: .cancel)
         case let .generatorTypeChanged(generatorType):
             state.generatorType = generatorType
         case let .passwordGeneratorTypeChanged(passwordGeneratorType):
@@ -70,6 +72,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .refreshGeneratedValue:
             // Generating a new value happens below.
             break
+        case .selectButtonPressed:
+            coordinator.navigate(
+                to: .complete(
+                    type: state.generatorType,
+                    value: state.generatedValue
+                )
+            )
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)
         case let .sliderValueChanged(field, value):

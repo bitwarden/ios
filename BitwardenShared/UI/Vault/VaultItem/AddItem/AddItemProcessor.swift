@@ -11,7 +11,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultRoute>
+    private var coordinator: AnyCoordinator<VaultItemRoute>
 
     /// The services required by this processor.
     private let services: Services
@@ -26,7 +26,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     ///   - state: The initial state for the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultRoute>,
+        coordinator: AnyCoordinator<VaultItemRoute>,
         services: Services,
         state: AddItemState
     ) {
@@ -57,9 +57,17 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         case let .folderChanged(newValue):
             state.folder = newValue
         case .generatePasswordPressed:
-            coordinator.navigate(to: .generator)
+            if state.password.isEmpty {
+                coordinator.navigate(to: .generator(.password), context: self)
+            } else {
+                presentReplacementAlert(for: .password)
+            }
         case .generateUsernamePressed:
-            coordinator.navigate(to: .generator)
+            if state.username.isEmpty {
+                coordinator.navigate(to: .generator(.username), context: self)
+            } else {
+                presentReplacementAlert(for: .username)
+            }
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
         case let .nameChanged(newValue):
@@ -122,6 +130,36 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         // TODO: BIT-368 Navigate to an `.alert` route with the custom field alert
     }
 
+    /// Builds and navigates ot an alert for overwriting an existing value for the specified type.
+    ///
+    /// - Parameter type: The `GeneratorType` that is being overwritten.
+    ///
+    private func presentReplacementAlert(for type: GeneratorType) {
+        let title: String
+        switch type {
+        case .password:
+            title = Localizations.passwordOverrideAlert
+        case .username:
+            title = Localizations.areYouSureYouWantToOverwriteTheCurrentUsername
+        }
+
+        let alert = Alert(
+            title: title,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .default),
+                AlertAction(
+                    title: Localizations.yes,
+                    style: .default,
+                    handler: { [weak self] _ in
+                        self?.coordinator.navigate(to: .generator(type), context: self)
+                    }
+                ),
+            ]
+        )
+        coordinator.navigate(to: .alert(alert))
+    }
+
     /// Builds an alert for changing the settings for a uri item and then routes
     /// the coordinator to the `.alert` route.
     ///
@@ -153,5 +191,21 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         } else {
             coordinator.navigate(to: .setupTotpManual)
         }
+    }
+}
+
+extension AddItemProcessor: GeneratorCoordinatorDelegate {
+    func didCancelGenerator() {
+        coordinator.navigate(to: .dismiss)
+    }
+
+    func didCompleteGenerator(for type: GeneratorType, with value: String) {
+        switch type {
+        case .password:
+            state.password = value
+        case .username:
+            state.username = value
+        }
+        coordinator.navigate(to: .dismiss)
     }
 }

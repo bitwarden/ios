@@ -20,6 +20,13 @@ struct GeneratorView: View {
                 ForEach(store.state.formSections) { section in
                     sectionView(section)
                 }
+
+                if store.state.presentationMode.isSelectButtonVisible {
+                    Button(Localizations.select) {
+                        store.send(.selectButtonPressed)
+                    }
+                    .buttonStyle(.primary())
+                }
             }
             .padding(16)
         }
@@ -47,6 +54,18 @@ struct GeneratorView: View {
                         .resizable()
                         .frame(width: 19, height: 19)
                         .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if store.state.presentationMode.isDismissButtonVisible {
+                    Button {
+                        store.send(.dismissPressed)
+                    } label: {
+                        Asset.Images.cancel.swiftUIImage
+                            .resizable()
+                            .frame(width: 19, height: 19)
+                    }
+                    .accessibilityLabel(Localizations.cancel)
                 }
             }
         }

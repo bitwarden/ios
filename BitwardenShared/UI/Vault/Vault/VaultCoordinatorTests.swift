@@ -9,6 +9,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var delegate: MockVaultCoordinatorDelegate!
+    var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultCoordinator!
 
@@ -18,9 +19,11 @@ class VaultCoordinatorTests: BitwardenTestCase {
         super.setUp()
 
         delegate = MockVaultCoordinatorDelegate()
+        module = MockAppModule()
         stackNavigator = MockStackNavigator()
         subject = VaultCoordinator(
             delegate: delegate,
+            module: module,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
@@ -43,15 +46,16 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(delegate.addAccountTapped)
     }
 
-    /// `navigate(to:)` with `.addItem` pushes the add item view onto the stack navigator.
+    /// `navigate(to:)` with `.addItem` presents the add item view onto the stack navigator.
     func test_navigateTo_addItem() throws {
+        let coordinator = MockCoordinator<VaultItemRoute>()
+        module.vaultItemCoordinator = coordinator
         subject.navigate(to: .addItem())
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<AddItemView>)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem())
     }
 
     /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
@@ -72,13 +76,23 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.alerts.last, alert)
     }
 
-    /// `navigate(to:)` with `.generator` presents the generator screen.
-    func test_navigateTo_generator() throws {
-        subject.navigate(to: .generator)
+    /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
+    /// navigator.
+    func test_navigate_dismiss() throws {
+        subject.navigate(to: .dismiss)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissed)
+    }
+
+    /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
+    func test_navigateTo_group() throws {
+        subject.navigate(to: .group(.identity))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
+        XCTAssertEqual(action.type, .pushed)
+
+        let view = try XCTUnwrap((action.view as? UIHostingController<VaultGroupView>)?.rootView)
+        XCTAssertEqual(view.store.state.group, .identity)
     }
 
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.
@@ -100,33 +114,14 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
-    /// `navigate(to:)` with `.setupTotpCamera` presents the camera totp setup screen.
-    func test_navigateTo_setupTotpCamera() throws {
-        subject.navigate(to: .setupTotpCamera)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
-    }
-
-    /// `navigate(to:)` with `.setupTotpManual` presents the manual totp setup screen.
-    func test_navigateTo_setupTotpManual() throws {
-        subject.navigate(to: .setupTotpManual)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
-    }
-
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
     func test_navigateTo_viewItem() throws {
         subject.navigate(to: .viewItem(id: "id"))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ViewItemView>)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .viewItem(id: "id"))
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.

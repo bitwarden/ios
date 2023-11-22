@@ -18,20 +18,29 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
+    typealias Module = GeneratorModule
+        & VaultItemModule
+
     typealias Services = HasAuthRepository
         & HasCameraAuthorizationService
         & HasErrorReporter
         & HasVaultRepository
+        & VaultItemCoordinator.Services
 
-    // MARK: Properties
+    // MARK: Private Properties
 
     /// The delegate for this coordinator, used to notify when the user logs out.
     private weak var delegate: VaultCoordinatorDelegate?
 
     // MARK: - Private Properties
 
+    /// The module used by this coordinator to create child coordinators.
+    private let module: Module
+
     /// The services used by this coordinator.
     private let services: Services
+
+    // MARK: Properties
 
     /// The stack navigator that is managed by this coordinator.
     var stackNavigator: StackNavigator
@@ -42,14 +51,17 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameters:
     ///   - delegate: The delegate for this coordinator, relays user interactions with the profile switcher.
+    ///   - module: The module used by this coordinator to create child coordinators.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
         delegate: VaultCoordinatorDelegate,
+        module: Module,
         services: Services,
         stackNavigator: StackNavigator
     ) {
+        self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
         self.delegate = delegate
@@ -62,73 +74,23 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         case .addAccount:
             delegate?.didTapAddAccount()
         case let .addItem(group):
-            showAddItem(for: group.flatMap(CipherType.init))
+            showVaultItem(route: .addItem(group: group))
         case let .alert(alert):
             stackNavigator.present(alert)
         case .dismiss:
             stackNavigator.dismiss()
-        case .generator:
-            showGenerator()
         case let .group(group):
             showGroup(group)
         case .list:
             showList()
-        case .setupTotpCamera:
-            showCamera()
-        case .setupTotpManual:
-            showManualTotp()
         case let .viewItem(id):
-            showViewItem(id: id)
+            showVaultItem(route: .viewItem(id: id))
         }
     }
 
     func start() {}
 
     // MARK: Private Methods
-
-    /// Shows the add item screen.
-    ///
-    /// - Parameter type: An optional `CipherType` to initialize this view with.
-    ///
-    private func showAddItem(for type: CipherType?) {
-        let state = AddItemState(
-            type: type ?? .login
-        )
-        let processor = AddItemProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: state
-        )
-        let store = Store(processor: processor)
-        let view = AddItemView(store: store)
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator.present(navigationController)
-    }
-
-    /// Shows the totp camera setup screen.
-    ///
-    private func showCamera() {
-        // TODO: BIT-874 Update to show the actual camera screen
-        let view = Text("Camera")
-        stackNavigator.present(view)
-    }
-
-    /// Shows the totp manual setup screen.
-    ///
-    private func showManualTotp() {
-        // TODO: BIT-873 Update to show the actual manual totp entry screen
-        let view = Text("Manual TOTP")
-        stackNavigator.present(view)
-    }
-
-    /// Shows the generator screen.
-    ///
-    private func showGenerator() {
-        // TODO: BIT-875 Update to show the actual generator screen
-        let view = Text("Generator")
-        stackNavigator.present(view)
-    }
 
     /// Shows the vault group screen.
     ///
@@ -180,21 +142,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         }
     }
 
-    /// Shows the view item screen.
+    /// Presents a vault item coordinator, which will navigate to the provided route.
     ///
-    /// - Parameter id: The id of the item to show.
+    /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showViewItem(id: String) {
-        let processor = ViewItemProcessor(
-            coordinator: self,
-            itemId: id,
-            services: services,
-            state: ViewItemState()
-        )
-        let store = Store(processor: processor)
-        let view = ViewItemView(store: store)
-        let stackNavigator = UINavigationController()
-        stackNavigator.replace(view)
-        self.stackNavigator.present(stackNavigator)
+    private func showVaultItem(route: VaultItemRoute) {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: route)
+
+        stackNavigator.present(navigationController)
     }
 }

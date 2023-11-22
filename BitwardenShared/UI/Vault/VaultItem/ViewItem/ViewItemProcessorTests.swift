@@ -8,7 +8,7 @@ import XCTest
 class ViewItemProcessorTests: BitwardenTestCase {
     // MARK: Propteries
 
-    var coordinator: MockCoordinator<VaultRoute>!
+    var coordinator: MockCoordinator<VaultItemRoute>!
     var subject: ViewItemProcessor!
     var vaultRepository: MockVaultRepository!
 

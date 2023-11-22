@@ -112,7 +112,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
         let viewController = try XCTUnwrap(
-            stackNavigator.actions.last?.viewController as? UIHostingController<LoginView>
+            stackNavigator.actions.last?.view as? UIHostingController<LoginView>
         )
         XCTAssertTrue(viewController.navigationItem.hidesBackButton)
 
