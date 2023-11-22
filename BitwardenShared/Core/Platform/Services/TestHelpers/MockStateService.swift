@@ -34,6 +34,24 @@ class MockStateService: StateService {
         return activeAccount
     }
 
+    func getAccountIdOrActiveId(userId: String?) async throws -> String {
+        guard let knownAccounts = accounts else {
+            throw StateServiceError.noAccounts
+        }
+        if let userId {
+            guard knownAccounts.contains(where: { $0.profile.userId == userId }) else {
+                throw StateServiceError.noAccounts
+            }
+            return userId
+        } else {
+            return try await getActiveAccountId()
+        }
+    }
+
+    func getActiveAccountId() async throws -> String {
+        try getActiveAccount().profile.userId
+    }
+
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return passwordGenerationOptions[userId]

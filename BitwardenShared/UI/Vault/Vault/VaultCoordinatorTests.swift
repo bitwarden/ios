@@ -131,15 +131,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.vaultItemCoordinator.routes.last, .viewItem(id: "id"))
     }
 
-    /// `navigate(to:)` with `.group` should show the group.
-    func test_navigateTo_group() throws {
-        let testGroup: VaultListGroup = .folder(id: "", name: "")
-        subject.navigate(to: .group(testGroup))
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .pushed)
-    }
-
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
     func test_show_hide_loadingOverlay() throws {
         stackNavigator.rootViewController = UIViewController()

@@ -20,11 +20,23 @@ protocol StateService: AnyObject {
     ///
     func getAccounts() async throws -> [Account]
 
+    /// Gets the account id or the active account id for a possible id.
+    /// - Parameter userId: The possible user Id of an account
+    /// - Returns: The user account id or the active id
+    ///
+    func getAccountIdOrActiveId(userId: String?) async throws -> String
+
     /// Gets the active account.
     ///
     /// - Returns: The active user account.
     ///
     func getActiveAccount() async throws -> Account
+
+    /// Gets the active account id.
+    ///
+    /// - Returns: The active user account id.
+    ///
+    func getActiveAccountId() async throws -> String
 
     /// Gets the password generation options for a user ID.
     ///
@@ -206,6 +218,24 @@ actor DefaultStateService: StateService {
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: encryptedUserKey
         )
+    }
+
+    func getAccountIdOrActiveId(userId: String?) throws -> String {
+        guard let accounts = appSettingsStore.state?.accounts else {
+            throw StateServiceError.noAccounts
+        }
+        if let userId {
+            guard accounts.contains(where: { $0.value.profile.userId == userId }) else {
+                throw StateServiceError.noAccounts
+            }
+            return userId
+        } else {
+            return try getActiveAccountId()
+        }
+    }
+
+    func getActiveAccountId() throws -> String {
+        try getActiveAccount().profile.userId
     }
 
     func getAccounts() throws -> [Account] {

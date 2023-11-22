@@ -78,10 +78,10 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func isLocked(userId: String) throws -> Bool {
-        guard let pair = timeoutStore.first(where: { $0.key == userId }) else {
+        guard let (_, isLocked) = timeoutStore.first(where: { $0.key == userId }) else {
             throw VaultTimeoutServiceError.noAccountFound
         }
-        return pair.value
+        return isLocked
     }
 
     func isLockedPublisher() -> AsyncPublisher<AnyPublisher<[String: Bool], Never>> {
@@ -91,29 +91,17 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func lockVault(userId: String?) async {
-        if let userId {
-            timeoutStore[userId] = true
-        } else {
-            guard let activeId = try? await service.getActiveAccount().profile.userId else { return }
-            timeoutStore[activeId] = true
-        }
+        guard let id = try? await service.getAccountIdOrActiveId(userId: userId) else { return }
+        timeoutStore[id] = true
     }
 
     func unlockVault(userId: String?) async {
-        if let userId {
-            timeoutStore[userId] = false
-        } else {
-            guard let activeId = try? await service.getActiveAccount().profile.userId else { return }
-            timeoutStore[activeId] = false
-        }
+        guard let id = try? await service.getAccountIdOrActiveId(userId: userId) else { return }
+        timeoutStore[id] = false
     }
 
     func remove(userId: String?) async {
-        if let userId {
-            timeoutStore = timeoutStore.filter { $0.key != userId }
-        } else {
-            guard let activeId = try? await service.getActiveAccount().profile.userId else { return }
-            timeoutStore = timeoutStore.filter { $0.key != activeId }
-        }
+        guard let id = try? await service.getAccountIdOrActiveId(userId: userId) else { return }
+        timeoutStore = timeoutStore.filter { $0.key != id }
     }
 }

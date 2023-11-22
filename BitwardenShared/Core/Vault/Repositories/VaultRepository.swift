@@ -226,8 +226,7 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func getActiveAccountId() async throws -> String {
-        let active = try await stateService.getActiveAccount()
-        return active.profile.userId
+        try await stateService.getActiveAccountId()
     }
 
     func remove(userId: String?) async {
