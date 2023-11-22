@@ -16,11 +16,16 @@ struct LoginItemState: Equatable {
     /// The date the password was last updated.
     var passwordUpdatedDate: Date?
 
-    /// The uri associated with this item. Used with autofill.
-    var uris: [CipherLoginUriModel] = [
-        .init(match: nil, uri: ""),
-    ] // TODO: BIT-901 Update match CipherLoginUriModel.
+    /// The uris associated with this item. Used with autofill.
+    var uris: [UriState] = [UriState()]
 
     /// The username for this item.
     var username: String = ""
+}
+
+extension LoginItemState {
+    /// The website host that's passed to the generator to generate a website username.
+    var generatorEmailWebsite: String? {
+        uris.first.flatMap { URL(string: $0.uri)?.sanitized.host }
+    }
 }

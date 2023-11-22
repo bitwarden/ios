@@ -181,7 +181,7 @@ extension CipherItemState {
                 username: loginState.username.nilIfEmpty,
                 password: loginState.password.nilIfEmpty,
                 passwordRevisionDate: nil,
-                uris: nil,
+                uris: loginState.uris.compactMap(\.loginUriView).nilIfEmpty,
                 totp: nil,
                 autofillOnPageLoad: nil
             ),

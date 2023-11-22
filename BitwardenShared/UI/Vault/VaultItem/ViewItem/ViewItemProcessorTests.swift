@@ -212,7 +212,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
             revisionDate: Date(),
             type: .card
         )
-        var cipherState = CipherItemState(existing: cipherView)!
+        let cipherState = CipherItemState(existing: cipherView)!
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
         XCTAssertEqual(
