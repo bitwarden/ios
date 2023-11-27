@@ -18,6 +18,29 @@ struct VaultUnlockView: View {
     }
 
     var body: some View {
+        ZStack {
+            scrollView
+            profileSwitcher
+        }
+        .navigationTitle(Localizations.verifyMasterPassword)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options) {
+                    store.send(.morePressed)
+                }
+            }
+            ToolbarItem(placement: .navigationBarLeading) {
+                profileSwitcherToolbarItem
+            }
+        }
+        .task {
+            await store.perform(.appeared)
+        }
+    }
+
+    /// the scrollable content of the view.
+    @ViewBuilder var scrollView: some View {
         ScrollView {
             VStack(spacing: 24) {
                 BitwardenTextField(
@@ -45,15 +68,46 @@ struct VaultUnlockView: View {
             .padding(16)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle(Localizations.verifyMasterPassword)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options) {
-                    store.send(.morePressed)
+    }
+
+    /// The Toolbar item for the profile switcher view.
+    @ViewBuilder var profileSwitcherToolbarItem: some View {
+        Button {
+            store.send(.requestedProfileSwitcher(visible: !store.state.profileSwitcherState.isVisible))
+        } label: {
+            if !store.state.profileSwitcherState.accounts.isEmpty {
+                HStack {
+                    Text(store.state.profileSwitcherState.activeAccountInitials)
+                        .font(.styleGuide(.caption2Monospaced))
+                        .foregroundColor(.white)
+                        .padding(4)
+                        .background(Color.purple)
+                        .clipShape(Circle())
+                    Spacer()
                 }
+                .frame(minWidth: 50)
+                .fixedSize()
+            } else {
+                EmptyView()
             }
         }
+    }
+
+    /// A view that displays the ability to add or switch between account profiles
+    @ViewBuilder private var profileSwitcher: some View {
+        ProfileSwitcherView(
+            store: store.child(
+                state: { mainState in
+                    mainState.profileSwitcherState
+                },
+                mapAction: { action in
+                    .profileSwitcherAction(action)
+                },
+                mapEffect: { profileEffect in
+                    .profileSwitcher(profileEffect)
+                }
+            )
+        )
     }
 }
 
@@ -67,11 +121,66 @@ struct UnlockVaultView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultUnlockState(
                             email: "user@bitwarden.com",
+                            profileSwitcherState: .init(
+                                accounts: [],
+                                activeAccountId: nil,
+                                isVisible: false
+                            ),
                             webVaultHost: "vault.bitwarden.com"
                         )
                     )
                 )
             )
         }
+
+        NavigationView {
+            VaultUnlockView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultUnlockState(
+                            email: "user@bitwarden.com",
+                            profileSwitcherState: ProfileSwitcherState(
+                                accounts: [
+                                    ProfileSwitcherItem(
+                                        email: "max.protecc@bitwarden.com",
+                                        userId: "123",
+                                        userInitials: "MP"
+                                    ),
+                                ],
+                                activeAccountId: "123",
+                                isVisible: false
+                            ),
+                            webVaultHost: "vault.bitwarden.com"
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Profiles Closed")
+
+        NavigationView {
+            VaultUnlockView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultUnlockState(
+                            email: "user@bitwarden.com",
+                            profileSwitcherState: ProfileSwitcherState(
+                                accounts: [
+                                    ProfileSwitcherItem(
+                                        email: "max.protecc@bitwarden.com",
+                                        userId: "123",
+                                        userInitials: "MP"
+                                    ),
+                                ],
+                                activeAccountId: "123",
+                                isVisible: true
+                            ),
+                            webVaultHost: "vault.bitwarden.com"
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Profiles Open")
     }
 }

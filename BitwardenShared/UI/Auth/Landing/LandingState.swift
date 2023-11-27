@@ -29,7 +29,7 @@ struct LandingState: Equatable {
     /// - Parameters:
     ///   - email: The email address provided by the user.
     ///   - isRememberMeOn: A flag indicating if the "Remember Me" toggle is on.
-    ///   - profileSwitcherState: State for the profile switcher
+    ///   - profileSwitcherState: State for the profile switcher.
     ///   - region: The region selected by the user.
     ///
     init(

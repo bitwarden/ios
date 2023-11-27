@@ -15,7 +15,15 @@ class VaultUnlockViewTests: BitwardenTestCase {
         super.setUp()
 
         processor = MockProcessor(
-            state: VaultUnlockState(email: "user@bitwarden.com", webVaultHost: "bitwarden.com")
+            state: VaultUnlockState(
+                email: "user@bitwarden.com",
+                profileSwitcherState: .init(
+                    accounts: [],
+                    activeAccountId: nil,
+                    isVisible: false
+                ),
+                webVaultHost: "bitwarden.com"
+            )
         )
         let store = Store(processor: processor)
 
@@ -95,6 +103,44 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func test_snapshot_vaultUnlock_passwordRevealed() {
         processor.state.masterPassword = "Password"
         processor.state.isMasterPasswordRevealed = true
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    /// Check the snapshot for the profiles visible
+    func test_snapshot_profilesVisible() {
+        let account = ProfileSwitcherItem(
+            email: "extra.warden@bitwarden.com",
+            userInitials: "EW"
+        )
+        processor.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [
+                account,
+            ],
+            activeAccountId: account.userId,
+            isVisible: true
+        )
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    /// Check the snapshot for the profiles visible
+    func test_snapshot_profilesVisible_max() {
+        processor.state.profileSwitcherState = .maximumAccounts
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    /// Check the snapshot for the profiles closed
+    func test_snapshot_profilesClosed() {
+        let account = ProfileSwitcherItem(
+            email: "extra.warden@bitwarden.com",
+            userInitials: "EW"
+        )
+        processor.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [
+                account,
+            ],
+            activeAccountId: account.userId,
+            isVisible: false
+        )
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 }
