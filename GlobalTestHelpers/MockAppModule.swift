@@ -2,7 +2,15 @@
 
 // MARK: - MockAppModule
 
-class MockAppModule: AppModule, AuthModule, GeneratorModule, TabModule, SendModule, SettingsModule, VaultModule {
+class MockAppModule:
+    AppModule,
+    AuthModule,
+    GeneratorModule,
+    TabModule,
+    SendModule,
+    SettingsModule,
+    VaultModule,
+    VaultItemModule {
     var appCoordinator = MockCoordinator<AppRoute>()
     var authCoordinator = MockCoordinator<AuthRoute>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute>()
@@ -10,6 +18,7 @@ class MockAppModule: AppModule, AuthModule, GeneratorModule, TabModule, SendModu
     var settingsCoordinator = MockCoordinator<SettingsRoute>()
     var tabCoordinator = MockCoordinator<TabRoute>()
     var vaultCoordinator = MockCoordinator<VaultRoute>()
+    var vaultItemCoordinator = MockCoordinator<VaultItemRoute>()
 
     func makeAppCoordinator(
         navigator: RootNavigator
@@ -26,6 +35,7 @@ class MockAppModule: AppModule, AuthModule, GeneratorModule, TabModule, SendModu
     }
 
     func makeGeneratorCoordinator(
+        delegate: GeneratorCoordinatorDelegate?,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<GeneratorRoute> {
         generatorCoordinator.asAnyCoordinator()
@@ -58,5 +68,11 @@ class MockAppModule: AppModule, AuthModule, GeneratorModule, TabModule, SendModu
         stackNavigator: BitwardenShared.StackNavigator
     ) -> BitwardenShared.AnyCoordinator<BitwardenShared.VaultRoute> {
         vaultCoordinator.asAnyCoordinator()
+    }
+
+    func makeVaultItemCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<VaultItemRoute> {
+        vaultItemCoordinator.asAnyCoordinator()
     }
 }

@@ -45,7 +45,9 @@ struct PasswordText: View {
                     return Asset.Colors.textPrimary.swiftUIColor
                 }
             }()
-            let string = "\(character)"
+            // Add a zero-width space (U+200B) after each character to ensure text will wrap on any
+            // character boundary.
+            let string = "\(character)\(String.zeroWidthSpace)"
             return text + Text(string).foregroundColor(foregroundColor)
         }
     }

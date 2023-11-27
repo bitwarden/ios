@@ -29,11 +29,23 @@ protocol GeneratorRepository: AnyObject {
     ///
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions
 
+    /// Gets the username generation options for the active account.
+    ///
+    /// - Returns: The username generation options for the account.
+    ///
+    func getUsernameGenerationOptions() async throws -> UsernameGenerationOptions
+
     /// Sets the password generation options for the active account.
     ///
     /// - Parameter options: The user's password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions) async throws
+
+    /// Sets the username generation options for the active account.
+    ///
+    /// - Parameter options: The user's username generation options.
+    ///
+    func setUsernameGenerationOptions(_ options: UsernameGenerationOptions) async throws
 }
 
 // MARK: - DefaultGeneratorRepository
@@ -106,7 +118,19 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         try await stateService.getPasswordGenerationOptions() ?? PasswordGenerationOptions()
     }
 
+    func getUsernameGenerationOptions() async throws -> UsernameGenerationOptions {
+        var options = try await stateService.getUsernameGenerationOptions() ?? UsernameGenerationOptions()
+        if options.plusAddressedEmail.isEmptyOrNil {
+            options.plusAddressedEmail = try? await stateService.getActiveAccount().profile.email
+        }
+        return options
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions) async throws {
         try await stateService.setPasswordGenerationOptions(options)
+    }
+
+    func setUsernameGenerationOptions(_ options: UsernameGenerationOptions) async throws {
+        try await stateService.setUsernameGenerationOptions(options)
     }
 }

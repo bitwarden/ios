@@ -32,6 +32,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions?
 
+    /// Gets the username generation options for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the username generation options.
+    /// - Returns: The username generation options for the user ID.
+    ///
+    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
+
     /// Sets the encrypted private key for a user ID.
     ///
     /// - Parameters:
@@ -55,6 +62,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
+
+    /// Sets the username generation options for a user ID.
+    ///
+    /// - Parameters:
+    ///   - options: The user's username generation options.
+    ///   - userId: The user ID associated with the username generation options.
+    ///
+    func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -152,6 +167,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case passwordGenerationOptions(userId: String)
         case rememberedEmail
         case state
+        case usernameGenerationOptions(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -169,6 +185,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedEmail"
             case .state:
                 key = "state"
+            case let .usernameGenerationOptions(userId):
+                key = "usernameGenerationOptions_\(userId)"
             }
             return "bwPreferencesStorage:\(key)"
         }
@@ -201,6 +219,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
 
+    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
+        fetch(for: .usernameGenerationOptions(userId: userId))
+    }
+
     func setEncryptedPrivateKey(key: String?, userId: String) {
         store(key, for: .encryptedPrivateKey(userId: userId))
     }
@@ -211,5 +233,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         store(options, for: .passwordGenerationOptions(userId: userId))
+    }
+
+    func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
+        store(options, for: .usernameGenerationOptions(userId: userId))
     }
 }

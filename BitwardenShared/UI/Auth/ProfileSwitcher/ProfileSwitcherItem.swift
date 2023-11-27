@@ -18,5 +18,5 @@ struct ProfileSwitcherItem: Equatable {
     var userId = UUID().uuidString
 
     /// The user's initials.
-    var userInitials = ""
+    var userInitials = ".."
 }

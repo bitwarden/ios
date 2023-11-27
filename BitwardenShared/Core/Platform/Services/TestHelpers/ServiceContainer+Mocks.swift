@@ -10,6 +10,7 @@ extension ServiceContainer {
         baseUrlService: BaseUrlService = DefaultBaseUrlService(baseUrl: .example),
         biometricsService: BiometricsService = DefaultBiometricsService(),
         captchaService: CaptchaService = MockCaptchaService(),
+        cameraAuthorizationService: CameraAuthorizationService = MockCameraAuthorizationService(),
         clientService: ClientService = MockClientService(),
         errorReporter: ErrorReporter = MockErrorReporter(),
         generatorRepository: GeneratorRepository = MockGeneratorRepository(),
@@ -19,7 +20,8 @@ extension ServiceContainer {
         stateService: StateService = MockStateService(),
         systemDevice: SystemDevice = MockSystemDevice(),
         tokenService: TokenService = MockTokenService(),
-        vaultRepository: VaultRepository = MockVaultRepository()
+        vaultRepository: VaultRepository = MockVaultRepository(),
+        vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService()
     ) -> ServiceContainer {
         ServiceContainer(
             apiService: APIService(
@@ -31,6 +33,7 @@ extension ServiceContainer {
             baseUrlService: baseUrlService,
             biometricsService: biometricsService,
             captchaService: captchaService,
+            cameraAuthorizationService: cameraAuthorizationService,
             clientService: clientService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
@@ -39,7 +42,8 @@ extension ServiceContainer {
             stateService: stateService,
             systemDevice: systemDevice,
             tokenService: tokenService,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
+            vaultTimeoutService: vaultTimeoutService
         )
     }
 }

@@ -1,6 +1,6 @@
 /// Domain model for a user account.
 ///
-public struct Account: Codable, Equatable {
+public struct Account: Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// The account's profile details.
@@ -66,7 +66,7 @@ extension Account {
 extension Account {
     /// Domain model for an account's profile details.
     ///
-    struct AccountProfile: Codable, Equatable {
+    struct AccountProfile: Codable, Equatable, Hashable {
         // MARK: Properties
 
         /// The account's avatar color.
@@ -113,7 +113,7 @@ extension Account {
     }
 
     /// Domain model for an account's settings.
-    struct AccountSettings: Codable, Equatable {
+    struct AccountSettings: Codable, Equatable, Hashable {
         // MARK: Properties
 
         /// The environment URLs for an account
@@ -122,7 +122,7 @@ extension Account {
 
     /// Domain model for an account's API tokens.
     ///
-    struct AccountTokens: Codable, Equatable {
+    struct AccountTokens: Codable, Equatable, Hashable {
         // MARK: Properties
 
         /// The account's access token used to authenticate API requests.

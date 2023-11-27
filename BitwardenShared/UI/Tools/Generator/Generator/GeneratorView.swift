@@ -20,6 +20,13 @@ struct GeneratorView: View {
                 ForEach(store.state.formSections) { section in
                     sectionView(section)
                 }
+
+                if store.state.presentationMode.isSelectButtonVisible {
+                    Button(Localizations.select) {
+                        store.send(.selectButtonPressed)
+                    }
+                    .buttonStyle(.primary())
+                }
             }
             .padding(16)
         }
@@ -47,6 +54,18 @@ struct GeneratorView: View {
                         .resizable()
                         .frame(width: 19, height: 19)
                         .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if store.state.presentationMode.isDismissButtonVisible {
+                    Button {
+                        store.send(.dismissPressed)
+                    } label: {
+                        Asset.Images.cancel.swiftUIImage
+                            .resizable()
+                            .frame(width: 19, height: 19)
+                    }
+                    .accessibilityLabel(Localizations.cancel)
                 }
             }
         }
@@ -115,15 +134,9 @@ struct GeneratorView: View {
     ///
     @ViewBuilder
     func generatedValueView(field: GeneratorState.GeneratedValueField<GeneratorState>) -> some View {
-        HStack(spacing: 8) {
-            Text(field.value)
-                .font(.styleGuide(.bodyMonospaced))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                .cornerRadius(10)
-
+        BitwardenField {
+            PasswordText(password: field.value, isPasswordVisible: true)
+        } accessoryContent: {
             Button {
                 store.send(.copyGeneratedValue)
             } label: {
@@ -151,7 +164,7 @@ struct GeneratorView: View {
     /// - Parameter field: The data for displaying the menu field.
     ///
     func menuUsernameGeneratorTypeView(
-        field: FormMenuField<GeneratorState, GeneratorState.UsernameState.UsernameGeneratorType>
+        field: FormMenuField<GeneratorState, UsernameGeneratorType>
     ) -> some View {
         FormMenuFieldView(field: field) { newValue in
             store.send(.usernameGeneratorTypeChanged(newValue))

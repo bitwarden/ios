@@ -41,7 +41,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
-        XCTAssertTrue(action.viewController is UIHostingController<AccountSecurityView>)
+        XCTAssertTrue(action.view is UIHostingController<AccountSecurityView>)
     }
 
     /// `navigate(to:)` with `.alert` has the stack navigator present the alert.
@@ -61,7 +61,31 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
-        XCTAssertTrue(action.viewController is UIHostingController<AutoFillView>)
+        XCTAssertTrue(action.view is UIHostingController<AutoFillView>)
+    }
+
+    /// `navigate(to:)` with `.deleteAccount` presents the delete account view.
+    func test_navigateTo_deleteAccount() throws {
+        subject.navigate(to: .deleteAccount)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<DeleteAccountView>)
+    }
+
+    /// `navigate(to:)` with `.dismiss` dismisses the presented view.
+    func test_navigateTo_dismiss() throws {
+        subject.navigate(to: .dismiss)
+
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .dismissed)
+    }
+
+    /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
+    func test_navigateTo_lockVault() throws {
+        subject.navigate(to: .lockVault(account: .fixture()))
+
+        XCTAssertTrue(delegate.didLockVaultCalled)
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
@@ -77,7 +101,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
-        XCTAssertTrue(action.viewController is UIHostingController<OtherSettingsView>)
+        XCTAssertTrue(action.view is UIHostingController<OtherSettingsView>)
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.
@@ -113,7 +137,12 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
+    var didLockVaultCalled = false
     var didLogoutCalled = false
+
+    func didLockVault(account: Account) {
+        didLockVaultCalled = true
+    }
 
     func didLogout() {
         didLogoutCalled = true

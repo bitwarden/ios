@@ -193,6 +193,53 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(fetchedOptions, PasswordGenerationOptions())
     }
 
+    /// `getUsernameGenerationOptions` returns the saved username generation options for the active account.
+    func test_getUsernameGenerationOptions() async throws {
+        let options = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
+
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.usernameGenerationOptions = [account.profile.userId: options]
+
+        let fetchedOptions = try await subject.getUsernameGenerationOptions()
+
+        XCTAssertEqual(fetchedOptions, options)
+    }
+
+    /// `getUsernameGenerationOptions` returns the saved username generation options and doesn't
+    /// override a previously saved email.
+    func test_getUsernameGenerationOptions_emailSet() async throws {
+        let options = UsernameGenerationOptions(plusAddressedEmail: "example@bitwarden.com")
+
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.usernameGenerationOptions = [account.profile.userId: options]
+
+        let fetchedOptions = try await subject.getUsernameGenerationOptions()
+
+        XCTAssertEqual(fetchedOptions, options)
+    }
+
+    /// `getUsernameGenerationOptions` throws an error if there isn't an active account.
+    func test_getUsernameGenerationOptions_noAccount() async {
+        stateService.activeAccount = nil
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getUsernameGenerationOptions()
+        }
+    }
+
+    /// `getUsernameGenerationOptions` returns an empty set of options, pre-populated with the
+    /// users email if they haven't previously been saved for the active account.
+    func test_getUsernameGenerationOptions_notSet() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        let fetchedOptions = try await subject.getUsernameGenerationOptions()
+
+        XCTAssertEqual(fetchedOptions, UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com"))
+    }
+
     /// `setPasswordGenerationOptions` sets the password generation options for the active account.
     func test_setPasswordGenerationOptions() async throws {
         let account = Account.fixture()
@@ -203,5 +250,17 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         try await subject.setPasswordGenerationOptions(options)
 
         XCTAssertEqual(stateService.passwordGenerationOptions, [account.profile.userId: options])
+    }
+
+    /// `setUsernameGenerationOptions` sets the username generation options for the active account.
+    func test_setUsernameGenerationOptions() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        let options = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
+
+        try await subject.setUsernameGenerationOptions(options)
+
+        XCTAssertEqual(stateService.usernameGenerationOptions, [account.profile.userId: options])
     }
 }

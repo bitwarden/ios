@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to generate captcha related artifacts.
     let captchaService: CaptchaService
 
+    /// The service used by the application to query for and request camera authorization.
+    let cameraAuthorizationService: CameraAuthorizationService
+
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
@@ -63,6 +66,9 @@ public class ServiceContainer: Services {
     /// The repository used by the application to manage vault data for the UI layer.
     let vaultRepository: VaultRepository
 
+    /// The service used by the application to manage vault access.
+    let vaultTimeoutService: VaultTimeoutService
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -75,6 +81,8 @@ public class ServiceContainer: Services {
     ///   - biometricsService: The service used to obtain the available authentication policies
     ///   and access controls for the user's device.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
+    ///   - cameraAuthorizationService: The service used by the application to query for and request
+    ///     camera authorization.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
@@ -84,6 +92,7 @@ public class ServiceContainer: Services {
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - tokenService: The service used by the application to manage account access tokens.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
+    ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
         apiService: APIService,
@@ -92,6 +101,7 @@ public class ServiceContainer: Services {
         baseUrlService: BaseUrlService,
         biometricsService: BiometricsService,
         captchaService: CaptchaService,
+        cameraAuthorizationService: CameraAuthorizationService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
@@ -100,7 +110,8 @@ public class ServiceContainer: Services {
         stateService: StateService,
         systemDevice: SystemDevice,
         tokenService: TokenService,
-        vaultRepository: VaultRepository
+        vaultRepository: VaultRepository,
+        vaultTimeoutService: VaultTimeoutService
     ) {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
@@ -108,6 +119,7 @@ public class ServiceContainer: Services {
         self.baseUrlService = baseUrlService
         self.biometricsService = biometricsService
         self.captchaService = captchaService
+        self.cameraAuthorizationService = cameraAuthorizationService
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
@@ -117,6 +129,7 @@ public class ServiceContainer: Services {
         self.systemDevice = systemDevice
         self.tokenService = tokenService
         self.vaultRepository = vaultRepository
+        self.vaultTimeoutService = vaultTimeoutService
 
         appIdService = AppIdService(appSettingStore: appSettingsStore)
     }
@@ -140,20 +153,30 @@ public class ServiceContainer: Services {
         let tokenService = DefaultTokenService(stateService: stateService)
 
         let apiService = APIService(baseUrlService: baseUrlService, tokenService: tokenService)
+
+        let vaultTimeoutService = DefaultVaultTimeoutService()
+
         let authRepository = DefaultAuthRepository(
             clientCrypto: clientService.clientCrypto(),
             stateService: stateService
         )
+
         let generatorRepository = DefaultGeneratorRepository(
             clientGenerators: clientService.clientGenerator(),
             stateService: stateService
         )
-        let settingsRepository = DefaultSettingsRepository(stateService: stateService)
+
+        let settingsRepository = DefaultSettingsRepository(
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
+        )
+
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
             clientVault: clientService.clientVault(),
             stateService: stateService,
-            syncAPIService: apiService
+            syncAPIService: apiService,
+            vaultTimeoutService: vaultTimeoutService
         )
 
         self.init(
@@ -163,6 +186,7 @@ public class ServiceContainer: Services {
             baseUrlService: baseUrlService,
             biometricsService: biometricsService,
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
+            cameraAuthorizationService: DefaultCameraAuthorizationService(),
             clientService: clientService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
@@ -171,7 +195,8 @@ public class ServiceContainer: Services {
             stateService: stateService,
             systemDevice: UIDevice.current,
             tokenService: tokenService,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
+            vaultTimeoutService: vaultTimeoutService
         )
     }
 }

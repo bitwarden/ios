@@ -34,15 +34,9 @@ struct GeneratorHistoryView: View {
                         .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                 }
 
-                Button {
+                ToolbarButton(asset: Asset.Images.cancel, label: Localizations.close) {
                     store.send(.dismiss)
-                } label: {
-                    Asset.Images.cancel.swiftUIImage
-                        .resizable()
-                        .frame(width: 19, height: 19)
                 }
-                .accessibilityLabel(Localizations.close)
-                .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
             }
         }
     }
@@ -86,9 +80,7 @@ struct GeneratorHistoryView: View {
     func passwordHistoryRow(_ passwordHistory: PasswordHistoryView, hasDivider: Bool) -> some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(passwordHistory.password)
-                    .font(.styleGuide(.bodyMonospaced))
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                PasswordText(password: passwordHistory.password, isPasswordVisible: true)
 
                 Text(passwordHistory.lastUsedDate.formatted())
                     .font(.styleGuide(.subheadline))

@@ -4,12 +4,17 @@ import OSLog
 
 /// The processor used to manage state and handle actions for the account security screen.
 ///
-final class AccountSecurityProcessor: StateProcessor<AccountSecurityState, AccountSecurityAction, Void> {
+final class AccountSecurityProcessor: StateProcessor<
+    AccountSecurityState,
+    AccountSecurityAction,
+    AccountSecurityEffect
+> {
     // MARK: Types
 
     typealias Services = HasBiometricsService
         & HasErrorReporter
         & HasSettingsRepository
+        & HasStateService
 
     // MARK: Private Properties
 
@@ -43,8 +48,25 @@ final class AccountSecurityProcessor: StateProcessor<AccountSecurityState, Accou
 
     // MARK: Methods
 
+    override func perform(_ effect: AccountSecurityEffect) async {
+        switch effect {
+        case .lockVault:
+            services.settingsRepository.lockVault()
+
+            do {
+                let account = try await services.stateService.getActiveAccount()
+                coordinator.navigate(to: .lockVault(account: account))
+            } catch {
+                coordinator.navigate(to: .logout)
+                services.errorReporter.log(error: error)
+            }
+        }
+    }
+
     override func receive(_ action: AccountSecurityAction) {
         switch action {
+        case .deleteAccountPressed:
+            coordinator.navigate(to: .deleteAccount)
         case .logout:
             showLogoutConfirmation()
         case let .toggleApproveLoginRequestsToggle(isOn):

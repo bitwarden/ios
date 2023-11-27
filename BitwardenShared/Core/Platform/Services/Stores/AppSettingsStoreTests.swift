@@ -168,6 +168,46 @@ class AppSettingsStoreTests: BitwardenTestCase {
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "2"), options2)
     }
 
+    /// `usernameGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_usernameGenerationOptions_isInitiallyNil() {
+        XCTAssertNil(subject.usernameGenerationOptions(userId: "-1"))
+    }
+
+    /// `usernameGenerationOptions(userId:)` can be used to get the username generation options for a user.
+    func test_usernameGenerationOptions_withValue() {
+        let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
+        let options2 = UsernameGenerationOptions(catchAllEmailDomain: "bitwarden.com")
+
+        subject.setUsernameGenerationOptions(options1, userId: "1")
+        subject.setUsernameGenerationOptions(options2, userId: "2")
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                UsernameGenerationOptions.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:usernameGenerationOptions_1")?
+                        .data(using: .utf8)
+                )
+            ),
+            options1
+        )
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                UsernameGenerationOptions.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:usernameGenerationOptions_2")?
+                        .data(using: .utf8)
+                )
+            ),
+            options2
+        )
+
+        XCTAssertEqual(subject.usernameGenerationOptions(userId: "1"), options1)
+        XCTAssertEqual(subject.usernameGenerationOptions(userId: "2"), options2)
+    }
+
     /// `rememberedEmail` returns `nil` if there isn't a previously stored value.
     func test_rememberedEmail_isInitiallyNil() {
         XCTAssertNil(subject.rememberedEmail)

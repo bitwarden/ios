@@ -40,6 +40,16 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list)])
     }
 
+    /// `didLockVault(_:, _:, _:)`  starts the auth coordinator and navigates to the login route.
+    func test_did_lockVault() {
+        let account: Account = .fixtureAccountLogin()
+
+        subject.didLockVault(account: .fixtureAccountLogin())
+
+        XCTAssertTrue(module.authCoordinator.isStarted)
+        XCTAssertEqual(module.authCoordinator.routes, [.vaultUnlock(account)])
+    }
+
     /// `didLogout()` starts the auth coordinator and navigates to the landing route.
     func test_didLogout() {
         subject.didLogout()

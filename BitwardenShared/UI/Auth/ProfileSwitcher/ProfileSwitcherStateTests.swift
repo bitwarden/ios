@@ -7,14 +7,14 @@ import XCTest
 final class ProfileSwitcherStateTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: ProfileSwitcherState?
+    var subject: ProfileSwitcherState!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        subject = .empty
+        subject = ProfileSwitcherState(accounts: [], activeAccountId: nil, isVisible: false)
     }
 
     override func tearDown() {
@@ -23,31 +23,19 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
         subject = nil
     }
 
-    /// Tests the static empty var accounts
+    /// Tests the static empty var alternateAccounts
     func test_empty_accounts() {
-        XCTAssertEqual(subject?.accounts.count, 1)
+        XCTAssertEqual(subject.accounts, [])
     }
 
     /// Tests the static empty var alternateAccounts
     func test_empty_alternateAccounts() {
-        XCTAssertEqual(subject?.alternateAccounts, [])
+        XCTAssertEqual(subject.alternateAccounts, [])
     }
 
-    /// Tests the static empty var current account color
-    func test_empty_currentAccount_color() {
-        XCTAssertEqual(subject?.currentAccountProfile.color, .purple)
-    }
-
-    /// Tests the static empty var current account email
-    func test_empty_currentAccount_email() {
-        XCTAssertEqual(subject?.currentAccountProfile.email, "")
-    }
-
-    /// Tests the static empty var current account isUnlocked
-    func test_empty_currentAccount_isUnlocked() {
-        let isUnlocked = subject?.currentAccountProfile.isUnlocked
-
-        XCTAssertTrue(isUnlocked!)
+    /// Tests the  empty active account
+    func test_empty_currentAccount() {
+        XCTAssertNil(subject.activeAccountId)
     }
 
     /// Setting the alternate accounts should succeed
@@ -55,226 +43,175 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
         let newAlternates = [
             ProfileSwitcherItem(),
         ]
-        subject?.alternateAccounts = newAlternates
+        subject.accounts = newAlternates
 
         XCTAssertEqual(newAlternates, subject?.alternateAccounts)
     }
 
-    /// Setting the alternate accounts should succeed
-    func test_empty_setAlternates_accountsMatch() {
+    /// Setting the active account id should yield an active account if the id matches an account
+    func test_empty_setActiveAccountId_found() {
         let alternate = ProfileSwitcherItem()
-        let newAlternates = [
+        let newAccounts = [
             alternate,
         ]
-        let current = subject!.currentAccountProfile
-        subject?.alternateAccounts = newAlternates
-        let expectedAccounts = [
+        subject.accounts = newAccounts
+        XCTAssertNil(subject.activeAccountId)
+        XCTAssertEqual(newAccounts, subject.alternateAccounts)
+        subject.activeAccountId = alternate.userId
+
+        XCTAssertEqual(subject.activeAccountProfile, alternate)
+        XCTAssertEqual([], subject.alternateAccounts)
+    }
+
+    /// Tests the current account initials when current account is empty
+    func test_currentAccount_userInitials_empty() {
+        XCTAssertEqual(subject.activeAccountInitials, "..")
+    }
+
+    /// Tests the current account initials when current account known
+    func test_currentAccount_userInitials_nonEmpty() {
+        let alternate = ProfileSwitcherItem(
+            userInitials: "TC"
+        )
+        let newAccounts = [
             alternate,
-            current,
         ]
-
-        XCTAssertEqual(subject?.accounts, expectedAccounts)
+        subject.accounts = newAccounts
+        subject.activeAccountId = alternate.userId
+        XCTAssertEqual(subject.activeAccountInitials, "TC")
     }
 
-    /// Tests the static empty var current account initials
-    func test_empty_currentAccount_userInitials() {
-        XCTAssertEqual(subject?.currentAccountProfile.userInitials, "")
-    }
-
-    /// Tests the init succeeds with accounts matching
-    func test_init_accountsWithCurrent_accountsMatch() {
-        let account = ProfileSwitcherItem()
-        let accounts = [
-            account,
-            ProfileSwitcherItem(isUnlocked: true),
-        ]
+    /// Passing an active account id with no accounts yields no active account
+    func test_init_noAccountsWithActive() {
         subject = ProfileSwitcherState(
-            alternateAccounts: accounts,
-            currentAccountProfile: account,
+            accounts: [],
+            activeAccountId: "1",
             isVisible: false
         )
 
-        XCTAssertEqual(accounts, subject?.alternateAccounts)
+        XCTAssertNil(subject.activeAccountProfile)
+    }
+
+    /// Passing an account with no active id yields no active account
+    func test_init_accountsWithoutActive() {
+        let account = ProfileSwitcherItem()
+        subject = ProfileSwitcherState(
+            accounts: [account],
+            activeAccountId: nil,
+            isVisible: false
+        )
+
+        XCTAssertNil(subject.activeAccountProfile)
+    }
+
+    /// Passing an account and a matching active id yields an active account
+    func test_init_accountsWithCurrent_accountsMatch() {
+        let account = ProfileSwitcherItem()
+        subject = ProfileSwitcherState(
+            accounts: [account],
+            activeAccountId: account.userId,
+            isVisible: false
+        )
+
+        XCTAssertNotNil(subject.activeAccountProfile)
+        XCTAssertEqual(subject.accounts, [account])
+        XCTAssertEqual(subject.alternateAccounts, [])
     }
 
     /// Tests the init succeeds with current account matching
     func test_init_accountsWithCurrent_currentProfilesMatch() {
         let account = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem(isUnlocked: true)
         let accounts = [
             account,
-            ProfileSwitcherItem(isUnlocked: true),
+            alternate,
         ]
         subject = ProfileSwitcherState(
-            alternateAccounts: accounts,
-            currentAccountProfile: account,
+            accounts: accounts,
+            activeAccountId: account.userId,
             isVisible: true
         )
 
-        XCTAssertEqual(account, subject?.currentAccountProfile)
+        XCTAssertNotNil(subject.activeAccountProfile)
+        XCTAssertEqual(subject.accounts, accounts)
+        XCTAssertEqual(subject.alternateAccounts, [alternate])
     }
 
-    /// Tests the init succeeds with accounts matching
-    func test_init_currentAccount_accountsMatch() {
+    /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
+    func test_shouldSetAccessibilityFocus_addAccount() {
         let account = ProfileSwitcherItem()
-        subject = ProfileSwitcherState(
-            currentAccountProfile: account,
-            isVisible: true
-        )
-
-        XCTAssertEqual([account], subject?.accounts)
-    }
-
-    /// Tests the init succeeds with accounts matching
-    func test_init_currentAccount_alternateAccountsMatch() {
-        let account = ProfileSwitcherItem()
-        subject = ProfileSwitcherState(
-            currentAccountProfile: account,
-            isVisible: true
-        )
-
-        XCTAssertEqual([], subject?.alternateAccounts)
-    }
-
-    /// Tests the init succeeds with current account matching
-    func test_init_currentAccount_currentProfilesMatch() {
-        let account = ProfileSwitcherItem()
-        subject = ProfileSwitcherState(
-            currentAccountProfile: account,
-            isVisible: true
-        )
-
-        XCTAssertEqual(account, subject?.currentAccountProfile)
-    }
-
-    /// Tests the init succeeds with accounts matching
-    func test_init_currentAndAlternateAccounts_accountsMatch() {
-        let account1 = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem(isUnlocked: false)
         let alternates = [
-            ProfileSwitcherItem(isUnlocked: false),
-            ProfileSwitcherItem(isUnlocked: true),
+            alternate,
         ]
         subject = ProfileSwitcherState(
-            alternateAccounts: alternates,
-            currentAccountProfile: account1,
+            accounts: [account] + alternates,
+            activeAccountId: account.userId,
             isVisible: true
         )
 
-        XCTAssertEqual(alternates + [account1], subject?.accounts)
+        let shouldSet = subject?.shouldSetAccessibilityFocus(for: .addAccount)
+        XCTAssertFalse(shouldSet!)
     }
 
-    /// Tests the init succeeds with accounts matching
-    func test_init_currentAndAlternateAccounts_alternateAccountsMatch() {
-        let account1 = ProfileSwitcherItem()
-        let alternates = [
-            ProfileSwitcherItem(isUnlocked: false),
-            ProfileSwitcherItem(isUnlocked: true),
-        ]
-        subject = ProfileSwitcherState(
-            alternateAccounts: alternates,
-            currentAccountProfile: account1,
-            isVisible: true
-        )
-
-        XCTAssertEqual(alternates, subject?.alternateAccounts)
-    }
-
-    /// Tests the init succeeds with current account matching
-    func test_init_currentAndAlternateAccounts_currentProfilesMatch() {
+    /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
+    func test_shouldSetAccessibilityFocus_alternate() {
         let account = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem(isUnlocked: false)
         let alternates = [
-            ProfileSwitcherItem(isUnlocked: false),
-            ProfileSwitcherItem(isUnlocked: true),
+            alternate,
         ]
         subject = ProfileSwitcherState(
-            alternateAccounts: alternates,
-            currentAccountProfile: account,
+            accounts: [account] + alternates,
+            activeAccountId: account.userId,
             isVisible: true
         )
 
-        XCTAssertEqual(account, subject?.currentAccountProfile)
+        let shouldSet = subject?.shouldSetAccessibilityFocus(for: .alternate(alternate))
+        XCTAssertFalse(shouldSet!)
     }
 
-    /// Tests the select account with current account matching
-    func test_selectAccount_currentProfilesMatch_secondUnlocked() {
-        let unlocked = ProfileSwitcherItem(isUnlocked: true)
-        let secondUnlocked = ProfileSwitcherItem(isUnlocked: true)
-        let locked = ProfileSwitcherItem(isUnlocked: false)
-        let accounts = [
-            unlocked,
-            secondUnlocked,
-            locked,
+    /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
+    func test_shouldSetAccessibilityFocus_active_visibleAndHasNotSet() {
+        let active = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem(isUnlocked: false)
+        let alternates = [
+            alternate,
         ]
-        let current = ProfileSwitcherItem()
-        subject = ProfileSwitcherState(
-            alternateAccounts: accounts,
-            currentAccountProfile: current,
-            isVisible: true
-        )
-        subject?.selectAccount(secondUnlocked)
+        subject.accounts = [active] + alternates
+        subject.activeAccountId = active.userId
+        subject.isVisible = true
 
-        XCTAssertEqual(secondUnlocked, subject?.currentAccountProfile)
+        let shouldSet = subject?.shouldSetAccessibilityFocus(for: .active(active))
+        XCTAssertTrue(shouldSet!)
     }
 
-    /// Tests the select account with current account matching
-    func test_selectAccount_currentProfilesMatch_locked() {
-        let unlocked = ProfileSwitcherItem(isUnlocked: true)
-        let secondUnlocked = ProfileSwitcherItem(isUnlocked: true)
-        let locked = ProfileSwitcherItem(isUnlocked: false)
-        let accounts = [
-            unlocked,
-            secondUnlocked,
-            locked,
+    /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
+    func test_shouldSetAccessibilityFocus_active_notVisibleAndHasNotSet() {
+        let active = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem(isUnlocked: false)
+        let alternates = [
+            alternate,
         ]
-        let current = ProfileSwitcherItem()
-        subject = ProfileSwitcherState(
-            alternateAccounts: accounts,
-            currentAccountProfile: current,
-            isVisible: true
-        )
-        subject?.selectAccount(locked)
+        subject.accounts = [active] + alternates
+        subject.activeAccountId = active.userId
 
-        XCTAssertEqual(locked, subject?.currentAccountProfile)
+        let shouldSet = subject?.shouldSetAccessibilityFocus(for: .active(active))
+        XCTAssertFalse(shouldSet!)
     }
 
-    /// Tests the select account with current account matching
-    func test_selectAccount_currentProfilesMatch_notFound() {
-        let unlocked = ProfileSwitcherItem(isUnlocked: true)
-        let secondUnlocked = ProfileSwitcherItem(isUnlocked: true)
-        let locked = ProfileSwitcherItem(isUnlocked: false)
-        let accounts = [
-            unlocked,
-            secondUnlocked,
-            locked,
+    /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
+    func test_shouldSetAccessibilityFocus_active_visibleAndHasSet() {
+        let active = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem(isUnlocked: false)
+        let alternates = [
+            alternate,
         ]
-        let current = ProfileSwitcherItem()
-        subject = ProfileSwitcherState(
-            alternateAccounts: accounts,
-            currentAccountProfile: current,
-            isVisible: true
-        )
-        subject?.selectAccount(ProfileSwitcherItem(isUnlocked: true))
+        subject.accounts = [active] + alternates
+        subject.activeAccountId = active.userId
+        subject.hasSetAccessibilityFocus = true
 
-        XCTAssertEqual(current, subject?.currentAccountProfile)
-    }
-
-    /// Tests the select account with current has no change
-    func test_selectAccount_currentProfile() {
-        let unlocked = ProfileSwitcherItem(isUnlocked: true)
-        let secondUnlocked = ProfileSwitcherItem(isUnlocked: true)
-        let locked = ProfileSwitcherItem(isUnlocked: false)
-        let accounts = [
-            unlocked,
-            secondUnlocked,
-            locked,
-        ]
-        let current = ProfileSwitcherItem()
-        subject = ProfileSwitcherState(
-            alternateAccounts: accounts,
-            currentAccountProfile: current,
-            isVisible: true
-        )
-        subject?.selectAccount(current)
-
-        XCTAssertEqual(current, subject?.currentAccountProfile)
+        let shouldSet = subject?.shouldSetAccessibilityFocus(for: .active(active))
+        XCTAssertFalse(shouldSet!)
     }
 }

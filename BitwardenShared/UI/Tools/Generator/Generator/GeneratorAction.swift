@@ -4,14 +4,20 @@ enum GeneratorAction: Equatable {
     /// The copy generated value button was pressed.
     case copyGeneratedValue
 
+    /// The dismiss button was pressed
+    case dismissPressed
+
     /// The generator type was changed.
-    case generatorTypeChanged(GeneratorState.GeneratorType)
+    case generatorTypeChanged(GeneratorType)
 
     /// The password generator type was changed.
     case passwordGeneratorTypeChanged(PasswordGeneratorType)
 
     /// The refresh generated value button was pressed.
     case refreshGeneratedValue
+
+    /// The select button was pressed.
+    case selectButtonPressed
 
     /// The show password history button was pressed.
     case showPasswordHistory
@@ -38,10 +44,10 @@ enum GeneratorAction: Equatable {
     case toggleValueChanged(field: ToggleField<GeneratorState>, isOn: Bool)
 
     /// The username forwarded email service was changed.
-    case usernameForwardedEmailServiceChanged(GeneratorState.UsernameState.ForwardedEmailService)
+    case usernameForwardedEmailServiceChanged(ForwardedEmailServiceType)
 
     /// The username generator type was changed.
-    case usernameGeneratorTypeChanged(GeneratorState.UsernameState.UsernameGeneratorType)
+    case usernameGeneratorTypeChanged(UsernameGeneratorType)
 }
 
 extension GeneratorAction {
@@ -62,6 +68,8 @@ extension GeneratorAction {
              .usernameGeneratorTypeChanged:
             return true
         case .copyGeneratedValue,
+             .dismissPressed,
+             .selectButtonPressed,
              .showPasswordHistory,
              .textFieldIsPasswordVisibleChanged,
              .toastShown:
@@ -73,8 +81,10 @@ extension GeneratorAction {
     var shouldPersistGeneratorOptions: Bool {
         switch self {
         case .copyGeneratedValue,
+             .dismissPressed,
              .generatorTypeChanged,
              .refreshGeneratedValue,
+             .selectButtonPressed,
              .showPasswordHistory,
              .textFieldFocusChanged,
              .textFieldIsPasswordVisibleChanged,
