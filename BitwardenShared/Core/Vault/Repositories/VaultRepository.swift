@@ -101,15 +101,9 @@ class DefaultVaultRepository {
         self.vaultTimeoutService = vaultTimeoutService
 
         Task {
-            for await lockStore in vaultTimeoutService.isLockedPublisher() {
-                do {
-                    let activeId = try await stateService.getActiveAccountId()
-                    guard let (_, isLocked) = lockStore.first(where: { $0.key == activeId }),
-                          isLocked else { continue }
-                    syncResponseSubject.value = nil
-                } catch {
-                    syncResponseSubject.value = nil
-                }
+            for await shouldClearData in vaultTimeoutService.shouldClearDecryptedDataPublisher() {
+                guard shouldClearData else { continue }
+                syncResponseSubject.value = nil
             }
         }
     }

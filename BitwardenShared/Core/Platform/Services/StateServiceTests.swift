@@ -124,6 +124,70 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(activeAccount, account)
     }
 
+    /// `getAccounts()` returns the accounts when there's a single account.
+    func test_getAccounts_singleAccount() async throws {
+        let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
+        appSettingsStore.state = State(accounts: [account.profile.userId: account], activeUserId: nil)
+
+        let accounts = try await subject.getAccounts()
+        XCTAssertEqual(accounts, [account])
+    }
+
+    /// `getAccounts()` throws an error when there are no accounts.
+    func test_getAccounts_noAccounts() async throws {
+        appSettingsStore.state = nil
+
+        await assertAsyncThrows(error: StateServiceError.noAccounts) {
+            _ = try await subject.getAccounts()
+        }
+    }
+
+    /// `getAccountIdOrActiveId(userId:)` throws an error when there is no active account.
+    func test_getAccountIdOrActiveId_nil_noActiveAccount() async throws {
+        appSettingsStore.state = State(accounts: [:], activeUserId: nil)
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountIdOrActiveId(userId: nil)
+        }
+    }
+
+    /// `getAccountIdOrActiveId(userId:)` throws an error when there are no accounts.
+    func test_getAccountIdOrActiveId_nil_noAccounts() async throws {
+        appSettingsStore.state = nil
+
+        await assertAsyncThrows(error: StateServiceError.noAccounts) {
+            _ = try await subject.getAccountIdOrActiveId(userId: nil)
+        }
+    }
+
+    /// `getAccountIdOrActiveId(userId:)` throws an error when there is no matching account.
+    func test_getAccountIdOrActiveId_userId_noMatchingAccount() async throws {
+        let account = Account.fixtureAccountLogin()
+        appSettingsStore.state = State(accounts: [account.profile.userId: account], activeUserId: nil)
+
+        await assertAsyncThrows(error: StateServiceError.noAccounts) {
+            _ = try await subject.getAccountIdOrActiveId(userId: "123")
+        }
+    }
+
+    /// `getAccountIdOrActiveId(userId:)` throws an error when there are no accounts.
+    func test_getAccountIdOrActiveId_userId_noAccounts() async throws {
+        appSettingsStore.state = nil
+
+        await assertAsyncThrows(error: StateServiceError.noAccounts) {
+            _ = try await subject.getAccountIdOrActiveId(userId: "123")
+        }
+    }
+
+    /// `getAccountIdOrActiveId(userId:)` returns the id for a match
+    func test_getAccountIdOrActiveId_userId_matchingAccount() async throws {
+        let account = Account.fixtureAccountLogin()
+        appSettingsStore.state = State(accounts: [account.profile.userId: account], activeUserId: nil)
+
+        let accountId = try await subject.getAccountIdOrActiveId(userId: account.profile.userId)
+        XCTAssertEqual(accountId, account.profile.userId)
+    }
+
     /// `getPasswordGenerationOptions()` gets the saved password generation options for the account.
     func test_getPasswordGenerationOptions() async throws {
         let options1 = PasswordGenerationOptions(length: 30)

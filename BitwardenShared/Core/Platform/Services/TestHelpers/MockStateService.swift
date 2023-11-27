@@ -1,3 +1,5 @@
+import Combine
+
 @testable import BitwardenShared
 
 class MockStateService: StateService {
@@ -9,6 +11,8 @@ class MockStateService: StateService {
     var accounts: [Account]?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
+
+    lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
 
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
@@ -92,5 +96,11 @@ class MockStateService: StateService {
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         usernameGenerationOptions[userId] = options
+    }
+
+    func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>> {
+        activeIdSubject
+            .eraseToAnyPublisher()
+            .values
     }
 }

@@ -48,15 +48,29 @@ class VaultRepositoryTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tests `vaultTimeoutService.lock()` publishes the correct value for whether or not the vault was locked.
-    func test_vault_isLocked() async throws {
+    func test_vault_isLocked_shouldClear() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
 
         try await subject.fetchSync()
         XCTAssertNotNil(subject.syncResponseSubject.value)
 
+        vaultTimeoutService.shouldClear = true
         await subject.vaultTimeoutService.lockVault(userId: "")
         waitFor(subject.syncResponseSubject.value == nil)
         XCTAssertNil(subject.syncResponseSubject.value)
+    }
+
+    /// Tests `vaultTimeoutService.lock()` publishes the correct value for whether or not the vault was locked.
+    func test_vault_isLocked_shouldNotClear() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+
+        try await subject.fetchSync()
+        XCTAssertNotNil(subject.syncResponseSubject.value)
+
+        vaultTimeoutService.shouldClear = false
+        await subject.vaultTimeoutService.lockVault(userId: "")
+        waitFor(subject.syncResponseSubject.value != nil)
+        XCTAssertNotNil(subject.syncResponseSubject.value)
     }
 
     /// `addCipher()` makes the add cipher API request and updates the vault.

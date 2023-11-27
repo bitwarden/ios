@@ -6,7 +6,7 @@ class MockVaultTimeoutService: VaultTimeoutService {
     /// The store of locked status for known accounts
     var timeoutStore = [String: Bool]() {
         didSet {
-            isLockedSubject.send(timeoutStore)
+            shouldClearSubject.send(shouldClear)
         }
     }
 
@@ -19,7 +19,9 @@ class MockVaultTimeoutService: VaultTimeoutService {
     /// ids set as unlocked
     var unlockedIds = [String?]()
 
-    lazy var isLockedSubject = CurrentValueSubject<[String: Bool], Never>(self.timeoutStore)
+    var shouldClear = false
+
+    lazy var shouldClearSubject = CurrentValueSubject<Bool, Never>(self.shouldClear)
 
     func isLocked(userId: String) throws -> Bool {
         guard let pair = timeoutStore.first(where: { $0.key == userId }) else {
@@ -28,8 +30,10 @@ class MockVaultTimeoutService: VaultTimeoutService {
         return pair.value
     }
 
-    func isLockedPublisher() -> AsyncPublisher<AnyPublisher<[String: Bool], Never>> {
-        isLockedSubject.eraseToAnyPublisher().values
+    func shouldClearDecryptedDataPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+        shouldClearSubject
+            .eraseToAnyPublisher()
+            .values
     }
 
     func lockVault(userId: String?) async {

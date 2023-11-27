@@ -1,3 +1,7 @@
+import Combine
+
+// MARK: - StateService
+
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
 protocol StateService: AnyObject {
@@ -97,6 +101,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws
+
+    // MARK: Publishers
+
+    /// A publisher for the active account id
+    ///
+    /// - Returns: The userId `String` of the active account
+    ///
+    func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>>
 }
 
 extension StateService {
@@ -314,6 +326,12 @@ actor DefaultStateService: StateService {
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
+    }
+
+    // MARK: Publishers
+
+    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
+        appSettingsStore.activeAccountIdPublisher()
     }
 
     // MARK: Private

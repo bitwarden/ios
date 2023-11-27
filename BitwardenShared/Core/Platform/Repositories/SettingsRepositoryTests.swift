@@ -29,40 +29,44 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `unlockVault(userId:)` can unlock a user's vault.
-    func test_lockVault_false_unknownUser() async {
-        vaultTimeoutService.timeoutStore = [:]
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, [:])
-
-        await subject.unlockVault(userId: "123")
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
+    /// `lockVault(userId:)` passes a user id to be locked.
+    func test_lockVault_unknownUserId() {
+        let task = Task {
+            await subject.lockVault(userId: nil)
+        }
+        waitFor(!vaultTimeoutService.lockedIds.isEmpty)
+        task.cancel()
+        XCTAssertEqual(vaultTimeoutService.lockedIds, [nil])
     }
 
-    /// `unlockVault(userId:)` can unlock a user's vault.
-    func test_lockVault_false_knownUser() async {
-        vaultTimeoutService.timeoutStore = ["123": true]
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
-
-        await subject.unlockVault(userId: "123")
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
+    /// `lockVault(userId:)` passes a user id to be locked.
+    func test_lockVault_knownUserId() {
+        let task = Task {
+            await subject.lockVault(userId: "123")
+        }
+        waitFor(!vaultTimeoutService.lockedIds.isEmpty)
+        task.cancel()
+        XCTAssertEqual(vaultTimeoutService.lockedIds, ["123"])
     }
 
-    /// `lockVault` can lock a user's vault.
-    func test_lockVault_true_unknownUser() async {
-        vaultTimeoutService.timeoutStore = [:]
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, [:])
-
-        await subject.lockVault(userId: "123")
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
+    /// `unlockVault(userId:)` passes a user id to be unlocked.
+    func test_unlockVault_unknownUserId() {
+        let task = Task {
+            await subject.unlockVault(userId: nil)
+        }
+        waitFor(!vaultTimeoutService.unlockedIds.isEmpty)
+        task.cancel()
+        XCTAssertEqual(vaultTimeoutService.unlockedIds, [nil])
     }
 
-    /// `lockVault` can lock a user's vault.
-    func test_lockVault_true_knownUser() async {
-        vaultTimeoutService.timeoutStore = ["123": false]
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": false])
-
-        await subject.lockVault(userId: "123")
-        XCTAssertEqual(vaultTimeoutService.isLockedSubject.value, ["123": true])
+    /// `unlockVault(userId:)` passes a user id to be unlocked.
+    func test_unlockVault_knownUserId() {
+        let task = Task {
+            await subject.unlockVault(userId: "123")
+        }
+        waitFor(!vaultTimeoutService.unlockedIds.isEmpty)
+        task.cancel()
+        XCTAssertEqual(vaultTimeoutService.unlockedIds, ["123"])
     }
 
     /// `logout()` has the state service log the user out.

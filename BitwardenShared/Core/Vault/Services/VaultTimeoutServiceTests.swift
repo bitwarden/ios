@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-final class VaultTimeoutServiceTests: BitwardenTestCase {
+final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cancellables: Set<AnyCancellable>!
@@ -17,7 +17,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
 
         cancellables = []
         stateService = MockStateService()
-        subject = DefaultVaultTimeoutService(service: stateService)
+        subject = DefaultVaultTimeoutService(stateService: stateService)
     }
 
     override func tearDown() {
@@ -28,31 +28,88 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         stateService = nil
     }
 
-    /// Setting the timeoutStore should trigger the `isLockedPublisher` with the new values.
-    func test_changeLockStore() {
+    /// Setting the timeoutStore should trigger the `shouldClearDecryptedDataPublisher` with the new values.
+    func test_changeLockStore_locked_new() {
         let account = Account.fixtureAccountLogin()
-
-        let expectation = XCTestExpectation(description: "timeoutStore didSet should update isLockedSubject")
-
-        var capturedValue: [String: Bool]?
-        subject.isLockedSubject
-            .sink { value in
-                capturedValue = value
-                expectation.fulfill()
-            }
-            .store(in: &cancellables)
+        subject.activeAccountIdSubject.send(nil)
 
         subject.timeoutStore = [
             account.profile.userId: true,
         ]
 
-        wait(for: [expectation], timeout: 1.0)
-        XCTAssertEqual(
-            capturedValue,
-            [
-                account.profile.userId: true,
-            ]
-        )
+        waitFor(subject.shouldClearDataSubject.value == true)
+        XCTAssertTrue(subject.shouldClearDataSubject.value)
+    }
+
+    /// Setting the timeoutStore should trigger the `shouldClearDecryptedDataPublisher` with the new values.
+    func test_changeLockStore_locked_current() {
+        let account = Account.fixtureAccountLogin()
+        let alternate = Account.fixture(profile: .fixture(userId: "123"))
+        subject.timeoutStore = [
+            account.profile.userId: false,
+            alternate.profile.userId: false,
+        ]
+        subject.activeAccountIdSubject.send(account.profile.userId)
+
+        subject.timeoutStore = [
+            account.profile.userId: true,
+            alternate.profile.userId: false,
+        ]
+
+        waitFor(subject.shouldClearDataSubject.value == true)
+        XCTAssertTrue(subject.shouldClearDataSubject.value)
+    }
+
+    /// Setting the timeoutStore should trigger the `shouldClearDecryptedDataPublisher` with the new values.
+    func test_changeLockStore_locked_alternate() {
+        let account = Account.fixtureAccountLogin()
+        let alternate = Account.fixture(profile: .fixture(userId: "123"))
+        subject.timeoutStore = [
+            account.profile.userId: false,
+            alternate.profile.userId: false,
+        ]
+        subject.activeAccountIdSubject.send(account.profile.userId)
+
+        subject.shouldClearDataSubject.send(true)
+        subject.timeoutStore = [
+            account.profile.userId: false,
+            alternate.profile.userId: true,
+        ]
+
+        waitFor(subject.shouldClearDataSubject.value == false)
+        XCTAssertFalse(subject.shouldClearDataSubject.value)
+    }
+
+    /// Setting the timeoutStore should trigger the `shouldClearDecryptedDataPublisher` with the new values.
+    func test_changeLockStore_unlocked_existing() async {
+        let account = Account.fixtureAccountLogin()
+        subject.timeoutStore = [
+            account.profile.userId: true,
+        ]
+        subject.activeAccountIdSubject.send(account.profile.userId)
+
+        subject.timeoutStore = [
+            account.profile.userId: false,
+        ]
+        waitFor(subject.shouldClearDataSubject.value == false)
+        XCTAssertFalse(subject.shouldClearDataSubject.value)
+    }
+
+    /// Published changes to the active account should trigger the shouldClearDecryptedDataPublisher.
+    func test_changeActiveAccount_nil() async {
+        subject.activeAccountIdSubject.send(nil)
+
+        waitFor(subject.shouldClearDataSubject.value == true)
+        XCTAssertTrue(subject.shouldClearDataSubject.value)
+    }
+
+    /// Published changes to the active account should trigger the shouldClearDecryptedDataPublisher.
+    func test_changeActiveAccount_change() async {
+        let account = Account.fixtureAccountLogin()
+        subject.activeAccountIdSubject.send(account.profile.userId)
+
+        waitFor(subject.shouldClearDataSubject.value == true)
+        XCTAssertTrue(subject.shouldClearDataSubject.value)
     }
 
     /// `isLocked(userId:)` should return true for a locked account.
@@ -150,7 +207,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         )
     }
 
-    /// `unlockVault(userId: nil)` should lock the active account.
+    /// `unlockVault(userId: nil)` should unock the active account.
     func test_unlock_nil_active() async {
         let account = Account.fixtureAccountLogin()
         stateService.activeAccount = account
@@ -189,7 +246,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         )
     }
 
-    /// `unlockVault(userId:)` should unlock an locked account.
+    /// `unlockVault(userId:)` should unlock a locked account.
     func test_unlock_locked() async {
         let account = Account.fixtureAccountLogin()
         stateService.accounts = [account]
@@ -214,6 +271,32 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         XCTAssertEqual(
             [
                 account.profile.userId: false,
+            ],
+            subject.timeoutStore
+        )
+    }
+
+    /// `unlockVault(userId:)` should lock all other accounts.
+    func test_unlock_locksAlternates() async {
+        let account = Account.fixtureAccountLogin()
+        let alternate = Account.fixture(profile: .fixture(userId: "123"))
+        let secondAlternate = Account.fixture(profile: .fixture(userId: "312"))
+        stateService.accounts = [
+            account,
+            alternate,
+            secondAlternate,
+        ]
+        subject.timeoutStore = [
+            account.profile.userId: true,
+            alternate.profile.userId: false,
+            secondAlternate.profile.userId: true,
+        ]
+        await subject.unlockVault(userId: account.profile.userId)
+        XCTAssertEqual(
+            [
+                account.profile.userId: false,
+                alternate.profile.userId: true,
+                secondAlternate.profile.userId: true,
             ],
             subject.timeoutStore
         )
