@@ -11,6 +11,7 @@ final class GeneratorHistoryProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasGeneratorRepository
+        & HasPasteboardService
 
     // MARK: Private Properties
 
@@ -54,11 +55,13 @@ final class GeneratorHistoryProcessor: StateProcessor<
 
     override func receive(_ action: GeneratorHistoryAction) {
         switch action {
-        case .copyPassword:
-            // TODO: BIT-1005 Copy password
-            break
+        case let .copyPassword(passwordHistory):
+            services.pasteboardService.copy(passwordHistory.password)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.password))
         case .dismiss:
             coordinator.navigate(to: .dismiss)
+        case let .toastShown(newValue):
+            state.toast = newValue
         }
     }
 }

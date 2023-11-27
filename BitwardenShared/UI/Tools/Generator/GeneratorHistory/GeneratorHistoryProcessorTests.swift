@@ -8,6 +8,7 @@ class GeneratorHistoryProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<GeneratorRoute>!
     var generatorRepository: MockGeneratorRepository!
+    var pasteboardService: MockPasteboardService!
     var subject: GeneratorHistoryProcessor!
 
     // MARK: Setup & Teardown
@@ -17,11 +18,13 @@ class GeneratorHistoryProcessorTests: BitwardenTestCase {
 
         coordinator = MockCoordinator()
         generatorRepository = MockGeneratorRepository()
+        pasteboardService = MockPasteboardService()
 
         subject = GeneratorHistoryProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                generatorRepository: generatorRepository
+                generatorRepository: generatorRepository,
+                pasteboardService: pasteboardService
             ),
             state: GeneratorHistoryState()
         )
@@ -32,6 +35,7 @@ class GeneratorHistoryProcessorTests: BitwardenTestCase {
 
         coordinator = nil
         generatorRepository = nil
+        pasteboardService = nil
         subject = nil
     }
 
@@ -62,9 +66,27 @@ class GeneratorHistoryProcessorTests: BitwardenTestCase {
         XCTAssertTrue(generatorRepository.clearPasswordHistoryCalled)
     }
 
+    /// `receive(_:)` with `.copyPassword` copies the generated password to the system pasteboard
+    /// and shows a toast.
+    func test_receive_copyPassword() {
+        subject.receive(.copyPassword(.fixture(password: "PASSWORD")))
+        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+    }
+
     /// `receive(_:)` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_toastShown() {
+        let toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.password))
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
+
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
     }
 }

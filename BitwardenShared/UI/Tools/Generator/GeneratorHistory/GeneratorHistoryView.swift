@@ -19,6 +19,10 @@ struct GeneratorHistoryView: View {
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.passwordHistory)
+        .toast(store.binding(
+            get: \.toast,
+            send: GeneratorHistoryAction.toastShown
+        ))
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Menu {
