@@ -59,27 +59,6 @@ class VaultRepositoryTests: BitwardenTestCase {
         XCTAssertNil(subject.syncResponseSubject.value)
     }
 
-    /// `getActiveAccountId` returns the active account
-    func test_getActiveAccountId_success() {
-        let account = Account.fixtureAccountLogin()
-        stateService.activeAccount = account
-        var userId: String?
-        let task = Task {
-            userId = try await self.subject.getActiveAccountId()
-        }
-        waitFor(userId != nil)
-        task.cancel()
-
-        XCTAssertEqual(userId, account.profile.userId)
-    }
-
-    /// `getActiveAccountId` returns the active account
-    func test_getActiveAccountId_failure() async {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getActiveAccountId()
-        }
-    }
-
     /// `addCipher()` makes the add cipher API request and updates the vault.
     func test_addCipher() async throws {
         client.results = [

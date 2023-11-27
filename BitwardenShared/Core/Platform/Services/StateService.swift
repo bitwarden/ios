@@ -229,9 +229,8 @@ actor DefaultStateService: StateService {
                 throw StateServiceError.noAccounts
             }
             return userId
-        } else {
-            return try getActiveAccountId()
         }
+        return try getActiveAccountId()
     }
 
     func getActiveAccountId() throws -> String {

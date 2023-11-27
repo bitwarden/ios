@@ -30,12 +30,6 @@ protocol VaultRepository: AnyObject {
     ///
     func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>>
 
-    /// Gets the active account id.
-    ///
-    /// - Returns: The active user account id
-    ///
-    func getActiveAccountId() async throws -> String
-
     /// Removes an account id.
     ///
     ///  - Parameter userId: An optional userId. Defaults to the active user id.
@@ -109,7 +103,7 @@ class DefaultVaultRepository {
         Task {
             for await lockStore in vaultTimeoutService.isLockedPublisher() {
                 do {
-                    let activeId = try await getActiveAccountId()
+                    let activeId = try await stateService.getActiveAccountId()
                     guard let (_, isLocked) = lockStore.first(where: { $0.key == activeId }),
                           isLocked else { continue }
                     syncResponseSubject.value = nil
@@ -223,10 +217,6 @@ extension DefaultVaultRepository: VaultRepository {
         _ = try await cipherAPIService.addCipher(cipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync()
-    }
-
-    func getActiveAccountId() async throws -> String {
-        try await stateService.getActiveAccountId()
     }
 
     func remove(userId: String?) async {
