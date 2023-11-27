@@ -134,15 +134,9 @@ struct GeneratorView: View {
     ///
     @ViewBuilder
     func generatedValueView(field: GeneratorState.GeneratedValueField<GeneratorState>) -> some View {
-        HStack(spacing: 8) {
-            Text(field.value)
-                .font(.styleGuide(.bodyMonospaced))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                .cornerRadius(10)
-
+        BitwardenField {
+            PasswordText(password: field.value, isPasswordVisible: true)
+        } accessoryContent: {
             Button {
                 store.send(.copyGeneratedValue)
             } label: {
