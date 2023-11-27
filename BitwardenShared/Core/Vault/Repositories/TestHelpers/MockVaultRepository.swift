@@ -26,10 +26,6 @@ class MockVaultRepository: VaultRepository {
         cipherDetailsSubject.eraseToAnyPublisher().values
     }
 
-    func getActiveAccountId() async throws -> String {
-        try getActiveAccountIdResult.get()
-    }
-
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
     }
