@@ -80,9 +80,7 @@ struct GeneratorHistoryView: View {
     func passwordHistoryRow(_ passwordHistory: PasswordHistoryView, hasDivider: Bool) -> some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(passwordHistory.password)
-                    .font(.styleGuide(.bodyMonospaced))
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                PasswordText(password: passwordHistory.password, isPasswordVisible: true)
 
                 Text(passwordHistory.lastUsedDate.formatted())
                     .font(.styleGuide(.subheadline))
