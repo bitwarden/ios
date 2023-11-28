@@ -31,13 +31,14 @@ struct AutoFillView: View {
             SectionHeaderView(Localizations.additionalOptions)
 
             VStack(alignment: .leading, spacing: 6) {
-                ToggleView(
-                    isOn: store.binding(
-                        get: \.isCopyTOTPToggleOn,
-                        send: AutoFillAction.toggleCopyTOTPToggle
-                    ),
-                    description: Localizations.copyTotpAutomatically
-                )
+                Toggle(isOn: store.binding(
+                    get: \.isCopyTOTPToggleOn,
+                    send: AutoFillAction.toggleCopyTOTPToggle
+                )) {
+                    Text(Localizations.copyTotpAutomatically)
+                }
+                .toggleStyle(.bitwarden)
+                .font(.styleGuide(.body))
 
                 Text(Localizations.copyTotpAutomaticallyDescription)
                     .font(.styleGuide(.subheadline))
