@@ -17,6 +17,7 @@ final class AccountSecurityProcessor: StateProcessor<
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
+        & HasTwoStepLoginService
 
     // MARK: Private Properties
 
@@ -67,6 +68,8 @@ final class AccountSecurityProcessor: StateProcessor<
 
     override func receive(_ action: AccountSecurityAction) {
         switch action {
+        case .clearTwoStepLoginUrl:
+            state.twoStepLoginUrl = nil
         case .deleteAccountPressed:
             coordinator.navigate(to: .deleteAccount)
         case .logout:
@@ -104,9 +107,8 @@ final class AccountSecurityProcessor: StateProcessor<
     /// navigated to the web app.
     ///
     private func showTwoStepLoginAlert() {
-        state.twoStepLoginUrl = nil
         coordinator.navigate(to: .alert(.twoStepLoginAlert {
-            self.state.twoStepLoginUrl = self.services.baseUrlService.baseUrl.appendingPathExtension("/#/settings")
+            self.state.twoStepLoginUrl = self.services.twoStepLoginService.twoStepLoginUrl()
         }))
     }
 }

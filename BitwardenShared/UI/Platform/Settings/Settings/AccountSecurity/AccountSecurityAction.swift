@@ -3,6 +3,9 @@
 /// Actions handled by the `AccountSecurityProcessor`.
 ///
 enum AccountSecurityAction {
+    /// Clears the two step login URL after the web app has been opened.
+    case clearTwoStepLoginUrl
+
     /// The delete account button was pressed.
     case deleteAccountPressed
 

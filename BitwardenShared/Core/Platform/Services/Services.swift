@@ -19,6 +19,7 @@ typealias Services = HasAccountAPIService
     & HasSettingsRepository
     & HasStateService
     & HasSystemDevice
+    & HasTwoStepLoginService
     & HasVaultRepository
 
 /// Protocol for an object that provides an `AccountAPIService`.
@@ -141,6 +142,11 @@ protocol HasStateService {
 protocol HasSystemDevice {
     /// The object used by the application to retrieve information about this device.
     var systemDevice: SystemDevice { get }
+}
+
+/// Protocol for an object that provides a `TwoStepLoginService`.
+protocol HasTwoStepLoginService {
+    var twoStepLoginService: TwoStepLoginService { get }
 }
 
 /// Protocol for an object that provides a `VaultRepository`.

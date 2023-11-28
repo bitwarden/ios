@@ -30,6 +30,7 @@ struct AccountSecurityView: View {
         .onChange(of: store.state.twoStepLoginUrl) { newValue in
             guard let url = newValue else { return }
             openURL(url)
+            store.send(.clearTwoStepLoginUrl)
         }
     }
 

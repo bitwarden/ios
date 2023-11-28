@@ -30,6 +30,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
+        & HasTwoStepLoginService
         & HasVaultRepository
 
     // MARK: Properties
