@@ -113,6 +113,7 @@ struct VaultUnlockView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 struct UnlockVaultView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -184,3 +185,4 @@ struct UnlockVaultView_Previews: PreviewProvider {
         .previewDisplayName("Profiles Open")
     }
 }
+#endif
