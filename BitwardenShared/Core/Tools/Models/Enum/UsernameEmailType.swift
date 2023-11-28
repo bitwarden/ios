@@ -13,9 +13,9 @@ enum UsernameEmailType: Int, CaseIterable, Codable, Equatable, Menuable {
     var localizedName: String {
         switch self {
         case .random:
-            return Localizations.random
+            Localizations.random
         case .website:
-            return Localizations.website
+            Localizations.website
         }
     }
 }
