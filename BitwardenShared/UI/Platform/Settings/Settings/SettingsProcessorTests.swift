@@ -42,4 +42,11 @@ class SettingsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.routes.last, .accountSecurity)
     }
+
+    /// Receiving `.otherPressed` navigates to the other screen.
+    func test_receive_otherPressed() {
+        subject.receive(.otherPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .other)
+    }
 }

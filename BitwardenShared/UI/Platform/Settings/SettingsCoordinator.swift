@@ -79,6 +79,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             delegate?.didLockVault(account: account)
         case .logout:
             delegate?.didLogout()
+        case .other:
+            showOtherScreen()
         case .settings:
             showSettings()
         }
@@ -128,6 +130,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = DeleteAccountView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator.present(navController)
+    }
+
+    /// Shows the other settings screen.
+    ///
+    private func showOtherScreen() {
+        let processor = OtherSettingsProcessor(
+            coordinator: asAnyCoordinator(),
+            state: OtherSettingsState()
+        )
+
+        let view = OtherSettingsView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
     }
 
     /// Shows the settings screen.

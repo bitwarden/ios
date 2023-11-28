@@ -95,6 +95,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(delegate.didLogoutCalled)
     }
 
+    /// `navigate(to:)` with `.other` pushes the other view onto the stack navigator.
+    func test_navigateTo_other() throws {
+        subject.navigate(to: .other)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<OtherSettingsView>)
+    }
+
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.
     func test_navigateTo_settings() throws {
         subject.navigate(to: .settings)
