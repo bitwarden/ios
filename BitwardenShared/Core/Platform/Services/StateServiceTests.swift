@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -6,6 +7,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
+    var dataStore: DataStore!
     var subject: DefaultStateService!
 
     // MARK: Setup & Teardown
@@ -14,14 +16,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         super.setUp()
 
         appSettingsStore = MockAppSettingsStore()
+        dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
 
-        subject = DefaultStateService(appSettingsStore: appSettingsStore)
+        subject = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
         appSettingsStore = nil
+        dataStore = nil
         subject = nil
     }
 
@@ -247,12 +254,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedUserKey: "USER_KEY"
         ))
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
+        try await dataStore.insertPasswordHistory(
+            userId: "1",
+            passwordHistory: PasswordHistory(password: "PASSWORD", lastUsedDate: Date())
+        )
 
         try await subject.logoutAccount()
 
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
+
+        try XCTAssertEqual(
+            dataStore.persistentContainer.viewContext
+                .count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")),
+            0
+        )
     }
 
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to

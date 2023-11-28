@@ -37,3 +37,23 @@ extension Publisher {
         }
     }
 }
+
+extension Publisher where Failure == Error {
+    /// Maps the output of a publisher to a different type which could throw an error.
+    ///
+    /// - Parameters:
+    ///   - maxPublishers: The maximum number of concurrent publisher subscriptions.
+    ///   - transform: The transform to apply to each output.
+    /// - Returns: A publisher containing the mapped values.
+    ///
+    func asyncTryMap<T>(
+        maxPublishers: Subscribers.Demand = .max(1),
+        _ transform: @escaping (Output) async throws -> T
+    ) -> Publishers.FlatMap<Future<T, Failure>, Self> {
+        flatMap(maxPublishers: maxPublishers) { value in
+            Future {
+                try await transform(value)
+            }
+        }
+    }
+}
