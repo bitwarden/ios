@@ -145,6 +145,7 @@ protocol HasSystemDevice {
 }
 
 /// Protocol for an object that provides a `TwoStepLoginService`.
+///
 protocol HasTwoStepLoginService {
     var twoStepLoginService: TwoStepLoginService { get }
 }
