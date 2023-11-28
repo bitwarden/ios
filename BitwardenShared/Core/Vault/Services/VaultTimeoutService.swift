@@ -88,8 +88,6 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         self.stateService = stateService
         Task {
             lastKnownActiveAccountId = try? await stateService.getActiveAccountId()
-        }
-        Task {
             for await activeId in await stateService.activeAccountIdPublisher() {
                 defer { lastKnownActiveAccountId = activeId }
                 if let activeId,
@@ -103,7 +101,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func isLocked(userId: String) throws -> Bool {
-        guard let (_, isLocked) = timeoutStore.first(where: { $0.key == userId }) else {
+        guard let isLocked = timeoutStore[userId] else {
             throw VaultTimeoutServiceError.noAccountFound
         }
         return isLocked
@@ -134,9 +132,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     private func shouldClearData(activeAccountId: String?) -> Bool {
         guard let activeAccountId,
-              let isLocked = timeoutStore.first(where: { pair in
-                  pair.key == activeAccountId
-              })?.value else {
+              let isLocked = timeoutStore[activeAccountId] else {
             return true
         }
         return isLocked

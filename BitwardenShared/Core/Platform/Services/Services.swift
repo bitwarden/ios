@@ -153,6 +153,6 @@ protocol HasVaultRepository {
 /// Protocol for an object that provides a `VaultTimeoutService`.
 ///
 protocol HasVaultTimeoutService {
-    /// The repository used by the application to manage vault data for the UI layer.
+    /// The repository used by the application to manage timeouts for vault access for all accounts.
     var vaultTimeoutService: VaultTimeoutService { get }
 }

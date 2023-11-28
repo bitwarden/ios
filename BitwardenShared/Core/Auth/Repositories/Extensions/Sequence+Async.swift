@@ -1,6 +1,10 @@
 import Foundation
 
 extension Sequence {
+    /// Maps the elements of an array with an async Transform.
+    ///
+    /// - Parameter transform: An asynchronous function mapping the sequence elment.
+    ///
     func asyncMap<T>(
         _ transform: (Element) async throws -> T
     ) async rethrows -> [T] {
