@@ -411,7 +411,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when the request times out.
     /// When the user taps `Try again`, the create account request is made again.
-    func test_perform_createAccount_timeout() async {
+    func test_perform_createAccount_timeout() async throws {
         subject.state.emailText = "email@example.com"
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
@@ -429,7 +429,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(alert.message, urlError.localizedDescription)
 
-        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        try await alert.tapAction(title: Localizations.tryAgain)
 
         XCTAssertEqual(
             coordinator.routes.last,

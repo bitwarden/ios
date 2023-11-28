@@ -200,9 +200,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
         subject.receive(.passwordVisibilityPressed)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
-        let textField = try XCTUnwrap(alert.alertTextFields.first)
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, alert.alertTextFields)
+        try await alert.tapAction(title: Localizations.submit)
 
         loginState.isMasterPasswordRequired = false
         loginState.isPasswordVisible = true

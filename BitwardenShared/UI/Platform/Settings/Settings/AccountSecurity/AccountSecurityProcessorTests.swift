@@ -76,7 +76,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
 
         // Tapping yes logs the user out.
-        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertTrue(settingsRepository.logoutCalled)
         XCTAssertEqual(coordinator.routes.last, .logout)
