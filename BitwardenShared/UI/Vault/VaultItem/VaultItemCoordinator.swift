@@ -53,9 +53,9 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             stackNavigator.present(alert)
         case .dismiss:
             stackNavigator.dismiss()
-        case let .generator(type):
+        case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
-            showGenerator(for: type, delegate: delegate)
+            showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
         case .setupTotpCamera:
             showCamera()
         case .setupTotpManual:
@@ -106,16 +106,21 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameters:
     ///   - type: The type to generate.
+    ///   - emailWebsite: An optional website host used to generate usernames.
     ///   - delegate: The delegate for this generator flow.
     ///
-    private func showGenerator(for type: GeneratorType, delegate: GeneratorCoordinatorDelegate) {
+    private func showGenerator(
+        for type: GeneratorType,
+        emailWebsite: String?,
+        delegate: GeneratorCoordinatorDelegate
+    ) {
         let navigationController = UINavigationController()
         let coordinator = module.makeGeneratorCoordinator(
             delegate: delegate,
             stackNavigator: navigationController
         )
         coordinator.start()
-        coordinator.navigate(to: .generator(staticType: type))
+        coordinator.navigate(to: .generator(staticType: type, emailWebsite: emailWebsite))
         stackNavigator.present(navigationController)
     }
 

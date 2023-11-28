@@ -203,7 +203,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             firefoxRelayApiAccessToken: "FIREFOX_API_TOKEN",
             includeNumberRandomWordUsername: true,
             plusAddressedEmail: "user@bitwarden.com",
-            plusAddressedEmailType: .website,
+            plusAddressedEmailType: .random,
             serviceType: .fastmail,
             simpleLoginApiKey: "SIMPLELOGIN_API_KEY",
             type: .randomWord
@@ -226,7 +226,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 forwardedEmailService: .fastmail,
                 simpleLoginAPIKey: "SIMPLELOGIN_API_KEY",
                 email: "user@bitwarden.com",
-                plusAddressedEmailType: .website,
+                plusAddressedEmailType: .random,
                 capitalize: true,
                 includeNumber: true
             )
@@ -282,6 +282,28 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes.last, .cancel)
+    }
+
+    /// `receive(_:)` with `.emailTypeChanged` updates the state's catch all email type.
+    func test_receive_emailTypeChanged_catchAll() {
+        subject.state.usernameState.usernameGeneratorType = .catchAllEmail
+
+        subject.receive(.emailTypeChanged(.website))
+        XCTAssertEqual(subject.state.usernameState.catchAllEmailType, .website)
+
+        subject.receive(.emailTypeChanged(.random))
+        XCTAssertEqual(subject.state.usernameState.catchAllEmailType, .random)
+    }
+
+    /// `receive(_:)` with `.emailTypeChanged` updates the state's plus addressed email type.
+    func test_receive_emailTypeChanged_plusAddressed() {
+        subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
+
+        subject.receive(.emailTypeChanged(.website))
+        XCTAssertEqual(subject.state.usernameState.plusAddressedEmailType, .website)
+
+        subject.receive(.emailTypeChanged(.random))
+        XCTAssertEqual(subject.state.usernameState.plusAddressedEmailType, .random)
     }
 
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.

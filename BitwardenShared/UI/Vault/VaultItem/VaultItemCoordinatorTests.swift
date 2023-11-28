@@ -124,6 +124,23 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.generatorCoordinator.routes.last, .generator(staticType: .username))
     }
 
+    /// `navigate(to:)` with `.generator`, `.username`, `emailWebsite` and a delegate presents the
+    /// generator screen.
+    func test_navigateTo_generator_withUsername_withDelegate_withEmailWebsite() throws {
+        let delegate = MockGeneratorCoordinatorDelegate()
+        subject.navigate(to: .generator(.username, emailWebsite: "bitwarden.com"), context: delegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(module.generatorCoordinator.isStarted)
+        XCTAssertEqual(
+            module.generatorCoordinator.routes.last,
+            .generator(staticType: .username, emailWebsite: "bitwarden.com")
+        )
+    }
+
     /// `navigate(to:)` with `.generator`, `.username`, and without a delegate does not present the
     /// generator screen.
     func test_navigateTo_generator_withUsername_withoutDelegate() throws {
