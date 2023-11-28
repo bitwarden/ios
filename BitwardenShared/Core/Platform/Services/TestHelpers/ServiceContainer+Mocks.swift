@@ -20,6 +20,7 @@ extension ServiceContainer {
         stateService: StateService = MockStateService(),
         systemDevice: SystemDevice = MockSystemDevice(),
         tokenService: TokenService = MockTokenService(),
+        twoStepLoginService: TwoStepLoginService = MockTwoStepLoginService(),
         vaultRepository: VaultRepository = MockVaultRepository(),
         vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService()
     ) -> ServiceContainer {
@@ -42,6 +43,7 @@ extension ServiceContainer {
             stateService: stateService,
             systemDevice: systemDevice,
             tokenService: tokenService,
+            twoStepLoginService: twoStepLoginService,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService
         )

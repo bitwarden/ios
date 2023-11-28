@@ -8,6 +8,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<SettingsRoute>!
     var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
+    var twoStepLoginService: MockTwoStepLoginService!
     var subject: AccountSecurityProcessor!
 
     // MARK: Setup & Teardown
@@ -18,11 +19,14 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<SettingsRoute>()
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
+        twoStepLoginService = MockTwoStepLoginService()
+
         subject = AccountSecurityProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 settingsRepository: settingsRepository,
-                stateService: stateService
+                stateService: stateService,
+                twoStepLoginService: twoStepLoginService
             ),
             state: AccountSecurityState()
         )
@@ -54,6 +58,20 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(settingsRepository.lockVaultCalled)
         XCTAssertEqual(coordinator.routes.last, .logout)
+    }
+
+    /// `receive(_:)` with `.twoStepLoginPressed` clears the two step login URL.
+    func test_receive_clearTwoStepLoginUrl() async throws {
+        subject.receive(.twoStepLoginPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+
+        // Tapping yes navigates the user to the web app.
+        await alert.alertActions[1].handler?(alert.alertActions[1])
+        XCTAssertNotNil(subject.state.twoStepLoginUrl)
+
+        subject.receive(.clearTwoStepLoginUrl)
+        XCTAssertNil(subject.state.twoStepLoginUrl)
     }
 
     /// `receive(_:)` with `.deleteAccountPressed` shows the `DeleteAccountView`.
@@ -112,5 +130,31 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         subject.receive(.toggleUnlockWithTouchID(true))
 
         XCTAssertTrue(subject.state.isUnlockWithTouchIDToggleOn)
+    }
+
+    /// `receive(_:)` with `.twoStepLoginPressed` shows the two step login alert.
+    func test_receive_twoStepLoginPressed() async throws {
+        subject.receive(.twoStepLoginPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.continueToWebApp)
+        XCTAssertEqual(alert.message, Localizations.twoStepLoginDescriptionLong)
+        XCTAssertEqual(alert.preferredStyle, .alert)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.yes)
+
+        // Tapping yes navigates the user to the web app.
+        await alert.alertActions[1].handler?(alert.alertActions[1])
+        XCTAssertNotNil(subject.state.twoStepLoginUrl)
+    }
+
+    /// `state.twoStepLoginUrl` is initialized with the correct value.
+    func test_twoStepLoginUrl() async throws {
+        subject.receive(.twoStepLoginPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        await alert.alertActions[1].handler?(alert.alertActions[1])
+        XCTAssertEqual(subject.state.twoStepLoginUrl, URL.example)
     }
 }
