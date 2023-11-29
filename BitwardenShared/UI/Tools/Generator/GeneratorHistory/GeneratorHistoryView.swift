@@ -7,7 +7,7 @@ struct GeneratorHistoryView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<GeneratorHistoryState, GeneratorHistoryAction, Void>
+    @ObservedObject var store: Store<GeneratorHistoryState, GeneratorHistoryAction, GeneratorHistoryEffect>
 
     var body: some View {
         Group {
@@ -19,11 +19,15 @@ struct GeneratorHistoryView: View {
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.passwordHistory)
+        .toast(store.binding(
+            get: \.toast,
+            send: GeneratorHistoryAction.toastShown
+        ))
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Menu {
-                    Button {
-                        store.send(.clearList)
+                    AsyncButton {
+                        await store.perform(.clearList)
                     } label: {
                         Text(Localizations.clear)
                     }
@@ -39,6 +43,7 @@ struct GeneratorHistoryView: View {
                 }
             }
         }
+        .task { await store.perform(.appeared) }
     }
 
     /// Returns a view for the empty state when no password history items exist.
@@ -80,9 +85,7 @@ struct GeneratorHistoryView: View {
     func passwordHistoryRow(_ passwordHistory: PasswordHistoryView, hasDivider: Bool) -> some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(passwordHistory.password)
-                    .font(.styleGuide(.bodyMonospaced))
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                PasswordText(password: passwordHistory.password, isPasswordVisible: true)
 
                 Text(passwordHistory.lastUsedDate.formatted())
                     .font(.styleGuide(.subheadline))

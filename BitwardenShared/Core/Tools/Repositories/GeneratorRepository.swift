@@ -1,8 +1,30 @@
 import BitwardenSdk
+import Combine
 
 /// A protocol for a `GeneratorRepository` which manages access to the data needed by the UI layer.
 ///
 protocol GeneratorRepository: AnyObject {
+    // MARK: Password History
+
+    /// Adds a generated password to the user's password history.
+    ///
+    /// - Parameter passwordHistory: The generated password to add.
+    ///
+    func addPasswordHistory(_ passwordHistory: PasswordHistoryView) async throws
+
+    /// Removes all of the entries from the user's password history.
+    ///
+    func clearPasswordHistory() async
+
+    /// A publisher for the user's password history items.
+    ///
+    /// - Returns: A publisher for the user's password history items which will be notified as the
+    ///     data changes.
+    ///
+    func passwordHistoryPublisher() -> AsyncPublisher<AnyPublisher<[PasswordHistoryView], Never>>
+
+    // MARK: Generator
+
     /// Generates a passphrase based on the passphrase settings.
     ///
     /// - Parameter settings: The settings used to generate the passphrase.
@@ -61,6 +83,9 @@ class DefaultGeneratorRepository {
     /// The service used to handle cryptographic operations.
     let cryptoService: CryptoService
 
+    /// A subject containing the user's password history.
+    var passwordHistorySubject = CurrentValueSubject<[PasswordHistoryView], Never>([])
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -87,6 +112,29 @@ class DefaultGeneratorRepository {
 // MARK: GeneratorRepository
 
 extension DefaultGeneratorRepository: GeneratorRepository {
+    // MARK: Password History
+
+    func addPasswordHistory(_ passwordHistory: PasswordHistoryView) async throws {
+        // Prevent adding a duplicate at the top of the list.
+        guard passwordHistorySubject.value.first?.password != passwordHistory.password else { return }
+
+        passwordHistorySubject.value.insert(passwordHistory, at: 0)
+
+        if passwordHistorySubject.value.count > Constants.maxPasswordsInHistory {
+            passwordHistorySubject.value = Array(passwordHistorySubject.value.prefix(100))
+        }
+    }
+
+    func clearPasswordHistory() async {
+        passwordHistorySubject.value.removeAll()
+    }
+
+    func passwordHistoryPublisher() -> AsyncPublisher<AnyPublisher<[PasswordHistoryView], Never>> {
+        passwordHistorySubject.eraseToAnyPublisher().values
+    }
+
+    // MARK: Generator
+
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
         try await clientGenerators.passphrase(settings: settings)
     }
@@ -119,7 +167,11 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     }
 
     func getUsernameGenerationOptions() async throws -> UsernameGenerationOptions {
-        try await stateService.getUsernameGenerationOptions() ?? UsernameGenerationOptions()
+        var options = try await stateService.getUsernameGenerationOptions() ?? UsernameGenerationOptions()
+        if options.plusAddressedEmail.isEmptyOrNil {
+            options.plusAddressedEmail = try? await stateService.getActiveAccount().profile.email
+        }
+        return options
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions) async throws {

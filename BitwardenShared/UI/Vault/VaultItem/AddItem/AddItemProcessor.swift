@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - AddItemProcessor
 
 /// The processor used to manage state and handle actions for the add item screen.
@@ -64,7 +66,9 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
             }
         case .generateUsernamePressed:
             if state.username.isEmpty {
-                coordinator.navigate(to: .generator(.username), context: self)
+                // TODO: BIT-901 Update this to pass along the first URI when multiple exist.
+                let emailWebsite = URL(string: state.uri)?.sanitized.host
+                coordinator.navigate(to: .generator(.username, emailWebsite: emailWebsite), context: self)
             } else {
                 presentReplacementAlert(for: .username)
             }
