@@ -5,6 +5,7 @@ class MockAuthRepository: AuthRepository {
     var activeAccountResult: Result<ProfileSwitcherItem, Error> = .failure(StateServiceError.noActiveAccount)
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var logoutCalled = false
+    var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var unlockVaultPassword: String?
     var unlockVaultResult: Result<Void, Error> = .success(())
 
@@ -22,6 +23,10 @@ class MockAuthRepository: AuthRepository {
 
     func logout() async throws {
         logoutCalled = true
+    }
+
+    func setActiveAccount(userId: String) async throws -> Account {
+        try setActiveAccountResult.get()
     }
 
     func unlockVault(password: String) async throws {

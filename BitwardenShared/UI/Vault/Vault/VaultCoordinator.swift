@@ -9,6 +9,12 @@ public protocol VaultCoordinatorDelegate: AnyObject {
     /// Called when the user taps add account.
     ///
     func didTapAddAccount()
+
+    /// Called when the user taps selects alternate account.
+    ///
+    ///  - Parameter userId: The userId of the selected account.
+    ///
+    func didTapAccount(userId: String)
 }
 
 // MARK: - VaultCoordinator
@@ -85,6 +91,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .viewItem(id):
             showVaultItem(route: .viewItem(id: id))
+        case let .switchAccount(userId: userId):
+            delegate?.didTapAccount(userId: userId)
         }
     }
 

@@ -52,6 +52,15 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
     }
 
+    /// Updating the email type dispatches the `.emailTypeChanged` action.
+    func test_menuEmailTypeChanged() throws {
+        processor.state.generatorType = .username
+        processor.state.usernameState.emailWebsite = "bitwarden.com"
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.emailType)
+        try menuField.select(newValue: UsernameEmailType.website)
+        XCTAssertEqual(processor.dispatchedActions.last, .emailTypeChanged(.website))
+    }
+
     /// Updating the generator type dispatches the `.generatorTypeChanged` action.
     func test_menuGeneratorTypeChanged() throws {
         processor.state.generatorType = .password

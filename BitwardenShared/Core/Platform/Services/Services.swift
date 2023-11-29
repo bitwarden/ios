@@ -7,6 +7,7 @@ typealias Services = HasAccountAPIService
     & HasAppSettingsStore
     & HasAuthAPIService
     & HasAuthRepository
+    & HasBaseUrlService
     & HasBiometricsService
     & HasCaptchaService
     & HasCameraAuthorizationService
@@ -18,7 +19,9 @@ typealias Services = HasAccountAPIService
     & HasSettingsRepository
     & HasStateService
     & HasSystemDevice
+    & HasTwoStepLoginService
     & HasVaultRepository
+    & HasVaultTimeoutService
 
 /// Protocol for an object that provides an `AccountAPIService`.
 ///
@@ -142,9 +145,22 @@ protocol HasSystemDevice {
     var systemDevice: SystemDevice { get }
 }
 
+/// Protocol for an object that provides a `TwoStepLoginService`.
+///
+protocol HasTwoStepLoginService {
+    var twoStepLoginService: TwoStepLoginService { get }
+}
+
 /// Protocol for an object that provides a `VaultRepository`.
 ///
 protocol HasVaultRepository {
     /// The repository used by the application to manage vault data for the UI layer.
     var vaultRepository: VaultRepository { get }
+}
+
+/// Protocol for an object that provides a `VaultTimeoutService`.
+///
+protocol HasVaultTimeoutService {
+    /// The repository used by the application to manage timeouts for vault access for all accounts.
+    var vaultTimeoutService: VaultTimeoutService { get }
 }

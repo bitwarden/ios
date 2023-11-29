@@ -1,3 +1,5 @@
+import Combine
+
 @testable import BitwardenShared
 
 class MockStateService: StateService {
@@ -9,6 +11,8 @@ class MockStateService: StateService {
     var accounts: [Account]?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
+
+    lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
 
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
@@ -34,6 +38,24 @@ class MockStateService: StateService {
         return activeAccount
     }
 
+    func getAccountIdOrActiveId(userId: String?) async throws -> String {
+        guard let knownAccounts = accounts else {
+            throw StateServiceError.noAccounts
+        }
+        if let userId {
+            guard knownAccounts.contains(where: { $0.profile.userId == userId }) else {
+                throw StateServiceError.noAccounts
+            }
+            return userId
+        } else {
+            return try await getActiveAccountId()
+        }
+    }
+
+    func getActiveAccountId() async throws -> String {
+        try getActiveAccount().profile.userId
+    }
+
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return passwordGenerationOptions[userId]
@@ -54,6 +76,14 @@ class MockStateService: StateService {
         accountEncryptionKeys[userId] = encryptionKeys
     }
 
+    func setActiveAccount(userId: String) async throws {
+        guard let accounts,
+              let match = accounts.first(where: { account in
+                  account.profile.userId == userId
+              }) else { throw StateServiceError.noAccounts }
+        activeAccount = match
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         passwordGenerationOptions[userId] = options
@@ -66,5 +96,11 @@ class MockStateService: StateService {
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         usernameGenerationOptions[userId] = options
+    }
+
+    func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>> {
+        activeIdSubject
+            .eraseToAnyPublisher()
+            .values
     }
 }

@@ -244,6 +244,17 @@ class AddItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .generator(.username))
     }
 
+    /// `receive(_:)` with `.generateUsernamePressed` passes the host of the first URI to the generator.
+    func test_receive_generateUsernamePressed_withURI() async throws {
+        subject.state.uri = "https://bitwarden.com"
+        subject.receive(.generateUsernamePressed)
+        XCTAssertEqual(coordinator.routes.last, .generator(.username, emailWebsite: "bitwarden.com"))
+
+        subject.state.uri = "bitwarden.com"
+        subject.receive(.generateUsernamePressed)
+        XCTAssertEqual(coordinator.routes.last, .generator(.username, emailWebsite: "bitwarden.com"))
+    }
+
     /// `receive(_:)` with `.masterPasswordRePromptChanged` with `true` updates the state correctly.
     func test_receive_masterPasswordRePromptChanged_withTrue() {
         subject.state.isMasterPasswordRePromptOn = false

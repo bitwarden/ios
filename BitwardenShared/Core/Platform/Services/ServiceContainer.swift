@@ -63,6 +63,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to manage account access tokens.
     let tokenService: TokenService
 
+    /// The service used by the application to generate a two step login URL.
+    let twoStepLoginService: TwoStepLoginService
+
     /// The repository used by the application to manage vault data for the UI layer.
     let vaultRepository: VaultRepository
 
@@ -91,6 +94,7 @@ public class ServiceContainer: Services {
     ///   - stateService: The service used by the application to manage account state.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - tokenService: The service used by the application to manage account access tokens.
+    ///   - twoStepLoginService: The service used by the application to generate a two step login URL.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
@@ -110,6 +114,7 @@ public class ServiceContainer: Services {
         stateService: StateService,
         systemDevice: SystemDevice,
         tokenService: TokenService,
+        twoStepLoginService: TwoStepLoginService,
         vaultRepository: VaultRepository,
         vaultTimeoutService: VaultTimeoutService
     ) {
@@ -128,6 +133,7 @@ public class ServiceContainer: Services {
         self.stateService = stateService
         self.systemDevice = systemDevice
         self.tokenService = tokenService
+        self.twoStepLoginService = twoStepLoginService
         self.vaultRepository = vaultRepository
         self.vaultTimeoutService = vaultTimeoutService
 
@@ -138,7 +144,7 @@ public class ServiceContainer: Services {
     ///
     /// - Parameter errorReporter: The service used by the application to report non-fatal errors.
     ///
-    public convenience init(errorReporter: ErrorReporter) {
+    public convenience init(errorReporter: ErrorReporter) { // swiftlint:disable:this function_body_length
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
@@ -147,18 +153,19 @@ public class ServiceContainer: Services {
         )
 
         let biometricsService = DefaultBiometricsService()
-
         let clientService = DefaultClientService()
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
         let tokenService = DefaultTokenService(stateService: stateService)
-
         let apiService = APIService(baseUrlService: baseUrlService, tokenService: tokenService)
 
-        let vaultTimeoutService = DefaultVaultTimeoutService()
+        let twoStepLoginService = DefaultTwoStepLoginService(baseUrlService: baseUrlService)
+
+        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
         let authRepository = DefaultAuthRepository(
             clientCrypto: clientService.clientCrypto(),
-            stateService: stateService
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
         )
 
         let generatorRepository = DefaultGeneratorRepository(
@@ -195,6 +202,7 @@ public class ServiceContainer: Services {
             stateService: stateService,
             systemDevice: UIDevice.current,
             tokenService: tokenService,
+            twoStepLoginService: twoStepLoginService,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService
         )

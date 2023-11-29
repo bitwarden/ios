@@ -7,6 +7,9 @@ import SwiftUI
 struct AccountSecurityView: View {
     // MARK: Properties
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
     /// The store used to render the view.
     @ObservedObject var store: Store<AccountSecurityState, AccountSecurityAction, AccountSecurityEffect>
 
@@ -24,7 +27,11 @@ struct AccountSecurityView: View {
         }
         .scrollView()
         .navigationBar(title: Localizations.accountSecurity, titleDisplayMode: .inline)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .onChange(of: store.state.twoStepLoginUrl) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearTwoStepLoginUrl)
+        }
     }
 
     // MARK: Private views
@@ -60,7 +67,9 @@ struct AccountSecurityView: View {
             VStack(spacing: 0) {
                 SettingsListItem(Localizations.accountFingerprintPhrase) {}
 
-                SettingsListItem(Localizations.twoStepLogin) {} trailingContent: {
+                SettingsListItem(Localizations.twoStepLogin) {
+                    store.send(.twoStepLoginPressed)
+                } trailingContent: {
                     Image(asset: Asset.Images.externalLink)
                         .resizable()
                         .frame(width: 22, height: 22)

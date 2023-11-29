@@ -1,3 +1,4 @@
+import Foundation
 import OSLog
 
 // MARK: - AccountSecurityProcessor
@@ -11,10 +12,12 @@ final class AccountSecurityProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasBiometricsService
+    typealias Services = HasBaseUrlService
+        & HasBiometricsService
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
+        & HasTwoStepLoginService
 
     // MARK: Private Properties
 
@@ -51,10 +54,9 @@ final class AccountSecurityProcessor: StateProcessor<
     override func perform(_ effect: AccountSecurityEffect) async {
         switch effect {
         case .lockVault:
-            services.settingsRepository.lockVault()
-
             do {
                 let account = try await services.stateService.getActiveAccount()
+                await services.settingsRepository.lockVault(userId: account.profile.userId)
                 coordinator.navigate(to: .lockVault(account: account))
             } catch {
                 coordinator.navigate(to: .logout)
@@ -65,6 +67,8 @@ final class AccountSecurityProcessor: StateProcessor<
 
     override func receive(_ action: AccountSecurityAction) {
         switch action {
+        case .clearTwoStepLoginUrl:
+            state.twoStepLoginUrl = nil
         case .deleteAccountPressed:
             coordinator.navigate(to: .deleteAccount)
         case .logout:
@@ -77,6 +81,8 @@ final class AccountSecurityProcessor: StateProcessor<
             state.isUnlockWithPINCodeOn = isOn
         case let .toggleUnlockWithTouchID(isOn):
             state.isUnlockWithTouchIDToggleOn = isOn
+        case .twoStepLoginPressed:
+            showTwoStepLoginAlert()
         }
     }
 
@@ -94,5 +100,14 @@ final class AccountSecurityProcessor: StateProcessor<
             self.coordinator.navigate(to: .logout)
         }
         coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Shows the two step login alert. If `Yes` is selected, the user will be
+    /// navigated to the web app.
+    ///
+    private func showTwoStepLoginAlert() {
+        coordinator.navigate(to: .alert(.twoStepLoginAlert {
+            self.state.twoStepLoginUrl = self.services.twoStepLoginService.twoStepLoginUrl()
+        }))
     }
 }
