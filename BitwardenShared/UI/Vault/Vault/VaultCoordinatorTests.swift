@@ -114,6 +114,13 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.switchAccount(userId:, isUnlocked: isUnlocked)`calls the associated delegate method.
+    func test_navigateTo_switchAccount() throws {
+        subject.navigate(to: .switchAccount(userId: "123"))
+
+        XCTAssertEqual(delegate.accountTapped, ["123"])
+    }
+
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
     func test_navigateTo_viewItem() throws {
         subject.navigate(to: .viewItem(id: "id"))
@@ -149,8 +156,13 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
 class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var addAccountTapped = false
+    var accountTapped = [String]()
 
     func didTapAddAccount() {
         addAccountTapped = true
+    }
+
+    func didTapAccount(userId: String) {
+        accountTapped.append(userId)
     }
 }

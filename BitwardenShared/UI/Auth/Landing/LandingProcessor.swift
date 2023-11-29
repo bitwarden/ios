@@ -125,37 +125,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
     ///
     private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
-        Task {
-            let accounts = try? await services.authRepository.getAccounts()
-            guard let accounts,
-                  accounts.contains(where: { account in
-                      account.userId == selectedAccount.userId
-                  }) else {
-                state.profileSwitcherState.isVisible = false
-                return
-            }
-            do {
-                let account = try await services.authRepository.getAccount(for: selectedAccount.userId)
-                didTapAccount(account, isUnlocked: selectedAccount.isUnlocked)
-            } catch {
-                services.errorReporter.log(error: error)
-                state.profileSwitcherState.isVisible = false
-            }
-        }
-    }
-
-    /// Handles a tap of an account.
-    /// - Parameters
-    ///   - account: The selected account.
-    ///   - isUnlocked: The last known lock state of an account.
-    ///
-    private func didTapAccount(_ account: Account, isUnlocked: Bool) {
-        if isUnlocked {
-            coordinator.navigate(to: .complete)
-        } else {
-            coordinator.navigate(to: .vaultUnlock(account))
-        }
-        state.profileSwitcherState.isVisible = false
+        defer { state.profileSwitcherState.isVisible = false }
+        coordinator.navigate(
+            to: .switchAccount(userId: selectedAccount.userId)
+        )
     }
 
     /// Validate the currently entered email address and navigate to the login screen.

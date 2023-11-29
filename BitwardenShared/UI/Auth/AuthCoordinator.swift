@@ -31,6 +31,7 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
         & HasErrorReporter
         & HasStateService
         & HasSystemDevice
+        & HasVaultTimeoutService
 
     // MARK: Properties
 
@@ -106,6 +107,8 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
             showMasterPasswordHint()
         case .selfHosted:
             showSelfHostedView()
+        case let .switchAccount(userId: userId):
+            selectAccount(for: userId)
         case let .vaultUnlock(account):
             showVaultUnlock(account: account)
         }
@@ -116,6 +119,26 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     }
 
     // MARK: Private Methods
+
+    /// Selects the account for a given userId and navigates to the correct point
+    ///
+    /// - Parameter userId: The user id of the selected account.
+    private func selectAccount(for userId: String) {
+        Task {
+            do {
+                let account = try await services.authRepository.setActiveAccount(userId: userId)
+                let isLocked = try services.vaultTimeoutService.isLocked(userId: userId)
+                if isLocked {
+                    showVaultUnlock(account: account)
+                } else {
+                    delegate?.didCompleteAuth()
+                }
+            } catch {
+                services.errorReporter.log(error: error)
+                showLanding()
+            }
+        }
+    }
 
     /// Shows the captcha screen.
     ///

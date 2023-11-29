@@ -26,6 +26,12 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the vault list screen.
     case list
 
+    /// A route to switch accounts.
+    ///
+    /// - Parameter userId: The user id of the selected account.
+    ///
+    case switchAccount(userId: String)
+
     /// A route to the view item screen.
     ///
     /// - Parameter id: The id of the item to display.

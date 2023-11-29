@@ -29,12 +29,44 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `lockVault` locks the user's vault.
-    func test_lockVault() {
-        XCTAssertFalse(vaultTimeoutService.isLockedSubject.value)
+    /// `lockVault(userId:)` passes a user id to be locked.
+    func test_lockVault_unknownUserId() {
+        let task = Task {
+            await subject.lockVault(userId: nil)
+        }
+        waitFor(!vaultTimeoutService.lockedIds.isEmpty)
+        task.cancel()
+        XCTAssertEqual(vaultTimeoutService.lockedIds, [nil])
+    }
 
-        subject.lockVault()
-        XCTAssertTrue(vaultTimeoutService.isLockedSubject.value)
+    /// `lockVault(userId:)` passes a user id to be locked.
+    func test_lockVault_knownUserId() {
+        let task = Task {
+            await subject.lockVault(userId: "123")
+        }
+        waitFor(!vaultTimeoutService.lockedIds.isEmpty)
+        task.cancel()
+        XCTAssertEqual(vaultTimeoutService.lockedIds, ["123"])
+    }
+
+    /// `unlockVault(userId:)` passes a user id to be unlocked.
+    func test_unlockVault_unknownUserId() {
+        let task = Task {
+            await subject.unlockVault(userId: nil)
+        }
+        waitFor(!vaultTimeoutService.unlockedIds.isEmpty)
+        task.cancel()
+        XCTAssertEqual(vaultTimeoutService.unlockedIds, [nil])
+    }
+
+    /// `unlockVault(userId:)` passes a user id to be unlocked.
+    func test_unlockVault_knownUserId() {
+        let task = Task {
+            await subject.unlockVault(userId: "123")
+        }
+        waitFor(!vaultTimeoutService.unlockedIds.isEmpty)
+        task.cancel()
+        XCTAssertEqual(vaultTimeoutService.unlockedIds, ["123"])
     }
 
     /// `logout()` has the state service log the user out.

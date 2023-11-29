@@ -1,5 +1,8 @@
+import Combine
 import Foundation
 import OSLog
+
+// MARK: - AppSettingsStore
 
 /// A protocol for an object that persists app setting values.
 ///
@@ -70,6 +73,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
+
+    // MARK: Publishers
+
+    /// A publisher for the active account id
+    ///
+    /// - Returns: The userId `String` of the active account
+    ///
+    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>>
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -81,6 +92,9 @@ class DefaultAppSettingsStore {
 
     /// The `UserDefaults` instance to persist settings.
     let userDefaults: UserDefaults
+
+    /// A subject containing a `String?` for the userId of the active account..
+    lazy var activeAccountIdSubject = CurrentValueSubject<String?, Never>(state?.activeUserId)
 
     // MARK: Initialization
 
@@ -204,7 +218,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     var state: State? {
         get { fetch(for: .state) }
-        set { store(newValue, for: .state) }
+        set {
+            activeAccountIdSubject.send(newValue?.activeUserId)
+            return store(newValue, for: .state)
+        }
     }
 
     func encryptedPrivateKey(userId: String) -> String? {
@@ -237,5 +254,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         store(options, for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
+        activeAccountIdSubject
+            .eraseToAnyPublisher()
+            .values
     }
 }
