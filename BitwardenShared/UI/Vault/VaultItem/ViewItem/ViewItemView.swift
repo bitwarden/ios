@@ -111,6 +111,7 @@ struct ViewItemView_Previews: PreviewProvider {
                                     ),
                                 ],
                                 folder: "Folder",
+                                isMasterPasswordRequired: false,
                                 isPasswordVisible: false,
                                 name: "Example",
                                 notes: "This is a long note so that it goes to the next line!",

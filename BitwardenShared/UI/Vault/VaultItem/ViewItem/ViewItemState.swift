@@ -18,6 +18,32 @@ struct ViewItemState: Equatable {
     /// The current state. If this state is not `.loading`, this value will contain an associated value with the
     /// appropriate internal state.
     var loadingState: LoadingState<ItemTypeState> = .loading
+
+    var isMasterPasswordRequired: Bool {
+        get {
+            switch loadingState {
+            case let .data(value):
+                switch value {
+                case let .login(state):
+                    state.isMasterPasswordRequired
+                }
+            case .loading:
+                false
+            }
+        }
+        set {
+            switch loadingState {
+            case let .data(value):
+                switch value {
+                case var .login(state):
+                    state.isMasterPasswordRequired = newValue
+                    loadingState = .data(.login(state))
+                }
+            case .loading:
+                break
+            }
+        }
+    }
 }
 
 extension ViewItemState {
@@ -37,6 +63,7 @@ extension ViewItemState {
                         ViewLoginItemState(
                             customFields: cipherView.fields?.map(CustomFieldState.init) ?? [],
                             folder: cipherView.folderId,
+                            isMasterPasswordRequired: cipherView.reprompt == .password,
                             isPasswordVisible: false,
                             name: cipherView.name,
                             notes: cipherView.notes,
