@@ -56,12 +56,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertEqual(
             subject.state.profileSwitcherState,
-            ProfileSwitcherState(
-                accounts: [],
-                activeAccountId: nil,
-                isVisible: false,
-                shouldAlwaysHideAddAccount: false
-            )
+            ProfileSwitcherState.empty()
         )
     }
 
@@ -71,12 +66,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertEqual(
             subject.state.profileSwitcherState,
-            ProfileSwitcherState(
-                accounts: [],
-                activeAccountId: nil,
-                isVisible: false,
-                shouldAlwaysHideAddAccount: false
-            )
+            ProfileSwitcherState.empty()
         )
     }
 
@@ -104,8 +94,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             ProfileSwitcherState(
                 accounts: [profile],
                 activeAccountId: nil,
-                isVisible: false,
-                shouldAlwaysHideAddAccount: false
+                isVisible: false
             )
         )
     }
@@ -312,7 +301,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
     func test_receive_accountPressed_alternateUnlocked() {
-        let profile = ProfileSwitcherItem()
+        let profile = ProfileSwitcherItem(isUnlocked: true)
         let active = ProfileSwitcherItem()
         let account = Account.fixture(profile: .fixture(
             userId: profile.userId

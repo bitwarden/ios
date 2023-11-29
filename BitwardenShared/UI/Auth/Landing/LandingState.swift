@@ -35,12 +35,7 @@ struct LandingState: Equatable {
     init(
         email: String = "",
         isRememberMeOn: Bool = false,
-        profileSwitcherState: ProfileSwitcherState = ProfileSwitcherState(
-            accounts: [],
-            activeAccountId: nil,
-            isVisible: false,
-            shouldAlwaysHideAddAccount: true
-        ),
+        profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true),
         region: RegionType = .unitedStates
     ) {
         self.email = email

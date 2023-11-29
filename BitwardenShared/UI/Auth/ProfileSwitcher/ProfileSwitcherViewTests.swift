@@ -22,8 +22,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         let state = ProfileSwitcherState(
             accounts: [account],
             activeAccountId: account.userId,
-            isVisible: true,
-            shouldAlwaysHideAddAccount: false
+            isVisible: true
         )
         processor = MockProcessor(state: state)
         subject = ProfileSwitcherView(store: Store(processor: processor))

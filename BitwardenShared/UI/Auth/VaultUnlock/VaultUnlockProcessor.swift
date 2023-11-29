@@ -176,16 +176,10 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             state.profileSwitcherState = ProfileSwitcherState(
                 accounts: accounts,
                 activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible,
-                shouldAlwaysHideAddAccount: false
+                isVisible: state.profileSwitcherState.isVisible
             )
         } catch {
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: [],
-                activeAccountId: nil,
-                isVisible: false,
-                shouldAlwaysHideAddAccount: false
-            )
+            state.profileSwitcherState = .empty()
         }
     }
 }

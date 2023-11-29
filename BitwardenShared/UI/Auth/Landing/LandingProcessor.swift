@@ -63,12 +63,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
                 shouldAlwaysHideAddAccount: true
             )
         } catch {
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: [],
-                activeAccountId: nil,
-                isVisible: false,
-                shouldAlwaysHideAddAccount: true
-            )
+            state.profileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
         }
     }
 

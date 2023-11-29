@@ -136,7 +136,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             )
         } catch {
             services.errorReporter.log(error: error)
-            state.profileSwitcherState = ProfileSwitcherState(accounts: [], activeAccountId: nil, isVisible: false)
+            state.profileSwitcherState = .empty()
         }
     }
 

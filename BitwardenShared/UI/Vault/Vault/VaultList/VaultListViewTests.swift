@@ -27,8 +27,7 @@ class VaultListViewTests: BitwardenTestCase {
             profileSwitcherState: ProfileSwitcherState(
                 accounts: [account],
                 activeAccountId: account.userId,
-                isVisible: false,
-                shouldAlwaysHideAddAccount: false
+                isVisible: false
             )
         )
         processor = MockProcessor(state: state)

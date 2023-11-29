@@ -30,12 +30,7 @@ extension VaultUnlockState {
     ///
     init(
         account: Account,
-        profileSwitcherState: ProfileSwitcherState = ProfileSwitcherState(
-            accounts: [],
-            activeAccountId: nil,
-            isVisible: false,
-            shouldAlwaysHideAddAccount: false
-        )
+        profileSwitcherState: ProfileSwitcherState = .empty()
     ) {
         self.init(
             email: account.profile.email,

@@ -64,12 +64,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(
             subject.state.profileSwitcherState,
-            ProfileSwitcherState(
-                accounts: [],
-                activeAccountId: nil,
-                isVisible: false,
-                shouldAlwaysHideAddAccount: true
-            )
+            ProfileSwitcherState.empty(shouldAlwaysHideAddAccount: true)
         )
     }
 
@@ -79,12 +74,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(
             subject.state.profileSwitcherState,
-            ProfileSwitcherState(
-                accounts: [],
-                activeAccountId: nil,
-                isVisible: false,
-                shouldAlwaysHideAddAccount: true
-            )
+            ProfileSwitcherState.empty(shouldAlwaysHideAddAccount: true)
         )
     }
 
