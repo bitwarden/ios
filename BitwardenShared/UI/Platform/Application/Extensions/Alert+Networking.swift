@@ -3,6 +3,20 @@ import Foundation
 // MARK: Alert+Networking
 
 extension Alert {
+    /// An alert notifying the user that their network request cannot be fulfilled.
+    ///
+    /// - Returns: An alert notifying the user that their network request cannot be fulfilled.
+    ///
+    static func genericRequestError() -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.genericErrorMessage,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
     /// An alert shown to the user when they aren't connected to the internet.
     ///
     /// - Parameter tryAgain: An action allowing the user to retry the request.

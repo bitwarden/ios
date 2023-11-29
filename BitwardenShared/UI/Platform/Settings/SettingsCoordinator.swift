@@ -6,6 +6,8 @@ import SwiftUI
 ///
 @MainActor
 public protocol SettingsCoordinatorDelegate: AnyObject {
+    func didDeleteAccount(otherAccounts: [Account]?)
+
     /// Called when the user locks their vault.
     ///
     /// - Parameters:
@@ -25,13 +27,16 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
 final class SettingsCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasBaseUrlService
+    typealias Services = HasAccountAPIService
+        & HasBaseUrlService
         & HasBiometricsService
+        & HasClientAuth
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
         & HasTwoStepLoginService
         & HasVaultRepository
+        & HasVaultTimeoutService
 
     // MARK: Properties
 
@@ -75,6 +80,9 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showAutoFill()
         case .deleteAccount:
             showDeleteAccount()
+        case let .didDeleteAccount(otherAccounts):
+            stackNavigator.dismiss()
+            delegate?.didDeleteAccount(otherAccounts: otherAccounts ?? nil)
         case .dismiss:
             stackNavigator.dismiss()
         case let .lockVault(account):
@@ -127,6 +135,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     private func showDeleteAccount() {
         let processor = DeleteAccountProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: DeleteAccountState()
         )
         let view = DeleteAccountView(store: Store(processor: processor))

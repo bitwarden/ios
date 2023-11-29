@@ -137,8 +137,13 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
+    var didDeleteAccountCalled = false
     var didLockVaultCalled = false
     var didLogoutCalled = false
+
+    func didDeleteAccount(otherAccounts: [Account]?) {
+        didDeleteAccountCalled = true
+    }
 
     func didLockVault(account: Account) {
         didLockVaultCalled = true

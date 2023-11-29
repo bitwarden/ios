@@ -11,6 +11,10 @@ protocol StateService: AnyObject {
     ///
     func addAccount(_ account: Account) async
 
+    /// Deletes the current active account.
+    ///
+    func deleteAccount() async throws
+
     /// Gets the account encryptions keys for an account.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -185,6 +189,7 @@ extension StateService {
 enum StateServiceError: Error {
     /// There are no known accounts.
     case noAccounts
+
     /// There isn't an active account.
     case noActiveAccount
 }
@@ -217,6 +222,11 @@ actor DefaultStateService: StateService {
 
         state.accounts[account.profile.userId] = account
         state.activeUserId = account.profile.userId
+    }
+
+    func deleteAccount() async throws {
+        let userId = try getActiveAccount().profile.userId
+        appSettingsStore.state?.accounts[userId] = nil
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {

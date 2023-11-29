@@ -10,6 +10,18 @@ import XCTest
 class AlertNetworkingTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// Tests the `genericRequestError` alert contains the correct properties.
+    func test_genericAlert() {
+        let subject = Alert.genericRequestError()
+
+        XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(subject.message, Localizations.genericErrorMessage)
+
+        let action = subject.alertActions[0]
+        XCTAssertEqual(action.title, Localizations.ok)
+        XCTAssertEqual(action.style, .default)
+    }
+
     /// Tests the `internetConnectionError` alert contains the correct properties.
     func test_noInternetConnection() {
         let urlError = URLError(.notConnectedToInternet)

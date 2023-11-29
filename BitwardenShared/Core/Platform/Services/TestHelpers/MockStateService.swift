@@ -19,6 +19,10 @@ class MockStateService: StateService {
         activeAccount = account
     }
 
+    func deleteAccount() async throws {
+        activeAccount = nil
+    }
+
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccount().profile.userId
         guard let encryptionKeys = accountEncryptionKeys[userId]
