@@ -64,6 +64,19 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(store.state.generatorType, .password)
     }
 
+    /// `navigate(to:)` with `.generator` and an email website pushes the generator view onto the
+    /// stack navigator.
+    func test_navigateTo_generator_withEmailType() throws {
+        subject.navigate(to: .generator(emailWebsite: "bitwarden.com"))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is GeneratorView)
+
+        let store = try XCTUnwrap((action.view as? GeneratorView)?.store)
+        XCTAssertEqual(store.state.usernameState.emailWebsite, "bitwarden.com")
+    }
+
     /// `navigate(to:)` with `.generator` and `.password` pushes the generator view onto the stack
     /// navigator without the type field visible.
     func test_navigateTo_generator_withPassword() throws {

@@ -38,6 +38,102 @@ class GeneratorRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history, in reverse
+    /// chronological order.
+    func test_addPasswordHistory() throws {
+        var passwordHistoryValues = [PasswordHistoryView]()
+        Task {
+            for await passwordHistory in subject.passwordHistoryPublisher() {
+                passwordHistoryValues = passwordHistory
+            }
+        }
+
+        let passwordHistory1 = PasswordHistoryView.fixture(password: "PASSWORD")
+        Task { try await subject.addPasswordHistory(passwordHistory1) }
+        waitFor { passwordHistoryValues.count == 1 }
+        XCTAssertEqual(passwordHistoryValues, [passwordHistory1])
+
+        let passwordHistory2 = PasswordHistoryView.fixture(password: "PASSWORD2")
+        let passwordHistory3 = PasswordHistoryView.fixture(password: "PASSWORD3")
+        Task {
+            try await subject.addPasswordHistory(passwordHistory2)
+            try await subject.addPasswordHistory(passwordHistory3)
+        }
+        waitFor { passwordHistoryValues.count == 3 }
+        XCTAssertEqual(passwordHistoryValues, [passwordHistory3, passwordHistory2, passwordHistory1])
+    }
+
+    /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history and limits the
+    /// maximum size of the history.
+    func test_addPasswordHistory_limitsMaxValues() throws {
+        var passwordHistoryValues = [PasswordHistoryView]()
+        Task {
+            for await passwordHistory in subject.passwordHistoryPublisher() {
+                passwordHistoryValues = passwordHistory
+            }
+        }
+
+        let passwords = (0 ... 150).map { PasswordHistoryView.fixture(password: $0.description) }
+
+        Task {
+            for password in passwords {
+                try await subject.addPasswordHistory(password)
+            }
+        }
+
+        waitFor { passwordHistoryValues.first == passwords.last }
+        XCTAssertEqual(passwordHistoryValues, passwords.suffix(100).reversed())
+    }
+
+    /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history and prevents
+    /// adding duplicate values at the top of the list.
+    func test_addPasswordHistory_preventsDuplicates() throws {
+        var passwordHistoryValues = [PasswordHistoryView]()
+        Task {
+            for await passwordHistory in subject.passwordHistoryPublisher() {
+                passwordHistoryValues = passwordHistory
+            }
+        }
+
+        let passwordHistory = PasswordHistoryView.fixture(password: "PASSWORD")
+        let passwordHistoryDuplicate = PasswordHistoryView.fixture(password: "PASSWORD")
+        let passwordHistoryOther = PasswordHistoryView.fixture(password: "PASSWORD_OTHER")
+
+        Task {
+            try await subject.addPasswordHistory(passwordHistory)
+            try await subject.addPasswordHistory(passwordHistoryDuplicate)
+            try await subject.addPasswordHistory(passwordHistoryOther)
+        }
+
+        waitFor { passwordHistoryValues.count == 2 }
+        XCTAssertEqual(passwordHistoryValues, [passwordHistoryOther, passwordHistory])
+    }
+
+    /// `clearPasswordHistory()` clears the password history list.
+    func test_clearPasswordHistory() throws {
+        var passwordHistoryValues = [PasswordHistoryView]()
+        Task {
+            for await passwordHistory in subject.passwordHistoryPublisher() {
+                passwordHistoryValues = passwordHistory
+            }
+        }
+
+        let passwords = (0 ..< 5).map { PasswordHistoryView.fixture(password: $0.description) }
+
+        Task {
+            for password in passwords {
+                try await subject.addPasswordHistory(password)
+            }
+        }
+
+        waitFor { passwordHistoryValues.count == 5 }
+
+        Task { await subject.clearPasswordHistory() }
+
+        waitFor { passwordHistoryValues.isEmpty }
+        XCTAssertTrue(passwordHistoryValues.isEmpty)
+    }
+
     /// `generatePassphrase` returns the generated passphrase.
     func test_generatePassphrase() async throws {
         let passphrase = try await subject.generatePassphrase(

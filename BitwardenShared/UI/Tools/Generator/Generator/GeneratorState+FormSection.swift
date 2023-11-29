@@ -24,8 +24,14 @@ extension GeneratorState {
         /// The supported types of fields.
         ///
         enum FieldType: Equatable, Identifiable { // swiftlint:disable:this nesting
+            /// A static field for displaying the email website.
+            case emailWebsite(String)
+
             /// A generated value field.
             case generatedValue(GeneratedValueField<State>)
+
+            /// A menu field for the email type.
+            case menuEmailType(FormMenuField<State, UsernameEmailType>)
 
             /// A menu field for the generator type.
             case menuGeneratorType(FormMenuField<State, GeneratorType>)
@@ -55,7 +61,11 @@ extension GeneratorState {
 
             var id: String {
                 switch self {
+                case let .emailWebsite(website):
+                    return website
                 case let .generatedValue(field):
+                    return field.id
+                case let .menuEmailType(field):
                     return field.id
                 case let .menuGeneratorType(field):
                     return field.id
@@ -107,6 +117,22 @@ extension GeneratorState {
 
 extension GeneratorState {
     // MARK: Form Field Helpers
+
+    /// A helper method for creating a menu field for the email type.
+    ///
+    /// - Parameter keyPath: A key path for getting and setting the backing value for the field.
+    /// - Returns: A form field for an email type field.
+    ///
+    func emailTypeField(keyPath: WritableKeyPath<GeneratorState, UsernameEmailType>) -> FormField<Self> {
+        FormField(fieldType: .menuEmailType(
+            FormMenuField(
+                keyPath: keyPath,
+                options: UsernameEmailType.allCases,
+                selection: self[keyPath: keyPath],
+                title: Localizations.emailType
+            )
+        ))
+    }
 
     /// A helper method for creating a generated value field.
     ///

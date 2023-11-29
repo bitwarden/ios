@@ -3,10 +3,15 @@ import OSLog
 
 /// The processor used to manage state and handle actions for the generator history screen.
 ///
-final class GeneratorHistoryProcessor: StateProcessor<GeneratorHistoryState, GeneratorHistoryAction, Void> {
+final class GeneratorHistoryProcessor: StateProcessor<
+    GeneratorHistoryState,
+    GeneratorHistoryAction,
+    GeneratorHistoryEffect
+> {
     // MARK: Types
 
     typealias Services = HasGeneratorRepository
+        & HasPasteboardService
 
     // MARK: Private Properties
 
@@ -37,16 +42,26 @@ final class GeneratorHistoryProcessor: StateProcessor<GeneratorHistoryState, Gen
 
     // MARK: Methods
 
+    override func perform(_ effect: GeneratorHistoryEffect) async {
+        switch effect {
+        case .appeared:
+            for await passwordHistory in services.generatorRepository.passwordHistoryPublisher() {
+                state.passwordHistory = passwordHistory
+            }
+        case .clearList:
+            await services.generatorRepository.clearPasswordHistory()
+        }
+    }
+
     override func receive(_ action: GeneratorHistoryAction) {
         switch action {
-        case .clearList:
-            // TODO: BIT-419 Clear password history list
-            break
-        case .copyPassword:
-            // TODO: BIT-1005 Copy password
-            break
+        case let .copyPassword(passwordHistory):
+            services.pasteboardService.copy(passwordHistory.password)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.password))
         case .dismiss:
             coordinator.navigate(to: .dismiss)
+        case let .toastShown(newValue):
+            state.toast = newValue
         }
     }
 }

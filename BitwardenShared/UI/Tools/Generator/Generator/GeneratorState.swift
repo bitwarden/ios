@@ -169,6 +169,13 @@ struct GeneratorState: Equatable {
                         title: Localizations.domainNameRequiredParenthesis
                     ),
                 ])
+
+                if let emailWebsite = usernameState.emailWebsite {
+                    optionFields.append(contentsOf: [
+                        emailTypeField(keyPath: \.usernameState.catchAllEmailType),
+                        FormField(fieldType: .emailWebsite(emailWebsite)),
+                    ])
+                }
             case .forwardedEmail:
                 optionFields.append(FormField(fieldType: .menuUsernameForwardedEmailService(
                     FormMenuField(
@@ -234,6 +241,13 @@ struct GeneratorState: Equatable {
                         title: Localizations.emailRequiredParenthesis
                     ),
                 ])
+
+                if let emailWebsite = usernameState.emailWebsite {
+                    optionFields.append(contentsOf: [
+                        emailTypeField(keyPath: \.usernameState.plusAddressedEmailType),
+                        FormField(fieldType: .emailWebsite(emailWebsite)),
+                    ])
+                }
             case .randomWord:
                 optionFields.append(contentsOf: [
                     toggleField(keyPath: \.usernameState.capitalize, title: Localizations.capitalize),

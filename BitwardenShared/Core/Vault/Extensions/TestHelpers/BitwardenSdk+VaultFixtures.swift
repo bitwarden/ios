@@ -112,3 +112,15 @@ extension CipherView {
         )
     }
 }
+
+extension PasswordHistoryView {
+    static func fixture(
+        password: String = "",
+        lastUsedDate: Date = Date()
+    ) -> PasswordHistoryView {
+        PasswordHistoryView(
+            password: password,
+            lastUsedDate: lastUsedDate
+        )
+    }
+}

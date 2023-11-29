@@ -153,6 +153,32 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `formSections` returns the sections and fields for generating a catch-all email username.
+    func test_formSections_username_catchAllEmail_withoutTypeField_withEmailWebsite() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.presentationMode = .inPlace
+        subject.usernameState.emailWebsite = "bitwarden.com"
+        subject.usernameState.usernameGeneratorType = .catchAllEmail
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+            Section: Options
+              Menu: Username type
+                Selection: Catch-all email
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Use your domain's configured catch-all inbox.
+              Text: Domain name (required) Value: (empty)
+              Menu: Email Type
+                Selection: Random
+                Options: Random, Website
+              Email Website: bitwarden.com
+            """
+        }
+    }
+
     /// `formSections` returns the sections and fields for generating a forwarded email alias using addy.io.
     func test_formSections_username_forwardedEmail_addyIO() {
         var subject = GeneratorState()
@@ -333,6 +359,32 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `formSections` returns the sections and fields for generating a plus-address email username.
+    func test_formSections_username_plusAddressedEmail_withoutTypeField_withEmailWebsite() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.presentationMode = .inPlace
+        subject.usernameState.emailWebsite = "bitwarden.com"
+        subject.usernameState.usernameGeneratorType = .plusAddressedEmail
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+            Section: Options
+              Menu: Username type
+                Selection: Plus addressed email
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Use your email provider's subaddress capabilities
+              Text: Email (required) Value: (empty)
+              Menu: Email Type
+                Selection: Random
+                Options: Random, Website
+              Email Website: bitwarden.com
+            """
+        }
+    }
+
     /// `formSections` returns the sections and fields for generating a random word username.
     func test_formSections_username_randomWord() {
         var subject = GeneratorState()
@@ -491,6 +543,25 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(subject.length, 7)
     }
 
+    /// `usernameState.update(with:)` sets the email type to random if an email website doesn't exist.
+    func test_usernameState_updateWithOptions_nilWebsite() {
+        var subject = GeneratorState().usernameState
+        subject.update(with: UsernameGenerationOptions(catchAllEmailType: .website, plusAddressedEmailType: .website))
+
+        XCTAssertEqual(subject.catchAllEmailType, .random)
+        XCTAssertEqual(subject.plusAddressedEmailType, .random)
+    }
+
+    /// `usernameState.update(with:)` sets the email type to website if an email website exists.
+    func test_usernameState_updateWithOptions_website() {
+        var subject = GeneratorState().usernameState
+        subject.emailWebsite = "bitwarden.com"
+        subject.update(with: UsernameGenerationOptions(catchAllEmailType: .random, plusAddressedEmailType: .random))
+
+        XCTAssertEqual(subject.catchAllEmailType, .website)
+        XCTAssertEqual(subject.plusAddressedEmailType, .website)
+    }
+
     // MARK: Private
 
     /// Returns a string containing a description of the vault list items.
@@ -499,8 +570,12 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             result.append(indent)
 
             switch field.fieldType {
+            case let .emailWebsite(emailWebsite):
+                result.append("Email Website: \(emailWebsite)")
             case let .generatedValue(generatedValue):
                 result.append("Generated: \(generatedValue.value.isEmpty ? "(empty)" : generatedValue.value)")
+            case let .menuEmailType(menu):
+                result.append(menu.dumpField(indent: indent))
             case let .menuGeneratorType(menu):
                 result.append(menu.dumpField(indent: indent))
             case let .menuPasswordGeneratorType(menu):
