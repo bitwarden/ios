@@ -10,7 +10,7 @@ struct ViewItemState: Equatable {
     /// An enumeration of the possible values of this state.
     enum ItemTypeState: Equatable {
         /// A login item's representative state.
-        case login(ViewLoginItemState)
+        case login(LoginItemState)
     }
 
     // MARK: Properties
@@ -30,27 +30,49 @@ extension ViewItemState {
     init?(cipherView: CipherView) {
         switch cipherView.type {
         case .login:
-            guard let loginItem = cipherView.login else { return nil }
-            self.init(
-                loadingState: .data(
-                    .login(
-                        ViewLoginItemState(
-                            customFields: cipherView.fields?.map(CustomFieldState.init) ?? [],
-                            folder: cipherView.folderId,
-                            isPasswordVisible: false,
-                            name: cipherView.name,
-                            notes: cipherView.notes,
-                            password: loginItem.password,
-                            passwordUpdatedDate: loginItem.passwordRevisionDate,
-                            updatedDate: cipherView.revisionDate,
-                            uris: loginItem.uris ?? [],
-                            username: loginItem.username
-                        )
-                    )
-                )
-            )
+            guard let loginItemState = LoginItemState(cipherView: cipherView) else { return nil }
+            self.init(loadingState: .data(.login(loginItemState)))
         default:
             return nil
         }
+    }
+}
+
+extension CipherView {
+    func updatedView(with editState: LoginItemState.EditState) -> CipherView {
+        guard case let .edit(updatedEdits) = editState else { return self }
+        let properties = updatedEdits.properties
+        return CipherView(
+            id: id,
+            organizationId: organizationId,
+            folderId: folderId,
+            collectionIds: collectionIds,
+            name: properties.name,
+            notes: properties.notes.nilIfEmpty,
+            type: BitwardenSdk.CipherType(.login),
+            login: BitwardenSdk.LoginView(
+                username: properties.username.nilIfEmpty,
+                password: properties.password.nilIfEmpty,
+                passwordRevisionDate: login?.passwordRevisionDate,
+                uris: login?.uris,
+                totp: login?.totp,
+                autofillOnPageLoad: login?.autofillOnPageLoad
+            ),
+            identity: identity,
+            card: card,
+            secureNote: secureNote,
+            favorite: properties.isFavoriteOn,
+            reprompt: properties.isMasterPasswordRePromptOn ? .password : .none,
+            organizationUseTotp: false,
+            edit: true,
+            viewPassword: true,
+            localData: localData,
+            attachments: attachments,
+            fields: fields,
+            passwordHistory: passwordHistory,
+            creationDate: creationDate,
+            deletedDate: nil,
+            revisionDate: revisionDate
+        )
     }
 }

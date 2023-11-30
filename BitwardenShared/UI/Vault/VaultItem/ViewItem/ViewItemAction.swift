@@ -16,6 +16,9 @@ enum ViewItemAction: Equatable {
     /// The dismiss button was pressed.
     case dismissPressed
 
+    /// An edit mode action.
+    case editAction(EditLoginItemAction)
+
     /// The edit button was pressed.
     case editPressed
 

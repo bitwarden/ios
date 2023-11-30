@@ -63,18 +63,9 @@ class ViewItemProcessorTests: BitwardenTestCase {
         waitFor(subject.state.loadingState != .loading)
         task.cancel()
 
-        XCTAssertEqual(subject.state.loadingState, .data(.login(ViewLoginItemState(
-            customFields: [],
-            folder: nil,
-            isPasswordVisible: false,
-            name: "Name",
-            notes: "Notes",
-            password: "password",
-            passwordUpdatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-            updatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-            uris: [],
-            username: "username"
-        ))))
+        let expectedState = LoginItemState(cipherView: cipherItem)!
+
+        XCTAssertEqual(subject.state.loadingState, .data(.login(expectedState)))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
@@ -112,13 +103,17 @@ class ViewItemProcessorTests: BitwardenTestCase {
             type: .hidden,
             value: "value 3"
         )
+        var loginState = LoginItemState(
+            cipherView: CipherView.loginFixture()
+        )!
+        loginState.properties.customFields = [
+            customField1,
+            customField2,
+            customField3,
+        ]
         let state = ViewItemState(
             loadingState: .data(.login(
-                ViewLoginItemState(
-                    customFields: [customField1, customField2, customField3],
-                    name: "name",
-                    updatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
-                )
+                loginState
             ))
         )
         subject.state = state
@@ -129,7 +124,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
             XCTFail("ViewItemState has incorrect value: \(newLoadingState)")
             return
         }
-        let customFields = alteredState.customFields
+        let customFields = alteredState.properties.customFields
         XCTAssertEqual(customFields.count, 3)
         XCTAssertFalse(customFields[0].isPasswordVisible)
         XCTAssertTrue(customFields[1].isPasswordVisible)
@@ -157,11 +152,20 @@ class ViewItemProcessorTests: BitwardenTestCase {
     /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
     /// for `isPasswordVisible`.
     func test_receive_passwordVisibilityPressed_withLoginState() {
-        var loginState = ViewLoginItemState(
-            isPasswordVisible: false,
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
             name: "name",
-            updatedDate: Date()
+            revisionDate: Date()
         )
+        var loginState = LoginItemState(cipherView: cipherView)!
         subject.state.loadingState = .data(.login(loginState))
         subject.receive(.passwordVisibilityPressed)
 

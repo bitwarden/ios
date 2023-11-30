@@ -18,7 +18,7 @@ struct AddItemView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 20) {
-                section(title: Localizations.itemInformation) {
+                VaultItemSectionView(title: Localizations.itemInformation) {
                     BitwardenMenuField(
                         title: Localizations.type,
                         options: CipherType.allCases,
@@ -98,7 +98,7 @@ struct AddItemView: View {
                     }
                 }
 
-                section(title: Localizations.urIs) {
+                VaultItemSectionView(title: Localizations.urIs) {
                     BitwardenTextField(
                         title: Localizations.uri,
                         buttons: [
@@ -123,7 +123,7 @@ struct AddItemView: View {
                     .buttonStyle(.tertiary())
                 }
 
-                section(title: Localizations.miscellaneous) {
+                VaultItemSectionView(title: Localizations.miscellaneous) {
                     BitwardenTextField(
                         title: Localizations.folder,
                         text: store.binding(
@@ -156,7 +156,7 @@ struct AddItemView: View {
                     .toggleStyle(.bitwarden)
                 }
 
-                section(title: Localizations.notes) {
+                VaultItemSectionView(title: Localizations.notes) {
                     BitwardenTextField(
                         text: store.binding(
                             get: \.notes,
@@ -166,14 +166,14 @@ struct AddItemView: View {
                     .accessibilityLabel(Localizations.notes)
                 }
 
-                section(title: Localizations.customFields) {
+                VaultItemSectionView(title: Localizations.customFields) {
                     Button(Localizations.newCustomField) {
                         store.send(.newCustomFieldPressed)
                     }
                     .buttonStyle(.tertiary())
                 }
 
-                section(title: Localizations.ownership) {
+                VaultItemSectionView(title: Localizations.ownership) {
                     BitwardenTextField(
                         title: Localizations.whoOwnsThisItem,
                         text: store.binding(
@@ -199,25 +199,6 @@ struct AddItemView: View {
                     store.send(.dismissPressed)
                 }
             }
-        }
-    }
-
-    // MARK: Methods
-
-    /// Creates a section with a title hosted in a title view.
-    ///
-    /// - Parameters:
-    ///   - title: The title of this section.
-    ///   - content: The content to place below the title view in this section.
-    ///
-    @ViewBuilder
-    private func section(title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(title.uppercased())
-                .font(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-            content()
         }
     }
 }

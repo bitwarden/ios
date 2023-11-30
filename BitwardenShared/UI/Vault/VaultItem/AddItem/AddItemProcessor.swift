@@ -8,6 +8,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     // MARK: Types
 
     typealias Services = HasCameraAuthorizationService
+        & HasErrorReporter
         & HasVaultRepository
 
     // MARK: Properties
@@ -178,11 +179,11 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         defer { coordinator.hideLoadingOverlay() }
 
         do {
-            try await services.vaultRepository.addCipher(state.cipher())
+            try await services.vaultRepository.addCipher(state.newCipherView())
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .dismiss)
         } catch {
-            print(error)
+            services.errorReporter.log(error: error)
         }
     }
 

@@ -43,8 +43,8 @@ struct AddItemState {
 }
 
 extension AddItemState {
-    /// Returns a `CipherView` based on the fields the user entered in the `AddItemView`.
-    func cipher(creationDate: Date = .now) -> CipherView {
+    /// Returns a `CipherView` based on the properties of the `AddItemState`.
+    func newCipherView(creationDate: Date = .now) -> CipherView {
         CipherView(
             id: nil,
             organizationId: nil,

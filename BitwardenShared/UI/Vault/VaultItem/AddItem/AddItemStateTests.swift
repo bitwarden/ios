@@ -13,7 +13,7 @@ class AddItemStateTests: XCTestCase {
         var subject = AddItemState()
         subject.name = "Bitwarden"
 
-        assertInlineSnapshot(of: subject.cipher(creationDate: Date(year: 2023, month: 10, day: 20)), as: .dump) {
+        assertInlineSnapshot(of: subject.newCipherView(creationDate: Date(year: 2023, month: 10, day: 20)), as: .dump) {
             """
             ▿ CipherView
               - attachments: Optional<Array<AttachmentView>>.none
@@ -61,7 +61,7 @@ class AddItemStateTests: XCTestCase {
         subject.notes = "Bitwarden Login"
         subject.username = "user@bitwarden.com"
 
-        assertInlineSnapshot(of: subject.cipher(creationDate: Date(year: 2023, month: 9, day: 1)), as: .dump) {
+        assertInlineSnapshot(of: subject.newCipherView(creationDate: Date(year: 2023, month: 9, day: 1)), as: .dump) {
             """
             ▿ CipherView
               - attachments: Optional<Array<AttachmentView>>.none

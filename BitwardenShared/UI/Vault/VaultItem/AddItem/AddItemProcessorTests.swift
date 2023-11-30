@@ -11,6 +11,7 @@ class AddItemProcessorTests: BitwardenTestCase {
 
     var cameraAuthorizationService: MockCameraAuthorizationService!
     var coordinator: MockCoordinator<VaultItemRoute>!
+    var errorReporter: MockErrorReporter!
     var subject: AddItemProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -21,11 +22,13 @@ class AddItemProcessorTests: BitwardenTestCase {
 
         cameraAuthorizationService = MockCameraAuthorizationService()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
         subject = AddItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 cameraAuthorizationService: cameraAuthorizationService,
+                errorReporter: errorReporter,
                 vaultRepository: vaultRepository
             ),
             state: AddItemState()
@@ -35,6 +38,7 @@ class AddItemProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         coordinator = nil
+        errorReporter = nil
         subject = nil
         vaultRepository = nil
     }
@@ -105,8 +109,17 @@ class AddItemProcessorTests: BitwardenTestCase {
         vaultRepository.addCipherCiphers[0].creationDate = creationDate
         vaultRepository.addCipherCiphers[0].revisionDate = creationDate
 
-        XCTAssertEqual(vaultRepository.addCipherCiphers, [subject.state.cipher(creationDate: creationDate)])
+        XCTAssertEqual(vaultRepository.addCipherCiphers, [subject.state.newCipherView(creationDate: creationDate)])
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
+    func test_perform_savePressed_error() async {
+        struct EncryptError: Error, Equatable {}
+        vaultRepository.addCipherResult = .failure(EncryptError())
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the

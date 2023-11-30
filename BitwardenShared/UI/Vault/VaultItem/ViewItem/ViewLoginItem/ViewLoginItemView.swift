@@ -11,13 +11,46 @@ struct ViewLoginItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ViewLoginItemState, ViewItemAction, Void>
+    @ObservedObject var store: Store<LoginItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
-        section(title: Localizations.itemInformation) {
-            BitwardenTextValueField(title: Localizations.name, value: store.state.name)
+        switch store.state.editState {
+        case .view:
+            viewItemProperties
+        case .edit:
+            editItemProperties
+            AsyncButton(Localizations.save) {
+                await store.perform(.savePressed)
+            }
+            .buttonStyle(.primary())
+        }
+    }
 
-            if let username = store.state.username {
+    /// The edit item properties.
+    @ViewBuilder var editItemProperties: some View {
+        if case let .edit(currentState) = store.state.editState {
+            EditLoginItemView(
+                store: store.child(
+                    state: { state in
+                        guard case let .edit(editState) = state.editState else {
+                            return currentState
+                        }
+                        return editState
+                    },
+                    mapAction: { $0 },
+                    mapEffect: { $0 }
+                )
+            )
+        }
+    }
+
+    /// The view item properties.
+    @ViewBuilder var viewItemProperties: some View {
+        VaultItemSectionView(contentSpacing: 12, titleSpacing: 15, title: Localizations.itemInformation) {
+            BitwardenTextValueField(title: Localizations.name, value: store.state.properties.name)
+
+            if !store.state.properties.username.isEmpty {
+                let username = store.state.properties.username
                 BitwardenTextValueField(title: Localizations.username, value: username) {
                     Button {
                         store.send(.copyPressed(value: username))
@@ -30,7 +63,8 @@ struct ViewLoginItemView: View {
                 }
             }
 
-            if let password = store.state.password {
+            if !store.state.properties.password.isEmpty {
+                let password = store.state.properties.password
                 BitwardenField(title: Localizations.password) {
                     PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
                         .font(.styleGuide(.body))
@@ -68,9 +102,9 @@ struct ViewLoginItemView: View {
             }
         }
 
-        if !store.state.uris.isEmpty {
-            section(title: Localizations.urIs) {
-                ForEach(store.state.uris, id: \.self) { uri in
+        if !store.state.properties.uris.isEmpty {
+            VaultItemSectionView(contentSpacing: 12, titleSpacing: 15, title: Localizations.urIs) {
+                ForEach(store.state.properties.uris, id: \.self) { uri in
                     if let uri = uri.uri {
                         BitwardenTextValueField(title: Localizations.uri, value: uri) {
                             Button {
@@ -99,15 +133,16 @@ struct ViewLoginItemView: View {
             }
         }
 
-        if let notes = store.state.notes {
-            section(title: Localizations.notes) {
+        if !store.state.properties.notes.isEmpty {
+            let notes = store.state.properties.notes
+            VaultItemSectionView(contentSpacing: 12, titleSpacing: 15, title: Localizations.notes) {
                 BitwardenTextValueField(value: notes)
             }
         }
 
-        if !store.state.customFields.isEmpty {
-            section(title: Localizations.customFields) {
-                ForEach(store.state.customFields, id: \.self) { customField in
+        if !store.state.properties.customFields.isEmpty {
+            VaultItemSectionView(contentSpacing: 12, titleSpacing: 15, title: Localizations.customFields) {
+                ForEach(store.state.properties.customFields, id: \.self) { customField in
                     BitwardenField(title: customField.name) {
                         switch customField.type {
                         case .boolean:
@@ -136,7 +171,6 @@ struct ViewLoginItemView: View {
                                         .resizable()
                                         .frame(width: 16, height: 16)
                                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
                                     Text(linkedIdType.localizedName)
                                 }
                             }
@@ -163,8 +197,7 @@ struct ViewLoginItemView: View {
                                         .resizable()
                                         .frame(width: 16, height: 16)
                                 }
-                            case .boolean,
-                                 .linked:
+                            case .boolean, .linked:
                                 EmptyView()
                             }
                         }
@@ -174,10 +207,10 @@ struct ViewLoginItemView: View {
         }
 
         VStack(alignment: .leading, spacing: 0) {
-            let formattedUpdatedDate = store.state.updatedDate.formatted(date: .numeric, time: .shortened)
+            let formattedUpdatedDate = store.state.properties.updatedDate.formatted(date: .numeric, time: .shortened)
             Text("\(Localizations.dateUpdated): \(formattedUpdatedDate)")
 
-            if let passwordUpdatedDate = store.state.passwordUpdatedDate {
+            if let passwordUpdatedDate = store.state.properties.passwordUpdatedDate {
                 let formattedPasswordUpdatedDate = passwordUpdatedDate.formatted(
                     date: .numeric,
                     time: .shortened
@@ -190,26 +223,5 @@ struct ViewLoginItemView: View {
         .font(.subheadline)
         .multilineTextAlignment(.leading)
         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-    }
-
-    // MARK: Private Methods
-
-    /// Creates a section with a title hosted in a title view.
-    ///
-    /// - Parameters:
-    ///   - title: The title of this section.
-    ///   - content: The content to place below the title view in this section.
-    ///
-    @ViewBuilder
-    private func section(title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: 15) {
-            Text(title.uppercased())
-                .font(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-            VStack(alignment: .leading, spacing: 12) {
-                content()
-            }
-        }
     }
 }

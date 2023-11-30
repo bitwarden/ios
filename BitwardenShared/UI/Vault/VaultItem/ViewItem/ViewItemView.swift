@@ -20,7 +20,7 @@ struct ViewItemView: View {
             details(for: state)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle(Localizations.viewItem)
+        .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -48,6 +48,24 @@ struct ViewItemView: View {
         }
     }
 
+    /// The title of the view
+    private var navigationTitle: String {
+        switch store.state.loadingState {
+        case .loading:
+            Localizations.viewItem
+        case let .data(itemData):
+            switch itemData {
+            case let .login(loginItem):
+                switch loginItem.editState {
+                case .edit:
+                    Localizations.editItem
+                case .view:
+                    Localizations.viewItem
+                }
+            }
+        }
+    }
+
     // MARK: Private Methods
 
     /// The details of the item. This view wraps all of the different detail views for
@@ -62,7 +80,7 @@ struct ViewItemView: View {
                     ViewLoginItemView(store: store.child(
                         state: { _ in loginState },
                         mapAction: { $0 },
-                        mapEffect: nil
+                        mapEffect: { $0 }
                     ))
                 }
             }
@@ -70,8 +88,11 @@ struct ViewItemView: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(Localizations.edit) {
-                    store.send(.editPressed)
+                if case let .login(loginItemState) = state,
+                   case .view = loginItemState.editState {
+                    Button(Localizations.edit) {
+                        store.send(.editPressed)
+                    }
                 }
             }
         }
@@ -82,6 +103,73 @@ struct ViewItemView: View {
 
 #if DEBUG
 struct ViewItemView_Previews: PreviewProvider {
+    static var cipher = CipherView(
+        id: nil,
+        organizationId: nil,
+        folderId: nil,
+        collectionIds: [],
+        name: "",
+        notes: nil,
+        type: .login,
+        login: .init(
+            username: nil,
+            password: nil,
+            passwordRevisionDate: nil,
+            uris: nil,
+            totp: nil,
+            autofillOnPageLoad: nil
+        ),
+        identity: nil,
+        card: nil,
+        secureNote: nil,
+        favorite: false,
+        reprompt: .none,
+        organizationUseTotp: false,
+        edit: false,
+        viewPassword: false,
+        localData: nil,
+        attachments: nil,
+        fields: nil,
+        passwordHistory: nil,
+        creationDate: .now,
+        deletedDate: nil,
+        revisionDate: .now
+    )
+
+    static var loadedState: LoginItemState {
+        var state = LoginItemState(cipherView: cipher)!
+        state.properties = .init(
+            customFields: [
+                CustomFieldState(
+                    linkedIdType: nil,
+                    name: "Field Name",
+                    type: .text,
+                    value: "Value"
+                ),
+            ],
+            folder: "Folder",
+            isFavoriteOn: true,
+            isMasterPasswordRePromptOn: false,
+            name: "Example",
+            notes: "This is a long note so that it goes to the next line!",
+            password: "Password1!",
+            type: .login,
+            updatedDate: Date(),
+            uris: [
+                LoginUriView(
+                    uri: "https://www.example.com",
+                    match: .startsWith
+                ),
+                LoginUriView(
+                    uri: "https://www.example.com/account/login",
+                    match: .exact
+                ),
+            ],
+            username: "email@example.com"
+        )
+        return state
+    }
+
     static var previews: some View {
         NavigationView {
             ViewItemView(
@@ -101,33 +189,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(.login(.init(
-                                customFields: [
-                                    CustomFieldState(
-                                        linkedIdType: nil,
-                                        name: "Field Name",
-                                        type: .text,
-                                        value: "Value"
-                                    ),
-                                ],
-                                folder: "Folder",
-                                isPasswordVisible: false,
-                                name: "Example",
-                                notes: "This is a long note so that it goes to the next line!",
-                                password: "Password1!",
-                                updatedDate: Date(),
-                                uris: [
-                                    LoginUriView(
-                                        uri: "https://www.example.com",
-                                        match: .startsWith
-                                    ),
-                                    LoginUriView(
-                                        uri: "https://www.example.com/account/login",
-                                        match: .exact
-                                    ),
-                                ],
-                                username: "email@example.com"
-                            )))
+                            loadingState: .data(.login(loadedState))
                         )
                     )
                 )
