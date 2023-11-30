@@ -153,8 +153,20 @@ class AuthCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.switchAccount` with an locked account navigates to vault unlock
     func test_navigate_switchAccount_locked() {
         let account = Account.fixture()
-        authRepository.setActiveAccountResult = .success(account)
         vaultTimeoutService.timeoutStore = [account.profile.userId: true]
+        var profile: ProfileSwitcherItem?
+        let preTask = Task {
+            profile = await account.profileItem(vaultTimeoutService: vaultTimeoutService)
+        }
+        waitFor(profile != nil)
+        preTask.cancel()
+        let state = ProfileSwitcherState(
+            accounts: [profile!],
+            activeAccountId: nil,
+            isVisible: true
+        )
+        authRepository.profileStateResult = .success(state)
+        authRepository.accountResult = .success(account)
 
         let task = Task {
             subject.navigate(to: .switchAccount(userId: account.profile.userId))
@@ -167,8 +179,20 @@ class AuthCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.switchAccount` with an unlocked account triggers completion
     func test_navigate_switchAccount_unlocked() {
         let account = Account.fixture()
-        authRepository.setActiveAccountResult = .success(account)
         vaultTimeoutService.timeoutStore = [account.profile.userId: false]
+        var profile: ProfileSwitcherItem?
+        let preTask = Task {
+            profile = await account.profileItem(vaultTimeoutService: vaultTimeoutService)
+        }
+        waitFor(profile != nil)
+        preTask.cancel()
+        let state = ProfileSwitcherState(
+            accounts: [profile!],
+            activeAccountId: nil,
+            isVisible: true
+        )
+        authRepository.profileStateResult = .success(state)
+        authRepository.accountResult = .success(account)
 
         let task = Task {
             subject.navigate(to: .switchAccount(userId: account.profile.userId))
@@ -179,11 +203,60 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
     }
 
-    /// `navigate(to:)` with `.switchAccount` with an unknonw account triggers completion
-    func test_navigate_switchAccount_unknownLock() {
+    /// `navigate(to:)` with `.switchAccount` with an unknown account triggers completion.
+    func test_navigate_switchAccount_unknownLock_switcherFail() {
         let account = Account.fixture()
-        authRepository.setActiveAccountResult = .success(account)
         vaultTimeoutService.timeoutStore = [:]
+        var profile: ProfileSwitcherItem?
+        let preTask = Task {
+            profile = await account.profileItem(vaultTimeoutService: vaultTimeoutService)
+        }
+        waitFor(profile != nil)
+        preTask.cancel()
+        authRepository.profileStateResult = .failure(StateServiceError.noAccounts)
+        authRepository.accountResult = .success(account)
+
+        let task = Task {
+            subject.navigate(to: .switchAccount(userId: account.profile.userId))
+        }
+        waitFor(stackNavigator.actions.last?.view is LandingView)
+        task.cancel()
+        XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
+    }
+
+    /// `navigate(to:)` with `.switchAccount` with an unknown account triggers completion.
+    func test_navigate_switchAccount_unknownLock_timeoutServiceFail() {
+        let account = Account.fixture()
+        vaultTimeoutService.timeoutStore = [:]
+        var profile: ProfileSwitcherItem?
+        let preTask = Task {
+            profile = await account.profileItem(vaultTimeoutService: vaultTimeoutService)
+        }
+        waitFor(profile != nil)
+        preTask.cancel()
+        authRepository.profileStateResult = .success(.empty())
+        authRepository.accountResult = .success(account)
+
+        let task = Task {
+            subject.navigate(to: .switchAccount(userId: account.profile.userId))
+        }
+        waitFor(stackNavigator.actions.last?.view is VaultUnlockView)
+        task.cancel()
+        XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)
+    }
+
+    /// `navigate(to:)` with `.switchAccount` with an unknown account triggers completion.
+    func test_navigate_switchAccount_unknownLock_accountFail() {
+        let account = Account.fixture()
+        vaultTimeoutService.timeoutStore = [:]
+        var profile: ProfileSwitcherItem?
+        let preTask = Task {
+            profile = await account.profileItem(vaultTimeoutService: vaultTimeoutService)
+        }
+        waitFor(profile != nil)
+        preTask.cancel()
+        authRepository.profileStateResult = .success(.empty())
+        authRepository.accountResult = .failure(StateServiceError.noAccounts)
 
         let task = Task {
             subject.navigate(to: .switchAccount(userId: account.profile.userId))

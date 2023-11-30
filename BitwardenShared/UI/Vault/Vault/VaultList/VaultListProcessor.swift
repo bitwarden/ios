@@ -123,21 +123,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     /// - Returns: A current ProfileSwitcherState, if available.
     ///
     private func refreshProfileState() async {
-        var accounts = [ProfileSwitcherItem]()
-        var activeAccount: ProfileSwitcherItem?
-        do {
-            accounts = try await services.authRepository.getAccounts()
-            activeAccount = try? await services.authRepository.getActiveAccount()
-
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: accounts,
-                activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible
-            )
-        } catch {
-            services.errorReporter.log(error: error)
-            state.profileSwitcherState = .empty()
-        }
+        state.profileSwitcherState = await services.authRepository.getProfileSwitcherState(
+            visible: state.profileSwitcherState.isVisible,
+            shouldAlwaysHideAddAccount: false
+        )
     }
 
     /// Refreshes the vault's contents.

@@ -38,7 +38,7 @@ struct ProfileSwitcherState: Equatable {
     var scrollOffset: CGPoint
 
     /// A flag to indicate if an add account row should be visible.
-    private let shouldAlwaysHideAddAccount: Bool
+    let shouldAlwaysHideAddAccount: Bool
 
     /// The visibility of the add account row.
     var showsAddAccount: Bool {

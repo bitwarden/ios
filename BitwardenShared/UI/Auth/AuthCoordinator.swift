@@ -126,7 +126,8 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     private func selectAccount(for userId: String) {
         Task {
             do {
-                let account = try await services.authRepository.setActiveAccount(userId: userId)
+                try await services.authRepository.setActiveAccount(userId: userId, state: nil)
+                let account = try await services.authRepository.getAccount(for: userId)
                 let isLocked = try services.vaultTimeoutService.isLocked(userId: userId)
                 if isLocked {
                     showVaultUnlock(account: account)

@@ -88,15 +88,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Tests
 
-    /// `getAccounts()` throws an error when the accounts are nil.
-    func test_getAccounts_empty() async throws {
-        await assertAsyncThrows(error: StateServiceError.noAccounts) {
-            _ = try await subject.getAccounts()
-        }
+    /// `getProfileSwitcherState(:)` returns an empty list of accounts when the accounts are nil.
+    func test_getProfileSwitcherState_empty() async throws {
+        let state = await subject.getProfileSwitcherState(visible: false)
+        let accounts = state.accounts
+        XCTAssertEqual([], accounts)
     }
 
-    /// `getAccounts()` returns all known accounts.
-    func test_getAccounts_valid() async throws { // swiftlint:disable:this function_body_length
+    /// `getProfileSwitcherState(:)` returns all known accounts.
+    func test_getProfileSwitcherState_valid() async throws { // swiftlint:disable:this function_body_length
         stateService.accounts = [
             anneAccount,
             beeAccount,
@@ -105,8 +105,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortEmail,
             shortName,
         ]
-
-        let accounts = try await subject.getAccounts()
+        let state = await subject.getProfileSwitcherState(visible: false)
+        let accounts = state.accounts
         XCTAssertEqual(
             accounts.first,
             ProfileSwitcherItem(
@@ -172,8 +172,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortEmail.profile.userId: true,
             shortName.profile.userId: false,
         ]
-        let profiles = try await subject.getAccounts()
-        let lockedStatuses = profiles.map { profile in
+        let switcherState = await subject.getProfileSwitcherState(visible: false)
+        let lockedStatuses = switcherState.accounts.map { profile in
             profile.isUnlocked
         }
         XCTAssertEqual(
@@ -185,35 +185,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 false,
                 true,
             ]
-        )
-    }
-
-    /// `getActiveAccount()` returns a profile switcher item.
-    func test_getActiveAccount_empty() async throws {
-        stateService.accounts = [
-            anneAccount,
-        ]
-
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getActiveAccount()
-        }
-    }
-
-    /// `getActiveAccount()` returns an account when the active account is valid.
-    func test_getActiveAccount_valid() async throws {
-        stateService.accounts = [
-            anneAccount,
-        ]
-        stateService.activeAccount = anneAccount
-
-        let active = try await subject.getActiveAccount()
-        XCTAssertEqual(
-            active,
-            ProfileSwitcherItem(
-                email: anneAccount.profile.email,
-                userId: anneAccount.profile.userId,
-                userInitials: "AA"
-            )
         )
     }
 
@@ -258,7 +229,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             anneAccount,
         ]
         stateService.activeAccount = anneAccount
-        _ = try await subject.setActiveAccount(userId: anneAccount.profile.userId)
+        _ = try await subject.setActiveAccount(userId: anneAccount.profile.userId, state: nil)
         XCTAssertEqual(stateService.activeAccount, anneAccount)
     }
 
@@ -269,7 +240,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             beeAccount,
         ]
         stateService.activeAccount = anneAccount
-        _ = try await subject.setActiveAccount(userId: beeAccount.profile.userId)
+        _ = try await subject.setActiveAccount(userId: beeAccount.profile.userId, state: nil)
         XCTAssertEqual(stateService.activeAccount, beeAccount)
     }
 
@@ -280,7 +251,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         stateService.activeAccount = anneAccount
         await assertAsyncThrows(error: StateServiceError.noAccounts) {
-            _ = try await subject.setActiveAccount(userId: "1234")
+            _ = try await subject.setActiveAccount(userId: "1234", state: nil)
         }
     }
 
@@ -289,7 +260,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = []
         stateService.activeAccount = nil
         await assertAsyncThrows(error: StateServiceError.noAccounts) {
-            _ = try await subject.setActiveAccount(userId: anneAccount.profile.userId)
+            _ = try await subject.setActiveAccount(userId: anneAccount.profile.userId, state: nil)
         }
     }
 
@@ -301,7 +272,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
 
         await assertAsyncDoesNotThrow {
-            try await subject.unlockVault(password: "password")
+            _ = try await subject.unlockVault(password: "password", state: nil)
         }
 
         XCTAssertEqual(
@@ -321,7 +292,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.
     func test_unlockVault_error() async {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.unlockVault(password: "")
+            _ = try await subject.unlockVault(password: "", state: nil)
         }
     }
 
@@ -330,7 +301,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = []
         stateService.activeAccount = nil
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.logout()
+            _ = try await subject.logout(userId: nil, state: nil)
         }
     }
 
@@ -340,7 +311,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [account]
         stateService.activeAccount = nil
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.logout()
+            _ = try await subject.logout(userId: nil, state: nil)
         }
     }
 
@@ -351,7 +322,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = account
         vaultTimeoutService.timeoutStore = [account.profile.userId: false]
         let task = Task {
-            try await subject.logout()
+            try await subject.logout(userId: nil, state: nil)
         }
         waitFor(!vaultTimeoutService.removedIds.isEmpty)
         task.cancel()

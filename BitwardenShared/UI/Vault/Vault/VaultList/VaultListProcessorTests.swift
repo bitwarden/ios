@@ -84,10 +84,8 @@ class VaultListProcessorTests: BitwardenTestCase {
 
     // swiftlint:disable:next line_length
     /// `perform(.refreshAccountProfiles)` with mismatched active account and accounts should yield an empty profile switcher state.
-    func test_perform_refresh_profiles_mismatch() async {
-        let profile = ProfileSwitcherItem()
-        authRepository.accountsResult = .success([])
-        authRepository.activeAccountResult = .success(profile)
+    func test_perform_refresh_profiles_error() async {
+        authRepository.profileStateResult = .failure(StateServiceError.noAccounts)
         await subject.perform(.refreshAccountProfiles)
 
         XCTAssertEqual(subject.state.profileSwitcherState.activeAccountInitials, "..")
@@ -96,8 +94,12 @@ class VaultListProcessorTests: BitwardenTestCase {
 
     /// `perform(.refreshAccountProfiles)` with an active account and accounts should yield a profile switcher state.
     func test_perform_refresh_profiles_single_active() async {
-        authRepository.accountsResult = .success([profile1])
-        authRepository.activeAccountResult = .success(profile1)
+        let state = ProfileSwitcherState(
+            accounts: [profile1],
+            activeAccountId: profile1.userId,
+            isVisible: false
+        )
+        authRepository.profileStateResult = .success(state)
         await subject.perform(.refreshAccountProfiles)
 
         XCTAssertEqual(profile1, subject.state.profileSwitcherState.activeAccountProfile)
@@ -106,7 +108,12 @@ class VaultListProcessorTests: BitwardenTestCase {
     // swiftlint:disable:next line_length
     /// `perform(.refreshAccountProfiles)` with no active account and accounts should yield an empty profile switcher state.
     func test_perform_refresh_profiles_single_notActive() async {
-        authRepository.accountsResult = .success([profile1])
+        let state = ProfileSwitcherState(
+            accounts: [profile1],
+            activeAccountId: nil,
+            isVisible: false
+        )
+        authRepository.profileStateResult = .success(state)
         await subject.perform(.refreshAccountProfiles)
 
         XCTAssertEqual(subject.state.profileSwitcherState.activeAccountInitials, "..")
@@ -117,8 +124,12 @@ class VaultListProcessorTests: BitwardenTestCase {
     // swiftlint:disable:next line_length
     /// `perform(.refreshAccountProfiles)` with an active account and multiple accounts should yield a profile switcher state.
     func test_perform_refresh_profiles_single_multiAccount() async {
-        authRepository.accountsResult = .success([profile1, profile2])
-        authRepository.activeAccountResult = .success(profile1)
+        let state = ProfileSwitcherState(
+            accounts: [profile1, profile2],
+            activeAccountId: profile1.userId,
+            isVisible: false
+        )
+        authRepository.profileStateResult = .success(state)
         await subject.perform(.refreshAccountProfiles)
 
         XCTAssertEqual([profile2], subject.state.profileSwitcherState.alternateAccounts)

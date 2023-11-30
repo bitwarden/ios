@@ -6,41 +6,63 @@ import Foundation
 protocol AuthRepository: AnyObject {
     // MARK: Methods
 
-    /// Gets all accounts.
-    ///
-    /// - Returns: The known user accounts as `[ProfileSwitcherItem]`.
-    ///
-    func getAccounts() async throws -> [ProfileSwitcherItem]
-
-    /// Gets the active account.
-    ///
-    /// - Returns: The active user account as a `ProfileSwitcherItem`.
-    ///
-    func getActiveAccount() async throws -> ProfileSwitcherItem
-
-    /// Gets the account for a `ProfileSwitcherItem`.
+    /// Gets the account for a given userId.
     ///
     /// - Parameter userId: The user Id to be mapped to an account.
     /// - Returns: The user account.
     ///
-    func getAccount(for userId: String) async throws -> Account
+    func getAccount(for userId: String?) async throws -> Account
 
-    /// Logs the user out of the active account.
+    /// Supplies a current Profile Switcher State.
     ///
-    func logout() async throws
+    ///  - Parameters:
+    ///     - visible: The visibility of the state.
+    ///     - shouldAlwaysHideAddAccount:Overrides the visibilty of the add account row if true.
+    ///  - Returns: An updated ProfileSwitcherState.
+    ///
+    @discardableResult
+    func getProfileSwitcherState(visible: Bool, shouldAlwaysHideAddAccount: Bool) async -> ProfileSwitcherState
+
+    /// Locks the user's vault and clears decrypted data from memory.
+    ///
+    ///  - Parameters:
+    ///     - userId: The userId of the account to lock.
+    ///     Defaults to active account if nil.
+    ///     - state: A ProfileSwitcherState to update.
+    ///  - Returns: An updated ProfileSwitcherState, if supplied.
+    ///
+    @discardableResult
+    func lockVault(userId: String?, state: ProfileSwitcherState?) async -> ProfileSwitcherState?
+
+    /// Logs the active user out of the application.
+    ///
+    ///  - Parameters:
+    ///     - userId: The userId of the account to unlock.
+    ///     Defaults to active account if nil.
+    ///     - state: A ProfileSwitcherState to update.
+    ///  - Returns: An updated ProfileSwitcherState, if supplied.
+    ///
+    @discardableResult
+    func logout(userId: String?, state: ProfileSwitcherState?) async throws -> ProfileSwitcherState?
 
     /// Sets the active account by User Id.
     ///
-    /// - Parameter userId: The user Id to be set as active.
-    /// - Returns: The new active account.
-    ///
-    func setActiveAccount(userId: String) async throws -> Account
+    /// - Parameters:
+    ///    - userId: The user Id to be set as active.
+    ///    - state: A ProfileSwitcherState to update.
+    /// - Returns: An updated ProfileSwitcherState, if supplied.
+    @discardableResult
+    func setActiveAccount(userId: String, state: ProfileSwitcherState?) async throws -> ProfileSwitcherState?
 
-    /// Attempts to unlock the user's vault with their master password.
+    /// Unlocks the user's vault.
     ///
-    /// - Parameter password: The user's master password to unlock the vault.
+    ///  - Parameters:
+    ///     - password: The user's master password to unlock the vault.
+    ///     - state: A ProfileSwitcherState to update.
+    ///  - Returns: An updated ProfileSwitcherState, if supplied.
     ///
-    func unlockVault(password: String) async throws
+    @discardableResult
+    func unlockVault(password: String, state: ProfileSwitcherState?) async throws -> ProfileSwitcherState?
 }
 
 // MARK: - DefaultAuthRepository
@@ -82,19 +104,7 @@ class DefaultAuthRepository {
 // MARK: - AuthRepository
 
 extension DefaultAuthRepository: AuthRepository {
-    func getAccounts() async throws -> [ProfileSwitcherItem] {
-        let accounts = try await stateService.getAccounts()
-        return await accounts.asyncMap { account in
-            await profileItem(from: account)
-        }
-    }
-
-    func getActiveAccount() async throws -> ProfileSwitcherItem {
-        let active = try await stateService.getActiveAccount()
-        return await profileItem(from: active)
-    }
-
-    func getAccount(for userId: String) async throws -> Account {
+    func getAccount(for userId: String?) async throws -> Account {
         let accounts = try await stateService.getAccounts()
         guard let match = accounts.first(where: { account in
             account.profile.userId == userId
@@ -104,17 +114,58 @@ extension DefaultAuthRepository: AuthRepository {
         return match
     }
 
-    func logout() async throws {
+    func getProfileSwitcherState(
+        visible: Bool,
+        shouldAlwaysHideAddAccount: Bool = false
+    ) async -> ProfileSwitcherState {
+        var accounts = [ProfileSwitcherItem]()
+        var activeAccount: ProfileSwitcherItem?
+        do {
+            accounts = try await getAccounts()
+            activeAccount = try? await getActiveAccount()
+            return ProfileSwitcherState(
+                accounts: accounts,
+                activeAccountId: activeAccount?.userId,
+                isVisible: visible,
+                shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+            )
+        } catch {
+            return ProfileSwitcherState.empty()
+        }
+    }
+
+    func lockVault(userId: String?, state: ProfileSwitcherState? = nil) async -> ProfileSwitcherState? {
+        await vaultTimeoutService.lockVault(userId: userId)
+        guard let state else { return nil }
+        return await getProfileSwitcherState(
+            visible: state.isVisible,
+            shouldAlwaysHideAddAccount: state.shouldAlwaysHideAddAccount
+        )
+    }
+
+    func logout(userId: String?, state: ProfileSwitcherState? = nil) async throws -> ProfileSwitcherState? {
         await vaultTimeoutService.remove(userId: nil)
-        try await stateService.logoutAccount()
+        try await stateService.logoutAccount(userId: userId)
+        guard let state else { return nil }
+        return await getProfileSwitcherState(
+            visible: state.isVisible,
+            shouldAlwaysHideAddAccount: state.shouldAlwaysHideAddAccount
+        )
     }
 
-    func setActiveAccount(userId: String) async throws -> Account {
+    func setActiveAccount(userId: String, state: ProfileSwitcherState? = nil) async throws -> ProfileSwitcherState? {
         try await stateService.setActiveAccount(userId: userId)
-        return try await stateService.getActiveAccount()
+        guard let state else { return nil }
+        return await getProfileSwitcherState(
+            visible: state.isVisible,
+            shouldAlwaysHideAddAccount: state.shouldAlwaysHideAddAccount
+        )
     }
 
-    func unlockVault(password: String) async throws {
+    func unlockVault(
+        password: String,
+        state: ProfileSwitcherState? = nil
+    ) async throws -> ProfileSwitcherState? {
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
         let account = try await stateService.getActiveAccount()
         try await clientCrypto.initializeCrypto(
@@ -128,29 +179,24 @@ extension DefaultAuthRepository: AuthRepository {
             )
         )
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
+        guard let state else { return nil }
+        return await getProfileSwitcherState(
+            visible: state.isVisible,
+            shouldAlwaysHideAddAccount: state.shouldAlwaysHideAddAccount
+        )
     }
 
-    /// A function to convert an `Account` to a `ProfileSwitcherItem`
-    ///
-    ///   - Parameter account: The account to convert.
-    ///   - Returns: The `ProfileSwitcherItem` representing the account.
-    ///
-    func profileItem(from account: Account) async -> ProfileSwitcherItem {
-        var profile = ProfileSwitcherItem(
-            email: account.profile.email,
-            userId: account.profile.userId,
-            userInitials: account.initials()
-                ?? ".."
-        )
-        do {
-            let isUnlocked = try !vaultTimeoutService.isLocked(userId: account.profile.userId)
-            profile.isUnlocked = isUnlocked
-            return profile
-        } catch {
-            profile.isUnlocked = false
-            let userId = profile.userId
-            await vaultTimeoutService.lockVault(userId: userId)
-            return profile
+    // MARK: Private Methods
+
+    private func getAccounts() async throws -> [ProfileSwitcherItem] {
+        let accounts = try await stateService.getAccounts()
+        return await accounts.asyncMap { account in
+            await account.profileItem(vaultTimeoutService: vaultTimeoutService)
         }
+    }
+
+    private func getActiveAccount() async throws -> ProfileSwitcherItem {
+        let active = try await stateService.getActiveAccount()
+        return await active.profileItem(vaultTimeoutService: vaultTimeoutService)
     }
 }

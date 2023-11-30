@@ -97,7 +97,10 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     private func showLogoutConfirmation() {
         let alert = Alert.logoutConfirmation {
             do {
-                try await self.services.authRepository.logout()
+                try await self.services.authRepository.logout(
+                    userId: self.state.profileSwitcherState.activeAccountId,
+                    state: self.state.profileSwitcherState
+                )
             } catch {
                 self.services.errorReporter.log(error: BitwardenError.logoutError(error: error))
             }
@@ -113,7 +116,10 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             try EmptyInputValidator(fieldName: Localizations.masterPassword)
                 .validate(input: state.masterPassword)
 
-            try await services.authRepository.unlockVault(password: state.masterPassword)
+            try await services.authRepository.unlockVault(
+                password: state.masterPassword,
+                state: state.profileSwitcherState
+            )
             coordinator.navigate(to: .complete)
         } catch let error as InputValidationError {
             coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))
@@ -131,18 +137,16 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
     ///
     private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
+        defer { state.profileSwitcherState.isVisible = false }
+        guard selectedAccount.userId != state.profileSwitcherState.activeAccountId else { return }
         Task {
-            defer { state.profileSwitcherState.isVisible = false }
-            let accounts = try? await services.authRepository.getAccounts()
-            let active = try? await services.authRepository.getActiveAccount()
-            guard let accounts,
-                  accounts.contains(where: { account in
-                      account.userId == selectedAccount.userId
-                  }),
-                  selectedAccount != active else {
-                return
-            }
             do {
+                if let newState = try await services.authRepository.setActiveAccount(
+                    userId: selectedAccount.userId,
+                    state: state.profileSwitcherState
+                ) {
+                    state.profileSwitcherState = newState
+                }
                 let account = try await services.authRepository.getAccount(for: selectedAccount.userId)
                 didTapAccount(account, isUnlocked: selectedAccount.isUnlocked)
             } catch {
@@ -167,19 +171,9 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     /// Configures a profile switcher state with the current account and alternates.
     ///
     private func refreshProfileState() async {
-        var accounts = [ProfileSwitcherItem]()
-        var activeAccount: ProfileSwitcherItem?
-        do {
-            accounts = try await services.authRepository.getAccounts()
-            guard !accounts.isEmpty else { return }
-            activeAccount = try? await services.authRepository.getActiveAccount()
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: accounts,
-                activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible
-            )
-        } catch {
-            state.profileSwitcherState = .empty()
-        }
+        state.profileSwitcherState = await services.authRepository.getProfileSwitcherState(
+            visible: state.profileSwitcherState.isVisible,
+            shouldAlwaysHideAddAccount: false
+        )
     }
 }

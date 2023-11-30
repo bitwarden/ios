@@ -1,36 +1,70 @@
 @testable import BitwardenShared
 
 class MockAuthRepository: AuthRepository {
-    var accountsResult: Result<[ProfileSwitcherItem], Error> = .failure(StateServiceError.noAccounts)
-    var activeAccountResult: Result<ProfileSwitcherItem, Error> = .failure(StateServiceError.noActiveAccount)
-    var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var accountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var profileStateResult: Result<ProfileSwitcherState?, Error> = .success(nil)
+    var capturedUserId: String?
+    var capturedProfileState: ProfileSwitcherState?
     var logoutCalled = false
-    var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var unlockVaultPassword: String?
-    var unlockVaultResult: Result<Void, Error> = .success(())
+    var unlockVaultResult: Result<ProfileSwitcherState?, Error> = .success(nil)
 
-    func getAccounts() async throws -> [ProfileSwitcherItem] {
-        try accountsResult.get()
+    func getAccount(for userId: String?) async throws -> BitwardenShared.Account {
+        capturedUserId = userId
+        return try accountResult.get()
     }
 
-    func getActiveAccount() async throws -> ProfileSwitcherItem {
-        try activeAccountResult.get()
+    func getProfileSwitcherState(
+        visible: Bool,
+        shouldAlwaysHideAddAccount: Bool
+    ) async -> BitwardenShared.ProfileSwitcherState {
+        guard let result = try? profileStateResult.get() else {
+            var new = ProfileSwitcherState.empty(shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount)
+            new.isVisible = visible
+            return new
+        }
+        return .init(
+            accounts: result.accounts,
+            activeAccountId: result.activeAccountId,
+            isVisible: visible,
+            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+        )
     }
 
-    func getAccount(for userId: String) async throws -> BitwardenShared.Account {
-        try accountForItemResult.get()
+    func lockVault(
+        userId: String?,
+        state: BitwardenShared.ProfileSwitcherState?
+    ) async -> BitwardenShared.ProfileSwitcherState? {
+        capturedUserId = userId
+        capturedProfileState = state
+        return try? profileStateResult.get()
     }
 
-    func logout() async throws {
+    func logout(
+        userId: String?,
+        state: BitwardenShared.ProfileSwitcherState?
+    ) async throws -> BitwardenShared.ProfileSwitcherState? {
         logoutCalled = true
+        capturedUserId = userId
+        capturedProfileState = state
+        return try? profileStateResult.get()
     }
 
-    func setActiveAccount(userId: String) async throws -> Account {
-        try setActiveAccountResult.get()
+    func setActiveAccount(
+        userId: String,
+        state: BitwardenShared.ProfileSwitcherState?
+    ) async throws -> BitwardenShared.ProfileSwitcherState? {
+        capturedUserId = userId
+        capturedProfileState = state
+        return try profileStateResult.get()
     }
 
-    func unlockVault(password: String) async throws {
+    func unlockVault(
+        password: String,
+        state: BitwardenShared.ProfileSwitcherState?
+    ) async throws -> BitwardenShared.ProfileSwitcherState? {
         unlockVaultPassword = password
-        try unlockVaultResult.get()
+        capturedProfileState = state
+        return try unlockVaultResult.get()
     }
 }

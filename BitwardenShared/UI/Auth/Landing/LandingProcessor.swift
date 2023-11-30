@@ -50,21 +50,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     /// Configures a profile switcher state with the current account and alternates.
     ///
     private func refreshProfileState() async {
-        var accounts = [ProfileSwitcherItem]()
-        var activeAccount: ProfileSwitcherItem?
-        do {
-            accounts = try await services.authRepository.getAccounts()
-            guard !accounts.isEmpty else { return }
-            activeAccount = try? await services.authRepository.getActiveAccount()
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: accounts,
-                activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible,
-                shouldAlwaysHideAddAccount: true
-            )
-        } catch {
-            state.profileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
-        }
+        state.profileSwitcherState = await services.authRepository.getProfileSwitcherState(
+            visible: state.profileSwitcherState.isVisible,
+            shouldAlwaysHideAddAccount: true
+        )
     }
 
     override func perform(_ effect: LandingEffect) async {

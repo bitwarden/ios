@@ -160,7 +160,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityToken)
             try await services.stateService.setAccountEncryptionKeys(encryptionKeys)
 
-            try await services.authRepository.unlockVault(password: state.masterPassword)
+            try await services.authRepository.unlockVault(password: state.masterPassword, state: nil)
 
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .complete)
