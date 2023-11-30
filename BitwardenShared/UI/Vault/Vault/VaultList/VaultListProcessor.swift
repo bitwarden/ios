@@ -85,11 +85,11 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
                 addAccount()
             case .backgroundPressed:
                 setProfileSwitcher(visible: false)
+            case let .requestedProfileSwitcher(visible: isVisible):
+                state.profileSwitcherState.isVisible = isVisible
             case let .scrollOffsetChanged(newOffset):
                 state.profileSwitcherState.scrollOffset = newOffset
             }
-        case let .requestedProfileSwitcher(visible: isVisible):
-            setProfileSwitcher(visible: isVisible)
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else { return }
             state.profileSwitcherState.isVisible = !isSearching

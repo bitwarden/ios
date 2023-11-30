@@ -17,9 +17,6 @@ enum LandingAction: Equatable {
     /// The region button was pressed.
     case regionPressed
 
-    /// An action to toggle the visibility of the profile switcher view.
-    case requestedProfileSwitcher(visible: Bool)
-
     /// The value for the remember me toggle was changed.
     case rememberMeChanged(Bool)
 }

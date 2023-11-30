@@ -80,11 +80,11 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                 coordinator.navigate(to: .landing)
             case .backgroundPressed:
                 state.profileSwitcherState.isVisible = false
+            case let .requestedProfileSwitcher(visible: isVisible):
+                state.profileSwitcherState.isVisible = isVisible
             case let .scrollOffsetChanged(newOffset):
                 state.profileSwitcherState.scrollOffset = newOffset
             }
-        case let .requestedProfileSwitcher(visible: isVisible):
-            state.profileSwitcherState.isVisible = isVisible
         case let .revealMasterPasswordFieldPressed(isMasterPasswordRevealed):
             state.isMasterPasswordRevealed = isMasterPasswordRevealed
         }

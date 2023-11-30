@@ -423,7 +423,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
 
         let task = Task {
-            subject.receive(.requestedProfileSwitcher(visible: false))
+            subject.receive(.profileSwitcherAction(.requestedProfileSwitcher(visible: false)))
         }
         waitFor(!subject.state.profileSwitcherState.isVisible)
         task.cancel()
@@ -442,7 +442,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
 
         let task = Task {
-            subject.receive(.requestedProfileSwitcher(visible: true))
+            subject.receive(.profileSwitcherAction(.requestedProfileSwitcher(visible: true)))
         }
         waitFor(subject.state.profileSwitcherState.isVisible)
         task.cancel()

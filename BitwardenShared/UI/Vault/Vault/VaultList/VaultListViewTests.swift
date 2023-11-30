@@ -75,8 +75,10 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.isVisible = false
         let buttonUnselected = try subject.inspect().find(button: "AA")
         try buttonUnselected.tap()
-
-        XCTAssertEqual(processor.dispatchedActions.last, .requestedProfileSwitcher(visible: true))
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .profileSwitcherAction(.requestedProfileSwitcher(visible: true))
+        )
     }
 
     /// Tapping the profile button dispatches the `.toggleProfilesViewVisibility` action.
@@ -85,7 +87,10 @@ class VaultListViewTests: BitwardenTestCase {
         let buttonUnselected = try subject.inspect().find(button: "AA")
         try buttonUnselected.tap()
 
-        XCTAssertEqual(processor.dispatchedActions.last, .requestedProfileSwitcher(visible: false))
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .profileSwitcherAction(.requestedProfileSwitcher(visible: false))
+        )
     }
 
     func test_searchResult_tap() throws {
