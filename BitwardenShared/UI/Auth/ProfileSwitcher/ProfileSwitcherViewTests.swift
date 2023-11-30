@@ -192,6 +192,11 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
+        processor.state = ProfileSwitcherState.maximumAccounts
+        assertSnapshot(matching: subject, as: .defaultPortraitAX5)
+    }
+
     func test_snapshot_multiAccount_locked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [

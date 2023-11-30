@@ -128,6 +128,12 @@ class VaultUnlockViewTests: BitwardenTestCase {
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    /// Check the snapshot for the profiles visible
+    func test_snapshot_profilesVisible_max_largeText() {
+        processor.state.profileSwitcherState = .maximumAccounts
+        assertSnapshot(matching: subject, as: .defaultPortraitAX5)
+    }
+
     /// Check the snapshot for the profiles closed
     func test_snapshot_profilesClosed() {
         let account = ProfileSwitcherItem(
