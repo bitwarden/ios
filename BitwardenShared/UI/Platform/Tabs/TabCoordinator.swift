@@ -114,6 +114,7 @@ internal final class TabCoordinator: Coordinator, HasTabNavigator {
         let generatorNavigator = UINavigationController()
         generatorNavigator.navigationBar.prefersLargeTitles = true
         generatorCoordinator = module.makeGeneratorCoordinator(
+            delegate: nil,
             stackNavigator: generatorNavigator
         )
         generatorCoordinator?.start()
@@ -130,7 +131,7 @@ internal final class TabCoordinator: Coordinator, HasTabNavigator {
         let tabsAndNavigators: [TabRoute: Navigator] = [
             .vault(.list): vaultNavigator,
             .send: sendNavigator,
-            .generator(.generator): generatorNavigator,
+            .generator(.generator()): generatorNavigator,
             .settings(.settings): settingsNavigator,
         ]
         tabNavigator.setNavigators(tabsAndNavigators)

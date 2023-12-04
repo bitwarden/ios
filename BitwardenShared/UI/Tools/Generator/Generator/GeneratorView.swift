@@ -20,6 +20,13 @@ struct GeneratorView: View {
                 ForEach(store.state.formSections) { section in
                     sectionView(section)
                 }
+
+                if store.state.presentationMode.isSelectButtonVisible {
+                    Button(Localizations.select) {
+                        store.send(.selectButtonPressed)
+                    }
+                    .buttonStyle(.primary())
+                }
             }
             .padding(16)
         }
@@ -49,6 +56,18 @@ struct GeneratorView: View {
                         .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                 }
             }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if store.state.presentationMode.isDismissButtonVisible {
+                    Button {
+                        store.send(.dismissPressed)
+                    } label: {
+                        Asset.Images.cancel.swiftUIImage
+                            .resizable()
+                            .frame(width: 19, height: 19)
+                    }
+                    .accessibilityLabel(Localizations.cancel)
+                }
+            }
         }
     }
 
@@ -58,6 +77,8 @@ struct GeneratorView: View {
     ///
     @ViewBuilder
     func sectionView(_ section: GeneratorState.FormSection<GeneratorState>) -> some View {
+        // swiftlint:disable:previous function_body_length
+
         if let title = section.title {
             Text(title.uppercased())
                 .font(.styleGuide(.footnote))
@@ -69,8 +90,14 @@ struct GeneratorView: View {
         VStack(spacing: 12) {
             ForEach(section.fields) { field in
                 switch field.fieldType {
+                case let .emailWebsite(website):
+                    emailWebsiteView(website: website)
                 case let .generatedValue(generatedValueField):
                     generatedValueView(field: generatedValueField)
+                case let .menuEmailType(menuField):
+                    FormMenuFieldView(field: menuField) { newValue in
+                        store.send(.emailTypeChanged(newValue))
+                    }
                 case let .menuGeneratorType(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.generatorTypeChanged(newValue))
@@ -109,21 +136,28 @@ struct GeneratorView: View {
         }
     }
 
+    /// Returns a view for displaying a static email website field.
+    ///
+    /// - Parameter website: The website to display in the field.
+    ///
+    @ViewBuilder
+    func emailWebsiteView(website: String) -> some View {
+        BitwardenField(title: Localizations.website) {
+            Text(website)
+                .font(.styleGuide(.body))
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+        }
+    }
+
     /// Returns a view for displaying a generated value (the generated password, username or email).
     ///
     /// - Parameter field: The data for displaying the generated value field.
     ///
     @ViewBuilder
     func generatedValueView(field: GeneratorState.GeneratedValueField<GeneratorState>) -> some View {
-        HStack(spacing: 8) {
-            Text(field.value)
-                .font(.styleGuide(.bodyMonospaced))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                .cornerRadius(10)
-
+        BitwardenField {
+            PasswordText(password: field.value, isPasswordVisible: true)
+        } accessoryContent: {
             Button {
                 store.send(.copyGeneratedValue)
             } label: {

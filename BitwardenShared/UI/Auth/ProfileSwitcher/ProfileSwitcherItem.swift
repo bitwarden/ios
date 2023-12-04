@@ -12,7 +12,7 @@ struct ProfileSwitcherItem: Equatable {
     var email = ""
 
     /// The the locked state of an account profile
-    var isUnlocked = true
+    var isUnlocked = false
 
     /// The user's identifier
     var userId = UUID().uuidString

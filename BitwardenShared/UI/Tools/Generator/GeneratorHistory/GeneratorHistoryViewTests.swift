@@ -10,7 +10,7 @@ import SwiftUI
 class GeneratorHistoryViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<GeneratorHistoryState, GeneratorHistoryAction, Void>!
+    var processor: MockProcessor<GeneratorHistoryState, GeneratorHistoryAction, GeneratorHistoryEffect>!
     var subject: GeneratorHistoryView!
 
     // MARK: Setup & Teardown
@@ -34,11 +34,11 @@ class GeneratorHistoryViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the clear button dispatches the `.clearList` action.
-    func test_clear_tapped() throws {
+    func test_clear_tapped() async throws {
         let menu = try subject.inspect().find(ViewType.Menu.self, containing: Localizations.options)
-        let button = try menu.find(button: Localizations.clear)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .clearList)
+        let button = try menu.find(asyncButton: Localizations.clear)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .clearList)
     }
 
     /// Tapping the close button dispatches the `.dismiss` action.
@@ -50,10 +50,7 @@ class GeneratorHistoryViewTests: BitwardenTestCase {
 
     /// Tapping the copy button on a password history row dispatches the `.copyPassword` action.
     func test_copyPassword_tapped() throws {
-        let passwordHistory = PasswordHistoryView(
-            password: "8gr6uY8CLYQwzr#",
-            lastUsedDate: Date(year: 2023, month: 11, day: 1, hour: 8, minute: 30)
-        )
+        let passwordHistory = PasswordHistoryView.fixture(password: "8gr6uY8CLYQwzr#")
         processor.state.passwordHistory = [passwordHistory]
 
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyPassword)

@@ -51,7 +51,9 @@ struct SettingsView: View {
                 chevron
             }
 
-            SettingsListItem(Localizations.other) {} trailingContent: {
+            SettingsListItem(Localizations.other) {
+                store.send(.otherPressed)
+            } trailingContent: {
                 chevron
             }
 

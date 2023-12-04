@@ -48,15 +48,29 @@ class VaultRepositoryTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tests `vaultTimeoutService.lock()` publishes the correct value for whether or not the vault was locked.
-    func test_vault_isLocked() async throws {
+    func test_vault_isLocked_shouldClear() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
 
         try await subject.fetchSync()
         XCTAssertNotNil(subject.syncResponseSubject.value)
 
-        subject.vaultTimeoutService.lock()
+        vaultTimeoutService.shouldClear = true
+        await subject.vaultTimeoutService.lockVault(userId: "")
         waitFor(subject.syncResponseSubject.value == nil)
         XCTAssertNil(subject.syncResponseSubject.value)
+    }
+
+    /// Tests `vaultTimeoutService.lock()` publishes the correct value for whether or not the vault was locked.
+    func test_vault_isLocked_shouldNotClear() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+
+        try await subject.fetchSync()
+        XCTAssertNotNil(subject.syncResponseSubject.value)
+
+        vaultTimeoutService.shouldClear = false
+        await subject.vaultTimeoutService.lockVault(userId: "")
+        waitFor(subject.syncResponseSubject.value != nil)
+        XCTAssertNotNil(subject.syncResponseSubject.value)
     }
 
     /// `addCipher()` makes the add cipher API request and updates the vault.
@@ -120,6 +134,41 @@ class VaultRepositoryTests: BitwardenTestCase {
         let cipherDetails = await iterator.next()
 
         XCTAssertEqual(cipherDetails?.name, "Apple")
+    }
+
+    /// `remove(userId:)` Removes an account id from the vault timeout service.
+    func test_removeAccountId_success_unlocked() async {
+        let account = Account.fixtureAccountLogin()
+        vaultTimeoutService.timeoutStore = [
+            account.profile.userId: false,
+        ]
+        await subject.remove(userId: account.profile.userId)
+        XCTAssertEqual([:], vaultTimeoutService.timeoutStore)
+    }
+
+    /// `remove(userId:)` Removes an account id from the vault timeout service.
+    func test_removeAccountId_success_locked() async {
+        let account = Account.fixtureAccountLogin()
+        vaultTimeoutService.timeoutStore = [
+            account.profile.userId: true,
+        ]
+        await subject.remove(userId: account.profile.userId)
+        XCTAssertEqual([:], vaultTimeoutService.timeoutStore)
+    }
+
+    /// `remove(userId:)` Throws no error when no account is found.
+    func test_removeAccountId_failure() async {
+        let account = Account.fixtureAccountLogin()
+        vaultTimeoutService.timeoutStore = [
+            account.profile.userId: false,
+        ]
+        await subject.remove(userId: "123")
+        XCTAssertEqual(
+            [
+                account.profile.userId: false,
+            ],
+            vaultTimeoutService.timeoutStore
+        )
     }
 
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are

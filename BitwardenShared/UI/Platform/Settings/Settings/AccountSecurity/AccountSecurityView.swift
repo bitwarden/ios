@@ -7,6 +7,9 @@ import SwiftUI
 struct AccountSecurityView: View {
     // MARK: Properties
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
     /// The store used to render the view.
     @ObservedObject var store: Store<AccountSecurityState, AccountSecurityAction, AccountSecurityEffect>
 
@@ -24,7 +27,11 @@ struct AccountSecurityView: View {
         }
         .scrollView()
         .navigationBar(title: Localizations.accountSecurity, titleDisplayMode: .inline)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .onChange(of: store.state.twoStepLoginUrl) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearTwoStepLoginUrl)
+        }
     }
 
     // MARK: Private views
@@ -34,13 +41,13 @@ struct AccountSecurityView: View {
         VStack(alignment: .leading) {
             SectionHeaderView(Localizations.approveLoginRequests)
 
-            ToggleView(
-                isOn: store.binding(
-                    get: \.isApproveLoginRequestsToggleOn,
-                    send: AccountSecurityAction.toggleApproveLoginRequestsToggle
-                ),
-                description: Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices
-            )
+            Toggle(isOn: store.binding(
+                get: \.isApproveLoginRequestsToggleOn,
+                send: AccountSecurityAction.toggleApproveLoginRequestsToggle
+            )) {
+                Text(Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices)
+            }
+            .toggleStyle(.bitwarden)
 
             if store.state.isApproveLoginRequestsToggleOn {
                 SettingsListItem(
@@ -60,7 +67,9 @@ struct AccountSecurityView: View {
             VStack(spacing: 0) {
                 SettingsListItem(Localizations.accountFingerprintPhrase) {}
 
-                SettingsListItem(Localizations.twoStepLogin) {} trailingContent: {
+                SettingsListItem(Localizations.twoStepLogin) {
+                    store.send(.twoStepLoginPressed)
+                } trailingContent: {
                     Image(asset: Asset.Images.externalLink)
                         .resizable()
                         .frame(width: 22, height: 22)
@@ -118,32 +127,33 @@ struct AccountSecurityView: View {
 
             VStack(spacing: 24) {
                 if store.state.biometricAuthenticationType == .touchID {
-                    ToggleView(
-                        isOn: store.binding(
-                            get: \.isUnlockWithTouchIDToggleOn,
-                            send: AccountSecurityAction.toggleUnlockWithTouchID
-                        ),
-                        description: Localizations.unlockWith(Localizations.touchID)
-                    )
+                    Toggle(isOn: store.binding(
+                        get: \.isUnlockWithTouchIDToggleOn,
+                        send: AccountSecurityAction.toggleUnlockWithTouchID
+                    )) {
+                        Text(Localizations.unlockWith(Localizations.touchID))
+                    }
+                    .toggleStyle(.bitwarden)
                 }
 
                 if store.state.biometricAuthenticationType == .faceID {
-                    ToggleView(
-                        isOn: store.binding(
-                            get: \.isUnlockWithFaceIDOn,
-                            send: AccountSecurityAction.toggleUnlockWithFaceID
-                        ),
-                        description: Localizations.unlockWith(Localizations.faceID)
-                    )
+                    Toggle(isOn: store.binding(
+                        get: \.isUnlockWithFaceIDOn,
+                        send: AccountSecurityAction.toggleUnlockWithFaceID
+                    )) {
+                        Text(Localizations.unlockWith(Localizations.faceID))
+                    }
+                    .toggleStyle(.bitwarden)
                 }
 
-                ToggleView(
-                    isOn: store.binding(
-                        get: \.isUnlockWithPINCodeOn,
-                        send: AccountSecurityAction.toggleUnlockWithPINCode
-                    ),
-                    description: Localizations.unlockWithPIN
-                )
+                Toggle(isOn: store.binding(
+                    get: \.isUnlockWithPINCodeOn,
+                    send: AccountSecurityAction.toggleUnlockWithPINCode
+                )) {
+                    Text(Localizations.unlockWithPIN)
+                }
+                .toggleStyle(.bitwarden)
+                .font(.styleGuide(.body))
             }
         }
     }

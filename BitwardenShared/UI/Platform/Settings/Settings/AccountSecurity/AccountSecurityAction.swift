@@ -3,6 +3,9 @@
 /// Actions handled by the `AccountSecurityProcessor`.
 ///
 enum AccountSecurityAction {
+    /// Clears the two step login URL after the web app has been opened.
+    case clearTwoStepLoginUrl
+
     /// The delete account button was pressed.
     case deleteAccountPressed
 
@@ -20,4 +23,7 @@ enum AccountSecurityAction {
 
     /// Unlock with touch ID was toggled.
     case toggleUnlockWithTouchID(Bool)
+
+    /// The two step login button was pressed.
+    case twoStepLoginPressed
 }

@@ -3,7 +3,17 @@
 protocol SettingsRepository: AnyObject {
     /// Locks the user's vault and clears decrypted data from memory.
     ///
-    func lockVault()
+    ///  - Parameter userId: The userId of the account to lock.
+    ///     Defaults to active account if nil.
+    ///
+    func lockVault(userId: String?) async
+
+    /// Unlocks the user's vault.
+    ///
+    ///  - Parameter userId: The userId of the account to unlock.
+    ///     Defaults to active account if nil.
+    ///
+    func unlockVault(userId: String?) async
 
     /// Logs the active user out of the application.
     ///
@@ -43,8 +53,12 @@ class DefaultSettingsRepository {
 // MARK: - SettingsRepository
 
 extension DefaultSettingsRepository: SettingsRepository {
-    func lockVault() {
-        vaultTimeoutService.lock()
+    func lockVault(userId: String?) async {
+        await vaultTimeoutService.lockVault(userId: userId)
+    }
+
+    func unlockVault(userId: String?) async {
+        await vaultTimeoutService.unlockVault(userId: userId)
     }
 
     func logout() async throws {

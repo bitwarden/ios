@@ -34,6 +34,9 @@ enum Constants {
     /// The maximum number of accounts permitted for a user.
     static let maxAcccounts: Int = 5
 
+    /// The maximum number of passwords stored in history.
+    static let maxPasswordsInHistory = 100
+
     /// A default value for the minimum number of characters required when creating a password.
     static let minimumPasswordCharacters: Int = 12
 

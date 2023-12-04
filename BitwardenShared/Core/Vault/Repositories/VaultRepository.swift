@@ -30,6 +30,12 @@ protocol VaultRepository: AnyObject {
     ///
     func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>>
 
+    /// Removes an account id.
+    ///
+    ///  - Parameter userId: An optional userId. Defaults to the active user id.
+    ///
+    func remove(userId: String?) async
+
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
     ///
@@ -95,8 +101,8 @@ class DefaultVaultRepository {
         self.vaultTimeoutService = vaultTimeoutService
 
         Task {
-            for await isLocked in vaultTimeoutService.isLockedPublisher() {
-                guard isLocked else { continue }
+            for await shouldClearData in vaultTimeoutService.shouldClearDecryptedDataPublisher() {
+                guard shouldClearData else { continue }
                 syncResponseSubject.value = nil
             }
         }
@@ -205,6 +211,10 @@ extension DefaultVaultRepository: VaultRepository {
         _ = try await cipherAPIService.addCipher(cipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync()
+    }
+
+    func remove(userId: String?) async {
+        await vaultTimeoutService.remove(userId: userId)
     }
 
     // MARK: Publishers

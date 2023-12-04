@@ -203,7 +203,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             firefoxRelayApiAccessToken: "FIREFOX_API_TOKEN",
             includeNumberRandomWordUsername: true,
             plusAddressedEmail: "user@bitwarden.com",
-            plusAddressedEmailType: .website,
+            plusAddressedEmailType: .random,
             serviceType: .fastmail,
             simpleLoginApiKey: "SIMPLELOGIN_API_KEY",
             type: .randomWord
@@ -226,7 +226,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 forwardedEmailService: .fastmail,
                 simpleLoginAPIKey: "SIMPLELOGIN_API_KEY",
                 email: "user@bitwarden.com",
-                plusAddressedEmailType: .website,
+                plusAddressedEmailType: .random,
                 capitalize: true,
                 includeNumber: true
             )
@@ -278,6 +278,34 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
     }
 
+    /// `receive(_:)` with `.dismissPressed` navigates to the `.cancel` route.
+    func test_receive_dismissPressed() {
+        subject.receive(.dismissPressed)
+        XCTAssertEqual(coordinator.routes.last, .cancel)
+    }
+
+    /// `receive(_:)` with `.emailTypeChanged` updates the state's catch all email type.
+    func test_receive_emailTypeChanged_catchAll() {
+        subject.state.usernameState.usernameGeneratorType = .catchAllEmail
+
+        subject.receive(.emailTypeChanged(.website))
+        XCTAssertEqual(subject.state.usernameState.catchAllEmailType, .website)
+
+        subject.receive(.emailTypeChanged(.random))
+        XCTAssertEqual(subject.state.usernameState.catchAllEmailType, .random)
+    }
+
+    /// `receive(_:)` with `.emailTypeChanged` updates the state's plus addressed email type.
+    func test_receive_emailTypeChanged_plusAddressed() {
+        subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
+
+        subject.receive(.emailTypeChanged(.website))
+        XCTAssertEqual(subject.state.usernameState.plusAddressedEmailType, .website)
+
+        subject.receive(.emailTypeChanged(.random))
+        XCTAssertEqual(subject.state.usernameState.plusAddressedEmailType, .random)
+    }
+
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
     func test_receive_generatorTypeChanged() {
         subject.receive(.generatorTypeChanged(.password))
@@ -287,14 +315,23 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.generatorType, .username)
     }
 
+    /// `receive(_:)` with `.passwordGeneratorTypeChanged` updates the state's password generator type value.
+    func test_receive_passwordGeneratorTypeChanged() {
+        subject.receive(.passwordGeneratorTypeChanged(.password))
+        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .password)
+
+        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
+        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .passphrase)
+    }
+
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new passphrase.
-    func test_receive_refreshGeneratedValue_passphrase() {
+    func test_receive_refreshGeneratedValue_passphrase() throws {
         subject.state.generatorType = .password
         subject.state.passwordState.passwordGeneratorType = .passphrase
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { !subject.state.generatedValue.isEmpty }
+        waitFor { !generatorRepository.passwordHistorySubject.value.isEmpty }
 
         XCTAssertEqual(
             generatorRepository.passphraseGeneratorRequest,
@@ -305,16 +342,21 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 includeNumber: false
             )
         )
+
         XCTAssertEqual(subject.state.generatedValue, "PASSPHRASE")
+        XCTAssertEqual(generatorRepository.passwordHistorySubject.value.count, 1)
+        let passwordHistory = try XCTUnwrap(generatorRepository.passwordHistorySubject.value.first)
+        XCTAssertEqual(passwordHistory.password, "PASSPHRASE")
+        XCTAssertEqual(passwordHistory.lastUsedDate.timeIntervalSince1970, Date().timeIntervalSince1970, accuracy: 0.1)
     }
 
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new password.
-    func test_receive_refreshGeneratedValue_password() {
+    func test_receive_refreshGeneratedValue_password() throws {
         subject.state.generatorType = .password
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { !subject.state.generatedValue.isEmpty }
+        waitFor { !generatorRepository.passwordHistorySubject.value.isEmpty }
 
         XCTAssertEqual(
             generatorRepository.passwordGeneratorRequest,
@@ -331,7 +373,20 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 minSpecial: nil
             )
         )
+
         XCTAssertEqual(subject.state.generatedValue, "PASSWORD")
+        XCTAssertEqual(generatorRepository.passwordHistorySubject.value.count, 1)
+        let passwordHistory = try XCTUnwrap(generatorRepository.passwordHistorySubject.value.first)
+        XCTAssertEqual(passwordHistory.password, "PASSWORD")
+        XCTAssertEqual(passwordHistory.lastUsedDate.timeIntervalSince1970, Date().timeIntervalSince1970, accuracy: 0.1)
+    }
+
+    /// `receive(_:)` with `.selectButtonPressed` navigates to the `.complete` route.
+    func test_receive_selectButtonPressed() {
+        subject.state.generatorType = .password
+        subject.state.generatedValue = "password"
+        subject.receive(.selectButtonPressed)
+        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
     }
 
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new plus addressed email.
@@ -346,15 +401,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual(generatorRepository.usernamePlusAddressEmail, "user@bitwarden.com")
         XCTAssertEqual(subject.state.generatedValue, "user+abcd0123@bitwarden.com")
-    }
-
-    /// `receive(_:)` with `.passwordGeneratorTypeChanged` updates the state's password generator type value.
-    func test_receive_passwordGeneratorTypeChanged() {
-        subject.receive(.passwordGeneratorTypeChanged(.password))
-        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .password)
-
-        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
-        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .passphrase)
+        XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.

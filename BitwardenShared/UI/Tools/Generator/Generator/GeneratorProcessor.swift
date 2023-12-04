@@ -63,6 +63,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .copyGeneratedValue:
             services.pasteboardService.copy(state.generatedValue)
             state.showCopiedValueToast()
+        case .dismissPressed:
+            coordinator.navigate(to: .cancel)
+        case let .emailTypeChanged(emailType):
+            state.usernameState.updateEmailType(emailType)
         case let .generatorTypeChanged(generatorType):
             state.generatorType = generatorType
         case let .passwordGeneratorTypeChanged(passwordGeneratorType):
@@ -70,6 +74,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .refreshGeneratedValue:
             // Generating a new value happens below.
             break
+        case .selectButtonPressed:
+            coordinator.navigate(
+                to: .complete(
+                    type: state.generatorType,
+                    value: state.generatedValue
+                )
+            )
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)
         case let .sliderValueChanged(field, value):
@@ -129,7 +140,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 settings: state.passwordState.passphraseGeneratorRequest
             )
             try Task.checkCancellation()
-            state.generatedValue = passphrase
+            try await setGeneratedValue(passphrase)
         } catch {
             Logger.application.error("Generator: error generating passphrase: \(error)")
         }
@@ -143,7 +154,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 settings: state.passwordState.passwordGeneratorRequest
             )
             try Task.checkCancellation()
-            state.generatedValue = password
+            try await setGeneratedValue(password)
         } catch {
             Logger.application.error("Generator: error generating password: \(error)")
         }
@@ -170,7 +181,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 username = "-"
             }
             try Task.checkCancellation()
-            state.generatedValue = username
+            try await setGeneratedValue(username)
         } catch {
             Logger.application.error("Generator: error generating username: \(error)")
         }
@@ -223,6 +234,22 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             }
         } catch {
             services.errorReporter.log(error: BitwardenError.generatorOptionsError(error: error))
+        }
+    }
+
+    /// Sets a newly generated value to the state and saves it to the user's password history.
+    ///
+    /// - Parameter value: The generated value.
+    ///
+    func setGeneratedValue(_ value: String) async throws {
+        state.generatedValue = value
+        if state.generatorType == .password {
+            try await services.generatorRepository.addPasswordHistory(
+                PasswordHistoryView(
+                    password: value,
+                    lastUsedDate: Date()
+                )
+            )
         }
     }
 }

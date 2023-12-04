@@ -4,6 +4,9 @@ extension GeneratorState {
     struct UsernameState: Equatable {
         // MARK: Properties
 
+        /// An optional website host used to generate usernames (either plus addressed or catch all).
+        var emailWebsite: String?
+
         /// The type of username to generate.
         var usernameGeneratorType = UsernameGeneratorType.plusAddressedEmail
 
@@ -67,7 +70,7 @@ extension GeneratorState {
             usernameGeneratorType = options.type ?? usernameGeneratorType
 
             // Catch All Properties
-            catchAllEmailType = options.catchAllEmailType ?? catchAllEmailType
+            catchAllEmailType = emailWebsite.isEmptyOrNil ? .random : .website
             domain = options.catchAllEmailDomain ?? domain
 
             // Forwarded Email Properties
@@ -81,11 +84,28 @@ extension GeneratorState {
 
             // Plus Address Email Properties
             email = options.plusAddressedEmail ?? email
-            plusAddressedEmailType = options.plusAddressedEmailType ?? plusAddressedEmailType
+            plusAddressedEmailType = emailWebsite.isEmptyOrNil ? .random : .website
 
             // Random Word Properties
             capitalize = options.capitalizeRandomWordUsername ?? capitalize
             includeNumber = options.includeNumberRandomWordUsername ?? includeNumber
+        }
+
+        /// Updates the email type value based on current username generator type.
+        ///
+        /// - Parameter emailType: The email type value to update.
+        ///
+        mutating func updateEmailType(_ emailType: UsernameEmailType) {
+            switch usernameGeneratorType {
+            case .plusAddressedEmail:
+                plusAddressedEmailType = emailType
+            case .catchAllEmail:
+                catchAllEmailType = emailType
+            case .forwardedEmail,
+                 .randomWord:
+                // No-op: Email type doesn't exist for these generator types.
+                break
+            }
         }
     }
 }
