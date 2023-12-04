@@ -5,7 +5,6 @@ import XCTest
 class DeleteAccountProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var client: MockHTTPClient!
     var coordinator: MockCoordinator<SettingsRoute>!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
@@ -16,14 +15,12 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        client = MockHTTPClient()
         coordinator = MockCoordinator<SettingsRoute>()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         subject = DeleteAccountProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                httpClient: client,
                 stateService: stateService
             ),
             state: DeleteAccountState()
@@ -33,7 +30,6 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        client = nil
         coordinator = nil
         errorReporter = nil
         stateService = nil
