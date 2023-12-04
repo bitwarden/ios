@@ -13,6 +13,9 @@ struct ViewLoginItemState: Equatable {
     /// The folder this object resides in.
     var folder: String?
 
+    /// A flag indicating if the master password is required before interacting with this item.
+    var isMasterPasswordRequired: Bool
+
     /// A flag indicating if the password is visible.
     var isPasswordVisible = false
 
