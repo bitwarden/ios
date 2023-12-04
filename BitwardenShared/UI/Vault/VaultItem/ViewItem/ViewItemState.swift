@@ -19,6 +19,7 @@ struct ViewItemState: Equatable {
     /// appropriate internal state.
     var loadingState: LoadingState<ItemTypeState> = .loading
 
+    /// A flag indicating if the master password is required before interacting with this item.
     var isMasterPasswordRequired: Bool {
         get {
             switch loadingState {

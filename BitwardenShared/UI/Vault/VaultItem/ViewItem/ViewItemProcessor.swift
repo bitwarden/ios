@@ -54,40 +54,40 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     }
 
     override func receive(_ action: ViewItemAction) {
-        if state.isMasterPasswordRequired, action.requiresMasterPasswordReprompt {
+        guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
             presentMasterPasswordRepromptAlert(for: action)
-        } else {
-            switch action {
-            case .checkPasswordPressed:
-                // TODO: BIT-1130 Check password
-                print("check password")
-            case let .copyPressed(value):
-                // TODO: BIT-1121 Copy value to clipboard
-                print("copy: \(value)")
-            case let .customFieldVisibilityPressed(customFieldState):
-                switch state.loadingState {
-                case var .data(.login(loginState)):
-                    loginState.togglePasswordVisibility(for: customFieldState)
-                    state.loadingState = .data(.login(loginState))
-                default:
-                    assertionFailure("Cannot toggle password for non-login item.")
-                }
-            case .dismissPressed:
-                coordinator.navigate(to: .dismiss)
-            case .editPressed:
-                // TODO: BIT-220 Navigate to the edit route
-                print("edit pressed")
-            case .morePressed:
-                // TODO: BIT-1131 Open item menu
-                print("more pressed")
-            case .passwordVisibilityPressed:
-                switch state.loadingState {
-                case var .data(.login(loginState)):
-                    loginState.isPasswordVisible.toggle()
-                    state.loadingState = .data(.login(loginState))
-                default:
-                    assertionFailure("Cannot toggle password for non-login item.")
-                }
+            return
+        }
+        switch action {
+        case .checkPasswordPressed:
+            // TODO: BIT-1130 Check password
+            print("check password")
+        case let .copyPressed(value):
+            // TODO: BIT-1121 Copy value to clipboard
+            print("copy: \(value)")
+        case let .customFieldVisibilityPressed(customFieldState):
+            switch state.loadingState {
+            case var .data(.login(loginState)):
+                loginState.togglePasswordVisibility(for: customFieldState)
+                state.loadingState = .data(.login(loginState))
+            default:
+                assertionFailure("Cannot toggle password for non-login item.")
+            }
+        case .dismissPressed:
+            coordinator.navigate(to: .dismiss)
+        case .editPressed:
+            // TODO: BIT-220 Navigate to the edit route
+            print("edit pressed")
+        case .morePressed:
+            // TODO: BIT-1131 Open item menu
+            print("more pressed")
+        case .passwordVisibilityPressed:
+            switch state.loadingState {
+            case var .data(.login(loginState)):
+                loginState.isPasswordVisible.toggle()
+                state.loadingState = .data(.login(loginState))
+            default:
+                assertionFailure("Cannot toggle password for non-login item.")
             }
         }
     }

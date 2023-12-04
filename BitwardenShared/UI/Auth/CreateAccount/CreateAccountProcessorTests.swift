@@ -336,7 +336,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when there is no internet connection.
     /// When the user taps `Try again`, the create account request is made again.
-    func test_perform_createAccount_noInternetConnection() async {
+    func test_perform_createAccount_noInternetConnection() async throws {
         subject.state.emailText = "email@example.com"
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"
@@ -411,7 +411,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when the request times out.
     /// When the user taps `Try again`, the create account request is made again.
-    func test_perform_createAccount_timeout() async {
+    func test_perform_createAccount_timeout() async throws {
         subject.state.emailText = "email@example.com"
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"

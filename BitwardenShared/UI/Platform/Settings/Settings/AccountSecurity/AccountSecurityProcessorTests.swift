@@ -172,6 +172,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         // Tapping yes navigates the user to the web app.
         await alert.alertActions[1].handler?(alert.alertActions[1], [])
+
         XCTAssertNotNil(subject.state.twoStepLoginUrl)
     }
 
@@ -181,6 +182,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
         await alert.alertActions[1].handler?(alert.alertActions[1], [])
+
         XCTAssertEqual(subject.state.twoStepLoginUrl, URL.example)
     }
 }
