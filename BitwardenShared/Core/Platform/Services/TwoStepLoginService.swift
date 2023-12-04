@@ -37,8 +37,8 @@ class DefaultTwoStepLoginService: TwoStepLoginService {
         // Foundation's URL appending methods percent encode the path component that is passed into the method,
         // which includes the `#` symbol. Since the `#` character is a critical portion of this url, we use String
         // concatenation to get around this limitation. If for some reason this URL creation fails, we pass back the
-        // base url for this user. This should take them to the web app regardless, and they can navigate to the settings
-        // page from there.
+        // base url for this user. This should take them to the web app regardless,
+        // and they can navigate to the settings page from there.
         URL(string: baseUrlService.baseUrl.absoluteString + "/#/settings") ?? baseUrlService.baseUrl
     }
 }

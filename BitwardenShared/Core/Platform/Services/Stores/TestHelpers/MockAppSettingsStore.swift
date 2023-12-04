@@ -1,3 +1,5 @@
+import Combine
+
 @testable import BitwardenShared
 
 class MockAppSettingsStore: AppSettingsStore {
@@ -6,8 +8,15 @@ class MockAppSettingsStore: AppSettingsStore {
     var encryptedUserKeys = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var rememberedEmail: String?
-    var state: State?
+    var state: State? {
+        didSet {
+            activeIdSubject.send(state?.activeUserId)
+        }
+    }
+
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
+
+    lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
 
     func encryptedPrivateKey(userId: String) -> String? {
         encryptedPrivateKeys[userId]
@@ -55,5 +64,11 @@ class MockAppSettingsStore: AppSettingsStore {
             return
         }
         usernameGenerationOptions[userId] = options
+    }
+
+    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
+        activeIdSubject
+            .eraseToAnyPublisher()
+            .values
     }
 }

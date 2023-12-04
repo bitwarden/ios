@@ -144,7 +144,7 @@ public class ServiceContainer: Services {
     ///
     /// - Parameter errorReporter: The service used by the application to report non-fatal errors.
     ///
-    public convenience init(errorReporter: ErrorReporter) {
+    public convenience init(errorReporter: ErrorReporter) { // swiftlint:disable:this function_body_length
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
@@ -157,12 +157,15 @@ public class ServiceContainer: Services {
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(baseUrlService: baseUrlService, tokenService: tokenService)
+
         let twoStepLoginService = DefaultTwoStepLoginService(baseUrlService: baseUrlService)
-        let vaultTimeoutService = DefaultVaultTimeoutService()
+
+        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
         let authRepository = DefaultAuthRepository(
             clientCrypto: clientService.clientCrypto(),
-            stateService: stateService
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
         )
 
         let generatorRepository = DefaultGeneratorRepository(

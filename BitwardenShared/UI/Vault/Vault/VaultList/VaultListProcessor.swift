@@ -79,9 +79,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             break
         case let .profileSwitcherAction(profileAction):
             switch profileAction {
-            case .accountPressed:
-                // TODO: BIT-124 Switch account
-                setProfileSwitcher(visible: false)
+            case let .accountPressed(account):
+                didTapProfileSwitcherItem(account)
             case .addAccountPressed:
                 addAccount()
             case .backgroundPressed:
@@ -106,6 +105,17 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     ///
     private func addAccount() {
         coordinator.navigate(to: .addAccount)
+    }
+
+    /// Handles a tap of an account in the profile switcher
+    /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
+    ///
+    private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
+        defer { setProfileSwitcher(visible: false) }
+        guard state.profileSwitcherState.activeAccountId != selectedAccount.userId else { return }
+        coordinator.navigate(
+            to: .switchAccount(userId: selectedAccount.userId)
+        )
     }
 
     /// Configures a profile switcher state with the current account and alternates.

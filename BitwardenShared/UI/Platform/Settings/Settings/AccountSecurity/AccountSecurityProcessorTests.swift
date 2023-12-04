@@ -6,6 +6,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute>!
+    var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
     var twoStepLoginService: MockTwoStepLoginService!
@@ -17,6 +18,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator<SettingsRoute>()
+        errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
         twoStepLoginService = MockTwoStepLoginService()
@@ -24,6 +26,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         subject = AccountSecurityProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
                 stateService: stateService,
                 twoStepLoginService: twoStepLoginService
@@ -36,6 +39,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        errorReporter = nil
         settingsRepository = nil
         subject = nil
     }
@@ -49,14 +53,15 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         await subject.perform(.lockVault)
 
-        XCTAssertTrue(settingsRepository.lockVaultCalled)
+        XCTAssertEqual(settingsRepository.lockVaultCalls, [account.profile.userId])
+        XCTAssertEqual(coordinator.routes.last, .lockVault(account: account))
     }
 
     /// `perform(_:)` with `.lockVault` fails, locks the vault and navigates to the landing screen.
     func test_perform_lockVault_failure() async {
         await subject.perform(.lockVault)
 
-        XCTAssertTrue(settingsRepository.lockVaultCalled)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [StateServiceError.noActiveAccount])
         XCTAssertEqual(coordinator.routes.last, .logout)
     }
 
@@ -93,11 +98,32 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[0].title, Localizations.yes)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
 
+        settingsRepository.logoutResult = .success(())
         // Tapping yes logs the user out.
         try await alert.tapAction(title: Localizations.yes)
 
-        XCTAssertTrue(settingsRepository.logoutCalled)
         XCTAssertEqual(coordinator.routes.last, .logout)
+    }
+
+    /// `receive(_:)` with `.logout` presents a logout confirmation alert.
+    func test_receive_logout_error() async throws {
+        subject.receive(.logout)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.logOut)
+        XCTAssertEqual(alert.message, Localizations.logoutConfirmation)
+        XCTAssertEqual(alert.preferredStyle, .alert)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.yes)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+
+        // Tapping yes relays any errors to the error reporter.
+        await alert.alertActions[0].handler?(alert.alertActions[0])
+
+        XCTAssertEqual(
+            errorReporter.errors as? [StateServiceError],
+            [StateServiceError.noActiveAccount]
+        )
     }
 
     /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` updates the state.

@@ -1,3 +1,7 @@
+import Combine
+
+// MARK: - StateService
+
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
 protocol StateService: AnyObject {
@@ -20,11 +24,23 @@ protocol StateService: AnyObject {
     ///
     func getAccounts() async throws -> [Account]
 
+    /// Gets the account id or the active account id for a possible id.
+    /// - Parameter userId: The possible user Id of an account
+    /// - Returns: The user account id or the active id
+    ///
+    func getAccountIdOrActiveId(userId: String?) async throws -> String
+
     /// Gets the active account.
     ///
     /// - Returns: The active user account.
     ///
     func getActiveAccount() async throws -> Account
+
+    /// Gets the active account id.
+    ///
+    /// - Returns: The active user account id.
+    ///
+    func getActiveAccountId() async throws -> String
 
     /// Gets the password generation options for a user ID.
     ///
@@ -55,6 +71,12 @@ protocol StateService: AnyObject {
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
 
+    /// Sets the active account.
+    /// - Parameter userId: The user Id of the account to set as active
+    /// - Returns: The active user account.
+    ///
+    func setActiveAccount(userId: String) async throws
+
     /// Sets the password generation options for a user ID.
     ///
     /// - Parameters:
@@ -79,6 +101,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws
+
+    // MARK: Publishers
+
+    /// A publisher for the active account id
+    ///
+    /// - Returns: The userId `String` of the active account
+    ///
+    func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>>
 }
 
 extension StateService {
@@ -148,7 +178,7 @@ extension StateService {
     }
 }
 
-// MARK: - TokenServiceError
+// MARK: - StateServiceError
 
 /// The errors thrown from a `StateService`.
 ///
@@ -202,6 +232,23 @@ actor DefaultStateService: StateService {
         )
     }
 
+    func getAccountIdOrActiveId(userId: String?) throws -> String {
+        guard let accounts = appSettingsStore.state?.accounts else {
+            throw StateServiceError.noAccounts
+        }
+        if let userId {
+            guard accounts.contains(where: { $0.value.profile.userId == userId }) else {
+                throw StateServiceError.noAccounts
+            }
+            return userId
+        }
+        return try getActiveAccountId()
+    }
+
+    func getActiveAccountId() throws -> String {
+        try getActiveAccount().profile.userId
+    }
+
     func getAccounts() throws -> [Account] {
         guard let accounts = appSettingsStore.state?.accounts else {
             throw StateServiceError.noAccounts
@@ -248,6 +295,15 @@ actor DefaultStateService: StateService {
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
     }
 
+    func setActiveAccount(userId: String) async throws {
+        guard var state = appSettingsStore.state else { return }
+        defer { appSettingsStore.state = state }
+
+        guard state.accounts
+            .contains(where: { $0.key == userId }) else { throw StateServiceError.noAccounts }
+        state.activeUserId = userId
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPasswordGenerationOptions(options, userId: userId)
@@ -270,6 +326,12 @@ actor DefaultStateService: StateService {
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
+    }
+
+    // MARK: Publishers
+
+    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
+        appSettingsStore.activeAccountIdPublisher()
     }
 
     // MARK: Private
