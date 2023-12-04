@@ -118,7 +118,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
 
         // Tapping yes relays any errors to the error reporter.
-        await alert.alertActions[0].handler?(alert.alertActions[0])
+        try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertEqual(
             errorReporter.errors as? [StateServiceError],
