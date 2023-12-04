@@ -17,6 +17,15 @@ class AlertTests: XCTestCase {
         subject = Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
             .add(AlertAction(title: "Cancel", style: .cancel))
             .addPreferred(AlertAction(title: "OK", style: .default))
+            .add(AlertTextField(
+                id: "field",
+                autocapitalizationType: .allCharacters,
+                autocorrectionType: .no,
+                isSecureTextEntry: true,
+                keyboardType: .numberPad,
+                placeholder: "placeholder",
+                text: "value"
+            ))
     }
 
     override func tearDown() {
@@ -28,7 +37,7 @@ class AlertTests: XCTestCase {
 
     /// `createAlertController` returns a `UIAlertController` based on the alert details.
     @MainActor
-    func test_createAlertController() {
+    func test_createAlertController() throws {
         let alertController = subject.createAlertController()
 
         XCTAssertEqual(alertController.title, "🍎")
@@ -39,6 +48,15 @@ class AlertTests: XCTestCase {
         XCTAssertEqual(alertController.actions[0].style, .cancel)
         XCTAssertEqual(alertController.actions[1].title, "OK")
         XCTAssertEqual(alertController.actions[1].style, .default)
+        XCTAssertEqual(alertController.textFields?.count, 1)
+
+        let textField = try XCTUnwrap(alertController.textFields?.first)
+        XCTAssertEqual(textField.text, "value")
+        XCTAssertEqual(textField.placeholder, "placeholder")
+        XCTAssertEqual(textField.autocapitalizationType, .allCharacters)
+        XCTAssertEqual(textField.autocorrectionType, .no)
+        XCTAssertEqual(textField.isSecureTextEntry, true)
+        XCTAssertEqual(textField.keyboardType, .numberPad)
         XCTAssertEqual(alertController.preferredAction?.title, "OK")
     }
 
@@ -46,7 +64,8 @@ class AlertTests: XCTestCase {
     func test_debugDescription() {
         XCTAssertEqual(
             subject!.debugDescription,
-            "Alert(title: 🍎, message: 🥝, alertActions: [BitwardenShared.AlertAction, BitwardenShared.AlertAction])"
+            "Alert(title: 🍎, message: 🥝, alertActions: [BitwardenShared.AlertAction, BitwardenShared.AlertAction],"
+                + " alertTextFields: [BitwardenShared.AlertTextField])"
         )
     }
 
@@ -54,13 +73,43 @@ class AlertTests: XCTestCase {
     func test_equatable() {
         XCTAssertEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
             .add(AlertAction(title: "Cancel", style: .cancel))
-            .addPreferred(AlertAction(title: "OK", style: .default)))
+            .addPreferred(AlertAction(title: "OK", style: .default))
+            .add(AlertTextField(
+                id: "field",
+                autocapitalizationType: .allCharacters,
+                autocorrectionType: .yes,
+                isSecureTextEntry: true,
+                keyboardType: .numberPad,
+                placeholder: "placeholder",
+                text: "value"
+            )))
         XCTAssertNotEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
             .add(AlertAction(title: "Cancel", style: .destructive))
-            .addPreferred(AlertAction(title: "OK", style: .default)))
+            .addPreferred(AlertAction(title: "OK", style: .default))
+            .add(AlertTextField(
+                id: "field",
+                autocapitalizationType: .allCharacters,
+                autocorrectionType: .yes,
+                isSecureTextEntry: true,
+                keyboardType: .numberPad,
+                placeholder: "placeholder",
+                text: "value"
+            )))
         XCTAssertNotEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert))
         XCTAssertNotEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
             .add(AlertAction(title: "Cancel", style: .cancel))
-            .addPreferred(AlertAction(title: "OK", style: .default) { _ in }))
+            .addPreferred(AlertAction(title: "OK", style: .default) { _ in })
+            .add(AlertTextField(
+                id: "field",
+                autocapitalizationType: .allCharacters,
+                autocorrectionType: .yes,
+                isSecureTextEntry: true,
+                keyboardType: .numberPad,
+                placeholder: "placeholder",
+                text: "value"
+            )))
+        XCTAssertEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert)
+            .add(AlertAction(title: "Cancel", style: .cancel))
+            .addPreferred(AlertAction(title: "OK", style: .default)))
     }
 }
