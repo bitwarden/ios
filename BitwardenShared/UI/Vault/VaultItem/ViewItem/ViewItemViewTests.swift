@@ -33,6 +33,7 @@ class ViewItemViewTests: BitwardenTestCase {
     /// Tapping the check password button dispatches the `.checkPasswordPressed` action.
     func test_checkPasswordButton_tap() throws {
         processor.state.loadingState = .data(.login(ViewLoginItemState(
+            isMasterPasswordRequired: false,
             name: "Name",
             password: "password",
             updatedDate: Date()
@@ -45,6 +46,7 @@ class ViewItemViewTests: BitwardenTestCase {
     /// Tapping the copy usename button dispatches the `.copyPressed` action with the username.
     func test_copyUsernameButton_tap() throws {
         processor.state.loadingState = .data(.login(ViewLoginItemState(
+            isMasterPasswordRequired: false,
             name: "Name",
             updatedDate: Date(),
             username: "username"
@@ -58,6 +60,7 @@ class ViewItemViewTests: BitwardenTestCase {
     /// password.
     func test_copyPasswordButton_tap() throws {
         processor.state.loadingState = .data(.login(ViewLoginItemState(
+            isMasterPasswordRequired: false,
             name: "Name",
             password: "password",
             updatedDate: Date()
@@ -70,6 +73,7 @@ class ViewItemViewTests: BitwardenTestCase {
     /// Tapping the copy uri button dispatches the `.copyPressed` action along with the uri.
     func test_copyUriButton_tap() throws {
         processor.state.loadingState = .data(.login(ViewLoginItemState(
+            isMasterPasswordRequired: false,
             name: "Name",
             updatedDate: Date(),
             uris: [
@@ -152,6 +156,7 @@ class ViewItemViewTests: BitwardenTestCase {
                 ),
             ],
             folder: "Folder",
+            isMasterPasswordRequired: false,
             isPasswordVisible: true,
             name: "Example",
             notes: "This is a long note so that it goes to the next line!",

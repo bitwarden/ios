@@ -72,7 +72,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         let alert = try coordinator.unwrapLastRouteAsAlert()
 
         // Tapping yes navigates the user to the web app.
-        await alert.alertActions[1].handler?(alert.alertActions[1])
+        try await alert.tapAction(title: Localizations.yes)
         XCTAssertNotNil(subject.state.twoStepLoginUrl)
 
         subject.receive(.clearTwoStepLoginUrl)
@@ -100,7 +100,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         settingsRepository.logoutResult = .success(())
         // Tapping yes logs the user out.
-        await alert.alertActions[0].handler?(alert.alertActions[0])
+        try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertEqual(coordinator.routes.last, .logout)
     }
@@ -118,7 +118,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
 
         // Tapping yes relays any errors to the error reporter.
-        await alert.alertActions[0].handler?(alert.alertActions[0])
+        try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertEqual(
             errorReporter.errors as? [StateServiceError],
@@ -171,7 +171,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[1].title, Localizations.yes)
 
         // Tapping yes navigates the user to the web app.
-        await alert.alertActions[1].handler?(alert.alertActions[1])
+        try await alert.tapAction(title: Localizations.yes)
         XCTAssertNotNil(subject.state.twoStepLoginUrl)
     }
 
@@ -180,7 +180,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         subject.receive(.twoStepLoginPressed)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
-        await alert.alertActions[1].handler?(alert.alertActions[1])
+        try await alert.tapAction(title: Localizations.yes)
         XCTAssertEqual(subject.state.twoStepLoginUrl, URL.example)
     }
 }
