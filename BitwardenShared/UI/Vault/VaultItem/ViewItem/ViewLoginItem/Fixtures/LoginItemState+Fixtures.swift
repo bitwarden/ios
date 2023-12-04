@@ -6,13 +6,11 @@ import Foundation
 extension LoginItemState {
     static func fixture(
         cipher: CipherView = .loginFixture(),
-        editState: EditState = .view,
         isPasswordVisible: Bool = false,
         properties: VaultCipherItemProperties = .fixture()
     ) -> LoginItemState {
         var state = LoginItemState(cipherView: .loginFixture())!
         state.cipher = cipher
-        state.editState = editState
         state.isPasswordVisible = isPasswordVisible
         state.properties = properties
         return state
@@ -31,7 +29,7 @@ extension VaultCipherItemProperties {
         passwordUpdatedDate: Date? = nil,
         type: BitwardenShared.CipherType = .login,
         updatedDate: Date = Date(),
-        uris: [LoginUriView] = [],
+        uris: [CipherLoginUriModel] = [],
         username: String = ""
     ) -> VaultCipherItemProperties {
         VaultCipherItemProperties(

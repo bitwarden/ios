@@ -113,12 +113,6 @@ extension CipherView {
     }
 
     static func loginFixture(
-        password: String? = nil,
-        passwordRevisionDate: DateTime? = nil,
-        uris: [LoginUriView]? = nil,
-        username: String? = nil,
-        totp: String? = nil,
-        autofillOnPageLoad: Bool? = nil,
         attachments: [AttachmentView]? = nil,
         card: CardView? = nil,
         collectionIds: [String] = [],
@@ -128,9 +122,10 @@ extension CipherView {
         favorite: Bool = false,
         fields: [FieldView]? = nil,
         folderId: String? = nil,
-        id: String? = nil,
+        id: String = "8675",
         identity: IdentityView? = nil,
         localData: LocalDataView? = nil,
+        login: BitwardenSdk.LoginView = .fixture(),
         name: String = "Bitwarden",
         notes: String? = nil,
         organizationId: String? = nil,
@@ -150,14 +145,7 @@ extension CipherView {
             name: name,
             notes: notes,
             type: type,
-            login: .fixture(
-                password: password,
-                passwordRevisionDate: passwordRevisionDate,
-                uris: uris,
-                username: username,
-                totp: totp,
-                autofillOnPageLoad: autofillOnPageLoad
-            ),
+            login: login,
             identity: identity,
             card: card,
             secureNote: secureNote,

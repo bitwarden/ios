@@ -39,9 +39,8 @@ extension ViewItemState {
 }
 
 extension CipherView {
-    func updatedView(with editState: LoginItemState.EditState) -> CipherView {
-        guard case let .edit(updatedEdits) = editState else { return self }
-        let properties = updatedEdits.properties
+    func updatedView(with editState: AddEditItemState) -> CipherView {
+        let properties = editState.properties
         return CipherView(
             id: id,
             organizationId: organizationId,

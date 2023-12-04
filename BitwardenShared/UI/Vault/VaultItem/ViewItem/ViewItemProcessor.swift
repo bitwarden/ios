@@ -52,8 +52,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 guard let newState = ViewItemState(cipherView: value) else { continue }
                 state = newState
             }
-        case .savePressed:
-            await saveItem()
         case .checkPasswordPressed:
             await checkPassword()
         case .setupTotpPressed:
@@ -92,8 +90,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             default:
                 assertionFailure("Cannot toggle password for non-login item.")
             }
-        case let .editAction(editAction):
-            handleEditAction(editAction)
         }
     }
 
@@ -129,82 +125,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     private func editItem() {
         guard case let .data(itemTypeState) = state.loadingState else { return }
         switch itemTypeState {
-        case var .login(loginItem):
-            guard case .view = loginItem.editState else { return }
-            loginItem.editState = .edit(
-                .init(
-                    isPasswordVisible: loginItem.isPasswordVisible,
-                    properties: loginItem.properties
-                )
-            )
-            state.loadingState = .data(.login(loginItem))
-        }
-    }
-
-    /// Handles edit actions.
-    ///
-    /// - Parameter editAction: The action to be handled.
-    ///
-    private func handleEditAction(_ editAction: EditLoginItemAction) {
-        guard case let .data(data) = state.loadingState else { return }
-        switch data {
-        case var .login(loginState):
-            if case var .edit(editState) = loginState.editState {
-                switch editAction {
-                case let .favoriteChanged(isOn):
-                    editState.properties.isFavoriteOn = isOn
-                case let .masterPasswordRePromptChanged(isOn):
-                    editState.properties.isMasterPasswordRePromptOn = isOn
-                case let .nameChanged(name):
-                    editState.properties.name = name
-                case .newUriPressed:
-                    // TODO: BIT-901 Add a new blank URI field
-                    break
-                case let .notesChanged(notes):
-                    editState.properties.notes = notes
-                case let .passwordChanged(password):
-                    editState.properties.password = password
-                case let .togglePasswordVisibilityChanged(isOn):
-                    editState.isPasswordVisible = isOn
-                case let .uriChanged(uri):
-                    editState.properties.uris = [
-                        .init(uri: uri, match: .none),
-                    ]
-                case .uriSettingsPressed:
-                    // TODO: BIT-901 Navigate to an `.alert` route with the uri settings alert
-                    break
-                case let .usernameChanged(username):
-                    editState.properties.username = username
-                }
-                loginState.editState = .edit(editState)
-                state.loadingState = .data(.login(loginState))
-            }
-        }
-    }
-
-    /// Saves the item currently stored in `state`.
-    ///
-    private func saveItem() async {
-        guard case let .data(itemTypeState) = state.loadingState else {
-            return
-        }
-        switch itemTypeState {
-        case var .login(loginItem):
-            guard loginItem.hasEdits else {
-                loginItem.editState = .view
-                state.loadingState = .data(.login(loginItem))
-                return
-            }
-            coordinator.showLoadingOverlay(.init(title: Localizations.saving))
-            defer { coordinator.hideLoadingOverlay() }
-            do {
-                try await services.vaultRepository.updateCipher(loginItem.cipher.updatedView(with: loginItem.editState))
-                loginItem.editState = .view
-                state.loadingState = .data(.login(loginItem))
-                coordinator.hideLoadingOverlay()
-            } catch {
-                services.errorReporter.log(error: error)
-            }
+        case let .login(loginItem):
+            coordinator.navigate(to: .editItem(cipher: loginItem.cipher))
         }
     }
 

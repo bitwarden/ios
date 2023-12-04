@@ -50,20 +50,7 @@ struct ViewItemView: View {
 
     /// The title of the view
     private var navigationTitle: String {
-        switch store.state.loadingState {
-        case .loading:
-            Localizations.viewItem
-        case let .data(itemData):
-            switch itemData {
-            case let .login(loginItem):
-                switch loginItem.editState {
-                case .edit:
-                    Localizations.editItem
-                case .view:
-                    Localizations.viewItem
-                }
-            }
-        }
+        Localizations.viewItem
     }
 
     // MARK: Private Methods
@@ -88,11 +75,8 @@ struct ViewItemView: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                if case let .login(loginItemState) = state,
-                   case .view = loginItemState.editState {
-                    Button(Localizations.edit) {
-                        store.send(.editPressed)
-                    }
+                Button(Localizations.edit) {
+                    store.send(.editPressed)
                 }
             }
         }
@@ -156,13 +140,13 @@ struct ViewItemView_Previews: PreviewProvider {
             type: .login,
             updatedDate: Date(),
             uris: [
-                LoginUriView(
-                    uri: "https://www.example.com",
-                    match: .startsWith
+                CipherLoginUriModel(
+                    match: .startsWith,
+                    uri: "https://www.example.com"
                 ),
-                LoginUriView(
-                    uri: "https://www.example.com/account/login",
-                    match: .exact
+                CipherLoginUriModel(
+                    match: .exact,
+                    uri: "https://www.example.com/account/login"
                 ),
             ],
             username: "email@example.com"

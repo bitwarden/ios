@@ -14,34 +14,7 @@ struct ViewLoginItemView: View {
     @ObservedObject var store: Store<LoginItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
-        switch store.state.editState {
-        case .view:
-            viewItemProperties
-        case .edit:
-            editItemProperties
-            AsyncButton(Localizations.save) {
-                await store.perform(.savePressed)
-            }
-            .buttonStyle(.primary())
-        }
-    }
-
-    /// The edit item properties.
-    @ViewBuilder var editItemProperties: some View {
-        if case let .edit(currentState) = store.state.editState {
-            EditLoginItemView(
-                store: store.child(
-                    state: { state in
-                        guard case let .edit(editState) = state.editState else {
-                            return currentState
-                        }
-                        return editState
-                    },
-                    mapAction: { $0 },
-                    mapEffect: { $0 }
-                )
-            )
-        }
+        viewItemProperties
     }
 
     /// The view item properties.

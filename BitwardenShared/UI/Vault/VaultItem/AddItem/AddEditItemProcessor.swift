@@ -1,10 +1,11 @@
+import BitwardenSdk
 import Foundation
 
-// MARK: - AddItemProcessor
+// MARK: - AddEditItemProcessor
 
 /// The processor used to manage state and handle actions for the add item screen.
 ///
-final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddItemEffect> {
+final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
     // MARK: Types
 
     typealias Services = HasCameraAuthorizationService
@@ -21,7 +22,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
 
     // MARK: Initialization
 
-    /// Creates a new `AddItemProcessor`.
+    /// Creates a new `AddEditItemProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
@@ -31,7 +32,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     init(
         coordinator: AnyCoordinator<VaultItemRoute>,
         services: Services,
-        state: AddItemState
+        state: AddEditItemState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -40,7 +41,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
 
     // MARK: Methods
 
-    override func perform(_ effect: AddItemEffect) async {
+    override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
         case .checkPasswordPressed:
             await checkPassword()
@@ -51,53 +52,60 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         }
     }
 
-    override func receive(_ action: AddItemAction) {
+    override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
         case let .favoriteChanged(newValue):
-            state.isFavoriteOn = newValue
+            state.properties.isFavoriteOn = newValue
         case let .folderChanged(newValue):
-            state.folder = newValue
+            state.properties.folder = newValue
         case .generatePasswordPressed:
-            if state.password.isEmpty {
+            if state.properties.password.isEmpty {
                 coordinator.navigate(to: .generator(.password), context: self)
             } else {
                 presentReplacementAlert(for: .password)
             }
         case .generateUsernamePressed:
-            if state.username.isEmpty {
-                // TODO: BIT-901 Update this to pass along the first URI when multiple exist.
-                let emailWebsite = URL(string: state.uri)?.sanitized.host
+            // TODO: BIT-901 Update this to pass along the first URI when multiple exist.
+            if state.properties.username.isEmpty {
+                let first = state.properties.uris.first?.uri ?? ""
+                let uri = URL(string: first)
+                let emailWebsite = uri?.sanitized.host
                 coordinator.navigate(to: .generator(.username, emailWebsite: emailWebsite), context: self)
             } else {
                 presentReplacementAlert(for: .username)
             }
         case let .masterPasswordRePromptChanged(newValue):
-            state.isMasterPasswordRePromptOn = newValue
+            state.properties.isMasterPasswordRePromptOn = newValue
+        case .morePressed:
+            // TODO: BIT-1131 Open item menu
+            print("more pressed")
         case let .nameChanged(newValue):
-            state.name = newValue
+            state.properties.name = newValue
         case .newCustomFieldPressed:
             presentCustomFieldAlert()
         case .newUriPressed:
             // TODO: BIT-901 Add a new blank URI field
             break
         case let .notesChanged(newValue):
-            state.notes = newValue
+            state.properties.notes = newValue
         case let .ownerChanged(newValue):
-            state.owner = newValue
+            state.properties.owner = newValue
         case let .passwordChanged(newValue):
-            state.password = newValue
+            state.properties.password = newValue
         case let .togglePasswordVisibilityChanged(newValue):
             state.isPasswordVisible = newValue
         case let .typeChanged(newValue):
-            state.type = newValue
-        case let .uriChanged(newValue):
-            state.uri = newValue
+            state.properties.type = newValue
+        case let .uriChanged(newValue, index: index):
+            guard state.properties.uris.count > index else { return }
+            let uri = state.properties.uris[index]
+            state.properties.uris[index] = .init(match: uri.match, uri: newValue)
         case .uriSettingsPressed:
             presentUriSettingsAlert()
         case let .usernameChanged(newValue):
-            state.username = newValue
+            state.properties.username = newValue
         }
     }
 
@@ -177,9 +185,31 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     private func saveItem() async {
         coordinator.showLoadingOverlay(title: Localizations.saving)
         defer { coordinator.hideLoadingOverlay() }
+        switch state.configuration {
+        case .add:
+            await additem()
+        case let .edit(cipherView, _):
+            await updateItem(cipherView: cipherView)
+        }
+    }
 
+    /// Adds the item currently in `state`.
+    ///
+    private func additem() async {
         do {
             try await services.vaultRepository.addCipher(state.newCipherView())
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Updates the item currently in `state`.
+    ///
+    private func updateItem(cipherView: CipherView) async {
+        do {
+            try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .dismiss)
         } catch {
@@ -199,7 +229,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     }
 }
 
-extension AddItemProcessor: GeneratorCoordinatorDelegate {
+extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
     func didCancelGenerator() {
         coordinator.navigate(to: .dismiss)
     }
@@ -207,9 +237,9 @@ extension AddItemProcessor: GeneratorCoordinatorDelegate {
     func didCompleteGenerator(for type: GeneratorType, with value: String) {
         switch type {
         case .password:
-            state.password = value
+            state.properties.password = value
         case .username:
-            state.username = value
+            state.properties.username = value
         }
         coordinator.navigate(to: .dismiss)
     }

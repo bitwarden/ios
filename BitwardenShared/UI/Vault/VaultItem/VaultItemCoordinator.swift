@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SwiftUI
 
 // MARK: - VaultItemCoordinator
@@ -53,6 +54,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             stackNavigator.present(alert)
         case .dismiss:
             stackNavigator.dismiss()
+        case let .editItem(cipher: cipher):
+            showEditItem(for: cipher)
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
@@ -74,17 +77,31 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// - Parameter type: An optional `CipherType` to initialize this view with.
     ///
     private func showAddItem(for type: CipherType?) {
-        let state = AddItemState(
-            type: type ?? .login
-        )
-        let processor = AddItemProcessor(
+        let state = AddEditItemState.addItem(for: type)
+        let processor = AddEditItemProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: state
         )
         let store = Store(processor: processor)
-        let view = AddItemView(store: store)
+        let view = AddEditItemView(store: store)
         stackNavigator.replace(view)
+    }
+
+    /// Shows the edit item screen.
+    ///
+    /// - Parameter cipherView: A `CipherView` to initialize this view with.
+    ///
+    private func showEditItem(for cipherView: CipherView) {
+        guard let state = AddEditItemState.ediItem(cipherView: cipherView) else { return }
+        let processor = AddEditItemProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: state
+        )
+        let store = Store(processor: processor)
+        let view = AddEditItemView(store: store)
+        stackNavigator.present(view)
     }
 
     /// Shows the totp camera setup screen.

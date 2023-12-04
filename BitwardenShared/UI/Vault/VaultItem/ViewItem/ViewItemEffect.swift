@@ -8,9 +8,6 @@ enum ViewItemEffect: Equatable {
     /// The check password button was pressed.
     case checkPasswordPressed
 
-    /// The save button was pressed.
-    case savePressed
-
     /// The setup totp button was pressed.
     case setupTotpPressed
 }

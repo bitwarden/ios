@@ -31,7 +31,7 @@ class LoginItemStateTests: BitwardenTestCase {
         let nonNil = LoginItemState(cipherView: .loginFixture())
         XCTAssertNotNil(nonNil)
         XCTAssertEqual(nonNil?.properties.customFields, [])
-        XCTAssertEqual(nonNil?.properties.uris, [])
+        XCTAssertEqual(nonNil?.properties.uris, [.init(match: nil, uri: nil)])
     }
 
     /// A cipher without a login fails to create a login state.
@@ -45,7 +45,7 @@ class LoginItemStateTests: BitwardenTestCase {
         let nonNil = VaultCipherItemProperties.from(.loginFixture())
         XCTAssertNotNil(nonNil)
         XCTAssertEqual(nonNil?.customFields, [])
-        XCTAssertEqual(nonNil?.uris, [])
+        XCTAssertEqual(nonNil?.uris, [.init(match: nil, uri: nil)])
     }
 
     /// A cipher with custom fields relays the properties.
@@ -118,10 +118,10 @@ class LoginItemStateTests: BitwardenTestCase {
 
     /// A cipher with uris relays the properties.
     func test_init_success_uris_empty() {
-        let uris: [LoginUriView] = []
+        let uris: [BitwardenSdk.LoginUriView] = []
         subject = LoginItemState(
             cipherView: .loginFixture(
-                uris: uris
+                login: .fixture(uris: uris)
             )
         )
         XCTAssertEqual(subject.properties.uris, [])
@@ -134,44 +134,14 @@ class LoginItemStateTests: BitwardenTestCase {
         ]
         subject = LoginItemState(
             cipherView: .loginFixture(
-                uris: uris
+                login: .fixture(uris: uris)
             )
         )
         XCTAssertEqual(
             subject.properties.uris,
-            uris
+            [
+                .init(match: .domain, uri: "jams"),
+            ]
         )
-    }
-
-    /// A cipher without edits indicates its state.
-    func test_hasEdits_false() {
-        XCTAssertFalse(subject.hasEdits)
-        subject.editState = .edit(
-            .init(
-                isPasswordVisible: false,
-                properties: subject.properties
-            )
-        )
-        XCTAssertFalse(subject.hasEdits)
-        subject.editState = .edit(
-            .init(
-                isPasswordVisible: true,
-                properties: subject.properties
-            )
-        )
-        XCTAssertFalse(subject.hasEdits)
-    }
-
-    /// A cipher with edits indicates its state.
-    func test_hasEdits_true() {
-        var copy = subject.properties
-        copy.name = "Balloon"
-        subject.editState = .edit(
-            .init(
-                isPasswordVisible: false,
-                properties: copy
-            )
-        )
-        XCTAssertTrue(subject.hasEdits)
     }
 }
