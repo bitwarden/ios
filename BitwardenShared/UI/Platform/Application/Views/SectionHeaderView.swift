@@ -18,6 +18,7 @@ struct SectionHeaderView: View {
             .font(.styleGuide(.footnote))
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .textCase(.uppercase)
+            .minSize(minHeight: 16)
     }
 
     // MARK: Initialization

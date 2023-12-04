@@ -104,13 +104,11 @@ struct BitwardenTextField: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            VStack(alignment: .leading, spacing: 4) {
-                textFieldTitle
+            textFieldTitle
 
-                HStack(spacing: 8) {
-                    textField
-                    textFieldButtons
-                }
+            HStack(spacing: 8) {
+                textField
+                textFieldButtons
             }
 
             if let footer {
@@ -130,6 +128,7 @@ struct BitwardenTextField: View {
                 let isPassword = isPasswordVisible != nil
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
+                Spacer()
                 TextField(placeholder, text: $text)
                     .font(.styleGuide(isPassword ? .bodyMonospaced : .body))
                     .hidden(!isPasswordVisible && isPassword)
@@ -139,6 +138,7 @@ struct BitwardenTextField: View {
                         .id(title)
                 }
             }
+            .frame(maxWidth: .infinity, minHeight: 28)
             .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
 
             Button {
@@ -193,6 +193,8 @@ struct BitwardenTextField: View {
                 .font(.styleGuide(.subheadline))
                 .bold()
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .lineSpacing(5.0)
+                .minSize(minHeight: 20.0)
         }
     }
 

@@ -14,7 +14,7 @@ struct ViewLoginItemView: View {
     @ObservedObject var store: Store<ViewLoginItemState, ViewItemAction, Void>
 
     var body: some View {
-        section(title: Localizations.itemInformation) {
+        VaultItemSectionView(title: Localizations.itemInformation) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
 
             if let username = store.state.username {
@@ -69,7 +69,7 @@ struct ViewLoginItemView: View {
         }
 
         if !store.state.uris.isEmpty {
-            section(title: Localizations.urIs) {
+            VaultItemSectionView(title: Localizations.urIs) {
                 ForEach(store.state.uris, id: \.self) { uri in
                     if let uri = uri.uri {
                         BitwardenTextValueField(title: Localizations.uri, value: uri) {
@@ -100,13 +100,13 @@ struct ViewLoginItemView: View {
         }
 
         if let notes = store.state.notes {
-            section(title: Localizations.notes) {
+            VaultItemSectionView(title: Localizations.notes) {
                 BitwardenTextValueField(value: notes)
             }
         }
 
         if !store.state.customFields.isEmpty {
-            section(title: Localizations.customFields) {
+            VaultItemSectionView(title: Localizations.customFields) {
                 ForEach(store.state.customFields, id: \.self) { customField in
                     BitwardenField(title: customField.name) {
                         switch customField.type {
@@ -190,26 +190,5 @@ struct ViewLoginItemView: View {
         .font(.subheadline)
         .multilineTextAlignment(.leading)
         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-    }
-
-    // MARK: Private Methods
-
-    /// Creates a section with a title hosted in a title view.
-    ///
-    /// - Parameters:
-    ///   - title: The title of this section.
-    ///   - content: The content to place below the title view in this section.
-    ///
-    @ViewBuilder
-    private func section(title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: 15) {
-            Text(title.uppercased())
-                .font(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-            VStack(alignment: .leading, spacing: 12) {
-                content()
-            }
-        }
     }
 }

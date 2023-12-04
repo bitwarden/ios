@@ -16,21 +16,26 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     var accessoryContent: AccessoryContent?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 8) {
             if let title {
                 Text(title)
                     .font(.styleGuide(.subheadline))
                     .bold()
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .lineSpacing(5.0)
+                    .minSize(minHeight: 20)
             }
 
             HStack(spacing: 8) {
-                content
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                ZStack {
+                    Spacer()
+                    content
+                }
+                .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 if let accessoryContent {
                     accessoryContent
@@ -75,5 +80,46 @@ extension BitwardenField where AccessoryContent == EmptyView {
         self.title = title
         self.content = content()
         accessoryContent = nil
+    }
+}
+
+/// A view modifier to add minimum size to a view
+struct MinimumSizeModifier: ViewModifier {
+    /// The alignment of the view in a ZStack.
+    let alignment: Alignment
+
+    /// The minimum width of the ZStack.
+    let minWidth: CGFloat
+
+    /// The minimum height of the ZStack.
+    let minHeight: CGFloat
+
+    func body(content: Content) -> some View {
+        ZStack(alignment: alignment) {
+            Spacer()
+                .frame(width: minWidth, height: minHeight)
+            content
+        }
+        .frame(minWidth: minWidth, minHeight: minHeight)
+    }
+}
+
+/// An extension to simplify adding minimum sizes.
+extension View {
+    /// Wraps the view in a ZStack set to a minimum height.
+    ///
+    /// - Parameters:
+    ///    - minWidth: The minimum width of the ZStack.
+    ///    - minHeight: The minimum height of the ZStack.
+    ///    - alignment: The alignment of the view in a ZStack.
+    /// - Returns: The view wrapped in a ZStack.
+    func minSize(minWidth: CGFloat = 0.0, minHeight: CGFloat = 0.0, alignment: Alignment = .topLeading) -> some View {
+        modifier(
+            MinimumSizeModifier(
+                alignment: alignment,
+                minWidth: minWidth,
+                minHeight: minHeight
+            )
+        )
     }
 }

@@ -173,12 +173,10 @@ private struct VaultMainView: View {
     private func vaultSection(title: String, items: [VaultListItem]) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .firstTextBaseline) {
-                Text(title.uppercased())
+                SectionHeaderView(title)
                 Spacer()
-                Text("\(items.count)")
+                SectionHeaderView("\(items.count)")
             }
-            .font(.footnote)
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(items) { item in
