@@ -31,11 +31,11 @@ struct UpdateCipherRequest: Request {
 
     /// Initialize an `UpdateCipherRequest` for a `Cipher`.
     ///
-    /// - Parameter cipher: The `Cipher` to add to the user's vault.
+    /// - Parameter cipher: The `Cipher` to update in the user's vault.
     ///
-    init?(cipher: Cipher) {
+    init(cipher: Cipher) throws {
         guard let id = cipher.id,
-              !id.isEmpty else { return nil }
+              !id.isEmpty else { throw CipherAPIServiceError.updateMissingId }
         self.id = id
         requestModel = CipherRequestModel(cipher: cipher)
     }

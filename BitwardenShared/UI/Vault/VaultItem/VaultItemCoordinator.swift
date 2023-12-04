@@ -101,7 +101,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         )
         let store = Store(processor: processor)
         let view = AddEditItemView(store: store)
-        stackNavigator.present(view)
+        let navWrapped = NavigationView { view }
+        stackNavigator.present(navWrapped)
     }
 
     /// Shows the totp camera setup screen.

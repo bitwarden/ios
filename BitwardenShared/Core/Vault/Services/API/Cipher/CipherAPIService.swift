@@ -35,9 +35,7 @@ extension APIService: CipherAPIService {
     }
 
     func updateCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
-        guard let updateRequest = UpdateCipherRequest(cipher: cipher) else {
-            throw CipherAPIServiceError.updateMissingId
-        }
+        let updateRequest = try UpdateCipherRequest(cipher: cipher)
         return try await apiService.send(updateRequest)
     }
 }

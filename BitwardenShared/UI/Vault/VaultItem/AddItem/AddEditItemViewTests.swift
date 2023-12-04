@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SnapshotTesting
 import SwiftUI
 import ViewInspector
@@ -174,7 +175,7 @@ class AddEditItemViewTests: BitwardenTestCase {
     func test_typeMenuField_updateValue() throws {
         processor.state.properties.type = .login
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.type)
-        try menuField.select(newValue: CipherType.card)
+        try menuField.select(newValue: BitwardenShared.CipherType.card)
         XCTAssertEqual(processor.dispatchedActions.last, .typeChanged(.card))
     }
 
@@ -227,6 +228,44 @@ class AddEditItemViewTests: BitwardenTestCase {
     }
 
     func test_snapshot_full_fieldsNotVisible() {
+        processor.state.properties.type = .login
+        processor.state.properties.name = "Name"
+        processor.state.properties.username = "username"
+        processor.state.properties.password = "password1!"
+        processor.state.properties.isFavoriteOn = true
+        processor.state.properties.isMasterPasswordRePromptOn = true
+        processor.state.properties.uris = [
+            .init(match: nil, uri: URL.example.absoluteString),
+        ]
+        processor.state.properties.owner = "owner"
+        processor.state.properties.notes = "Notes"
+        processor.state.properties.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot__edit_full_fieldsVisible() {
+        processor.state = AddEditItemState.ediItem(cipherView: CipherView.loginFixture())!
+        processor.state.properties.type = .login
+        processor.state.properties.name = "Name"
+        processor.state.properties.username = "username"
+        processor.state.properties.password = "password1!"
+        processor.state.properties.isFavoriteOn = true
+        processor.state.properties.isMasterPasswordRePromptOn = true
+        processor.state.properties.uris = [
+            .init(match: nil, uri: URL.example.absoluteString),
+        ]
+        processor.state.properties.owner = "owner"
+        processor.state.properties.notes = "Notes"
+        processor.state.properties.folder = "Folder"
+
+        processor.state.isPasswordVisible = true
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot__edit_full_fieldsNotVisible() {
+        processor.state = AddEditItemState.ediItem(cipherView: CipherView.loginFixture())!
         processor.state.properties.type = .login
         processor.state.properties.name = "Name"
         processor.state.properties.username = "username"

@@ -67,7 +67,6 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
                 presentReplacementAlert(for: .password)
             }
         case .generateUsernamePressed:
-            // TODO: BIT-901 Update this to pass along the first URI when multiple exist.
             if state.properties.username.isEmpty {
                 let first = state.properties.uris.first?.uri ?? ""
                 let uri = URL(string: first)
@@ -132,7 +131,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             )
             coordinator.navigate(to: .alert(alert))
         } catch {
-            print(error)
+            services.errorReporter.log(error: error)
         }
     }
 

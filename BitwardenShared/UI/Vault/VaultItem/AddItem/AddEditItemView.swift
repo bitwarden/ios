@@ -66,30 +66,28 @@ struct AddEditItemView: View {
     }
 
     private var editView: some View {
-        NavigationView {
-            content
-                .navigationTitle(Localizations.editItem)
-                .toolbar {
-                    ToolbarItemGroup(placement: .navigationBarTrailing) {
-                        Button {
-                            store.send(.morePressed)
-                        } label: {
-                            Asset.Images.verticalKabob.swiftUIImage
-                                .resizable()
-                                .frame(width: 19, height: 19)
-                        }
-                        .accessibilityLabel(Localizations.options)
-                        Button {
-                            store.send(.dismissPressed)
-                        } label: {
-                            Asset.Images.cancel.swiftUIImage
-                                .resizable()
-                                .frame(width: 19, height: 19)
-                        }
-                        .accessibilityLabel(Localizations.close)
+        content
+            .navigationTitle(Localizations.editItem)
+            .toolbar {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button {
+                        store.send(.morePressed)
+                    } label: {
+                        Asset.Images.verticalKabob.swiftUIImage
+                            .resizable()
+                            .frame(width: 19, height: 19)
                     }
+                    .accessibilityLabel(Localizations.options)
+                    Button {
+                        store.send(.dismissPressed)
+                    } label: {
+                        Asset.Images.cancel.swiftUIImage
+                            .resizable()
+                            .frame(width: 19, height: 19)
+                    }
+                    .accessibilityLabel(Localizations.close)
                 }
-        }
+            }
     }
 
     private var informationSection: some View {

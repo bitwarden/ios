@@ -114,8 +114,6 @@ class VaultRepositoryTests: BitwardenTestCase {
 
     /// `updateCipher()` throws on id errors.
     func test_updateCipher_idError_nil() async throws {
-        struct EncryptError: Error, Equatable {}
-
         await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
             try await subject.updateCipher(.fixture(id: nil))
         }
@@ -123,8 +121,6 @@ class VaultRepositoryTests: BitwardenTestCase {
 
     /// `updateCipher()` throws on id errors.
     func test_updateCipher_idError_empty() async throws {
-        struct EncryptError: Error, Equatable {}
-
         await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
             try await subject.updateCipher(.fixture(id: ""))
         }
