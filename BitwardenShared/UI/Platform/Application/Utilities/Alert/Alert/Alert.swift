@@ -11,6 +11,9 @@ public class Alert {
     /// A list of actions that the user can tap on in the alert.
     var alertActions: [AlertAction] = []
 
+    /// A list of text fields that the user can use to enter text.
+    var alertTextFields: [AlertTextField] = []
+
     /// The message that is displayed in the alert.
     let message: String?
 
@@ -32,17 +35,20 @@ public class Alert {
     ///   - message: The message that is displayed in the alert.
     ///   - preferredStyle: The alert's style.
     ///   - alertActions: A list of actions that the user can tap on in the alert.
+    ///   - alertTextFields: A list of text fields that the user can enter text into.
     ///
     public init(
         title: String,
         message: String?,
         preferredStyle: UIAlertController.Style = .alert,
-        alertActions: [AlertAction] = []
+        alertActions: [AlertAction] = [],
+        alertTextFields: [AlertTextField] = []
     ) {
         self.title = title
         self.message = message
         self.preferredStyle = preferredStyle
         self.alertActions = alertActions
+        self.alertTextFields = alertTextFields
     }
 
     // MARK: Methods
@@ -51,10 +57,21 @@ public class Alert {
     ///
     /// - Parameter action: The `AlertAction` to add to the `Alert`.
     ///
-    /// - Returns `self` to allow `add(_:)` methods to be chained.
+    /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
     func add(_ action: AlertAction) -> Self {
         alertActions.append(action)
+        return self
+    }
+
+    /// Adds an `AlertTextField` to the `Alert`.
+    ///
+    /// - Parameter textField: The `AlertTextField` to add to the `Alert`.
+    ///
+    /// - Returns: `self` to allow `add(_:)` methods to be chained.
+    ///
+    func add(_ textField: AlertTextField) -> Self {
+        alertTextFields.append(textField)
         return self
     }
 
@@ -64,7 +81,7 @@ public class Alert {
     ///
     /// - Parameter action: The preferred `AlertAction` to add to the `Alert`.
     ///
-    /// - Returns `self` to allow `add(_:)` methods to be chained.
+    /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
     func addPreferred(_ action: AlertAction) -> Self {
         alertActions.append(action)
@@ -79,11 +96,27 @@ public class Alert {
     @MainActor
     func createAlertController() -> UIAlertController {
         let alert = UIAlertController(title: title, message: message, preferredStyle: preferredStyle)
+        alertTextFields.forEach { alertTextField in
+            alert.addTextField { textField in
+                textField.placeholder = alertTextField.placeholder
+                textField.tintColor = Asset.Colors.primaryBitwarden.color
+                textField.keyboardType = alertTextField.keyboardType
+                textField.isSecureTextEntry = alertTextField.isSecureTextEntry
+                textField.autocapitalizationType = alertTextField.autocapitalizationType
+                textField.autocorrectionType = alertTextField.autocorrectionType
+                textField.text = alertTextField.text
+                textField.addTarget(
+                    alertTextField,
+                    action: #selector(AlertTextField.textChanged(in:)),
+                    for: .editingChanged
+                )
+            }
+        }
 
         alertActions.forEach { alertAction in
             let action = UIAlertAction(title: alertAction.title, style: alertAction.style) { _ in
                 Task {
-                    await alertAction.handler?(alertAction)
+                    await alertAction.handler?(alertAction, self.alertTextFields)
                 }
             }
 
@@ -93,18 +126,23 @@ public class Alert {
                 alert.preferredAction = action
             }
         }
+        alert.view.tintColor = Asset.Colors.primaryBitwarden.color
 
         return alert
     }
 }
 
+// swiftlint:disable line_length
+
 extension Alert: CustomDebugStringConvertible {
     public var debugDescription: String {
         """
-        Alert(title: \(title), message: \(message ?? "nil"), alertActions: \(alertActions))
+        Alert(title: \(title), message: \(message ?? "nil"), alertActions: \(alertActions), alertTextFields: \(alertTextFields))
         """
     }
 }
+
+// swiftlint:enable line_length
 
 extension Alert: Equatable {
     public static func == (lhs: Alert, rhs: Alert) -> Bool {
