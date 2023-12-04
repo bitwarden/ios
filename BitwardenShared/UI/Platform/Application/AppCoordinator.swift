@@ -114,6 +114,7 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         } else {
             showAuth(route: .landing)
         }
+        showAuth(route: .alert(.accountDeletedAlert()))
     }
 
     func didLockVault(account: Account) {

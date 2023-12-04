@@ -13,7 +13,7 @@ public class AlertTextField {
     public var placeholder: String?
 
     /// The text value entered by the user.
-    public private(set) var text: String
+    public internal(set) var text: String
 
     /// How the text should be autocapitalized in this field.
     public let autocapitalizationType: UITextAutocapitalizationType

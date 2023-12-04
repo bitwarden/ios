@@ -31,6 +31,10 @@ final class MockStackNavigator: StackNavigator {
         actions.append(NavigationAction(type: .dismissed, animated: animated))
     }
 
+    func dismiss(animated: Bool, completion: (() -> Void)?) {
+        actions.append(NavigationAction(type: .dismissed, animated: animated))
+    }
+
     func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {
         actions.append(NavigationAction(
             type: .pushed,

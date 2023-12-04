@@ -51,6 +51,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(state.activeUserId, "2")
     }
 
+    /// `.deleteAccount()` deletes the active user's account, removing it from the state.
+    func test_deleteAccount() async throws {
+        let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
+        await subject.addAccount(newAccount)
+
+        try await subject.deleteAccount()
+
+        // User is removed from the state.
+        let state = try XCTUnwrap(appSettingsStore.state)
+        XCTAssertTrue(state.accounts.isEmpty)
+        XCTAssertNil(state.activeUserId)
+    }
+
     /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
     func test_getAccountEncryptionKeys() async throws {
         appSettingsStore.encryptedPrivateKeys["1"] = "1:PRIVATE_KEY"

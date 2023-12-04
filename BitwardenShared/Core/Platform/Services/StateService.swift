@@ -225,8 +225,7 @@ actor DefaultStateService: StateService {
     }
 
     func deleteAccount() async throws {
-        let userId = try getActiveAccount().profile.userId
-        appSettingsStore.state?.accounts[userId] = nil
+        try await logoutAccount()
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {

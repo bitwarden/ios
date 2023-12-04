@@ -44,7 +44,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     override func perform(_ effect: DeleteAccountEffect) async {
         switch effect {
         case .deleteAccount:
-            await showMasterPasswordPrompt()
+            await showMasterPasswordReprompt()
         }
     }
 
@@ -57,7 +57,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     // MARK: Private methods
 
-    /// Deletes the user's account.
+    /// Makes the API call that deletes the user's account.
     ///
     /// - Parameter passwordText: The password entered by the user.
     ///
@@ -102,7 +102,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     /// Shows the master password prompt when the user is attempting to delete their account.
     ///
-    private func showMasterPasswordPrompt() async {
+    private func showMasterPasswordReprompt() async {
         coordinator.navigate(to: .alert(.masterPasswordPrompt { [weak self] passwordText in
             Task {
                 guard let self else { return }

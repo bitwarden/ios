@@ -73,6 +73,14 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<DeleteAccountView>)
     }
 
+    /// `navigate(to:)` with `.didDeleteAccount(otherAccounts:)` calls the delegate method
+    /// that performs navigation post-deletion.
+    func test_navigateTo_didDeleteAccount() throws {
+        subject.navigate(to: .didDeleteAccount(otherAccounts: []))
+
+        XCTAssertTrue(delegate.didDeleteAccountCalled)
+    }
+
     /// `navigate(to:)` with `.dismiss` dismisses the presented view.
     func test_navigateTo_dismiss() throws {
         subject.navigate(to: .dismiss)
