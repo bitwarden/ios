@@ -54,7 +54,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     }
 
     override func receive(_ action: ViewItemAction) {
-        guard !(state.isMasterPasswordRequired && action.requiresMasterPasswordReprompt) else {
+        guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
             presentMasterPasswordRepromptAlert(for: action)
             return
         }
