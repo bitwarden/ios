@@ -53,18 +53,7 @@ public enum UI {
 
         UIBarButtonItem.appearance().tintColor = Asset.Colors.primaryBitwarden.color
 
-        let tabBarAppearance = UITabBarAppearance()
-        let selectedIconColor = Asset.Colors.primaryBitwarden.color
-        let textAttributes = [NSAttributedString.Key.foregroundColor: Asset.Colors.primaryBitwarden.color]
-
-        tabBarAppearance.compactInlineLayoutAppearance.selected.iconColor = selectedIconColor
-        tabBarAppearance.compactInlineLayoutAppearance.selected.titleTextAttributes = textAttributes
-        tabBarAppearance.inlineLayoutAppearance.selected.iconColor = selectedIconColor
-        tabBarAppearance.inlineLayoutAppearance.selected.titleTextAttributes = textAttributes
-        tabBarAppearance.stackedLayoutAppearance.selected.iconColor = selectedIconColor
-        tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = textAttributes
-        UITabBar.appearance().standardAppearance = tabBarAppearance
-        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        UITabBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
 
         UISearchBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
         // Explicitly tint the image so that it does not assume the tint color assigned to the entire search bar.

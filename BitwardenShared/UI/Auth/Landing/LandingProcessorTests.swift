@@ -324,15 +324,15 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(alert.alertActions.count, 4)
 
         XCTAssertEqual(alert.alertActions[0].title, "bitwarden.com")
-        await alert.alertActions[0].handler?(alert.alertActions[0])
+        try await alert.tapAction(title: "bitwarden.com")
         XCTAssertEqual(subject.state.region, .unitedStates)
 
         XCTAssertEqual(alert.alertActions[1].title, "bitwarden.eu")
-        await alert.alertActions[1].handler?(alert.alertActions[1])
+        try await alert.tapAction(title: "bitwarden.eu")
         XCTAssertEqual(subject.state.region, .europe)
 
         XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
-        await alert.alertActions[2].handler?(alert.alertActions[2])
+        try await alert.tapAction(title: Localizations.selfHosted)
         XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted)
     }

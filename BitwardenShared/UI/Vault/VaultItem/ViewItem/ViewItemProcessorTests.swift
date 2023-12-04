@@ -172,4 +172,59 @@ class ViewItemProcessorTests: BitwardenTestCase {
         loginState.isPasswordVisible = true
         XCTAssertEqual(subject.state.loadingState, .data(.login(loginState)))
     }
+
+    /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
+    /// for `isPasswordVisible`.
+    func test_receive_passwordVisibilityPressed_withLoginState_withMasterPasswordReprompt() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
+            name: "name",
+            reprompt: .password,
+            revisionDate: Date()
+        )
+        var loginState = LoginItemState(cipherView: cipherView)!
+        subject.state.loadingState = .data(.login(loginState))
+        subject.receive(.passwordVisibilityPressed)
+
+        XCTAssertEqual(try coordinator.unwrapLastRouteAsAlert(), .masterPasswordPrompt(completion: { _ in }))
+    }
+
+    /// Tapping the "Submit" button in the master password reprompt alert validates the entered
+    /// password and completes the action.
+    func test_masterPasswordReprompt_submitButtonPressed() async throws {
+        var cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
+            name: "name",
+            reprompt: .password,
+            revisionDate: Date()
+        )
+        var loginState = LoginItemState(cipherView: cipherView)!
+        subject.state.loadingState = .data(.login(loginState))
+        subject.receive(.passwordVisibilityPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        try await alert.tapAction(title: Localizations.submit)
+
+        cipherView.reprompt = .none
+        loginState = LoginItemState(cipherView: cipherView)!
+        loginState.isPasswordVisible = true
+        subject.state.loadingState = .data(.login(loginState))
+        XCTAssertEqual(subject.state.loadingState, .data(.login(loginState)))
+    }
 }

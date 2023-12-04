@@ -60,6 +60,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     }
 
     override func receive(_ action: ViewItemAction) {
+        guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
+            presentMasterPasswordRepromptAlert(for: action)
+            return
+        }
         switch action {
         case .checkPasswordPressed:
             // TODO: BIT-1130 Check password
@@ -139,5 +143,21 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         } else {
             coordinator.navigate(to: .setupTotpManual)
         }
+    }
+
+    /// Presents the master password reprompt alert for the specified action. This method will
+    /// process the action once the master password has been verified.
+    ///
+    /// - Parameter action: The action to process once the password has been verfied.
+    ///
+    private func presentMasterPasswordRepromptAlert(for action: ViewItemAction) {
+        let alert = Alert.masterPasswordPrompt { [weak self] _ in
+            guard let self else { return }
+
+            // TODO: BIT-1208 Validate the master password
+            state.isMasterPasswordRequired = false
+            receive(action)
+        }
+        coordinator.navigate(to: .alert(alert))
     }
 }
