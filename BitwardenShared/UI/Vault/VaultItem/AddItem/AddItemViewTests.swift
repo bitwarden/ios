@@ -138,7 +138,7 @@ class AddItemViewTests: BitwardenTestCase {
 
     /// Tapping the password visibility button dispatches the `.togglePasswordVisibilityChanged(_:)` action.
     func test_passwordVisibilityButton_tap_withPasswordNotVisible() throws {
-        processor.state.isPasswordVisible = false
+        processor.state.addLoginItemState.isPasswordVisible = false
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.password)
             .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
@@ -148,7 +148,7 @@ class AddItemViewTests: BitwardenTestCase {
 
     /// Tapping the password visibility button dispatches the `.togglePasswordVisibilityChanged(_:)` action.
     func test_passwordVisibilityButton_tap_withPasswordVisible() throws {
-        processor.state.isPasswordVisible = true
+        processor.state.addLoginItemState.isPasswordVisible = true
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.password)
             .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
@@ -210,16 +210,28 @@ class AddItemViewTests: BitwardenTestCase {
     func test_snapshot_full_fieldsVisible() {
         processor.state.type = .login
         processor.state.name = "Name"
-        processor.state.username = "username"
-        processor.state.password = "password1!"
+        processor.state.addLoginItemState.username = "username"
+        processor.state.addLoginItemState.password = "password1!"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.uri = URL.example.absoluteString
+        processor.state.addLoginItemState.uri = URL.example.absoluteString
         processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
 
-        processor.state.isPasswordVisible = true
+        processor.state.addLoginItemState.isPasswordVisible = true
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot_secureNote_full_fieldsVisible() {
+        processor.state.type = .secureNote
+        processor.state.name = "Secure Note Name"
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
@@ -227,11 +239,11 @@ class AddItemViewTests: BitwardenTestCase {
     func test_snapshot_full_fieldsNotVisible() {
         processor.state.type = .login
         processor.state.name = "Name"
-        processor.state.username = "username"
-        processor.state.password = "password1!"
+        processor.state.addLoginItemState.username = "username"
+        processor.state.addLoginItemState.password = "password1!"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.uri = URL.example.absoluteString
+        processor.state.addLoginItemState.uri = URL.example.absoluteString
         processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
