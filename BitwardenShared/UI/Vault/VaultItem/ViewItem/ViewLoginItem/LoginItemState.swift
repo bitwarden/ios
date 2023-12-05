@@ -14,7 +14,7 @@ struct LoginItemState: Equatable {
     var isPasswordVisible = false
 
     /// The editable properties of the Login Item
-    var properties: VaultCipherItemProperties
+    var properties: CipherItemProperties
 
     // MARK: Initializers
 
@@ -23,7 +23,7 @@ struct LoginItemState: Equatable {
     /// - Parameter cipherView: The Cipher View the item represents.
     ///
     init?(cipherView: CipherView) {
-        guard let properties = VaultCipherItemProperties.from(cipherView) else { return nil }
+        guard let properties = CipherItemProperties.from(cipherView) else { return nil }
         cipher = cipherView
         self.properties = properties
     }

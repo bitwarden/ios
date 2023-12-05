@@ -93,7 +93,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// - Parameter cipherView: A `CipherView` to initialize this view with.
     ///
     private func showEditItem(for cipherView: CipherView) {
-        guard let state = AddEditItemState.ediItem(cipherView: cipherView) else { return }
+        guard let state = AddEditItemState.editItem(cipherView: cipherView) else { return }
         let processor = AddEditItemProcessor(
             coordinator: asAnyCoordinator(),
             services: services,

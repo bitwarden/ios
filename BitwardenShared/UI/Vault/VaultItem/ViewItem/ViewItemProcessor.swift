@@ -52,10 +52,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 guard let newState = ViewItemState(cipherView: value) else { continue }
                 state = newState
             }
-        case .checkPasswordPressed:
-            await checkPassword()
-        case .setupTotpPressed:
-            await setupTotp()
         }
     }
 
@@ -99,31 +95,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     // MARK: Private Methods
 
-    /// Checks the password currently stored in `state`.
-    ///
-    private func checkPassword() async {
-        coordinator.showLoadingOverlay(.init(title: Localizations.checkingPassword))
-        defer { coordinator.hideLoadingOverlay() }
-
-        do {
-            // TODO: BIT-369 Use the api to check the password
-            try await Task.sleep(nanoseconds: 1_000_000_000)
-            let alert = Alert(
-                title: Localizations.passwordExposed(9_659_365),
-                message: nil,
-                alertActions: [
-                    AlertAction(
-                        title: Localizations.ok,
-                        style: .default
-                    ),
-                ]
-            )
-            coordinator.navigate(to: .alert(alert))
-        } catch {
-            print(error)
-        }
-    }
-
     /// Triggers the edit state for the item currently stored in `state`.
     ///
     private func editItem() {
@@ -131,17 +102,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         switch itemTypeState {
         case let .login(loginItem):
             coordinator.navigate(to: .editItem(cipher: loginItem.cipher))
-        }
-    }
-
-    /// Kicks off the TOTP setup flow.
-    ///
-    private func setupTotp() async {
-        let status = await services.cameraAuthorizationService.checkStatusOrRequestCameraAuthorization()
-        if status == .authorized {
-            coordinator.navigate(to: .setupTotpCamera)
-        } else {
-            coordinator.navigate(to: .setupTotpManual)
         }
     }
 

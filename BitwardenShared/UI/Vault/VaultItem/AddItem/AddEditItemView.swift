@@ -108,43 +108,46 @@ struct AddEditItemView: View {
                     send: AddEditItemAction.nameChanged
                 )
             )
+            loginItems
+        }
+    }
 
-            BitwardenTextField(
-                title: Localizations.username,
-                buttons: [
-                    .init(
-                        accessibilityLabel: Localizations.generateUsername,
-                        action: { store.send(.generateUsernamePressed) },
-                        icon: Asset.Images.restart2
-                    ),
-                ],
-                text: store.binding(
-                    get: \.properties.username,
-                    send: AddEditItemAction.usernameChanged
-                )
+    @ViewBuilder private var loginItems: some View {
+        BitwardenTextField(
+            title: Localizations.username,
+            buttons: [
+                .init(
+                    accessibilityLabel: Localizations.generateUsername,
+                    action: { store.send(.generateUsernamePressed) },
+                    icon: Asset.Images.restart2
+                ),
+            ],
+            text: store.binding(
+                get: \.properties.username,
+                send: AddEditItemAction.usernameChanged
             )
-            .textContentType(.username)
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.never)
+        )
+        .textContentType(.username)
+        .autocorrectionDisabled()
+        .textInputAutocapitalization(.never)
 
-            passwordField
+        passwordField
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text(Localizations.authenticatorKey)
-                    .font(.styleGuide(.subheadline))
-                    .bold()
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(Localizations.authenticatorKey)
+                .font(.styleGuide(.subheadline))
+                .bold()
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
-                AsyncButton {
-                    await store.perform(.setupTotpPressed)
-                } label: {
-                    HStack(alignment: .center, spacing: 4) {
-                        Asset.Images.camera.swiftUIImage
-                        Text(Localizations.setupTotp)
-                    }
+            AsyncButton {
+                await store.perform(.setupTotpPressed)
+            } label: {
+                HStack(alignment: .center, spacing: 4) {
+                    Asset.Images.camera.swiftUIImage
+                    Text(Localizations.setupTotp)
                 }
-                .buttonStyle(.tertiary())
             }
+            .buttonStyle(.tertiary())
         }
     }
 }

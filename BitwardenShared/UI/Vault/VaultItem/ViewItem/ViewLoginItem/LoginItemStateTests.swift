@@ -36,13 +36,13 @@ class LoginItemStateTests: BitwardenTestCase {
 
     /// A cipher without a login fails to create a login state.
     func test_cipherItemProperties_init_failure() {
-        let nilSubject = VaultCipherItemProperties.from(.fixture())
+        let nilSubject = CipherItemProperties.from(.fixture())
         XCTAssertNil(nilSubject)
     }
 
     /// A cipher with a login creates a login state.
     func test_cipherItemProperties_init_success() {
-        let nonNil = VaultCipherItemProperties.from(.loginFixture())
+        let nonNil = CipherItemProperties.from(.loginFixture())
         XCTAssertNotNil(nonNil)
         XCTAssertEqual(nonNil?.customFields, [])
         XCTAssertEqual(nonNil?.uris, [.init(match: nil, uri: nil)])

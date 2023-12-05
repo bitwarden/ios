@@ -7,7 +7,7 @@ extension LoginItemState {
     static func fixture(
         cipher: CipherView = .loginFixture(),
         isPasswordVisible: Bool = false,
-        properties: VaultCipherItemProperties = .fixture()
+        properties: CipherItemProperties = .fixture()
     ) -> LoginItemState {
         var state = LoginItemState(cipherView: .loginFixture())!
         state.cipher = cipher
@@ -17,7 +17,7 @@ extension LoginItemState {
     }
 }
 
-extension VaultCipherItemProperties {
+extension CipherItemProperties {
     static func fixture(
         customFields: [CustomFieldState] = [],
         folder: String = "",
@@ -31,8 +31,8 @@ extension VaultCipherItemProperties {
         updatedDate: Date = Date(),
         uris: [CipherLoginUriModel] = [],
         username: String = ""
-    ) -> VaultCipherItemProperties {
-        VaultCipherItemProperties(
+    ) -> CipherItemProperties {
+        CipherItemProperties(
             customFields: customFields,
             folder: folder,
             isFavoriteOn: isFavoriteOn,

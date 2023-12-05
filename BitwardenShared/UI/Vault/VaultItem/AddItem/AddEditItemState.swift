@@ -8,9 +8,9 @@ import Foundation
 struct AddEditItemState {
     enum Configuration: Equatable {
         case add
-        case edit(cipherView: CipherView, savedProperties: VaultCipherItemProperties)
+        case edit(cipherView: CipherView, savedProperties: CipherItemProperties)
 
-        func hasChanges(edits: VaultCipherItemProperties) -> Bool {
+        func hasChanges(edits: CipherItemProperties) -> Bool {
             switch self {
             case .add:
                 return true
@@ -34,7 +34,7 @@ struct AddEditItemState {
     var isPasswordVisible = false
 
     /// The editable properties of the Login Item
-    var properties: VaultCipherItemProperties
+    var properties: CipherItemProperties
 
     static func addItem(for type: CipherType? = .login) -> Self {
         self.init(
@@ -56,8 +56,8 @@ struct AddEditItemState {
         )
     }
 
-    static func ediItem(cipherView: CipherView) -> Self? {
-        guard let properties = VaultCipherItemProperties.from(cipherView) else { return nil }
+    static func editItem(cipherView: CipherView) -> Self? {
+        guard let properties = CipherItemProperties.from(cipherView) else { return nil }
         return self.init(
             configuration: .edit(
                 cipherView: cipherView,
@@ -68,7 +68,7 @@ struct AddEditItemState {
     }
 }
 
-struct VaultCipherItemProperties: Equatable {
+struct CipherItemProperties: Equatable {
     // MARK: Properties
 
     /// The custom fields in this item.
@@ -110,18 +110,18 @@ struct VaultCipherItemProperties: Equatable {
     /// The username for this item.
     var username: String
 
-    /// Creates a `VaultCipherItemProperties` from a cipher view
+    /// Creates a `CipherItemProperties` from a cipher view
     ///
     /// - Parameter cipherView: The `CipherView` containing the item properties.
-    /// - Returns: An optional `VaultCipherItemProperties` struct.
+    /// - Returns: An optional `CipherItemProperties` struct.
     ///     Presently only non-nil for `CipherType.login` items.
     ///
-    static func from(_ cipherView: CipherView) -> VaultCipherItemProperties? {
+    static func from(_ cipherView: CipherView) -> CipherItemProperties? {
         guard let id = cipherView.id else { return nil }
         let uris = cipherView.login?.uris?.map { uriView in
             CipherLoginUriModel(loginUriView: uriView)
         }
-        return VaultCipherItemProperties(
+        return CipherItemProperties(
             customFields: cipherView.fields?.map(CustomFieldState.init) ?? [],
             folder: cipherView.folderId ?? "",
             isFavoriteOn: cipherView.favorite,

@@ -137,10 +137,31 @@ class ViewItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
-    /// `receive` with `.editPressed` navigates to the edit item route.
-    func test_receive_editPressed() {
+    /// `receive` with `.editPressed` has no change when the state is loading.
+    func test_receive_editPressed_loading() {
         subject.receive(.editPressed)
-        // TODO: BIT-220 Assertion for edit route
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `receive` with `.editPressed`with data navigates to the edit item route.
+    func test_receive_editPressed_data() {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
+            name: "name",
+            revisionDate: Date()
+        )
+        let loginState = LoginItemState(cipherView: cipherView)!
+        subject.state.loadingState = .data(.login(loginState))
+        subject.receive(.editPressed)
+        XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
     }
 
     /// `receive` with `.morePressed` presents the item options menu.
@@ -190,7 +211,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
             reprompt: .password,
             revisionDate: Date()
         )
-        var loginState = LoginItemState(cipherView: cipherView)!
+        let loginState = LoginItemState(cipherView: cipherView)!
         subject.state.loadingState = .data(.login(loginState))
         subject.receive(.passwordVisibilityPressed)
 

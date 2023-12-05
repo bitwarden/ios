@@ -46,6 +46,14 @@ class AddEditItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .checkPasswordPressed)
     }
 
+    /// Tapping the dismiss button dispatches the `.dismissPressed` action.
+    func test_dismissButton_tap() throws {
+        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
+    }
+
     /// Tapping the favorite toggle dispatches the `.favoriteChanged(_:)` action.
     func test_favoriteToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
@@ -91,6 +99,14 @@ class AddEditItemViewTests: BitwardenTestCase {
         let toggle = try subject.inspect().find(ViewType.Toggle.self, containing: Localizations.passwordPrompt)
         try toggle.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRePromptChanged(true))
+    }
+
+    /// Tapping the more button dispatches the `.morePressed` action.
+    func test_moreButton_tap() throws {
+        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.options)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
     }
 
     /// Updating the name text field dispatches the `.nameChanged()` action.
@@ -245,7 +261,7 @@ class AddEditItemViewTests: BitwardenTestCase {
     }
 
     func test_snapshot__edit_full_fieldsVisible() {
-        processor.state = AddEditItemState.ediItem(cipherView: CipherView.loginFixture())!
+        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
         processor.state.properties.type = .login
         processor.state.properties.name = "Name"
         processor.state.properties.username = "username"
@@ -265,7 +281,7 @@ class AddEditItemViewTests: BitwardenTestCase {
     }
 
     func test_snapshot__edit_full_fieldsNotVisible() {
-        processor.state = AddEditItemState.ediItem(cipherView: CipherView.loginFixture())!
+        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
         processor.state.properties.type = .login
         processor.state.properties.name = "Name"
         processor.state.properties.username = "username"
