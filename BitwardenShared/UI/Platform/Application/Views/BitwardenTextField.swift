@@ -110,11 +110,12 @@ struct BitwardenTextField: View {
                 textField
                 textFieldButtons
             }
-
             if let footer {
                 Text(footer)
                     .font(.styleGuide(.footnote))
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .lineHeight(18, fontSize: 13)
+                    .padding(.top, 0)
             }
         }
     }
@@ -193,8 +194,7 @@ struct BitwardenTextField: View {
                 .font(.styleGuide(.subheadline))
                 .bold()
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                .lineSpacing(5.0)
-                .minSize(minHeight: 20.0)
+                .lineHeight(20, fontSize: 15)
         }
     }
 

@@ -45,6 +45,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
                 Text(footer)
                     .font(.styleGuide(.footnote))
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .lineHeight(18, fontSize: 13)
             }
         }
     }
@@ -88,6 +89,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
                 .font(.styleGuide(.subheadline))
                 .bold()
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .lineHeight(20, fontSize: 15)
         }
     }
 

@@ -22,8 +22,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
                     .font(.styleGuide(.subheadline))
                     .bold()
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .lineSpacing(5.0)
-                    .minSize(minHeight: 20)
+                    .lineHeight(20, fontSize: 15)
             }
 
             HStack(spacing: 8) {
@@ -83,43 +82,17 @@ extension BitwardenField where AccessoryContent == EmptyView {
     }
 }
 
-/// A view modifier to add minimum size to a view
-struct MinimumSizeModifier: ViewModifier {
-    /// The alignment of the view in a ZStack.
-    let alignment: Alignment
-
-    /// The minimum width of the ZStack.
-    let minWidth: CGFloat
-
-    /// The minimum height of the ZStack.
-    let minHeight: CGFloat
-
-    func body(content: Content) -> some View {
-        ZStack(alignment: alignment) {
-            Spacer()
-                .frame(width: minWidth, height: minHeight)
-            content
-        }
-        .frame(minWidth: minWidth, minHeight: minHeight)
-    }
-}
-
-/// An extension to simplify adding minimum sizes.
+/// An extension to simplify adding line height to text
 extension View {
-    /// Wraps the view in a ZStack set to a minimum height.
+    /// Sets the line height for the text.
     ///
     /// - Parameters:
-    ///    - minWidth: The minimum width of the ZStack.
-    ///    - minHeight: The minimum height of the ZStack.
-    ///    - alignment: The alignment of the view in a ZStack.
-    /// - Returns: The view wrapped in a ZStack.
-    func minSize(minWidth: CGFloat = 0.0, minHeight: CGFloat = 0.0, alignment: Alignment = .topLeading) -> some View {
-        modifier(
-            MinimumSizeModifier(
-                alignment: alignment,
-                minWidth: minWidth,
-                minHeight: minHeight
-            )
-        )
+    ///   - height: The desired line height.
+    ///   - fontSize: The expected font size to be applied to the text.
+    /// - Returns: The view with adjusted line height.
+    func lineHeight(_ height: CGFloat, fontSize: CGFloat) -> some View {
+        padding(.vertical, (height - fontSize) / 2)
+            .lineSpacing((height - fontSize) / 2)
+            .frame(minHeight: height)
     }
 }
