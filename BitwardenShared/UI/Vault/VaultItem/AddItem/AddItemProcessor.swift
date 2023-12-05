@@ -59,15 +59,15 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         case let .folderChanged(newValue):
             state.folder = newValue
         case .generatePasswordPressed:
-            if state.password.isEmpty {
+            if state.addLoginItemState.password.isEmpty {
                 coordinator.navigate(to: .generator(.password), context: self)
             } else {
                 presentReplacementAlert(for: .password)
             }
         case .generateUsernamePressed:
-            if state.username.isEmpty {
+            if state.addLoginItemState.username.isEmpty {
                 // TODO: BIT-901 Update this to pass along the first URI when multiple exist.
-                let emailWebsite = URL(string: state.uri)?.sanitized.host
+                let emailWebsite = URL(string: state.addLoginItemState.uri)?.sanitized.host
                 coordinator.navigate(to: .generator(.username, emailWebsite: emailWebsite), context: self)
             } else {
                 presentReplacementAlert(for: .username)
@@ -86,17 +86,17 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         case let .ownerChanged(newValue):
             state.owner = newValue
         case let .passwordChanged(newValue):
-            state.password = newValue
+            state.addLoginItemState.password = newValue
         case let .togglePasswordVisibilityChanged(newValue):
-            state.isPasswordVisible = newValue
+            state.addLoginItemState.isPasswordVisible = newValue
         case let .typeChanged(newValue):
             state.type = newValue
         case let .uriChanged(newValue):
-            state.uri = newValue
+            state.addLoginItemState.uri = newValue
         case .uriSettingsPressed:
             presentUriSettingsAlert()
         case let .usernameChanged(newValue):
-            state.username = newValue
+            state.addLoginItemState.username = newValue
         }
     }
 
@@ -206,9 +206,9 @@ extension AddItemProcessor: GeneratorCoordinatorDelegate {
     func didCompleteGenerator(for type: GeneratorType, with value: String) {
         switch type {
         case .password:
-            state.password = value
+            state.addLoginItemState.password = value
         case .username:
-            state.username = value
+            state.addLoginItemState.username = value
         }
         coordinator.navigate(to: .dismiss)
     }

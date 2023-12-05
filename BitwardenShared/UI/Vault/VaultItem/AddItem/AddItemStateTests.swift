@@ -57,9 +57,9 @@ class AddItemStateTests: XCTestCase {
         subject.isFavoriteOn = true
         subject.isMasterPasswordRePromptOn = true
         subject.name = "Bitwarden"
-        subject.password = "top secret!"
+        subject.addLoginItemState.password = "top secret!"
         subject.notes = "Bitwarden Login"
-        subject.username = "user@bitwarden.com"
+        subject.addLoginItemState.username = "user@bitwarden.com"
 
         assertInlineSnapshot(of: subject.cipher(creationDate: Date(year: 2023, month: 9, day: 1)), as: .dump) {
             """
