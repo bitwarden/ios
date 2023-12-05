@@ -26,15 +26,12 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
             }
 
             HStack(spacing: 8) {
-                ZStack {
-                    Spacer()
-                    content
-                }
-                .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                content
+                    .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 if let accessoryContent {
                     accessoryContent
