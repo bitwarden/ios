@@ -20,22 +20,7 @@ struct AddItemView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 20) {
-                switch store.state.type {
-                case .login:
-                    itemInformationSection {
-                        AddLoginItemView(
-                            store: store.child(
-                                state: { $0.addLoginItemState },
-                                mapAction: { $0 },
-                                mapEffect: { $0 }
-                            )
-                        )
-                    }
-                case .secureNote:
-                    itemInformationSection()
-                default:
-                    itemInformationSection()
-                }
+                itemInformationSection
 
                 miscellaneousSection
 
@@ -57,6 +42,44 @@ struct AddItemView: View {
                 ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
                     store.send(.dismissPressed)
                 }
+            }
+        }
+    }
+
+    ///  Returns item information section, Default includes `type` and `name`fields and other fields based on
+    ///  `state.type`.
+    private var itemInformationSection: some View {
+        SectionView(Localizations.itemInformation) {
+            BitwardenMenuField(
+                title: Localizations.type,
+                options: CipherType.allCases,
+                selection: store.binding(
+                    get: \.type,
+                    send: AddItemAction.typeChanged
+                )
+            )
+
+            BitwardenTextField(
+                title: Localizations.name,
+                text: store.binding(
+                    get: \.name,
+                    send: AddItemAction.nameChanged
+                )
+            )
+
+            switch store.state.type {
+            case .login:
+                AddLoginItemView(
+                    store: store.child(
+                        state: { $0.addLoginItemState },
+                        mapAction: { $0 },
+                        mapEffect: { $0 }
+                    )
+                )
+            case .secureNote:
+                EmptyView()
+            default:
+                EmptyView()
             }
         }
     }
@@ -139,36 +162,6 @@ struct AddItemView: View {
             await store.perform(.savePressed)
         }
         .buttonStyle(.primary())
-    }
-
-    // MARK: Methods
-
-    ///  Returns item information section, Default includes `type` and `name`fields.
-    ///
-    /// - Parameter content: An optional content view to display below the `type` and `name`  fields.
-    /// - Returns:  A view that displays the item information fields (`type` and `name`) and the optional content view.
-    ///
-    func itemInformationSection(@ViewBuilder content: () -> some View = { EmptyView() }) -> some View {
-        SectionView(Localizations.itemInformation) {
-            BitwardenMenuField(
-                title: Localizations.type,
-                options: CipherType.allCases,
-                selection: store.binding(
-                    get: \.type,
-                    send: AddItemAction.typeChanged
-                )
-            )
-
-            BitwardenTextField(
-                title: Localizations.name,
-                text: store.binding(
-                    get: \.name,
-                    send: AddItemAction.nameChanged
-                )
-            )
-
-            content()
-        }
     }
 }
 
