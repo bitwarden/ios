@@ -8,6 +8,9 @@ import Foundation
 struct AddItemState {
     // MARK: Properties
 
+    /// The sub state for add login item.
+    var addLoginItemState = AddLoginItemState()
+
     /// The folder this item should be added to.
     var folder: String = ""
 
@@ -17,14 +20,8 @@ struct AddItemState {
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool = false
 
-    /// A flag indicating if the password field is visible.
-    var isPasswordVisible: Bool = false
-
     /// The name of this item.
     var name: String = ""
-
-    /// The password for this item.
-    var password: String = ""
 
     /// The notes for this item.
     var notes: String = ""
@@ -34,12 +31,6 @@ struct AddItemState {
 
     /// What cipher type this item is.
     var type: CipherType = .login
-
-    /// The uri associated with this item. Used with autofill.
-    var uri: String = "" // TODO: BIT-901 Update to use an array of CipherLoginUriModel
-
-    /// The username for this item.
-    var username: String = ""
 }
 
 extension AddItemState {
@@ -52,10 +43,10 @@ extension AddItemState {
             collectionIds: [],
             name: name,
             notes: notes.nilIfEmpty,
-            type: BitwardenSdk.CipherType(.login),
+            type: BitwardenSdk.CipherType(type),
             login: BitwardenSdk.LoginView(
-                username: username.nilIfEmpty,
-                password: password.nilIfEmpty,
+                username: addLoginItemState.username.nilIfEmpty,
+                password: addLoginItemState.password.nilIfEmpty,
                 passwordRevisionDate: nil,
                 uris: nil,
                 totp: nil,

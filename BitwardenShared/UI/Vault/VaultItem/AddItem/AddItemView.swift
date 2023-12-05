@@ -15,178 +15,22 @@ struct AddItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddItemState, AddItemAction, AddItemEffect>
 
+    // MARK: Views
+
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 20) {
-                section(title: Localizations.itemInformation) {
-                    BitwardenMenuField(
-                        title: Localizations.type,
-                        options: CipherType.allCases,
-                        selection: store.binding(
-                            get: \.type,
-                            send: AddItemAction.typeChanged
-                        )
-                    )
+                itemInformationSection
 
-                    BitwardenTextField(
-                        title: Localizations.name,
-                        text: store.binding(
-                            get: \.name,
-                            send: AddItemAction.nameChanged
-                        )
-                    )
+                miscellaneousSection
 
-                    BitwardenTextField(
-                        title: Localizations.username,
-                        buttons: [
-                            .init(
-                                accessibilityLabel: Localizations.generateUsername,
-                                action: { store.send(.generateUsernamePressed) },
-                                icon: Asset.Images.restart2
-                            ),
-                        ],
-                        text: store.binding(
-                            get: \.username,
-                            send: AddItemAction.usernameChanged
-                        )
-                    )
-                    .textContentType(.username)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
+                notesSection
 
-                    BitwardenTextField(
-                        title: Localizations.password,
-                        buttons: [
-                            .init(
-                                accessibilityLabel: Localizations.checkPassword,
-                                action: { await store.perform(.checkPasswordPressed) },
-                                icon: Asset.Images.roundCheck
-                            ),
-                            .init(
-                                accessibilityLabel: Localizations.generatePassword,
-                                action: { store.send(.generatePasswordPressed) },
-                                icon: Asset.Images.restart2
-                            ),
-                        ],
-                        isPasswordVisible: store.binding(
-                            get: \.isPasswordVisible,
-                            send: AddItemAction.togglePasswordVisibilityChanged
-                        ),
-                        text: store.binding(
-                            get: \.password,
-                            send: AddItemAction.passwordChanged
-                        )
-                    )
-                    .textContentType(.password)
-                    .textInputAutocapitalization(.never)
+                customFieldsSection
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(Localizations.authenticatorKey)
-                            .font(.styleGuide(.subheadline))
-                            .bold()
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                ownershipSection
 
-                        AsyncButton {
-                            await store.perform(.setupTotpPressed)
-                        } label: {
-                            HStack(alignment: .center, spacing: 4) {
-                                Asset.Images.camera.swiftUIImage
-                                Text(Localizations.setupTotp)
-                            }
-                        }
-                        .buttonStyle(.tertiary())
-                    }
-                }
-
-                section(title: Localizations.urIs) {
-                    BitwardenTextField(
-                        title: Localizations.uri,
-                        buttons: [
-                            .init(
-                                accessibilityLabel: Localizations.uriMatchDetection,
-                                action: { store.send(.uriSettingsPressed) },
-                                icon: Asset.Images.gear
-                            ),
-                        ],
-                        text: store.binding(
-                            get: \.uri,
-                            send: AddItemAction.uriChanged
-                        )
-                    )
-                    .keyboardType(.URL)
-                    .textInputAutocapitalization(.never)
-                    .textContentType(.URL)
-
-                    Button(Localizations.newUri) {
-                        store.send(.newUriPressed)
-                    }
-                    .buttonStyle(.tertiary())
-                }
-
-                section(title: Localizations.miscellaneous) {
-                    BitwardenTextField(
-                        title: Localizations.folder,
-                        text: store.binding(
-                            get: \.folder,
-                            send: AddItemAction.folderChanged
-                        )
-                    )
-
-                    Toggle(Localizations.favorite, isOn: store.binding(
-                        get: \.isFavoriteOn,
-                        send: AddItemAction.favoriteChanged
-                    ))
-                    .toggleStyle(.bitwarden)
-
-                    Toggle(isOn: store.binding(
-                        get: \.isMasterPasswordRePromptOn,
-                        send: AddItemAction.masterPasswordRePromptChanged
-                    )) {
-                        HStack(alignment: .center, spacing: 4) {
-                            Text(Localizations.passwordPrompt)
-                            Button {
-                                openURL(ExternalLinksConstants.protectIndividualItems)
-                            } label: {
-                                Asset.Images.questionRound.swiftUIImage
-                            }
-                            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                            .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
-                        }
-                    }
-                    .toggleStyle(.bitwarden)
-                }
-
-                section(title: Localizations.notes) {
-                    BitwardenTextField(
-                        text: store.binding(
-                            get: \.notes,
-                            send: AddItemAction.notesChanged
-                        )
-                    )
-                    .accessibilityLabel(Localizations.notes)
-                }
-
-                section(title: Localizations.customFields) {
-                    Button(Localizations.newCustomField) {
-                        store.send(.newCustomFieldPressed)
-                    }
-                    .buttonStyle(.tertiary())
-                }
-
-                section(title: Localizations.ownership) {
-                    BitwardenTextField(
-                        title: Localizations.whoOwnsThisItem,
-                        text: store.binding(
-                            get: \.owner,
-                            send: AddItemAction.ownerChanged
-                        )
-                    )
-                }
-
-                AsyncButton(Localizations.save) {
-                    await store.perform(.savePressed)
-                }
-                .buttonStyle(.primary())
+                saveButton
             }
             .padding(16)
         }
@@ -202,37 +46,134 @@ struct AddItemView: View {
         }
     }
 
-    // MARK: Methods
+    ///  Returns item information section, Default includes `type` and `name`fields and other fields based on
+    ///  `state.type`.
+    private var itemInformationSection: some View {
+        SectionView(Localizations.itemInformation) {
+            BitwardenMenuField(
+                title: Localizations.type,
+                options: CipherType.allCases,
+                selection: store.binding(
+                    get: \.type,
+                    send: AddItemAction.typeChanged
+                )
+            )
 
-    /// Creates a section with a title hosted in a title view.
-    ///
-    /// - Parameters:
-    ///   - title: The title of this section.
-    ///   - content: The content to place below the title view in this section.
-    ///
-    @ViewBuilder
-    private func section(title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(title.uppercased())
-                .font(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            BitwardenTextField(
+                title: Localizations.name,
+                text: store.binding(
+                    get: \.name,
+                    send: AddItemAction.nameChanged
+                )
+            )
 
-            content()
+            switch store.state.type {
+            case .login:
+                AddLoginItemView(
+                    store: store.child(
+                        state: { $0.addLoginItemState },
+                        mapAction: { $0 },
+                        mapEffect: { $0 }
+                    )
+                )
+            case .secureNote:
+                EmptyView()
+            default:
+                EmptyView()
+            }
         }
     }
-}
 
-struct AddItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            AddItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: AddItemState()
-                    )
+    /// The miscellaneous section.
+    private var miscellaneousSection: some View {
+        SectionView(Localizations.miscellaneous) {
+            BitwardenTextField(
+                title: Localizations.folder,
+                text: store.binding(
+                    get: \.folder,
+                    send: AddItemAction.folderChanged
+                )
+            )
+
+            Toggle(Localizations.favorite, isOn: store.binding(
+                get: \.isFavoriteOn,
+                send: AddItemAction.favoriteChanged
+            ))
+            .toggleStyle(.bitwarden)
+
+            Toggle(isOn: store.binding(
+                get: \.isMasterPasswordRePromptOn,
+                send: AddItemAction.masterPasswordRePromptChanged
+            )) {
+                HStack(alignment: .center, spacing: 4) {
+                    Text(Localizations.passwordPrompt)
+                    Button {
+                        openURL(ExternalLinksConstants.protectIndividualItems)
+                    } label: {
+                        Asset.Images.questionRound.swiftUIImage
+                    }
+                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
+                }
+            }
+            .toggleStyle(.bitwarden)
+        }
+    }
+
+    /// The notes section.
+    private var notesSection: some View {
+        SectionView(Localizations.notes) {
+            BitwardenTextField(
+                text: store.binding(
+                    get: \.notes,
+                    send: AddItemAction.notesChanged
+                )
+            )
+            .accessibilityLabel(Localizations.notes)
+        }
+    }
+
+    /// The custom fields section.
+    private var customFieldsSection: some View {
+        SectionView(Localizations.customFields) {
+            Button(Localizations.newCustomField) {
+                store.send(.newCustomFieldPressed)
+            }
+            .buttonStyle(.tertiary())
+        }
+    }
+
+    /// The ownership section.
+    private var ownershipSection: some View {
+        SectionView(Localizations.ownership) {
+            BitwardenTextField(
+                title: Localizations.whoOwnsThisItem,
+                text: store.binding(
+                    get: \.owner,
+                    send: AddItemAction.ownerChanged
                 )
             )
         }
-        .previewDisplayName("Empty")
     }
+
+    /// The save button section.
+    private var saveButton: some View {
+        AsyncButton(Localizations.save) {
+            await store.perform(.savePressed)
+        }
+        .buttonStyle(.primary())
+    }
+}
+
+#Preview {
+    NavigationView {
+        AddItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddItemState(type: .login)
+                )
+            )
+        )
+    }
+    .previewDisplayName("Add Item")
 }
