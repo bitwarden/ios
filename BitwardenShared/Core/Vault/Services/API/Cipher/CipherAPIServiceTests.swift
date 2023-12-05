@@ -56,6 +56,7 @@ class CipherAPIServiceTests: XCTestCase {
                 folderId: nil,
                 id: "3792af7a-4441-11ee-be56-0242ac120002",
                 identity: nil,
+                key: nil,
                 login: CipherLoginModel(
                     autofillOnPageLoad: nil,
                     password: "encrypted password",
