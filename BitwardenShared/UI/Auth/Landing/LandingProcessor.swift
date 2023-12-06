@@ -63,12 +63,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
                 shouldAlwaysHideAddAccount: true
             )
         } catch {
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: [],
-                activeAccountId: nil,
-                isVisible: false,
-                shouldAlwaysHideAddAccount: true
-            )
+            state.profileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
         }
     }
 
@@ -104,13 +99,13 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
                 state.profileSwitcherState.isVisible = false
             case .backgroundPressed:
                 state.profileSwitcherState.isVisible = false
+            case let .requestedProfileSwitcher(visible: isVisible):
+                state.profileSwitcherState.isVisible = isVisible
             case let .scrollOffsetChanged(newOffset):
                 state.profileSwitcherState.scrollOffset = newOffset
             }
         case .regionPressed:
             presentRegionSelectionAlert()
-        case let .requestedProfileSwitcher(visible: isVisible):
-            state.profileSwitcherState.isVisible = isVisible
         case let .rememberMeChanged(newValue):
             state.isRememberMeOn = newValue
             if !newValue {

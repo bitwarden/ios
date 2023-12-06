@@ -29,25 +29,17 @@ struct LandingView: View {
 
     /// The Toolbar item for the profile switcher view
     @ViewBuilder var profileSwitcherToolbarItem: some View {
-        Button {
-            store.send(.requestedProfileSwitcher(visible: !store.state.profileSwitcherState.isVisible))
-        } label: {
-            if !store.state.profileSwitcherState.accounts.isEmpty {
-                HStack {
-                    Text(store.state.profileSwitcherState.activeAccountInitials)
-                        .font(.styleGuide(.caption2Monospaced))
-                        .foregroundColor(.white)
-                        .padding(4)
-                        .background(Color.purple)
-                        .clipShape(Circle())
-                    Spacer()
-                }
-                .frame(minWidth: 50)
-                .fixedSize()
-            } else {
-                EmptyView()
-            }
-        }
+        ProfileSwitcherToolbarView(
+            store: store.child(
+                state: { state in
+                    state.profileSwitcherState
+                },
+                mapAction: { action in
+                    .profileSwitcherAction(action)
+                },
+                mapEffect: nil
+            )
+        )
     }
 
     /// A view that displays the ability to add or switch between account profiles

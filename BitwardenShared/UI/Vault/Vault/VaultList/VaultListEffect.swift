@@ -5,10 +5,10 @@ enum VaultListEffect {
     /// The vault list appeared on screen.
     case appeared
 
-    /// A Profile Switcher Effect
+    /// A Profile Switcher Effect.
     case profileSwitcher(ProfileSwitcherEffect)
 
-    /// Refreshes the account profiles
+    /// Refreshes the account profiles.
     case refreshAccountProfiles
 
     /// Refresh the vault list's data.
