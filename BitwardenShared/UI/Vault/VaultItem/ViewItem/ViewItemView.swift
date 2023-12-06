@@ -88,7 +88,7 @@ struct ViewItemView: View {
 #if DEBUG
 struct ViewItemView_Previews: PreviewProvider {
     static var cipher = CipherView(
-        id: nil,
+        id: "123",
         organizationId: nil,
         folderId: nil,
         collectionIds: [],
