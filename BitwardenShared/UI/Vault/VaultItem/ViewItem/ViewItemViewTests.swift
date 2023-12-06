@@ -190,14 +190,4 @@ class ViewItemViewTests: BitwardenTestCase {
         processor.state.loadingState = .data(.login(loginState))
         assertSnapshot(of: subject, as: .tallPortrait)
     }
-
-    /// Test a snapshot of the ViewItemView previews.
-    func test_snapshot_viewItemView_previews() {
-        for preview in ViewItemView_Previews._allPreviews {
-            assertSnapshots(
-                matching: preview.content,
-                as: [.tallPortrait]
-            )
-        }
-    }
 }

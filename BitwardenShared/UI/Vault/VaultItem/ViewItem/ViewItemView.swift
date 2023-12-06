@@ -138,7 +138,7 @@ struct ViewItemView_Previews: PreviewProvider {
             notes: "This is a long note so that it goes to the next line!",
             password: "Password1!",
             type: .login,
-            updatedDate: Date(),
+            updatedDate: .init(timeIntervalSince1970: 1_695_000_000),
             uris: [
                 CipherLoginUriModel(
                     match: .startsWith,
