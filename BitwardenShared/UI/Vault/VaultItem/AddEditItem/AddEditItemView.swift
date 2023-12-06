@@ -40,7 +40,6 @@ struct AddEditItemView: View {
         ScrollView {
             LazyVStack(spacing: 20) {
                 informationSection
-                uriSection
                 miscellaneousSection
                 notesSection
                 customSection
@@ -108,47 +107,33 @@ struct AddEditItemView: View {
                     send: AddEditItemAction.nameChanged
                 )
             )
-            loginItems
+
+            switch store.state.properties.type {
+            case .login:
+                loginItems
+            case .secureNote:
+                EmptyView()
+            default:
+                EmptyView()
+            }
         }
     }
 
     @ViewBuilder private var loginItems: some View {
-        BitwardenTextField(
-            title: Localizations.username,
-            buttons: [
-                .init(
-                    accessibilityLabel: Localizations.generateUsername,
-                    action: { store.send(.generateUsernamePressed) },
-                    icon: Asset.Images.restart2
-                ),
-            ],
-            text: store.binding(
-                get: \.properties.username,
-                send: AddEditItemAction.usernameChanged
+        AddEditLoginItemView(
+            store: store.child(
+                state: { addEditState in
+                    AddEditLoginItemState(
+                        isPasswordVisible: addEditState.isPasswordVisible,
+                        password: addEditState.properties.password,
+                        uris: addEditState.properties.uris,
+                        username: addEditState.properties.username
+                    )
+                },
+                mapAction: { $0 },
+                mapEffect: { $0 }
             )
         )
-        .textContentType(.username)
-        .autocorrectionDisabled()
-        .textInputAutocapitalization(.never)
-
-        passwordField
-
-        VStack(alignment: .leading, spacing: 8) {
-            Text(Localizations.authenticatorKey)
-                .font(.styleGuide(.subheadline))
-                .bold()
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-            AsyncButton {
-                await store.perform(.setupTotpPressed)
-            } label: {
-                HStack(alignment: .center, spacing: 4) {
-                    Asset.Images.camera.swiftUIImage
-                    Text(Localizations.setupTotp)
-                }
-            }
-            .buttonStyle(.tertiary())
-        }
     }
 }
 
@@ -212,71 +197,11 @@ private extension AddEditItemView {
         }
     }
 
-    var passwordField: some View {
-        BitwardenTextField(
-            title: Localizations.password,
-            buttons: [
-                .init(
-                    accessibilityLabel: Localizations.checkPassword,
-                    action: { await store.perform(.checkPasswordPressed) },
-                    icon: Asset.Images.roundCheck
-                ),
-                .init(
-                    accessibilityLabel: Localizations.generatePassword,
-                    action: { store.send(.generatePasswordPressed) },
-                    icon: Asset.Images.restart2
-                ),
-            ],
-            isPasswordVisible: store.binding(
-                get: \.isPasswordVisible,
-                send: AddEditItemAction.togglePasswordVisibilityChanged
-            ),
-            text: store.binding(
-                get: \.properties.password,
-                send: AddEditItemAction.passwordChanged
-            )
-        )
-        .textContentType(.password)
-        .textInputAutocapitalization(.never)
-    }
-
     var saveButton: some View {
         AsyncButton(Localizations.save) {
             await store.perform(.savePressed)
         }
         .buttonStyle(.primary())
-    }
-
-    var uriSection: some View {
-        VaultItemSectionView(title: Localizations.urIs) {
-            ForEach(store.state.properties.uris.indices, id: \.self) { index in
-                let uriView = store.state.properties.uris[index]
-                BitwardenTextField(
-                    title: Localizations.uri,
-                    buttons: [
-                        .init(
-                            accessibilityLabel: Localizations.uriMatchDetection,
-                            action: { store.send(.uriSettingsPressed) },
-                            icon: Asset.Images.gear
-                        ),
-                    ],
-                    text: store.binding(
-                        get: { _ in uriView.uri ?? "" },
-                        send: { newValue in
-                            AddEditItemAction.uriChanged(newValue, index: index)
-                        }
-                    )
-                )
-                .keyboardType(.URL)
-                .textInputAutocapitalization(.never)
-                .textContentType(.URL)
-            }
-
-            Button(Localizations.newUri) {
-                store.send(.newUriPressed)
-            }
-            .buttonStyle(.tertiary())
-        }
     }
 }
 

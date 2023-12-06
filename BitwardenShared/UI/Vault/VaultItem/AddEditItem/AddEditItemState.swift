@@ -117,7 +117,8 @@ struct CipherItemProperties: Equatable {
     ///     Presently only non-nil for `CipherType.login` items.
     ///
     static func from(_ cipherView: CipherView) -> CipherItemProperties? {
-        guard let id = cipherView.id else { return nil }
+        guard let id = cipherView.id,
+              !id.isEmpty else { return nil }
         let uris = cipherView.login?.uris?.map { uriView in
             CipherLoginUriModel(loginUriView: uriView)
         }
