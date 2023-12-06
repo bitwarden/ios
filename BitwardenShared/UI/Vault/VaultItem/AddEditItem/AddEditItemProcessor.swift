@@ -184,36 +184,32 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     private func saveItem() async {
         coordinator.showLoadingOverlay(title: Localizations.saving)
         defer { coordinator.hideLoadingOverlay() }
-        switch state.configuration {
-        case .add:
-            await additem()
-        case let .edit(cipherView, _):
-            await updateItem(cipherView: cipherView)
+        do {
+            switch state.configuration {
+            case .add:
+                try await additem()
+            case let .edit(cipherView, _):
+                try await updateItem(cipherView: cipherView)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 
     /// Adds the item currently in `state`.
     ///
-    private func additem() async {
-        do {
-            try await services.vaultRepository.addCipher(state.newCipherView())
-            coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .dismiss)
-        } catch {
-            services.errorReporter.log(error: error)
-        }
+    private func additem() async throws {
+        try await services.vaultRepository.addCipher(state.newCipherView())
+        coordinator.hideLoadingOverlay()
+        coordinator.navigate(to: .dismiss)
     }
 
     /// Updates the item currently in `state`.
     ///
-    private func updateItem(cipherView: CipherView) async {
-        do {
-            try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
-            coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .dismiss)
-        } catch {
-            services.errorReporter.log(error: error)
-        }
+    private func updateItem(cipherView: CipherView) async throws {
+        try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
+        coordinator.hideLoadingOverlay()
+        coordinator.navigate(to: .dismiss)
     }
 
     /// Kicks off the TOTP setup flow.

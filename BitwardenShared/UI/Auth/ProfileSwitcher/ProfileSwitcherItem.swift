@@ -4,7 +4,7 @@ import SwiftUI
 
 /// An object that defines account profile information relevant to account switching
 /// Part of `ProfileSwitcherState`.
-struct ProfileSwitcherItem: Equatable {
+struct ProfileSwitcherItem: Equatable, Hashable {
     /// The color associated with the profile
     var color = Color.purple
 

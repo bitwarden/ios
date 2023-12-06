@@ -81,8 +81,7 @@ struct AddEditLoginItemView: View {
 
     var uriSection: some View {
         VaultItemSectionView(title: Localizations.urIs) {
-            ForEach(store.state.uris.indices, id: \.self) { index in
-                let uriView = store.state.uris[index]
+            ForEachIndexed(store.state.uris, id: \.self) { index, uriView in
                 BitwardenTextField(
                     title: Localizations.uri,
                     buttons: [
