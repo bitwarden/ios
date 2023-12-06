@@ -119,8 +119,7 @@ class ViewItemViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
-    // swiftlint:disable:next function_body_length
-    func test_snapshot_login_withAllValues() {
+    func loginState() -> LoginItemState { // swiftlint:disable:this function_body_length
         var loginState = LoginItemState(cipherView: .loginFixture())!
         loginState.properties.folder = "Folder"
         loginState.isPasswordVisible = true
@@ -187,7 +186,16 @@ class ViewItemViewTests: BitwardenTestCase {
                 value: nil
             ),
         ]
-        processor.state.loadingState = .data(.login(loginState))
+        return loginState
+    }
+
+    func test_snapshot_login_withAllValues() {
+        processor.state.loadingState = .data(.login(loginState()))
         assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot_login_withAllValues_largeText() {
+        processor.state.loadingState = .data(.login(loginState()))
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
     }
 }

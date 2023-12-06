@@ -8,7 +8,7 @@ import XCTest
 
 // MARK: - AddEditItemViewTests
 
-class AddEditItemViewTests: BitwardenTestCase {
+class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect>!
@@ -292,6 +292,26 @@ class AddEditItemViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
+    func test_snapshot__edit_full_fieldsVisible_largeText() {
+        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
+        processor.state.properties.type = .login
+        processor.state.properties.name = "Name"
+        processor.state.properties.username = "username"
+        processor.state.properties.password = "password1!"
+        processor.state.properties.isFavoriteOn = true
+        processor.state.properties.isMasterPasswordRePromptOn = true
+        processor.state.properties.uris = [
+            .init(match: nil, uri: URL.example.absoluteString),
+        ]
+        processor.state.properties.owner = "owner"
+        processor.state.properties.notes = "Notes"
+        processor.state.properties.folder = "Folder"
+
+        processor.state.isPasswordVisible = true
+
+        assertSnapshot(of: subject, as: .tallPortraitAX5())
+    }
+
     func test_snapshot__edit_full_fieldsNotVisible() {
         processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
         processor.state.properties.type = .login
@@ -308,5 +328,23 @@ class AddEditItemViewTests: BitwardenTestCase {
         processor.state.properties.folder = "Folder"
 
         assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot__edit_full_fieldsNotVisible_largeText() {
+        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
+        processor.state.properties.type = .login
+        processor.state.properties.name = "Name"
+        processor.state.properties.username = "username"
+        processor.state.properties.password = "password1!"
+        processor.state.properties.isFavoriteOn = true
+        processor.state.properties.isMasterPasswordRePromptOn = true
+        processor.state.properties.uris = [
+            .init(match: nil, uri: URL.example.absoluteString),
+        ]
+        processor.state.properties.owner = "owner"
+        processor.state.properties.notes = "Notes"
+        processor.state.properties.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortraitAX5())
     }
 }
