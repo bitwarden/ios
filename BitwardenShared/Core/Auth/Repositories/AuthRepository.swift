@@ -53,6 +53,9 @@ class DefaultAuthRepository {
     /// The client used by the application to handle encryption and decryption setup tasks.
     let clientCrypto: ClientCryptoProtocol
 
+    /// The service used by the application to manage the environment settings.
+    let environmentService: EnvironmentService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -65,15 +68,18 @@ class DefaultAuthRepository {
     ///
     /// - Parameters:
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
+    ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - stateService: The service used by the application to manage account state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
         clientCrypto: ClientCryptoProtocol,
+        environmentService: EnvironmentService,
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.clientCrypto = clientCrypto
+        self.environmentService = environmentService
         self.stateService = stateService
         self.vaultTimeoutService = vaultTimeoutService
     }
@@ -111,6 +117,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     func setActiveAccount(userId: String) async throws -> Account {
         try await stateService.setActiveAccount(userId: userId)
+        await environmentService.loadURLsForActiveAccount()
         return try await stateService.getActiveAccount()
     }
 

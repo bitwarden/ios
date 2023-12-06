@@ -70,6 +70,7 @@ class LoginProcessorTests: BitwardenTestCase {
         ]
         subject.state.username = "email@example.com"
         subject.state.masterPassword = "Password1234!"
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
 
         subject.captchaCompleted(token: "token")
 
@@ -177,6 +178,7 @@ class LoginProcessorTests: BitwardenTestCase {
         ]
         subject.state.username = "email@example.com"
         subject.state.masterPassword = "Password1234!"
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
 
         await subject.perform(.loginWithMasterPasswordPressed)
 

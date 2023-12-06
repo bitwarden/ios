@@ -7,7 +7,7 @@ public struct Account: Codable, Equatable, Hashable {
     let profile: AccountProfile
 
     /// The account's settings.
-    let settings: AccountSettings
+    var settings: AccountSettings
 
     /// The account's API tokens.
     var tokens: AccountTokens
@@ -30,9 +30,14 @@ extension Account {
 
     /// Initializes an `Account` from the response of the identity token request.
     ///
-    /// - Parameter identityTokenResponseModel: The response model from the identity token request.
+    /// - Parameters:
+    ///   - identityTokenResponseModel: The response model from the identity token request.
+    ///   - environmentUrls: The environment URLs for an account.
     ///
-    init(identityTokenResponseModel: IdentityTokenResponseModel) throws {
+    init(
+        identityTokenResponseModel: IdentityTokenResponseModel,
+        environmentUrls: EnvironmentUrlData?
+    ) throws {
         let tokenPayload = try TokenParser.parseToken(identityTokenResponseModel.accessToken)
         self.init(
             profile: AccountProfile(
@@ -53,7 +58,7 @@ extension Account {
                 userId: tokenPayload.userId
             ),
             settings: AccountSettings(
-                environmentUrls: nil
+                environmentUrls: environmentUrls
             ),
             tokens: AccountTokens(
                 accessToken: identityTokenResponseModel.accessToken,
@@ -116,8 +121,8 @@ extension Account {
     struct AccountSettings: Codable, Equatable, Hashable {
         // MARK: Properties
 
-        /// The environment URLs for an account
-        let environmentUrls: EnvironmentUrlData?
+        /// The environment URLs for an account.
+        var environmentUrls: EnvironmentUrlData?
     }
 
     /// Domain model for an account's API tokens.

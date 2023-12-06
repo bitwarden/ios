@@ -7,6 +7,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var state: State? {
         didSet {

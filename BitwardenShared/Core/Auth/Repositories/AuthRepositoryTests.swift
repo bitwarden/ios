@@ -7,6 +7,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     // MARK: Properties
 
     var clientCrypto: MockClientCrypto!
+    var environmentService: MockEnvironmentService!
     var subject: DefaultAuthRepository!
     var stateService: MockStateService!
     var vaultTimeoutService: MockVaultTimeoutService!
@@ -67,11 +68,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.setUp()
 
         clientCrypto = MockClientCrypto()
+        environmentService = MockEnvironmentService()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultAuthRepository(
             clientCrypto: clientCrypto,
+            environmentService: environmentService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
@@ -81,6 +84,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.tearDown()
 
         clientCrypto = nil
+        environmentService = nil
         subject = nil
         stateService = nil
         vaultTimeoutService = nil
@@ -250,6 +254,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncThrows(error: StateServiceError.noAccounts) {
             _ = try await subject.getAccount(for: profile.userId)
         }
+    }
+
+    /// `setActiveAccount(userId: )` loads the environment URLs for the active account.
+    func test_setActiveAccount_loadsEnvironmentUrls() async throws {
+        let urls = EnvironmentUrlData(base: .example)
+        let account = Account.fixture(settings: .fixture(environmentUrls: urls))
+        stateService.accounts = [account]
+        _ = try await subject.setActiveAccount(userId: account.profile.userId)
+        XCTAssertTrue(environmentService.didLoadURLsForActiveAccount)
     }
 
     /// `setActiveAccount(userId: )` succeeds when there is a match.

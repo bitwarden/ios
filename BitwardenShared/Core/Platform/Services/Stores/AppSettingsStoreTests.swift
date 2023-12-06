@@ -168,6 +168,42 @@ class AppSettingsStoreTests: BitwardenTestCase {
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "2"), options2)
     }
 
+    /// `preAuthEnvironmentUrls` returns `nil` if there isn't a previously stored value.
+    func test_preAuthEnvironmentUrls_isInitiallyNil() {
+        XCTAssertNil(subject.preAuthEnvironmentUrls)
+    }
+
+    /// `preAuthEnvironmentUrls` can be used to get and set the persisted value in user defaults.
+    func test_preAuthEnvironmentUrls_withValue() {
+        subject.preAuthEnvironmentUrls = .defaultUS
+        XCTAssertEqual(subject.preAuthEnvironmentUrls, .defaultUS)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultUS
+        )
+
+        subject.preAuthEnvironmentUrls = .defaultEU
+        XCTAssertEqual(subject.preAuthEnvironmentUrls, .defaultEU)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultEU
+        )
+    }
+
     /// `usernameGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.
     func test_usernameGenerationOptions_isInitiallyNil() {
         XCTAssertNil(subject.usernameGenerationOptions(userId: "-1"))

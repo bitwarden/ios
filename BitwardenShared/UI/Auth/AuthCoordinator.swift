@@ -28,6 +28,7 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
         & HasSystemDevice
@@ -106,7 +107,7 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
         case .masterPasswordHint:
             showMasterPasswordHint()
         case .selfHosted:
-            showSelfHostedView()
+            showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate)
         case let .switchAccount(userId: userId):
             selectAccount(for: userId)
         case let .vaultUnlock(account):
@@ -255,9 +256,10 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     }
 
     /// Shows the self-hosted settings view.
-    private func showSelfHostedView() {
+    private func showSelfHostedView(delegate: SelfHostedProcessorDelegate?) {
         let processor = SelfHostedProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: delegate,
             state: SelfHostedState()
         )
         let view = SelfHostedView(store: Store(processor: processor))
