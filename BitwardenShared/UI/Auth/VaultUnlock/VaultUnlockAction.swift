@@ -7,6 +7,9 @@ enum VaultUnlockAction: Equatable {
     /// The more button was pressed.
     case morePressed
 
+    /// A forwarded profile switcher action.
+    case profileSwitcherAction(ProfileSwitcherAction)
+
     /// The reveal master password field button was pressed.
     case revealMasterPasswordFieldPressed(Bool)
 }

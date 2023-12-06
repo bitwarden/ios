@@ -243,6 +243,18 @@ class AddEditItemViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
+    func test_snapshot_secureNote_full_fieldsVisible() {
+        processor.state.properties.type = .secureNote
+        processor.state.properties.name = "Secure Note Name"
+        processor.state.properties.isFavoriteOn = true
+        processor.state.properties.isMasterPasswordRePromptOn = true
+        processor.state.properties.owner = "owner"
+        processor.state.properties.notes = "Notes"
+        processor.state.properties.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
     func test_snapshot_full_fieldsNotVisible() {
         processor.state.properties.type = .login
         processor.state.properties.name = "Name"

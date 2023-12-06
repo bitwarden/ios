@@ -13,6 +13,9 @@ enum ProfileSwitcherAction: Equatable {
     /// The user tapped the background area of the view
     case backgroundPressed
 
+    /// An action to toggle the visibility of the profile switcher view.
+    case requestedProfileSwitcher(visible: Bool)
+
     /// The offset of the scrollView Changed
     case scrollOffsetChanged(CGPoint)
 }

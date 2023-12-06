@@ -12,6 +12,9 @@ struct VaultUnlockState: Equatable {
     /// The master password provided by the user.
     var masterPassword: String = ""
 
+    /// The user's current account profile state and alternative accounts.
+    var profileSwitcherState: ProfileSwitcherState
+
     /// The hostname of the web vault URL.
     let webVaultHost: String
 }
@@ -21,11 +24,17 @@ extension VaultUnlockState {
 
     /// Initialize `VaultUnlockState` for an account.
     ///
-    /// - Parameter account: The active account.
+    /// - Parameters:
+    ///   - account: The active account.
+    ///   - profileSwitcherState: State for the profile switcher.
     ///
-    init(account: Account) {
+    init(
+        account: Account,
+        profileSwitcherState: ProfileSwitcherState = .empty()
+    ) {
         self.init(
             email: account.profile.email,
+            profileSwitcherState: profileSwitcherState,
             webVaultHost: account.settings.environmentUrls?.webVault?.host ?? Constants.defaultWebVaultHost
         )
     }
