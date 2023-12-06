@@ -87,6 +87,42 @@ class AddItemProcessorTests: BitwardenTestCase {
         ))
     }
 
+    /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
+    func test_perform_savePressed_invalidName() async throws {
+        subject.state.name = "    "
+
+        await subject.perform(.savePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.validationFieldRequired(Localizations.name),
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+        )
+    }
+
+    /// `perform(_:)` with `.savePressed` saves the item.
+    func test_perform_savePressed_secureNote() async {
+        subject.state.type = .secureNote
+        subject.state.name = "secureNote"
+
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).type,
+            .secureNote
+        )
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
+            "secureNote"
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
     /// `perform(_:)` with `.savePressed` saves the item.
     func test_perform_savePressed() async {
         await subject.perform(.savePressed)

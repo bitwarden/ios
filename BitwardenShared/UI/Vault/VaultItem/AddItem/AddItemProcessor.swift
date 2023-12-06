@@ -174,6 +174,22 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     /// Saves the item currently stored in `state`.
     ///
     private func saveItem() async {
+        do {
+            try EmptyInputValidator(fieldName: Localizations.name)
+                .validate(input: state.name)
+        } catch let error as InputValidationError {
+            coordinator.showAlert(Alert.inputValidationAlert(error: error))
+            return
+        } catch {
+            let alert = Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.validationFieldRequired(Localizations.name),
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+            coordinator.showAlert(alert)
+            return
+        }
+
         coordinator.showLoadingOverlay(title: Localizations.saving)
         defer { coordinator.hideLoadingOverlay() }
 

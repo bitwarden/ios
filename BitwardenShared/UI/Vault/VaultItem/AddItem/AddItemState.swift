@@ -36,7 +36,7 @@ struct AddItemState {
 extension AddItemState {
     /// Returns a `CipherView` based on the fields the user entered in the `AddItemView`.
     func cipher(creationDate: Date = .now) -> CipherView {
-        CipherView(
+        var cipherView = CipherView(
             id: nil,
             organizationId: nil,
             folderId: nil,
@@ -44,14 +44,7 @@ extension AddItemState {
             name: name,
             notes: notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(type),
-            login: BitwardenSdk.LoginView(
-                username: addLoginItemState.username.nilIfEmpty,
-                password: addLoginItemState.password.nilIfEmpty,
-                passwordRevisionDate: nil,
-                uris: nil,
-                totp: nil,
-                autofillOnPageLoad: nil
-            ),
+            login: nil,
             identity: nil,
             card: nil,
             secureNote: nil,
@@ -68,5 +61,22 @@ extension AddItemState {
             deletedDate: nil,
             revisionDate: creationDate
         )
+
+        switch type {
+        case .login:
+            cipherView.login = BitwardenSdk.LoginView(
+                username: addLoginItemState.username.nilIfEmpty,
+                password: addLoginItemState.password.nilIfEmpty,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            )
+        case .secureNote:
+            cipherView.secureNote = BitwardenSdk.SecureNoteView(type: .generic)
+        default:
+            break
+        }
+        return cipherView
     }
 }
