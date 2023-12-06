@@ -84,10 +84,7 @@ struct CreateAccountView: View {
                     send: CreateAccountAction.emailTextChanged
                 )
             )
-            .textContentType(.emailAddress)
-            .keyboardType(.emailAddress)
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled()
+            .textFieldConfiguration(.email)
 
             BitwardenTextField(
                 accessibilityIdentifier: "MasterPasswordEntry",
@@ -102,9 +99,7 @@ struct CreateAccountView: View {
                     send: CreateAccountAction.passwordTextChanged
                 )
             )
-            .textContentType(.password)
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.never)
+            .textFieldConfiguration(.password)
         }
     }
 
@@ -141,8 +136,7 @@ struct CreateAccountView: View {
                 send: CreateAccountAction.retypePasswordTextChanged
             )
         )
-        .textContentType(.password)
-        .textInputAutocapitalization(.never)
+        .textFieldConfiguration(.password)
     }
 
     /// The button pressed when the user attempts to create the account.

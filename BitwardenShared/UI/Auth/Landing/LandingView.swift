@@ -82,10 +82,7 @@ struct LandingView: View {
                         send: LandingAction.emailChanged
                     )
                 )
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
+                .textFieldConfiguration(.email)
 
                 Button {
                     store.send(.regionPressed)
