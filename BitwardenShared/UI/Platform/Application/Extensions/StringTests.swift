@@ -41,6 +41,21 @@ class StringTests: BitwardenTestCase {
         XCTAssertTrue(subjects.allSatisfy(\.isValidEmail))
     }
 
+    /// `isValidURL` returns `true` for a valid URL.
+    func test_isValidURL_withValidURL() {
+        XCTAssertTrue("http://bitwarden.com".isValidURL)
+        XCTAssertTrue("https://bitwarden.com".isValidURL)
+        XCTAssertTrue("bitwarden.com".isValidURL)
+    }
+
+    /// `isValidURL` returns `true` for an invalid URL.
+    func test_isValidURL_withInvalidURL() {
+        XCTAssertFalse(" ".isValidURL)
+        XCTAssertFalse("a b c".isValidURL)
+        XCTAssertFalse("a<b>c".isValidURL)
+        XCTAssertFalse("a[b]c".isValidURL)
+    }
+
     /// `nilIfEmpty` returns the string if it's not empty or `nil` if it's empty.
     func test_nilIfEmpty() {
         XCTAssertEqual("abc".nilIfEmpty, "abc")

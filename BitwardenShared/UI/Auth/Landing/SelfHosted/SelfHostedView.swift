@@ -113,6 +113,10 @@ struct SelfHostedView: View {
                     send: SelfHostedAction.serverUrlChanged
                 )
             )
+            .autocorrectionDisabled()
+            .keyboardType(.URL)
+            .textContentType(.URL)
+            .textInputAutocapitalization(.never)
         }
     }
 

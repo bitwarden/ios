@@ -29,6 +29,22 @@ class SelfHostedProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.saveEnvironment` displays an alert if any of the URLs are invalid.
+    func test_perform_saveEnvironment_invalidURLs() async throws {
+        subject.state.serverUrl = "a<b>c"
+
+        await subject.perform(.saveEnvironment)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.environmentPageUrlsError
+            )
+        )
+    }
+
     /// Receiving `.apiUrlChanged` updates the state.
     func test_receive_apiUrlChanged() {
         subject.receive(.apiUrlChanged("api url"))
