@@ -55,8 +55,7 @@ struct VaultUnlockView: View {
                         send: VaultUnlockAction.masterPasswordChanged
                     )
                 )
-                .textContentType(.password)
-                .textInputAutocapitalization(.never)
+                .textFieldConfiguration(.password)
 
                 Button {
                     Task { await store.perform(.unlockVault) }

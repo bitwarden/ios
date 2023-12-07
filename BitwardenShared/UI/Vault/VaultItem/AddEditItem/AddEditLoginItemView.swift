@@ -26,9 +26,7 @@ struct AddEditLoginItemView: View {
                     send: AddEditItemAction.usernameChanged
                 )
             )
-            .textContentType(.username)
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.never)
+            .textFieldConfiguration(.username)
         }
 
         BitwardenTextField(
@@ -56,8 +54,7 @@ struct AddEditLoginItemView: View {
                 send: AddEditItemAction.passwordChanged
             )
         )
-        .textContentType(.password)
-        .textInputAutocapitalization(.never)
+        .textFieldConfiguration(.password)
 
         VStack(alignment: .leading, spacing: 8) {
             Text(Localizations.authenticatorKey)
@@ -98,9 +95,7 @@ struct AddEditLoginItemView: View {
                         }
                     )
                 )
-                .keyboardType(.URL)
-                .textInputAutocapitalization(.never)
-                .textContentType(.URL)
+                .textFieldConfiguration(.url)
             }
 
             Button(Localizations.newUri) {
