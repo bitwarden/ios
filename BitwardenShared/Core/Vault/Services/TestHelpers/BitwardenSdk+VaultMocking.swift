@@ -138,6 +138,19 @@ extension CipherView {
     }
 }
 
+extension CollectionView {
+    init(collection: Collection) {
+        self.init(
+            id: collection.id,
+            organizationId: collection.organizationId,
+            name: collection.name,
+            externalId: collection.externalId,
+            hidePasswords: collection.hidePasswords,
+            readOnly: collection.readOnly
+        )
+    }
+}
+
 extension Field {
     init(fieldView: FieldView) {
         self.init(

@@ -9,7 +9,9 @@ class VaultRepositoryTests: BitwardenTestCase {
 
     var client: MockHTTPClient!
     var clientCiphers: MockClientCiphers!
+    var clientCrypto: MockClientCrypto!
     var clientVault: MockClientVaultService!
+    var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
     var vaultTimeoutService: MockVaultTimeoutService!
@@ -21,7 +23,9 @@ class VaultRepositoryTests: BitwardenTestCase {
 
         client = MockHTTPClient()
         clientCiphers = MockClientCiphers()
+        clientCrypto = MockClientCrypto()
         clientVault = MockClientVaultService()
+        errorReporter = MockErrorReporter()
         vaultTimeoutService = MockVaultTimeoutService()
 
         clientVault.clientCiphers = clientCiphers
@@ -30,7 +34,9 @@ class VaultRepositoryTests: BitwardenTestCase {
 
         subject = DefaultVaultRepository(
             cipherAPIService: APIService(client: client),
+            clientCrypto: clientCrypto,
             clientVault: clientVault,
+            errorReporter: errorReporter,
             stateService: stateService,
             syncAPIService: APIService(client: client),
             vaultTimeoutService: vaultTimeoutService
@@ -41,8 +47,13 @@ class VaultRepositoryTests: BitwardenTestCase {
         super.tearDown()
 
         client = nil
+        clientCiphers = nil
+        clientCrypto = nil
+        clientVault = nil
+        errorReporter = nil
         stateService = nil
         subject = nil
+        vaultTimeoutService = nil
     }
 
     // MARK: Tests
@@ -161,6 +172,46 @@ class VaultRepositoryTests: BitwardenTestCase {
         await assertAsyncThrows {
             try await subject.fetchSync()
         }
+    }
+
+    /// `fetchSync()` initializes the SDK for decrypting organization ciphers.
+    func test_fetchSync_initializeOrgCrypto() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+
+        try await subject.fetchSync()
+
+        XCTAssertEqual(
+            clientCrypto.initializeOrgCryptoRequest,
+            InitOrgCryptoRequest(organizationKeys: [
+                "ORG_2": "ORG_2_KEY",
+                "ORG_1": "ORG_1_KEY",
+            ])
+        )
+    }
+
+    /// `fetchSync()` logs an error to the error reporter if initializing organization crypto fails.
+    func test_fetchSync_initializeOrgCrypto_error() async throws {
+        struct InitializeOrgCryptoError: Error {}
+
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        clientCrypto.initializeOrgCryptoResult = .failure(InitializeOrgCryptoError())
+
+        try await subject.fetchSync()
+
+        XCTAssertTrue(errorReporter.errors.last is InitializeOrgCryptoError)
+    }
+
+    /// `fetchSync()` initializes the SDK for decrypting organization ciphers with an empty
+    /// dictionary if the user isn't a part of any organizations.
+    func test_fetchSync_initializesOrgCrypto_noOrganizations() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfile)
+
+        try await subject.fetchSync()
+
+        XCTAssertEqual(
+            clientCrypto.initializeOrgCryptoRequest,
+            InitOrgCryptoRequest(organizationKeys: [:])
+        )
     }
 
     /// `cipherDetailsPublisher(id:)` returns a publisher for the details of a cipher in the vault.
