@@ -23,6 +23,7 @@ extension CipherView {
             organizationId: organizationId,
             folderId: folderId,
             collectionIds: collectionIds,
+            key: editState.configuration.existingCipherView?.key,
             name: editState.name,
             notes: editState.notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(.login),

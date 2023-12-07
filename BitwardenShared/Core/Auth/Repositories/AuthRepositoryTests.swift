@@ -305,14 +305,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
 
         XCTAssertEqual(
-            clientCrypto.initializeCryptoRequest,
-            InitCryptoRequest(
+            clientCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
-                password: "password",
-                userKey: "USER_KEY",
                 privateKey: "PRIVATE_KEY",
-                organizationKeys: [:]
+                method: .password(password: "password", userKey: "USER_KEY")
             )
         )
         XCTAssertEqual(vaultTimeoutService.timeoutStore, ["1": false])
