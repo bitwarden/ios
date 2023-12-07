@@ -77,7 +77,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// - Parameter type: An optional `CipherType` to initialize this view with.
     ///
     private func showAddItem(for type: CipherType?) {
-        let state = AddEditItemState.addItem(for: type)
+        let state = CipherItemState(addItem: type ?? .login)
         let processor = AddEditItemProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
@@ -93,7 +93,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// - Parameter cipherView: A `CipherView` to initialize this view with.
     ///
     private func showEditItem(for cipherView: CipherView) {
-        guard let state = AddEditItemState.editItem(cipherView: cipherView) else { return }
+        guard let state = CipherItemState(existing: cipherView) else { return }
         let processor = AddEditItemProcessor(
             coordinator: asAnyCoordinator(),
             services: services,

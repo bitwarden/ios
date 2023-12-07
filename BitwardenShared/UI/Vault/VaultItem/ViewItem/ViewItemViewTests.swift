@@ -32,8 +32,8 @@ class ViewItemViewTests: BitwardenTestCase {
 
     /// Tapping the check password button dispatches the `.checkPasswordPressed` action.
     func test_checkPasswordButton_tap() throws {
-        let loginState = LoginItemState(
-            cipherView: .loginFixture(
+        let loginState = CipherItemState(
+            existing: .loginFixture(
                 login: .fixture(
                     password: "password"
                 ),
@@ -41,7 +41,7 @@ class ViewItemViewTests: BitwardenTestCase {
                 revisionDate: Date()
             )
         )!
-        processor.state.loadingState = .data(.login(loginState))
+        processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.checkPassword)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .checkPasswordPressed)
@@ -49,8 +49,8 @@ class ViewItemViewTests: BitwardenTestCase {
 
     /// Tapping the copy usename button dispatches the `.copyPressed` action with the username.
     func test_copyUsernameButton_tap() throws {
-        let loginState = LoginItemState(
-            cipherView: .loginFixture(
+        let loginState = CipherItemState(
+            existing: .loginFixture(
                 login: .fixture(
                     username: "username"
                 ),
@@ -58,7 +58,7 @@ class ViewItemViewTests: BitwardenTestCase {
                 revisionDate: Date()
             )
         )!
-        processor.state.loadingState = .data(.login(loginState))
+        processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "username"))
@@ -67,13 +67,13 @@ class ViewItemViewTests: BitwardenTestCase {
     /// Tapping the copy password button dispatches the `.copyPressed` action along with the
     /// password.
     func test_copyPasswordButton_tap() throws {
-        let loginState = LoginItemState(
-            cipherView: .loginFixture(
+        let loginState = CipherItemState(
+            existing: .loginFixture(
                 login: .fixture(password: "password"),
                 revisionDate: Date()
             )
         )!
-        processor.state.loadingState = .data(.login(loginState))
+        processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "password"))
@@ -81,8 +81,8 @@ class ViewItemViewTests: BitwardenTestCase {
 
     /// Tapping the copy uri button dispatches the `.copyPressed` action along with the uri.
     func test_copyUriButton_tap() throws {
-        let loginState = LoginItemState(
-            cipherView: .loginFixture(
+        let loginState = CipherItemState(
+            existing: .loginFixture(
                 login: .fixture(
                     uris: [
                         .init(uri: "www.example.com", match: nil),
@@ -92,7 +92,7 @@ class ViewItemViewTests: BitwardenTestCase {
                 revisionDate: Date()
             )
         )!
-        processor.state.loadingState = .data(.login(loginState))
+        processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "www.example.com"))
@@ -119,28 +119,28 @@ class ViewItemViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
-    func loginState() -> LoginItemState { // swiftlint:disable:this function_body_length
-        var loginState = LoginItemState(cipherView: .loginFixture())!
-        loginState.properties.folder = "Folder"
-        loginState.isPasswordVisible = true
-        loginState.properties.name = "Example"
-        loginState.properties.notes = "This is a long note so that it goes to the next line!"
-        loginState.properties.password = "Password1234!"
-        loginState.properties.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
-        loginState.properties.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
-        loginState.properties.uris = [
-            .init(
+    func loginState() -> CipherItemState { // swiftlint:disable:this function_body_length
+        var cipherState = CipherItemState(existing: .loginFixture())!
+        cipherState.folder = "Folder"
+        cipherState.loginState.isPasswordVisible = true
+        cipherState.name = "Example"
+        cipherState.notes = "This is a long note so that it goes to the next line!"
+        cipherState.loginState.password = "Password1234!"
+        cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
+        cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
+        cipherState.loginState.uris = [
+            CipherLoginUriModel(
                 match: .startsWith,
                 uri: "https://www.example.com"
             ),
-            .init(
+            CipherLoginUriModel(
                 match: .exact,
                 uri: "https://www.example.com/account/login"
             ),
         ]
-        loginState.properties.username = "email@example.com"
-        loginState.isPasswordVisible = true
-        loginState.properties.customFields = [
+        cipherState.loginState.username = "email@example.com"
+        cipherState.loginState.isPasswordVisible = true
+        cipherState.customFields = [
             CustomFieldState(
                 linkedIdType: nil,
                 name: "Text",
@@ -186,16 +186,16 @@ class ViewItemViewTests: BitwardenTestCase {
                 value: nil
             ),
         ]
-        return loginState
+        return cipherState
     }
 
     func test_snapshot_login_withAllValues() {
-        processor.state.loadingState = .data(.login(loginState()))
+        processor.state.loadingState = .data(loginState())
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_login_withAllValues_largeText() {
-        processor.state.loadingState = .data(.login(loginState()))
+        processor.state.loadingState = .data(loginState())
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
     }
 }

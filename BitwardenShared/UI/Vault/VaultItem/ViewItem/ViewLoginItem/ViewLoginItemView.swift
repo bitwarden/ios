@@ -11,7 +11,7 @@ struct ViewLoginItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<LoginItemState, ViewItemAction, ViewItemEffect>
+    @ObservedObject var store: Store<ViewLoginItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
         viewItemProperties
@@ -19,11 +19,11 @@ struct ViewLoginItemView: View {
 
     /// The view item properties.
     @ViewBuilder var viewItemProperties: some View {
-        VaultItemSectionView(contentSpacing: 12, titleSpacing: 15, title: Localizations.itemInformation) {
-            BitwardenTextValueField(title: Localizations.name, value: store.state.properties.name)
+        SectionView(Localizations.itemInformation, titleSpacing: 15, contentSpacing: 12) {
+            BitwardenTextValueField(title: Localizations.name, value: store.state.name)
 
-            if !store.state.properties.username.isEmpty {
-                let username = store.state.properties.username
+            if !store.state.loginState.username.isEmpty {
+                let username = store.state.loginState.username
                 BitwardenTextValueField(title: Localizations.username, value: username) {
                     Button {
                         store.send(.copyPressed(value: username))
@@ -36,14 +36,14 @@ struct ViewLoginItemView: View {
                 }
             }
 
-            if !store.state.properties.password.isEmpty {
-                let password = store.state.properties.password
+            if !store.state.loginState.password.isEmpty {
+                let password = store.state.loginState.password
                 BitwardenField(title: Localizations.password) {
-                    PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
+                    PasswordText(password: password, isPasswordVisible: store.state.loginState.isPasswordVisible)
                         .font(.styleGuide(.body))
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 } accessoryContent: {
-                    PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
+                    PasswordVisibilityButton(isPasswordVisible: store.state.loginState.isPasswordVisible) {
                         store.send(.passwordVisibilityPressed)
                     }
 
@@ -75,9 +75,9 @@ struct ViewLoginItemView: View {
             }
         }
 
-        if !store.state.properties.uris.isEmpty {
-            VaultItemSectionView(contentSpacing: 12, titleSpacing: 15, title: Localizations.urIs) {
-                ForEach(store.state.properties.uris, id: \.self) { uri in
+        if !store.state.loginState.uris.isEmpty {
+            SectionView(Localizations.urIs, titleSpacing: 15, contentSpacing: 12) {
+                ForEach(store.state.loginState.uris, id: \.self) { uri in
                     if let uri = uri.uri {
                         BitwardenTextValueField(title: Localizations.uri, value: uri) {
                             Button {
@@ -106,16 +106,16 @@ struct ViewLoginItemView: View {
             }
         }
 
-        if !store.state.properties.notes.isEmpty {
-            let notes = store.state.properties.notes
-            VaultItemSectionView(contentSpacing: 12, titleSpacing: 15, title: Localizations.notes) {
+        if !store.state.notes.isEmpty {
+            let notes = store.state.notes
+            SectionView(Localizations.notes, titleSpacing: 15, contentSpacing: 12) {
                 BitwardenTextValueField(value: notes)
             }
         }
 
-        if !store.state.properties.customFields.isEmpty {
-            VaultItemSectionView(contentSpacing: 12, titleSpacing: 15, title: Localizations.customFields) {
-                ForEach(store.state.properties.customFields, id: \.self) { customField in
+        if !store.state.customFields.isEmpty {
+            SectionView(Localizations.customFields, titleSpacing: 15, contentSpacing: 12) {
+                ForEach(store.state.customFields, id: \.self) { customField in
                     BitwardenField(title: customField.name) {
                         switch customField.type {
                         case .boolean:
@@ -180,10 +180,10 @@ struct ViewLoginItemView: View {
         }
 
         VStack(alignment: .leading, spacing: 0) {
-            let formattedUpdatedDate = store.state.properties.updatedDate.formatted(date: .numeric, time: .shortened)
+            let formattedUpdatedDate = store.state.updatedDate.formatted(date: .numeric, time: .shortened)
             Text("\(Localizations.dateUpdated): \(formattedUpdatedDate)")
 
-            if let passwordUpdatedDate = store.state.properties.passwordUpdatedDate {
+            if let passwordUpdatedDate = store.state.loginState.passwordUpdatedDate {
                 let formattedPasswordUpdatedDate = passwordUpdatedDate.formatted(
                     date: .numeric,
                     time: .shortened

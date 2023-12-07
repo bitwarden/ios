@@ -5,43 +5,14 @@ import Foundation
 
 extension LoginItemState {
     static func fixture(
-        cipher: CipherView = .loginFixture(),
         isPasswordVisible: Bool = false,
-        properties: CipherItemProperties = .fixture()
-    ) -> LoginItemState {
-        var state = LoginItemState(cipherView: .loginFixture())!
-        state.cipher = cipher
-        state.isPasswordVisible = isPasswordVisible
-        state.properties = properties
-        return state
-    }
-}
-
-extension CipherItemProperties {
-    static func fixture(
-        customFields: [CustomFieldState] = [],
-        folder: String = "",
-        isFavoriteOn: Bool = false,
-        isMasterPasswordRePromptOn: Bool = false,
-        name: String = "",
-        notes: String = "",
         password: String = "",
-        passwordUpdatedDate: Date? = nil,
-        type: BitwardenShared.CipherType = .login,
-        updatedDate: Date = Date(),
         uris: [CipherLoginUriModel] = [],
         username: String = ""
-    ) -> CipherItemProperties {
-        CipherItemProperties(
-            customFields: customFields,
-            folder: folder,
-            isFavoriteOn: isFavoriteOn,
-            isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
-            name: name,
-            notes: notes,
+    ) -> Self {
+        LoginItemState(
+            isPasswordVisible: isPasswordVisible,
             password: password,
-            type: type,
-            updatedDate: updatedDate,
             uris: uris,
             username: username
         )

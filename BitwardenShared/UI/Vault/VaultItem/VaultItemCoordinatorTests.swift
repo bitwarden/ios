@@ -47,7 +47,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .replaced)
 
         let view = try XCTUnwrap(action.view as? AddEditItemView)
-        XCTAssertEqual(view.store.state.properties.type, .login)
+        XCTAssertEqual(view.store.state.type, .login)
     }
 
     /// `navigate(to:)` with `.addItem` with a group pushes the add item view onto the stack navigator.
@@ -59,7 +59,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is AddEditItemView)
 
         let view = try XCTUnwrap(action.view as? AddEditItemView)
-        XCTAssertEqual(view.store.state.properties.type, .card)
+        XCTAssertEqual(view.store.state.type, .card)
     }
 
     /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.

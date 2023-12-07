@@ -7,12 +7,12 @@ extension BitwardenSdk.LoginView {
     ///
     /// - Parameters:
     ///   - loginView: A `BitwardenSdk.LoginView` to use as a base for the update.
-    ///   - properties: The `CipherItemProperties` used to create or update the login view.
+    ///   - loginState: The `LoginItemState` used to create or update the login view.
     ///
-    init(loginView: BitwardenSdk.LoginView?, properties: CipherItemProperties) {
+    init(loginView: BitwardenSdk.LoginView?, loginState: LoginItemState) {
         self.init(
-            username: properties.username.nilIfEmpty,
-            password: properties.password.nilIfEmpty,
+            username: loginState.username.nilIfEmpty,
+            password: loginState.password.nilIfEmpty,
             passwordRevisionDate: loginView?.passwordRevisionDate,
             uris: loginView?.uris,
             totp: loginView?.totp,

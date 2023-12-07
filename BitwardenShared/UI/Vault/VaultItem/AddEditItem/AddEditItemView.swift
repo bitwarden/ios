@@ -13,13 +13,13 @@ struct AddEditItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
+    @ObservedObject var store: Store<CipherItemState, AddEditItemAction, AddEditItemEffect>
 
     var body: some View {
         switch store.state.configuration {
         case .add:
             addView
-        case .edit:
+        case .existing:
             editView
         }
     }
@@ -56,7 +56,7 @@ struct AddEditItemView: View {
     }
 
     private var customSection: some View {
-        VaultItemSectionView(title: Localizations.customFields) {
+        SectionView(Localizations.customFields) {
             Button(Localizations.newCustomField) {
                 store.send(.newCustomFieldPressed)
             }
@@ -90,12 +90,12 @@ struct AddEditItemView: View {
     }
 
     private var informationSection: some View {
-        VaultItemSectionView(title: Localizations.itemInformation) {
+        SectionView(Localizations.itemInformation) {
             BitwardenMenuField(
                 title: Localizations.type,
                 options: CipherType.allCases,
                 selection: store.binding(
-                    get: \.properties.type,
+                    get: \.type,
                     send: AddEditItemAction.typeChanged
                 )
             )
@@ -103,12 +103,12 @@ struct AddEditItemView: View {
             BitwardenTextField(
                 title: Localizations.name,
                 text: store.binding(
-                    get: \.properties.name,
+                    get: \.name,
                     send: AddEditItemAction.nameChanged
                 )
             )
 
-            switch store.state.properties.type {
+            switch store.state.type {
             case .login:
                 loginItems
             case .secureNote:
@@ -123,12 +123,7 @@ struct AddEditItemView: View {
         AddEditLoginItemView(
             store: store.child(
                 state: { addEditState in
-                    AddEditLoginItemState(
-                        isPasswordVisible: addEditState.isPasswordVisible,
-                        password: addEditState.properties.password,
-                        uris: addEditState.properties.uris,
-                        username: addEditState.properties.username
-                    )
+                    addEditState.loginState
                 },
                 mapAction: { $0 },
                 mapEffect: { $0 }
@@ -139,23 +134,23 @@ struct AddEditItemView: View {
 
 private extension AddEditItemView {
     var miscellaneousSection: some View {
-        VaultItemSectionView(title: Localizations.miscellaneous) {
+        SectionView(Localizations.miscellaneous) {
             BitwardenTextField(
                 title: Localizations.folder,
                 text: store.binding(
-                    get: \.properties.folder,
+                    get: \.folder,
                     send: AddEditItemAction.folderChanged
                 )
             )
 
             Toggle(Localizations.favorite, isOn: store.binding(
-                get: \.properties.isFavoriteOn,
+                get: \.isFavoriteOn,
                 send: AddEditItemAction.favoriteChanged
             ))
             .toggleStyle(.bitwarden)
 
             Toggle(isOn: store.binding(
-                get: \.properties.isMasterPasswordRePromptOn,
+                get: \.isMasterPasswordRePromptOn,
                 send: AddEditItemAction.masterPasswordRePromptChanged
             )) {
                 HStack(alignment: .center, spacing: 4) {
@@ -174,10 +169,10 @@ private extension AddEditItemView {
     }
 
     var notesSection: some View {
-        VaultItemSectionView(title: Localizations.notes) {
+        SectionView(Localizations.notes) {
             BitwardenTextField(
                 text: store.binding(
-                    get: \.properties.notes,
+                    get: \.notes,
                     send: AddEditItemAction.notesChanged
                 )
             )
@@ -186,11 +181,11 @@ private extension AddEditItemView {
     }
 
     var ownershipSection: some View {
-        VaultItemSectionView(title: Localizations.ownership) {
+        SectionView(Localizations.ownership) {
             BitwardenTextField(
                 title: Localizations.whoOwnsThisItem,
                 text: store.binding(
-                    get: \.properties.owner,
+                    get: \.owner,
                     send: AddEditItemAction.ownerChanged
                 )
             )
@@ -211,7 +206,7 @@ struct AddItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
-                        state: .addItem()
+                        state: .init()
                     )
                 )
             )

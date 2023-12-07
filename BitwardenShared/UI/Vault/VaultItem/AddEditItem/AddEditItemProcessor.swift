@@ -5,7 +5,7 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the add item screen.
 ///
-final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
+final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAction, AddEditItemEffect> {
     // MARK: Types
 
     typealias Services = HasCameraAuthorizationService
@@ -32,7 +32,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     init(
         coordinator: AnyCoordinator<VaultItemRoute>,
         services: Services,
-        state: AddEditItemState
+        state: CipherItemState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -57,18 +57,18 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
         case let .favoriteChanged(newValue):
-            state.properties.isFavoriteOn = newValue
+            state.isFavoriteOn = newValue
         case let .folderChanged(newValue):
-            state.properties.folder = newValue
+            state.folder = newValue
         case .generatePasswordPressed:
-            if state.properties.password.isEmpty {
+            if state.loginState.password.isEmpty {
                 coordinator.navigate(to: .generator(.password), context: self)
             } else {
                 presentReplacementAlert(for: .password)
             }
         case .generateUsernamePressed:
-            if state.properties.username.isEmpty {
-                let first = state.properties.uris.first?.uri ?? ""
+            if state.loginState.username.isEmpty {
+                let first = state.loginState.uris.first?.uri ?? ""
                 let uri = URL(string: first)
                 let emailWebsite = uri?.sanitized.host
                 coordinator.navigate(to: .generator(.username, emailWebsite: emailWebsite), context: self)
@@ -76,35 +76,35 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
                 presentReplacementAlert(for: .username)
             }
         case let .masterPasswordRePromptChanged(newValue):
-            state.properties.isMasterPasswordRePromptOn = newValue
+            state.isMasterPasswordRePromptOn = newValue
         case .morePressed:
             // TODO: BIT-1131 Open item menu
             print("more pressed")
         case let .nameChanged(newValue):
-            state.properties.name = newValue
+            state.name = newValue
         case .newCustomFieldPressed:
             presentCustomFieldAlert()
         case .newUriPressed:
             // TODO: BIT-901 Add a new blank URI field
             break
         case let .notesChanged(newValue):
-            state.properties.notes = newValue
+            state.notes = newValue
         case let .ownerChanged(newValue):
-            state.properties.owner = newValue
+            state.owner = newValue
         case let .passwordChanged(newValue):
-            state.properties.password = newValue
+            state.loginState.password = newValue
         case let .togglePasswordVisibilityChanged(newValue):
-            state.isPasswordVisible = newValue
+            state.loginState.isPasswordVisible = newValue
         case let .typeChanged(newValue):
-            state.properties.type = newValue
+            state.type = newValue
         case let .uriChanged(newValue, index: index):
-            guard state.properties.uris.count > index else { return }
-            let uri = state.properties.uris[index]
-            state.properties.uris[index] = .init(match: uri.match, uri: newValue)
+            guard state.loginState.uris.count > index else { return }
+            let uri = state.loginState.uris[index]
+            state.loginState.uris[index] = .init(match: uri.match, uri: newValue)
         case .uriSettingsPressed:
             presentUriSettingsAlert()
         case let .usernameChanged(newValue):
-            state.properties.username = newValue
+            state.loginState.username = newValue
         }
     }
 
@@ -188,7 +188,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             switch state.configuration {
             case .add:
                 try await additem()
-            case let .edit(cipherView, _):
+            case let .existing(cipherView):
                 try await updateItem(cipherView: cipherView)
             }
         } catch {
@@ -232,9 +232,9 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
     func didCompleteGenerator(for type: GeneratorType, with value: String) {
         switch type {
         case .password:
-            state.properties.password = value
+            state.loginState.password = value
         case .username:
-            state.properties.username = value
+            state.loginState.username = value
         }
         coordinator.navigate(to: .dismiss)
     }

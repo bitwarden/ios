@@ -31,7 +31,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository
             ),
-            state: AddEditItemState.addItem()
+            state: .init()
         )
     }
 
@@ -54,23 +54,23 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `didCompleteGenerator` with a password value updates the state with the new password value
     /// and navigates to the `.dismiss` route.
     func test_didCompleteGenerator_withPassword() {
-        subject.state.properties.username = "username123"
-        subject.state.properties.password = "password123"
+        subject.state.loginState.username = "username123"
+        subject.state.loginState.password = "password123"
         subject.didCompleteGenerator(for: .password, with: "password")
         XCTAssertEqual(coordinator.routes.last, .dismiss)
-        XCTAssertEqual(subject.state.properties.password, "password")
-        XCTAssertEqual(subject.state.properties.username, "username123")
+        XCTAssertEqual(subject.state.loginState.password, "password")
+        XCTAssertEqual(subject.state.loginState.username, "username123")
     }
 
     /// `didCompleteGenerator` with a username value updates the state with the new username value
     /// and navigates to the `.dismiss` route.
     func test_didCompleteGenerator_withUsername() {
-        subject.state.properties.username = "username123"
-        subject.state.properties.password = "password123"
+        subject.state.loginState.username = "username123"
+        subject.state.loginState.password = "password123"
         subject.didCompleteGenerator(for: .username, with: "email@example.com")
         XCTAssertEqual(coordinator.routes.last, .dismiss)
-        XCTAssertEqual(subject.state.properties.username, "email@example.com")
-        XCTAssertEqual(subject.state.properties.password, "password123")
+        XCTAssertEqual(subject.state.loginState.username, "email@example.com")
+        XCTAssertEqual(subject.state.loginState.password, "password123")
     }
 
     /// `perform(_:)` with `.checkPasswordPressed` checks the password.
@@ -158,45 +158,45 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.favoriteChanged` with `true` updates the state correctly.
     func test_receive_favoriteChanged_withTrue() {
-        subject.state.properties.isFavoriteOn = false
+        subject.state.isFavoriteOn = false
 
         subject.receive(.favoriteChanged(true))
-        XCTAssertTrue(subject.state.properties.isFavoriteOn)
+        XCTAssertTrue(subject.state.isFavoriteOn)
 
         subject.receive(.favoriteChanged(true))
-        XCTAssertTrue(subject.state.properties.isFavoriteOn)
+        XCTAssertTrue(subject.state.isFavoriteOn)
     }
 
     /// `receive(_:)` with `.favoriteChanged` with `false` updates the state correctly.
     func test_receive_favoriteChanged_withFalse() {
-        subject.state.properties.isFavoriteOn = true
+        subject.state.isFavoriteOn = true
 
         subject.receive(.favoriteChanged(false))
-        XCTAssertFalse(subject.state.properties.isFavoriteOn)
+        XCTAssertFalse(subject.state.isFavoriteOn)
 
         subject.receive(.favoriteChanged(false))
-        XCTAssertFalse(subject.state.properties.isFavoriteOn)
+        XCTAssertFalse(subject.state.isFavoriteOn)
     }
 
     /// `receive(_:)` with `.folderChanged` with a value updates the state correctly.
     func test_receive_folderChanged_withValue() {
-        subject.state.properties.folder = ""
+        subject.state.folder = ""
         subject.receive(.folderChanged("📁"))
 
-        XCTAssertEqual(subject.state.properties.folder, "📁")
+        XCTAssertEqual(subject.state.folder, "📁")
     }
 
     /// `receive(_:)` with `.folderChanged` without a value updates the state correctly.
     func test_receive_folderChanged_withoutValue() {
-        subject.state.properties.folder = "📁"
+        subject.state.folder = "📁"
         subject.receive(.folderChanged(""))
 
-        XCTAssertEqual(subject.state.properties.folder, "")
+        XCTAssertEqual(subject.state.folder, "")
     }
 
     /// `receive(_:)` with `.generatePasswordPressed` navigates to the `.generator` route.
     func test_receive_generatePasswordPressed() {
-        subject.state.properties.password = ""
+        subject.state.loginState.password = ""
         subject.receive(.generatePasswordPressed)
 
         XCTAssertEqual(coordinator.routes.last, .generator(.password))
@@ -205,7 +205,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.generateUsernamePressed` and with a password value in the state
     /// navigates to the `.alert` route.
     func test_receive_generatePasswordPressed_withUsernameValue() async throws {
-        subject.state.properties.password = "password"
+        subject.state.loginState.password = "password"
         subject.receive(.generatePasswordPressed)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
@@ -228,7 +228,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.generateUsernamePressed` and without a username value in the state
     /// navigates to the `.generator` route.
     func test_receive_generateUsernamePressed_withoutUsernameValue() {
-        subject.state.properties.username = ""
+        subject.state.loginState.username = ""
         subject.receive(.generateUsernamePressed)
 
         XCTAssertEqual(coordinator.routes.last, .generator(.username))
@@ -237,7 +237,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.generateUsernamePressed` and with a username value in the state
     /// navigates to the `.alert` route.
     func test_receive_generateUsernamePressed_withUsernameValue() async throws {
-        subject.state.properties.username = "username"
+        subject.state.loginState.username = "username"
         subject.receive(.generateUsernamePressed)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
@@ -259,7 +259,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.generateUsernamePressed` passes the host of the first URI to the generator.
     func test_receive_generateUsernamePressed_withURI() async throws {
-        subject.state.properties.uris = [
+        subject.state.loginState.uris = [
             CipherLoginUriModel(
                 match: nil,
                 uri: "https://bitwarden.com"
@@ -272,7 +272,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.generateUsernamePressed)
         XCTAssertEqual(coordinator.routes.last, .generator(.username, emailWebsite: "bitwarden.com"))
 
-        subject.state.properties.uris = [
+        subject.state.loginState.uris = [
             CipherLoginUriModel(
                 match: nil,
                 uri: "bitwarden.com"
@@ -284,40 +284,40 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.masterPasswordRePromptChanged` with `true` updates the state correctly.
     func test_receive_masterPasswordRePromptChanged_withTrue() {
-        subject.state.properties.isMasterPasswordRePromptOn = false
+        subject.state.isMasterPasswordRePromptOn = false
 
         subject.receive(.masterPasswordRePromptChanged(true))
-        XCTAssertTrue(subject.state.properties.isMasterPasswordRePromptOn)
+        XCTAssertTrue(subject.state.isMasterPasswordRePromptOn)
 
         subject.receive(.masterPasswordRePromptChanged(true))
-        XCTAssertTrue(subject.state.properties.isMasterPasswordRePromptOn)
+        XCTAssertTrue(subject.state.isMasterPasswordRePromptOn)
     }
 
     /// `receive(_:)` with `.masterPasswordRePromptChanged` with `false` updates the state correctly.
     func test_receive_masterPasswordRePromptChanged_withFalse() {
-        subject.state.properties.isMasterPasswordRePromptOn = true
+        subject.state.isMasterPasswordRePromptOn = true
 
         subject.receive(.masterPasswordRePromptChanged(false))
-        XCTAssertFalse(subject.state.properties.isMasterPasswordRePromptOn)
+        XCTAssertFalse(subject.state.isMasterPasswordRePromptOn)
 
         subject.receive(.masterPasswordRePromptChanged(false))
-        XCTAssertFalse(subject.state.properties.isMasterPasswordRePromptOn)
+        XCTAssertFalse(subject.state.isMasterPasswordRePromptOn)
     }
 
     /// `receive(_:)` with `.nameChanged` with a value updates the state correctly.
     func test_receive_nameChanged_withValue() {
-        subject.state.properties.name = ""
+        subject.state.name = ""
         subject.receive(.nameChanged("name"))
 
-        XCTAssertEqual(subject.state.properties.name, "name")
+        XCTAssertEqual(subject.state.name, "name")
     }
 
     /// `receive(_:)` with `.nameChanged` without a value updates the state correctly.
     func test_receive_nameChanged_withoutValue() {
-        subject.state.properties.name = "name"
+        subject.state.name = "name"
         subject.receive(.nameChanged(""))
 
-        XCTAssertEqual(subject.state.properties.name, "")
+        XCTAssertEqual(subject.state.name, "")
     }
 
     /// `receive(_:)` with `.newCustomFieldPressed` navigates to the `.alert` route.
@@ -337,104 +337,104 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.notesChanged` with a value updates the state correctly.
     func test_receive_notesChanged_withValue() {
-        subject.state.properties.notes = ""
+        subject.state.notes = ""
         subject.receive(.notesChanged("notes"))
 
-        XCTAssertEqual(subject.state.properties.notes, "notes")
+        XCTAssertEqual(subject.state.notes, "notes")
     }
 
     /// `receive(_:)` with `.notesChanged` without a value updates the state correctly.
     func test_receive_notesChanged_withoutValue() {
-        subject.state.properties.notes = "notes"
+        subject.state.notes = "notes"
         subject.receive(.notesChanged(""))
 
-        XCTAssertEqual(subject.state.properties.notes, "")
+        XCTAssertEqual(subject.state.notes, "")
     }
 
     /// `receive(_:)` with `.ownerChanged` with a value updates the state correctly.
     func test_receive_ownerChanged_withValue() {
-        subject.state.properties.owner = ""
+        subject.state.owner = ""
         subject.receive(.ownerChanged("owner"))
 
-        XCTAssertEqual(subject.state.properties.owner, "owner")
+        XCTAssertEqual(subject.state.owner, "owner")
     }
 
     /// `receive(_:)` with `.ownerChanged` without a value updates the state correctly.
     func test_receive_ownerChanged_withoutValue() {
-        subject.state.properties.owner = "owner"
+        subject.state.owner = "owner"
         subject.receive(.ownerChanged(""))
 
-        XCTAssertEqual(subject.state.properties.owner, "")
+        XCTAssertEqual(subject.state.owner, "")
     }
 
     /// `receive(_:)` with `.passwordChanged` with a value updates the state correctly.
     func test_receive_passwordChanged_withValue() {
-        subject.state.properties.password = ""
+        subject.state.loginState.password = ""
         subject.receive(.passwordChanged("password"))
 
-        XCTAssertEqual(subject.state.properties.password, "password")
+        XCTAssertEqual(subject.state.loginState.password, "password")
     }
 
     /// `receive(_:)` with `.passwordChanged` without a value updates the state correctly.
     func test_receive_passwordChanged_withoutValue() {
-        subject.state.properties.password = "password"
+        subject.state.loginState.password = "password"
         subject.receive(.passwordChanged(""))
 
-        XCTAssertEqual(subject.state.properties.password, "")
+        XCTAssertEqual(subject.state.loginState.password, "")
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.
     func test_receive_togglePasswordVisibilityChanged_withTrue() {
-        subject.state.isPasswordVisible = false
+        subject.state.loginState.isPasswordVisible = false
 
         subject.receive(.togglePasswordVisibilityChanged(true))
-        XCTAssertTrue(subject.state.isPasswordVisible)
+        XCTAssertTrue(subject.state.loginState.isPasswordVisible)
 
         subject.receive(.togglePasswordVisibilityChanged(true))
-        XCTAssertTrue(subject.state.isPasswordVisible)
+        XCTAssertTrue(subject.state.loginState.isPasswordVisible)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `false` updates the state correctly.
     func test_receive_togglePasswordVisibilityChanged_withFalse() {
-        subject.state.isPasswordVisible = true
+        subject.state.loginState.isPasswordVisible = true
 
         subject.receive(.togglePasswordVisibilityChanged(false))
-        XCTAssertFalse(subject.state.isPasswordVisible)
+        XCTAssertFalse(subject.state.loginState.isPasswordVisible)
 
         subject.receive(.togglePasswordVisibilityChanged(false))
-        XCTAssertFalse(subject.state.isPasswordVisible)
+        XCTAssertFalse(subject.state.loginState.isPasswordVisible)
     }
 
     /// `receive(_:)` with `.typeChanged` updates the state correctly.
     func test_receive_typeChanged() {
-        subject.state.properties.type = .login
+        subject.state.type = .login
         subject.receive(.typeChanged(.card))
 
-        XCTAssertEqual(subject.state.properties.type, .card)
+        XCTAssertEqual(subject.state.type, .card)
     }
 
     /// `receive(_:)` with `.uriChanged` without a value updates the state correctly.
     func test_receive_uriChanged_withValue() {
-        subject.state.properties.uris = [
+        subject.state.loginState.uris = [
             .init(match: nil, uri: ""),
         ]
         subject.receive(.uriChanged("uri", index: 0))
 
         XCTAssertEqual(
-            subject.state.properties.uris,
+            subject.state.loginState.uris,
             [CipherLoginUriModel(match: nil, uri: "uri")]
         )
     }
 
     /// `receive(_:)` with `.uriChanged` without a value updates the state correctly.
     func test_receive_uriChanged_withoutValue() {
-        subject.state.properties.uris = [
+        subject.state.loginState.uris = [
             .init(match: nil, uri: "uri"),
         ]
         subject.receive(.uriChanged("", index: 0))
 
         XCTAssertEqual(
-            subject.state.properties.uris,
+            subject.state.loginState.uris,
             [CipherLoginUriModel(match: nil, uri: "")]
         )
     }
@@ -449,17 +449,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.usernameChanged` without a value updates the state correctly.
     func test_receive_usernameChanged_withValue() {
-        subject.state.properties.username = ""
+        subject.state.loginState.username = ""
         subject.receive(.usernameChanged("username"))
 
-        XCTAssertEqual(subject.state.properties.username, "username")
+        XCTAssertEqual(subject.state.loginState.username, "username")
     }
 
     /// `receive(_:)` with `.usernameChanged` without a value updates the state correctly.
     func test_receive_usernameChanged_withoutValue() {
-        subject.state.properties.username = "username"
+        subject.state.loginState.username = "username"
         subject.receive(.usernameChanged(""))
 
-        XCTAssertEqual(subject.state.properties.username, "")
+        XCTAssertEqual(subject.state.loginState.username, "")
     }
 }

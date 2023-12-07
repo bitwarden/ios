@@ -11,14 +11,14 @@ import XCTest
 class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var processor: MockProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect>!
+    var processor: MockProcessor<CipherItemState, AddEditItemAction, AddEditItemEffect>!
     var subject: AddEditItemView!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: .addItem())
+        processor = MockProcessor(state: .init())
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
     }
@@ -48,7 +48,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     func test_dismissButton_tap() throws {
-        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -59,7 +59,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
         }
-        processor.state.properties.isFavoriteOn = false
+        processor.state.isFavoriteOn = false
         let toggle = try subject.inspect().find(ViewType.Toggle.self, containing: Localizations.favorite)
         try toggle.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .favoriteChanged(true))
@@ -95,7 +95,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
         }
-        processor.state.properties.isMasterPasswordRePromptOn = false
+        processor.state.isMasterPasswordRePromptOn = false
         let toggle = try subject.inspect().find(ViewType.Toggle.self, containing: Localizations.passwordPrompt)
         try toggle.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRePromptChanged(true))
@@ -103,7 +103,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tapping the more button dispatches the `.morePressed` action.
     func test_moreButton_tap() throws {
-        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.options)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
@@ -155,7 +155,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tapping the password visibility button dispatches the `.togglePasswordVisibilityChanged(_:)` action.
     func test_passwordVisibilityButton_tap_withPasswordNotVisible() throws {
-        processor.state.isPasswordVisible = false
+        processor.state.loginState.isPasswordVisible = false
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.password)
             .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
@@ -165,7 +165,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tapping the password visibility button dispatches the `.togglePasswordVisibilityChanged(_:)` action.
     func test_passwordVisibilityButton_tap_withPasswordVisible() throws {
-        processor.state.isPasswordVisible = true
+        processor.state.loginState.isPasswordVisible = true
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.password)
             .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
@@ -189,7 +189,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     func test_typeMenuField_updateValue() throws {
-        processor.state.properties.type = .login
+        processor.state.type = .login
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.type)
         try menuField.select(newValue: BitwardenShared.CipherType.card)
         XCTAssertEqual(processor.dispatchedActions.last, .typeChanged(.card))
@@ -225,125 +225,135 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     func test_snapshot_full_fieldsVisible() {
-        processor.state.properties.type = .login
-        processor.state.properties.name = "Name"
-        processor.state.properties.username = "username"
-        processor.state.properties.password = "password1!"
-        processor.state.properties.isFavoriteOn = true
-        processor.state.properties.isMasterPasswordRePromptOn = true
-        processor.state.properties.uris = [
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.loginState.username = "username"
+        processor.state.loginState.password = "password1!"
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.loginState.uris = [
             .init(match: nil, uri: URL.example.absoluteString),
         ]
-        processor.state.properties.owner = "owner"
-        processor.state.properties.notes = "Notes"
-        processor.state.properties.folder = "Folder"
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
 
-        processor.state.isPasswordVisible = true
+        processor.state.loginState.isPasswordVisible = true
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_secureNote_full_fieldsVisible() {
-        processor.state.properties.type = .secureNote
-        processor.state.properties.name = "Secure Note Name"
-        processor.state.properties.isFavoriteOn = true
-        processor.state.properties.isMasterPasswordRePromptOn = true
-        processor.state.properties.owner = "owner"
-        processor.state.properties.notes = "Notes"
-        processor.state.properties.folder = "Folder"
+        processor.state.type = .secureNote
+        processor.state.name = "Secure Note Name"
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_full_fieldsNotVisible() {
-        processor.state.properties.type = .login
-        processor.state.properties.name = "Name"
-        processor.state.properties.username = "username"
-        processor.state.properties.password = "password1!"
-        processor.state.properties.isFavoriteOn = true
-        processor.state.properties.isMasterPasswordRePromptOn = true
-        processor.state.properties.uris = [
-            .init(match: nil, uri: URL.example.absoluteString),
-        ]
-        processor.state.properties.owner = "owner"
-        processor.state.properties.notes = "Notes"
-        processor.state.properties.folder = "Folder"
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.loginState = .fixture(
+            password: "password1!",
+            uris: [
+                .init(match: nil, uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot__edit_full_fieldsVisible() {
-        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
-        processor.state.properties.type = .login
-        processor.state.properties.name = "Name"
-        processor.state.properties.username = "username"
-        processor.state.properties.password = "password1!"
-        processor.state.properties.isFavoriteOn = true
-        processor.state.properties.isMasterPasswordRePromptOn = true
-        processor.state.properties.uris = [
-            .init(match: nil, uri: URL.example.absoluteString),
-        ]
-        processor.state.properties.owner = "owner"
-        processor.state.properties.notes = "Notes"
-        processor.state.properties.folder = "Folder"
-
-        processor.state.isPasswordVisible = true
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.loginState = .fixture(
+            isPasswordVisible: true,
+            password: "password1!",
+            uris: [
+                .init(match: nil, uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot__edit_full_fieldsVisible_largeText() {
-        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
-        processor.state.properties.type = .login
-        processor.state.properties.name = "Name"
-        processor.state.properties.username = "username"
-        processor.state.properties.password = "password1!"
-        processor.state.properties.isFavoriteOn = true
-        processor.state.properties.isMasterPasswordRePromptOn = true
-        processor.state.properties.uris = [
-            .init(match: nil, uri: URL.example.absoluteString),
-        ]
-        processor.state.properties.owner = "owner"
-        processor.state.properties.notes = "Notes"
-        processor.state.properties.folder = "Folder"
-
-        processor.state.isPasswordVisible = true
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state.loginState = .fixture(
+            isPasswordVisible: true,
+            password: "password1!",
+            uris: [
+                .init(match: nil, uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
 
         assertSnapshot(of: subject, as: .tallPortraitAX5())
     }
 
     func test_snapshot__edit_full_fieldsNotVisible() {
-        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
-        processor.state.properties.type = .login
-        processor.state.properties.name = "Name"
-        processor.state.properties.username = "username"
-        processor.state.properties.password = "password1!"
-        processor.state.properties.isFavoriteOn = true
-        processor.state.properties.isMasterPasswordRePromptOn = true
-        processor.state.properties.uris = [
-            .init(match: nil, uri: URL.example.absoluteString),
-        ]
-        processor.state.properties.owner = "owner"
-        processor.state.properties.notes = "Notes"
-        processor.state.properties.folder = "Folder"
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state.loginState = .fixture(
+            isPasswordVisible: false,
+            password: "password1!",
+            uris: [
+                .init(match: nil, uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot__edit_full_fieldsNotVisible_largeText() {
-        processor.state = AddEditItemState.editItem(cipherView: CipherView.loginFixture())!
-        processor.state.properties.type = .login
-        processor.state.properties.name = "Name"
-        processor.state.properties.username = "username"
-        processor.state.properties.password = "password1!"
-        processor.state.properties.isFavoriteOn = true
-        processor.state.properties.isMasterPasswordRePromptOn = true
-        processor.state.properties.uris = [
-            .init(match: nil, uri: URL.example.absoluteString),
-        ]
-        processor.state.properties.owner = "owner"
-        processor.state.properties.notes = "Notes"
-        processor.state.properties.folder = "Folder"
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state.loginState = .fixture(
+            isPasswordVisible: false,
+            password: "password1!",
+            uris: [
+                .init(match: nil, uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
 
         assertSnapshot(of: subject, as: .tallPortraitAX5())
     }

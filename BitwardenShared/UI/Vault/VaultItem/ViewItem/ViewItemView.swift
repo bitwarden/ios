@@ -17,7 +17,9 @@ struct ViewItemView: View {
 
     var body: some View {
         LoadingView(state: store.state.loadingState) { state in
-            details(for: state)
+            if let viewState = state.viewState {
+                details(for: viewState)
+            }
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
@@ -59,7 +61,7 @@ struct ViewItemView: View {
     /// the different types of items into one variable, so that the edit button can be
     /// added to all of them at once.
     @ViewBuilder
-    private func details(for state: ViewItemState.ItemTypeState) -> some View {
+    private func details(for state: CipherItemState.ItemTypeState) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
                 switch state {
@@ -120,37 +122,32 @@ struct ViewItemView_Previews: PreviewProvider {
         revisionDate: .now
     )
 
-    static var loadedState: LoginItemState {
-        var state = LoginItemState(cipherView: cipher)!
-        state.properties = .init(
-            customFields: [
-                CustomFieldState(
-                    linkedIdType: nil,
-                    name: "Field Name",
-                    type: .text,
-                    value: "Value"
-                ),
-            ],
-            folder: "Folder",
-            isFavoriteOn: true,
-            isMasterPasswordRePromptOn: false,
-            name: "Example",
-            notes: "This is a long note so that it goes to the next line!",
-            password: "Password1!",
-            type: .login,
-            updatedDate: .init(timeIntervalSince1970: 1_695_000_000),
-            uris: [
-                CipherLoginUriModel(
-                    match: .startsWith,
-                    uri: "https://www.example.com"
-                ),
-                CipherLoginUriModel(
-                    match: .exact,
-                    uri: "https://www.example.com/account/login"
-                ),
-            ],
-            username: "email@example.com"
-        )
+    static var loginState: CipherItemState {
+        var state = CipherItemState(existing: cipher)!
+        state.customFields = [
+            CustomFieldState(
+                linkedIdType: nil,
+                name: "Field Name",
+                type: .text,
+                value: "Value"
+            ),
+        ]
+        state.isMasterPasswordRePromptOn = false
+        state.name = "Example"
+        state.notes = "This is a long note so that it goes to the next line!"
+        state.loginState.password = "Password1!"
+        state.updatedDate = .init(timeIntervalSince1970: 1_695_000_000)
+        state.loginState.uris = [
+            CipherLoginUriModel(
+                match: .startsWith,
+                uri: "https://www.example.com"
+            ),
+            CipherLoginUriModel(
+                match: .exact,
+                uri: "https://www.example.com/account/login"
+            ),
+        ]
+        state.loginState.username = "email@example.com"
         return state
     }
 
@@ -173,7 +170,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(.login(loadedState))
+                            loadingState: .data(loginState)
                         )
                     )
                 )

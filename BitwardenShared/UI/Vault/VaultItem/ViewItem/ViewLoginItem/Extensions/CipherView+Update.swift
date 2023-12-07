@@ -1,22 +1,21 @@
 import BitwardenSdk
 
 extension CipherView {
-    func updatedView(with editState: AddEditItemState) -> CipherView {
-        let properties = editState.properties
-        return CipherView(
+    func updatedView(with editState: CipherItemState) -> CipherView {
+        CipherView(
             id: id,
             organizationId: organizationId,
             folderId: folderId,
             collectionIds: collectionIds,
-            name: properties.name,
-            notes: properties.notes.nilIfEmpty,
+            name: editState.name,
+            notes: editState.notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(.login),
-            login: .init(loginView: login, properties: properties),
+            login: .init(loginView: login, loginState: editState.loginState),
             identity: identity,
             card: card,
             secureNote: secureNote,
-            favorite: properties.isFavoriteOn,
-            reprompt: properties.isMasterPasswordRePromptOn ? .password : .none,
+            favorite: editState.isFavoriteOn,
+            reprompt: editState.isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,
             edit: true,
             viewPassword: true,

@@ -6,7 +6,7 @@ import XCTest
 final class LoginViewUpdateTests: BitwardenTestCase {
     // MARK: Propteries
 
-    var properties: CipherItemProperties!
+    var loginState: LoginItemState!
     var subject: BitwardenSdk.LoginView!
 
     // MARK: Setup & Teardown
@@ -14,17 +14,7 @@ final class LoginViewUpdateTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         subject = LoginView.fixture()
-        properties = CipherItemProperties(
-            folder: "",
-            isFavoriteOn: false,
-            isMasterPasswordRePromptOn: false,
-            name: "",
-            notes: "",
-            password: "",
-            type: .login,
-            updatedDate: .now,
-            username: ""
-        )
+        loginState = LoginItemState()
     }
 
     override func tearDown() {
@@ -38,7 +28,7 @@ final class LoginViewUpdateTests: BitwardenTestCase {
     func test_update_nilLoginView() {
         let comparison = BitwardenSdk.LoginView(
             loginView: nil,
-            properties: properties
+            loginState: loginState
         )
         XCTAssertEqual(comparison, subject)
     }
@@ -47,21 +37,21 @@ final class LoginViewUpdateTests: BitwardenTestCase {
     func test_update_loginView() {
         let comparison = BitwardenSdk.LoginView(
             loginView: subject,
-            properties: properties
+            loginState: loginState
         )
         XCTAssertEqual(comparison, subject)
     }
 
     /// Tests that the init succeeds with a LoginView.
     func test_update_loginView_changes() {
-        properties.username = "Username"
-        properties.password = "Password"
+        loginState.username = "Username"
+        loginState.password = "Password"
         let comparison = BitwardenSdk.LoginView(
             loginView: subject,
-            properties: properties
+            loginState: loginState
         )
-        XCTAssertEqual(comparison.username, properties.username)
-        XCTAssertEqual(comparison.password, properties.password)
+        XCTAssertEqual(comparison.username, loginState.username)
+        XCTAssertEqual(comparison.password, loginState.password)
         XCTAssertEqual(comparison.passwordRevisionDate, subject.passwordRevisionDate)
         XCTAssertEqual(comparison.uris, subject.uris)
         XCTAssertEqual(comparison.totp, subject.totp)

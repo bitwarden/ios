@@ -8,7 +8,7 @@ struct AddEditLoginItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<AddEditLoginItemState, AddEditItemAction, AddEditItemEffect>
+    @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
 
     var body: some View {
         LazyVStack(alignment: .leading, spacing: 16) {
@@ -80,7 +80,7 @@ struct AddEditLoginItemView: View {
     }
 
     var uriSection: some View {
-        VaultItemSectionView(title: Localizations.urIs) {
+        SectionView(Localizations.urIs) {
             ForEachIndexed(store.state.uris, id: \.self) { index, uriView in
                 BitwardenTextField(
                     title: Localizations.uri,
@@ -122,7 +122,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                     AddEditLoginItemView(
                         store: Store(
                             processor: StateProcessor(
-                                state: AddEditLoginItemState()
+                                state: LoginItemState()
                             )
                         )
                     )
@@ -132,7 +132,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
             .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             .ignoresSafeArea()
         }
-        .previewDisplayName("Add Note Item")
+        .previewDisplayName("Empty Add Edit State")
     }
 }
 #endif
