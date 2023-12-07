@@ -33,7 +33,7 @@ struct ViewLoginItemView: View {
             if let password = store.state.password {
                 BitwardenField(title: Localizations.password) {
                     PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
-                        .font(.styleGuide(.body))
+                        .styleGuide(.body)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 } accessoryContent: {
                     PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
@@ -63,7 +63,7 @@ struct ViewLoginItemView: View {
             // TODO: BIT-1120 Add full support for TOTP display
             BitwardenField(title: Localizations.verificationCodeTotp) {
                 Text(Localizations.premiumSubscriptionRequired)
-                    .font(.styleGuide(.footnote))
+                    .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
         }

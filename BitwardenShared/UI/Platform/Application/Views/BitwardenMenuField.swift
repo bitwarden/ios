@@ -43,9 +43,8 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
 
             if let footer {
                 Text(footer)
-                    .font(.styleGuide(.footnote))
+                    .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .lineHeight(18, fontSize: 13)
             }
         }
     }
@@ -70,7 +69,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
                 }
                 .contentShape(Rectangle())
             }
-            .font(.styleGuide(.body))
+            .styleGuide(.body)
             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
             .id(title)
             .padding(.horizontal, 16)
@@ -86,10 +85,8 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     @ViewBuilder private var menuFieldTitle: some View {
         if let title {
             Text(title)
-                .font(.styleGuide(.subheadline))
-                .bold()
+                .styleGuide(.subheadline, weight: .semibold)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                .lineHeight(20, fontSize: 15)
         }
     }
 

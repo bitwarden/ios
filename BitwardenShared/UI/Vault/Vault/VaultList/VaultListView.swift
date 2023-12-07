@@ -53,7 +53,7 @@ private struct VaultMainView: View {
 
                     Text(Localizations.noItems)
                         .multilineTextAlignment(.center)
-                        .font(.styleGuide(.callout))
+                        .styleGuide(.callout)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                     Button(Localizations.addAnItem) {
@@ -99,7 +99,7 @@ private struct VaultMainView: View {
 
                         Text(Localizations.thereAreNoItemsThatMatchTheSearch)
                             .multilineTextAlignment(.center)
-                            .font(.styleGuide(.callout))
+                            .styleGuide(.callout)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     }
                     .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
@@ -228,7 +228,7 @@ struct VaultListView: View {
                 } label: {
                     HStack {
                         Text(store.state.userInitials)
-                            .font(.styleGuide(.caption2Monospaced))
+                            .styleGuide(.caption2Monospaced)
                             .foregroundColor(.white)
                             .padding(4)
                             .background(Color.purple)

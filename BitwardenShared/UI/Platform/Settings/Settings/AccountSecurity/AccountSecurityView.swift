@@ -153,7 +153,7 @@ struct AccountSecurityView: View {
                     Text(Localizations.unlockWithPIN)
                 }
                 .toggleStyle(.bitwarden)
-                .font(.styleGuide(.body))
+                .styleGuide(.body)
             }
         }
     }

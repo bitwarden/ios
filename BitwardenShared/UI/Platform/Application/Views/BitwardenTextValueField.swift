@@ -16,7 +16,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     var body: some View {
         BitwardenField(title: title) {
             Text(value)
-                .font(.styleGuide(.body))
+                .styleGuide(.body)
                 .multilineTextAlignment(.leading)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
         } accessoryContent: {

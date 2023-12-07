@@ -56,11 +56,11 @@ struct ProfileSwitcherRow: View {
                     HStack(spacing: 0) {
                         VStack(alignment: .leading, spacing: 0) {
                             Text(title)
-                                .font(.styleGuide(.body))
+                                .styleGuide(.body)
                                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                             if let subtitle {
                                 Text(subtitle)
-                                    .font(.styleGuide(.subheadline))
+                                    .styleGuide(.subheadline)
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                             }
                         }
@@ -99,7 +99,7 @@ struct ProfileSwitcherRow: View {
         case let .active(account),
              let .alternate(account):
             Text(account.userInitials)
-                .font(.styleGuide(.caption2Monospaced))
+                .styleGuide(.caption2Monospaced)
                 .foregroundColor(.white)
                 .padding(4)
                 .background(account.color)

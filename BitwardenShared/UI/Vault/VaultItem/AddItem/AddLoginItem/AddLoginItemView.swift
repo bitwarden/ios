@@ -61,8 +61,7 @@ struct AddLoginItemView: View {
 
         VStack(alignment: .leading, spacing: 8) {
             Text(Localizations.authenticatorKey)
-                .font(.styleGuide(.subheadline))
-                .bold()
+                .styleGuide(.subheadline, weight: .semibold)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
             AsyncButton {

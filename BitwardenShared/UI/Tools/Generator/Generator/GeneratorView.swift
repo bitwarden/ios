@@ -81,7 +81,7 @@ struct GeneratorView: View {
 
         if let title = section.title {
             Text(title.uppercased())
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityAddTraits(.isHeader)
@@ -144,7 +144,7 @@ struct GeneratorView: View {
     func emailWebsiteView(website: String) -> some View {
         BitwardenField(title: Localizations.website) {
             Text(website)
-                .font(.styleGuide(.body))
+                .styleGuide(.body)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
         }
     }

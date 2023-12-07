@@ -19,10 +19,8 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
         VStack(alignment: .leading, spacing: 8) {
             if let title {
                 Text(title)
-                    .font(.styleGuide(.subheadline))
-                    .bold()
+                    .styleGuide(.subheadline, weight: .semibold)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .lineHeight(20, fontSize: 15)
             }
 
             HStack(spacing: 8) {
@@ -76,20 +74,5 @@ extension BitwardenField where AccessoryContent == EmptyView {
         self.title = title
         self.content = content()
         accessoryContent = nil
-    }
-}
-
-/// An extension to simplify adding line height to text
-extension View {
-    /// Sets the line height for the text.
-    ///
-    /// - Parameters:
-    ///   - height: The desired line height.
-    ///   - fontSize: The expected font size to be applied to the text.
-    /// - Returns: The view with adjusted line height.
-    func lineHeight(_ height: CGFloat, fontSize: CGFloat) -> some View {
-        padding(.vertical, (height - fontSize) / 2)
-            .lineSpacing((height - fontSize) / 2)
-            .frame(minHeight: height)
     }
 }

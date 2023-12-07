@@ -64,7 +64,7 @@ struct LoginView: View {
                 store.send(.getMasterPasswordHintPressed)
             }
             .accessibilityIdentifier("GetMasterPasswordHintLabel")
-            .font(.styleGuide(.subheadline))
+            .styleGuide(.subheadline)
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
     }
@@ -119,7 +119,7 @@ struct LoginView: View {
             .accessibilityIdentifier("NotYouLabel")
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
-        .font(.styleGuide(.footnote))
+        .styleGuide(.footnote)
     }
 }
 

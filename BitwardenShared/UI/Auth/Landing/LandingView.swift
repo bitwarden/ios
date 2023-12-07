@@ -35,7 +35,7 @@ struct LandingView: View {
             if !store.state.profileSwitcherState.accounts.isEmpty {
                 HStack {
                     Text(store.state.profileSwitcherState.activeAccountInitials)
-                        .font(.styleGuide(.caption2Monospaced))
+                        .styleGuide(.caption2Monospaced)
                         .foregroundColor(.white)
                         .padding(4)
                         .background(Color.purple)
@@ -77,7 +77,7 @@ struct LandingView: View {
                     .padding(.vertical, 45)
 
                 Text(Localizations.loginOrCreateNewAccount)
-                    .font(.styleGuide(.title2))
+                    .styleGuide(.title2)
                     .multilineTextAlignment(.center)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .frame(maxWidth: .infinity)
@@ -105,7 +105,7 @@ struct LandingView: View {
                                 + Text(store.state.region.baseUrlDescription)
                                 .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                         }
-                        .font(.styleGuide(.subheadline))
+                        .styleGuide(.subheadline)
 
                         Image(decorative: Asset.Images.downTriangle)
                             .resizable()
@@ -138,7 +138,7 @@ struct LandingView: View {
                     }
                     .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                 }
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
             }
             .padding([.horizontal, .bottom], 16)
         }

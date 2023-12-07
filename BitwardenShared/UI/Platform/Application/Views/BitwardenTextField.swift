@@ -112,9 +112,8 @@ struct BitwardenTextField: View {
             }
             if let footer {
                 Text(footer)
-                    .font(.styleGuide(.footnote))
+                    .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .lineHeight(18, fontSize: 13)
                     .padding(.top, 0)
             }
         }
@@ -131,7 +130,7 @@ struct BitwardenTextField: View {
 
                 Spacer()
                 TextField(placeholder, text: $text)
-                    .font(.styleGuide(isPassword ? .bodyMonospaced : .body))
+                    .styleGuide(isPassword ? .bodyMonospaced : .body)
                     .hidden(!isPasswordVisible && isPassword)
                     .id(title)
                 if isPassword, !isPasswordVisible {
@@ -191,10 +190,8 @@ struct BitwardenTextField: View {
     @ViewBuilder private var textFieldTitle: some View {
         if let title {
             Text(title)
-                .font(.styleGuide(.subheadline))
-                .bold()
+                .styleGuide(.subheadline, weight: .semibold)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                .lineHeight(20, fontSize: 15)
         }
     }
 
