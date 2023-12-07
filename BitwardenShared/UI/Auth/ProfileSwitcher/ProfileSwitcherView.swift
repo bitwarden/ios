@@ -76,8 +76,7 @@ struct ProfileSwitcherView: View {
     /// A group of account views
     private var accounts: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(store.state.alternateAccounts.indices, id: \.self) { index in
-                let account = store.state.alternateAccounts[index]
+            ForEachIndexed(store.state.alternateAccounts, id: \.self) { _, account in
                 unselectedProfileSwitcherRow(accountProfile: account)
             }
             selectedProfileSwitcherRow

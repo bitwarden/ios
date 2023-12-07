@@ -10,10 +10,10 @@ class AddItemStateTests: XCTestCase {
 
     /// `cipher` returns a `CipherView` for a login with the minimal fields entered.
     func test_cipher_login_minimal() {
-        var subject = AddItemState()
+        var subject = CipherItemState()
         subject.name = "Bitwarden"
 
-        assertInlineSnapshot(of: subject.cipher(creationDate: Date(year: 2023, month: 10, day: 20)), as: .dump) {
+        assertInlineSnapshot(of: subject.newCipherView(creationDate: Date(year: 2023, month: 10, day: 20)), as: .dump) {
             """
             ▿ CipherView
               - attachments: Optional<Array<AttachmentView>>.none
@@ -53,15 +53,15 @@ class AddItemStateTests: XCTestCase {
 
     /// `cipher` returns a `CipherView` for a login with all fields entered.
     func test_cipher_login_filled() {
-        var subject = AddItemState()
+        var subject = CipherItemState()
         subject.isFavoriteOn = true
         subject.isMasterPasswordRePromptOn = true
         subject.name = "Bitwarden"
-        subject.addLoginItemState.password = "top secret!"
+        subject.loginState.password = "top secret!"
         subject.notes = "Bitwarden Login"
-        subject.addLoginItemState.username = "user@bitwarden.com"
+        subject.loginState.username = "user@bitwarden.com"
 
-        assertInlineSnapshot(of: subject.cipher(creationDate: Date(year: 2023, month: 9, day: 1)), as: .dump) {
+        assertInlineSnapshot(of: subject.newCipherView(creationDate: Date(year: 2023, month: 9, day: 1)), as: .dump) {
             """
             ▿ CipherView
               - attachments: Optional<Array<AttachmentView>>.none

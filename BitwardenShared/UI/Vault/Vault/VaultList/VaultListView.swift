@@ -131,7 +131,7 @@ private struct VaultMainView: View {
         ScrollView {
             LazyVStack(spacing: 20) {
                 ForEach(sections) { section in
-                    vaultSection(title: section.name, items: section.items)
+                    vaultItemSectionView(title: section.name, items: section.items)
                 }
             }
             .padding(16)
@@ -170,7 +170,7 @@ private struct VaultMainView: View {
     ///   - items: The `VaultListItem`s in this section.
     ///
     @ViewBuilder
-    private func vaultSection(title: String, items: [VaultListItem]) -> some View {
+    private func vaultItemSectionView(title: String, items: [VaultListItem]) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .firstTextBaseline) {
                 SectionHeaderView(title)

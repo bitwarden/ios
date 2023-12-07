@@ -198,4 +198,14 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.searchResults = []
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
+
+    /// Test a snapshot of the VaultListView previews.
+    func test_snapshot_vaultListView_previews() {
+        for preview in VaultListView_Previews._allPreviews {
+            assertSnapshots(
+                matching: preview.content,
+                as: [.defaultPortrait]
+            )
+        }
+    }
 }

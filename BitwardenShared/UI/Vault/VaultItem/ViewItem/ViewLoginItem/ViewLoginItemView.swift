@@ -11,13 +11,19 @@ struct ViewLoginItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ViewLoginItemState, ViewItemAction, Void>
+    @ObservedObject var store: Store<ViewLoginItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
-        VaultItemSectionView(title: Localizations.itemInformation) {
+        viewItemProperties
+    }
+
+    /// The view item properties.
+    @ViewBuilder var viewItemProperties: some View {
+        SectionView(Localizations.itemInformation, contentSpacing: 12) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
 
-            if let username = store.state.username {
+            if !store.state.loginState.username.isEmpty {
+                let username = store.state.loginState.username
                 BitwardenTextValueField(title: Localizations.username, value: username) {
                     Button {
                         store.send(.copyPressed(value: username))
@@ -30,13 +36,14 @@ struct ViewLoginItemView: View {
                 }
             }
 
-            if let password = store.state.password {
+            if !store.state.loginState.password.isEmpty {
+                let password = store.state.loginState.password
                 BitwardenField(title: Localizations.password) {
-                    PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
+                    PasswordText(password: password, isPasswordVisible: store.state.loginState.isPasswordVisible)
                         .styleGuide(.body)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 } accessoryContent: {
-                    PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
+                    PasswordVisibilityButton(isPasswordVisible: store.state.loginState.isPasswordVisible) {
                         store.send(.passwordVisibilityPressed)
                     }
 
@@ -68,9 +75,9 @@ struct ViewLoginItemView: View {
             }
         }
 
-        if !store.state.uris.isEmpty {
-            VaultItemSectionView(title: Localizations.urIs) {
-                ForEach(store.state.uris, id: \.self) { uri in
+        if !store.state.loginState.uris.isEmpty {
+            SectionView(Localizations.urIs) {
+                ForEach(store.state.loginState.uris, id: \.self) { uri in
                     if let uri = uri.uri {
                         BitwardenTextValueField(title: Localizations.uri, value: uri) {
                             Button {
@@ -99,14 +106,15 @@ struct ViewLoginItemView: View {
             }
         }
 
-        if let notes = store.state.notes {
-            VaultItemSectionView(title: Localizations.notes) {
+        if !store.state.notes.isEmpty {
+            let notes = store.state.notes
+            SectionView(Localizations.notes) {
                 BitwardenTextValueField(value: notes)
             }
         }
 
         if !store.state.customFields.isEmpty {
-            VaultItemSectionView(title: Localizations.customFields) {
+            SectionView(Localizations.customFields) {
                 ForEach(store.state.customFields, id: \.self) { customField in
                     BitwardenField(title: customField.name) {
                         switch customField.type {
@@ -136,7 +144,6 @@ struct ViewLoginItemView: View {
                                         .resizable()
                                         .frame(width: 16, height: 16)
                                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
                                     Text(linkedIdType.localizedName)
                                 }
                             }
@@ -163,8 +170,7 @@ struct ViewLoginItemView: View {
                                         .resizable()
                                         .frame(width: 16, height: 16)
                                 }
-                            case .boolean,
-                                 .linked:
+                            case .boolean, .linked:
                                 EmptyView()
                             }
                         }
@@ -177,7 +183,7 @@ struct ViewLoginItemView: View {
             let formattedUpdatedDate = store.state.updatedDate.formatted(date: .numeric, time: .shortened)
             Text("\(Localizations.dateUpdated): \(formattedUpdatedDate)")
 
-            if let passwordUpdatedDate = store.state.passwordUpdatedDate {
+            if let passwordUpdatedDate = store.state.loginState.passwordUpdatedDate {
                 let formattedPasswordUpdatedDate = passwordUpdatedDate.formatted(
                     date: .numeric,
                     time: .shortened
