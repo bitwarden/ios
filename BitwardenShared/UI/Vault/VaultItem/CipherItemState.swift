@@ -190,7 +190,7 @@ extension CipherItemState {
 
         switch type {
         case .login:
-            cipherView.login =  BitwardenSdk.LoginView(
+            cipherView.login = BitwardenSdk.LoginView(
                 username: loginState.username.nilIfEmpty,
                 password: loginState.password.nilIfEmpty,
                 passwordRevisionDate: nil,
