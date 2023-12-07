@@ -187,7 +187,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
         do {
             switch state.configuration {
             case .add:
-                try await additem()
+                try await addItem()
             case let .existing(cipherView):
                 try await updateItem(cipherView: cipherView)
             }
@@ -198,7 +198,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
 
     /// Adds the item currently in `state`.
     ///
-    private func additem() async throws {
+    private func addItem() async throws {
         try await services.vaultRepository.addCipher(state.newCipherView())
         coordinator.hideLoadingOverlay()
         coordinator.navigate(to: .dismiss)
