@@ -1,7 +1,9 @@
-// MARK: - AddItemAction
+// MARK: - AddEditItemAction
 
-/// Actions that can be handled by an `AddItemProcessor`.
-enum AddItemAction: Equatable {
+import BitwardenSdk
+
+/// Actions that can be handled by an `AddEditItemProcessor`.
+enum AddEditItemAction: Equatable {
     /// The dismiss button was pressed.
     case dismissPressed
 
@@ -19,6 +21,9 @@ enum AddItemAction: Equatable {
 
     /// The master password re-prompt toggle was changed.
     case masterPasswordRePromptChanged(Bool)
+
+    /// The more button was pressed.
+    case morePressed
 
     /// The name field was changed.
     case nameChanged(String)
@@ -45,7 +50,7 @@ enum AddItemAction: Equatable {
     case typeChanged(CipherType)
 
     /// The uri field was changed.
-    case uriChanged(String)
+    case uriChanged(String, index: Int)
 
     /// The uri settings button was pressed.
     case uriSettingsPressed

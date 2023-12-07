@@ -101,6 +101,48 @@ class VaultRepositoryTests: BitwardenTestCase {
         }
     }
 
+    /// `updateCipher()` throws on encryption errors.
+    func test_updateCipher_encryptError() async throws {
+        struct EncryptError: Error, Equatable {}
+
+        clientCiphers.encryptError = EncryptError()
+
+        await assertAsyncThrows(error: EncryptError()) {
+            try await subject.updateCipher(.fixture(id: "1"))
+        }
+    }
+
+    /// `updateCipher()` throws on id errors.
+    func test_updateCipher_idError_nil() async throws {
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.updateCipher(.fixture(id: nil))
+        }
+    }
+
+    /// `updateCipher()` throws on id errors.
+    func test_updateCipher_idError_empty() async throws {
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.updateCipher(.fixture(id: ""))
+        }
+    }
+
+    /// `updateCipher()` makes the update cipher API request and updates the vault.
+    func test_updateCipher() async throws {
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+
+        let cipher = CipherView.fixture(id: "123")
+        try await subject.updateCipher(cipher)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
+        XCTAssertEqual(client.requests[1].url.absoluteString, "https://example.com/api/sync")
+
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+    }
+
     /// `fetchSync()` performs the sync API request.
     func test_fetchSync() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
