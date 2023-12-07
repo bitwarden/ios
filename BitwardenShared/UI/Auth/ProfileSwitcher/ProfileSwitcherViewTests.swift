@@ -260,4 +260,14 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
+
+    /// Test a snapshot of the ProfileSwitcherView previews.
+    func test_snapshot_profileSwitcherView_previews() {
+        for preview in ProfileSwitcherView_Previews._allPreviews {
+            assertSnapshots(
+                matching: preview.content,
+                as: [.defaultPortrait]
+            )
+        }
+    }
 }

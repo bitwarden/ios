@@ -1,14 +1,14 @@
 import SwiftUI
 
-// MARK: - AddItemView
+// MARK: - AddEditItemView
 
-/// A view that allows the user to add a new item to a vault.
+/// A view that allows the user to add or edit a cipher to a vault.
 ///
-struct AddLoginItemView: View {
+struct AddEditLoginItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<AddLoginItemState, AddItemAction, AddItemEffect>
+    @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
 
     var body: some View {
         LazyVStack(alignment: .leading, spacing: 16) {
@@ -23,12 +23,10 @@ struct AddLoginItemView: View {
                 ],
                 text: store.binding(
                     get: \.username,
-                    send: AddItemAction.usernameChanged
+                    send: AddEditItemAction.usernameChanged
                 )
             )
-            .textContentType(.username)
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.never)
+            .textFieldConfiguration(.username)
         }
 
         BitwardenTextField(
@@ -49,15 +47,14 @@ struct AddLoginItemView: View {
             ],
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
-                send: AddItemAction.togglePasswordVisibilityChanged
+                send: AddEditItemAction.togglePasswordVisibilityChanged
             ),
             text: store.binding(
                 get: \.password,
-                send: AddItemAction.passwordChanged
+                send: AddEditItemAction.passwordChanged
             )
         )
-        .textContentType(.password)
-        .textInputAutocapitalization(.never)
+        .textFieldConfiguration(.password)
 
         VStack(alignment: .leading, spacing: 8) {
             Text(Localizations.authenticatorKey)
@@ -76,24 +73,30 @@ struct AddLoginItemView: View {
             .buttonStyle(.tertiary())
         }
 
+        uriSection
+    }
+
+    var uriSection: some View {
         SectionView(Localizations.urIs) {
-            BitwardenTextField(
-                title: Localizations.uri,
-                buttons: [
-                    .init(
-                        accessibilityLabel: Localizations.uriMatchDetection,
-                        action: { store.send(.uriSettingsPressed) },
-                        icon: Asset.Images.gear
-                    ),
-                ],
-                text: store.binding(
-                    get: \.uri,
-                    send: AddItemAction.uriChanged
+            ForEachIndexed(store.state.uris, id: \.self) { index, uriView in
+                BitwardenTextField(
+                    title: Localizations.uri,
+                    buttons: [
+                        .init(
+                            accessibilityLabel: Localizations.uriMatchDetection,
+                            action: { store.send(.uriSettingsPressed) },
+                            icon: Asset.Images.gear
+                        ),
+                    ],
+                    text: store.binding(
+                        get: { _ in uriView.uri ?? "" },
+                        send: { newValue in
+                            AddEditItemAction.uriChanged(newValue, index: index)
+                        }
+                    )
                 )
-            )
-            .keyboardType(.URL)
-            .textInputAutocapitalization(.never)
-            .textContentType(.URL)
+                .textFieldConfiguration(.url)
+            }
 
             Button(Localizations.newUri) {
                 store.send(.newUriPressed)
@@ -106,15 +109,15 @@ struct AddLoginItemView: View {
 // MARK: Previews
 
 #if DEBUG
-struct AddLoginItemView_Previews: PreviewProvider {
+struct AddEditLoginItemView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             ScrollView {
                 LazyVStack(spacing: 20) {
-                    AddLoginItemView(
+                    AddEditLoginItemView(
                         store: Store(
                             processor: StateProcessor(
-                                state: AddLoginItemState()
+                                state: LoginItemState()
                             )
                         )
                     )
@@ -124,7 +127,7 @@ struct AddLoginItemView_Previews: PreviewProvider {
             .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             .ignoresSafeArea()
         }
-        .previewDisplayName("Add Note Item")
+        .previewDisplayName("Empty Add Edit State")
     }
 }
 #endif

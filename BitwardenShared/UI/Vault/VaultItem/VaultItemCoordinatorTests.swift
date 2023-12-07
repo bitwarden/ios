@@ -46,7 +46,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
 
-        let view = try XCTUnwrap(action.view as? AddItemView)
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
         XCTAssertEqual(view.store.state.type, .login)
     }
 
@@ -56,9 +56,9 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
-        XCTAssertTrue(action.view is AddItemView)
+        XCTAssertTrue(action.view is AddEditItemView)
 
-        let view = try XCTUnwrap(action.view as? AddItemView)
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
         XCTAssertEqual(view.store.state.type, .card)
     }
 

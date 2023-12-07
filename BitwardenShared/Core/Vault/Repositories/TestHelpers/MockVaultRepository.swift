@@ -10,6 +10,8 @@ class MockVaultRepository: VaultRepository {
     var fetchSyncCalled = false
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var removeAccountIds = [String?]()
+    var updateCipherCiphers = [BitwardenSdk.CipherView]()
+    var updateCipherResult: Result<Void, Error> = .success(())
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
     var vaultListGroupSubject = CurrentValueSubject<[VaultListItem], Never>([])
 
@@ -28,6 +30,11 @@ class MockVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
+    }
+
+    func updateCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+        updateCipherCiphers.append(cipher)
+        try updateCipherResult.get()
     }
 
     func vaultListPublisher() -> AsyncPublisher<AnyPublisher<[BitwardenShared.VaultListSection], Never>> {

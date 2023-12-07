@@ -1,13 +1,15 @@
+import BitwardenSdk
 import Foundation
 
-// MARK: - AddItemProcessor
+// MARK: - AddEditItemProcessor
 
 /// The processor used to manage state and handle actions for the add item screen.
 ///
-final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddItemEffect> {
+final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAction, AddEditItemEffect> {
     // MARK: Types
 
     typealias Services = HasCameraAuthorizationService
+        & HasErrorReporter
         & HasVaultRepository
 
     // MARK: Properties
@@ -20,7 +22,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
 
     // MARK: Initialization
 
-    /// Creates a new `AddItemProcessor`.
+    /// Creates a new `AddEditItemProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
@@ -30,7 +32,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     init(
         coordinator: AnyCoordinator<VaultItemRoute>,
         services: Services,
-        state: AddItemState
+        state: CipherItemState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -39,7 +41,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
 
     // MARK: Methods
 
-    override func perform(_ effect: AddItemEffect) async {
+    override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
         case .checkPasswordPressed:
             await checkPassword()
@@ -50,7 +52,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         }
     }
 
-    override func receive(_ action: AddItemAction) {
+    override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
@@ -59,21 +61,25 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         case let .folderChanged(newValue):
             state.folder = newValue
         case .generatePasswordPressed:
-            if state.addLoginItemState.password.isEmpty {
+            if state.loginState.password.isEmpty {
                 coordinator.navigate(to: .generator(.password), context: self)
             } else {
                 presentReplacementAlert(for: .password)
             }
         case .generateUsernamePressed:
-            if state.addLoginItemState.username.isEmpty {
-                // TODO: BIT-901 Update this to pass along the first URI when multiple exist.
-                let emailWebsite = URL(string: state.addLoginItemState.uri)?.sanitized.host
+            if state.loginState.username.isEmpty {
+                let first = state.loginState.uris.first?.uri ?? ""
+                let uri = URL(string: first)
+                let emailWebsite = uri?.sanitized.host
                 coordinator.navigate(to: .generator(.username, emailWebsite: emailWebsite), context: self)
             } else {
                 presentReplacementAlert(for: .username)
             }
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
+        case .morePressed:
+            // TODO: BIT-1131 Open item menu
+            print("more pressed")
         case let .nameChanged(newValue):
             state.name = newValue
         case .newCustomFieldPressed:
@@ -86,17 +92,19 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
         case let .ownerChanged(newValue):
             state.owner = newValue
         case let .passwordChanged(newValue):
-            state.addLoginItemState.password = newValue
+            state.loginState.password = newValue
         case let .togglePasswordVisibilityChanged(newValue):
-            state.addLoginItemState.isPasswordVisible = newValue
+            state.loginState.isPasswordVisible = newValue
         case let .typeChanged(newValue):
             state.type = newValue
-        case let .uriChanged(newValue):
-            state.addLoginItemState.uri = newValue
+        case let .uriChanged(newValue, index: index):
+            guard state.loginState.uris.count > index else { return }
+            let uri = state.loginState.uris[index]
+            state.loginState.uris[index] = .init(match: uri.match, uri: newValue)
         case .uriSettingsPressed:
             presentUriSettingsAlert()
         case let .usernameChanged(newValue):
-            state.addLoginItemState.username = newValue
+            state.loginState.username = newValue
         }
     }
 
@@ -123,7 +131,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
             )
             coordinator.navigate(to: .alert(alert))
         } catch {
-            print(error)
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -192,14 +200,32 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
 
         coordinator.showLoadingOverlay(title: Localizations.saving)
         defer { coordinator.hideLoadingOverlay() }
-
         do {
-            try await services.vaultRepository.addCipher(state.cipher())
-            coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .dismiss)
+            switch state.configuration {
+            case .add:
+                try await addItem()
+            case let .existing(cipherView):
+                try await updateItem(cipherView: cipherView)
+            }
         } catch {
-            print(error)
+            services.errorReporter.log(error: error)
         }
+    }
+
+    /// Adds the item currently in `state`.
+    ///
+    private func addItem() async throws {
+        try await services.vaultRepository.addCipher(state.newCipherView())
+        coordinator.hideLoadingOverlay()
+        coordinator.navigate(to: .dismiss)
+    }
+
+    /// Updates the item currently in `state`.
+    ///
+    private func updateItem(cipherView: CipherView) async throws {
+        try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
+        coordinator.hideLoadingOverlay()
+        coordinator.navigate(to: .dismiss)
     }
 
     /// Kicks off the TOTP setup flow.
@@ -214,7 +240,7 @@ final class AddItemProcessor: StateProcessor<AddItemState, AddItemAction, AddIte
     }
 }
 
-extension AddItemProcessor: GeneratorCoordinatorDelegate {
+extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
     func didCancelGenerator() {
         coordinator.navigate(to: .dismiss)
     }
@@ -222,9 +248,9 @@ extension AddItemProcessor: GeneratorCoordinatorDelegate {
     func didCompleteGenerator(for type: GeneratorType, with value: String) {
         switch type {
         case .password:
-            state.addLoginItemState.password = value
+            state.loginState.password = value
         case .username:
-            state.addLoginItemState.username = value
+            state.loginState.username = value
         }
         coordinator.navigate(to: .dismiss)
     }
