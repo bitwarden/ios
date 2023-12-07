@@ -129,6 +129,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` saves the item.
     func test_perform_savePressed() async {
+        subject.state.name = "vault item"
         await subject.perform(.savePressed)
 
         try XCTAssertEqual(
@@ -151,6 +152,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
     func test_perform_savePressed_error() async {
+        subject.state.name = "vault item"
         struct EncryptError: Error, Equatable {}
         vaultRepository.addCipherResult = .failure(EncryptError())
         await subject.perform(.savePressed)
