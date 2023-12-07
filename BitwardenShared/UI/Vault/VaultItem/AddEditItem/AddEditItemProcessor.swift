@@ -182,32 +182,26 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
     /// Saves the item currently stored in `state`.
     ///
     private func saveItem() async {
+        defer { coordinator.hideLoadingOverlay() }
         do {
             try EmptyInputValidator(fieldName: Localizations.name)
                 .validate(input: state.name)
-        } catch let error as InputValidationError {
-            coordinator.showAlert(Alert.inputValidationAlert(error: error))
-            return
-        } catch {
-            let alert = Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.validationFieldRequired(Localizations.name),
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
-            coordinator.showAlert(alert)
-            return
-        }
-
-        coordinator.showLoadingOverlay(title: Localizations.saving)
-        defer { coordinator.hideLoadingOverlay() }
-        do {
+            coordinator.showLoadingOverlay(title: Localizations.saving)
             switch state.configuration {
             case .add:
                 try await addItem()
             case let .existing(cipherView):
                 try await updateItem(cipherView: cipherView)
             }
+        } catch let error as InputValidationError {
+            coordinator.showAlert(Alert.inputValidationAlert(error: error))
+            return
         } catch {
+            let alert = Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+            coordinator.showAlert(alert)
             services.errorReporter.log(error: error)
         }
     }
