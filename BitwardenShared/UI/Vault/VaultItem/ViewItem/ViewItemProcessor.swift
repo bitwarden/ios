@@ -6,8 +6,7 @@ import BitwardenSdk
 final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
     // MARK: Types
 
-    typealias Services = HasCameraAuthorizationService
-        & HasVaultRepository
+    typealias Services = HasVaultRepository
         & HasErrorReporter
 
     // MARK: Private Properties

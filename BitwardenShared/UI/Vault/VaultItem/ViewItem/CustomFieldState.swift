@@ -30,19 +30,13 @@ struct CustomFieldState: Equatable, Hashable {
 extension CustomFieldState {
     // MARK: Initialization
 
+    /// Creates a CustomFieldState from an SDK `FieldView`
+    ///
+    /// - Parameter fieldView: A `BitwardenSdk.FieldView` used to populate the custom field.
+    ///
     init(fieldView: BitwardenSdk.FieldView) {
         self.init(
             isPasswordVisible: false,
-            linkedIdType: fieldView.linkedId.flatMap(LinkedIdType.init),
-            name: fieldView.name,
-            type: FieldType(fieldType: fieldView.type),
-            value: fieldView.value
-        )
-    }
-
-    init(fieldView: BitwardenSdk.FieldView, isPasswordVisible: Bool = false) {
-        self.init(
-            isPasswordVisible: isPasswordVisible,
             linkedIdType: fieldView.linkedId.flatMap(LinkedIdType.init),
             name: fieldView.name,
             type: FieldType(fieldType: fieldView.type),
