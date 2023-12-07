@@ -78,7 +78,6 @@ struct GeneratorView: View {
     @ViewBuilder
     func sectionView(_ section: GeneratorState.FormSection<GeneratorState>) -> some View {
         // swiftlint:disable:previous function_body_length
-
         if let title = section.title {
             Text(title.uppercased())
                 .font(.styleGuide(.footnote))

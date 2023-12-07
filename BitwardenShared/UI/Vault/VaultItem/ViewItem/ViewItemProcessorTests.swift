@@ -9,6 +9,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
     // MARK: Propteries
 
     var coordinator: MockCoordinator<VaultItemRoute>!
+    var errorReporter: MockErrorReporter!
     var subject: ViewItemProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -17,8 +18,10 @@ class ViewItemProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
+            errorReporter: errorReporter,
             vaultRepository: vaultRepository
         )
         subject = ViewItemProcessor(
@@ -32,6 +35,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         coordinator = nil
+        errorReporter = nil
         subject = nil
         vaultRepository = nil
     }
@@ -81,6 +85,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
         // TODO: BIT-1121 Assertion for pasteboard service
     }
 
+    /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
     func test_receive_customFieldVisiblePressed_withValidField() throws {
         let customField1 = CustomFieldState(
             isPasswordVisible: false,
@@ -130,6 +135,24 @@ class ViewItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(customFields[2].isPasswordVisible)
     }
 
+    /// `receive` with `.customFieldVisibilityPressed()` while loading logs an error.
+    func test_receive_customFieldVisiblePressed_impossible() throws {
+        let customField = CustomFieldState(
+            isPasswordVisible: false,
+            linkedIdType: nil,
+            name: "name 2",
+            type: .hidden,
+            value: "value 2"
+        )
+        subject.state.loadingState = .loading
+        subject.receive(.customFieldVisibilityPressed(customField))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError
+                .dataNotLoaded("Cannot toggle password for non-loaded item.")
+        )
+    }
+
     /// `receive` with `.dismissPressed` navigates to the `.dismiss` route.
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
@@ -167,6 +190,36 @@ class ViewItemProcessorTests: BitwardenTestCase {
     func test_receive_morePressed() {
         subject.receive(.morePressed)
         // TODO: BIT-1131 Assertion for menu
+    }
+
+    /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
+    func test_receive_passwordVisibilityPressed_impossible_loading() throws {
+        subject.state.loadingState = .loading
+        subject.receive(.passwordVisibilityPressed)
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError
+                .dataNotLoaded("Cannot toggle password for non-loaded item.")
+        )
+    }
+
+    /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
+    func test_receive_passwordVisibilityPressed_impossible_nonLogin() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: nil,
+            name: "name",
+            revisionDate: Date(),
+            type: .card
+        )
+        var cipherState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.passwordVisibilityPressed)
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError
+                .nonLoginPasswordToggle("Cannot toggle password for non-login item.")
+        )
     }
 
     /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value

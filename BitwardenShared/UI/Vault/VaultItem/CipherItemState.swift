@@ -8,6 +8,7 @@ import Foundation
 struct CipherItemState: Equatable {
     // MARK: Types
 
+    /// An enum difining if the state is a new or existing cipher.
     enum Configuration: Equatable {
         /// A case for new ciphers.
         case add
@@ -23,7 +24,7 @@ struct CipherItemState: Equatable {
 
     // MARK: Properties
 
-    /// The Add/Edit Configuration
+    /// The Add or Existing Configuration.
     let configuration: Configuration
 
     /// The custome fields.
@@ -38,7 +39,7 @@ struct CipherItemState: Equatable {
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool
 
-    /// The state for a login type item
+    /// The state for a login type item.
     var loginState: LoginItemState
 
     /// The name of this item.
@@ -140,7 +141,7 @@ struct CipherItemState: Equatable {
             name: cipherView.name,
             notes: cipherView.notes ?? "",
             owner: "",
-            type: .login,
+            type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
         )
     }

@@ -9,6 +9,16 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     typealias Services = HasVaultRepository
         & HasErrorReporter
 
+    // MARK: Subtypes
+
+    /// An error case for ViewItemAction errors.
+    enum ActionError: Error, Equatable {
+        /// An action that requires data has been performed while loading.
+        case dataNotLoaded(String)
+        /// A password visibility toggle occured when not possible.
+        case nonLoginPasswordToggle(String)
+    }
+
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
@@ -68,7 +78,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             print("copy: \(value)")
         case let .customFieldVisibilityPressed(customFieldState):
             guard case var .data(cipherState) = state.loadingState else {
-                assertionFailure("Cannot toggle password for non-loaded item.")
+                services.errorReporter.log(
+                    error: ActionError.dataNotLoaded("Cannot toggle password for non-loaded item.")
+                )
                 return
             }
             cipherState.togglePasswordVisibility(for: customFieldState)
@@ -81,9 +93,16 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             // TODO: BIT-1131 Open item menu
             print("more pressed")
         case .passwordVisibilityPressed:
-            guard case var .data(cipherState) = state.loadingState,
-                  case .login = cipherState.type else {
-                assertionFailure("Cannot toggle password for non-login item.")
+            guard case var .data(cipherState) = state.loadingState else {
+                services.errorReporter.log(
+                    error: ActionError.dataNotLoaded("Cannot toggle password for non-loaded item.")
+                )
+                return
+            }
+            guard case .login = cipherState.type else {
+                services.errorReporter.log(
+                    error: ActionError.nonLoginPasswordToggle("Cannot toggle password for non-login item.")
+                )
                 return
             }
             cipherState.loginState.isPasswordVisible.toggle()
