@@ -8,16 +8,16 @@ struct SectionView<Content: View>: View {
     // MARK: Properties
 
     /// Content displayed below section header view.
-    var content: Content
+    let content: Content
 
     /// The spacing of the content.
-    var contentSpacing: CGFloat
+    let contentSpacing: CGFloat
 
     /// The section header title.
-    var title: String
+    let title: String
 
     /// The spacing between title and content.
-    var titleSpacing: CGFloat
+    let titleSpacing: CGFloat
 
     // MARK: View
 
@@ -37,7 +37,9 @@ struct SectionView<Content: View>: View {
     ///
     /// - Parameters:
     ///   - title: The section header title.
+    ///   - titleSpacing: The spacing between title and content.
     ///   - content: The content displayed below the section title.
+    ///   - contentSpacing: The spacing of content items.
     ///
     init(
         _ title: String,
