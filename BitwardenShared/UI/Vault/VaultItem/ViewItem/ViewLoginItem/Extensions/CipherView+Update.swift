@@ -1,6 +1,22 @@
 import BitwardenSdk
 
 extension CipherView {
+    var customFields: [CustomFieldState] {
+        fields?.map(CustomFieldState.init) ?? []
+    }
+
+    func loginItemState(showPassword: Bool = false) -> LoginItemState {
+        .init(
+            isPasswordVisible: showPassword,
+            password: login?.password ?? "",
+            passwordUpdatedDate: login?.passwordRevisionDate,
+            uris: login?.uris?.map { uriView in
+                CipherLoginUriModel(loginUriView: uriView)
+            } ?? [],
+            username: login?.username ?? ""
+        )
+    }
+
     func updatedView(with editState: CipherItemState) -> CipherView {
         CipherView(
             id: id,
