@@ -108,7 +108,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
+    /// `perform(_:)` with `.savePressed` displays an alert if saving or updating fails.
     func test_perform_savePressed_genericErrorAlert() async throws {
         subject.state.name = "vault item"
         struct EncryptError: Error, Equatable {}
