@@ -5,8 +5,6 @@ import SwiftUI
 /// An object that defines the current state of profile selection.
 ///
 struct ProfileSwitcherState: Equatable {
-    // MARK: Static Properties
-
     // MARK: Properties
 
     /// All accounts/profiles.
@@ -71,6 +69,19 @@ struct ProfileSwitcherState: Equatable {
         self.scrollOffset = scrollOffset
         self.shouldAlwaysHideAddAccount = shouldAlwaysHideAddAccount
     }
+
+    // MARK: Static Functions
+
+    static func empty(shouldAlwaysHideAddAccount: Bool = false) -> Self {
+        ProfileSwitcherState(
+            accounts: [],
+            activeAccountId: nil,
+            isVisible: false,
+            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+        )
+    }
+
+    // MARK: Functions
 
     /// Determines if a row type should take accessibility focus.
     /// - Parameter rowType: The row type.

@@ -209,8 +209,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                 ),
                             ],
                             activeAccountId: "1",
-                            isVisible: true,
-                            shouldAlwaysHideAddAccount: false
+                            isVisible: true
                         )
                     )
                 )

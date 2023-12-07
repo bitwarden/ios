@@ -58,6 +58,8 @@ struct ProfileSwitcherRow: View {
                             Text(title)
                                 .styleGuide(.body)
                                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                                .truncationMode(.tail)
+                                .lineLimit(1)
                             if let subtitle {
                                 Text(subtitle)
                                     .styleGuide(.subheadline)

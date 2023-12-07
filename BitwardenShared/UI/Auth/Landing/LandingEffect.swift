@@ -5,6 +5,6 @@ enum LandingEffect {
     /// The vault list appeared on screen.
     case appeared
 
-    /// A Profile Switcher Effect
+    /// A Profile Switcher Effect.
     case profileSwitcher(ProfileSwitcherEffect)
 }

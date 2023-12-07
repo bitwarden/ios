@@ -57,8 +57,7 @@ struct LoginView: View {
                     send: LoginAction.masterPasswordChanged
                 )
             )
-            .textContentType(.password)
-            .textInputAutocapitalization(.never)
+            .textFieldConfiguration(.password)
 
             Button(Localizations.getMasterPasswordwordHint) {
                 store.send(.getMasterPasswordHintPressed)

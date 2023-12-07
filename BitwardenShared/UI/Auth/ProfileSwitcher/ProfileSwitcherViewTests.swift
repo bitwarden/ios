@@ -22,8 +22,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         let state = ProfileSwitcherState(
             accounts: [account],
             activeAccountId: account.userId,
-            isVisible: true,
-            shouldAlwaysHideAddAccount: false
+            isVisible: true
         )
         processor = MockProcessor(state: state)
         subject = ProfileSwitcherView(store: Store(processor: processor))
@@ -191,6 +190,11 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
     func test_snapshot_multiAccount_unlocked_atMaximum() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
+        processor.state = ProfileSwitcherState.maximumAccounts
+        assertSnapshot(matching: subject, as: .defaultPortraitAX5)
     }
 
     func test_snapshot_multiAccount_locked_belowMaximum() {

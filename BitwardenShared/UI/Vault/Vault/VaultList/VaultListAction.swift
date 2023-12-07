@@ -16,9 +16,6 @@ enum VaultListAction: Equatable {
     /// A forwarded profile switcher action
     case profileSwitcherAction(ProfileSwitcherAction)
 
-    /// An action to toggle the visibility of the profile switcher view.
-    case requestedProfileSwitcher(visible: Bool)
-
     /// The text in the search bar was changed.
     case searchStateChanged(isSearching: Bool)
 

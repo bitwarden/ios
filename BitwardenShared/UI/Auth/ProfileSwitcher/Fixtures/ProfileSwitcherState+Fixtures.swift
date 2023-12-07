@@ -32,8 +32,7 @@ extension ProfileSwitcherState {
             ),
         ],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
-        isVisible: true,
-        shouldAlwaysHideAddAccount: false
+        isVisible: true
     )
 
     static let maximumAccounts = ProfileSwitcherState(
@@ -65,7 +64,6 @@ extension ProfileSwitcherState {
             ),
         ],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
-        isVisible: true,
-        shouldAlwaysHideAddAccount: false
+        isVisible: true
     )
 }
