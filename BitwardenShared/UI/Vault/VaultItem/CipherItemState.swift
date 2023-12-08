@@ -168,7 +168,7 @@ struct CipherItemState: Equatable {
 extension CipherItemState {
     /// Returns a `CipherView` based on the properties of the `CipherItemState`.
     func newCipherView(creationDate: Date = .now) -> CipherView {
-        var cipherView = CipherView(
+        CipherView(
             id: nil,
             organizationId: nil,
             folderId: nil,
@@ -177,10 +177,10 @@ extension CipherItemState {
             name: name,
             notes: notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(type),
-            login: nil,
+            login: type == .login ? loginState.loginView : nil,
             identity: nil,
             card: nil,
-            secureNote: nil,
+            secureNote: type == .secureNote ? .init(type: .generic) : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,
@@ -194,22 +194,5 @@ extension CipherItemState {
             deletedDate: nil,
             revisionDate: creationDate
         )
-
-        switch type {
-        case .login:
-            cipherView.login = BitwardenSdk.LoginView(
-                username: loginState.username.nilIfEmpty,
-                password: loginState.password.nilIfEmpty,
-                passwordRevisionDate: nil,
-                uris: nil,
-                totp: nil,
-                autofillOnPageLoad: nil
-            )
-        case .secureNote:
-            cipherView.secureNote = BitwardenSdk.SecureNoteView(type: .generic)
-        default:
-            break
-        }
-        return cipherView
     }
 }
