@@ -91,8 +91,63 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         ))
     }
 
+    /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
+    func test_perform_savePressed_invalidName() async throws {
+        subject.state.name = "    "
+
+        await subject.perform(.savePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.validationFieldRequired(Localizations.name),
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+        )
+    }
+
+    /// `perform(_:)` with `.savePressed` displays an alert if saving or updating fails.
+    func test_perform_savePressed_genericErrorAlert() async throws {
+        subject.state.name = "vault item"
+        struct EncryptError: Error, Equatable {}
+        vaultRepository.addCipherResult = .failure(EncryptError())
+
+        await subject.perform(.savePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+        )
+    }
+
+    /// `perform(_:)` with `.savePressed` saves the item.
+    func test_perform_savePressed_secureNote() async {
+        subject.state.type = .secureNote
+        subject.state.name = "secureNote"
+
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).type,
+            .secureNote
+        )
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
+            "secureNote"
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
     /// `perform(_:)` with `.savePressed` saves the item.
     func test_perform_savePressed() async {
+        subject.state.name = "vault item"
         await subject.perform(.savePressed)
 
         try XCTAssertEqual(
@@ -115,6 +170,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
     func test_perform_savePressed_error() async {
+        subject.state.name = "vault item"
         struct EncryptError: Error, Equatable {}
         vaultRepository.addCipherResult = .failure(EncryptError())
         await subject.perform(.savePressed)
