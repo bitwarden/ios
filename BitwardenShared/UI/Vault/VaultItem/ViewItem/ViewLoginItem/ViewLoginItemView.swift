@@ -180,15 +180,10 @@ struct ViewLoginItemView: View {
         }
 
         VStack(alignment: .leading, spacing: 0) {
-            let formattedUpdatedDate = store.state.updatedDate.formatted(date: .numeric, time: .shortened)
-            Text("\(Localizations.dateUpdated): \(formattedUpdatedDate)")
+            FormattedDateTimeView(label: Localizations.dateUpdated, date: store.state.updatedDate)
 
             if let passwordUpdatedDate = store.state.loginState.passwordUpdatedDate {
-                let formattedPasswordUpdatedDate = passwordUpdatedDate.formatted(
-                    date: .numeric,
-                    time: .shortened
-                )
-                Text("\(Localizations.datePasswordUpdated): \(formattedPasswordUpdatedDate)")
+                FormattedDateTimeView(label: Localizations.datePasswordUpdated, date: passwordUpdatedDate)
             }
 
             // TODO: BIT-1186 Display the password history button here
