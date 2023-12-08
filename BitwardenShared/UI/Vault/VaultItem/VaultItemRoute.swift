@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 // MARK: VaultItemRoute
 
 /// A route to a screen for a specific vault item.
@@ -14,6 +16,9 @@ enum VaultItemRoute: Equatable, Hashable {
 
     /// A route to dismiss the screen currently presented modally.
     case dismiss
+
+    /// A route to edit an item
+    case editItem(cipher: CipherView)
 
     /// A route to the username/password generator screen.
     ///

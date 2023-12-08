@@ -17,10 +17,12 @@ struct ViewItemView: View {
 
     var body: some View {
         LoadingView(state: store.state.loadingState) { state in
-            details(for: state)
+            if let viewState = state.viewState {
+                details(for: viewState)
+            }
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle(Localizations.viewItem)
+        .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -48,13 +50,18 @@ struct ViewItemView: View {
         }
     }
 
+    /// The title of the view
+    private var navigationTitle: String {
+        Localizations.viewItem
+    }
+
     // MARK: Private Methods
 
     /// The details of the item. This view wraps all of the different detail views for
     /// the different types of items into one variable, so that the edit button can be
     /// added to all of them at once.
     @ViewBuilder
-    private func details(for state: ViewItemState.ItemTypeState) -> some View {
+    private func details(for state: CipherItemState.ItemTypeState) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
                 switch state {
@@ -62,7 +69,7 @@ struct ViewItemView: View {
                     ViewLoginItemView(store: store.child(
                         state: { _ in loginState },
                         mapAction: { $0 },
-                        mapEffect: nil
+                        mapEffect: { $0 }
                     ))
                 }
             }
@@ -82,6 +89,69 @@ struct ViewItemView: View {
 
 #if DEBUG
 struct ViewItemView_Previews: PreviewProvider {
+    static var cipher = CipherView(
+        id: "123",
+        organizationId: nil,
+        folderId: nil,
+        collectionIds: [],
+        key: nil,
+        name: "",
+        notes: nil,
+        type: .login,
+        login: .init(
+            username: nil,
+            password: nil,
+            passwordRevisionDate: nil,
+            uris: nil,
+            totp: nil,
+            autofillOnPageLoad: nil
+        ),
+        identity: nil,
+        card: nil,
+        secureNote: nil,
+        favorite: false,
+        reprompt: .none,
+        organizationUseTotp: false,
+        edit: false,
+        viewPassword: false,
+        localData: nil,
+        attachments: nil,
+        fields: nil,
+        passwordHistory: nil,
+        creationDate: .now,
+        deletedDate: nil,
+        revisionDate: .now
+    )
+
+    static var loginState: CipherItemState {
+        var state = CipherItemState(existing: cipher)!
+        state.customFields = [
+            CustomFieldState(
+                linkedIdType: nil,
+                name: "Field Name",
+                type: .text,
+                value: "Value"
+            ),
+        ]
+        state.isMasterPasswordRePromptOn = false
+        state.name = "Example"
+        state.notes = "This is a long note so that it goes to the next line!"
+        state.loginState.password = "Password1!"
+        state.updatedDate = .init(timeIntervalSince1970: 1_695_000_000)
+        state.loginState.uris = [
+            CipherLoginUriModel(
+                match: .startsWith,
+                uri: "https://www.example.com"
+            ),
+            CipherLoginUriModel(
+                match: .exact,
+                uri: "https://www.example.com/account/login"
+            ),
+        ]
+        state.loginState.username = "email@example.com"
+        return state
+    }
+
     static var previews: some View {
         NavigationView {
             ViewItemView(
@@ -101,34 +171,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(.login(.init(
-                                customFields: [
-                                    CustomFieldState(
-                                        linkedIdType: nil,
-                                        name: "Field Name",
-                                        type: .text,
-                                        value: "Value"
-                                    ),
-                                ],
-                                folder: "Folder",
-                                isMasterPasswordRequired: false,
-                                isPasswordVisible: false,
-                                name: "Example",
-                                notes: "This is a long note so that it goes to the next line!",
-                                password: "Password1!",
-                                updatedDate: Date(),
-                                uris: [
-                                    LoginUriView(
-                                        uri: "https://www.example.com",
-                                        match: .startsWith
-                                    ),
-                                    LoginUriView(
-                                        uri: "https://www.example.com/account/login",
-                                        match: .exact
-                                    ),
-                                ],
-                                username: "email@example.com"
-                            )))
+                            loadingState: .data(loginState)
                         )
                     )
                 )

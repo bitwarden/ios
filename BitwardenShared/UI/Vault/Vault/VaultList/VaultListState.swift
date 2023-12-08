@@ -9,7 +9,7 @@ struct VaultListState: Equatable {
     var loadingState: LoadingState<[VaultListSection]> = .loading
 
     /// The user's current account profile state and alternative accounts.
-    var profileSwitcherState = ProfileSwitcherState(accounts: [], activeAccountId: nil, isVisible: false)
+    var profileSwitcherState: ProfileSwitcherState = .empty()
 
     /// An array of results matching the `searchText`.
     var searchResults: [VaultListItem] = []

@@ -33,6 +33,24 @@ extension String {
         contains("@")
     }
 
+    /// Returns `true` if the URL is valid.
+    var isValidURL: Bool {
+        guard rangeOfCharacter(from: .whitespaces) == nil else { return false }
+
+        let urlString: String
+        if starts(with: "https://") || starts(with: "http://") {
+            urlString = self
+        } else {
+            urlString = "https://" + self
+        }
+
+        if #available(iOS 16, *) {
+            return (try? URL(urlString, strategy: .url)) != nil
+        } else {
+            return URL(string: urlString) != nil
+        }
+    }
+
     /// Returns the string or `nil` if it is empty.
     var nilIfEmpty: String? {
         isEmpty ? nil : self

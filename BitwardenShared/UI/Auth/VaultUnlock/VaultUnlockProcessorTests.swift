@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class VaultUnlockProcessorTests: BitwardenTestCase {
+class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
@@ -33,6 +33,134 @@ class VaultUnlockProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
+    func test_perform_appeared_profiles_single_active() async {
+        let profile = ProfileSwitcherItem()
+        authRepository.accountsResult = .success([profile])
+        authRepository.activeAccountResult = .success(profile)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
+        XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
+        XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
+    }
+
+    /// `perform(.appeared)`
+    ///  Mismatched active account and accounts should yield an empty profile switcher state.
+    func test_perform_appeared_mismatch() async {
+        let profile = ProfileSwitcherItem()
+        authRepository.accountsResult = .success([])
+        authRepository.activeAccountResult = .success(profile)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(
+            subject.state.profileSwitcherState,
+            ProfileSwitcherState.empty()
+        )
+    }
+
+    /// `perform(.appeared)` without profiles for the profile switcher.
+    func test_perform_appeared_empty() async {
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(
+            subject.state.profileSwitcherState,
+            ProfileSwitcherState.empty()
+        )
+    }
+
+    /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
+    func test_perform_appeared_single_active() async {
+        let profile = ProfileSwitcherItem()
+        authRepository.accountsResult = .success([profile])
+        authRepository.activeAccountResult = .success(profile)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
+        XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
+        XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
+    }
+
+    /// `perform(.appeared)`
+    /// No active account and accounts should yield a profile switcher state without an active account.
+    func test_perform_refresh_profiles_single_notActive() async {
+        let profile = ProfileSwitcherItem()
+        authRepository.accountsResult = .success([profile])
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(
+            subject.state.profileSwitcherState,
+            ProfileSwitcherState(
+                accounts: [profile],
+                activeAccountId: nil,
+                isVisible: false
+            )
+        )
+    }
+
+    /// `perform(.appeared)`:
+    ///  An active account and multiple accounts should yield a profile switcher state.
+    func test_perform_refresh_profiles_single_multiAccount() async {
+        let profile = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem()
+        authRepository.accountsResult = .success([profile, alternate])
+        authRepository.activeAccountResult = .success(profile)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual([alternate], subject.state.profileSwitcherState.alternateAccounts)
+        XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
+        XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
+    }
+
+    /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
+    func test_perform_rowAppeared_add() async {
+        let profile = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, alternate],
+            activeAccountId: profile.userId,
+            isVisible: true
+        )
+
+        await subject.perform(.profileSwitcher(.rowAppeared(.addAccount)))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
+    }
+
+    /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for alternate account
+    func test_perform_rowAppeared_alternate() async {
+        let profile = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, alternate],
+            activeAccountId: profile.userId,
+            isVisible: true
+        )
+
+        await subject.perform(.profileSwitcher(.rowAppeared(.alternate(alternate))))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
+    }
+
+    /// `perform(.profileSwitcher(.rowAppeared))` should update the state for active account
+    func test_perform_rowAppeared_active() {
+        let profile = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, alternate],
+            activeAccountId: profile.userId,
+            isVisible: true
+        )
+
+        let task = Task {
+            await subject.perform(.profileSwitcher(.rowAppeared(.active(profile))))
+        }
+
+        waitFor(subject.state.profileSwitcherState.hasSetAccessibilityFocus, timeout: 0.5)
+        task.cancel()
+        XCTAssertTrue(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
+    }
 
     /// `perform(_:)` with `.unlockVault` attempts to unlock the vault with the entered password.
     func test_perform_unlockVault() async throws {
@@ -122,4 +250,222 @@ class VaultUnlockProcessorTests: BitwardenTestCase {
         subject.receive(.revealMasterPasswordFieldPressed(false))
         XCTAssertFalse(subject.state.isMasterPasswordRevealed)
     }
-}
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
+    func test_receive_accountPressed_active_unlocked() {
+        let profile = ProfileSwitcherItem()
+        authRepository.accountsResult = .success([profile])
+        authRepository.activeAccountResult = .success(profile)
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile],
+            activeAccountId: profile.userId,
+            isVisible: true
+        )
+
+        let task = Task {
+            subject.receive(.profileSwitcherAction(.accountPressed(profile)))
+        }
+        waitFor(!subject.state.profileSwitcherState.isVisible)
+        task.cancel()
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
+    func test_receive_accountPressed_active_locked() {
+        let profile = ProfileSwitcherItem(isUnlocked: false)
+        let account = Account.fixture(profile: .fixture(
+            userId: profile.userId
+        ))
+        authRepository.accountsResult = .success([profile])
+        authRepository.activeAccountResult = .success(profile)
+        authRepository.accountForItemResult = .success(account)
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile],
+            activeAccountId: profile.userId,
+            isVisible: true
+        )
+
+        let task = Task {
+            subject.receive(.profileSwitcherAction(.accountPressed(profile)))
+        }
+        waitFor(!subject.state.profileSwitcherState.isVisible)
+        task.cancel()
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
+    func test_receive_accountPressed_alternateUnlocked() {
+        let profile = ProfileSwitcherItem(isUnlocked: true)
+        let active = ProfileSwitcherItem()
+        let account = Account.fixture(profile: .fixture(
+            userId: profile.userId
+        ))
+        authRepository.accountsResult = .success([active, profile])
+        authRepository.accountForItemResult = .success(account)
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, active],
+            activeAccountId: active.userId,
+            isVisible: true
+        )
+
+        let task = Task {
+            subject.receive(.profileSwitcherAction(.accountPressed(profile)))
+        }
+        waitFor(!subject.state.profileSwitcherState.isVisible)
+        task.cancel()
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes, [.complete])
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
+    func test_receive_accountPressed_alternateLocked() {
+        let profile = ProfileSwitcherItem(isUnlocked: false)
+        let active = ProfileSwitcherItem()
+        let account = Account.fixture(profile: .fixture(
+            userId: profile.userId
+        ))
+        authRepository.accountsResult = .success([active, profile])
+        authRepository.accountForItemResult = .success(account)
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, active],
+            activeAccountId: active.userId,
+            isVisible: true
+        )
+
+        let task = Task {
+            subject.receive(.profileSwitcherAction(.accountPressed(profile)))
+        }
+        waitFor(!subject.state.profileSwitcherState.isVisible)
+        task.cancel()
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes, [.vaultUnlock(account)])
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
+    func test_receive_accountPressed_noMatch() {
+        let profile = ProfileSwitcherItem()
+        let active = ProfileSwitcherItem()
+        authRepository.accountsResult = .success([active])
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, active],
+            activeAccountId: active.userId,
+            isVisible: true
+        )
+
+        let task = Task {
+            subject.receive(.profileSwitcherAction(.accountPressed(profile)))
+        }
+        waitFor(!subject.state.profileSwitcherState.isVisible)
+        task.cancel()
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.addAccountPressed)` updates the state to reflect the changes.
+    func test_receive_addAccountPressed() {
+        let active = ProfileSwitcherItem()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            isVisible: true
+        )
+
+        let task = Task {
+            subject.receive(.profileSwitcherAction(.addAccountPressed))
+        }
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes, [.landing])
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.backgroundPressed)` updates the state to reflect the changes.
+    func test_receive_backgroundPressed() {
+        let active = ProfileSwitcherItem()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            isVisible: true
+        )
+
+        let task = Task {
+            subject.receive(.profileSwitcherAction(.backgroundPressed))
+        }
+        waitFor(!subject.state.profileSwitcherState.isVisible)
+        task.cancel()
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `receive(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.
+    func test_receive_requestedProfileSwitcherVisible_false() {
+        let active = ProfileSwitcherItem()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            isVisible: true
+        )
+
+        let task = Task {
+            subject.receive(.profileSwitcherAction(.requestedProfileSwitcher(visible: false)))
+        }
+        waitFor(!subject.state.profileSwitcherState.isVisible)
+        task.cancel()
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.
+    func test_receive_requestedProfileSwitcherVisible_true() {
+        let active = ProfileSwitcherItem()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            isVisible: false
+        )
+
+        let task = Task {
+            subject.receive(.profileSwitcherAction(.requestedProfileSwitcher(visible: true)))
+        }
+        waitFor(subject.state.profileSwitcherState.isVisible)
+        task.cancel()
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.scrollOffset)` updates the state to reflect the changes.
+    func test_receive_scrollOffset() {
+        let active = ProfileSwitcherItem()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            isVisible: true,
+            scrollOffset: .zero
+        )
+
+        let newPoint = CGPoint(x: 0, y: 100)
+        subject.receive(.profileSwitcherAction(.scrollOffsetChanged(newPoint)))
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, newPoint)
+    }
+} // swiftlint:disable:this file_length

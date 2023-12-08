@@ -131,7 +131,7 @@ private struct VaultMainView: View {
         ScrollView {
             LazyVStack(spacing: 20) {
                 ForEach(sections) { section in
-                    vaultSection(title: section.name, items: section.items)
+                    vaultItemSectionView(title: section.name, items: section.items)
                 }
             }
             .padding(16)
@@ -170,7 +170,7 @@ private struct VaultMainView: View {
     ///   - items: The `VaultListItem`s in this section.
     ///
     @ViewBuilder
-    private func vaultSection(title: String, items: [VaultListItem]) -> some View {
+    private func vaultItemSectionView(title: String, items: [VaultListItem]) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .firstTextBaseline) {
                 Text(title.uppercased())
@@ -225,21 +225,17 @@ struct VaultListView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    store.send(.requestedProfileSwitcher(visible: !store.state.profileSwitcherState.isVisible))
-                } label: {
-                    HStack {
-                        Text(store.state.userInitials)
-                            .font(.styleGuide(.caption2Monospaced))
-                            .foregroundColor(.white)
-                            .padding(4)
-                            .background(Color.purple)
-                            .clipShape(Circle())
-                        Spacer()
-                    }
-                    .frame(minWidth: 50)
-                    .fixedSize()
-                }
+                ProfileSwitcherToolbarView(
+                    store: store.child(
+                        state: { state in
+                            state.profileSwitcherState
+                        },
+                        mapAction: { action in
+                            .profileSwitcherAction(action)
+                        },
+                        mapEffect: nil
+                    )
+                )
             }
             ToolbarItem(placement: .primaryAction) {
                 AddItemButton {
