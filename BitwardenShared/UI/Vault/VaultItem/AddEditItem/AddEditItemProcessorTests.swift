@@ -160,11 +160,11 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             Date().timeIntervalSince1970,
             accuracy: 1
         )
-        let creationDate = Date(year: 2023, month: 10, day: 20)
-        vaultRepository.addCipherCiphers[0].creationDate = creationDate
-        vaultRepository.addCipherCiphers[0].revisionDate = creationDate
 
-        XCTAssertEqual(vaultRepository.addCipherCiphers, [subject.state.newCipherView(creationDate: creationDate)])
+        XCTAssertEqual(
+            vaultRepository.addCipherCiphers,
+            [subject.state.newCipherView(creationDate: vaultRepository.addCipherCiphers[0].creationDate)]
+        )
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
