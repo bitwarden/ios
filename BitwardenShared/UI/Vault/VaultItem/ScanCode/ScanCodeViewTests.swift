@@ -47,7 +47,7 @@ class ScanCodeViewTests: BitwardenTestCase {
         for preview in ScanCodeView_Previews._allPreviews {
             assertSnapshots(
                 matching: preview.content,
-                as: [.defaultPortrait, .defaultLandscape]
+                as: [.defaultPortrait, .defaultLandscape, .defaultPortraitDark]
             )
         }
     }
