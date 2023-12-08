@@ -32,8 +32,8 @@ struct ToastView: View {
                 .multilineTextAlignment(.center)
                 .dynamicTypeSize(...DynamicTypeSize.accessibility2)
                 .id(toast.id)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding([.top, .horizontal], 14)
+                .padding(.bottom, 12)
                 .foregroundColor(Asset.Colors.textPrimaryInverted.swiftUIColor)
                 .frame(minWidth: 300, minHeight: 46)
                 .background(Asset.Colors.primaryBitwarden.swiftUIColor)
@@ -76,5 +76,12 @@ extension View {
 struct ToastView_Previews: PreviewProvider {
     static var previews: some View {
         ToastView(toast: .constant(Toast(text: "Toast!")))
+            .previewDisplayName("Toast View")
+
+        NavigationView {
+            Asset.Colors.backgroundPrimary.swiftUIColor
+                .toast(.constant(Toast(text: "Taos, NM!")))
+        }
+        .previewDisplayName("Overlay")
     }
 }
