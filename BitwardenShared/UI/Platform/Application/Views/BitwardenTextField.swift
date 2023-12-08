@@ -128,7 +128,6 @@ struct BitwardenTextField: View {
                 let isPassword = isPasswordVisible != nil
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
-                Spacer()
                 TextField(placeholder, text: $text)
                     .styleGuide(isPassword ? .bodyMonospaced : .body)
                     .hidden(!isPasswordVisible && isPassword)
