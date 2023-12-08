@@ -117,14 +117,15 @@ extension DefaultAuthRepository: AuthRepository {
     func unlockVault(password: String) async throws {
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
         let account = try await stateService.getActiveAccount()
-        try await clientCrypto.initializeCrypto(
-            req: InitCryptoRequest(
+        try await clientCrypto.initializeUserCrypto(
+            req: InitUserCryptoRequest(
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
-                password: password,
-                userKey: encryptionKeys.encryptedUserKey,
                 privateKey: encryptionKeys.encryptedPrivateKey,
-                organizationKeys: [:]
+                method: .password(
+                    password: password,
+                    userKey: encryptionKeys.encryptedUserKey
+                )
             )
         )
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)

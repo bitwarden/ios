@@ -3,11 +3,25 @@ import BitwardenSdk
 @testable import BitwardenShared
 
 class MockClientCrypto: ClientCryptoProtocol {
-    var initializeCryptoRequest: InitCryptoRequest?
-    var initializeCryptoResult: Result<Void, Error> = .success(())
+    var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
 
-    func initializeCrypto(req: InitCryptoRequest) async throws {
-        initializeCryptoRequest = req
-        return try initializeCryptoResult.get()
+    var initializeOrgCryptoRequest: InitOrgCryptoRequest?
+    var initializeOrgCryptoResult: Result<Void, Error> = .success(())
+
+    var initializeUserCryptoRequest: InitUserCryptoRequest?
+    var initializeUserCryptoResult: Result<Void, Error> = .success(())
+
+    func getUserEncryptionKey() async throws -> String {
+        try getUserEncryptionKeyResult.get()
+    }
+
+    func initializeOrgCrypto(req: InitOrgCryptoRequest) async throws {
+        initializeOrgCryptoRequest = req
+        return try initializeOrgCryptoResult.get()
+    }
+
+    func initializeUserCrypto(req: InitUserCryptoRequest) async throws {
+        initializeUserCryptoRequest = req
+        return try initializeUserCryptoResult.get()
     }
 }

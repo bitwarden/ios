@@ -94,6 +94,7 @@ struct ViewItemView_Previews: PreviewProvider {
         organizationId: nil,
         folderId: nil,
         collectionIds: [],
+        key: nil,
         name: "",
         notes: nil,
         type: .login,

@@ -8,12 +8,18 @@ import Foundation
 struct CipherItemState: Equatable {
     // MARK: Types
 
-    /// An enum difining if the state is a new or existing cipher.
+    /// An enum defining if the state is a new or existing cipher.
     enum Configuration: Equatable {
         /// A case for new ciphers.
         case add
         /// A case to view or edit an existing cipher.
         case existing(cipherView: CipherView)
+
+        /// The existing `CipherView` if the configuration is `existing`.
+        var existingCipherView: CipherView? {
+            guard case let .existing(cipherView) = self else { return nil }
+            return cipherView
+        }
     }
 
     /// An enumeration of the possible values of this state.
@@ -27,7 +33,7 @@ struct CipherItemState: Equatable {
     /// The Add or Existing Configuration.
     let configuration: Configuration
 
-    /// The custome fields.
+    /// The custom fields.
     var customFields: [CustomFieldState]
 
     /// The folder this item should be added to.
@@ -61,7 +67,7 @@ struct CipherItemState: Equatable {
 
     /// The view state of the item.
     var viewState: ItemTypeState? {
-        guard case let .existing(cipherView) = configuration else {
+        guard let cipherView = configuration.existingCipherView else {
             return nil
         }
         switch type {
@@ -167,6 +173,7 @@ extension CipherItemState {
             organizationId: nil,
             folderId: nil,
             collectionIds: [],
+            key: nil,
             name: name,
             notes: notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(.login),

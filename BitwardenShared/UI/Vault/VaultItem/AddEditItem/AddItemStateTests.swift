@@ -27,6 +27,7 @@ class AddItemStateTests: XCTestCase {
               - folderId: Optional<String>.none
               - id: Optional<String>.none
               - identity: Optional<IdentityView>.none
+              - key: Optional<String>.none
               - localData: Optional<LocalDataView>.none
               ▿ login: Optional<LoginView>
                 ▿ some: LoginView
@@ -75,6 +76,7 @@ class AddItemStateTests: XCTestCase {
               - folderId: Optional<String>.none
               - id: Optional<String>.none
               - identity: Optional<IdentityView>.none
+              - key: Optional<String>.none
               - localData: Optional<LocalDataView>.none
               ▿ login: Optional<LoginView>
                 ▿ some: LoginView
