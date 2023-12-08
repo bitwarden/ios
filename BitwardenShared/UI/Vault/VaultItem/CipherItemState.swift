@@ -14,7 +14,7 @@ struct CipherItemState: Equatable {
         case add
         /// A case to view or edit an existing cipher.
         case existing(cipherView: CipherView)
-        
+
         /// The existing `CipherView` if the configuration is `existing`.
         var existingCipherView: CipherView? {
             guard case let .existing(cipherView) = self else { return nil }
