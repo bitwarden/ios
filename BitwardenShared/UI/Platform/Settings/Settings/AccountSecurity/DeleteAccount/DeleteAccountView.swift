@@ -21,12 +21,11 @@ struct DeleteAccountView: View {
 
             Text(Localizations.deletingYourAccountIsPermanent)
                 .foregroundColor(Color(asset: Asset.Colors.loadingRed))
-                .font(.styleGuide(.headline))
-                .bold()
+                .styleGuide(.headline, weight: .semibold)
 
             Text(Localizations.deleteAccountExplanation)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .font(.styleGuide(.subheadline))
+                .styleGuide(.subheadline)
 
             VStack(spacing: 12) {
                 Button {

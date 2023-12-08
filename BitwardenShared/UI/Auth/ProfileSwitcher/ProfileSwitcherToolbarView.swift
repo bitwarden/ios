@@ -20,7 +20,7 @@ struct ProfileSwitcherToolbarView: View {
             if !store.state.accounts.isEmpty {
                 HStack {
                     Text(store.state.activeAccountInitials)
-                        .font(.styleGuide(.caption2Monospaced))
+                        .styleGuide(.caption2Monospaced)
                         .foregroundColor(.white)
                         .padding(4)
                         .background(

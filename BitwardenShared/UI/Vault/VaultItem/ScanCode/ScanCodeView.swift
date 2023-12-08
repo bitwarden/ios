@@ -45,7 +45,7 @@ struct ScanCodeView: View {
     var informationContent: some View {
         VStack(alignment: .center, spacing: 0) {
             Text(Localizations.pointYourCameraAtTheQRCode)
-                .font(.styleGuide(.body))
+                .styleGuide(.body)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
             Spacer()
@@ -58,7 +58,8 @@ struct ScanCodeView: View {
                             + Text(Localizations.enterKeyManually)
                             .foregroundColor(Asset.Colors.primaryBitwardenDark.swiftUIColor)
                     }
-                    .font(.styleGuide(.body))
+                    .styleGuide(.body)
+                    .multilineTextAlignment(.center)
                 }
             )
             .buttonStyle(InlineButtonStyle())

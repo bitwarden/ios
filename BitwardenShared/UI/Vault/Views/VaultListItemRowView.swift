@@ -46,13 +46,13 @@ struct VaultListItemRowView: View {
                     case let .cipher(cipherItem):
                         VStack(alignment: .leading, spacing: 0) {
                             Text(cipherItem.name)
-                                .font(.styleGuide(.body))
+                                .styleGuide(.body)
                                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                                 .lineLimit(1)
 
                             if let subTitle = cipherItem.subTitle.nilIfEmpty {
                                 Text(subTitle)
-                                    .font(.styleGuide(.subheadline))
+                                    .styleGuide(.subheadline)
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                                     .lineLimit(1)
                             }
@@ -71,11 +71,11 @@ struct VaultListItemRowView: View {
 
                     case let .group(group, count):
                         Text(group.name)
-                            .font(.styleGuide(.body))
+                            .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                         Spacer()
                         Text("\(count)")
-                            .font(.styleGuide(.body))
+                            .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                     }
                 }

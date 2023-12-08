@@ -16,7 +16,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     var body: some View {
         BitwardenField(title: title) {
             Text(value)
-                .font(.styleGuide(.body))
+                .styleGuide(.body)
                 .multilineTextAlignment(.leading)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
         } accessoryContent: {
@@ -64,3 +64,21 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
         }
     }
 }
+
+// MARK: Previews
+
+#if DEBUG
+struct BitwardenTextValueField_Previews: PreviewProvider {
+    static var previews: some View {
+        VStack {
+            BitwardenTextValueField(
+                title: "Title",
+                value: "Text field text"
+            )
+            .padding()
+        }
+        .background(Color(.systemGroupedBackground))
+        .previewDisplayName("No buttons")
+    }
+}
+#endif

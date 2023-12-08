@@ -66,7 +66,7 @@ struct CreateAccountView: View {
             send: CreateAccountAction.toggleCheckDataBreaches
         )) {
             Text(Localizations.checkKnownDataBreachesForThisPassword)
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
         }
         .accessibilityIdentifier("CheckExposedMasterPasswordToggle")
         .toggleStyle(.bitwarden)
@@ -117,7 +117,7 @@ struct CreateAccountView: View {
 
             Text(Localizations.masterPasswordHintDescription)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
         }
     }
 
@@ -168,7 +168,7 @@ struct CreateAccountView: View {
             send: CreateAccountAction.toggleTermsAndPrivacy
         )) {
             Text("\(Localizations.acceptPolicies)\n\(termsOfServiceString ?? "") \(privacyPolicyString ?? "")")
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
         }
         .accessibilityAction(named: Localizations.termsOfService) {
             openURL(ExternalLinksConstants.termsOfService)

@@ -16,19 +16,18 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     var accessoryContent: AccessoryContent?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 8) {
             if let title {
                 Text(title)
-                    .font(.styleGuide(.subheadline))
-                    .bold()
+                    .styleGuide(.subheadline, weight: .semibold)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
 
             HStack(spacing: 8) {
                 content
+                    .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 8)
                     .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
