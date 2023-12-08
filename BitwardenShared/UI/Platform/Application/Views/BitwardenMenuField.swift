@@ -37,7 +37,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 8) {
             menuFieldTitle
             menu
 
