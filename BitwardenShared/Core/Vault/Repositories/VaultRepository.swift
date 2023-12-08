@@ -151,6 +151,8 @@ class DefaultVaultRepository {
             return activeCiphers.filter { $0.type == .login }.compactMap(VaultListItem.init)
         case .card:
             return activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
+        case let .collection(id, _):
+            return activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
         case .identity:
             return activeCiphers.filter { $0.type == .identity }.compactMap(VaultListItem.init)
         case .secureNote:
@@ -176,7 +178,7 @@ class DefaultVaultRepository {
             .decryptList(folders: response.folders.map(Folder.init))
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        _ = try await clientVault.collections()
+        let collections = try await clientVault.collections()
             .decryptList(collections: response.collections.map(Collection.init))
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
@@ -198,6 +200,14 @@ class DefaultVaultRepository {
             )
         }
 
+        let collectionItems = collections.map { collection in
+            let collectionCount = activeCiphers.lazy.filter { $0.collectionIds.contains(collection.id) }.count
+            return VaultListItem(
+                id: collection.id,
+                itemType: .group(.collection(id: collection.id, name: collection.name), collectionCount)
+            )
+        }
+
         let typesCardCount = activeCiphers.lazy.filter { $0.type == .card }.count
         let typesIdentityCount = activeCiphers.lazy.filter { $0.type == .identity }.count
         let typesLoginCount = activeCiphers.lazy.filter { $0.type == .login }.count
@@ -215,8 +225,10 @@ class DefaultVaultRepository {
             VaultListSection(id: "Types", items: types, name: Localizations.types),
             VaultListSection(id: "Folders", items: folderItems, name: Localizations.folders),
             VaultListSection(id: "NoFolder", items: ciphersNoFolder, name: Localizations.folderNone),
+            VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections),
             VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash),
         ]
+        .filter { !$0.items.isEmpty }
     }
 }
 

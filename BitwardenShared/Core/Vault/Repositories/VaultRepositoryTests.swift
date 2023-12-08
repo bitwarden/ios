@@ -4,6 +4,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -315,8 +317,47 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try XCTAssertTrue(XCTUnwrap(sections).isEmpty)
     }
 
-    /// `vaultListPublisher(group:)` returns a publisher for a group of items within the vault list.
-    func test_vaultListPublisher_forGroup() async throws {
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections.
+    func test_vaultListPublisher_withCollections() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+
+        var iterator = subject.vaultListPublisher().makeAsyncIterator()
+
+        Task {
+            try await subject.fetchSync()
+        }
+
+        let sections = await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Favorites
+              - Cipher: Apple
+            Section: Types
+              - Group: Login (3)
+              - Group: Card (1)
+              - Group: Identity (1)
+              - Group: Secure note (1)
+            Section: Folders
+              - Group: Social (1)
+            Section: No Folder
+              - Cipher: Apple
+              - Cipher: Bitwarden User
+              - Cipher: Figma
+              - Cipher: Top Secret Note
+              - Cipher: Visa
+            Section: Collections
+              - Group: Design (1)
+              - Group: Engineering (1)
+            Section: Trash
+              - Group: Trash (1)
+            """
+        }
+    }
+
+    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault list.
+    func test_vaultListPublisher_forGroup_login() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
 
         var iterator = subject.vaultListPublisher(group: .login).makeAsyncIterator()
@@ -331,6 +372,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             """
             - Cipher: Apple
             - Cipher: Facebook
+            """
+        }
+    }
+
+    /// `vaultListPublisher(group:)` returns a publisher for a group of items in a collection within
+    /// the vault list.
+    func test_vaultListPublisher_forGroup_collection() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+
+        var iterator = subject.vaultListPublisher(
+            group: .collection(id: "f96de98e-618a-4886-b396-66b92a385325", name: "Engineering")
+        ).makeAsyncIterator()
+
+        Task {
+            try await subject.fetchSync()
+        }
+
+        let items = await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+            """
+            - Cipher: Apple
             """
         }
     }
