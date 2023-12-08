@@ -38,24 +38,24 @@ struct ScanCodeView: View {
     var content: some View {
         ZStack {
             CameraPreviewView(session: cameraSession)
-            informationOverlay
+            overlayView
         }
     }
 
     var informationContent: some View {
         VStack(alignment: .center, spacing: 0) {
-            Text("Point your camera at the QR code. Scanning will happen automatically.")
+            Text(Localizations.pointYourCameraAtTheQRCode)
                 .font(.styleGuide(.body))
                 .multilineTextAlignment(.center)
-                .foregroundColor(Asset.Colors.textPrimaryInverted.swiftUIColor)
+                .foregroundColor(.white)
             Spacer()
             Button(
                 action: { store.send(.manualEntryPressed) },
                 label: {
                     Group {
-                        Text("Cannot scan QR code? ")
-                            .foregroundColor(Asset.Colors.textPrimaryInverted.swiftUIColor)
-                            + Text("Enter manually")
+                        Text(Localizations.cannotScanQRCode + " ")
+                            .foregroundColor(.white)
+                            + Text(Localizations.enterKeyManually)
                             .foregroundColor(Asset.Colors.primaryBitwardenDark.swiftUIColor)
                     }
                     .font(.styleGuide(.body))
@@ -65,22 +65,52 @@ struct ScanCodeView: View {
         }
     }
 
-    var informationOverlay: some View {
+    var overlayView: some View {
         GeometryReader { geoProxy in
+            overlayContent(size: geoProxy.size)
+        }
+    }
+
+    @ViewBuilder
+    func overlayContent(size: CGSize) -> some View {
+        if size.width < size.height {
             VStack(spacing: 0.0) {
                 Spacer()
-                CornerBorderShape(cornerLength: geoProxy.size.width * 0.1, lineWidth: 3)
+                CornerBorderShape(cornerLength: size.width * 0.1, lineWidth: 3)
                     .stroke(lineWidth: 3)
-                    .foregroundColor(.blue)
+                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(
-                        width: geoProxy.size.width * 0.65,
-                        height: geoProxy.size.width * 0.65
+                        width: size.width * 0.65,
+                        height: size.width * 0.65
                     )
                 Spacer()
                 Rectangle()
                     .frame(
-                        width: geoProxy.size.width,
-                        height: geoProxy.size.height / 3
+                        width: size.width,
+                        height: size.height / 3
+                    )
+                    .foregroundColor(.black)
+                    .opacity(0.5)
+                    .overlay {
+                        informationContent
+                            .padding(36)
+                    }
+            }
+        } else {
+            HStack(spacing: 0.0) {
+                Spacer()
+                CornerBorderShape(cornerLength: size.height * 0.1, lineWidth: 3)
+                    .stroke(lineWidth: 3)
+                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                    .frame(
+                        width: size.height * 0.65,
+                        height: size.height * 0.65
+                    )
+                Spacer()
+                Rectangle()
+                    .frame(
+                        width: size.width / 3,
+                        height: size.height
                     )
                     .foregroundColor(.black)
                     .opacity(0.5)
@@ -105,5 +135,6 @@ struct ScanCodeView_Previews: PreviewProvider {
                 )
             )
         }
+        .previewDisplayName("Scan Code View")
     }
 }
