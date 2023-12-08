@@ -78,22 +78,31 @@ private extension Font {
 extension View {
     /// Sets the font and line height for the view.
     ///
-    /// - Parameter style: The style of the text.
+    /// - Parameters:
+    ///   - style: The style of the text.
+    ///   - includeLineSpacing: A flag to indicate if the style should change `.lineSpacing()`.
+    ///         Defaults to true.
     /// - Returns: The view with adjusted line height & font.
     ///
-    func styleGuide(_ style: StyleGuideFont) -> some View {
+    func styleGuide(_ style: StyleGuideFont, includeLineSpacing: Bool = true) -> some View {
         font(.styleGuide(style))
-            .lineHeight(for: style)
+            .lineHeight(for: style, includeLineSpacing: includeLineSpacing)
     }
 
     /// Sets the line height for the view.
     ///
     /// - Parameter style: The style of the text.
     /// - Returns: The view with adjusted line height.
-    func lineHeight(for style: StyleGuideFont) -> some View {
-        padding(.vertical, (style.lineHeight - style.size) / 2)
-            .lineSpacing((style.lineHeight - style.size) / 2)
-            .frame(minHeight: style.lineHeight)
+    @ViewBuilder
+    func lineHeight(for style: StyleGuideFont, includeLineSpacing: Bool) -> some View {
+        if includeLineSpacing {
+            padding(.vertical, (style.lineHeight - style.size) / 2)
+                .lineSpacing((style.lineHeight - style.size) / 2)
+                .frame(minHeight: style.lineHeight)
+        } else {
+            padding(.vertical, (style.lineHeight - style.size) / 2)
+                .frame(minHeight: style.lineHeight)
+        }
     }
 }
 
@@ -101,13 +110,20 @@ extension View {
 extension Text {
     /// Sets the font and line height for the text.
     ///
-    /// - Parameter style: The style of the text.
+    /// - Parameters:
+    ///   - style: The style of the text.
+    ///   - weight: The font weight. Defaults to `.regular`.
+    ///   - isItalic: If the text is Italic. Defaults to `false`.
+    ///   - includeLineSpacing: A flag to indicate if the style should change `.lineSpacing()`.
+    ///         Defaults to true.
+    ///   - monoSpacedDigit: If the text is monospaced for digits. Defaults to `false`.
     /// - Returns: The Text with adjusted line height & font.
     ///
     func styleGuide(
         _ style: StyleGuideFont,
         weight: Font.Weight = .regular,
         isItalic: Bool = false,
+        includeLineSpacing: Bool = true,
         monoSpacedDigit: Bool = false
     ) -> some View {
         var textWithFont = font(.styleGuide(style))
@@ -119,7 +135,7 @@ extension Text {
             textWithFont = textWithFont.monospacedDigit()
         }
         return textWithFont
-            .lineHeight(for: style)
+            .lineHeight(for: style, includeLineSpacing: includeLineSpacing)
     }
 }
 
