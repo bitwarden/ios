@@ -42,7 +42,7 @@ extension ViewItemState {
     ///
     init?(cipherView: CipherView) {
         switch cipherView.type {
-        case .login:
+        case .login, .secureNote:
             guard let cipherItemState = CipherItemState(existing: cipherView) else { return nil }
             self.init(loadingState: .data(cipherItemState))
         default:

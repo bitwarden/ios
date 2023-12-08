@@ -26,6 +26,9 @@ struct CipherItemState: Equatable {
     enum ItemTypeState: Equatable {
         /// A login item's representative state.
         case login(ViewLoginItemState)
+
+        /// A secure note item's representative state.
+        case secureNote(ViewLoginItemState)
     }
 
     // MARK: Properties

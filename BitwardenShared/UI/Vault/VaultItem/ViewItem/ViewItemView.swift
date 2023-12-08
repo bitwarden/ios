@@ -65,7 +65,7 @@ struct ViewItemView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
                 switch state {
-                case let .login(loginState):
+                case let .login(loginState), let .secureNote(loginState):
                     ViewLoginItemView(store: store.child(
                         state: { _ in loginState },
                         mapAction: { $0 },
