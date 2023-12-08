@@ -438,8 +438,9 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
-    /// `passwordState.passwordGeneratorRequest` returns the password generator request.
-    func test_passwordState_passwordGeneratorRequest() {
+    /// `passwordState.passwordGeneratorRequest` returns the password generator request for the
+    /// default settings.
+    func test_passwordState_passwordGeneratorRequest_default() {
         var subject = GeneratorState().passwordState
 
         XCTAssertEqual(
@@ -451,13 +452,18 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 special: false,
                 length: 14,
                 avoidAmbiguous: false,
-                minLowercase: nil,
-                minUppercase: nil,
-                minNumber: nil,
+                minLowercase: 1,
+                minUppercase: 1,
+                minNumber: 1,
                 minSpecial: nil
             )
         )
+    }
 
+    /// `passwordState.passwordGeneratorRequest` returns the password generator request for a
+    /// password with just special characters.
+    func test_passwordState_passwordGeneratorRequest_justSpecial() {
+        var subject = GeneratorState().passwordState
         subject.containsLowercase = false
         subject.containsUppercase = false
         subject.containsNumbers = false
@@ -477,7 +483,32 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 minLowercase: nil,
                 minUppercase: nil,
                 minNumber: nil,
-                minSpecial: nil
+                minSpecial: 1
+            )
+        )
+    }
+
+    /// `passwordState.passwordGeneratorRequest` returns the password generator request for a
+    /// password custom minimum number and minimum special counts.
+    func test_passwordState_passwordGeneratorRequest_minNumberMinSpecial() {
+        var subject = GeneratorState().passwordState
+        subject.containsSpecial = true
+        subject.minimumNumber = 2
+        subject.minimumSpecial = 3
+
+        XCTAssertEqual(
+            subject.passwordGeneratorRequest,
+            PasswordGeneratorRequest(
+                lowercase: true,
+                uppercase: true,
+                numbers: true,
+                special: true,
+                length: 14,
+                avoidAmbiguous: false,
+                minLowercase: 1,
+                minUppercase: 1,
+                minNumber: 2,
+                minSpecial: 3
             )
         )
     }
