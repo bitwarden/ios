@@ -7,7 +7,6 @@ typealias Services = HasAccountAPIService
     & HasAppSettingsStore
     & HasAuthAPIService
     & HasAuthRepository
-    & HasBaseUrlService
     & HasBiometricsService
     & HasCaptchaService
     & HasCameraAuthorizationService
@@ -64,13 +63,6 @@ protocol HasAuthAPIService {
 protocol HasAuthRepository {
     /// The repository used by the application to manage auth data for the UI layer.
     var authRepository: AuthRepository { get }
-}
-
-/// Protocol for an object that provides a `BaseUrlService`.
-///
-protocol HasBaseUrlService {
-    /// The service used by the application to retrieve the current base url for API requests.
-    var baseUrlService: BaseUrlService { get }
 }
 
 /// Protocol for obtaining the device's biometric authentication type.
