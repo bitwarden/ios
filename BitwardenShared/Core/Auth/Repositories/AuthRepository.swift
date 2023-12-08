@@ -111,14 +111,6 @@ extension DefaultAuthRepository: AuthRepository {
 
     func setActiveAccount(userId: String) async throws -> Account {
         try await stateService.setActiveAccount(userId: userId)
-        _ = try await stateService.getAccounts()
-            .compactMap { account in
-                let id = account.profile.userId
-                return (id != userId) ? id : nil
-            }
-            .asyncMap { id in
-                await vaultTimeoutService.lockVault(userId: id)
-            }
         return try await stateService.getActiveAccount()
     }
 
