@@ -14,7 +14,7 @@ struct CipherItemState: Equatable {
         case add
         /// A case to view or edit an existing cipher.
         case existing(cipherView: CipherView)
-        
+
         /// The existing `CipherView` if the configuration is `existing`.
         var existingCipherView: CipherView? {
             guard case let .existing(cipherView) = self else { return nil }
@@ -176,18 +176,11 @@ extension CipherItemState {
             key: nil,
             name: name,
             notes: notes.nilIfEmpty,
-            type: BitwardenSdk.CipherType(.login),
-            login: BitwardenSdk.LoginView(
-                username: loginState.username.nilIfEmpty,
-                password: loginState.password.nilIfEmpty,
-                passwordRevisionDate: nil,
-                uris: loginState.uris.compactMap(\.loginUriView).nilIfEmpty,
-                totp: nil,
-                autofillOnPageLoad: nil
-            ),
+            type: BitwardenSdk.CipherType(type),
+            login: type == .login ? loginState.loginView : nil,
             identity: nil,
             card: nil,
-            secureNote: nil,
+            secureNote: type == .secureNote ? .init(type: .generic) : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,

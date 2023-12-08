@@ -21,6 +21,18 @@ struct LoginItemState: Equatable {
 
     /// The username for this item.
     var username: String = ""
+
+    /// BitwardenSDK loginView representation of loginItemState.
+    var loginView: BitwardenSdk.LoginView {
+        BitwardenSdk.LoginView(
+            username: username.nilIfEmpty,
+            password: password.nilIfEmpty,
+            passwordRevisionDate: passwordUpdatedDate,
+            uris: nil,
+            totp: nil,
+            autofillOnPageLoad: nil
+        )
+    }
 }
 
 extension LoginItemState {
