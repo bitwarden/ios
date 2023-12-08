@@ -288,13 +288,13 @@ struct VaultListView_Previews: PreviewProvider {
     static let singleAccountState = ProfileSwitcherState(
         accounts: [account1],
         activeAccountId: account1.userId,
-        isVisible: false
+        isVisible: true
     )
 
     static let dualAccountState = ProfileSwitcherState(
         accounts: [account1, account2],
         activeAccountId: account1.userId,
-        isVisible: false
+        isVisible: true
     )
 
     static var previews: some View {
@@ -520,6 +520,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
+                            loadingState: .data([]),
                             profileSwitcherState: singleAccountState
                         )
                     )
@@ -533,6 +534,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
+                            loadingState: .data([]),
                             profileSwitcherState: dualAccountState
                         )
                     )
