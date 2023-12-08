@@ -28,7 +28,7 @@ struct SettingsListItem<Content: View>: View {
             VStack(spacing: 0) {
                 HStack {
                     Text(name)
-                        .font(.styleGuide(.body))
+                        .styleGuide(.body)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                         .multilineTextAlignment(.leading)
                         .padding(.vertical, 19)
@@ -36,7 +36,7 @@ struct SettingsListItem<Content: View>: View {
                     Spacer()
 
                     trailingContent()
-                        .font(.styleGuide(.body))
+                        .styleGuide(.body)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                         .multilineTextAlignment(.trailing)
                 }

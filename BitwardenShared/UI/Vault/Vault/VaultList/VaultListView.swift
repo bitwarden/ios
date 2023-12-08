@@ -53,7 +53,7 @@ private struct VaultMainView: View {
 
                     Text(Localizations.noItems)
                         .multilineTextAlignment(.center)
-                        .font(.styleGuide(.callout))
+                        .styleGuide(.callout)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                     Button(Localizations.addAnItem) {
@@ -99,7 +99,7 @@ private struct VaultMainView: View {
 
                         Text(Localizations.thereAreNoItemsThatMatchTheSearch)
                             .multilineTextAlignment(.center)
-                            .font(.styleGuide(.callout))
+                            .styleGuide(.callout)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     }
                     .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
@@ -173,12 +173,10 @@ private struct VaultMainView: View {
     private func vaultItemSectionView(title: String, items: [VaultListItem]) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .firstTextBaseline) {
-                Text(title.uppercased())
+                SectionHeaderView(title)
                 Spacer()
-                Text("\(items.count)")
+                SectionHeaderView("\(items.count)")
             }
-            .font(.footnote)
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(items) { item in
@@ -290,13 +288,13 @@ struct VaultListView_Previews: PreviewProvider {
     static let singleAccountState = ProfileSwitcherState(
         accounts: [account1],
         activeAccountId: account1.userId,
-        isVisible: false
+        isVisible: true
     )
 
     static let dualAccountState = ProfileSwitcherState(
         accounts: [account1, account2],
         activeAccountId: account1.userId,
-        isVisible: false
+        isVisible: true
     )
 
     static var previews: some View {
@@ -522,6 +520,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
+                            loadingState: .data([]),
                             profileSwitcherState: singleAccountState
                         )
                     )
@@ -535,6 +534,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
+                            loadingState: .data([]),
                             profileSwitcherState: dualAccountState
                         )
                     )

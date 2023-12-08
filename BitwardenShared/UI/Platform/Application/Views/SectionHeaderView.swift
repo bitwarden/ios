@@ -14,8 +14,8 @@ struct SectionHeaderView: View {
 
     var body: some View {
         Text(title)
+            .styleGuide(.footnote)
             .accessibilityAddTraits(.isHeader)
-            .font(.styleGuide(.footnote))
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .textCase(.uppercase)
     }

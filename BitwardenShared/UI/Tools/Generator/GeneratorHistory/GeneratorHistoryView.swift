@@ -88,7 +88,7 @@ struct GeneratorHistoryView: View {
                 PasswordText(password: passwordHistory.password, isPasswordVisible: true)
 
                 FormattedDateTimeView(date: passwordHistory.lastUsedDate)
-                    .font(.styleGuide(.subheadline))
+                    .styleGuide(.subheadline)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
             .padding(.vertical, 10)

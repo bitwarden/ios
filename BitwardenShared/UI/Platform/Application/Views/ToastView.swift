@@ -28,8 +28,7 @@ struct ToastView: View {
     var body: some View {
         if let toast {
             Text(toast.text)
-                .font(.styleGuide(.subheadline))
-                .fontWeight(.semibold)
+                .styleGuide(.subheadline, weight: .semibold)
                 .multilineTextAlignment(.center)
                 .dynamicTypeSize(...DynamicTypeSize.accessibility2)
                 .id(toast.id)

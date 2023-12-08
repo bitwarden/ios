@@ -104,19 +104,17 @@ struct BitwardenTextField: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            VStack(alignment: .leading, spacing: 4) {
-                textFieldTitle
+            textFieldTitle
 
-                HStack(spacing: 8) {
-                    textField
-                    textFieldButtons
-                }
+            HStack(spacing: 8) {
+                textField
+                textFieldButtons
             }
-
             if let footer {
                 Text(footer)
-                    .font(.styleGuide(.footnote))
+                    .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .padding(.top, 0)
             }
         }
     }
@@ -131,14 +129,16 @@ struct BitwardenTextField: View {
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
                 TextField(placeholder, text: $text)
-                    .font(.styleGuide(isPassword ? .bodyMonospaced : .body))
+                    .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     .hidden(!isPasswordVisible && isPassword)
                     .id(title)
                 if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
+                        .styleGuide(.bodyMonospaced, includeLineSpacing: false)
                         .id(title)
                 }
             }
+            .frame(maxWidth: .infinity, minHeight: 28)
             .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
 
             Button {
@@ -190,8 +190,7 @@ struct BitwardenTextField: View {
     @ViewBuilder private var textFieldTitle: some View {
         if let title {
             Text(title)
-                .font(.styleGuide(.subheadline))
-                .bold()
+                .styleGuide(.subheadline, weight: .semibold)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
         }
     }
