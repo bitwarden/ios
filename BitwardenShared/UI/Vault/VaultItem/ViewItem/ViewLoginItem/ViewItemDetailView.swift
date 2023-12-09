@@ -1,9 +1,9 @@
 import SwiftUI
 
-// MARK: - ViewLoginItemView
+// MARK: - ViewItemDetailsView
 
-/// A view for displaying the contents of a login item.
-struct ViewItemDetailView: View {
+/// A view for displaying the contents of a Vault item details.
+struct ViewItemDetailsView: View {
     // MARK: Private Properties
 
     @Environment(\.openURL) private var openURL

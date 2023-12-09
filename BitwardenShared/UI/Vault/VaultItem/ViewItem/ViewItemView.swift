@@ -64,7 +64,7 @@ struct ViewItemView: View {
     private func details(for state: ViewVaultItemState) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
-                ViewItemDetailView(
+                ViewItemDetailsView(
                     store: store.child(
                         state: { _ in state },
                         mapAction: { $0 },

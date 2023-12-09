@@ -1,7 +1,7 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: - ViewLoginItemState
+// MARK: - ViewVaultItemState
 
 /// The state for viewing a login item.
 struct ViewVaultItemState: Equatable {
