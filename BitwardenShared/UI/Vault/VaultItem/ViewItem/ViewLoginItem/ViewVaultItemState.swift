@@ -4,7 +4,7 @@ import Foundation
 // MARK: - ViewLoginItemState
 
 /// The state for viewing a login item.
-struct ViewLoginItemState: Equatable {
+struct ViewVaultItemState: Equatable {
     // MARK: Properties
 
     /// The Cipher underpinning the state
@@ -17,7 +17,7 @@ struct ViewLoginItemState: Equatable {
     var isMasterPasswordRePromptOn: Bool
 
     /// The login item state.
-    var loginState: LoginItemState
+    var loginState: LoginItemState?
 
     /// The name of this item.
     var name: String

@@ -61,17 +61,16 @@ struct ViewItemView: View {
     /// the different types of items into one variable, so that the edit button can be
     /// added to all of them at once.
     @ViewBuilder
-    private func details(for state: CipherItemState.ItemTypeState) -> some View {
+    private func details(for state: ViewVaultItemState) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
-                switch state {
-                case let .login(loginState), let .secureNote(loginState):
-                    ViewLoginItemView(store: store.child(
-                        state: { _ in loginState },
+                ViewItemDetailView(
+                    store: store.child(
+                        state: { _ in state },
                         mapAction: { $0 },
                         mapEffect: { $0 }
-                    ))
-                }
+                    )
+                )
             }
             .padding(16)
         }
@@ -82,6 +81,126 @@ struct ViewItemView: View {
                 }
             }
         }
+    }
+}
+
+struct ViewItemDetailView: View {
+    /// The `Store` for this view.
+    @ObservedObject var store: Store<ViewVaultItemState, ViewItemAction, ViewItemEffect>
+
+    var body: some View {
+        itemInformationSection
+
+        if !store.state.notes.isEmpty {
+            notesSection
+        }
+
+        if !store.state.customFields.isEmpty {
+            customFieldsSection
+        }
+
+        updatedDate
+    }
+
+    var itemInformationSection: some View {
+        SectionView(Localizations.itemInformation, contentSpacing: 12) {
+            BitwardenTextValueField(title: Localizations.name, value: store.state.name)
+
+            if store.state.type == .login, let loginState = store.state.loginState {
+                ViewLoginItemView(
+                    store: store.child(
+                        state: { _ in loginState },
+                        mapAction: { $0 },
+                        mapEffect: { $0 }
+                    )
+                )
+            }
+        }
+    }
+
+    var notesSection: some View {
+        SectionView(Localizations.notes) {
+            BitwardenTextValueField(value: store.state.notes)
+        }
+    }
+
+    var customFieldsSection: some View {
+        SectionView(Localizations.customFields) {
+            ForEach(store.state.customFields, id: \.self) { customField in
+                BitwardenField(title: customField.name) {
+                    switch customField.type {
+                    case .boolean:
+                        let image = customField.booleanValue
+                            ? Asset.Images.checkSquare.swiftUIImage
+                            : Asset.Images.square.swiftUIImage
+                        image
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    case .hidden:
+                        if let value = customField.value {
+                            PasswordText(
+                                password: value,
+                                isPasswordVisible: customField.isPasswordVisible
+                            )
+                        }
+                    case .text:
+                        if let value = customField.value {
+                            Text(value)
+                        }
+                    case .linked:
+                        if let linkedIdType = customField.linkedIdType {
+                            HStack(spacing: 8) {
+                                Asset.Images.link.swiftUIImage
+                                    .resizable()
+                                    .frame(width: 16, height: 16)
+                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                Text(linkedIdType.localizedName)
+                            }
+                        }
+                    }
+                } accessoryContent: {
+                    if let value = customField.value {
+                        switch customField.type {
+                        case .hidden:
+                            PasswordVisibilityButton(isPasswordVisible: customField.isPasswordVisible) {
+                                store.send(.customFieldVisibilityPressed(customField))
+                            }
+                            Button {
+                                store.send(.copyPressed(value: value))
+                            } label: {
+                                Asset.Images.copy.swiftUIImage
+                                    .resizable()
+                                    .frame(width: 16, height: 16)
+                            }
+                        case .text:
+                            Button {
+                                store.send(.copyPressed(value: value))
+                            } label: {
+                                Asset.Images.copy.swiftUIImage
+                                    .resizable()
+                                    .frame(width: 16, height: 16)
+                            }
+                        case .boolean, .linked:
+                            EmptyView()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    var updatedDate: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            FormattedDateTimeView(label: Localizations.dateUpdated, date: store.state.updatedDate)
+
+            //            passwordUpdatedDate()
+
+            // TODO: BIT-1186 Display the password history button here
+        }
+        .font(.subheadline)
+        .multilineTextAlignment(.leading)
+        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
     }
 }
 

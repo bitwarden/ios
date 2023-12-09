@@ -22,15 +22,6 @@ struct CipherItemState: Equatable {
         }
     }
 
-    /// An enumeration of the possible values of this state.
-    enum ItemTypeState: Equatable {
-        /// A login item's representative state.
-        case login(ViewLoginItemState)
-
-        /// A secure note item's representative state.
-        case secureNote(ViewLoginItemState)
-    }
-
     // MARK: Properties
 
     /// The Add or Existing Configuration.
@@ -69,13 +60,13 @@ struct CipherItemState: Equatable {
     // MARK: DerivedProperties
 
     /// The view state of the item.
-    var viewState: ItemTypeState? {
+    var viewState: ViewVaultItemState? {
         guard let cipherView = configuration.existingCipherView else {
             return nil
         }
         switch type {
         case .login:
-            let viewLoginState = ViewLoginItemState(
+            let viewLoginState = ViewVaultItemState(
                 cipher: cipherView,
                 customFields: customFields,
                 isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
@@ -84,9 +75,18 @@ struct CipherItemState: Equatable {
                 notes: notes,
                 updatedDate: updatedDate
             )
-            return .login(viewLoginState)
+            return viewLoginState
         case .secureNote:
-            return nil
+            let viewSecureNoteState = ViewVaultItemState(
+                cipher: cipherView,
+                customFields: customFields,
+                isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
+                loginState: nil,
+                name: name,
+                notes: notes,
+                updatedDate: updatedDate
+            )
+            return viewSecureNoteState
         case .card:
             return nil
         case .identity:
