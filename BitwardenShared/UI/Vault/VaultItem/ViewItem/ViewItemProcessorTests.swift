@@ -124,7 +124,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
         subject.receive(.customFieldVisibilityPressed(customField2))
         let newLoadingState = try XCTUnwrap(subject.state.loadingState.wrappedData)
         guard let loadingState = newLoadingState.viewState,
-              case let CipherItemState.ItemTypeState.login(alteredState) = loadingState else {
+              case let alteredState: ViewVaultItemState = loadingState else {
             XCTFail("ViewItemState has incorrect value: \(newLoadingState)")
             return
         }
