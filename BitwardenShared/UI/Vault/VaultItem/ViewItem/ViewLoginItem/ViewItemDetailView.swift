@@ -28,11 +28,13 @@ struct ViewItemDetailsView: View {
 
         updatedDate
     }
-
+    
+    /// The item information section.
     var itemInformationSection: some View {
         SectionView(Localizations.itemInformation, contentSpacing: 12) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
-
+            
+            // check for login type and add user name and password views.
             if store.state.type == .login, let loginState = store.state.loginState {
                 if !loginState.username.isEmpty {
                     let username = loginState.username
@@ -89,7 +91,7 @@ struct ViewItemDetailsView: View {
         }
     }
 
-    /// The URIs section.
+    /// The URIs section (login only).
     @ViewBuilder var uriSection: some View {
         if store.state.type == .login, let loginState = store.state.loginState, !loginState.uris.isEmpty {
             SectionView(Localizations.urIs) {
