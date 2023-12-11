@@ -8,6 +8,12 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     /// The (optional) title of the field.
     var title: String?
 
+    /// The (optional) footer to display underneath the field.
+    var footer: String?
+
+    /// The vertical padding to apply around `content`. Defaults to `8`.
+    var verticalPadding: CGFloat
+
     /// The content that should be displayed in the field.
     var content: Content
 
@@ -27,7 +33,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
                 content
                     .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, verticalPadding)
                     .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
@@ -35,6 +41,12 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
                     accessoryContent
                         .buttonStyle(.accessory)
                 }
+            }
+
+            if let footer {
+                Text(footer)
+                    .styleGuide(.footnote)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
         }
     }
@@ -45,16 +57,22 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     ///
     /// - Parameters:
     ///   - title: The (optional) title of the field.
+    ///   - footer: The (optional) footer to display underneath the field.
+    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///   - accessoryContent: Any accessory content that should be displayed on the trailing edge of
     ///     the field. This content automatically has the `AccessoryButtonStyle` applied to it.
     ///
     init(
         title: String? = nil,
+        footer: String? = nil,
+        verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content,
         @ViewBuilder accessoryContent: () -> AccessoryContent
     ) {
         self.title = title
+        self.footer = footer
+        self.verticalPadding = verticalPadding
         self.content = content()
         self.accessoryContent = accessoryContent()
     }
@@ -65,13 +83,19 @@ extension BitwardenField where AccessoryContent == EmptyView {
     ///
     /// - Parameters:
     ///   - title: The (optional) title of the field.
+    ///   - footer: The (optional) footer to display underneath the field.
+    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///
     init(
         title: String? = nil,
+        footer: String? = nil,
+        verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
+        self.footer = footer
+        self.verticalPadding = verticalPadding
         self.content = content()
         accessoryContent = nil
     }

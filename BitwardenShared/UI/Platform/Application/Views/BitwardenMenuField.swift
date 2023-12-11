@@ -31,20 +31,17 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     /// The title of the menu field.
     let title: String?
 
-    /// Optional content view that is displayed to the right of the menu value.
-    let trailingContent: TrailingContent
+    /// Optional content view that is displayed on the trailing edge of the menu value.
+    let trailingContent: TrailingContent?
 
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            menuFieldTitle
+        BitwardenField(title: title, footer: footer) {
             menu
-
-            if let footer {
-                Text(footer)
-                    .styleGuide(.footnote)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+        } accessoryContent: {
+            if let trailingContent {
+                trailingContent
             }
         }
     }
@@ -53,41 +50,23 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
 
     /// The menu that displays the list of options.
     private var menu: some View {
-        HStack(spacing: 8) {
-            Menu {
-                Picker(selection: $selection) {
-                    ForEach(options, id: \.hashValue) { option in
-                        Text(option.localizedName).tag(option)
-                    }
-                } label: {
-                    Text("")
+        Menu {
+            Picker(selection: $selection) {
+                ForEach(options, id: \.hashValue) { option in
+                    Text(option.localizedName).tag(option)
                 }
             } label: {
-                HStack {
-                    Text(selection.localizedName)
-                    Spacer()
-                }
-                .contentShape(Rectangle())
+                Text("")
             }
-            .styleGuide(.body)
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            .id(title)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-
-            trailingContent
+        } label: {
+            HStack {
+                Text(selection.localizedName)
+                Spacer()
+            }
+            .contentShape(Rectangle())
         }
-    }
-
-    /// The title of the menu field.
-    @ViewBuilder private var menuFieldTitle: some View {
-        if let title {
-            Text(title)
-                .styleGuide(.subheadline, weight: .semibold)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-        }
+        .styleGuide(.body)
+        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
     }
 
     // MARK: Initialization
@@ -110,7 +89,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
         self.options = options
         _selection = selection
         self.title = title
-        trailingContent = EmptyView()
+        trailingContent = nil
     }
 
     /// Initializes a new `BitwardenMenuField`.

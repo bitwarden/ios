@@ -61,8 +61,8 @@ class LandingViewTests: BitwardenTestCase {
 
     /// Updating the text field dispatches the `.emailChanged()` action.
     func test_emailAddressTextField_updateValue() throws {
-        let textField = try subject.inspect().find(BitwardenTextField.self)
-        try textField.actualView().$text.wrappedValue = "text"
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.emailAddress)
+        try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .emailChanged("text"))
     }
 

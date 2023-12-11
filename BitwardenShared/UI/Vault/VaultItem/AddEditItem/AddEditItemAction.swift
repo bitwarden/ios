@@ -52,8 +52,11 @@ enum AddEditItemAction: Equatable {
     /// The uri field was changed.
     case uriChanged(String, index: Int)
 
-    /// The uri settings button was pressed.
-    case uriSettingsPressed
+    /// The uri field's match type was changed.
+    case uriTypeChanged(DefaultableType<UriMatchType>, index: Int)
+
+    /// The remove uri button was pressed.
+    case removeUriPressed(index: Int)
 
     /// The username field was changed.
     case usernameChanged(String)
