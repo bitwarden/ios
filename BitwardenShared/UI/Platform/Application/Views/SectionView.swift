@@ -43,7 +43,7 @@ struct SectionView<Content: View>: View {
     ///
     init(
         _ title: String,
-        titleSpacing: CGFloat = 16,
+        titleSpacing: CGFloat = 8,
         contentSpacing: CGFloat = 16,
         @ViewBuilder content: () -> Content
     ) {

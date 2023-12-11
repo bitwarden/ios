@@ -11,7 +11,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     /// The (optional) footer to display underneath the field.
     var footer: String?
 
-    /// The vertical padding to apply around `content`. Defaults to `12`.
+    /// The vertical padding to apply around `content`. Defaults to `8`.
     var verticalPadding: CGFloat
 
     /// The content that should be displayed in the field.
@@ -23,32 +23,29 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            VStack(alignment: .leading, spacing: 4) {
-                if let title {
-                    Text(title)
-                        .font(.styleGuide(.subheadline))
-                        .bold()
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                }
+            if let title {
+                Text(title)
+                    .styleGuide(.subheadline, weight: .semibold)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            }
 
-                HStack(spacing: 8) {
-                    content
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, verticalPadding)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+            HStack(spacing: 8) {
+                content
+                    .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, verticalPadding)
+                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                    if let accessoryContent {
-                        accessoryContent
-                            .buttonStyle(.accessory)
-                    }
+                if let accessoryContent {
+                    accessoryContent
+                        .buttonStyle(.accessory)
                 }
             }
 
             if let footer {
                 Text(footer)
-                    .font(.styleGuide(.footnote))
+                    .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
         }
@@ -61,7 +58,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     /// - Parameters:
     ///   - title: The (optional) title of the field.
     ///   - footer: The (optional) footer to display underneath the field.
-    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `12`.
+    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///   - accessoryContent: Any accessory content that should be displayed on the trailing edge of
     ///     the field. This content automatically has the `AccessoryButtonStyle` applied to it.
@@ -69,7 +66,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     init(
         title: String? = nil,
         footer: String? = nil,
-        verticalPadding: CGFloat = 12,
+        verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content,
         @ViewBuilder accessoryContent: () -> AccessoryContent
     ) {
@@ -87,13 +84,13 @@ extension BitwardenField where AccessoryContent == EmptyView {
     /// - Parameters:
     ///   - title: The (optional) title of the field.
     ///   - footer: The (optional) footer to display underneath the field.
-    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `12`.
+    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///
     init(
         title: String? = nil,
         footer: String? = nil,
-        verticalPadding: CGFloat = 12,
+        verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title

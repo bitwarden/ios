@@ -19,7 +19,7 @@ struct ViewLoginItemView: View {
 
     /// The view item properties.
     @ViewBuilder var viewItemProperties: some View {
-        SectionView(Localizations.itemInformation, titleSpacing: 15, contentSpacing: 12) {
+        SectionView(Localizations.itemInformation, contentSpacing: 12) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
 
             if !store.state.loginState.username.isEmpty {
@@ -40,7 +40,7 @@ struct ViewLoginItemView: View {
                 let password = store.state.loginState.password
                 BitwardenField(title: Localizations.password) {
                     PasswordText(password: password, isPasswordVisible: store.state.loginState.isPasswordVisible)
-                        .font(.styleGuide(.body))
+                        .styleGuide(.body)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 } accessoryContent: {
                     PasswordVisibilityButton(isPasswordVisible: store.state.loginState.isPasswordVisible) {
@@ -70,13 +70,13 @@ struct ViewLoginItemView: View {
             // TODO: BIT-1120 Add full support for TOTP display
             BitwardenField(title: Localizations.verificationCodeTotp) {
                 Text(Localizations.premiumSubscriptionRequired)
-                    .font(.styleGuide(.footnote))
+                    .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
         }
 
         if !store.state.loginState.uris.isEmpty {
-            SectionView(Localizations.urIs, titleSpacing: 15, contentSpacing: 12) {
+            SectionView(Localizations.urIs) {
                 ForEach(store.state.loginState.uris, id: \.self) { uri in
                     BitwardenTextValueField(title: Localizations.uri, value: uri.uri) {
                         Button {
@@ -106,13 +106,13 @@ struct ViewLoginItemView: View {
 
         if !store.state.notes.isEmpty {
             let notes = store.state.notes
-            SectionView(Localizations.notes, titleSpacing: 15, contentSpacing: 12) {
+            SectionView(Localizations.notes) {
                 BitwardenTextValueField(value: notes)
             }
         }
 
         if !store.state.customFields.isEmpty {
-            SectionView(Localizations.customFields, titleSpacing: 15, contentSpacing: 12) {
+            SectionView(Localizations.customFields) {
                 ForEach(store.state.customFields, id: \.self) { customField in
                     BitwardenField(title: customField.name) {
                         switch customField.type {

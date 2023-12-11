@@ -38,7 +38,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
     var body: some View {
         let isTrailingContentShown = isPasswordVisible != nil || trailingContent != nil
         if isTrailingContentShown {
-            BitwardenField(title: title, footer: footer, verticalPadding: 8) {
+            BitwardenField(title: title, footer: footer) {
                 textField
             } accessoryContent: {
                 if let isPasswordVisible {
@@ -62,7 +62,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
                 }
             }
         } else {
-            BitwardenField(title: title, footer: footer, verticalPadding: 8) {
+            BitwardenField(title: title, footer: footer) {
                 textField
             }
         }
@@ -78,14 +78,16 @@ struct BitwardenTextField<TrailingContent: View>: View {
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
                 TextField(placeholder, text: $text)
-                    .font(.styleGuide(isPassword ? .bodyMonospaced : .body))
+                    .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     .hidden(!isPasswordVisible && isPassword)
                     .id(title)
                 if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
+                        .styleGuide(.bodyMonospaced, includeLineSpacing: false)
                         .id(title)
                 }
             }
+            .frame(maxWidth: .infinity, minHeight: 28)
             .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
 
             Button {

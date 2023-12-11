@@ -37,7 +37,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     // MARK: View
 
     var body: some View {
-        BitwardenField(title: title, footer: footer, verticalPadding: 10) {
+        BitwardenField(title: title, footer: footer) {
             menu
         } accessoryContent: {
             if let trailingContent {
@@ -65,7 +65,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
             }
             .contentShape(Rectangle())
         }
-        .font(.styleGuide(.body))
+        .styleGuide(.body)
         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
     }
 
