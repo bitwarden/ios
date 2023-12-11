@@ -177,7 +177,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is NavigationView<ScanCodeView>)
+        assertCanFindViewType(ScanCodeView.self, in: action.view)
     }
 
     /// `navigate(to:)` with `.setupTotpCamera` fails without an AVCaptureSession.

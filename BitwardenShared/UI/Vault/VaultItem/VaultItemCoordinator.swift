@@ -120,7 +120,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             cameraSession: session,
             store: store
         )
-        let navWrapped = NavigationView { view }
+        let navWrapped = view.navStackWrapped
+
         stackNavigator.present(navWrapped, animated: true, overFullscreen: true)
     }
 
@@ -168,5 +169,16 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         let store = Store(processor: processor)
         let view = ViewItemView(store: store)
         stackNavigator.replace(view)
+    }
+}
+
+extension View {
+    @ViewBuilder var navStackWrapped: some View {
+        if #available(iOSApplicationExtension 16.0, *) {
+            NavigationStack { self }
+        } else {
+            NavigationView { self }
+                .navigationViewStyle(.stack)
+        }
     }
 }

@@ -145,6 +145,7 @@ struct ScanCodeView_Previews: PreviewProvider {
                 )
             )
         }
+        .navigationViewStyle(.stack)
         .previewDisplayName("Scan Code View")
     }
 }
