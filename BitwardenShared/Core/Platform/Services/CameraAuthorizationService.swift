@@ -11,6 +11,12 @@ protocol CameraAuthorizationService: AnyObject {
     ///
     func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus
 
+    /// Checks if the device has camera capabilities.
+    ///
+    /// - Returns: A flag indicating if the device has a camera or not.
+    ///
+    func deviceSupportsCamera() -> Bool
+
     /// Gets an `AVCaptureSession` to use for the app to scan QR codes.
     ///
     ///  - Returns: An optional AVCaptureSession: non-nil if authorized.
@@ -46,6 +52,31 @@ class DefaultCameraAuthorizationService: CameraAuthorizationService {
             return await requestCameraAuthorization()
         }
         return status
+    }
+
+    func deviceSupportsCamera() -> Bool {
+        var acceptedDevices: [AVCaptureDevice.DeviceType] = [
+            .builtInDualCamera,
+            .builtInDualWideCamera,
+            .builtInTripleCamera,
+            .builtInTrueDepthCamera,
+            .builtInWideAngleCamera,
+            .builtInTelephotoCamera,
+            .builtInUltraWideCamera,
+        ]
+        if #available(iOSApplicationExtension 15.4, *) {
+            acceptedDevices.append(.builtInLiDARDepthCamera)
+        }
+        if #available(iOSApplicationExtension 17.0, *) {
+            acceptedDevices.append(.continuityCamera)
+        }
+        let videoDevices = AVCaptureDevice.DiscoverySession(
+            deviceTypes: acceptedDevices,
+            mediaType: .video,
+            position: .unspecified
+        ).devices
+
+        return !videoDevices.isEmpty
     }
 
     func getCameraSession() -> AVCaptureSession? {

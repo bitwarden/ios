@@ -1,4 +1,3 @@
-import AVFoundation
 import SwiftUI
 
 // MARK: - ScanCodeProcessor
@@ -58,6 +57,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     }
 
     private func setupCamera() {
+        guard services.cameraAuthorizationService.deviceSupportsCamera() else { return }
         do {
             try services.cameraAuthorizationService.startCameraSession()
         } catch {

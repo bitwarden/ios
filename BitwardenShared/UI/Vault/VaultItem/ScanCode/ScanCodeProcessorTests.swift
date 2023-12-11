@@ -54,6 +54,13 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
         XCTAssertTrue(cameraAuthorizationService.didStart)
     }
 
+    /// `perform()` with `.appeared` sets up the camera.
+    func test_perform_appeared_noCamera() async {
+        cameraAuthorizationService.deviceHasCamera = false
+        await subject.perform(.appeared)
+        XCTAssertFalse(cameraAuthorizationService.didStart)
+    }
+
     /// `perform()` with `.disappeared` stops the camera.
     func test_perform_disappeared_success() async {
         await subject.perform(.disappeared)
