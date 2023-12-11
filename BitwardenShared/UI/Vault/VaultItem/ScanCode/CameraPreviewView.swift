@@ -32,6 +32,9 @@ public struct CameraPreviewView {
             setupOrientationObserver()
         }
 
+        /// Configures observation of device orientation changes.
+        ///     Changes trigger a call to `handleOrientationChange`.
+        ///
         private func setupOrientationObserver() {
             NotificationCenter.default.addObserver(
                 self,
@@ -41,11 +44,17 @@ public struct CameraPreviewView {
             )
         }
 
+        /// An `@objc` function to pass observations from `setupOrientationObserver`
+        ///   to `adjustVideoOrientation`.
+        ///
         @objc
         private func handleOrientationChange() {
             adjustVideoOrientation()
         }
 
+        /// Adjusts the orientation of the video preview layer based on device orientation changes.
+        ///     Currently supports `.landscapeLeft`, `.landscapeRight`, & `.portrait`
+        ///
         private func adjustVideoOrientation() {
             DispatchQueue.main.async {
                 switch UIDevice.current.orientation {
@@ -67,6 +76,7 @@ public struct CameraPreviewView {
     }
 
     /// The `AVCaptureSession` backing the view.
+    ///
     public let session: AVCaptureSession
 
     /// Create a new VideoPreviewView.
