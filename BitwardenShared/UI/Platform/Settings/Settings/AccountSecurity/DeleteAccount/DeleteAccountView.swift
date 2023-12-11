@@ -32,7 +32,6 @@ struct DeleteAccountView: View {
                 AsyncButton(Localizations.deleteAccount) {
                     await store.perform(.deleteAccount)
                 }
-                .accessibilityLabel(Localizations.deleteAccount)
                 .buttonStyle(.primary(isDestructive: true))
 
                 Button {

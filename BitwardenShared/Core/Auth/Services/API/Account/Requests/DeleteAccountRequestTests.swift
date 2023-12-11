@@ -34,6 +34,18 @@ class DeleteAccountRequestTests: BitwardenTestCase {
         XCTAssertEqual(subject.path, "/accounts")
     }
 
+    /// `validate(_:)` with a `399` status code does not throw an error.
+    func test_validate_with399() throws {
+        let response = HTTPResponse.failure(
+            statusCode: 399,
+            body: APITestData.deleteAccountRequestFailure.data
+        )
+
+        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
+
+        XCTAssertNoThrow(try subject.validate(response))
+    }
+
     /// `validate(_:)` with a `400` status code throws a `.validate` error.
     func test_validate_with400() throws {
         let response = HTTPResponse.failure(
@@ -46,5 +58,31 @@ class DeleteAccountRequestTests: BitwardenTestCase {
         XCTAssertThrowsError(try subject.validate(response)) { error in
             XCTAssertEqual(error as? DeleteAccountRequestError, .serverError(errorResponse))
         }
+    }
+
+    /// `validate(_:)` with a `499` status code throws a `.validate` error.
+    func test_validate_with499() throws {
+        let response = HTTPResponse.failure(
+            statusCode: 499,
+            body: APITestData.deleteAccountRequestFailure.data
+        )
+
+        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
+
+        XCTAssertThrowsError(try subject.validate(response)) { error in
+            XCTAssertEqual(error as? DeleteAccountRequestError, .serverError(errorResponse))
+        }
+    }
+
+    /// `validate(_:)` with a `500` status code does not throw an error.
+    func test_validate_with500() throws {
+        let response = HTTPResponse.failure(
+            statusCode: 500,
+            body: APITestData.deleteAccountRequestFailure.data
+        )
+
+        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
+
+        XCTAssertNoThrow(try subject.validate(response))
     }
 }

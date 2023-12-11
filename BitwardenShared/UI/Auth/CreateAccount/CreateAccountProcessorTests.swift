@@ -128,7 +128,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
             return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
         }
 
-        await alert.alertActions[1].handler?(alert.alertActions[1], [])
+        try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
@@ -356,7 +356,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
             await self.subject.perform(.createAccount)
         })
 
-        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        try await alert.tapAction(title: Localizations.tryAgain)
 
         XCTAssertEqual(
             coordinator.routes.last,
@@ -429,7 +429,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(alert.message, urlError.localizedDescription)
 
-        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        try await alert.tapAction(title: Localizations.tryAgain)
 
         XCTAssertEqual(
             coordinator.routes.last,

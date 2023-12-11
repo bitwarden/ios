@@ -12,6 +12,7 @@ final class MockStackNavigator: StackNavigator {
 
     enum NavigationType {
         case dismissed
+        case dismissedWithCompletionHandler
         case pushed
         case popped
         case poppedToRoot
@@ -32,7 +33,8 @@ final class MockStackNavigator: StackNavigator {
     }
 
     func dismiss(animated: Bool, completion: (() -> Void)?) {
-        actions.append(NavigationAction(type: .dismissed, animated: animated))
+        completion?()
+        actions.append(NavigationAction(type: .dismissedWithCompletionHandler, animated: animated))
     }
 
     func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {

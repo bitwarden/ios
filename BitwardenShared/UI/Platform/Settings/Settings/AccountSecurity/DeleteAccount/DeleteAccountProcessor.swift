@@ -8,6 +8,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     // MARK: Types
 
     typealias Services = HasAccountAPIService
+        & HasAuthRepository
         & HasClientAuth
         & HasStateService
         & HasVaultTimeoutService
@@ -57,38 +58,6 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     // MARK: Private methods
 
-    /// Makes the API call that deletes the user's account.
-    ///
-    /// - Parameter passwordText: The password entered by the user.
-    ///
-    private func deleteAccount(passwordText: String) async throws {
-        let hashedPassword = try await hashPassword(passwordText: passwordText)
-
-        _ = try await services.accountAPIService.deleteAccount(
-            body: DeleteAccountRequestModel(masterPasswordHash: hashedPassword)
-        )
-
-        try await navigatePostDeletion()
-    }
-
-    /// Creates a hash value for the user's master password.
-    ///
-    /// - Parameter passwordText: The user's entered password.
-    /// - Returns: A hash value of the password text.
-    ///
-    private func hashPassword(passwordText: String) async throws -> String {
-        let email = try await services.stateService.getActiveAccount().profile.email
-        let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
-
-        let hashedPassword = try await services.clientAuth.hashPassword(
-            email: email,
-            password: passwordText,
-            kdfParams: kdf
-        )
-
-        return hashedPassword
-    }
-
     /// Navigates to the landing screen or vault unlock screen post account deletion.
     /// If the user has another account, they're navigated to the vault unlock screen.
     /// If the user does not, they're navigated to the landing screen.
@@ -104,15 +73,19 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     ///
     private func showMasterPasswordReprompt() async {
         coordinator.navigate(to: .alert(.masterPasswordPrompt { [weak self] passwordText in
-            Task {
-                guard let self else { return }
-                guard !passwordText.isEmpty else { return }
+            guard let self else { return }
+            guard !passwordText.isEmpty else { return }
 
-                do {
-                    try await self.deleteAccount(passwordText: passwordText)
-                } catch DeleteAccountRequestError.serverError(_) {
-                    self.coordinator.navigate(to: .alert(.genericRequestError()))
-                }
+            do {
+                try await services.authRepository.deleteAccount(passwordText: passwordText)
+                try await navigatePostDeletion()
+            } catch DeleteAccountRequestError.serverError(_) {
+                coordinator.navigate(to: .alert(.networkResponseError(nil) {
+                    try? await self.services.authRepository.deleteAccount(passwordText: passwordText)
+                    try? await self.navigatePostDeletion()
+                }))
+            } catch {
+                coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
             }
         }))
     }

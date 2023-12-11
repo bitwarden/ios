@@ -78,6 +78,8 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_didDeleteAccount() throws {
         subject.navigate(to: .didDeleteAccount(otherAccounts: []))
 
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
         XCTAssertTrue(delegate.didDeleteAccountCalled)
     }
 
