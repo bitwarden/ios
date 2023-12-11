@@ -34,59 +34,20 @@ struct ViewItemDetailsView: View {
         SectionView(Localizations.itemInformation, contentSpacing: 12) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
 
-            // check for login type and add user name and password views.
-            if store.state.type == .login, let loginState = store.state.loginState {
-                if !loginState.username.isEmpty {
-                    let username = loginState.username
-                    BitwardenTextValueField(title: Localizations.username, value: username) {
-                        Button {
-                            store.send(.copyPressed(value: username))
-                        } label: {
-                            Asset.Images.copy.swiftUIImage
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                        }
-                        .accessibilityLabel(Localizations.copy)
-                    }
+            // check for type
+            switch store.state.type {
+            case .login:
+                if let loginState = store.state.loginState {
+                    ViewLoginItemView(
+                        store: store.child(
+                            state: { _ in loginState },
+                            mapAction: { $0 },
+                            mapEffect: { $0 }
+                        )
+                    )
                 }
-
-                if !loginState.password.isEmpty {
-                    let password = loginState.password
-                    BitwardenField(title: Localizations.password) {
-                        PasswordText(password: password, isPasswordVisible: loginState.isPasswordVisible)
-                            .styleGuide(.body)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    } accessoryContent: {
-                        PasswordVisibilityButton(isPasswordVisible: loginState.isPasswordVisible) {
-                            store.send(.passwordVisibilityPressed)
-                        }
-
-                        Button {
-                            store.send(.checkPasswordPressed)
-                        } label: {
-                            Asset.Images.roundCheck.swiftUIImage
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                        }
-                        .accessibilityLabel(Localizations.checkPassword)
-
-                        Button {
-                            store.send(.copyPressed(value: password))
-                        } label: {
-                            Asset.Images.copy.swiftUIImage
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                        }
-                        .accessibilityLabel(Localizations.copy)
-                    }
-                }
-
-                // TODO: BIT-1120 Add full support for TOTP display
-                BitwardenField(title: Localizations.verificationCodeTotp) {
-                    Text(Localizations.premiumSubscriptionRequired)
-                        .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                }
+            default:
+                EmptyView()
             }
         }
     }
