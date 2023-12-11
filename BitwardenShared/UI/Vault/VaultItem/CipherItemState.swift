@@ -64,34 +64,15 @@ struct CipherItemState: Equatable {
         guard let cipherView = configuration.existingCipherView else {
             return nil
         }
-        switch type {
-        case .login:
-            let viewLoginState = ViewVaultItemState(
-                cipher: cipherView,
-                customFields: customFields,
-                isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
-                loginState: loginState,
-                name: name,
-                notes: notes,
-                updatedDate: updatedDate
-            )
-            return viewLoginState
-        case .secureNote:
-            let viewSecureNoteState = ViewVaultItemState(
-                cipher: cipherView,
-                customFields: customFields,
-                isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
-                loginState: nil,
-                name: name,
-                notes: notes,
-                updatedDate: updatedDate
-            )
-            return viewSecureNoteState
-        case .card:
-            return nil
-        case .identity:
-            return nil
-        }
+        return ViewVaultItemState(
+            cipher: cipherView,
+            customFields: customFields,
+            isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
+            loginState: loginState,
+            name: name,
+            notes: notes,
+            updatedDate: updatedDate
+        )
     }
 
     // MARK: Initialization

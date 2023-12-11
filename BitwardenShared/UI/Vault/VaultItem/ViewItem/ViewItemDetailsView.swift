@@ -37,15 +37,13 @@ struct ViewItemDetailsView: View {
             // check for type
             switch store.state.type {
             case .login:
-                if let loginState = store.state.loginState {
-                    ViewLoginItemView(
-                        store: store.child(
-                            state: { _ in loginState },
-                            mapAction: { $0 },
-                            mapEffect: { $0 }
-                        )
+                ViewLoginItemView(
+                    store: store.child(
+                        state: { _ in store.state.loginState },
+                        mapAction: { $0 },
+                        mapEffect: { $0 }
                     )
-                }
+                )
             default:
                 EmptyView()
             }
@@ -54,9 +52,9 @@ struct ViewItemDetailsView: View {
 
     /// The URIs section (login only).
     @ViewBuilder var uriSection: some View {
-        if store.state.type == .login, let loginState = store.state.loginState, !loginState.uris.isEmpty {
+        if store.state.type == .login, !store.state.loginState.uris.isEmpty {
             SectionView(Localizations.urIs) {
-                ForEach(loginState.uris, id: \.self) { uri in
+                ForEach(store.state.loginState.uris, id: \.self) { uri in
                     BitwardenTextValueField(title: Localizations.uri, value: uri.uri) {
                         Button {
                             guard let url = URL(string: uri.uri) else {
@@ -163,12 +161,12 @@ struct ViewItemDetailsView: View {
         VStack(alignment: .leading, spacing: 0) {
             FormattedDateTimeView(label: Localizations.dateUpdated, date: store.state.updatedDate)
 
-            if store.state.type == .login, let passwordUpdatedDate = store.state.loginState?.passwordUpdatedDate {
+            if store.state.type == .login, let passwordUpdatedDate = store.state.loginState.passwordUpdatedDate {
                 FormattedDateTimeView(label: Localizations.datePasswordUpdated, date: passwordUpdatedDate)
             }
             // TODO: BIT-1186 Display the password history button here
         }
-        .font(.subheadline)
+        .styleGuide(.subheadline)
         .multilineTextAlignment(.leading)
         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
     }

@@ -17,7 +17,7 @@ struct ViewVaultItemState: Equatable {
     var isMasterPasswordRePromptOn: Bool
 
     /// The login item state.
-    var loginState: LoginItemState?
+    var loginState: LoginItemState
 
     /// The name of this item.
     var name: String
