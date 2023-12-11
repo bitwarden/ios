@@ -1,3 +1,4 @@
+import SnapshotTesting
 import SwiftUI
 import XCTest
 
@@ -181,5 +182,19 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         subject.start()
 
         XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
+    /// Test a snapshot of the AddEditView previews.
+    func test_snapshot_addEditItemView_previews() {
+        for preview in AddEditItemView_Previews._allPreviews {
+            assertSnapshots(
+                matching: preview.content,
+                as: [
+                    .tallPortrait,
+                    .tallPortraitAX5(heightMultiple: 5),
+                    .defaultPortraitDark,
+                ]
+            )
+        }
     }
 }
