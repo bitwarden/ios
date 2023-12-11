@@ -316,24 +316,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.generateUsernamePressed` passes the host of the first URI to the generator.
     func test_receive_generateUsernamePressed_withURI() async throws {
         subject.state.loginState.uris = [
-            CipherLoginUriModel(
-                match: nil,
-                uri: "https://bitwarden.com"
-            ),
-            CipherLoginUriModel(
-                match: nil,
-                uri: "https://livefront.com"
-            ),
+            UriState(uri: "https://bitwarden.com"),
+            UriState(uri: "https://example.com"),
         ]
         subject.receive(.generateUsernamePressed)
         XCTAssertEqual(coordinator.routes.last, .generator(.username, emailWebsite: "bitwarden.com"))
 
-        subject.state.loginState.uris = [
-            CipherLoginUriModel(
-                match: nil,
-                uri: "bitwarden.com"
-            ),
-        ]
+        subject.state.loginState.uris = [UriState(uri: "bitwarden.com")]
         subject.receive(.generateUsernamePressed)
         XCTAssertEqual(coordinator.routes.last, .generator(.username, emailWebsite: "bitwarden.com"))
     }
@@ -469,38 +458,60 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.type, .card)
     }
 
-    /// `receive(_:)` with `.uriChanged` without a value updates the state correctly.
-    func test_receive_uriChanged_withValue() {
+    /// `receive(_:)` with `.uriChanged` with a valid index updates the state correctly.
+    func test_receive_uriChanged_withValidIndex() {
         subject.state.loginState.uris = [
-            .init(match: nil, uri: ""),
+            UriState(
+                id: "id",
+                matchType: .default,
+                uri: ""
+            ),
         ]
         subject.receive(.uriChanged("uri", index: 0))
 
-        XCTAssertEqual(
-            subject.state.loginState.uris,
-            [CipherLoginUriModel(match: nil, uri: "uri")]
-        )
+        XCTAssertEqual(subject.state.loginState.uris[0].uri, "uri")
     }
 
-    /// `receive(_:)` with `.uriChanged` without a value updates the state correctly.
-    func test_receive_uriChanged_withoutValue() {
+    /// `receive(_:)` with `.uriChanged` without a valid index does not update the state.
+    func test_receive_uriChanged_withoutValidIndex() {
         subject.state.loginState.uris = [
-            .init(match: nil, uri: "uri"),
+            UriState(
+                id: "id",
+                matchType: .default,
+                uri: "uri"
+            ),
         ]
-        subject.receive(.uriChanged("", index: 0))
+        subject.receive(.uriChanged("new value", index: 5))
 
-        XCTAssertEqual(
-            subject.state.loginState.uris,
-            [CipherLoginUriModel(match: nil, uri: "")]
-        )
+        XCTAssertEqual(subject.state.loginState.uris[0].uri, "uri")
     }
 
-    /// `receive(_:)` with `.uriSettingsPressed` navigates to the `.alert` route.
-    func test_receive_uriSettingsPressed() {
-        subject.receive(.uriSettingsPressed)
+    /// `receive(_:)` with `.uriTypeChanged` with a valid id updates the state correctly.
+    func test_receive_uriTypeChanged_withValidUriId() {
+        subject.state.loginState.uris = [
+            UriState(
+                id: "id",
+                matchType: .default,
+                uri: "uri"
+            ),
+        ]
+        subject.receive(.uriTypeChanged(.custom(.host), index: 0))
 
-        // TODO: BIT-901 Add an `.alert` assertion
-        XCTAssertNil(coordinator.routes.last)
+        XCTAssertEqual(subject.state.loginState.uris[0].matchType, .custom(.host))
+    }
+
+    /// `receive(_:)` with `.uriTypeChanged` without a valid id does not update the state.
+    func test_receive_uriTypeChanged_withoutValidUriId() {
+        subject.state.loginState.uris = [
+            UriState(
+                id: "id",
+                matchType: .default,
+                uri: "uri"
+            ),
+        ]
+        subject.receive(.uriTypeChanged(.custom(.host), index: 5))
+
+        XCTAssertEqual(subject.state.loginState.uris[0].matchType, .default)
     }
 
     /// `receive(_:)` with `.usernameChanged` without a value updates the state correctly.
