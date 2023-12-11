@@ -38,8 +38,9 @@ struct ScanCodeView: View {
     var content: some View {
         ZStack {
             CameraPreviewView(session: cameraSession)
-            overlayView
+            overlayContent
         }
+        .edgesIgnoringSafeArea(.horizontal)
     }
 
     var informationContent: some View {
@@ -66,61 +67,69 @@ struct ScanCodeView: View {
         }
     }
 
-    var overlayView: some View {
-        GeometryReader { geoProxy in
-            overlayContent(size: geoProxy.size)
+    @ViewBuilder var overlayContent: some View {
+        GeometryReader { proxy in
+            if proxy.size.width <= proxy.size.height {
+                verticalOverlay
+            } else {
+                horizontalOverlay
+            }
         }
     }
 
-    @ViewBuilder
-    func overlayContent(size: CGSize) -> some View {
-        if size.width < size.height {
-            VStack(spacing: 0.0) {
-                Spacer()
-                CornerBorderShape(cornerLength: size.width * 0.1, lineWidth: 3)
-                    .stroke(lineWidth: 3)
-                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
-                    .frame(
-                        width: size.width * 0.65,
-                        height: size.width * 0.65
-                    )
-                Spacer()
-                Rectangle()
-                    .frame(
-                        width: size.width,
-                        height: size.height / 3
-                    )
-                    .foregroundColor(.black)
-                    .opacity(0.5)
-                    .overlay {
-                        informationContent
-                            .padding(36)
-                    }
-            }
-        } else {
+    private var horizontalOverlay: some View {
+        GeometryReader { geoProxy in
+            let size = geoProxy.size
+            let orientation = UIDevice.current.orientation
+            let infoBlock = infoBlock(width: size.width / 3, height: size.height)
             HStack(spacing: 0.0) {
+                if case .landscapeRight = orientation {
+                    infoBlock
+                }
                 Spacer()
-                CornerBorderShape(cornerLength: size.height * 0.1, lineWidth: 3)
-                    .stroke(lineWidth: 3)
-                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
-                    .frame(
-                        width: size.height * 0.65,
-                        height: size.height * 0.65
-                    )
+                qrCornerGuides(length: size.height)
                 Spacer()
-                Rectangle()
-                    .frame(
-                        width: size.width / 3,
-                        height: size.height
-                    )
-                    .foregroundColor(.black)
-                    .opacity(0.5)
-                    .overlay {
-                        informationContent
-                            .padding(36)
-                    }
+                if orientation != .landscapeRight {
+                    infoBlock
+                }
             }
         }
+    }
+
+    private var verticalOverlay: some View {
+        GeometryReader { geoProxy in
+            let size = geoProxy.size
+            VStack(spacing: 0.0) {
+                Spacer()
+                qrCornerGuides(length: size.width)
+                Spacer()
+                infoBlock(width: size.width, height: size.height / 3)
+            }
+        }
+    }
+
+    private func infoBlock(width: CGFloat, height: CGFloat) -> some View {
+        Rectangle()
+            .frame(
+                width: width,
+                height: height
+            )
+            .foregroundColor(.black)
+            .opacity(0.5)
+            .overlay {
+                informationContent
+                    .padding(36)
+            }
+    }
+
+    private func qrCornerGuides(length: CGFloat) -> some View {
+        CornerBorderShape(cornerLength: length * 0.1, lineWidth: 3)
+            .stroke(lineWidth: 3)
+            .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+            .frame(
+                width: length * 0.65,
+                height: length * 0.65
+            )
     }
 }
 
