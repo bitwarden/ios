@@ -164,6 +164,8 @@ class DefaultVaultRepository {
             .decryptList(folders: response.folders.map(Folder.init))
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
+        guard !ciphers.isEmpty else { return [] }
+
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
 
         let ciphersFavorites = activeCiphers.filter(\.favorite).compactMap(VaultListItem.init)

@@ -367,9 +367,9 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 special: false,
                 length: 14,
                 avoidAmbiguous: false,
-                minLowercase: nil,
-                minUppercase: nil,
-                minNumber: nil,
+                minLowercase: 1,
+                minUppercase: 1,
+                minNumber: 1,
                 minSpecial: nil
             )
         )
