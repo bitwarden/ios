@@ -441,7 +441,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `passwordState.passwordGeneratorRequest` returns the password generator request for the
     /// default settings.
     func test_passwordState_passwordGeneratorRequest_default() {
-        var subject = GeneratorState().passwordState
+        let subject = GeneratorState().passwordState
 
         XCTAssertEqual(
             subject.passwordGeneratorRequest,
