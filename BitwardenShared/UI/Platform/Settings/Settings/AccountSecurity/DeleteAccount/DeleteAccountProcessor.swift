@@ -63,7 +63,6 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     /// If the user does not, they're navigated to the landing screen.
     ///
     private func navigatePostDeletion() async throws {
-        try await services.stateService.logoutAccount()
         await services.vaultTimeoutService.remove(userId: nil)
         let userAccounts = try await services.stateService.getAccounts()
         coordinator.navigate(to: .didDeleteAccount(otherAccounts: userAccounts))

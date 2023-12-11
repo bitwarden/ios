@@ -107,6 +107,7 @@ extension DefaultAuthRepository: AuthRepository {
         _ = try await accountAPIService.deleteAccount(
             body: DeleteAccountRequestModel(masterPasswordHash: hashedPassword)
         )
+
         try await stateService.deleteAccount()
     }
 
