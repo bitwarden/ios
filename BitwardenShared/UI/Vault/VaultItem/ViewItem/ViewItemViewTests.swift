@@ -129,12 +129,12 @@ class ViewItemViewTests: BitwardenTestCase {
         cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.loginState.uris = [
-            CipherLoginUriModel(
-                match: .startsWith,
+            UriState(
+                matchType: .custom(.startsWith),
                 uri: "https://www.example.com"
             ),
-            CipherLoginUriModel(
-                match: .exact,
+            UriState(
+                matchType: .custom(.exact),
                 uri: "https://www.example.com/account/login"
             ),
         ]

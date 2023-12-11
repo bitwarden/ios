@@ -138,14 +138,8 @@ struct ViewItemView_Previews: PreviewProvider {
         state.loginState.password = "Password1!"
         state.updatedDate = .init(timeIntervalSince1970: 1_695_000_000)
         state.loginState.uris = [
-            CipherLoginUriModel(
-                match: .startsWith,
-                uri: "https://www.example.com"
-            ),
-            CipherLoginUriModel(
-                match: .exact,
-                uri: "https://www.example.com/account/login"
-            ),
+            UriState(matchType: .custom(.startsWith), uri: "https://www.example.com"),
+            UriState(matchType: .custom(.startsWith), uri: "https://www.example.com/account/login"),
         ]
         state.loginState.username = "email@example.com"
         return state

@@ -96,29 +96,27 @@ struct ViewItemDetailsView: View {
         if store.state.type == .login, let loginState = store.state.loginState, !loginState.uris.isEmpty {
             SectionView(Localizations.urIs) {
                 ForEach(loginState.uris, id: \.self) { uri in
-                    if let uri = uri.uri {
-                        BitwardenTextValueField(title: Localizations.uri, value: uri) {
-                            Button {
-                                guard let url = URL(string: uri) else {
-                                    return
-                                }
-                                openURL(url)
-                            } label: {
-                                Asset.Images.externalLink.swiftUIImage
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
+                    BitwardenTextValueField(title: Localizations.uri, value: uri.uri) {
+                        Button {
+                            guard let url = URL(string: uri.uri) else {
+                                return
                             }
-                            .accessibilityLabel(Localizations.launch)
-
-                            Button {
-                                store.send(.copyPressed(value: uri))
-                            } label: {
-                                Asset.Images.copy.swiftUIImage
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
-                            }
-                            .accessibilityLabel(Localizations.copy)
+                            openURL(url)
+                        } label: {
+                            Asset.Images.externalLink.swiftUIImage
+                                .resizable()
+                                .frame(width: 16, height: 16)
                         }
+                        .accessibilityLabel(Localizations.launch)
+
+                        Button {
+                            store.send(.copyPressed(value: uri.uri))
+                        } label: {
+                            Asset.Images.copy.swiftUIImage
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                        }
+                        .accessibilityLabel(Localizations.copy)
                     }
                 }
             }
