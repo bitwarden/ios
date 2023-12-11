@@ -248,6 +248,22 @@ class VaultRepositoryTests: BitwardenTestCase {
         }
     }
 
+    /// `vaultListPublisher()` returns a publisher which publishes an empty array if the user's
+    /// vault contains no ciphers.
+    func test_vaultListPublisher_empty() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfile)
+
+        var iterator = subject.vaultListPublisher().makeAsyncIterator()
+
+        Task {
+            try await subject.fetchSync()
+        }
+
+        let sections = await iterator.next()
+
+        try XCTAssertTrue(XCTUnwrap(sections).isEmpty)
+    }
+
     /// `vaultListPublisher(group:)` returns a publisher for a group of items within the vault list.
     func test_vaultListPublisher_forGroup() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
