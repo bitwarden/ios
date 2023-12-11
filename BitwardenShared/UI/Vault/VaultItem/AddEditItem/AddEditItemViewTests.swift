@@ -390,4 +390,18 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         assertSnapshot(of: subject, as: .tallPortraitAX5())
     }
-}
+
+    /// Test a snapshot of the AddEditView previews.
+    func test_snapshot_addEditItemView_previews() {
+        for preview in AddEditItemView_Previews._allPreviews {
+            assertSnapshots(
+                matching: preview.content,
+                as: [
+                    .tallPortrait,
+                    .tallPortraitAX5(heightMultiple: 5),
+                    .defaultPortraitDark,
+                ]
+            )
+        }
+    }
+} // swiftlint:disable:this file_length

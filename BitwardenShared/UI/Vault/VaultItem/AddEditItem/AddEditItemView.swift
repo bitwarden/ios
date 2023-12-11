@@ -203,6 +203,10 @@ private extension AddEditItemView {
 }
 
 struct AddEditItemView_Previews: PreviewProvider {
+    static var fixedDate: Date {
+        .init(timeIntervalSince1970: 1_695_000_000)
+    }
+
     static var previews: some View {
         NavigationView {
             AddEditItemView(
@@ -232,7 +236,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                                 login: .init(
                                     username: "EddyEddity",
                                     password: "changerdanger",
-                                    passwordRevisionDate: .now,
+                                    passwordRevisionDate: fixedDate,
                                     uris: [
                                         .init(uri: "yahoo.com", match: nil),
                                         .init(uri: "account.yahoo.com", match: nil),
@@ -252,9 +256,9 @@ struct AddEditItemView_Previews: PreviewProvider {
                                 attachments: nil,
                                 fields: nil,
                                 passwordHistory: nil,
-                                creationDate: .now,
+                                creationDate: fixedDate,
                                 deletedDate: nil,
-                                revisionDate: .now
+                                revisionDate: fixedDate
                             )
                         )!
                     )
