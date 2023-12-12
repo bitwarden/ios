@@ -73,6 +73,10 @@ final class AccountSecurityProcessor: StateProcessor<
             coordinator.navigate(to: .deleteAccount)
         case .logout:
             showLogoutConfirmation()
+        case let .sessionTimeoutActionChanged(newValue):
+            state.sessionTimeoutAction = newValue
+        case let .sessionTimeoutValueChanged(newValue):
+            state.sessionTimeoutValue = newValue
         case let .toggleApproveLoginRequestsToggle(isOn):
             state.isApproveLoginRequestsToggleOn = isOn
         case let .toggleUnlockWithFaceID(isOn):
