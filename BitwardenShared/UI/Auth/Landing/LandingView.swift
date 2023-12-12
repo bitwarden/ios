@@ -29,25 +29,17 @@ struct LandingView: View {
 
     /// The Toolbar item for the profile switcher view
     @ViewBuilder var profileSwitcherToolbarItem: some View {
-        Button {
-            store.send(.requestedProfileSwitcher(visible: !store.state.profileSwitcherState.isVisible))
-        } label: {
-            if !store.state.profileSwitcherState.accounts.isEmpty {
-                HStack {
-                    Text(store.state.profileSwitcherState.activeAccountInitials)
-                        .font(.styleGuide(.caption2Monospaced))
-                        .foregroundColor(.white)
-                        .padding(4)
-                        .background(Color.purple)
-                        .clipShape(Circle())
-                    Spacer()
-                }
-                .frame(minWidth: 50)
-                .fixedSize()
-            } else {
-                EmptyView()
-            }
-        }
+        ProfileSwitcherToolbarView(
+            store: store.child(
+                state: { state in
+                    state.profileSwitcherState
+                },
+                mapAction: { action in
+                    .profileSwitcherAction(action)
+                },
+                mapEffect: nil
+            )
+        )
     }
 
     /// A view that displays the ability to add or switch between account profiles
@@ -77,7 +69,7 @@ struct LandingView: View {
                     .padding(.vertical, 45)
 
                 Text(Localizations.loginOrCreateNewAccount)
-                    .font(.styleGuide(.title2))
+                    .styleGuide(.title2)
                     .multilineTextAlignment(.center)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .frame(maxWidth: .infinity)
@@ -90,10 +82,7 @@ struct LandingView: View {
                         send: LandingAction.emailChanged
                     )
                 )
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
+                .textFieldConfiguration(.email)
 
                 Button {
                     store.send(.regionPressed)
@@ -105,7 +94,7 @@ struct LandingView: View {
                                 + Text(store.state.region.baseUrlDescription)
                                 .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                         }
-                        .font(.styleGuide(.subheadline))
+                        .styleGuide(.subheadline)
 
                         Image(decorative: Asset.Images.downTriangle)
                             .resizable()
@@ -138,7 +127,7 @@ struct LandingView: View {
                     }
                     .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                 }
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
             }
             .padding([.horizontal, .bottom], 16)
         }

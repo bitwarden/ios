@@ -12,7 +12,7 @@ struct CustomFieldState: Equatable, Hashable {
     var booleanValue: Bool { value == "true" }
 
     /// A flag indicating if the password is visible.
-    var isPasswordVisible = false
+    var isPasswordVisible: Bool = false
 
     /// The type of value that the field is linked to for a linked field type.
     let linkedIdType: LinkedIdType?
@@ -30,8 +30,13 @@ struct CustomFieldState: Equatable, Hashable {
 extension CustomFieldState {
     // MARK: Initialization
 
+    /// Creates a CustomFieldState from an SDK `FieldView`
+    ///
+    /// - Parameter fieldView: A `BitwardenSdk.FieldView` used to populate the custom field.
+    ///
     init(fieldView: BitwardenSdk.FieldView) {
         self.init(
+            isPasswordVisible: false,
             linkedIdType: fieldView.linkedId.flatMap(LinkedIdType.init),
             name: fieldView.name,
             type: FieldType(fieldType: fieldView.type),

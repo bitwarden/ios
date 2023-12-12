@@ -66,7 +66,7 @@ struct CreateAccountView: View {
             send: CreateAccountAction.toggleCheckDataBreaches
         )) {
             Text(Localizations.checkKnownDataBreachesForThisPassword)
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
         }
         .accessibilityIdentifier("CheckExposedMasterPasswordToggle")
         .toggleStyle(.bitwarden)
@@ -84,10 +84,7 @@ struct CreateAccountView: View {
                     send: CreateAccountAction.emailTextChanged
                 )
             )
-            .textContentType(.emailAddress)
-            .keyboardType(.emailAddress)
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled()
+            .textFieldConfiguration(.email)
 
             BitwardenTextField(
                 accessibilityIdentifier: "MasterPasswordEntry",
@@ -102,9 +99,7 @@ struct CreateAccountView: View {
                     send: CreateAccountAction.passwordTextChanged
                 )
             )
-            .textContentType(.password)
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.never)
+            .textFieldConfiguration(.password)
         }
     }
 
@@ -122,7 +117,7 @@ struct CreateAccountView: View {
 
             Text(Localizations.masterPasswordHintDescription)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
         }
     }
 
@@ -141,8 +136,7 @@ struct CreateAccountView: View {
                 send: CreateAccountAction.retypePasswordTextChanged
             )
         )
-        .textContentType(.password)
-        .textInputAutocapitalization(.never)
+        .textFieldConfiguration(.password)
     }
 
     /// The button pressed when the user attempts to create the account.
@@ -174,7 +168,7 @@ struct CreateAccountView: View {
             send: CreateAccountAction.toggleTermsAndPrivacy
         )) {
             Text("\(Localizations.acceptPolicies)\n\(termsOfServiceString ?? "") \(privacyPolicyString ?? "")")
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
         }
         .accessibilityAction(named: Localizations.termsOfService) {
             openURL(ExternalLinksConstants.termsOfService)

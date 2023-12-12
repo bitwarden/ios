@@ -39,6 +39,9 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     /// Identity data if the cipher is a identity.
     let identity: CipherIdentityModel?
 
+    /// A key used to decrypt the cipher.
+    let key: String?
+
     /// Login data if the cipher is a login.
     let login: CipherLoginModel?
 

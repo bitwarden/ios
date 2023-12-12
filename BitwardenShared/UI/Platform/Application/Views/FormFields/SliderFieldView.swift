@@ -46,13 +46,13 @@ struct SliderFieldView<State>: View {
         VStack(spacing: 12) {
             HStack {
                 Text(field.title)
-                    .font(.styleGuide(.body))
+                    .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                 Spacer()
 
                 Text(String(Int(field.value)))
-                    .font(.styleGuide(.body).monospacedDigit())
+                    .styleGuide(.body, monoSpacedDigit: true)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
             .accessibilityHidden(true)

@@ -7,48 +7,27 @@ import Foundation
 struct ViewLoginItemState: Equatable {
     // MARK: Properties
 
-    /// The custom fields in this item.
-    var customFields: [CustomFieldState] = []
+    /// The Cipher underpinning the state
+    var cipher: CipherView
 
-    /// The folder this object resides in.
-    var folder: String?
+    /// The custome fields.
+    var customFields: [CustomFieldState]
 
-    /// A flag indicating if the master password is required before interacting with this item.
-    var isMasterPasswordRequired: Bool
+    /// A flag indicating if master password re-prompt is required.
+    var isMasterPasswordRePromptOn: Bool
 
-    /// A flag indicating if the password is visible.
-    var isPasswordVisible = false
+    /// The login item state.
+    var loginState: LoginItemState
 
     /// The name of this item.
     var name: String
 
-    /// The notes in this item.
-    var notes: String?
-
-    /// The password for this item.
-    var password: String?
-
-    /// When the password for this item was last updated.
-    var passwordUpdatedDate: Date?
+    /// The notes of this item.
+    var notes: String
 
     /// When this item was last updated.
     var updatedDate: Date
 
-    /// A list of uris associated with this item.
-    var uris: [LoginUriView] = []
-
-    /// The username for this item.
-    var username: String?
-
-    // MARK: Methods
-
-    /// Toggles the password visibility for the specified custom field.
-    ///
-    /// - Parameter customFieldState: The custom field to update.
-    ///
-    mutating func togglePasswordVisibility(for customFieldState: CustomFieldState) {
-        if let index = customFields.firstIndex(of: customFieldState) {
-            customFields[index].isPasswordVisible.toggle()
-        }
-    }
+    /// What cipher type this item is.
+    let type: CipherType = .login
 }

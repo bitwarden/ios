@@ -258,7 +258,7 @@ class VaultListProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.toggleProfilesViewVisibility` updates the state correctly.
     func test_receive_toggleProfilesViewVisibility() {
         subject.state.profileSwitcherState.isVisible = false
-        subject.receive(.requestedProfileSwitcher(visible: true))
+        subject.receive(.profileSwitcherAction(.requestedProfileSwitcher(visible: true)))
 
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }

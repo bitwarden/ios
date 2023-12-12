@@ -54,7 +54,7 @@ struct VaultGroupView: View {
 
                     Text(Localizations.noItems)
                         .multilineTextAlignment(.center)
-                        .font(.styleGuide(.callout))
+                        .styleGuide(.callout)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                     Button(Localizations.addAnItem) {

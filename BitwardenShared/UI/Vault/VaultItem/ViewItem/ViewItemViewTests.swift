@@ -32,12 +32,16 @@ class ViewItemViewTests: BitwardenTestCase {
 
     /// Tapping the check password button dispatches the `.checkPasswordPressed` action.
     func test_checkPasswordButton_tap() throws {
-        processor.state.loadingState = .data(.login(ViewLoginItemState(
-            isMasterPasswordRequired: false,
-            name: "Name",
-            password: "password",
-            updatedDate: Date()
-        )))
+        let loginState = CipherItemState(
+            existing: .loginFixture(
+                login: .fixture(
+                    password: "password"
+                ),
+                name: "Name",
+                revisionDate: Date()
+            )
+        )!
+        processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.checkPassword)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .checkPasswordPressed)
@@ -45,12 +49,16 @@ class ViewItemViewTests: BitwardenTestCase {
 
     /// Tapping the copy usename button dispatches the `.copyPressed` action with the username.
     func test_copyUsernameButton_tap() throws {
-        processor.state.loadingState = .data(.login(ViewLoginItemState(
-            isMasterPasswordRequired: false,
-            name: "Name",
-            updatedDate: Date(),
-            username: "username"
-        )))
+        let loginState = CipherItemState(
+            existing: .loginFixture(
+                login: .fixture(
+                    username: "username"
+                ),
+                name: "Name",
+                revisionDate: Date()
+            )
+        )!
+        processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "username"))
@@ -59,12 +67,13 @@ class ViewItemViewTests: BitwardenTestCase {
     /// Tapping the copy password button dispatches the `.copyPressed` action along with the
     /// password.
     func test_copyPasswordButton_tap() throws {
-        processor.state.loadingState = .data(.login(ViewLoginItemState(
-            isMasterPasswordRequired: false,
-            name: "Name",
-            password: "password",
-            updatedDate: Date()
-        )))
+        let loginState = CipherItemState(
+            existing: .loginFixture(
+                login: .fixture(password: "password"),
+                revisionDate: Date()
+            )
+        )!
+        processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "password"))
@@ -72,14 +81,18 @@ class ViewItemViewTests: BitwardenTestCase {
 
     /// Tapping the copy uri button dispatches the `.copyPressed` action along with the uri.
     func test_copyUriButton_tap() throws {
-        processor.state.loadingState = .data(.login(ViewLoginItemState(
-            isMasterPasswordRequired: false,
-            name: "Name",
-            updatedDate: Date(),
-            uris: [
-                .init(uri: "www.example.com", match: nil),
-            ]
-        )))
+        let loginState = CipherItemState(
+            existing: .loginFixture(
+                login: .fixture(
+                    uris: [
+                        .init(uri: "www.example.com", match: nil),
+                    ]
+                ),
+                name: "Name",
+                revisionDate: Date()
+            )
+        )!
+        processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "www.example.com"))
@@ -106,75 +119,83 @@ class ViewItemViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
-    // swiftlint:disable:next function_body_length
+    func loginState() -> CipherItemState { // swiftlint:disable:this function_body_length
+        var cipherState = CipherItemState(existing: .loginFixture())!
+        cipherState.folder = "Folder"
+        cipherState.loginState.isPasswordVisible = true
+        cipherState.name = "Example"
+        cipherState.notes = "This is a long note so that it goes to the next line!"
+        cipherState.loginState.password = "Password1234!"
+        cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
+        cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
+        cipherState.loginState.uris = [
+            UriState(
+                matchType: .custom(.startsWith),
+                uri: "https://www.example.com"
+            ),
+            UriState(
+                matchType: .custom(.exact),
+                uri: "https://www.example.com/account/login"
+            ),
+        ]
+        cipherState.loginState.username = "email@example.com"
+        cipherState.loginState.isPasswordVisible = true
+        cipherState.customFields = [
+            CustomFieldState(
+                linkedIdType: nil,
+                name: "Text",
+                type: .text,
+                value: "Value"
+            ),
+            CustomFieldState(
+                linkedIdType: nil,
+                name: "Text empty",
+                type: .text,
+                value: nil
+            ),
+            CustomFieldState(
+                isPasswordVisible: false,
+                linkedIdType: nil,
+                name: "Hidden Hidden",
+                type: .hidden,
+                value: "pa$$w0rd"
+            ),
+            CustomFieldState(
+                isPasswordVisible: true,
+                linkedIdType: nil,
+                name: "Hidden Shown",
+                type: .hidden,
+                value: "pa$$w0rd"
+            ),
+            CustomFieldState(
+                linkedIdType: nil,
+                name: "Boolean True",
+                type: .boolean,
+                value: "true"
+            ),
+            CustomFieldState(
+                linkedIdType: nil,
+                name: "Boolean False",
+                type: .boolean,
+                value: "false"
+            ),
+            CustomFieldState(
+                linkedIdType: .loginUsername,
+                name: "Linked",
+                type: .linked,
+                value: nil
+            ),
+        ]
+        return cipherState
+    }
+
     func test_snapshot_login_withAllValues() {
-        processor.state.loadingState = .data(.login(.init(
-            customFields: [
-                .init(
-                    linkedIdType: nil,
-                    name: "Text",
-                    type: .text,
-                    value: "Value"
-                ),
-                .init(
-                    linkedIdType: nil,
-                    name: "Text empty",
-                    type: .text,
-                    value: nil
-                ),
-                .init(
-                    isPasswordVisible: false,
-                    linkedIdType: nil,
-                    name: "Hidden Hidden",
-                    type: .hidden,
-                    value: "pa$$w0rd"
-                ),
-                .init(
-                    isPasswordVisible: true,
-                    linkedIdType: nil,
-                    name: "Hidden Shown",
-                    type: .hidden,
-                    value: "pa$$w0rd"
-                ),
-                .init(
-                    linkedIdType: nil,
-                    name: "Boolean True",
-                    type: .boolean,
-                    value: "true"
-                ),
-                .init(
-                    linkedIdType: nil,
-                    name: "Boolean False",
-                    type: .boolean,
-                    value: "false"
-                ),
-                .init(
-                    linkedIdType: .loginUsername,
-                    name: "Linked",
-                    type: .linked,
-                    value: nil
-                ),
-            ],
-            folder: "Folder",
-            isMasterPasswordRequired: false,
-            isPasswordVisible: true,
-            name: "Example",
-            notes: "This is a long note so that it goes to the next line!",
-            password: "Password1234!",
-            passwordUpdatedDate: Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41),
-            updatedDate: Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41),
-            uris: [
-                .init(
-                    uri: "https://www.example.com",
-                    match: .startsWith
-                ),
-                .init(
-                    uri: "https://www.example.com/account/login",
-                    match: .exact
-                ),
-            ],
-            username: "email@example.com"
-        )))
+        processor.state.loadingState = .data(loginState())
         assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot_login_withAllValues_largeText() {
+        processor.state.loadingState = .data(loginState())
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
     }
 }

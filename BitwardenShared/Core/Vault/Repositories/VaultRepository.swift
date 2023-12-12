@@ -36,6 +36,12 @@ protocol VaultRepository: AnyObject {
     ///
     func remove(userId: String?) async
 
+    /// Updates a cipher in the user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is updating.
+    ///
+    func updateCipher(_ cipher: CipherView) async throws
+
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
     ///
@@ -158,6 +164,8 @@ class DefaultVaultRepository {
             .decryptList(folders: response.folders.map(Folder.init))
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
+        guard !ciphers.isEmpty else { return [] }
+
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
 
         let ciphersFavorites = activeCiphers.filter(\.favorite).compactMap(VaultListItem.init)
@@ -215,6 +223,13 @@ extension DefaultVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         await vaultTimeoutService.remove(userId: userId)
+    }
+
+    func updateCipher(_ updatedCipherView: CipherView) async throws {
+        let updatedCipher = try await clientVault.ciphers().encrypt(cipherView: updatedCipherView)
+        _ = try await cipherAPIService.updateCipher(updatedCipher)
+        // TODO: BIT-92 Insert response into database instead of fetching sync.
+        try await fetchSync()
     }
 
     // MARK: Publishers

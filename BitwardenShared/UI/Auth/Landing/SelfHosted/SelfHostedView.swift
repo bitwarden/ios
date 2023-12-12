@@ -18,6 +18,7 @@ struct SelfHostedView: View {
             customEnvironment
             saveButton
         }
+        .textFieldConfiguration(.url)
         .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
         .scrollView()
         .toolbar {
@@ -43,10 +44,6 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.webVaultUrlChanged
                     )
                 )
-                .autocorrectionDisabled()
-                .keyboardType(.URL)
-                .textContentType(.URL)
-                .textInputAutocapitalization(.never)
 
                 BitwardenTextField(
                     title: Localizations.apiUrl,
@@ -55,10 +52,6 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.apiUrlChanged
                     )
                 )
-                .autocorrectionDisabled()
-                .keyboardType(.URL)
-                .textContentType(.URL)
-                .textInputAutocapitalization(.never)
 
                 BitwardenTextField(
                     title: Localizations.identityUrl,
@@ -67,10 +60,6 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.identityUrlChanged
                     )
                 )
-                .autocorrectionDisabled()
-                .keyboardType(.URL)
-                .textContentType(.URL)
-                .textInputAutocapitalization(.never)
 
                 BitwardenTextField(
                     title: Localizations.iconsUrl,
@@ -79,10 +68,6 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.iconsUrlChanged
                     )
                 )
-                .autocorrectionDisabled()
-                .keyboardType(.URL)
-                .textContentType(.URL)
-                .textInputAutocapitalization(.never)
             }
         }
         .padding(.top, 8)
@@ -113,6 +98,10 @@ struct SelfHostedView: View {
                     send: SelfHostedAction.serverUrlChanged
                 )
             )
+            .autocorrectionDisabled()
+            .keyboardType(.URL)
+            .textContentType(.URL)
+            .textInputAutocapitalization(.never)
         }
     }
 
@@ -132,7 +121,7 @@ struct SelfHostedView: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(header)
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 .textCase(.uppercase)
                 .padding(.bottom, 4)
@@ -140,7 +129,7 @@ struct SelfHostedView: View {
             content()
 
             Text(footer)
-                .font(.styleGuide(.subheadline))
+                .styleGuide(.subheadline)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
         }
     }

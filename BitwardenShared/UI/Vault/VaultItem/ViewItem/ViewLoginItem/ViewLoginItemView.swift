@@ -11,13 +11,19 @@ struct ViewLoginItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ViewLoginItemState, ViewItemAction, Void>
+    @ObservedObject var store: Store<ViewLoginItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
-        section(title: Localizations.itemInformation) {
+        viewItemProperties
+    }
+
+    /// The view item properties.
+    @ViewBuilder var viewItemProperties: some View {
+        SectionView(Localizations.itemInformation, contentSpacing: 12) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
 
-            if let username = store.state.username {
+            if !store.state.loginState.username.isEmpty {
+                let username = store.state.loginState.username
                 BitwardenTextValueField(title: Localizations.username, value: username) {
                     Button {
                         store.send(.copyPressed(value: username))
@@ -30,13 +36,14 @@ struct ViewLoginItemView: View {
                 }
             }
 
-            if let password = store.state.password {
+            if !store.state.loginState.password.isEmpty {
+                let password = store.state.loginState.password
                 BitwardenField(title: Localizations.password) {
-                    PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
-                        .font(.styleGuide(.body))
+                    PasswordText(password: password, isPasswordVisible: store.state.loginState.isPasswordVisible)
+                        .styleGuide(.body)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 } accessoryContent: {
-                    PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
+                    PasswordVisibilityButton(isPasswordVisible: store.state.loginState.isPasswordVisible) {
                         store.send(.passwordVisibilityPressed)
                     }
 
@@ -63,50 +70,49 @@ struct ViewLoginItemView: View {
             // TODO: BIT-1120 Add full support for TOTP display
             BitwardenField(title: Localizations.verificationCodeTotp) {
                 Text(Localizations.premiumSubscriptionRequired)
-                    .font(.styleGuide(.footnote))
+                    .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
         }
 
-        if !store.state.uris.isEmpty {
-            section(title: Localizations.urIs) {
-                ForEach(store.state.uris, id: \.self) { uri in
-                    if let uri = uri.uri {
-                        BitwardenTextValueField(title: Localizations.uri, value: uri) {
-                            Button {
-                                guard let url = URL(string: uri) else {
-                                    return
-                                }
-                                openURL(url)
-                            } label: {
-                                Asset.Images.externalLink.swiftUIImage
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
+        if !store.state.loginState.uris.isEmpty {
+            SectionView(Localizations.urIs) {
+                ForEach(store.state.loginState.uris, id: \.self) { uri in
+                    BitwardenTextValueField(title: Localizations.uri, value: uri.uri) {
+                        Button {
+                            guard let url = URL(string: uri.uri) else {
+                                return
                             }
-                            .accessibilityLabel(Localizations.launch)
-
-                            Button {
-                                store.send(.copyPressed(value: uri))
-                            } label: {
-                                Asset.Images.copy.swiftUIImage
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
-                            }
-                            .accessibilityLabel(Localizations.copy)
+                            openURL(url)
+                        } label: {
+                            Asset.Images.externalLink.swiftUIImage
+                                .resizable()
+                                .frame(width: 16, height: 16)
                         }
+                        .accessibilityLabel(Localizations.launch)
+
+                        Button {
+                            store.send(.copyPressed(value: uri.uri))
+                        } label: {
+                            Asset.Images.copy.swiftUIImage
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                        }
+                        .accessibilityLabel(Localizations.copy)
                     }
                 }
             }
         }
 
-        if let notes = store.state.notes {
-            section(title: Localizations.notes) {
+        if !store.state.notes.isEmpty {
+            let notes = store.state.notes
+            SectionView(Localizations.notes) {
                 BitwardenTextValueField(value: notes)
             }
         }
 
         if !store.state.customFields.isEmpty {
-            section(title: Localizations.customFields) {
+            SectionView(Localizations.customFields) {
                 ForEach(store.state.customFields, id: \.self) { customField in
                     BitwardenField(title: customField.name) {
                         switch customField.type {
@@ -136,7 +142,6 @@ struct ViewLoginItemView: View {
                                         .resizable()
                                         .frame(width: 16, height: 16)
                                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
                                     Text(linkedIdType.localizedName)
                                 }
                             }
@@ -163,8 +168,7 @@ struct ViewLoginItemView: View {
                                         .resizable()
                                         .frame(width: 16, height: 16)
                                 }
-                            case .boolean,
-                                 .linked:
+                            case .boolean, .linked:
                                 EmptyView()
                             }
                         }
@@ -174,15 +178,10 @@ struct ViewLoginItemView: View {
         }
 
         VStack(alignment: .leading, spacing: 0) {
-            let formattedUpdatedDate = store.state.updatedDate.formatted(date: .numeric, time: .shortened)
-            Text("\(Localizations.dateUpdated): \(formattedUpdatedDate)")
+            FormattedDateTimeView(label: Localizations.dateUpdated, date: store.state.updatedDate)
 
-            if let passwordUpdatedDate = store.state.passwordUpdatedDate {
-                let formattedPasswordUpdatedDate = passwordUpdatedDate.formatted(
-                    date: .numeric,
-                    time: .shortened
-                )
-                Text("\(Localizations.datePasswordUpdated): \(formattedPasswordUpdatedDate)")
+            if let passwordUpdatedDate = store.state.loginState.passwordUpdatedDate {
+                FormattedDateTimeView(label: Localizations.datePasswordUpdated, date: passwordUpdatedDate)
             }
 
             // TODO: BIT-1186 Display the password history button here
@@ -190,26 +189,5 @@ struct ViewLoginItemView: View {
         .font(.subheadline)
         .multilineTextAlignment(.leading)
         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-    }
-
-    // MARK: Private Methods
-
-    /// Creates a section with a title hosted in a title view.
-    ///
-    /// - Parameters:
-    ///   - title: The title of this section.
-    ///   - content: The content to place below the title view in this section.
-    ///
-    @ViewBuilder
-    private func section(title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: 15) {
-            Text(title.uppercased())
-                .font(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-            VStack(alignment: .leading, spacing: 12) {
-                content()
-            }
-        }
     }
 }

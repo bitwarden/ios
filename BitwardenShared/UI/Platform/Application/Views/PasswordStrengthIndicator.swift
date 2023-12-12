@@ -19,12 +19,12 @@ struct PasswordStrengthIndicator: View {
         VStack(alignment: .leading, spacing: 0) {
             Group {
                 Text(Localizations.important + ": ")
-                    .font(.styleGuide(.footnote).bold()) +
+                    .bold() +
                     Text(Localizations.yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(
-                        minimumPasswordLength
-                    ))
-                    .font(.styleGuide(.footnote))
+                        minimumPasswordLength)
+                    )
             }
+            .styleGuide(.footnote)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .padding(.bottom, 16)
 
@@ -44,7 +44,7 @@ struct PasswordStrengthIndicator: View {
             if let text = passwordStrength.text {
                 Text(text)
                     .foregroundColor(Color(asset: passwordStrength.color))
-                    .font(.styleGuide(.footnote))
+                    .styleGuide(.footnote)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }

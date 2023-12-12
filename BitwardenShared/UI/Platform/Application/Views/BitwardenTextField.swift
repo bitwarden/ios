@@ -4,83 +4,13 @@ import SwiftUI
 
 /// The standard text field used within this application. The text field can be
 /// configured to act as a password field with visibility toggling, and supports
-/// displaying configurable buttons on the trailing edge of the text field.
+/// displaying additional content on the trailing edge of the text field.
 ///
-struct BitwardenTextField: View {
-    // MARK: Types
-
-    /// A type of button that is displayed within a `BitwardenTextField`.
-    ///
-    struct AccessoryButton {
-        /// A wrapper around the action for this button to allow easily switching between sync and async actions.
-        enum Action { // swiftlint:disable:this nesting
-            /// A synchronous action.
-            case sync(() -> Void)
-
-            /// An asynchronous action.
-            case async(() async -> Void)
-        }
-
-        /// The accessibility identifier for the button.
-        var accessibilityIdentifier: String?
-
-        /// The accessibility label for this button.
-        var accessibilityLabel: String
-
-        /// The action that is executed when this button is tapped.
-        var action: Action
-
-        /// The icon to display in this button.
-        var icon: ImageAsset
-
-        /// Creates a new `AccessoryButton`.
-        ///
-        /// - Parameters:
-        ///   - accessibilityIdentifier: The accessibility identifier for the button.
-        ///   - accessibilityLabel: The accessibility label for this button.
-        ///   - action: The synchronous action that is executed when this button is tapped.
-        ///   - icon: The icon to display in this button.
-        ///
-        init(
-            accessibilityIdentifier: String? = nil,
-            accessibilityLabel: String,
-            action: @escaping () -> Void,
-            icon: ImageAsset
-        ) {
-            self.accessibilityIdentifier = accessibilityIdentifier
-            self.accessibilityLabel = accessibilityLabel
-            self.action = .sync(action)
-            self.icon = icon
-        }
-
-        /// Creates a new `AccessoryButton`.
-        ///
-        /// - Parameters:
-        ///   - accessibilityIdentifier: The accessibility identifier for the button.
-        ///   - accessibilityLabel: The accessibility label for this button.
-        ///   - action: The asynchronous action that is executed when this button is tapped.
-        ///   - icon: The icon to display in this button.
-        ///
-        init(
-            accessibilityIdentifier: String? = nil,
-            accessibilityLabel: String,
-            action: @escaping () async -> Void,
-            icon: ImageAsset
-        ) {
-            self.accessibilityIdentifier = accessibilityIdentifier
-            self.accessibilityLabel = accessibilityLabel
-            self.action = .async(action)
-            self.icon = icon
-        }
-    }
-
+struct BitwardenTextField<TrailingContent: View>: View {
     // MARK: Properties
 
     /// The accessibility identifier for the text field.
     let accessibilityIdentifier: String?
-
-    /// A list of additional buttons that appear on the trailing edge of a textfield.
-    let buttons: [AccessoryButton]
 
     /// The footer text displayed below the text field.
     let footer: String?
@@ -100,23 +30,40 @@ struct BitwardenTextField: View {
     /// The title of the text field.
     let title: String?
 
+    /// Optional content view that is displayed on the trailing edge of the menu value.
+    let trailingContent: TrailingContent?
+
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            VStack(alignment: .leading, spacing: 4) {
-                textFieldTitle
+        let isTrailingContentShown = isPasswordVisible != nil || trailingContent != nil
+        if isTrailingContentShown {
+            BitwardenField(title: title, footer: footer) {
+                textField
+            } accessoryContent: {
+                if let isPasswordVisible {
+                    AccessoryButton(
+                        asset: isPasswordVisible.wrappedValue
+                            ? Asset.Images.hidden
+                            : Asset.Images.visible,
+                        accessibilityLabel: isPasswordVisible.wrappedValue
+                            ? Localizations.passwordIsVisibleTapToHide
+                            : Localizations.passwordIsNotVisibleTapToShow
+                    ) {
+                        isPasswordVisible.wrappedValue.toggle()
+                    }
+                    .accessibilityIdentifier(passwordVisibilityAccessibilityId ?? "PasswordVisibilityToggle")
 
-                HStack(spacing: 8) {
-                    textField
-                    textFieldButtons
+                    if let trailingContent {
+                        trailingContent
+                    }
+                } else if let trailingContent {
+                    trailingContent
                 }
             }
-
-            if let footer {
-                Text(footer)
-                    .font(.styleGuide(.footnote))
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+        } else {
+            BitwardenField(title: title, footer: footer) {
+                textField
             }
         }
     }
@@ -131,14 +78,16 @@ struct BitwardenTextField: View {
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
                 TextField(placeholder, text: $text)
-                    .font(.styleGuide(isPassword ? .bodyMonospaced : .body))
+                    .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     .hidden(!isPasswordVisible && isPassword)
                     .id(title)
                 if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
+                        .styleGuide(.bodyMonospaced, includeLineSpacing: false)
                         .id(title)
                 }
             }
+            .frame(maxWidth: .infinity, minHeight: 28)
             .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
 
             Button {
@@ -152,48 +101,6 @@ struct BitwardenTextField: View {
             .hidden(text.isEmpty)
         }
         .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-
-    /// The buttons displayed on the trailing edge of the text field.
-    @ViewBuilder private var textFieldButtons: some View {
-        if isPasswordVisible != nil || !buttons.isEmpty {
-            HStack(spacing: 8) {
-                if let isPasswordVisible {
-                    accessoryButton(
-                        AccessoryButton(
-                            accessibilityIdentifier: passwordVisibilityAccessibilityId ?? "PasswordVisibilityToggle",
-                            accessibilityLabel: isPasswordVisible.wrappedValue
-                                ? Localizations.passwordIsVisibleTapToHide
-                                : Localizations.passwordIsNotVisibleTapToShow,
-                            action: {
-                                isPasswordVisible.wrappedValue.toggle()
-                            },
-                            icon: isPasswordVisible.wrappedValue
-                                ? Asset.Images.hidden
-                                : Asset.Images.visible
-                        )
-                    )
-                }
-
-                ForEach(buttons, id: \.icon.name) { button in
-                    accessoryButton(button)
-                }
-            }
-        }
-    }
-
-    /// The title of the text field.
-    @ViewBuilder private var textFieldTitle: some View {
-        if let title {
-            Text(title)
-                .font(.styleGuide(.subheadline))
-                .bold()
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-        }
     }
 
     // MARK: Initialization
@@ -203,7 +110,6 @@ struct BitwardenTextField: View {
     /// - Parameters:
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - title: The title of the text field.
-    ///   - buttons: A list of additional buttons that appear on the trailing edge of a textfield.
     ///   - footer: The footer text displayed below the text field.
     ///   - isPasswordVisible: Whether or not the password in the text field is visible.
     ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
@@ -214,7 +120,40 @@ struct BitwardenTextField: View {
     init(
         accessibilityIdentifier: String? = nil,
         title: String? = nil,
-        buttons: [AccessoryButton] = [],
+        footer: String? = nil,
+        isPasswordVisible: Binding<Bool>? = nil,
+        passwordVisibilityAccessibilityId: String? = nil,
+        placeholder: String? = nil,
+        text: Binding<String>,
+        @ViewBuilder trailingContent: () -> TrailingContent
+    ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.footer = footer
+        self.isPasswordVisible = isPasswordVisible
+        self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
+        self.placeholder = placeholder ?? ""
+        _text = text
+        self.title = title
+        self.trailingContent = trailingContent()
+    }
+}
+
+extension BitwardenTextField where TrailingContent == EmptyView {
+    /// Initializes a new `BitwardenTextField`.
+    ///
+    /// - Parameters:
+    ///   - accessibilityIdentifier: The accessibility identifier for the text field.
+    ///   - title: The title of the text field.
+    ///   - footer: The footer text displayed below the text field.
+    ///   - isPasswordVisible: Whether or not the password in the text field is visible.
+    ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
+    ///     button to toggle password visibility.
+    ///   - placeholder: An optional placeholder to display in the text field.
+    ///   - text: The text entered into the text field.
+    ///
+    init(
+        accessibilityIdentifier: String? = nil,
+        title: String? = nil,
         footer: String? = nil,
         isPasswordVisible: Binding<Bool>? = nil,
         passwordVisibilityAccessibilityId: String? = nil,
@@ -222,39 +161,13 @@ struct BitwardenTextField: View {
         text: Binding<String>
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
-        self.buttons = buttons
         self.footer = footer
         self.isPasswordVisible = isPasswordVisible
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.placeholder = placeholder ?? ""
         _text = text
         self.title = title
-    }
-
-    // MARK: Methods
-
-    /// Creates an accessory button.
-    ///
-    /// - Parameter button: The button information needed to create the accessory button.
-    ///
-    @ViewBuilder
-    private func accessoryButton(_ button: AccessoryButton) -> some View {
-        let label = button.icon.swiftUIImage
-            .resizable()
-            .frame(width: 14, height: 14)
-            .animation(nil, value: button.icon.swiftUIImage)
-        switch button.action {
-        case let .async(action):
-            AsyncButton(role: nil, action: action, label: { label })
-                .accessibilityIdentifier(button.accessibilityIdentifier ?? "")
-                .accessibilityLabel(button.accessibilityLabel)
-                .buttonStyle(.accessory)
-        case let .sync(action):
-            Button(action: action, label: { label })
-                .accessibilityIdentifier(button.accessibilityIdentifier ?? "")
-                .accessibilityLabel(button.accessibilityLabel)
-                .buttonStyle(.accessory)
-        }
+        trailingContent = nil
     }
 }
 
@@ -301,15 +214,10 @@ struct BitwardenTextField_Previews: PreviewProvider {
         VStack {
             BitwardenTextField(
                 title: "Title",
-                buttons: [
-                    BitwardenTextField.AccessoryButton(
-                        accessibilityLabel: "",
-                        action: {},
-                        icon: Asset.Images.gear
-                    ),
-                ],
                 text: .constant("Text field text")
-            )
+            ) {
+                AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
+            }
             .padding()
         }
         .background(Color(.systemGroupedBackground))
@@ -318,17 +226,12 @@ struct BitwardenTextField_Previews: PreviewProvider {
         VStack {
             BitwardenTextField(
                 title: "Title",
-                buttons: [
-                    BitwardenTextField.AccessoryButton(
-                        accessibilityLabel: "",
-                        action: {},
-                        icon: Asset.Images.gear
-                    ),
-                ],
                 footer: Localizations.vaultLockedMasterPassword,
                 isPasswordVisible: .constant(false),
                 text: .constant("Text field text")
-            )
+            ) {
+                AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
+            }
             .padding()
         }
         .background(Color(.systemGroupedBackground))

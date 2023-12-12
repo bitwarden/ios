@@ -7,6 +7,17 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     // MARK: Types
 
     typealias Services = HasVaultRepository
+        & HasErrorReporter
+
+    // MARK: Subtypes
+
+    /// An error case for ViewItemAction errors.
+    enum ActionError: Error, Equatable {
+        /// An action that requires data has been performed while loading.
+        case dataNotLoaded(String)
+        /// A password visibility toggle occured when not possible.
+        case nonLoginPasswordToggle(String)
+    }
 
     // MARK: Private Properties
 
@@ -66,33 +77,50 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             // TODO: BIT-1121 Copy value to clipboard
             print("copy: \(value)")
         case let .customFieldVisibilityPressed(customFieldState):
-            switch state.loadingState {
-            case var .data(.login(loginState)):
-                loginState.togglePasswordVisibility(for: customFieldState)
-                state.loadingState = .data(.login(loginState))
-            default:
-                assertionFailure("Cannot toggle password for non-login item.")
+            guard case var .data(cipherState) = state.loadingState else {
+                services.errorReporter.log(
+                    error: ActionError.dataNotLoaded("Cannot toggle password for non-loaded item.")
+                )
+                return
             }
+            cipherState.togglePasswordVisibility(for: customFieldState)
+            state.loadingState = .data(cipherState)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
         case .editPressed:
-            // TODO: BIT-220 Navigate to the edit route
-            print("edit pressed")
+            editItem()
         case .morePressed:
             // TODO: BIT-1131 Open item menu
             print("more pressed")
         case .passwordVisibilityPressed:
-            switch state.loadingState {
-            case var .data(.login(loginState)):
-                loginState.isPasswordVisible.toggle()
-                state.loadingState = .data(.login(loginState))
-            default:
-                assertionFailure("Cannot toggle password for non-login item.")
+            guard case var .data(cipherState) = state.loadingState else {
+                services.errorReporter.log(
+                    error: ActionError.dataNotLoaded("Cannot toggle password for non-loaded item.")
+                )
+                return
             }
+            guard case .login = cipherState.type else {
+                services.errorReporter.log(
+                    error: ActionError.nonLoginPasswordToggle("Cannot toggle password for non-login item.")
+                )
+                return
+            }
+            cipherState.loginState.isPasswordVisible.toggle()
+            state.loadingState = .data(cipherState)
         }
     }
 
     // MARK: Private Methods
+
+    /// Triggers the edit state for the item currently stored in `state`.
+    ///
+    private func editItem() {
+        guard case let .data(cipherState) = state.loadingState,
+              case let .existing(cipher) = cipherState.configuration else {
+            return
+        }
+        coordinator.navigate(to: .editItem(cipher: cipher))
+    }
 
     /// Presents the master password reprompt alert for the specified action. This method will
     /// process the action once the master password has been verified.

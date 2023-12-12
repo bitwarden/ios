@@ -27,8 +27,7 @@ class VaultListViewTests: BitwardenTestCase {
             profileSwitcherState: ProfileSwitcherState(
                 accounts: [account],
                 activeAccountId: account.userId,
-                isVisible: false,
-                shouldAlwaysHideAddAccount: false
+                isVisible: false
             )
         )
         processor = MockProcessor(state: state)
@@ -76,8 +75,10 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.isVisible = false
         let buttonUnselected = try subject.inspect().find(button: "AA")
         try buttonUnselected.tap()
-
-        XCTAssertEqual(processor.dispatchedActions.last, .requestedProfileSwitcher(visible: true))
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .profileSwitcherAction(.requestedProfileSwitcher(visible: true))
+        )
     }
 
     /// Tapping the profile button dispatches the `.toggleProfilesViewVisibility` action.
@@ -86,7 +87,10 @@ class VaultListViewTests: BitwardenTestCase {
         let buttonUnselected = try subject.inspect().find(button: "AA")
         try buttonUnselected.tap()
 
-        XCTAssertEqual(processor.dispatchedActions.last, .requestedProfileSwitcher(visible: false))
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .profileSwitcherAction(.requestedProfileSwitcher(visible: false))
+        )
     }
 
     func test_searchResult_tap() throws {
@@ -193,5 +197,15 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.searchText = "Exam"
         processor.state.searchResults = []
         assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the VaultListView previews.
+    func test_snapshot_vaultListView_previews() {
+        for preview in VaultListView_Previews._allPreviews {
+            assertSnapshots(
+                matching: preview.content,
+                as: [.defaultPortrait]
+            )
+        }
     }
 }
