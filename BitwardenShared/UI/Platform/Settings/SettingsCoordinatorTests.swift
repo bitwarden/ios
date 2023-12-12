@@ -73,6 +73,16 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<DeleteAccountView>)
     }
 
+    /// `navigate(to:)` with `.didDeleteAccount(otherAccounts:)` calls the delegate method
+    /// that performs navigation post-deletion.
+    func test_navigateTo_didDeleteAccount() throws {
+        subject.navigate(to: .didDeleteAccount(otherAccounts: []))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+        XCTAssertTrue(delegate.didDeleteAccountCalled)
+    }
+
     /// `navigate(to:)` with `.dismiss` dismisses the presented view.
     func test_navigateTo_dismiss() throws {
         subject.navigate(to: .dismiss)
@@ -137,8 +147,13 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
+    var didDeleteAccountCalled = false
     var didLockVaultCalled = false
     var didLogoutCalled = false
+
+    func didDeleteAccount(otherAccounts: [Account]?) {
+        didDeleteAccountCalled = true
+    }
 
     func didLockVault(account: Account) {
         didLockVaultCalled = true

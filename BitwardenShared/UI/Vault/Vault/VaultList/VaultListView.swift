@@ -129,7 +129,7 @@ private struct VaultMainView: View {
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         ScrollView {
-            LazyVStack(spacing: 20) {
+            VStack(spacing: 20) {
                 ForEach(sections) { section in
                     vaultItemSectionView(title: section.name, items: section.items)
                 }
@@ -178,7 +178,7 @@ private struct VaultMainView: View {
                 SectionHeaderView("\(items.count)")
             }
 
-            VStack(alignment: .leading, spacing: 0) {
+            LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(items) { item in
                     Button {
                         store.send(.itemPressed(item: item))
@@ -397,6 +397,34 @@ struct VaultListView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("My Vault")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            loadingState: .data([
+                                VaultListSection(
+                                    id: "Collections",
+                                    items: [
+                                        VaultListItem(
+                                            id: "31",
+                                            itemType: .group(.collection(id: "", name: "Design"), 0)
+                                        ),
+                                        VaultListItem(
+                                            id: "32",
+                                            itemType: .group(.collection(id: "", name: "Engineering"), 2)
+                                        ),
+                                    ],
+                                    name: "Collections"
+                                ),
+                            ])
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("My Vault - Collections")
 
         NavigationView {
             VaultListView(

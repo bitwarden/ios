@@ -28,10 +28,8 @@ struct DeleteAccountView: View {
                 .styleGuide(.subheadline)
 
             VStack(spacing: 12) {
-                Button {
-                    // TODO: BIT-1107 Present an alert verifying the user wants to delete the account
-                } label: {
-                    Text(Localizations.deleteAccount)
+                AsyncButton(Localizations.deleteAccount) {
+                    await store.perform(.deleteAccount)
                 }
                 .buttonStyle(.primary(isDestructive: true))
 
