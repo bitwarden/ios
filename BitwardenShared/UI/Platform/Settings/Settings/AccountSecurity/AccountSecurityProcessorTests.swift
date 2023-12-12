@@ -186,6 +186,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         // Tapping yes navigates the user to the web app.
         try await alert.tapAction(title: Localizations.yes)
+
         XCTAssertNotNil(subject.state.twoStepLoginUrl)
     }
 
@@ -195,6 +196,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
         try await alert.tapAction(title: Localizations.yes)
+
         XCTAssertEqual(subject.state.twoStepLoginUrl, URL.example)
     }
 }

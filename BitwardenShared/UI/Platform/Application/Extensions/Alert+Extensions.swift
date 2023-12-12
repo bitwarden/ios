@@ -77,7 +77,7 @@ extension Alert {
     ///
     /// - Parameter completion: A block that is executed when the user interacts with the "Submit" button.
     ///
-    static func masterPasswordPrompt(completion: @MainActor @escaping (String) -> Void) -> Alert {
+    static func masterPasswordPrompt(completion: @MainActor @escaping (String) async -> Void) -> Alert {
         Alert(
             title: Localizations.passwordConfirmation,
             message: Localizations.passwordConfirmationDesc,

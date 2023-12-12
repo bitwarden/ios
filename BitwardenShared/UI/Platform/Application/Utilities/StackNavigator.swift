@@ -12,6 +12,15 @@ public protocol StackNavigator: Navigator {
     ///
     func dismiss(animated: Bool)
 
+    /// Dismisses the view that was presented modally by the navigator
+    /// and executes a block of code when dismissing completes.
+    ///
+    /// - Parameters:
+    ///  - animated: Whether the transition should be animated.
+    ///  - completion: The block that is executed when dismissing completes.
+    ///
+    func dismiss(animated: Bool, completion: (() -> Void)?)
+
     /// Pushes a view onto the navigator's stack.
     ///
     /// - Parameters:
@@ -77,6 +86,13 @@ extension StackNavigator {
     ///
     func dismiss() {
         dismiss(animated: UI.animated)
+    }
+
+    /// Dismisses the view that was presented modally by the navigator. Animation is controlled by
+    /// `UI.animated`. Executes a block of code when dismissing completes.
+    ///
+    func dismiss(completion: (() -> Void)?) {
+        dismiss(animated: UI.animated, completion: completion)
     }
 
     /// Pushes a view onto the navigator's stack.
