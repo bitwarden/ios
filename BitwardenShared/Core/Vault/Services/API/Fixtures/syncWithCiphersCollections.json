@@ -1,0 +1,193 @@
+{
+  "policies": [],
+  "sends": [],
+  "ciphers": [
+    {
+      "favorite": false,
+      "id": "43f9ed1e-b2ab-487d-a74e-355ef4cb36d9",
+      "name": "Facebook",
+      "viewPassword": true,
+      "reprompt": 0,
+      "login": {
+        "password": "facebook1234asdf",
+        "uris": [
+          {
+            "match": 0,
+            "uri": "facebook.com"
+          }
+        ],
+        "username": "user@bitwarden.com",
+        "autofillOnPageLoad": true
+      },
+      "type": 1,
+      "folderId": "3270afb7-e3d7-495a-8867-c66cf272f795",
+      "organizationUseTotp": false,
+      "revisionDate": "2023-07-08T04:07:53Z",
+      "collectionIds": [],
+      "edit": true,
+      "creationDate": "2023-02-15T11:51:47Z"
+    },
+    {
+      "favorite": false,
+      "id": "17306cbc-2f27-433c-a374-1adbea22c34b",
+      "name": "Twitter",
+      "viewPassword": true,
+      "reprompt": 0,
+      "login": {
+        "password": "twitter1234asdf",
+        "uris": [
+          {
+            "match": 0,
+            "uri": "twitter.com"
+          }
+        ],
+        "username": "user@bitwarden.com",
+        "autofillOnPageLoad": true
+      },
+      "type": 1,
+      "folderId": "3270afb7-e3d7-495a-8867-c66cf272f795",
+      "organizationUseTotp": false,
+      "deletedDate": "2023-06-26T06:05:30Z",
+      "revisionDate": "2023-06-21T03:43:10Z",
+      "collectionIds": [],
+      "edit": true,
+      "creationDate": "2023-03-05T18:05:02Z"
+    },
+    {
+      "favorite": true,
+      "id": "fdabf83f-f1c0-4703-894d-4c0fd6741a9a",
+      "name": "Apple",
+      "viewPassword": true,
+      "reprompt": 0,
+      "login": {
+        "password": "apple1234asdf",
+        "uris": [
+          {
+            "match": 0,
+            "uri": "apple.com"
+          }
+        ],
+        "username": "engineering@bitwarden.com",
+        "autofillOnPageLoad": true
+      },
+      "type": 1,
+      "organizationUseTotp": false,
+      "revisionDate": "2023-08-13T12:15:17Z",
+      "collectionIds": [
+        "f96de98e-618a-4886-b396-66b92a385325"
+      ],
+      "edit": true,
+      "creationDate": "2023-08-13T12:15:17Z"
+    },
+    {
+      "favorite": false,
+      "id": "fdabf83f-f1c0-4703-894d-4c0fd6741a9a",
+      "identity": {
+        "email": "user@bitwarden.com",
+        "firstName": "Bitwarden",
+        "lastName": "User"
+      },
+      "name": "Bitwarden User",
+      "reprompt": 0,
+      "viewPassword": true,
+      "type": 4,
+      "organizationUseTotp": false,
+      "revisionDate": "2023-09-25T09:57:13Z",
+      "collectionIds": [],
+      "edit": true,
+      "creationDate": "2023-03-05T18:05:02Z"
+    },
+    {
+      "viewPassword": true,
+      "id": "e07cc543-1a2a-4ffa-9268-3fa735fffe52",
+      "favorite": false,
+      "name": "Visa",
+      "reprompt": 0,
+      "type": 3,
+      "card": {
+        "code": "123",
+        "cardholderName": "Bitwarden User",
+        "brand": "Visa",
+        "expMonth": "10",
+        "expYear": "26",
+        "number": "1234567812345678"
+      },
+      "organizationUseTotp": false,
+      "revisionDate": "2023-06-26T06:05:30Z",
+      "collectionIds": [],
+      "creationDate": "2023-06-26T06:05:30Z",
+      "edit": true
+    },
+    {
+      "secureNote": {
+        "type": 0
+      },
+      "viewPassword": true,
+      "id": "98f65684-f059-4cfd-9eb0-947b69b51888",
+      "favorite": false,
+      "reprompt": 0,
+      "name": "Top Secret Note",
+      "type": 2,
+      "organizationUseTotp": false,
+      "revisionDate": "2023-08-13T12:15:17Z",
+      "collectionIds": [],
+      "creationDate": "2023-07-04T05:00:53Z",
+      "edit": true
+    },
+    {
+      "favorite": false,
+      "id": "f196b906-661b-4aad-ba49-4bc4b9b68486",
+      "name": "Figma",
+      "viewPassword": true,
+      "reprompt": 0,
+      "login": {
+        "password": "apple1234asdf",
+        "uris": [
+          {
+            "match": 0,
+            "uri": "figma.com"
+          }
+        ],
+        "username": "design@bitwarden.com",
+        "autofillOnPageLoad": true
+      },
+      "type": 1,
+      "organizationUseTotp": false,
+      "revisionDate": "2023-12-01T15:49:55Z",
+      "collectionIds": [
+        "a468e453-7141-49cf-bb15-58448c2b27b9"
+      ],
+      "edit": true,
+      "creationDate": "2023-12-01T15:49:55Z"
+    }
+  ],
+  "collections": [
+    {
+      "readOnly": false,
+      "hidePasswords": false,
+      "manage": false,
+      "id": "f96de98e-618a-4886-b396-66b92a385325",
+      "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+      "name": "Engineering",
+      "externalId": null,
+      "object": "collectionDetails"
+    },
+    {
+      "readOnly": false,
+      "hidePasswords": false,
+      "manage": false,
+      "id": "a468e453-7141-49cf-bb15-58448c2b27b9",
+      "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+      "name": "Design",
+      "externalId": null,
+      "object": "collectionDetails"
+    }
+  ],
+  "folders": [
+    {
+      "id": "3270afb7-e3d7-495a-8867-c66cf272f795",
+      "name": "Social",
+      "revisionDate": "2023-10-09T03:44:59Z"
+    }
+  ]
+}
