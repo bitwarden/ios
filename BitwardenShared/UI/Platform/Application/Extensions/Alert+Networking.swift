@@ -31,7 +31,7 @@ extension Alert {
     /// - Returns: An alert notifying the user that a networking error occured.
     ///
     static func networkResponseError(
-        _ error: Error?,
+        _ error: Error,
         _ tryAgain: @escaping () async -> Void
     ) -> Alert {
         switch error {

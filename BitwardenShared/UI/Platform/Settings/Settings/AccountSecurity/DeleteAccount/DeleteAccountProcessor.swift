@@ -58,12 +58,32 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     // MARK: Private methods
 
+    /// Deletes the user's account.
+    ///
+    /// - Parameter passwordText: The user's password.
+    ///
+    private func deleteAccount(passwordText: String) async {
+        guard !passwordText.isEmpty else { return }
+        coordinator.showLoadingOverlay(title: Localizations.deletingYourAccount)
+        defer {
+            coordinator.hideLoadingOverlay()
+        }
+
+        do {
+            try await services.authRepository.deleteAccount(passwordText: passwordText)
+            try await navigatePostDeletion()
+        } catch {
+            coordinator.navigate(to: .alert(.networkResponseError(error) {
+                await self.deleteAccount(passwordText: passwordText)
+            }))
+        }
+    }
+
     /// Navigates to the landing screen or vault unlock screen post account deletion.
     /// If the user has another account, they're navigated to the vault unlock screen.
     /// If the user does not, they're navigated to the landing screen.
     ///
     private func navigatePostDeletion() async throws {
-        await services.vaultTimeoutService.remove(userId: nil)
         let userAccounts = try await services.stateService.getAccounts()
         coordinator.navigate(to: .didDeleteAccount(otherAccounts: userAccounts))
     }
@@ -72,20 +92,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     ///
     private func showMasterPasswordReprompt() async {
         coordinator.navigate(to: .alert(.masterPasswordPrompt { [weak self] passwordText in
-            guard let self else { return }
-            guard !passwordText.isEmpty else { return }
-
-            do {
-                try await services.authRepository.deleteAccount(passwordText: passwordText)
-                try await navigatePostDeletion()
-            } catch DeleteAccountRequestError.serverError(_) {
-                coordinator.navigate(to: .alert(.networkResponseError(nil) {
-                    try? await self.services.authRepository.deleteAccount(passwordText: passwordText)
-                    try? await self.navigatePostDeletion()
-                }))
-            } catch {
-                coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
-            }
+            await self?.deleteAccount(passwordText: passwordText)
         }))
     }
 }

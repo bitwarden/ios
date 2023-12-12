@@ -61,8 +61,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteAccount)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
-        let textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField.text = "password"
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(text: "password")
 
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [textField])
@@ -84,9 +84,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteAccount)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
-        let textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField.text = "password"
-
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(text: "password")
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [textField])
 

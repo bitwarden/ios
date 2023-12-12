@@ -109,6 +109,7 @@ extension DefaultAuthRepository: AuthRepository {
         )
 
         try await stateService.deleteAccount()
+        await vaultTimeoutService.remove(userId: nil)
     }
 
     func getAccounts() async throws -> [ProfileSwitcherItem] {
