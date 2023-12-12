@@ -7,19 +7,27 @@ import SwiftUI
 struct SectionView<Content: View>: View {
     // MARK: Properties
 
+    /// Content displayed below section header view.
+    let content: Content
+
+    /// The spacing of the content.
+    let contentSpacing: CGFloat
+
     /// The section header title.
     let title: String
 
-    /// Content displayed below section header view.
-    let content: Content
+    /// The spacing between title and content.
+    let titleSpacing: CGFloat
 
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: titleSpacing) {
             SectionHeaderView(title)
 
-            content
+            VStack(alignment: .leading, spacing: contentSpacing) {
+                content
+            }
         }
     }
 
@@ -29,10 +37,19 @@ struct SectionView<Content: View>: View {
     ///
     /// - Parameters:
     ///   - title: The section header title.
+    ///   - titleSpacing: The spacing between title and content.
     ///   - content: The content displayed below the section title.
+    ///   - contentSpacing: The spacing of content items.
     ///
-    init(_ title: String, @ViewBuilder content: () -> Content) {
+    init(
+        _ title: String,
+        titleSpacing: CGFloat = 8,
+        contentSpacing: CGFloat = 16,
+        @ViewBuilder content: () -> Content
+    ) {
         self.title = title
+        self.titleSpacing = titleSpacing
+        self.contentSpacing = contentSpacing
         self.content = content()
     }
 }

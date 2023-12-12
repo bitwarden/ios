@@ -212,6 +212,7 @@ extension BitwardenSdk.Cipher {
             organizationId: model.organizationId,
             folderId: model.folderId,
             collectionIds: model.collectionIds ?? [],
+            key: model.key,
             name: model.name,
             notes: model.notes,
             type: BitwardenSdk.CipherType(model.type),

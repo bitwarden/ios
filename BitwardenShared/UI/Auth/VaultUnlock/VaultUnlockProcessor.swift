@@ -39,6 +39,16 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
 
     override func perform(_ effect: VaultUnlockEffect) async {
         switch effect {
+        case .appeared:
+            await refreshProfileState()
+        case let .profileSwitcher(profileEffect):
+            switch profileEffect {
+            case let .rowAppeared(rowType):
+                guard state.profileSwitcherState.shouldSetAccessibilityFocus(for: rowType) == true else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    self.state.profileSwitcherState.hasSetAccessibilityFocus = true
+                }
+            }
         case .unlockVault:
             await unlockVault()
         }
@@ -61,6 +71,20 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                 ]
             )
             coordinator.navigate(to: .alert(alert))
+        case let .profileSwitcherAction(profileAction):
+            switch profileAction {
+            case let .accountPressed(account):
+                didTapProfileSwitcherItem(account)
+            case .addAccountPressed:
+                state.profileSwitcherState.isVisible = false
+                coordinator.navigate(to: .landing)
+            case .backgroundPressed:
+                state.profileSwitcherState.isVisible = false
+            case let .requestedProfileSwitcher(visible: isVisible):
+                state.profileSwitcherState.isVisible = isVisible
+            case let .scrollOffsetChanged(newOffset):
+                state.profileSwitcherState.scrollOffset = newOffset
+            }
         case let .revealMasterPasswordFieldPressed(isMasterPasswordRevealed):
             state.isMasterPasswordRevealed = isMasterPasswordRevealed
         }
@@ -100,6 +124,33 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             )
             coordinator.navigate(to: .alert(alert))
             Logger.processor.error("Error unlocking vault: \(error)")
+        }
+    }
+
+    /// Handles a tap of an account in the profile switcher
+    /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
+    ///
+    private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
+        coordinator.navigate(to: .switchAccount(userId: selectedAccount.userId))
+        state.profileSwitcherState.isVisible = false
+    }
+
+    /// Configures a profile switcher state with the current account and alternates.
+    ///
+    private func refreshProfileState() async {
+        var accounts = [ProfileSwitcherItem]()
+        var activeAccount: ProfileSwitcherItem?
+        do {
+            accounts = try await services.authRepository.getAccounts()
+            guard !accounts.isEmpty else { return }
+            activeAccount = try? await services.authRepository.getActiveAccount()
+            state.profileSwitcherState = ProfileSwitcherState(
+                accounts: accounts,
+                activeAccountId: activeAccount?.userId,
+                isVisible: state.profileSwitcherState.isVisible
+            )
+        } catch {
+            state.profileSwitcherState = .empty()
         }
     }
 }

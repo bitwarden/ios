@@ -28,8 +28,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     override func perform(_ effect: SelfHostedEffect) async {
         switch effect {
         case .saveEnvironment:
-            // TODO: BIT-1062
-            break
+            saveEnvironment()
         }
     }
 
@@ -48,5 +47,38 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
         case let .webVaultUrlChanged(url):
             state.webVaultServerUrl = url
         }
+    }
+
+    // MARK: Private
+
+    /// Returns whether all of the entered URLs are valid URLs.
+    ///
+    private func areURLsValid() -> Bool {
+        let urls = [
+            state.apiServerUrl,
+            state.iconsServerUrl,
+            state.identityServerUrl,
+            state.serverUrl,
+            state.webVaultServerUrl,
+        ]
+
+        return urls
+            .filter { !$0.isEmpty }
+            .allSatisfy(\.isValidURL)
+    }
+
+    /// Saves the environment URLs if they are valid or presents an alert if any are invalid.
+    private func saveEnvironment() {
+        guard areURLsValid() else {
+            coordinator.showAlert(Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.environmentPageUrlsError
+            ))
+            return
+        }
+
+        // TODO: BIT-1062 Save and apply environment
+
+        coordinator.navigate(to: .dismiss)
     }
 }

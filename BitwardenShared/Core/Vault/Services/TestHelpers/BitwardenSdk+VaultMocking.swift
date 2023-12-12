@@ -83,6 +83,7 @@ extension Cipher {
             organizationId: cipherView.organizationId,
             folderId: cipherView.folderId,
             collectionIds: cipherView.collectionIds,
+            key: cipherView.key,
             name: cipherView.name,
             notes: cipherView.notes,
             type: cipherView.type,
@@ -113,6 +114,7 @@ extension CipherView {
             organizationId: cipher.organizationId,
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
+            key: cipher.key,
             name: cipher.name,
             notes: cipher.notes,
             type: cipher.type,
@@ -132,6 +134,19 @@ extension CipherView {
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
             revisionDate: cipher.revisionDate
+        )
+    }
+}
+
+extension CollectionView {
+    init(collection: Collection) {
+        self.init(
+            id: collection.id,
+            organizationId: collection.organizationId,
+            name: collection.name,
+            externalId: collection.externalId,
+            hidePasswords: collection.hidePasswords,
+            readOnly: collection.readOnly
         )
     }
 }

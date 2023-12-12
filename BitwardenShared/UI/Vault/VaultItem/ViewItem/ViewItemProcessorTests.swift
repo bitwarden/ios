@@ -9,6 +9,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
     // MARK: Propteries
 
     var coordinator: MockCoordinator<VaultItemRoute>!
+    var errorReporter: MockErrorReporter!
     var subject: ViewItemProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -17,8 +18,10 @@ class ViewItemProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
+            errorReporter: errorReporter,
             vaultRepository: vaultRepository
         )
         subject = ViewItemProcessor(
@@ -32,6 +35,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         coordinator = nil
+        errorReporter = nil
         subject = nil
         vaultRepository = nil
     }
@@ -63,19 +67,9 @@ class ViewItemProcessorTests: BitwardenTestCase {
         waitFor(subject.state.loadingState != .loading)
         task.cancel()
 
-        XCTAssertEqual(subject.state.loadingState, .data(.login(ViewLoginItemState(
-            customFields: [],
-            folder: nil,
-            isMasterPasswordRequired: false,
-            isPasswordVisible: false,
-            name: "Name",
-            notes: "Notes",
-            password: "password",
-            passwordUpdatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-            updatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-            uris: [],
-            username: "username"
-        ))))
+        let expectedState = CipherItemState(existing: cipherItem)!
+
+        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
@@ -91,6 +85,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
         // TODO: BIT-1121 Assertion for pasteboard service
     }
 
+    /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
     func test_receive_customFieldVisiblePressed_withValidField() throws {
         let customField1 = CustomFieldState(
             isPasswordVisible: false,
@@ -113,29 +108,48 @@ class ViewItemProcessorTests: BitwardenTestCase {
             type: .hidden,
             value: "value 3"
         )
+        var cipherState = CipherItemState(
+            existing: CipherView.loginFixture()
+        )!
+        cipherState.customFields = [
+            customField1,
+            customField2,
+            customField3,
+        ]
         let state = ViewItemState(
-            loadingState: .data(.login(
-                ViewLoginItemState(
-                    customFields: [customField1, customField2, customField3],
-                    isMasterPasswordRequired: false,
-                    name: "name",
-                    updatedDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
-                )
-            ))
+            loadingState: .data(cipherState)
         )
         subject.state = state
 
         subject.receive(.customFieldVisibilityPressed(customField2))
         let newLoadingState = try XCTUnwrap(subject.state.loadingState.wrappedData)
-        guard case let ViewItemState.ItemTypeState.login(alteredState) = newLoadingState else {
+        guard let loadingState = newLoadingState.viewState else {
             XCTFail("ViewItemState has incorrect value: \(newLoadingState)")
             return
         }
-        let customFields = alteredState.customFields
+        let customFields = loadingState.customFields
         XCTAssertEqual(customFields.count, 3)
         XCTAssertFalse(customFields[0].isPasswordVisible)
         XCTAssertTrue(customFields[1].isPasswordVisible)
         XCTAssertFalse(customFields[2].isPasswordVisible)
+    }
+
+    /// `receive` with `.customFieldVisibilityPressed()` while loading logs an error.
+    func test_receive_customFieldVisiblePressed_impossible() throws {
+        let customField = CustomFieldState(
+            isPasswordVisible: false,
+            linkedIdType: nil,
+            name: "name 2",
+            type: .hidden,
+            value: "value 2"
+        )
+        subject.state.loadingState = .loading
+        subject.receive(.customFieldVisibilityPressed(customField))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError
+                .dataNotLoaded("Cannot toggle password for non-loaded item.")
+        )
     }
 
     /// `receive` with `.dismissPressed` navigates to the `.dismiss` route.
@@ -144,10 +158,31 @@ class ViewItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
-    /// `receive` with `.editPressed` navigates to the edit item route.
-    func test_receive_editPressed() {
+    /// `receive` with `.editPressed` has no change when the state is loading.
+    func test_receive_editPressed_loading() {
         subject.receive(.editPressed)
-        // TODO: BIT-220 Assertion for edit route
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `receive` with `.editPressed`with data navigates to the edit item route.
+    func test_receive_editPressed_data() {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
+            name: "name",
+            revisionDate: Date()
+        )
+        let loginState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(loginState)
+        subject.receive(.editPressed)
+        XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
     }
 
     /// `receive` with `.morePressed` presents the item options menu.
@@ -156,32 +191,79 @@ class ViewItemProcessorTests: BitwardenTestCase {
         // TODO: BIT-1131 Assertion for menu
     }
 
+    /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
+    func test_receive_passwordVisibilityPressed_impossible_loading() throws {
+        subject.state.loadingState = .loading
+        subject.receive(.passwordVisibilityPressed)
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError
+                .dataNotLoaded("Cannot toggle password for non-loaded item.")
+        )
+    }
+
+    /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
+    func test_receive_passwordVisibilityPressed_impossible_nonLogin() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: nil,
+            name: "name",
+            revisionDate: Date(),
+            type: .card
+        )
+        let cipherState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.passwordVisibilityPressed)
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError
+                .nonLoginPasswordToggle("Cannot toggle password for non-login item.")
+        )
+    }
+
     /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
     /// for `isPasswordVisible`.
     func test_receive_passwordVisibilityPressed_withLoginState() {
-        var loginState = ViewLoginItemState(
-            isMasterPasswordRequired: false,
-            isPasswordVisible: false,
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
             name: "name",
-            updatedDate: Date()
+            revisionDate: Date()
         )
-        subject.state.loadingState = .data(.login(loginState))
+        var cipherState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
 
-        loginState.isPasswordVisible = true
-        XCTAssertEqual(subject.state.loadingState, .data(.login(loginState)))
+        cipherState.loginState.isPasswordVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
     }
 
     /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
     /// for `isPasswordVisible`.
     func test_receive_passwordVisibilityPressed_withLoginState_withMasterPasswordReprompt() throws {
-        let loginState = ViewLoginItemState(
-            isMasterPasswordRequired: true,
-            isPasswordVisible: false,
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
             name: "name",
-            updatedDate: Date()
+            reprompt: .password,
+            revisionDate: Date()
         )
-        subject.state.loadingState = .data(.login(loginState))
+        let loginState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(loginState)
         subject.receive(.passwordVisibilityPressed)
 
         XCTAssertEqual(try coordinator.unwrapLastRouteAsAlert(), .masterPasswordPrompt(completion: { _ in }))
@@ -190,20 +272,29 @@ class ViewItemProcessorTests: BitwardenTestCase {
     /// Tapping the "Submit" button in the master password reprompt alert validates the entered
     /// password and completes the action.
     func test_masterPasswordReprompt_submitButtonPressed() async throws {
-        var loginState = ViewLoginItemState(
-            isMasterPasswordRequired: true,
-            isPasswordVisible: false,
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
             name: "name",
-            updatedDate: Date()
+            reprompt: .password,
+            revisionDate: Date()
         )
-        subject.state.loadingState = .data(.login(loginState))
+        var cipherState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
         try await alert.tapAction(title: Localizations.submit)
 
-        loginState.isMasterPasswordRequired = false
-        loginState.isPasswordVisible = true
-        XCTAssertEqual(subject.state.loadingState, .data(.login(loginState)))
+        cipherState.isMasterPasswordRePromptOn = false
+        cipherState.loginState.isPasswordVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
     }
 }

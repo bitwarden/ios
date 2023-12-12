@@ -38,10 +38,10 @@ struct AutoFillView: View {
                     Text(Localizations.copyTotpAutomatically)
                 }
                 .toggleStyle(.bitwarden)
-                .font(.styleGuide(.body))
+                .styleGuide(.body)
 
                 Text(Localizations.copyTotpAutomaticallyDescription)
-                    .font(.styleGuide(.subheadline))
+                    .styleGuide(.subheadline)
                     .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             }
             .padding(.bottom, 12)
@@ -57,7 +57,7 @@ struct AutoFillView: View {
                 .padding(.bottom, 8)
 
                 Text(Localizations.defaultUriMatchDetectionDescription)
-                    .font(.styleGuide(.subheadline))
+                    .styleGuide(.subheadline)
                     .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             }
         }

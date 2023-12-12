@@ -143,6 +143,18 @@ extension InspectableView {
         }
     }
 
+    /// Attempts to locate a picker with the provided label.
+    ///
+    /// - Parameter label: The label to use while searching for a picker.
+    /// - Returns: A picker, if one can be located.
+    /// - Throws: Throws an error if a picker was unable to be located.
+    ///
+    func find(
+        picker label: String
+    ) throws -> InspectableView<ViewType.Picker> {
+        try find(ViewType.Picker.self, containing: label)
+    }
+
     /// Attempts to locate a text field with the provided label.
     ///
     /// - Parameter label: The label to use while searching for a text field.

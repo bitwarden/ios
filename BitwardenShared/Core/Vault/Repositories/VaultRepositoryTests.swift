@@ -4,12 +4,14 @@ import XCTest
 
 @testable import BitwardenShared
 
-class VaultRepositoryTests: BitwardenTestCase {
+class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
     var clientCiphers: MockClientCiphers!
+    var clientCrypto: MockClientCrypto!
     var clientVault: MockClientVaultService!
+    var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
     var vaultTimeoutService: MockVaultTimeoutService!
@@ -21,7 +23,9 @@ class VaultRepositoryTests: BitwardenTestCase {
 
         client = MockHTTPClient()
         clientCiphers = MockClientCiphers()
+        clientCrypto = MockClientCrypto()
         clientVault = MockClientVaultService()
+        errorReporter = MockErrorReporter()
         vaultTimeoutService = MockVaultTimeoutService()
 
         clientVault.clientCiphers = clientCiphers
@@ -30,7 +34,9 @@ class VaultRepositoryTests: BitwardenTestCase {
 
         subject = DefaultVaultRepository(
             cipherAPIService: APIService(client: client),
+            clientCrypto: clientCrypto,
             clientVault: clientVault,
+            errorReporter: errorReporter,
             stateService: stateService,
             syncAPIService: APIService(client: client),
             vaultTimeoutService: vaultTimeoutService
@@ -41,8 +47,13 @@ class VaultRepositoryTests: BitwardenTestCase {
         super.tearDown()
 
         client = nil
+        clientCiphers = nil
+        clientCrypto = nil
+        clientVault = nil
+        errorReporter = nil
         stateService = nil
         subject = nil
+        vaultTimeoutService = nil
     }
 
     // MARK: Tests
@@ -101,6 +112,48 @@ class VaultRepositoryTests: BitwardenTestCase {
         }
     }
 
+    /// `updateCipher()` throws on encryption errors.
+    func test_updateCipher_encryptError() async throws {
+        struct EncryptError: Error, Equatable {}
+
+        clientCiphers.encryptError = EncryptError()
+
+        await assertAsyncThrows(error: EncryptError()) {
+            try await subject.updateCipher(.fixture(id: "1"))
+        }
+    }
+
+    /// `updateCipher()` throws on id errors.
+    func test_updateCipher_idError_nil() async throws {
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.updateCipher(.fixture(id: nil))
+        }
+    }
+
+    /// `updateCipher()` throws on id errors.
+    func test_updateCipher_idError_empty() async throws {
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.updateCipher(.fixture(id: ""))
+        }
+    }
+
+    /// `updateCipher()` makes the update cipher API request and updates the vault.
+    func test_updateCipher() async throws {
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+
+        let cipher = CipherView.fixture(id: "123")
+        try await subject.updateCipher(cipher)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
+        XCTAssertEqual(client.requests[1].url.absoluteString, "https://example.com/api/sync")
+
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+    }
+
     /// `fetchSync()` performs the sync API request.
     func test_fetchSync() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
@@ -119,6 +172,46 @@ class VaultRepositoryTests: BitwardenTestCase {
         await assertAsyncThrows {
             try await subject.fetchSync()
         }
+    }
+
+    /// `fetchSync()` initializes the SDK for decrypting organization ciphers.
+    func test_fetchSync_initializeOrgCrypto() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+
+        try await subject.fetchSync()
+
+        XCTAssertEqual(
+            clientCrypto.initializeOrgCryptoRequest,
+            InitOrgCryptoRequest(organizationKeys: [
+                "ORG_2": "ORG_2_KEY",
+                "ORG_1": "ORG_1_KEY",
+            ])
+        )
+    }
+
+    /// `fetchSync()` logs an error to the error reporter if initializing organization crypto fails.
+    func test_fetchSync_initializeOrgCrypto_error() async throws {
+        struct InitializeOrgCryptoError: Error {}
+
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        clientCrypto.initializeOrgCryptoResult = .failure(InitializeOrgCryptoError())
+
+        try await subject.fetchSync()
+
+        XCTAssertTrue(errorReporter.errors.last is InitializeOrgCryptoError)
+    }
+
+    /// `fetchSync()` initializes the SDK for decrypting organization ciphers with an empty
+    /// dictionary if the user isn't a part of any organizations.
+    func test_fetchSync_initializesOrgCrypto_noOrganizations() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfile)
+
+        try await subject.fetchSync()
+
+        XCTAssertEqual(
+            clientCrypto.initializeOrgCryptoRequest,
+            InitOrgCryptoRequest(organizationKeys: [:])
+        )
     }
 
     /// `cipherDetailsPublisher(id:)` returns a publisher for the details of a cipher in the vault.
@@ -204,6 +297,22 @@ class VaultRepositoryTests: BitwardenTestCase {
               - Group: Trash (1)
             """
         }
+    }
+
+    /// `vaultListPublisher()` returns a publisher which publishes an empty array if the user's
+    /// vault contains no ciphers.
+    func test_vaultListPublisher_empty() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfile)
+
+        var iterator = subject.vaultListPublisher().makeAsyncIterator()
+
+        Task {
+            try await subject.fetchSync()
+        }
+
+        let sections = await iterator.next()
+
+        try XCTAssertTrue(XCTUnwrap(sections).isEmpty)
     }
 
     /// `vaultListPublisher(group:)` returns a publisher for a group of items within the vault list.

@@ -12,13 +12,13 @@ struct PasswordText: View {
     /// A flag indicating if the password is visible or not.
     let isPasswordVisible: Bool
 
-    var body: Text {
+    var body: some View {
         (
             isPasswordVisible
                 ? colorCodedText(for: password)
                 : Text(String(repeating: "•", count: Constants.hiddenPasswordLength))
         )
-        .font(.styleGuide(.bodyMonospaced))
+        .styleGuide(.bodyMonospaced)
     }
 
     // MARK: Private Properties

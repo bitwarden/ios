@@ -5,41 +5,27 @@ import Foundation
 
 /// The state of a `ViewItemProcessor`.
 struct ViewItemState: Equatable {
-    // MARK: Types
-
-    /// An enumeration of the possible values of this state.
-    enum ItemTypeState: Equatable {
-        /// A login item's representative state.
-        case login(ViewLoginItemState)
-    }
-
     // MARK: Properties
 
     /// The current state. If this state is not `.loading`, this value will contain an associated value with the
     /// appropriate internal state.
-    var loadingState: LoadingState<ItemTypeState> = .loading
+    var loadingState: LoadingState<CipherItemState> = .loading
 
     /// A flag indicating if the master password is required before interacting with this item.
     var isMasterPasswordRequired: Bool {
         get {
             switch loadingState {
-            case let .data(value):
-                switch value {
-                case let .login(state):
-                    state.isMasterPasswordRequired
-                }
+            case let .data(state):
+                state.isMasterPasswordRePromptOn
             case .loading:
                 false
             }
         }
         set {
             switch loadingState {
-            case let .data(value):
-                switch value {
-                case var .login(state):
-                    state.isMasterPasswordRequired = newValue
-                    loadingState = .data(.login(state))
-                }
+            case var .data(state):
+                state.isMasterPasswordRePromptOn = newValue
+                loadingState = .data(state)
             case .loading:
                 break
             }
@@ -55,30 +41,7 @@ extension ViewItemState {
     /// - Parameter cipherView: The `CipherView` to create this state with.
     ///
     init?(cipherView: CipherView) {
-        switch cipherView.type {
-        case .login:
-            guard let loginItem = cipherView.login else { return nil }
-            self.init(
-                loadingState: .data(
-                    .login(
-                        ViewLoginItemState(
-                            customFields: cipherView.fields?.map(CustomFieldState.init) ?? [],
-                            folder: cipherView.folderId,
-                            isMasterPasswordRequired: cipherView.reprompt == .password,
-                            isPasswordVisible: false,
-                            name: cipherView.name,
-                            notes: cipherView.notes,
-                            password: loginItem.password,
-                            passwordUpdatedDate: loginItem.passwordRevisionDate,
-                            updatedDate: cipherView.revisionDate,
-                            uris: loginItem.uris ?? [],
-                            username: loginItem.username
-                        )
-                    )
-                )
-            )
-        default:
-            return nil
-        }
+        guard let cipherItemState = CipherItemState(existing: cipherView) else { return nil }
+        self.init(loadingState: .data(cipherItemState))
     }
 }

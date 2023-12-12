@@ -53,7 +53,7 @@ private struct VaultMainView: View {
 
                     Text(Localizations.noItems)
                         .multilineTextAlignment(.center)
-                        .font(.styleGuide(.callout))
+                        .styleGuide(.callout)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                     Button(Localizations.addAnItem) {
@@ -99,7 +99,7 @@ private struct VaultMainView: View {
 
                         Text(Localizations.thereAreNoItemsThatMatchTheSearch)
                             .multilineTextAlignment(.center)
-                            .font(.styleGuide(.callout))
+                            .styleGuide(.callout)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     }
                     .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
@@ -131,7 +131,7 @@ private struct VaultMainView: View {
         ScrollView {
             LazyVStack(spacing: 20) {
                 ForEach(sections) { section in
-                    vaultSection(title: section.name, items: section.items)
+                    vaultItemSectionView(title: section.name, items: section.items)
                 }
             }
             .padding(16)
@@ -170,15 +170,13 @@ private struct VaultMainView: View {
     ///   - items: The `VaultListItem`s in this section.
     ///
     @ViewBuilder
-    private func vaultSection(title: String, items: [VaultListItem]) -> some View {
+    private func vaultItemSectionView(title: String, items: [VaultListItem]) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .firstTextBaseline) {
-                Text(title.uppercased())
+                SectionHeaderView(title)
                 Spacer()
-                Text("\(items.count)")
+                SectionHeaderView("\(items.count)")
             }
-            .font(.footnote)
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(items) { item in
@@ -225,21 +223,17 @@ struct VaultListView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    store.send(.requestedProfileSwitcher(visible: !store.state.profileSwitcherState.isVisible))
-                } label: {
-                    HStack {
-                        Text(store.state.userInitials)
-                            .font(.styleGuide(.caption2Monospaced))
-                            .foregroundColor(.white)
-                            .padding(4)
-                            .background(Color.purple)
-                            .clipShape(Circle())
-                        Spacer()
-                    }
-                    .frame(minWidth: 50)
-                    .fixedSize()
-                }
+                ProfileSwitcherToolbarView(
+                    store: store.child(
+                        state: { state in
+                            state.profileSwitcherState
+                        },
+                        mapAction: { action in
+                            .profileSwitcherAction(action)
+                        },
+                        mapEffect: nil
+                    )
+                )
             }
             ToolbarItem(placement: .primaryAction) {
                 AddItemButton {
@@ -294,13 +288,13 @@ struct VaultListView_Previews: PreviewProvider {
     static let singleAccountState = ProfileSwitcherState(
         accounts: [account1],
         activeAccountId: account1.userId,
-        isVisible: false
+        isVisible: true
     )
 
     static let dualAccountState = ProfileSwitcherState(
         accounts: [account1, account2],
         activeAccountId: account1.userId,
-        isVisible: false
+        isVisible: true
     )
 
     static var previews: some View {
@@ -526,6 +520,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
+                            loadingState: .data([]),
                             profileSwitcherState: singleAccountState
                         )
                     )
@@ -539,6 +534,7 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
+                            loadingState: .data([]),
                             profileSwitcherState: dualAccountState
                         )
                     )

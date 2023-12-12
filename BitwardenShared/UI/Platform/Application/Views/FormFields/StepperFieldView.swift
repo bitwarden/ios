@@ -47,13 +47,13 @@ struct StepperFieldView<State>: View {
             ) {
                 HStack {
                     Text(field.title)
-                        .font(.styleGuide(.body))
+                        .styleGuide(.body)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                     Spacer()
 
                     Text(String(field.value))
-                        .font(.styleGuide(.body).monospacedDigit())
+                        .styleGuide(.body, monoSpacedDigit: true)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 }
                 .padding(.trailing, 4)

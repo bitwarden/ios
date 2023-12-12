@@ -46,7 +46,8 @@ struct SettingsMenuField<T>: View where T: Menuable {
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 }
             }
-            .font(.styleGuide(.body))
+            .styleGuide(.body)
+
             .id(title)
             .padding(.horizontal, 16)
 
