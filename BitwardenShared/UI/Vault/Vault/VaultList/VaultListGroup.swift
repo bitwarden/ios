@@ -17,6 +17,11 @@ public enum VaultListGroup: Equatable, Hashable {
     /// A group of secure note type ciphers.
     case secureNote
 
+    // MARK: Collections
+
+    /// A group of ciphers within a collection.
+    case collection(id: String, name: String)
+
     // MARK: Folders
 
     /// A group of ciphers within a folder.
@@ -34,6 +39,8 @@ extension VaultListGroup {
         switch self {
         case .card:
             return Localizations.typeCard
+        case let .collection(_, name):
+            return name
         case let .folder(_, name):
             return name
         case .identity:
@@ -52,6 +59,8 @@ extension VaultListGroup {
         switch self {
         case .card:
             return Localizations.cards
+        case let .collection(_, name):
+            return name
         case let .folder(_, name):
             return name
         case .identity:

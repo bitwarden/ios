@@ -250,11 +250,35 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Snapshots
 
-    func test_snapshot_empty() {
+    func test_snapshot_add_empty() {
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
-    func test_snapshot_full_fieldsVisible() {
+    /// Tests the add state with the password field not visible.
+    func test_snapshot_add_login_full_fieldsNotVisible() {
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.loginState = .fixture(
+            password: "password1!",
+            uris: [
+                .init(uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.loginState.uris = [
+            UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
+        ]
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    /// Tests the add state with all fields.
+    func test_snapshot_add_login_full_fieldsVisible() {
         processor.state.type = .login
         processor.state.name = "Name"
         processor.state.loginState.username = "username"
@@ -273,7 +297,28 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
-    func test_snapshot_secureNote_full_fieldsVisible() {
+    func test_snapshot_edit_full_fieldsNotVisible() {
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state.loginState = .fixture(
+            isPasswordVisible: false,
+            password: "password1!",
+            uris: [
+                .init(uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot_add_secureNote_full_fieldsVisible() {
         processor.state.type = .secureNote
         processor.state.name = "Secure Note Name"
         processor.state.isFavoriteOn = true
@@ -285,29 +330,28 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
-    func test_snapshot_full_fieldsNotVisible() {
-        processor.state.type = .login
-        processor.state.name = "Name"
+    func test_snapshot_edit_full_fieldsNotVisible_largeText() {
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
         processor.state.loginState = .fixture(
+            isPasswordVisible: false,
             password: "password1!",
             uris: [
                 .init(uri: URL.example.absoluteString),
             ],
             username: "username"
         )
+        processor.state.type = .login
+        processor.state.name = "Name"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.loginState.uris = [
-            UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
-        ]
         processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
 
-        assertSnapshot(of: subject, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortraitAX5())
     }
 
-    func test_snapshot__edit_full_fieldsVisible() {
+    func test_snapshot_edit_full_fieldsVisible() {
         processor.state = CipherItemState(existing: CipherView.loginFixture())!
         processor.state.type = .login
         processor.state.name = "Name"
@@ -328,7 +372,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
-    func test_snapshot__edit_full_fieldsVisible_largeText() {
+    func test_snapshot_edit_full_fieldsVisible_largeText() {
         processor.state = CipherItemState(existing: CipherView.loginFixture())!
         processor.state.loginState = .fixture(
             isPasswordVisible: true,
@@ -349,45 +393,17 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject, as: .tallPortraitAX5())
     }
 
-    func test_snapshot__edit_full_fieldsNotVisible() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
-        processor.state.loginState = .fixture(
-            isPasswordVisible: false,
-            password: "password1!",
-            uris: [
-                .init(uri: URL.example.absoluteString),
-            ],
-            username: "username"
-        )
-        processor.state.type = .login
-        processor.state.name = "Name"
-        processor.state.isFavoriteOn = true
-        processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
-        processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
-
-        assertSnapshot(of: subject, as: .tallPortrait)
+    /// Test a snapshot of the AddEditView previews.
+    func test_snapshot_previews_addEditItemView() {
+        for preview in AddEditItemView_Previews._allPreviews {
+            assertSnapshots(
+                matching: preview.content,
+                as: [
+                    .tallPortrait,
+                    .tallPortraitAX5(heightMultiple: 5),
+                    .defaultPortraitDark,
+                ]
+            )
+        }
     }
-
-    func test_snapshot__edit_full_fieldsNotVisible_largeText() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
-        processor.state.loginState = .fixture(
-            isPasswordVisible: false,
-            password: "password1!",
-            uris: [
-                .init(uri: URL.example.absoluteString),
-            ],
-            username: "username"
-        )
-        processor.state.type = .login
-        processor.state.name = "Name"
-        processor.state.isFavoriteOn = true
-        processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
-        processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
-
-        assertSnapshot(of: subject, as: .tallPortraitAX5())
-    }
-}
+} // swiftlint:disable:this file_length

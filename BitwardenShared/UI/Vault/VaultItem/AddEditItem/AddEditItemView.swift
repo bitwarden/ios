@@ -20,7 +20,7 @@ struct AddEditItemView: View {
         case .add:
             addView
         case .existing:
-            editView
+            existing
         }
     }
 
@@ -64,7 +64,7 @@ struct AddEditItemView: View {
         }
     }
 
-    private var editView: some View {
+    private var existing: some View {
         content
             .navigationTitle(Localizations.editItem)
             .toolbar {
@@ -91,14 +91,16 @@ struct AddEditItemView: View {
 
     private var informationSection: some View {
         SectionView(Localizations.itemInformation) {
-            BitwardenMenuField(
-                title: Localizations.type,
-                options: CipherType.allCases,
-                selection: store.binding(
-                    get: \.type,
-                    send: AddEditItemAction.typeChanged
+            if case .add = store.state.configuration {
+                BitwardenMenuField(
+                    title: Localizations.type,
+                    options: CipherType.allCases,
+                    selection: store.binding(
+                        get: \.type,
+                        send: AddEditItemAction.typeChanged
+                    )
                 )
-            )
+            }
 
             BitwardenTextField(
                 title: Localizations.name,
@@ -200,7 +202,11 @@ private extension AddEditItemView {
     }
 }
 
-struct AddItemView_Previews: PreviewProvider {
+struct AddEditItemView_Previews: PreviewProvider {
+    static var fixedDate: Date {
+        .init(timeIntervalSince1970: 1_695_000_000)
+    }
+
     static var previews: some View {
         NavigationView {
             AddEditItemView(
@@ -212,5 +218,53 @@ struct AddItemView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Empty Add")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: .init(
+                            existing: .init(
+                                id: .init(),
+                                organizationId: nil,
+                                folderId: nil,
+                                collectionIds: [],
+                                key: .init(),
+                                name: "Edit Em",
+                                notes: nil,
+                                type: .login,
+                                login: .init(
+                                    username: "EddyEddity",
+                                    password: "changerdanger",
+                                    passwordRevisionDate: fixedDate,
+                                    uris: [
+                                        .init(uri: "yahoo.com", match: nil),
+                                        .init(uri: "account.yahoo.com", match: nil),
+                                    ],
+                                    totp: nil,
+                                    autofillOnPageLoad: nil
+                                ),
+                                identity: nil,
+                                card: nil,
+                                secureNote: nil,
+                                favorite: true,
+                                reprompt: .none,
+                                organizationUseTotp: false,
+                                edit: true,
+                                viewPassword: true,
+                                localData: nil,
+                                attachments: nil,
+                                fields: nil,
+                                passwordHistory: nil,
+                                creationDate: fixedDate,
+                                deletedDate: nil,
+                                revisionDate: fixedDate
+                            )
+                        )!
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Edit Login")
     }
 }

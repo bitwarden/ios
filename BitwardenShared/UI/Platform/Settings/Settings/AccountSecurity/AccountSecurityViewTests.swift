@@ -9,7 +9,11 @@ class AccountSecurityViewTests: BitwardenTestCase {
     var subject = AccountSecurityView(
         store: Store(
             processor: StateProcessor(
-                state: AccountSecurityState(isApproveLoginRequestsToggleOn: true))
+                state: AccountSecurityState(
+                    isApproveLoginRequestsToggleOn: true,
+                    sessionTimeoutValue: .fifteenMinutes
+                )
+            )
         )
     )
 

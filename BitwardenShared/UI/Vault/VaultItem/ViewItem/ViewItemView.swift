@@ -61,17 +61,16 @@ struct ViewItemView: View {
     /// the different types of items into one variable, so that the edit button can be
     /// added to all of them at once.
     @ViewBuilder
-    private func details(for state: CipherItemState.ItemTypeState) -> some View {
+    private func details(for state: ViewVaultItemState) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
-                switch state {
-                case let .login(loginState):
-                    ViewLoginItemView(store: store.child(
-                        state: { _ in loginState },
+                ViewItemDetailsView(
+                    store: store.child(
+                        state: { _ in state },
                         mapAction: { $0 },
                         mapEffect: { $0 }
-                    ))
-                }
+                    )
+                )
             }
             .padding(16)
         }

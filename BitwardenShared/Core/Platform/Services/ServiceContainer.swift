@@ -164,6 +164,8 @@ public class ServiceContainer: Services {
         let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
         let authRepository = DefaultAuthRepository(
+            accountAPIService: apiService,
+            clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
@@ -183,7 +185,9 @@ public class ServiceContainer: Services {
 
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
+            clientCrypto: clientService.clientCrypto(),
             clientVault: clientService.clientVault(),
+            errorReporter: errorReporter,
             stateService: stateService,
             syncAPIService: apiService,
             vaultTimeoutService: vaultTimeoutService

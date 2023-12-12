@@ -2,4 +2,4 @@
 
 /// An object that defines the current state of a `DeleteAccountView`.
 ///
-struct DeleteAccountState {}
+struct DeleteAccountState: Equatable {}

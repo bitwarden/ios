@@ -108,6 +108,15 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 // MARK: - SettingsCoordinatorDelegate
 
 extension AppCoordinator: SettingsCoordinatorDelegate {
+    func didDeleteAccount(otherAccounts: [Account]?) {
+        if let account = otherAccounts?.first {
+            showAuth(route: .vaultUnlock(account))
+        } else {
+            showAuth(route: .landing)
+        }
+        showAuth(route: .alert(.accountDeletedAlert()))
+    }
+
     func didLockVault(account: Account) {
         showAuth(route: .vaultUnlock(account))
     }

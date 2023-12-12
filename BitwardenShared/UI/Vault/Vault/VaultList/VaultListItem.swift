@@ -53,6 +53,8 @@ extension VaultListItem {
             switch group {
             case .card:
                 return Asset.Images.creditCard
+            case .collection:
+                return Asset.Images.collections
             case .folder:
                 return Asset.Images.folderClosed
             case .identity:

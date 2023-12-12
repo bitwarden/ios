@@ -62,6 +62,19 @@ class StackNavigatorTests: BitwardenTestCase {
         waitFor(subject.presentedViewController == nil)
     }
 
+    /// `dismiss(animated:)` dismisses the hosted view and executes a block of code
+    /// when dismission is complete.
+    func test_dismiss_completion() {
+        var isBlockExecuted = false
+
+        subject.present(EmptyView(), animated: false)
+        subject.dismiss {
+            isBlockExecuted = true
+        }
+        waitFor(subject.presentedViewController == nil)
+        XCTAssertTrue(isBlockExecuted)
+    }
+
     /// `push(_:animated:)` pushes the hosted view.
     func test_push_view() {
         subject.push(EmptyView(), animated: false)
