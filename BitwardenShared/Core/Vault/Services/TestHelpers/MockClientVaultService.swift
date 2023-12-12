@@ -62,7 +62,7 @@ class MockClientCollections: ClientCollectionsProtocol {
     }
 
     func decryptList(collections: [Collection]) async throws -> [CollectionView] {
-        fatalError("Not implemented yet")
+        collections.map(CollectionView.init)
     }
 }
 
