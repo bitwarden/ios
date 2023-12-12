@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class VaultRepositoryTests: BitwardenTestCase {
+class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
@@ -297,6 +297,22 @@ class VaultRepositoryTests: BitwardenTestCase {
               - Group: Trash (1)
             """
         }
+    }
+
+    /// `vaultListPublisher()` returns a publisher which publishes an empty array if the user's
+    /// vault contains no ciphers.
+    func test_vaultListPublisher_empty() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfile)
+
+        var iterator = subject.vaultListPublisher().makeAsyncIterator()
+
+        Task {
+            try await subject.fetchSync()
+        }
+
+        let sections = await iterator.next()
+
+        try XCTAssertTrue(XCTUnwrap(sections).isEmpty)
     }
 
     /// `vaultListPublisher(group:)` returns a publisher for a group of items within the vault list.

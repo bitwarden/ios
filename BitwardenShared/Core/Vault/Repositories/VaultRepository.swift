@@ -176,9 +176,11 @@ class DefaultVaultRepository {
             .decryptList(folders: response.folders.map(Folder.init))
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let collections = try await clientVault.collections()
+        _ = try await clientVault.collections()
             .decryptList(collections: response.collections.map(Collection.init))
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        guard !ciphers.isEmpty else { return [] }
 
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
 

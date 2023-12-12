@@ -131,37 +131,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
     ///
     private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
-        Task {
-            defer { state.profileSwitcherState.isVisible = false }
-            let accounts = try? await services.authRepository.getAccounts()
-            let active = try? await services.authRepository.getActiveAccount()
-            guard let accounts,
-                  accounts.contains(where: { account in
-                      account.userId == selectedAccount.userId
-                  }),
-                  selectedAccount != active else {
-                return
-            }
-            do {
-                let account = try await services.authRepository.getAccount(for: selectedAccount.userId)
-                didTapAccount(account, isUnlocked: selectedAccount.isUnlocked)
-            } catch {
-                services.errorReporter.log(error: error)
-            }
-        }
-    }
-
-    /// Handles a tap of an account.
-    /// - Parameters
-    ///   - account: The selected account.
-    ///   - isUnlocked: The last known lock state of an account.
-    ///
-    private func didTapAccount(_ account: Account, isUnlocked: Bool) {
-        if isUnlocked {
-            coordinator.navigate(to: .complete)
-        } else {
-            coordinator.navigate(to: .vaultUnlock(account))
-        }
+        coordinator.navigate(to: .switchAccount(userId: selectedAccount.userId))
+        state.profileSwitcherState.isVisible = false
     }
 
     /// Configures a profile switcher state with the current account and alternates.
