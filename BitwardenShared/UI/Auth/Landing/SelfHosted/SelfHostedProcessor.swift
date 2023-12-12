@@ -1,5 +1,15 @@
 import Foundation
 
+/// A delegate of `SelfHostedProcessor` that is notified when the user saves their environment settings.
+///
+protocol SelfHostedProcessorDelegate: AnyObject {
+    /// Called when the user saves their environment settings.
+    ///
+    /// - Parameter urls: The URLs that the user specified for their environment.
+    ///
+    func didSaveEnvironment(urls: EnvironmentUrlData) async
+}
+
 // MARK: - SelfHostedProcessor
 
 /// The processor used to manage state and handle actions for the self-hosted screen.
@@ -10,16 +20,26 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<AuthRoute>
 
+    /// The delegate for the processor that is notified when the user saves their environment settings.
+    private weak var delegate: SelfHostedProcessorDelegate?
+
     // MARK: Initialization
 
     /// Initializes a `SelfHostedProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
+    ///   - delegate: The delegate for the processor that is notified when the user saves their
+    ///     environment settings.
     ///   - state: The initial state of the processor.
     ///
-    init(coordinator: AnyCoordinator<AuthRoute>, state: SelfHostedState) {
+    init(
+        coordinator: AnyCoordinator<AuthRoute>,
+        delegate: SelfHostedProcessorDelegate?,
+        state: SelfHostedState
+    ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         super.init(state: state)
     }
 
@@ -28,7 +48,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     override func perform(_ effect: SelfHostedEffect) async {
         switch effect {
         case .saveEnvironment:
-            saveEnvironment()
+            await saveEnvironment()
         }
     }
 
@@ -68,7 +88,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     }
 
     /// Saves the environment URLs if they are valid or presents an alert if any are invalid.
-    private func saveEnvironment() {
+    private func saveEnvironment() async {
         guard areURLsValid() else {
             coordinator.showAlert(Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
@@ -77,8 +97,16 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
             return
         }
 
-        // TODO: BIT-1062 Save and apply environment
-
+        let urls = EnvironmentUrlData(
+            api: URL(string: state.apiServerUrl)?.sanitized,
+            base: URL(string: state.serverUrl)?.sanitized,
+            events: nil,
+            icons: URL(string: state.iconsServerUrl)?.sanitized,
+            identity: URL(string: state.identityServerUrl)?.sanitized,
+            notifications: nil,
+            webVault: URL(string: state.webVaultServerUrl)?.sanitized
+        )
+        await delegate?.didSaveEnvironment(urls: urls)
         coordinator.navigate(to: .dismiss)
     }
 }

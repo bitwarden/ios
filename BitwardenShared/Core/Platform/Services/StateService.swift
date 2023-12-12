@@ -1,5 +1,7 @@
 import Combine
 
+// swiftlint:disable file_length
+
 // MARK: - StateService
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
@@ -46,12 +48,25 @@ protocol StateService: AnyObject {
     ///
     func getActiveAccountId() async throws -> String
 
+    /// Gets the environment URLs for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the environment URLs.
+    /// - Returns: The user's environment URLs.
+    ///
+    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
+
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
     /// - Returns: The password generation options for the user ID.
     ///
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions?
+
+    /// Gets the environment URLs used by the app prior to the user authenticating.
+    ///
+    /// - Returns: The environment URLs used prior to user authentication.
+    ///
+    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
 
     /// Gets the username generation options for a user ID.
     ///
@@ -89,6 +104,12 @@ protocol StateService: AnyObject {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws
 
+    /// Sets the environment URLs used prior to user authentication.
+    ///
+    /// - Parameter urls: The environment URLs used prior to user authentication.
+    ///
+    func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+
     /// Sets a new access and refresh token for an account.
     ///
     /// - Parameters:
@@ -122,6 +143,14 @@ extension StateService {
     ///
     func getAccountEncryptionKeys() async throws -> AccountEncryptionKeys {
         try await getAccountEncryptionKeys(userId: nil)
+    }
+
+    /// Gets the environment URLs for the active account.
+    ///
+    /// - Returns: The environment URLs for the active account.
+    ///
+    func getEnvironmentUrls() async throws -> EnvironmentUrlData? {
+        try await getEnvironmentUrls(userId: nil)
     }
 
     /// Gets the password generation options for the active account.
@@ -278,9 +307,18 @@ actor DefaultStateService: StateService {
         return activeAccount
     }
 
+    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
+    }
+
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.passwordGenerationOptions(userId: userId)
+    }
+
+    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
+        appSettingsStore.preAuthEnvironmentUrls
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
@@ -324,6 +362,10 @@ actor DefaultStateService: StateService {
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPasswordGenerationOptions(options, userId: userId)
+    }
+
+    func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
+        appSettingsStore.preAuthEnvironmentUrls = urls
     }
 
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {

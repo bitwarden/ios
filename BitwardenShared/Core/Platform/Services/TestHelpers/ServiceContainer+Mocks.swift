@@ -12,6 +12,7 @@ extension ServiceContainer {
         captchaService: CaptchaService = MockCaptchaService(),
         cameraAuthorizationService: CameraAuthorizationService = MockCameraAuthorizationService(),
         clientService: ClientService = MockClientService(),
+        environmentService: EnvironmentService = MockEnvironmentService(),
         errorReporter: ErrorReporter = MockErrorReporter(),
         generatorRepository: GeneratorRepository = MockGeneratorRepository(),
         httpClient: HTTPClient = MockHTTPClient(),
@@ -26,8 +27,8 @@ extension ServiceContainer {
     ) -> ServiceContainer {
         ServiceContainer(
             apiService: APIService(
-                baseUrlService: baseUrlService,
-                client: httpClient
+                client: httpClient,
+                environmentService: environmentService
             ),
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
@@ -36,6 +37,7 @@ extension ServiceContainer {
             captchaService: captchaService,
             cameraAuthorizationService: cameraAuthorizationService,
             clientService: clientService,
+            environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
             pasteboardService: pasteboardService,
