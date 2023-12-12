@@ -100,7 +100,7 @@ struct AccountSecurityView: View {
     private var sessionTimeoutSection: some View {
         VStack(alignment: .leading) {
             SectionHeaderView(Localizations.sessionTimeout)
-            
+
             VStack(spacing: 0) {
                 SettingsMenuField(
                     title: Localizations.sessionTimeout,
