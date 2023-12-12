@@ -121,7 +121,7 @@ struct SelfHostedView: View {
     ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(header)
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 .textCase(.uppercase)
                 .padding(.bottom, 4)
@@ -129,7 +129,7 @@ struct SelfHostedView: View {
             content()
 
             Text(footer)
-                .font(.styleGuide(.subheadline))
+                .styleGuide(.subheadline)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
         }
     }

@@ -67,8 +67,14 @@ class DefaultVaultRepository {
     /// The API service used to perform API requests for the ciphers in a user's vault.
     let cipherAPIService: CipherAPIService
 
+    /// The client used by the application to handle encryption and decryption setup tasks.
+    let clientCrypto: ClientCryptoProtocol
+
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
+
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
 
     /// The service used by the application to manage account state.
     let stateService: StateService
@@ -88,20 +94,26 @@ class DefaultVaultRepository {
     ///
     /// - Parameters:
     ///   - cipherAPIService: The API service used to perform API requests for the ciphers in a user's vault.
+    ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
         cipherAPIService: CipherAPIService,
+        clientCrypto: ClientCryptoProtocol,
         clientVault: ClientVaultService,
+        errorReporter: ErrorReporter,
         stateService: StateService,
         syncAPIService: SyncAPIService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.cipherAPIService = cipherAPIService
+        self.clientCrypto = clientCrypto
         self.clientVault = clientVault
+        self.errorReporter = errorReporter
         self.stateService = stateService
         self.syncAPIService = syncAPIService
         self.vaultTimeoutService = vaultTimeoutService
@@ -139,6 +151,8 @@ class DefaultVaultRepository {
             return activeCiphers.filter { $0.type == .login }.compactMap(VaultListItem.init)
         case .card:
             return activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
+        case let .collection(id, _):
+            return activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
         case .identity:
             return activeCiphers.filter { $0.type == .identity }.compactMap(VaultListItem.init)
         case .secureNote:
@@ -164,6 +178,12 @@ class DefaultVaultRepository {
             .decryptList(folders: response.folders.map(Folder.init))
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
+        let collections = try await clientVault.collections()
+            .decryptList(collections: response.collections.map(Collection.init))
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        guard !ciphers.isEmpty else { return [] }
+
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
 
         let ciphersFavorites = activeCiphers.filter(\.favorite).compactMap(VaultListItem.init)
@@ -177,6 +197,14 @@ class DefaultVaultRepository {
             return VaultListItem(
                 id: folder.id,
                 itemType: .group(.folder(id: folder.id, name: folder.name), cipherCount)
+            )
+        }
+
+        let collectionItems = collections.map { collection in
+            let collectionCount = activeCiphers.lazy.filter { $0.collectionIds.contains(collection.id) }.count
+            return VaultListItem(
+                id: collection.id,
+                itemType: .group(.collection(id: collection.id, name: collection.name), collectionCount)
             )
         }
 
@@ -197,8 +225,10 @@ class DefaultVaultRepository {
             VaultListSection(id: "Types", items: types, name: Localizations.types),
             VaultListSection(id: "Folders", items: folderItems, name: Localizations.folders),
             VaultListSection(id: "NoFolder", items: ciphersNoFolder, name: Localizations.folderNone),
+            VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections),
             VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash),
         ]
+        .filter { !$0.items.isEmpty }
     }
 }
 
@@ -207,6 +237,18 @@ extension DefaultVaultRepository: VaultRepository {
 
     func fetchSync() async throws {
         let response = try await syncAPIService.getSync()
+        let organizationKeysById = response.profile?.organizations?
+            .reduce(into: [String: String]()) { result, organization in
+                guard let id = organization.id, let key = organization.key else { return }
+                result[id] = key
+            } ?? [:]
+        do {
+            try await clientCrypto.initializeOrgCrypto(
+                req: InitOrgCryptoRequest(organizationKeys: organizationKeysById)
+            )
+        } catch {
+            errorReporter.log(error: error)
+        }
         syncResponseSubject.value = response
     }
 

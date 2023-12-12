@@ -1,10 +1,10 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: - ViewLoginItemState
+// MARK: - ViewVaultItemState
 
 /// The state for viewing a login item.
-struct ViewLoginItemState: Equatable {
+struct ViewVaultItemState: Equatable {
     // MARK: Properties
 
     /// The Cipher underpinning the state

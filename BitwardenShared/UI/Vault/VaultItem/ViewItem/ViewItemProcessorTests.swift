@@ -123,12 +123,11 @@ class ViewItemProcessorTests: BitwardenTestCase {
 
         subject.receive(.customFieldVisibilityPressed(customField2))
         let newLoadingState = try XCTUnwrap(subject.state.loadingState.wrappedData)
-        guard let loadingState = newLoadingState.viewState,
-              case let CipherItemState.ItemTypeState.login(alteredState) = loadingState else {
+        guard let loadingState = newLoadingState.viewState else {
             XCTFail("ViewItemState has incorrect value: \(newLoadingState)")
             return
         }
-        let customFields = alteredState.customFields
+        let customFields = loadingState.customFields
         XCTAssertEqual(customFields.count, 3)
         XCTAssertFalse(customFields[0].isPasswordVisible)
         XCTAssertTrue(customFields[1].isPasswordVisible)
@@ -212,7 +211,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
             revisionDate: Date(),
             type: .card
         )
-        var cipherState = CipherItemState(existing: cipherView)!
+        let cipherState = CipherItemState(existing: cipherView)!
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
         XCTAssertEqual(
@@ -292,7 +291,9 @@ class ViewItemProcessorTests: BitwardenTestCase {
         subject.receive(.passwordVisibilityPressed)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
-        try await alert.tapAction(title: Localizations.submit)
+        let textField = try XCTUnwrap(alert.alertTextFields.first)
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, [textField])
 
         cipherState.isMasterPasswordRePromptOn = false
         cipherState.loginState.isPasswordVisible = true

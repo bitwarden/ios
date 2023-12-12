@@ -14,18 +14,12 @@ struct CipherItemState: Equatable {
         case add
         /// A case to view or edit an existing cipher.
         case existing(cipherView: CipherView)
-        
+
         /// The existing `CipherView` if the configuration is `existing`.
         var existingCipherView: CipherView? {
             guard case let .existing(cipherView) = self else { return nil }
             return cipherView
         }
-    }
-
-    /// An enumeration of the possible values of this state.
-    enum ItemTypeState: Equatable {
-        /// A login item's representative state.
-        case login(ViewLoginItemState)
     }
 
     // MARK: Properties
@@ -66,29 +60,19 @@ struct CipherItemState: Equatable {
     // MARK: DerivedProperties
 
     /// The view state of the item.
-    var viewState: ItemTypeState? {
+    var viewState: ViewVaultItemState? {
         guard let cipherView = configuration.existingCipherView else {
             return nil
         }
-        switch type {
-        case .login:
-            let viewLoginState = ViewLoginItemState(
-                cipher: cipherView,
-                customFields: customFields,
-                isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
-                loginState: loginState,
-                name: name,
-                notes: notes,
-                updatedDate: updatedDate
-            )
-            return .login(viewLoginState)
-        case .secureNote:
-            return nil
-        case .card:
-            return nil
-        case .identity:
-            return nil
-        }
+        return ViewVaultItemState(
+            cipher: cipherView,
+            customFields: customFields,
+            isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
+            loginState: loginState,
+            name: name,
+            notes: notes,
+            updatedDate: updatedDate
+        )
     }
 
     // MARK: Initialization
@@ -176,18 +160,11 @@ extension CipherItemState {
             key: nil,
             name: name,
             notes: notes.nilIfEmpty,
-            type: BitwardenSdk.CipherType(.login),
-            login: BitwardenSdk.LoginView(
-                username: loginState.username.nilIfEmpty,
-                password: loginState.password.nilIfEmpty,
-                passwordRevisionDate: nil,
-                uris: nil,
-                totp: nil,
-                autofillOnPageLoad: nil
-            ),
+            type: BitwardenSdk.CipherType(type),
+            login: type == .login ? loginState.loginView : nil,
             identity: nil,
             card: nil,
-            secureNote: nil,
+            secureNote: type == .secureNote ? .init(type: .generic) : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,

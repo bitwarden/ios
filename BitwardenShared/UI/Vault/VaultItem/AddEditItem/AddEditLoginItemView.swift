@@ -14,37 +14,20 @@ struct AddEditLoginItemView: View {
         LazyVStack(alignment: .leading, spacing: 16) {
             BitwardenTextField(
                 title: Localizations.username,
-                buttons: [
-                    .init(
-                        accessibilityLabel: Localizations.generateUsername,
-                        action: { store.send(.generateUsernamePressed) },
-                        icon: Asset.Images.restart2
-                    ),
-                ],
                 text: store.binding(
                     get: \.username,
                     send: AddEditItemAction.usernameChanged
                 )
-            )
+            ) {
+                AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generateUsername) {
+                    store.send(.generateUsernamePressed)
+                }
+            }
             .textFieldConfiguration(.username)
         }
 
         BitwardenTextField(
             title: Localizations.password,
-            buttons: [
-                .init(
-                    accessibilityLabel: Localizations.checkPassword,
-                    action: {
-                        await store.perform(.checkPasswordPressed)
-                    },
-                    icon: Asset.Images.roundCheck
-                ),
-                .init(
-                    accessibilityLabel: Localizations.generatePassword,
-                    action: { store.send(.generatePasswordPressed) },
-                    icon: Asset.Images.restart2
-                ),
-            ],
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
                 send: AddEditItemAction.togglePasswordVisibilityChanged
@@ -53,13 +36,19 @@ struct AddEditLoginItemView: View {
                 get: \.password,
                 send: AddEditItemAction.passwordChanged
             )
-        )
+        ) {
+            AccessoryButton(asset: Asset.Images.roundCheck, accessibilityLabel: Localizations.checkPassword) {
+                await store.perform(.checkPasswordPressed)
+            }
+            AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generatePassword) {
+                store.send(.generatePasswordPressed)
+            }
+        }
         .textFieldConfiguration(.password)
 
         VStack(alignment: .leading, spacing: 8) {
             Text(Localizations.authenticatorKey)
-                .font(.styleGuide(.subheadline))
-                .bold()
+                .styleGuide(.subheadline, weight: .semibold)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
             AsyncButton {
@@ -76,30 +65,46 @@ struct AddEditLoginItemView: View {
         uriSection
     }
 
-    var uriSection: some View {
+    /// The section for uris.
+    @ViewBuilder private var uriSection: some View {
         SectionView(Localizations.urIs) {
-            ForEachIndexed(store.state.uris, id: \.self) { index, uriView in
+            ForEachIndexed(store.state.uris) { index, uriState in
                 BitwardenTextField(
                     title: Localizations.uri,
-                    buttons: [
-                        .init(
-                            accessibilityLabel: Localizations.uriMatchDetection,
-                            action: { store.send(.uriSettingsPressed) },
-                            icon: Asset.Images.gear
-                        ),
-                    ],
                     text: store.binding(
-                        get: { _ in uriView.uri ?? "" },
-                        send: { newValue in
-                            AddEditItemAction.uriChanged(newValue, index: index)
-                        }
+                        get: { _ in uriState.uri },
+                        send: { AddEditItemAction.uriChanged($0, index: index) }
                     )
-                )
+                ) {
+                    Menu {
+                        Menu(Localizations.matchDetection) {
+                            Picker(Localizations.matchDetection, selection: store.binding(
+                                get: { _ in uriState.matchType },
+                                send: { .uriTypeChanged($0, index: index) }
+                            )) {
+                                ForEach(DefaultableType<UriMatchType>.allCases, id: \.hashValue) { option in
+                                    Text(option.localizedName).tag(option)
+                                }
+                            }
+                        }
+                        Button(Localizations.remove, role: .destructive) {
+                            withAnimation {
+                                store.send(.removeUriPressed(index: index))
+                            }
+                        }
+                    } label: {
+                        Asset.Images.gear.swiftUIImage
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                    }
+                }
                 .textFieldConfiguration(.url)
             }
 
             Button(Localizations.newUri) {
-                store.send(.newUriPressed)
+                withAnimation {
+                    store.send(.newUriPressed)
+                }
             }
             .buttonStyle(.tertiary())
         }

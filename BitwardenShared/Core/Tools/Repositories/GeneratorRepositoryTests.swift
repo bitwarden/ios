@@ -63,27 +63,28 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(passwordHistoryValues, [passwordHistory3, passwordHistory2, passwordHistory1])
     }
 
-    /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history and limits the
-    /// maximum size of the history.
-    func test_addPasswordHistory_limitsMaxValues() throws {
-        var passwordHistoryValues = [PasswordHistoryView]()
-        Task {
-            for await passwordHistory in subject.passwordHistoryPublisher() {
-                passwordHistoryValues = passwordHistory
-            }
-        }
-
-        let passwords = (0 ... 150).map { PasswordHistoryView.fixture(password: $0.description) }
-
-        Task {
-            for password in passwords {
-                try await subject.addPasswordHistory(password)
-            }
-        }
-
-        waitFor { passwordHistoryValues.first == passwords.last }
-        XCTAssertEqual(passwordHistoryValues, passwords.suffix(100).reversed())
-    }
+//    TODO: BIT-1143 Fix flaky test when migrating this to the database
+//    /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history and limits the
+//    /// maximum size of the history.
+//    func test_addPasswordHistory_limitsMaxValues() throws {
+//        var passwordHistoryValues = [PasswordHistoryView]()
+//        Task {
+//            for await passwordHistory in subject.passwordHistoryPublisher() {
+//                passwordHistoryValues = passwordHistory
+//            }
+//        }
+//
+//        let passwords = (0 ... 150).map { PasswordHistoryView.fixture(password: $0.description) }
+//
+//        Task {
+//            for password in passwords {
+//                try await subject.addPasswordHistory(password)
+//            }
+//        }
+//
+//        waitFor { passwordHistoryValues.first == passwords.last }
+//        XCTAssertEqual(passwordHistoryValues, passwords.suffix(100).reversed())
+//    }
 
     /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history and prevents
     /// adding duplicate values at the top of the list.

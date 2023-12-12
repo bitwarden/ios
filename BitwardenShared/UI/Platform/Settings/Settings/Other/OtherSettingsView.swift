@@ -37,10 +37,10 @@ struct OtherSettingsView: View {
                 Text(Localizations.enableSyncOnRefresh)
             }
             .toggleStyle(.bitwarden)
-            .font(.styleGuide(.body))
+            .styleGuide(.body)
 
             Text(Localizations.enableSyncOnRefreshDescription)
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                 .multilineTextAlignment(.leading)
         }
@@ -58,7 +58,7 @@ struct OtherSettingsView: View {
             .cornerRadius(10)
 
             Text(Localizations.clearClipboardDescription)
-                .font(.styleGuide(.footnote))
+                .styleGuide(.footnote)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                 .multilineTextAlignment(.leading)
         }
@@ -73,7 +73,7 @@ struct OtherSettingsView: View {
             Text(Localizations.connectToWatch)
         }
         .toggleStyle(.bitwarden)
-        .font(.styleGuide(.body))
+        .styleGuide(.body)
         .padding(.top, 8)
     }
 
@@ -89,7 +89,7 @@ struct OtherSettingsView: View {
                 Text(Localizations.lastSync + " ")
                 Text("5/14/2023 4:52 PM") // TODO: BIT-1182 Dynamic date value
             }
-            .font(.styleGuide(.footnote))
+            .styleGuide(.footnote)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .multilineTextAlignment(.leading)
         }

@@ -7,7 +7,7 @@ extension LoginItemState {
     static func fixture(
         isPasswordVisible: Bool = false,
         password: String = "",
-        uris: [CipherLoginUriModel] = [],
+        uris: [UriState] = [],
         username: String = ""
     ) -> Self {
         LoginItemState(

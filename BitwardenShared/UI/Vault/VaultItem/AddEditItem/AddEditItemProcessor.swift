@@ -68,9 +68,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
             }
         case .generateUsernamePressed:
             if state.loginState.username.isEmpty {
-                let first = state.loginState.uris.first?.uri ?? ""
-                let uri = URL(string: first)
-                let emailWebsite = uri?.sanitized.host
+                let emailWebsite = state.loginState.generatorEmailWebsite
                 coordinator.navigate(to: .generator(.username, emailWebsite: emailWebsite), context: self)
             } else {
                 presentReplacementAlert(for: .username)
@@ -85,24 +83,26 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
         case .newCustomFieldPressed:
             presentCustomFieldAlert()
         case .newUriPressed:
-            // TODO: BIT-901 Add a new blank URI field
-            break
+            state.loginState.uris.append(UriState())
         case let .notesChanged(newValue):
             state.notes = newValue
         case let .ownerChanged(newValue):
             state.owner = newValue
         case let .passwordChanged(newValue):
             state.loginState.password = newValue
+        case let .removeUriPressed(index):
+            guard index < state.loginState.uris.count else { return }
+            state.loginState.uris.remove(at: index)
         case let .togglePasswordVisibilityChanged(newValue):
             state.loginState.isPasswordVisible = newValue
         case let .typeChanged(newValue):
             state.type = newValue
         case let .uriChanged(newValue, index: index):
             guard state.loginState.uris.count > index else { return }
-            let uri = state.loginState.uris[index]
-            state.loginState.uris[index] = .init(match: uri.match, uri: newValue)
-        case .uriSettingsPressed:
-            presentUriSettingsAlert()
+            state.loginState.uris[index].uri = newValue
+        case let .uriTypeChanged(newValue, index):
+            guard index < state.loginState.uris.count else { return }
+            state.loginState.uris[index].matchType = newValue
         case let .usernameChanged(newValue):
             state.loginState.username = newValue
         }
@@ -164,7 +164,8 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
                     title: Localizations.yes,
                     style: .default,
                     handler: { [weak self] _ in
-                        self?.coordinator.navigate(to: .generator(type), context: self)
+                        let emailWebsite = self?.state.loginState.generatorEmailWebsite
+                        self?.coordinator.navigate(to: .generator(type, emailWebsite: emailWebsite), context: self)
                     }
                 ),
             ]
@@ -172,26 +173,29 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
         coordinator.navigate(to: .alert(alert))
     }
 
-    /// Builds an alert for changing the settings for a uri item and then routes
-    /// the coordinator to the `.alert` route.
-    ///
-    private func presentUriSettingsAlert() {
-        // TODO: BIT-901 Navigate to an `.alert` route with the uri settings alert
-    }
-
     /// Saves the item currently stored in `state`.
     ///
     private func saveItem() async {
-        coordinator.showLoadingOverlay(title: Localizations.saving)
         defer { coordinator.hideLoadingOverlay() }
         do {
+            try EmptyInputValidator(fieldName: Localizations.name)
+                .validate(input: state.name)
+            coordinator.showLoadingOverlay(title: Localizations.saving)
             switch state.configuration {
             case .add:
                 try await addItem()
             case let .existing(cipherView):
                 try await updateItem(cipherView: cipherView)
             }
+        } catch let error as InputValidationError {
+            coordinator.showAlert(Alert.inputValidationAlert(error: error))
+            return
         } catch {
+            let alert = Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+            coordinator.showAlert(alert)
             services.errorReporter.log(error: error)
         }
     }

@@ -21,18 +21,15 @@ struct DeleteAccountView: View {
 
             Text(Localizations.deletingYourAccountIsPermanent)
                 .foregroundColor(Color(asset: Asset.Colors.loadingRed))
-                .font(.styleGuide(.headline))
-                .bold()
+                .styleGuide(.headline, weight: .semibold)
 
             Text(Localizations.deleteAccountExplanation)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .font(.styleGuide(.subheadline))
+                .styleGuide(.subheadline)
 
             VStack(spacing: 12) {
-                Button {
-                    // TODO: BIT-1107 Present an alert verifying the user wants to delete the account
-                } label: {
-                    Text(Localizations.deleteAccount)
+                AsyncButton(Localizations.deleteAccount) {
+                    await store.perform(.deleteAccount)
                 }
                 .buttonStyle(.primary(isDestructive: true))
 

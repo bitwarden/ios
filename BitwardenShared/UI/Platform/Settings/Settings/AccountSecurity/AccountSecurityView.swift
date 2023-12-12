@@ -102,20 +102,26 @@ struct AccountSecurityView: View {
             SectionHeaderView(Localizations.sessionTimeout)
 
             VStack(spacing: 0) {
-                SettingsListItem(
-                    Localizations.sessionTimeout
-                ) {} trailingContent: {
-                    Text(Localizations.fifteenMinutes)
-                }
+                SettingsMenuField(
+                    title: Localizations.sessionTimeout,
+                    options: SessionTimeoutValue.allCases,
+                    selection: store.binding(
+                        get: \.sessionTimeoutValue,
+                        send: AccountSecurityAction.sessionTimeoutValueChanged
+                    )
+                )
 
-                SettingsListItem(
-                    Localizations.sessionTimeoutAction,
-                    hasDivider: false
-                ) {} trailingContent: {
-                    Text(Localizations.lock)
-                }
+                SettingsMenuField(
+                    title: Localizations.sessionTimeoutAction,
+                    options: SessionTimeoutAction.allCases,
+                    hasDivider: false,
+                    selection: store.binding(
+                        get: \.sessionTimeoutAction,
+                        send: AccountSecurityAction.sessionTimeoutActionChanged
+                    )
+                )
             }
-            .cornerRadius(10)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .padding(.top, 8)
     }
@@ -153,7 +159,7 @@ struct AccountSecurityView: View {
                     Text(Localizations.unlockWithPIN)
                 }
                 .toggleStyle(.bitwarden)
-                .font(.styleGuide(.body))
+                .styleGuide(.body)
             }
         }
     }

@@ -168,7 +168,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         let task = Task {
             subject.navigate(to: .switchAccount(userId: account.profile.userId))
         }
-        waitFor(stackNavigator.actions.last?.type == .pushed)
+        waitFor(stackNavigator.actions.last?.type == .replaced)
         task.cancel()
         XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)
     }
@@ -213,11 +213,11 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
     }
 
-    /// `navigate(to:)` with `.vaultUnlock` pushes the vault unlock view onto the stack navigator.
+    /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.
     func test_navigate_vaultUnlock() {
         subject.navigate(to: .vaultUnlock(.fixture()))
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+        XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
         XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)
     }
 

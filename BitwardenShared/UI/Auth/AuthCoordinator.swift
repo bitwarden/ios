@@ -278,7 +278,7 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
             state: VaultUnlockState(account: account)
         )
         let view = VaultUnlockView(store: Store(processor: processor))
-        stackNavigator.push(view)
+        stackNavigator.replace(view)
     }
 }
 

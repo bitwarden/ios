@@ -12,6 +12,12 @@ enum AccountSecurityAction {
     /// The logout button was pressed.
     case logout
 
+    /// The session timeout action has changed.
+    case sessionTimeoutActionChanged(SessionTimeoutAction)
+
+    /// The session timeout value has changed.
+    case sessionTimeoutValueChanged(SessionTimeoutValue)
+
     /// Approve login requests was toggled.
     case toggleApproveLoginRequestsToggle(Bool)
 

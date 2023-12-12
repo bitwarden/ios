@@ -225,7 +225,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(optionsAlert.alertActions[0].title, Localizations.logOut)
         XCTAssertEqual(optionsAlert.alertActions[1].title, Localizations.cancel)
 
-        try await optionsAlert.tapAction(title: Localizations.logOut)
+        await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
 
         let logoutConfirmationAlert = try coordinator.unwrapLastRouteAsAlert()
         XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
@@ -235,7 +235,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(logoutConfirmationAlert.alertActions[0].title, Localizations.yes)
         XCTAssertEqual(logoutConfirmationAlert.alertActions[1].title, Localizations.cancel)
 
-        try await logoutConfirmationAlert.tapAction(title: Localizations.yes)
+        await logoutConfirmationAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(coordinator.routes.last, .landing)
@@ -270,7 +270,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(coordinator.routes, [])
+        XCTAssertEqual(coordinator.routes, [.switchAccount(userId: profile.userId)])
     }
 
     /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
@@ -296,7 +296,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(coordinator.routes, [])
+        XCTAssertEqual(coordinator.routes, [.switchAccount(userId: profile.userId)])
     }
 
     /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
@@ -322,7 +322,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(coordinator.routes, [.complete])
+        XCTAssertEqual(coordinator.routes, [.switchAccount(userId: profile.userId)])
     }
 
     /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
@@ -348,7 +348,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(coordinator.routes, [.vaultUnlock(account)])
+        XCTAssertEqual(coordinator.routes, [.switchAccount(userId: profile.userId)])
     }
 
     /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
@@ -370,7 +370,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(coordinator.routes, [])
+        XCTAssertEqual(coordinator.routes, [.switchAccount(userId: profile.userId)])
     }
 
     /// `receive(_:)` with `.profileSwitcherAction(.addAccountPressed)` updates the state to reflect the changes.

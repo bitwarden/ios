@@ -28,13 +28,11 @@ struct ToastView: View {
     var body: some View {
         if let toast {
             Text(toast.text)
-                .font(.styleGuide(.subheadline))
-                .fontWeight(.semibold)
+                .styleGuide(.subheadline, weight: .semibold)
                 .multilineTextAlignment(.center)
                 .dynamicTypeSize(...DynamicTypeSize.accessibility2)
                 .id(toast.id)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(14)
                 .foregroundColor(Asset.Colors.textPrimaryInverted.swiftUIColor)
                 .frame(minWidth: 300, minHeight: 46)
                 .background(Asset.Colors.primaryBitwarden.swiftUIColor)
@@ -77,5 +75,12 @@ extension View {
 struct ToastView_Previews: PreviewProvider {
     static var previews: some View {
         ToastView(toast: .constant(Toast(text: "Toast!")))
+            .previewDisplayName("Toast View")
+
+        NavigationView {
+            Asset.Colors.backgroundPrimary.swiftUIColor
+                .toast(.constant(Toast(text: "Taos, NM!")))
+        }
+        .previewDisplayName("Overlay")
     }
 }
