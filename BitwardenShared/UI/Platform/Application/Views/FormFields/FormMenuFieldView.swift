@@ -69,6 +69,8 @@ struct FormMenuFieldView<State, T: Menuable, TrailingContent: View>: View {
     /// Optional content view that is displayed to the right of the menu value.
     let trailingContent: TrailingContent
 
+    // MARK: View
+
     var body: some View {
         BitwardenMenuField(
             title: field.title,
@@ -87,7 +89,10 @@ struct FormMenuFieldView<State, T: Menuable, TrailingContent: View>: View {
     ///   - field:  The data for displaying the field.
     ///   - action: A closure containing the action to take when the menu selection is changed.
     ///
-    init(field: FormMenuField<State, T>, action: @escaping (T) -> Void) where TrailingContent == EmptyView {
+    init(
+        field: FormMenuField<State, T>,
+        action: @escaping (T) -> Void
+    ) where TrailingContent == EmptyView {
         self.action = action
         self.field = field
         trailingContent = EmptyView()

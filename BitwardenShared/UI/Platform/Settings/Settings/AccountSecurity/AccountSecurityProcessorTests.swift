@@ -126,6 +126,20 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `receive(_:)` with `sessionTimeoutActionChanged(:)` updates the session timeout action in the state.
+    func test_receive_sessionTimeoutActionChanged() {
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .lock)
+        subject.receive(.sessionTimeoutActionChanged(.logout))
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+    }
+
+    /// `receive(_:)` with `sessionTimeoutValueChanged(:)` updates the session timeout value in the state.
+    func test_receive_sessionTimeoutValueChanged() {
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
+        subject.receive(.sessionTimeoutValueChanged(.never))
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
+    }
+
     /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` updates the state.
     func test_receive_toggleApproveLoginRequestsToggle() {
         subject.state.isApproveLoginRequestsToggleOn = false
