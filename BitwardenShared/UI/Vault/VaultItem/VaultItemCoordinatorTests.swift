@@ -1,4 +1,3 @@
-import SnapshotTesting
 import SwiftUI
 import XCTest
 
