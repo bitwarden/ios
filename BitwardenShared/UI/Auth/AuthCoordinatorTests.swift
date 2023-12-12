@@ -150,6 +150,15 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 
+    /// `navigate(to:)` with `.selfHosted` pushes the self-hosted view onto the stack navigator.
+    func test_navigate_selfHosted() throws {
+        subject.navigate(to: .selfHosted)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelfHostedView>)
+    }
+
     /// `navigate(to:)` with `.switchAccount` with an locked account navigates to vault unlock
     func test_navigate_switchAccount_locked() {
         let account = Account.fixture()

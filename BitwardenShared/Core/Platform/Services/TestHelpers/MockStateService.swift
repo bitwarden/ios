@@ -9,7 +9,9 @@ class MockStateService: StateService {
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
     var accounts: [Account]?
+    var environmentUrls = [String: EnvironmentUrlData]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var preAuthEnvironmentUrls: EnvironmentUrlData?
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
@@ -62,9 +64,18 @@ class MockStateService: StateService {
         try getActiveAccount().profile.userId
     }
 
+    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return environmentUrls[userId]
+    }
+
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return passwordGenerationOptions[userId]
+    }
+
+    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
+        preAuthEnvironmentUrls
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
@@ -90,9 +101,18 @@ class MockStateService: StateService {
         activeAccount = match
     }
 
+    func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        self.environmentUrls[userId] = environmentUrls
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {
+        preAuthEnvironmentUrls = urls
     }
 
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {

@@ -45,6 +45,10 @@ public class AppProcessor {
         coordinator.start()
         self.coordinator = coordinator
 
+        Task {
+            await services.environmentService.loadURLsForActiveAccount()
+        }
+
         if let activeAccount = services.appSettingsStore.state?.activeAccount {
             coordinator.navigate(to: .auth(.vaultUnlock(activeAccount)))
         } else {

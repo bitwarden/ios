@@ -42,6 +42,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The service used by the application to manage the environment settings.
+    let environmentService: EnvironmentService
+
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
@@ -82,11 +85,12 @@ public class ServiceContainer: Services {
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - biometricsService: The service used to obtain the available authentication policies
-    ///   and access controls for the user's device.
+    ///     and access controls for the user's device.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - cameraAuthorizationService: The service used by the application to query for and request
     ///     camera authorization.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
@@ -107,6 +111,7 @@ public class ServiceContainer: Services {
         captchaService: CaptchaService,
         cameraAuthorizationService: CameraAuthorizationService,
         clientService: ClientService,
+        environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
         pasteboardService: PasteboardService,
@@ -126,6 +131,7 @@ public class ServiceContainer: Services {
         self.captchaService = captchaService
         self.cameraAuthorizationService = cameraAuthorizationService
         self.clientService = clientService
+        self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
         self.pasteboardService = pasteboardService
@@ -155,8 +161,9 @@ public class ServiceContainer: Services {
         let biometricsService = DefaultBiometricsService()
         let clientService = DefaultClientService()
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
+        let environmentService = DefaultEnvironmentService(stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
-        let apiService = APIService(baseUrlService: baseUrlService, tokenService: tokenService)
+        let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
 
         let twoStepLoginService = DefaultTwoStepLoginService(baseUrlService: baseUrlService)
 
@@ -166,6 +173,7 @@ public class ServiceContainer: Services {
             accountAPIService: apiService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
+            environmentService: environmentService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
@@ -199,6 +207,7 @@ public class ServiceContainer: Services {
             captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
             cameraAuthorizationService: DefaultCameraAuthorizationService(),
             clientService: clientService,
+            environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
             pasteboardService: DefaultPasteboardService(),
