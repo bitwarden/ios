@@ -123,10 +123,10 @@ extension GeneratorState.PasswordState {
             special: containsSpecial,
             length: UInt8(length),
             avoidAmbiguous: avoidAmbiguous,
-            minLowercase: nil,
-            minUppercase: nil,
-            minNumber: nil, // TODO: BIT-980 Fix type mismatch with SDK (SDK expects bool not int).
-            minSpecial: nil // TODO: BIT-980 Fix type mismatch with SDK (SDK expects bool not int).
+            minLowercase: containsLowercase ? 1 : nil,
+            minUppercase: containsUppercase ? 1 : nil,
+            minNumber: containsNumbers ? UInt8(minimumNumber) : nil,
+            minSpecial: containsSpecial ? UInt8(minimumSpecial) : nil
         )
     }
 

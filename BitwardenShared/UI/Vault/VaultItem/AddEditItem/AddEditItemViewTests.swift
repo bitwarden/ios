@@ -195,17 +195,47 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .typeChanged(.card))
     }
 
-    /// Tapping the uri settings button dispatches the `.uriSettingsPressed` action.
-    func test_uriSettingsButton_tap() throws {
-        let button = try subject.inspect().find(
-            buttonWithAccessibilityLabel: Localizations.uriMatchDetection
-        )
+    /// Selecting a new value with the uri match type picker dispatches the `.uriTypeChanged` action.
+    /// is selected.
+    func test_uriMatchTypePicker_select() throws {
+        processor.state.loginState.uris = [
+            UriState(
+                id: "id",
+                matchType: .default,
+                uri: "uri"
+            ),
+        ]
+
+        let picker = try subject.inspect().find(picker: Localizations.matchDetection)
+        try picker.select(value: DefaultableType<BitwardenShared.UriMatchType>.custom(.host))
+        XCTAssertEqual(processor.dispatchedActions.last, .uriTypeChanged(.custom(.host), index: 0))
+    }
+
+    /// Tapping the uri remove button dispatches the `.removeUriPressed` action.
+    func test_uriRemoveButton_tap() throws {
+        processor.state.loginState.uris = [
+            UriState(
+                id: "id",
+                matchType: .default,
+                uri: "uri"
+            ),
+        ]
+
+        let button = try subject.inspect().find(button: Localizations.remove)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .uriSettingsPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .removeUriPressed(index: 0))
     }
 
     /// Updating the uri text field dispatches the `.uriChanged()` action.
     func test_uriTextField_updateValue() throws {
+        processor.state.loginState.uris = [
+            UriState(
+                id: "id",
+                matchType: .default,
+                uri: "uri"
+            ),
+        ]
+
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.uri)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .uriChanged("text", index: 0))
@@ -232,7 +262,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.loginState.uris = [
-            .init(match: nil, uri: URL.example.absoluteString),
+            UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
         ]
         processor.state.owner = "owner"
         processor.state.notes = "Notes"
@@ -261,12 +291,15 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.loginState = .fixture(
             password: "password1!",
             uris: [
-                .init(match: nil, uri: URL.example.absoluteString),
+                .init(uri: URL.example.absoluteString),
             ],
             username: "username"
         )
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
+        processor.state.loginState.uris = [
+            UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
+        ]
         processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
@@ -282,7 +315,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             isPasswordVisible: true,
             password: "password1!",
             uris: [
-                .init(match: nil, uri: URL.example.absoluteString),
+                .init(uri: URL.example.absoluteString),
             ],
             username: "username"
         )
@@ -301,7 +334,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             isPasswordVisible: true,
             password: "password1!",
             uris: [
-                .init(match: nil, uri: URL.example.absoluteString),
+                .init(uri: URL.example.absoluteString),
             ],
             username: "username"
         )
@@ -322,7 +355,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             isPasswordVisible: false,
             password: "password1!",
             uris: [
-                .init(match: nil, uri: URL.example.absoluteString),
+                .init(uri: URL.example.absoluteString),
             ],
             username: "username"
         )
@@ -343,7 +376,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             isPasswordVisible: false,
             password: "password1!",
             uris: [
-                .init(match: nil, uri: URL.example.absoluteString),
+                .init(uri: URL.example.absoluteString),
             ],
             username: "username"
         )

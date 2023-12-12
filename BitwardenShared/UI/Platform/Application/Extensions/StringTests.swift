@@ -56,14 +56,6 @@ class StringTests: BitwardenTestCase {
         XCTAssertFalse("a[b]c".isValidURL)
     }
 
-    /// `nilIfEmpty` returns the string if it's not empty or `nil` if it's empty.
-    func test_nilIfEmpty() {
-        XCTAssertEqual("abc".nilIfEmpty, "abc")
-        XCTAssertEqual("asdf1234".nilIfEmpty, "asdf1234")
-
-        XCTAssertNil("".nilIfEmpty)
-    }
-
     /// `urlDecoded()` with an invalid string throws an error.
     func test_urlDecoded_withInvalidString() {
         let subject = "a_bc-"

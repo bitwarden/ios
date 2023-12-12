@@ -10,9 +10,7 @@ extension CipherView {
             isPasswordVisible: showPassword,
             password: login?.password ?? "",
             passwordUpdatedDate: login?.passwordRevisionDate,
-            uris: login?.uris?.map { uriView in
-                CipherLoginUriModel(loginUriView: uriView)
-            } ?? [],
+            uris: login?.uris?.map(UriState.init) ?? [],
             username: login?.username ?? ""
         )
     }
