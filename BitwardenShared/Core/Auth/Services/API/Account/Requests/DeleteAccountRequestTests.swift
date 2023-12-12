@@ -40,9 +40,6 @@ class DeleteAccountRequestTests: BitwardenTestCase {
             statusCode: 399,
             body: APITestData.deleteAccountRequestFailure.data
         )
-
-        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
         XCTAssertNoThrow(try subject.validate(response))
     }
 
@@ -53,7 +50,7 @@ class DeleteAccountRequestTests: BitwardenTestCase {
             body: APITestData.deleteAccountRequestFailure.data
         )
 
-        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
+        let errorResponse = try XCTUnwrap(ErrorResponseModel(response: response))
 
         XCTAssertThrowsError(try subject.validate(response)) { error in
             XCTAssertEqual(error as? DeleteAccountRequestError, .serverError(errorResponse))
@@ -67,7 +64,7 @@ class DeleteAccountRequestTests: BitwardenTestCase {
             body: APITestData.deleteAccountRequestFailure.data
         )
 
-        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
+        let errorResponse = try XCTUnwrap(ErrorResponseModel(response: response))
 
         XCTAssertThrowsError(try subject.validate(response)) { error in
             XCTAssertEqual(error as? DeleteAccountRequestError, .serverError(errorResponse))
@@ -80,9 +77,6 @@ class DeleteAccountRequestTests: BitwardenTestCase {
             statusCode: 500,
             body: APITestData.deleteAccountRequestFailure.data
         )
-
-        guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
         XCTAssertNoThrow(try subject.validate(response))
     }
 }
