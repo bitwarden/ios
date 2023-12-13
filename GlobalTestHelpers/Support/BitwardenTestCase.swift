@@ -94,31 +94,6 @@ open class BitwardenTestCase: XCTestCase {
         }
     }
 
-    /// Asserts that a specific view type can be found within a given view hierarchy.
-    ///
-    /// This function verifies if a specified view type exists within the provided view or view hierarchy.
-    /// The test will fail if the specified view type is not found.
-    ///
-    /// - Parameters:
-    ///     - viewType: The type of the view to search for within the provided view or view hierarchy.
-    ///     - view: The view or view hierarchy to inspect. This can be any SwiftUI view, typically the root
-    ///             view or a part of the view hierarchy. Fails if nil.
-    ///     - file: The file in which the failure occurred. Defaults to the file name of the test
-    ///             case in which the function was called from.
-    ///     - line: The line number on which the failure occurred. Defaults to the line number on
-    ///             which this function was called from.
-    ///
-    open func assertCanFindViewType<T: View>(
-        _ viewType: T.Type,
-        in view: Any?,
-        file: StaticString = #file,
-        line: UInt = #line
-    ) {
-        if !canFindType(viewType, in: view) {
-            XCTFail("Unable to find type: \(viewType)", file: file, line: line)
-        }
-    }
-
     /// Asserts that an asynchronous block of code does not throw an error. The test will fail
     /// if the block throws an error.
     ///
@@ -234,45 +209,5 @@ open class BitwardenTestCase: XCTestCase {
             file: file,
             line: line
         )
-    }
-
-    /// Checks if a specific view type exists within a given view hierarchy.
-    ///
-    /// This function recursively inspects a view and its subviews to find an instance of the specified
-    /// view type.
-    ///
-    /// - Parameters:
-    ///     - viewType: The type of the view to search for.
-    ///     - view: The view (or hierarchy of views) to inspect. This is typically the root view or
-    ///             any part of the view hierarchy, returns `false` if nil.
-    /// - Returns: `true` if the specified view type is found within the given view hierarchy;
-    ///            otherwise, `false`.
-    ///
-    open func canFindType<T: View>(_ viewType: T.Type, in view: Any?) -> Bool {
-        guard let view else { return false }
-        let mirror = Mirror(reflecting: view)
-
-        // Check if the view is of the target type
-        if mirror.subjectType == viewType || view is T {
-            return true
-        }
-
-        // Recursively check each child
-        for child in mirror.children {
-            if canFindType(viewType, in: child.value) {
-                return true
-            }
-
-            // Special handling for AnyView
-            if let anyView = child.value as? AnyView,
-               let storageMirror = Mirror(reflecting: anyView)
-               .descendant("storage") {
-                if canFindType(viewType, in: storageMirror) {
-                    return true
-                }
-            }
-        }
-
-        return false
     }
 }
