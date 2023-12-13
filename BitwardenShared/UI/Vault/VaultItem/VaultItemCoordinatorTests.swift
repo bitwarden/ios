@@ -188,7 +188,22 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.setupTotpCamera` fails without an AVCaptureSession.
     ///     The user is redirected to the manual setup.
-    func test_navigateTo_setupTotpCamera_fail() throws {
+    func test_navigateTo_setupTotpCamera_fail_noCapability() throws {
+        cameraService.deviceHasCamera = false
+        let task = Task {
+            subject.navigate(to: .setupTotpCamera)
+        }
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is NavigationView<Text>)
+    }
+
+    /// `navigate(to:)` with `.setupTotpCamera` fails without an AVCaptureSession.
+    ///     The user is redirected to the manual setup.
+    func test_navigateTo_setupTotpCamera_fail_noSession() throws {
         cameraService.cameraSession = nil
         let task = Task {
             subject.navigate(to: .setupTotpCamera)

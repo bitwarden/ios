@@ -52,7 +52,7 @@ enum CameraServiceError: Error, Equatable {
 // MARK: - DefaultCamerAuthorizationService
 
 class DefaultCameraService: CameraService {
-    var cameraSession: AVCaptureSession!
+    var cameraSession: AVCaptureSession?
 
     func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus {
         let status = CameraAuthorizationStatus(

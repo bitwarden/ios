@@ -109,7 +109,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     ///
     private func showCamera() {
         Task {
-            guard let session = await services.cameraService.getCameraSession() else {
+            guard services.cameraService.deviceSupportsCamera(),
+                  let session = await services.cameraService.getCameraSession() else {
                 showManualTotp()
                 return
             }
