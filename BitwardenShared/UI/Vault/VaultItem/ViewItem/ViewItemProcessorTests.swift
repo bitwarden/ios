@@ -291,7 +291,9 @@ class ViewItemProcessorTests: BitwardenTestCase {
         subject.receive(.passwordVisibilityPressed)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
-        try await alert.tapAction(title: Localizations.submit)
+        let textField = try XCTUnwrap(alert.alertTextFields.first)
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, [textField])
 
         cipherState.isMasterPasswordRePromptOn = false
         cipherState.loginState.isPasswordVisible = true

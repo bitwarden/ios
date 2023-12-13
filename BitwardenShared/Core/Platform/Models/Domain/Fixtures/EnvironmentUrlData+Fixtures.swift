@@ -7,8 +7,8 @@ extension EnvironmentUrlData {
         api: URL? = nil,
         base: URL? = URL(string: "https://vault.bitwarden.com"),
         events: URL? = nil,
-        identity: URL? = nil,
         icons: URL? = nil,
+        identity: URL? = nil,
         notifications: URL? = nil,
         webVault: URL? = nil
     ) -> EnvironmentUrlData {
@@ -16,8 +16,8 @@ extension EnvironmentUrlData {
             api: api,
             base: base,
             events: events,
-            identity: identity,
             icons: icons,
+            identity: identity,
             notifications: notifications,
             webVault: webVault
         )

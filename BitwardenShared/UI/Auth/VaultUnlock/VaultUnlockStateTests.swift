@@ -28,6 +28,7 @@ class VaultUnlockStateTests: BitwardenTestCase {
             account: .fixture(
                 settings: .fixture(
                     environmentUrls: .fixture(
+                        base: nil,
                         webVault: nil
                     )
                 )

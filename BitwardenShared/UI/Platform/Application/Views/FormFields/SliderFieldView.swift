@@ -43,7 +43,7 @@ struct SliderFieldView<State>: View {
     let field: SliderField<State>
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             HStack {
                 Text(field.title)
                     .styleGuide(.body)
@@ -68,7 +68,7 @@ struct SliderFieldView<State>: View {
             .accessibilityLabel(field.title)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 8)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .cornerRadius(10)
     }

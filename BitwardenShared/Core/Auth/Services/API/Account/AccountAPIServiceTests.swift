@@ -15,10 +15,7 @@ class AccountAPIServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         client = MockHTTPClient()
-        subject = APIService(
-            baseUrlService: DefaultBaseUrlService(baseUrl: .example),
-            client: client
-        )
+        subject = APIService(client: client)
     }
 
     override func tearDown() {
@@ -87,6 +84,21 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(request.url.relativePath, "/identity/accounts/register")
         XCTAssertEqual(successfulResponse.captchaBypassToken, "captchaBypassToken")
         XCTAssertNotNil(request.body)
+    }
+
+    /// `deleteAccount(body:)` hits the correct API endpoint using the correct HTTPMethod.
+    /// This call returns no data.
+    func test_delete_account_success() async throws {
+        let resultData = APITestData(data: Data())
+        client.result = .httpSuccess(testData: resultData)
+
+        _ = try await subject.deleteAccount(
+            body: DeleteAccountRequestModel(masterPasswordHash: "1234")
+        )
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .delete)
+        XCTAssertEqual(request.url.relativePath, "/api/accounts")
     }
 
     /// `checkDataBreaches(password:)` returns the correct value from the API when the password

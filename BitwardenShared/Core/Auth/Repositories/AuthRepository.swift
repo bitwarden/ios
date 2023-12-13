@@ -6,6 +6,13 @@ import Foundation
 protocol AuthRepository: AnyObject {
     // MARK: Methods
 
+    /// Deletes the user's account.
+    ///
+    /// - Parameter passwordText: The password entered by the user, which is used to verify
+    /// their identify before deleting the account.
+    ///
+    func deleteAccount(passwordText: String) async throws
+
     /// Gets all accounts.
     ///
     /// - Returns: The known user accounts as `[ProfileSwitcherItem]`.
@@ -50,8 +57,17 @@ protocol AuthRepository: AnyObject {
 class DefaultAuthRepository {
     // MARK: Properties
 
+    /// The services used by the application to make account related API requests.
+    let accountAPIService: AccountAPIService
+
+    /// The client used by the application to handle auth related encryption and decryption tasks.
+    let clientAuth: ClientAuthProtocol
+
     /// The client used by the application to handle encryption and decryption setup tasks.
     let clientCrypto: ClientCryptoProtocol
+
+    /// The service used by the application to manage the environment settings.
+    let environmentService: EnvironmentService
 
     /// The service used by the application to manage account state.
     let stateService: StateService
@@ -64,16 +80,25 @@ class DefaultAuthRepository {
     /// Initialize a `DefaultAuthRepository`.
     ///
     /// - Parameters:
+    ///   - accountAPIService: The services used by the application to make account related API requests.
+    ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
+    ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - stateService: The service used by the application to manage account state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
+        accountAPIService: AccountAPIService,
+        clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
+        environmentService: EnvironmentService,
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService
     ) {
+        self.accountAPIService = accountAPIService
+        self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
+        self.environmentService = environmentService
         self.stateService = stateService
         self.vaultTimeoutService = vaultTimeoutService
     }
@@ -82,6 +107,17 @@ class DefaultAuthRepository {
 // MARK: - AuthRepository
 
 extension DefaultAuthRepository: AuthRepository {
+    func deleteAccount(passwordText: String) async throws {
+        let hashedPassword = try await hashPassword(passwordText: passwordText)
+
+        _ = try await accountAPIService.deleteAccount(
+            body: DeleteAccountRequestModel(masterPasswordHash: hashedPassword)
+        )
+
+        try await stateService.deleteAccount()
+        await vaultTimeoutService.remove(userId: nil)
+    }
+
     func getAccounts() async throws -> [ProfileSwitcherItem] {
         let accounts = try await stateService.getAccounts()
         return await accounts.asyncMap { account in
@@ -104,6 +140,24 @@ extension DefaultAuthRepository: AuthRepository {
         return match
     }
 
+    /// Creates a hash value for the user's master password.
+    ///
+    /// - Parameter passwordText: The user's entered password.
+    /// - Returns: A hash value of the password text.
+    ///
+    private func hashPassword(passwordText: String) async throws -> String {
+        let account = try await stateService.getActiveAccount()
+        let email = account.profile.email
+        let kdf: Kdf = account.kdf.sdkKdf
+
+        let hashedPassword = try await clientAuth.hashPassword(
+            email: email,
+            password: passwordText,
+            kdfParams: kdf
+        )
+        return hashedPassword
+    }
+
     func logout() async throws {
         await vaultTimeoutService.remove(userId: nil)
         try await stateService.logoutAccount()
@@ -111,6 +165,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     func setActiveAccount(userId: String) async throws -> Account {
         try await stateService.setActiveAccount(userId: userId)
+        await environmentService.loadURLsForActiveAccount()
         return try await stateService.getActiveAccount()
     }
 

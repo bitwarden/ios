@@ -13,6 +13,7 @@ typealias Services = HasAccountAPIService
     & HasCameraAuthorizationService
     & HasClientAuth
     & HasDeviceAPIService
+    & HasEnvironmentService
     & HasErrorReporter
     & HasGeneratorRepository
     & HasPasteboardService
@@ -102,6 +103,13 @@ protocol HasClientAuth {
 protocol HasDeviceAPIService {
     /// The service used by the application to make device-related API requests.
     var deviceAPIService: DeviceAPIService { get }
+}
+
+/// Protocol for an object that provides an `EnvironmentService`.
+///
+protocol HasEnvironmentService {
+    /// The service used by the application to manage the environment settings.
+    var environmentService: EnvironmentService { get }
 }
 
 /// Protocol for an object that provides an `ErrorReporter`.

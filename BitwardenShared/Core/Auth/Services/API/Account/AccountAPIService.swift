@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import Networking
 
 // MARK: - AccountAPIService
 
@@ -20,6 +21,13 @@ protocol AccountAPIService {
     /// - Returns: Data returned from the `CreateAccountRequest`.
     ///
     func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel
+
+    /// Creates an API call for deleting the user's account.
+    ///
+    /// - Parameter body: The body to be included in the request.
+    /// - Returns: An empty response, as the request does not return data.
+    ///
+    func deleteAccount(body: DeleteAccountRequestModel) async throws -> EmptyResponse
 
     /// Sends an API call for completing the pre-login step in the auth flow.
     ///
@@ -53,6 +61,11 @@ extension APIService: AccountAPIService {
     func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel {
         let request = CreateAccountRequest(body: body)
         return try await identityService.send(request)
+    }
+
+    func deleteAccount(body: DeleteAccountRequestModel) async throws -> EmptyResponse {
+        let request = DeleteAccountRequest(body: body)
+        return try await apiService.send(request)
     }
 
     func preLogin(email: String) async throws -> PreLoginResponseModel {

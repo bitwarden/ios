@@ -10,6 +10,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's unique identifier.
     var appId: String? { get set }
 
+    /// The environment URLs used prior to user authentication.
+    var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
+
     /// The email being remembered on the landing screen.
     var rememberedEmail: String? { get set }
 
@@ -179,6 +182,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case passwordGenerationOptions(userId: String)
+        case preAuthEnvironmentUrls
         case rememberedEmail
         case state
         case usernameGenerationOptions(userId: String)
@@ -195,6 +199,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "encPrivateKey_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
+            case .preAuthEnvironmentUrls:
+                key = "preAuthEnvironmentUrls"
             case .rememberedEmail:
                 key = "rememberedEmail"
             case .state:
@@ -209,6 +215,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appId: String? {
         get { fetch(for: .appId) }
         set { store(newValue, for: .appId) }
+    }
+
+    var preAuthEnvironmentUrls: EnvironmentUrlData? {
+        get { fetch(for: .preAuthEnvironmentUrls) }
+        set { store(newValue, for: .preAuthEnvironmentUrls) }
     }
 
     var rememberedEmail: String? {

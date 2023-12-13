@@ -40,6 +40,21 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list)])
     }
 
+    /// `didDeleteAccount(otherAccounts:)` navigates to the landing screen
+    /// and presents an alert notifying the user that they deleted their account.
+    func test_didDeleteAccount_noOtherAccounts() {
+        subject.didDeleteAccount(otherAccounts: [])
+        XCTAssertEqual(module.authCoordinator.routes, [.landing, .alert(.accountDeletedAlert())])
+    }
+
+    /// `didDeleteAccount(otherAccounts:)` navigates to the vault unlock screen
+    /// and presents an alert notifying the user that they deleted their account.
+    func test_didDeleteAccount_otherAccounts() {
+        let account: Account = .fixtureAccountLogin()
+        subject.didDeleteAccount(otherAccounts: [account])
+        XCTAssertEqual(module.authCoordinator.routes, [.vaultUnlock(account), .alert(.accountDeletedAlert())])
+    }
+
     /// `didLockVault(_:, _:, _:)`  starts the auth coordinator and navigates to the login route.
     func test_did_lockVault() {
         let account: Account = .fixtureAccountLogin()

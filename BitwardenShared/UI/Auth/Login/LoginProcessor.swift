@@ -154,8 +154,9 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 )
             )
             let identityToken = try await services.authAPIService.getIdentityToken(identityTokenRequest)
+            let urls = await services.stateService.getPreAuthEnvironmentUrls()
 
-            let account = try Account(identityTokenResponseModel: identityToken)
+            let account = try Account(identityTokenResponseModel: identityToken, environmentUrls: urls)
             await services.stateService.addAccount(account)
             let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityToken)
             try await services.stateService.setAccountEncryptionKeys(encryptionKeys)

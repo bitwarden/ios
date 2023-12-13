@@ -4,9 +4,13 @@ import Networking
 
 extension APIService {
     convenience init(
-        baseUrlService: BaseUrlService = DefaultBaseUrlService(baseUrl: .example),
-        client: HTTPClient
+        client: HTTPClient,
+        environmentService: EnvironmentService = MockEnvironmentService()
     ) {
-        self.init(baseUrlService: baseUrlService, client: client, tokenService: MockTokenService())
+        self.init(
+            client: client,
+            environmentService: environmentService,
+            tokenService: MockTokenService()
+        )
     }
 }

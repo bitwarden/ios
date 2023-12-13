@@ -73,6 +73,10 @@ final class AccountSecurityProcessor: StateProcessor<
             coordinator.navigate(to: .deleteAccount)
         case .logout:
             showLogoutConfirmation()
+        case let .sessionTimeoutActionChanged(action):
+            saveTimeoutActionSetting(action)
+        case let .sessionTimeoutValueChanged(newValue):
+            state.sessionTimeoutValue = newValue
         case let .toggleApproveLoginRequestsToggle(isOn):
             state.isApproveLoginRequestsToggleOn = isOn
         case let .toggleUnlockWithFaceID(isOn):
@@ -87,6 +91,23 @@ final class AccountSecurityProcessor: StateProcessor<
     }
 
     // MARK: Private
+
+    /// Saves the user's session timeout action.
+    ///
+    /// - Parameter action: The action to perform on session timeout.
+    ///
+    private func saveTimeoutActionSetting(_ action: SessionTimeoutAction) {
+        guard action != state.sessionTimeoutAction else { return }
+        if action == .logout {
+            coordinator.navigate(to: .alert(.logoutOnTimeoutAlert {
+                // TODO: BIT-1125 Persist the setting
+                self.state.sessionTimeoutAction = action
+            }))
+        } else {
+            // TODO: BIT-1125 Persist the setting
+            state.sessionTimeoutAction = action
+        }
+    }
 
     /// Shows an alert asking the user to confirm that they want to logout.
     ///

@@ -26,15 +26,15 @@ class APIService {
     /// Initialize an `APIService` used to make API requests.
     ///
     /// - Parameters:
-    ///   - baseUrlService: The service to get base urls used for all requests in this service.
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
+    ///   - environmentService: The service used by the application to retrieve the environment settings.
     ///   - tokenService: The `TokenService` which manages accessing and updating the active
     ///     account's tokens.
     ///
     init(
-        baseUrlService: BaseUrlService,
         client: HTTPClient = URLSession.shared,
+        environmentService: EnvironmentService,
         tokenService: TokenService
     ) {
         let defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
@@ -46,7 +46,7 @@ class APIService {
 
         let accountTokenProvider = AccountTokenProvider(
             httpService: HTTPService(
-                baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/identity") },
+                baseUrlGetter: { environmentService.identityURL },
                 client: client,
                 requestHandlers: [defaultHeadersRequestHandler]
             ),
@@ -54,18 +54,18 @@ class APIService {
         )
 
         apiService = HTTPService(
-            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/api") },
+            baseUrlGetter: { environmentService.apiURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler],
             tokenProvider: accountTokenProvider
         )
         apiUnauthenticatedService = HTTPService(
-            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/api") },
+            baseUrlGetter: { environmentService.apiURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )
         eventsService = HTTPService(
-            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/events") },
+            baseUrlGetter: { environmentService.eventsURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )
@@ -75,7 +75,7 @@ class APIService {
             requestHandlers: [defaultHeadersRequestHandler]
         )
         identityService = HTTPService(
-            baseUrlGetter: { baseUrlService.baseUrl.appendingPathComponent("/identity") },
+            baseUrlGetter: { environmentService.identityURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler]
         )
