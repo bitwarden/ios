@@ -10,7 +10,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = GeneratorModule
 
-    typealias Services = HasCameraAuthorizationService
+    typealias Services = HasCameraService
         & HasVaultRepository
         & GeneratorCoordinator.Services
 
@@ -108,8 +108,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// Shows the totp camera setup screen.
     ///
     private func showCamera() {
-        // TODO: BIT-874 Update to show the actual camera screen
-        guard let session = services.cameraAuthorizationService.getCameraSession() else { return }
+        guard let session = services.cameraService.getCameraSession() else { return }
         let processor = ScanCodeProcessor(
             coordinator: self,
             services: services,

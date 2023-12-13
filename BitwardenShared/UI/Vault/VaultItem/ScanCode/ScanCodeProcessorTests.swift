@@ -5,7 +5,7 @@ import XCTest
 final class ScanCodeProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var cameraAuthorizationService: MockCameraAuthorizationService!
+    var cameraService: MockCameraService!
     var coordinator: MockCoordinator<VaultItemRoute>!
     var errorReporter: MockErrorReporter!
     var subject: ScanCodeProcessor!
@@ -15,13 +15,13 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        cameraAuthorizationService = MockCameraAuthorizationService()
+        cameraService = MockCameraService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         subject = ScanCodeProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                cameraAuthorizationService: cameraAuthorizationService,
+                cameraService: cameraService,
                 errorReporter: errorReporter
             ),
             state: .init()
@@ -40,7 +40,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     /// `perform()` with `.appeared` logs errors when starting the camera fails.
     func test_perform_appeared_failure() async {
         let error = CameraServiceError.unableToStartCaptureSession
-        cameraAuthorizationService.startResult = .failure(error)
+        cameraService.startResult = .failure(error)
         await subject.perform(.appeared)
         XCTAssertEqual(
             errorReporter.errors as? [CameraServiceError],
@@ -51,20 +51,20 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     /// `perform()` with `.appeared` sets up the camera.
     func test_perform_appeared_success() async {
         await subject.perform(.appeared)
-        XCTAssertTrue(cameraAuthorizationService.didStart)
+        XCTAssertTrue(cameraService.didStart)
     }
 
     /// `perform()` with `.appeared` sets up the camera.
     func test_perform_appeared_noCamera() async {
-        cameraAuthorizationService.deviceHasCamera = false
+        cameraService.deviceHasCamera = false
         await subject.perform(.appeared)
-        XCTAssertFalse(cameraAuthorizationService.didStart)
+        XCTAssertFalse(cameraService.didStart)
     }
 
     /// `perform()` with `.disappeared` stops the camera.
     func test_perform_disappeared_success() async {
         await subject.perform(.disappeared)
-        XCTAssertTrue(cameraAuthorizationService.didStop)
+        XCTAssertTrue(cameraService.didStop)
     }
 
     /// `receive()` with `.dismissPressed` navigates to dismiss.
@@ -73,7 +73,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
-    /// `receive()` with `.dismissPressed` navigates to dismiss.
+    /// `receive()` with `.manualEntryPressed` navigates to dismiss.
     func test_receive_manualEntryPressed() async {
         subject.receive(.manualEntryPressed)
         XCTAssertEqual(coordinator.routes, [])

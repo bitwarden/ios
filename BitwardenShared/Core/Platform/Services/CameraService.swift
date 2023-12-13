@@ -1,33 +1,44 @@
 import AVFoundation
 import Foundation
 
-// MARK: - CameraAuthorizationService
+// MARK: - CameraService
 
-/// A service that is used to check for and request camera authorization from the user.
+/// A service that is used to manage camera access and use for the user.
 ///
-protocol CameraAuthorizationService: AnyObject {
-    /// Checks the current camera authorization status that the user has granted this app, and if
-    /// necessary, requests authorization from the user.
+protocol CameraService: AnyObject {
+    /// Checks the current camera authorization status and requests authorization if necessary.
+    ///
+    /// This method first checks the current camera authorization status granted to the app.
+    /// If the status is not determined, it requests authorization from the user.
+    ///
+    /// - Returns: The current `CameraAuthorizationStatus` of the app.
     ///
     func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus
 
     /// Checks if the device has camera capabilities.
     ///
-    /// - Returns: A flag indicating if the device has a camera or not.
+    /// This method verifies if the current device is equipped with a camera.
+    ///
+    /// - Returns: A flag indicating whether the device has a camera (`true`) or not (`false`).
     ///
     func deviceSupportsCamera() -> Bool
 
-    /// Gets an `AVCaptureSession` to use for the app to scan QR codes.
+    /// Retrieves an `AVCaptureSession` for scanning QR codes.
     ///
-    ///  - Returns: An optional AVCaptureSession: non-nil if authorized.
+    /// - Returns: An `AVCaptureSession` if the app is authorized; otherwise, `nil`.
     ///
     func getCameraSession() -> AVCaptureSession?
 
-    /// Starts  the `AVCaptureSession` to use for the app to scan QR codes.
+    /// Starts the camera session for QR code scanning.
+    ///
+    /// - Throws: An error if the camera session cannot be started.
     ///
     func startCameraSession() throws
 
-    /// Stops  the `AVCaptureSession`.
+    /// Stops the camera session.
+    ///
+    /// This method stops the ongoing camera session, typically used when the app no longer needs
+    /// to scan QR codes or when the relevant UI is no longer visible.
     ///
     func stopCameraSession()
 }
@@ -40,7 +51,7 @@ enum CameraServiceError: Error, Equatable {
 
 // MARK: - DefaultCamerAuthorizationService
 
-class DefaultCameraAuthorizationService: CameraAuthorizationService {
+class DefaultCameraService: CameraService {
     var cameraSession: AVCaptureSession!
 
     func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus {

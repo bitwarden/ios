@@ -10,8 +10,14 @@ struct ScanCodeView: View {
     /// The AVCaptureSession used to scan qr codes
     let cameraSession: AVCaptureSession
 
+    /// The maximum dynamic type size for the view
+    ///     Default is `.xxLarge`
+    var maxDynamicTypeSize: DynamicTypeSize = .xxLarge
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<ScanCodeState, ScanCodeAction, ScanCodeEffect>
+
+    // MARK: Views
 
     var body: some View {
         content
@@ -48,6 +54,7 @@ struct ScanCodeView: View {
             Text(Localizations.pointYourCameraAtTheQRCode)
                 .styleGuide(.body)
                 .multilineTextAlignment(.center)
+                .dynamicTypeSize(...maxDynamicTypeSize)
                 .foregroundColor(.white)
             Spacer()
             Button(
@@ -61,6 +68,7 @@ struct ScanCodeView: View {
                     }
                     .styleGuide(.body)
                     .multilineTextAlignment(.center)
+                    .dynamicTypeSize(...maxDynamicTypeSize)
                 }
             )
             .buttonStyle(InlineButtonStyle())
@@ -133,6 +141,7 @@ struct ScanCodeView: View {
     }
 }
 
+#if DEBUG
 struct ScanCodeView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -149,3 +158,4 @@ struct ScanCodeView_Previews: PreviewProvider {
         .previewDisplayName("Scan Code View")
     }
 }
+#endif

@@ -2,7 +2,7 @@ import AVFoundation
 
 @testable import BitwardenShared
 
-class MockCameraAuthorizationService: CameraAuthorizationService {
+class MockCameraService: CameraService {
     var cameraAuthorizationStatus: CameraAuthorizationStatus = .notDetermined
     var cameraSession: AVCaptureSession?
     var deviceHasCamera: Bool = true
@@ -10,7 +10,7 @@ class MockCameraAuthorizationService: CameraAuthorizationService {
     var didStop: Bool = false
     var startResult: Result<Void, Error> = .success(())
 
-    // MARK: CameraAuthorizationService
+    // MARK: CameraService
 
     func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus {
         cameraAuthorizationStatus

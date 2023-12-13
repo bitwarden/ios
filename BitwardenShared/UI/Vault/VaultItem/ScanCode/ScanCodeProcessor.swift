@@ -2,19 +2,23 @@ import SwiftUI
 
 // MARK: - ScanCodeProcessor
 
-/// A processor that can process `ViewItemAction`s.
+/// A processor that can process `ScanCodeAction`s.
+///
+/// This class is responsible for handling actions and effects related to scanning QR codes.
+///
 final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, ScanCodeEffect> {
     // MARK: Types
 
-    typealias Services = HasCameraAuthorizationService
+    /// A typealias for the services required by this processor.
+    typealias Services = HasCameraService
         & HasErrorReporter
 
     // MARK: Private Properties
 
-    /// The `Coordinator` for this processor.
+    /// The `Coordinator` responsible for navigation-related actions.
     private let coordinator: any Coordinator<VaultItemRoute>
 
-    /// The services used by this processor.
+    /// The services used by this processor, including camera authorization and error reporting.
     private let services: Services
 
     // MARK: Intialization
@@ -22,9 +26,9 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     /// Creates a new `ScanCodeProcessor`.
     ///
     /// - Parameters:
-    ///   - coordiantor: The `Coordinator` for this processor.
-    ///   - services: The services used by this processor.
-    ///   - state: The initial state of this processor.
+    ///   - coordinator: The `Coordinator` responsible for managing navigation based on actions received.
+    ///   - services: The services used by this processor, including access to the camera and error reporting.
+    ///   - state: The initial state of this processor, representing the UI's state.
     ///
     init(
         coordinator: any Coordinator<VaultItemRoute>,
@@ -41,7 +45,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
         case .appeared:
             setupCamera()
         case .disappeared:
-            services.cameraAuthorizationService.stopCameraSession()
+            services.cameraService.stopCameraSession()
         }
     }
 
@@ -56,10 +60,15 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
         }
     }
 
+    /// Sets up the camera for scanning QR codes.
+    ///
+    /// This method checks for camera support and initiates the camera session. If an error occurs,
+    /// it logs the error through the provided error reporting service.
+    ///
     private func setupCamera() {
-        guard services.cameraAuthorizationService.deviceSupportsCamera() else { return }
+        guard services.cameraService.deviceSupportsCamera() else { return }
         do {
-            try services.cameraAuthorizationService.startCameraSession()
+            try services.cameraService.startCameraSession()
         } catch {
             services.errorReporter.log(error: error)
         }

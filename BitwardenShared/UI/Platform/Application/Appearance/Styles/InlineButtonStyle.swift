@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - InlineButtonStyle
 
-/// The style for all primary buttons in this application.
+/// The style for all inline buttons in this application.
 ///
 struct InlineButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

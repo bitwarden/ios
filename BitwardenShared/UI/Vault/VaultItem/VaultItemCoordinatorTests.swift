@@ -9,7 +9,7 @@ import XCTest
 class VaultItemCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var cameraService: MockCameraAuthorizationService!
+    var cameraService: MockCameraService!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultItemCoordinator!
@@ -19,14 +19,14 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        cameraService = MockCameraAuthorizationService()
+        cameraService = MockCameraService()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
         vaultRepository = MockVaultRepository()
         subject = VaultItemCoordinator(
             module: module,
             services: ServiceContainer.withMocks(
-                cameraAuthorizationService: cameraService,
+                cameraService: cameraService,
                 vaultRepository: vaultRepository
             ),
             stackNavigator: stackNavigator
