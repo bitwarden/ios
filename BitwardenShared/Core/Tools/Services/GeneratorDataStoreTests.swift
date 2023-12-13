@@ -45,6 +45,57 @@ class GeneratorDataStoreTests: BitwardenTestCase {
         XCTAssertEqual(resultsUser2.count, 3)
     }
 
+    /// deletePasswordHistoryPastLimit(userId:limit:)` deletes any objects older than limit.
+    func test_deletePasswordHistoryPastLimit() async throws {
+        let passwords = (0 ... 10).map { index in
+            // Manually specifying the date as the index value prevents the instances from
+            // getting out of order when sorting by the date.
+            PasswordHistory(
+                password: index.description,
+                lastUsedDate: Date(timeIntervalSince1970: Double(index))
+            )
+        }
+
+        try subject.backgroundContext.performAndWait {
+            for password in passwords {
+                _ = PasswordHistoryData(context: self.subject.backgroundContext, userId: "1", passwordHistory: password)
+            }
+            try self.subject.backgroundContext.saveIfChanged()
+        }
+
+        try await subject.deletePasswordHistoryPastLimit(userId: "1", limit: 5)
+
+        let fetchRequest = PasswordHistoryData.fetchByUserIdRequest(userId: "1")
+        fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastUsedDateDescending]
+        let results = try subject.backgroundContext.fetch(fetchRequest)
+        XCTAssertEqual(
+            try results.map(PasswordHistory.init),
+            passwords.suffix(5).reversed()
+        )
+    }
+
+    /// `fetchPasswordHistoryMostRecent(userId:)` fetches the most recent password history object.
+    func test_fetchPasswordHistoryMostRecent() async throws {
+        let passwords = (0 ... 10).map { index in
+            // Manually specifying the date as the index value prevents the instances from
+            // getting out of order when sorting by the date.
+            PasswordHistory(
+                password: index.description,
+                lastUsedDate: Date(timeIntervalSince1970: Double(index))
+            )
+        }
+
+        try subject.backgroundContext.performAndWait {
+            for password in passwords {
+                _ = PasswordHistoryData(context: self.subject.backgroundContext, userId: "1", passwordHistory: password)
+            }
+            try self.subject.backgroundContext.saveIfChanged()
+        }
+
+        let result = try await subject.fetchPasswordHistoryMostRecent(userId: "1")
+        XCTAssertEqual(result, passwords.last)
+    }
+
     /// `insertPasswordHistory(userId:passwordHistory:)` inserts the password history data into the
     /// data store for the user.
     func test_insertPasswordHistory() async throws {
