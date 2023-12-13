@@ -173,7 +173,12 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.setupTotpCamera` presents the camera totp setup screen.
     func test_navigateTo_setupTotpCamera_success() throws {
         cameraService.cameraSession = AVCaptureSession()
-        subject.navigate(to: .setupTotpCamera)
+        let task = Task {
+            subject.navigate(to: .setupTotpCamera)
+        }
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
@@ -182,11 +187,18 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.setupTotpCamera` fails without an AVCaptureSession.
+    ///     The user is redirected to the manual setup.
     func test_navigateTo_setupTotpCamera_fail() throws {
         cameraService.cameraSession = nil
-        subject.navigate(to: .setupTotpCamera)
+        let task = Task {
+            subject.navigate(to: .setupTotpCamera)
+        }
 
-        XCTAssertEqual(stackNavigator.actions.count, 0)
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is NavigationView<Text>)
     }
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual totp setup screen.

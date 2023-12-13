@@ -108,20 +108,25 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// Shows the totp camera setup screen.
     ///
     private func showCamera() {
-        guard let session = services.cameraService.getCameraSession() else { return }
-        let processor = ScanCodeProcessor(
-            coordinator: self,
-            services: services,
-            state: .init()
-        )
-        let store = Store(processor: processor)
-        let view = ScanCodeView(
-            cameraSession: session,
-            store: store
-        )
-        let navWrapped = view.navStackWrapped
+        Task {
+            guard let session = await services.cameraService.getCameraSession() else {
+                showManualTotp()
+                return
+            }
+            let processor = ScanCodeProcessor(
+                coordinator: self,
+                services: services,
+                state: .init()
+            )
+            let store = Store(processor: processor)
+            let view = ScanCodeView(
+                cameraSession: session,
+                store: store
+            )
+            let navWrapped = view.navStackWrapped
 
-        stackNavigator.present(navWrapped, animated: true, overFullscreen: true)
+            stackNavigator.present(navWrapped, animated: true, overFullscreen: true)
+        }
     }
 
     /// Shows the totp manual setup screen.

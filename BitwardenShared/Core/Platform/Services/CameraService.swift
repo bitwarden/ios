@@ -27,7 +27,7 @@ protocol CameraService: AnyObject {
     ///
     /// - Returns: An `AVCaptureSession` if the app is authorized; otherwise, `nil`.
     ///
-    func getCameraSession() -> AVCaptureSession?
+    func getCameraSession() async -> AVCaptureSession?
 
     /// Starts the camera session for QR code scanning.
     ///
@@ -90,10 +90,8 @@ class DefaultCameraService: CameraService {
         return !videoDevices.isEmpty
     }
 
-    func getCameraSession() -> AVCaptureSession? {
-        let status = CameraAuthorizationStatus(
-            avAuthorizationStatus: AVCaptureDevice.authorizationStatus(for: .video)
-        )
+    func getCameraSession() async -> AVCaptureSession? {
+        let status = await checkStatusOrRequestCameraAuthorization()
         guard case .authorized = status else {
             cameraSession = nil
             return nil
