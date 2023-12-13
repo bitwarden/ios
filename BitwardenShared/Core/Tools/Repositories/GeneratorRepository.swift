@@ -142,7 +142,7 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     // MARK: Password History
 
     func addPasswordHistory(_ passwordHistory: PasswordHistoryView) async throws {
-        let userId = try await stateService.getActiveAccount().profile.userId
+        let userId = try await stateService.getActiveAccountId()
 
         // Prevent adding a duplicate at the top of the list.
         guard try await !isDuplicateOfMostRecent(passwordHistory: passwordHistory, userId: userId) else { return }
@@ -157,12 +157,12 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     }
 
     func clearPasswordHistory() async throws {
-        let userId = try await stateService.getActiveAccount().profile.userId
+        let userId = try await stateService.getActiveAccountId()
         try await dataStore.deleteAllPasswordHistory(userId: userId)
     }
 
     func passwordHistoryPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[PasswordHistoryView], Error>> {
-        let userId = try await stateService.getActiveAccount().profile.userId
+        let userId = try await stateService.getActiveAccountId()
         return dataStore.passwordHistoryPublisher(userId: userId)
             .asyncTryMap { passwordHistory in
                 try await self.clientVaultService.passwordHistory()

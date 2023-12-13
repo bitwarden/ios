@@ -55,7 +55,7 @@ extension DataStore: GeneratorDataStore {
     func deletePasswordHistoryPastLimit(userId: String, limit: Int) async throws {
         try await backgroundContext.perform {
             let fetchRequest = PasswordHistoryData.fetchResultRequest()
-            fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastedUsedDateDescending]
+            fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastUsedDateDescending]
             fetchRequest.fetchOffset = limit
             try self.backgroundContext.executeAndMergeChanges(
                 NSBatchDeleteRequest(fetchRequest: fetchRequest),
@@ -68,7 +68,7 @@ extension DataStore: GeneratorDataStore {
         try await backgroundContext.perform {
             let fetchRequest = PasswordHistoryData.fetchByUserIdRequest(userId: userId)
             fetchRequest.fetchLimit = 1
-            fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastedUsedDateDescending]
+            fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastUsedDateDescending]
             return try self.backgroundContext.fetch(fetchRequest)
                 .map(PasswordHistory.init)
                 .first
@@ -89,7 +89,7 @@ extension DataStore: GeneratorDataStore {
     func passwordHistoryPublisher(userId: String) -> AnyPublisher<[PasswordHistory], Error> {
         let fetchRequest = PasswordHistoryData.fetchByUserIdRequest(userId: userId)
         fetchRequest.sortDescriptors = [
-            PasswordHistoryData.sortByLastedUsedDateDescending,
+            PasswordHistoryData.sortByLastUsedDateDescending,
         ]
         return FetchedResultsPublisher(
             context: persistentContainer.viewContext,

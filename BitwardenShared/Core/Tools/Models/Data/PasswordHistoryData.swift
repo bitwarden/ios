@@ -39,7 +39,7 @@ class PasswordHistoryData: NSManagedObject, ManagedObject {
 
 extension PasswordHistoryData {
     /// A `NSSortDescriptor` that sorts the password history by the last used date in descending order.
-    static var sortByLastedUsedDateDescending: NSSortDescriptor {
+    static var sortByLastUsedDateDescending: NSSortDescriptor {
         NSSortDescriptor(keyPath: \PasswordHistoryData.lastUsedDate, ascending: false)
     }
 

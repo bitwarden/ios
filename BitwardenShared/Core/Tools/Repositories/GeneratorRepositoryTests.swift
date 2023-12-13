@@ -99,7 +99,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
 
         let fetchRequest = PasswordHistoryData.fetchByUserIdRequest(userId: "1")
-        fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastedUsedDateDescending]
+        fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastUsedDateDescending]
         let results = try generatorDataStore.backgroundContext.fetch(fetchRequest)
         XCTAssertEqual(
             try results.map(PasswordHistory.init),
@@ -130,7 +130,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         try await subject.addPasswordHistory(passwordHistoryOther)
 
         let fetchRequest = PasswordHistoryData.fetchByUserIdRequest(userId: "1")
-        fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastedUsedDateDescending]
+        fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastUsedDateDescending]
         let results = try generatorDataStore.backgroundContext.fetch(fetchRequest)
         XCTAssertEqual(
             try results.map(PasswordHistory.init),
