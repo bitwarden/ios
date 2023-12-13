@@ -5,7 +5,7 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the add item screen.
 ///
-final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAction, AddEditItemEffect> {
+final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
     // MARK: Types
 
     typealias Services = HasCameraService
@@ -32,7 +32,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
     init(
         coordinator: AnyCoordinator<VaultItemRoute>,
         services: Services,
-        state: CipherItemState
+        state: AddEditItemState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -95,6 +95,8 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
             state.loginState.uris.remove(at: index)
         case let .togglePasswordVisibilityChanged(newValue):
             state.loginState.isPasswordVisible = newValue
+        case let .toastShown(newValue):
+            state.toast = newValue
         case let .typeChanged(newValue):
             state.type = newValue
         case let .uriChanged(newValue, index: index):
@@ -203,7 +205,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
     /// Adds the item currently in `state`.
     ///
     private func addItem() async throws {
-        try await services.vaultRepository.addCipher(state.newCipherView())
+        try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
         coordinator.navigate(to: .dismiss)
     }
@@ -221,9 +223,9 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
     private func setupTotp() async {
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
-            coordinator.navigate(to: .setupTotpCamera)
+            coordinator.navigate(to: .setupTotpCamera, context: self)
         } else {
-            coordinator.navigate(to: .setupTotpManual)
+            coordinator.navigate(to: .setupTotpManual, context: self)
         }
     }
 }
@@ -240,6 +242,13 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
         case .username:
             state.loginState.username = value
         }
+        coordinator.navigate(to: .dismiss)
+    }
+}
+
+extension AddEditItemProcessor: ScanCodeCoordinatorDelegate {
+    func didCompleteScan(with value: String) {
+        state.loginState.authenticatorKey = value
         coordinator.navigate(to: .dismiss)
     }
 }

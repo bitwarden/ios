@@ -13,15 +13,21 @@ struct AddEditItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<CipherItemState, AddEditItemAction, AddEditItemEffect>
+    @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
 
     var body: some View {
-        switch store.state.configuration {
-        case .add:
-            addView
-        case .existing:
-            existing
+        Group {
+            switch store.state.configuration {
+            case .add:
+                addView
+            case .existing:
+                existing
+            }
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: AddEditItemAction.toastShown
+        ))
     }
 
     private var addView: some View {
@@ -212,7 +218,7 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
-                        state: .init()
+                        state: CipherItemState().addEditState
                     )
                 )
             )
@@ -223,7 +229,7 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
-                        state: .init(
+                        state: CipherItemState(
                             existing: .init(
                                 id: .init(),
                                 organizationId: nil,
@@ -260,7 +266,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                                 deletedDate: nil,
                                 revisionDate: fixedDate
                             )
-                        )!
+                        )!.addEditState
                     )
                 )
             )

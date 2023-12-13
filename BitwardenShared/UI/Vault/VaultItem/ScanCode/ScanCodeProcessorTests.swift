@@ -6,7 +6,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraService: MockCameraService!
-    var coordinator: MockCoordinator<VaultItemRoute>!
+    var coordinator: MockCoordinator<ScanCodeRoute>!
     var errorReporter: MockErrorReporter!
     var subject: ScanCodeProcessor!
 
@@ -50,9 +50,27 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.appeared` sets up the camera.
-    func test_perform_appeared_success() async {
-        await subject.perform(.appeared)
+    func test_perform_appeared_success() {
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(cameraService.didStart)
+        task.cancel()
         XCTAssertTrue(cameraService.didStart)
+    }
+
+    /// `perform()` with `.appeared` sets up the camera and responds to QR code scans
+    func test_perform_appeared_qrScan() {
+        let publisher = MockCameraService.ScanPublisher(nil)
+        cameraService.startResult = .success(publisher)
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        let result = ScanResult(content: "123", codeType: .qr)
+        publisher.send(result)
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+        XCTAssertEqual(coordinator.routes.first, .complete(value: result))
     }
 
     /// `perform()` with `.appeared` sets up the camera.
@@ -64,13 +82,17 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.disappeared` stops the camera.
-    func test_perform_disappeared_success() async {
-        await subject.perform(.disappeared)
+    func test_perform_disappeared_success() {
+        let task = Task {
+            await subject.perform(.disappeared)
+        }
+        waitFor(cameraService.didStop)
+        task.cancel()
         XCTAssertTrue(cameraService.didStop)
     }
 
     /// `receive()` with `.dismissPressed` navigates to dismiss.
-    func test_receive_dismissPressed() async {
+    func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes, [.dismiss])
     }
@@ -78,6 +100,6 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     /// `receive()` with `.manualEntryPressed` navigates to dismiss.
     func test_receive_manualEntryPressed() async {
         subject.receive(.manualEntryPressed)
-        XCTAssertEqual(coordinator.routes, [])
+        XCTAssertEqual(coordinator.routes, [.setupTotpManual])
     }
 }

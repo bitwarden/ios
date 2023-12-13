@@ -31,7 +31,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository
             ),
-            state: .init()
+            state: CipherItemState()
         )
     }
 
@@ -163,7 +163,10 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             vaultRepository.addCipherCiphers,
-            [subject.state.newCipherView(creationDate: vaultRepository.addCipherCiphers[0].creationDate)]
+            [
+                (subject.state as? CipherItemState)?
+                    .newCipherView(creationDate: vaultRepository.addCipherCiphers[0].creationDate),
+            ]
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }

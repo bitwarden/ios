@@ -15,22 +15,22 @@ extension CipherView {
         )
     }
 
-    func updatedView(with editState: CipherItemState) -> CipherView {
+    func updatedView(with addEditState: AddEditItemState) -> CipherView {
         CipherView(
             id: id,
             organizationId: organizationId,
             folderId: folderId,
             collectionIds: collectionIds,
-            key: editState.configuration.existingCipherView?.key,
-            name: editState.name,
-            notes: editState.notes.nilIfEmpty,
-            type: BitwardenSdk.CipherType(.login),
-            login: .init(loginView: login, loginState: editState.loginState),
+            key: addEditState.configuration.existingCipherView?.key,
+            name: addEditState.name,
+            notes: addEditState.notes.nilIfEmpty,
+            type: type,
+            login: .init(loginView: login, loginState: addEditState.loginState),
             identity: identity,
             card: card,
             secureNote: secureNote,
-            favorite: editState.isFavoriteOn,
-            reprompt: editState.isMasterPasswordRePromptOn ? .password : .none,
+            favorite: addEditState.isFavoriteOn,
+            reprompt: addEditState.isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,
             edit: true,
             viewPassword: true,

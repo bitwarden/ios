@@ -11,14 +11,14 @@ import XCTest
 class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var processor: MockProcessor<CipherItemState, AddEditItemAction, AddEditItemEffect>!
+    var processor: MockProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect>!
     var subject: AddEditItemView!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: .init())
+        processor = MockProcessor(state: CipherItemState())
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
     }

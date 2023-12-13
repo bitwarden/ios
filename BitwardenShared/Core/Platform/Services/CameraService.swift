@@ -1,4 +1,5 @@
 import AVFoundation
+import Combine
 import Foundation
 
 // MARK: - CameraService
@@ -29,11 +30,16 @@ protocol CameraService: AnyObject {
     ///
     func getCameraSession() async -> AVCaptureSession?
 
-    /// Starts the camera session for QR code scanning.
+    /// Starts the camera session for QR code scanning and returns a publisher for scan results.
+    ///
+    /// This method initializes and starts the camera session.
+    /// It returns an `AnyPublisher` that emits a`ScanResult` model,
+    ///  Non nil if the session scanned a code.
     ///
     /// - Throws: An error if the camera session cannot be started.
+    /// - Returns: An `AnyPublisher` that emits a `ScanResult` model.
     ///
-    func startCameraSession() throws
+    func startCameraSession() throws -> AsyncPublisher<AnyPublisher<ScanResult?, Never>>
 
     /// Stops the camera session.
     ///
@@ -47,13 +53,44 @@ protocol CameraService: AnyObject {
 
 enum CameraServiceError: Error, Equatable {
     case unableToStartCaptureSession
+    case unableToStartScanning
+}
+
+/// The default `CameraService` type for the application
+///
+class DefaultCameraService: NSObject {
+    // MARK: Private Properties
+
+    /// The camera session in use.
+    private var cameraSession: AVCaptureSession?
+
+    /// A subject containing an array of scan results.
+    private var scanResultsSubject = CurrentValueSubject<ScanResult?, Never>(nil)
+
+    /// The output of the camera session.
+    private let metadataOutput = AVCaptureMetadataOutput()
+
+    // MARK: Private Methods
+
+    /// Function to call when a scan result is found
+    private func publishScanResult(_ result: ScanResult) {
+        scanResultsSubject.send(result)
+    }
+
+    /// Request camera access from the user.
+    ///
+    private func requestCameraAuthorization() async -> CameraAuthorizationStatus {
+        if await AVCaptureDevice.requestAccess(for: .video) {
+            .authorized
+        } else {
+            .denied
+        }
+    }
 }
 
 // MARK: - DefaultCamerAuthorizationService
 
-class DefaultCameraService: CameraService {
-    var cameraSession: AVCaptureSession?
-
+extension DefaultCameraService: CameraService {
     func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus {
         let status = CameraAuthorizationStatus(
             avAuthorizationStatus: AVCaptureDevice.authorizationStatus(for: .video)
@@ -103,7 +140,7 @@ class DefaultCameraService: CameraService {
         return cameraSession
     }
 
-    func startCameraSession() throws {
+    func startCameraSession() throws -> AsyncPublisher<AnyPublisher<ScanResult?, Never>> {
         guard let cameraSession,
               let videoDevice = AVCaptureDevice.default(for: .video) else {
             throw CameraServiceError.unableToStartCaptureSession
@@ -112,9 +149,20 @@ class DefaultCameraService: CameraService {
         if cameraSession.canAddInput(videoInput) {
             cameraSession.addInput(videoInput)
         }
+        if cameraSession.canAddOutput(metadataOutput) {
+            cameraSession.addOutput(metadataOutput)
+            metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+            metadataOutput.metadataObjectTypes = [.qr]
+        } else {
+            throw CameraServiceError.unableToStartScanning
+        }
         DispatchQueue.global(qos: .userInitiated).async {
             cameraSession.startRunning()
         }
+
+        return scanResultsSubject
+            .eraseToAnyPublisher()
+            .values
     }
 
     func stopCameraSession() {
@@ -123,14 +171,23 @@ class DefaultCameraService: CameraService {
             cameraSession.stopRunning()
         }
     }
+}
 
-    /// Request camera access from the user.
-    ///
-    private func requestCameraAuthorization() async -> CameraAuthorizationStatus {
-        if await AVCaptureDevice.requestAccess(for: .video) {
-            .authorized
-        } else {
-            .denied
+// MARK: AVCaptureMetadataOutputObjectsDelegate
+
+extension DefaultCameraService: AVCaptureMetadataOutputObjectsDelegate {
+    func metadataOutput(
+        _ output: AVCaptureMetadataOutput,
+        didOutput metadataObjects: [AVMetadataObject],
+        from connection: AVCaptureConnection
+    ) {
+        for metadata in metadataObjects {
+            if let readableObject = metadata as? AVMetadataMachineReadableCodeObject,
+               let stringValue = readableObject.stringValue,
+               readableObject.type == .qr {
+                let scanResult = ScanResult(content: stringValue, codeType: readableObject.type)
+                publishScanResult(scanResult)
+            }
         }
     }
 }
