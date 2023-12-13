@@ -46,6 +46,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
             errorReporter.errors as? [CameraServiceError],
             [error]
         )
+        XCTAssertEqual(coordinator.routes, [.setupTotpManual])
     }
 
     /// `perform()` with `.appeared` sets up the camera.
@@ -59,6 +60,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
         cameraService.deviceHasCamera = false
         await subject.perform(.appeared)
         XCTAssertFalse(cameraService.didStart)
+        XCTAssertEqual(coordinator.routes, [.setupTotpManual])
     }
 
     /// `perform()` with `.disappeared` stops the camera.

@@ -66,11 +66,15 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     /// it logs the error through the provided error reporting service.
     ///
     private func setupCamera() {
-        guard services.cameraService.deviceSupportsCamera() else { return }
+        guard services.cameraService.deviceSupportsCamera() else {
+            coordinator.navigate(to: .setupTotpManual)
+            return
+        }
         do {
             try services.cameraService.startCameraSession()
         } catch {
             services.errorReporter.log(error: error)
+            coordinator.navigate(to: .setupTotpManual)
         }
     }
 }
