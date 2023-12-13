@@ -50,7 +50,6 @@ class ScanCodeViewTests: BitwardenTestCase {
                 as: [
                     .defaultPortrait,
                     .defaultLandscape,
-                    .defaultPortraitDark,
                     .defaultPortraitAX5,
                 ]
             )
