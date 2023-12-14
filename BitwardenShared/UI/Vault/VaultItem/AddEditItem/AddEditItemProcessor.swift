@@ -8,7 +8,7 @@ import Foundation
 final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAction, AddEditItemEffect> {
     // MARK: Types
 
-    typealias Services = HasCameraAuthorizationService
+    typealias Services = HasCameraService
         & HasErrorReporter
         & HasVaultRepository
 
@@ -219,7 +219,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
     /// Kicks off the TOTP setup flow.
     ///
     private func setupTotp() async {
-        let status = await services.cameraAuthorizationService.checkStatusOrRequestCameraAuthorization()
+        let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
             coordinator.navigate(to: .setupTotpCamera)
         } else {

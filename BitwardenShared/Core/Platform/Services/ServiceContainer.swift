@@ -33,8 +33,8 @@ public class ServiceContainer: Services {
     /// The service used by the application to generate captcha related artifacts.
     let captchaService: CaptchaService
 
-    /// The service used by the application to query for and request camera authorization.
-    let cameraAuthorizationService: CameraAuthorizationService
+    /// The service used by the application to manage camera use.
+    let cameraService: CameraService
 
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
@@ -83,8 +83,7 @@ public class ServiceContainer: Services {
     ///   - biometricsService: The service used to obtain the available authentication policies
     ///     and access controls for the user's device.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
-    ///   - cameraAuthorizationService: The service used by the application to query for and request
-    ///     camera authorization.
+    ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
@@ -104,7 +103,7 @@ public class ServiceContainer: Services {
         authRepository: AuthRepository,
         biometricsService: BiometricsService,
         captchaService: CaptchaService,
-        cameraAuthorizationService: CameraAuthorizationService,
+        cameraService: CameraService,
         clientService: ClientService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
@@ -123,7 +122,7 @@ public class ServiceContainer: Services {
         self.authRepository = authRepository
         self.biometricsService = biometricsService
         self.captchaService = captchaService
-        self.cameraAuthorizationService = cameraAuthorizationService
+        self.cameraService = cameraService
         self.clientService = clientService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
@@ -195,7 +194,7 @@ public class ServiceContainer: Services {
             authRepository: authRepository,
             biometricsService: biometricsService,
             captchaService: DefaultCaptchaService(environmentService: environmentService),
-            cameraAuthorizationService: DefaultCameraAuthorizationService(),
+            cameraService: DefaultCameraService(),
             clientService: clientService,
             environmentService: environmentService,
             errorReporter: errorReporter,
