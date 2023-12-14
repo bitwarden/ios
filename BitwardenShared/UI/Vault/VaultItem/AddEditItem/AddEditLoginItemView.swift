@@ -61,7 +61,7 @@ struct AddEditLoginItemView: View {
                         .styleGuide(.body)
                 },
                 accessoryContent: {
-                    AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotpAutomatically) {
+                    AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
                         await store.perform(.copyTotpPressed)
                     }
                     AccessoryButton(asset: Asset.Images.camera, accessibilityLabel: Localizations.setupTotp) {

@@ -46,6 +46,15 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.effects.last, .checkPasswordPressed)
     }
 
+    /// Tapping the copy totp button performs the `.copyTotp` effect.
+    func test_copyTotpButton_tap() async throws {
+        processor.state.loginState.authenticatorKey = "1234"
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.copyTotp)
+        try await button.tap()
+
+        XCTAssertEqual(processor.effects.last, .copyTotpPressed)
+    }
+
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     func test_dismissButton_tap() throws {
         processor.state = CipherItemState(existing: CipherView.loginFixture())!
@@ -182,9 +191,18 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
-    func test_setupTotpButton_tap() async throws {
+    func test_setupTotpButton_noKey_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.setupTotp)
         try await button.tap()
+        XCTAssertEqual(processor.effects.last, .setupTotpPressed)
+    }
+
+    /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
+    func test_setupTotpButton_withKey_tap() async throws {
+        processor.state.loginState.authenticatorKey = "1234"
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.setupTotp)
+        try await button.tap()
+
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)
     }
 
