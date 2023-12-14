@@ -141,8 +141,16 @@ struct AddEditIdentityItemView: View {
             BitwardenTextField(
                 title: Localizations.stateProvince,
                 text: store.binding(
-                    get: \.stateOrPostalCode,
-                    send: AddEditIdentityItemAction.stateOrPostalCodeChanged
+                    get: \.state,
+                    send: AddEditIdentityItemAction.stateChanged
+                )
+            )
+
+            BitwardenTextField(
+                title: Localizations.zipPostalCode,
+                text: store.binding(
+                    get: \.postalCode,
+                    send: AddEditIdentityItemAction.postalCodeChanged
                 )
             )
 

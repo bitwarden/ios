@@ -27,7 +27,8 @@ extension CipherView {
             address2: identity?.address2 ?? "",
             address3: identity?.address3 ?? "",
             cityOrTown: identity?.city ?? "",
-            stateOrPostalCode: identity?.state ?? "",
+            state: identity?.state ?? "",
+            postalCode: identity?.postalCode ?? "",
             country: identity?.country ?? ""
         )
     }

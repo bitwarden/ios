@@ -769,21 +769,38 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.identityState.cityOrTown, "")
     }
 
-    /// `receive(_:)` with `.identityFieldChanged(.stateOrPostalCodeChanged)` with a value updates the state correctly.
-    func test_receive_identity_stateOrPostalCodeChange_withValidValue() {
-        subject.state.identityState.stateOrPostalCode = ""
-        subject.receive(.identityFieldChanged(.stateOrPostalCodeChanged("stateOrPostalCode")))
+    /// `receive(_:)` with `.identityFieldChanged(.stateChanged)` with a value updates the state correctly.
+    func test_receive_identity_stateChange_withValidValue() {
+        subject.state.identityState.state = ""
+        subject.receive(.identityFieldChanged(.stateChanged("state")))
 
-        XCTAssertEqual(subject.state.identityState.stateOrPostalCode, "stateOrPostalCode")
+        XCTAssertEqual(subject.state.identityState.state, "state")
     }
 
-    /// `receive(_:)` with `.identityFieldChanged(.stateOrPostalCodeChanged)` without
+    /// `receive(_:)` with `.identityFieldChanged(.stateChanged)` without
     ///  a value updates the state correctly.
-    func test_receive_identity_stateOrPostalCodeChange_withOutValidValue() {
-        subject.state.identityState.stateOrPostalCode = "stateOrPostalCode"
-        subject.receive(.identityFieldChanged(.stateOrPostalCodeChanged("")))
+    func test_receive_identity_stateChange_withOutValidValue() {
+        subject.state.identityState.state = "state"
+        subject.receive(.identityFieldChanged(.stateChanged("")))
 
-        XCTAssertEqual(subject.state.identityState.stateOrPostalCode, "")
+        XCTAssertEqual(subject.state.identityState.state, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.postalCodeChanged)` with a value updates the state correctly.
+    func test_receive_identity_postalCodeChange_withValidValue() {
+        subject.state.identityState.state = ""
+        subject.receive(.identityFieldChanged(.postalCodeChanged("55408")))
+
+        XCTAssertEqual(subject.state.identityState.postalCode, "55408")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.postalCodeChanged)` without
+    ///  a value updates the state correctly.
+    func test_receive_identity_postalCodeChange_withOutValidValue() {
+        subject.state.identityState.postalCode = "55408"
+        subject.receive(.identityFieldChanged(.postalCodeChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.postalCode, "")
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.countryChanged)` with a value updates the state correctly.

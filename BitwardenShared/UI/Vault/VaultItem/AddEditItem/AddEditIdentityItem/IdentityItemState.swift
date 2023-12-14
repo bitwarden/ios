@@ -52,8 +52,11 @@ struct IdentityItemState: Equatable {
     /// The city/town for this item.
     var cityOrTown: String = ""
 
-    /// The state/postal code for this item.
-    var stateOrPostalCode: String = ""
+    /// The state for this item.
+    var state: String = ""
+
+    /// The postal code for this item.
+    var postalCode: String = ""
 
     /// The country for this item.
     var country: String = ""
@@ -72,8 +75,8 @@ struct IdentityItemState: Equatable {
             address2: address2.nilIfEmpty,
             address3: address3.nilIfEmpty,
             city: cityOrTown.nilIfEmpty,
-            state: stateOrPostalCode.nilIfEmpty,
-            postalCode: stateOrPostalCode.nilIfEmpty,
+            state: state.nilIfEmpty,
+            postalCode: postalCode.nilIfEmpty,
             country: country.nilIfEmpty,
             company: company.nilIfEmpty,
             email: email.nilIfEmpty,

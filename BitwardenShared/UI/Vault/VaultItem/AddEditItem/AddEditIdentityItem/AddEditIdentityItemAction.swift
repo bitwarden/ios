@@ -49,8 +49,11 @@ enum AddEditIdentityItemAction: Equatable {
     /// The city/town field was changed.
     case cityOrTownChanged(String)
 
-    /// The state/postal code field was changed.
-    case stateOrPostalCodeChanged(String)
+    /// The state field was changed.
+    case stateChanged(String)
+
+    /// The postal code field was changed.
+    case postalCodeChanged(String)
 
     /// The country field was changed.
     case countryChanged(String)

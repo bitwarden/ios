@@ -137,8 +137,10 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
                 state.identityState.address3 = address3
             case let .cityOrTownChanged(cityOrTown):
                 state.identityState.cityOrTown = cityOrTown
-            case let .stateOrPostalCodeChanged(stateOrPostal):
-                state.identityState.stateOrPostalCode = stateOrPostal
+            case let .stateChanged(stateProvince):
+                state.identityState.state = stateProvince
+            case let .postalCodeChanged(postalCode):
+                state.identityState.postalCode = postalCode
             case let .countryChanged(country):
                 state.identityState.country = country
             }

@@ -368,12 +368,20 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.cityOrTownChanged("text")))
     }
 
-    /// Updating the name text field dispatches the `.identityFieldChanged(.stateOrPostalCodeChanged())` action.
-    func test_stateOrPostalCodeTextField_updateValue() throws {
+    /// Updating the name text field dispatches the `.identityFieldChanged(.stateChanged())` action.
+    func test_stateTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.stateProvince)
         try textField.inputBinding().wrappedValue = "text"
-        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.stateOrPostalCodeChanged("text")))
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.stateChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.postalCodeChanged())` action.
+    func test_postalCodeTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.zipPostalCode)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.postalCodeChanged("text")))
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.countryChanged())` action.
@@ -388,6 +396,54 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     func test_snapshot_add_empty() {
         assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+
+    /// Tests the add state with identity item empty.
+    func test_snapshot_add_identity_full_fieldsEmpty() {
+        processor.state.type = .identity
+        processor.state.name = ""
+        processor.state.identityState = .init()
+        processor.state.isFavoriteOn = false
+        processor.state.isMasterPasswordRePromptOn = false
+        processor.state.owner = ""
+        processor.state.notes = ""
+        processor.state.folder = ""
+
+        assertSnapshot(of: subject, as: .tallPortrait2)
+    }
+
+    /// Tests the add state with identity item filled.
+    func test_snapshot_add_identity_full_fieldsFilled() {
+        processor.state.type = .identity
+        processor.state.name = "my identity"
+        processor.state.identityState = .fixture(
+            title: .custom(.dr),
+            firstName: "First",
+            lastName: "Last",
+            middleName: "Middle",
+            userName: "userName",
+            company: "LiveFront",
+            socialSecurityNumber: "12-345-6789",
+            passportNumber: "passportNumber",
+            licenseNumber: "licenseNumber",
+            email: "hello@livefront.com",
+            phone: "(800) 219-3010",
+            address1: "2913 Harriet Ave #101",
+            address2: "address2",
+            address3: "address3",
+            cityOrTown: "Minneapolis",
+            state: "Minnesota",
+            postalCode: "55408",
+            country: "country"
+        )
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortrait2)
     }
 
     /// Tests the add state with the password field not visible.
