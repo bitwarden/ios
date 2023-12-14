@@ -445,6 +445,39 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject, as: .tallPortrait2)
     }
 
+    /// Tests the add state with identity item filled with large text.
+    func test_snapshot_add_identity_full_fieldsFilled_largeText() {
+        processor.state.type = .identity
+        processor.state.name = "my identity"
+        processor.state.identityState = .fixture(
+            title: .custom(.dr),
+            firstName: "First",
+            lastName: "Last",
+            middleName: "Middle",
+            userName: "userName",
+            company: "LiveFront",
+            socialSecurityNumber: "12-345-6789",
+            passportNumber: "passportNumber",
+            licenseNumber: "licenseNumber",
+            email: "hello@livefront.com",
+            phone: "(800) 219-3010",
+            address1: "2913 Harriet Ave #101",
+            address2: "address2",
+            address3: "address3",
+            cityOrTown: "Minneapolis",
+            state: "Minnesota",
+            postalCode: "55408",
+            country: "country"
+        )
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 7))
+    }
+
     /// Tests the add state with the password field not visible.
     func test_snapshot_add_login_full_fieldsNotVisible() {
         processor.state.type = .login
