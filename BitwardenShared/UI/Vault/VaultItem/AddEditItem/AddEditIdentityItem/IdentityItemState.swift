@@ -64,7 +64,7 @@ struct IdentityItemState: Equatable {
     var identityView: IdentityView {
         var titleStr: String?
         if case let .custom(titleType) = title {
-            titleStr = titleType.localizedName
+            titleStr = titleType.rawValue
         }
         return IdentityView(
             title: titleStr,
