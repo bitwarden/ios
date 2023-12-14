@@ -42,8 +42,8 @@ public enum AuthRoute: Equatable {
     /// A route to the login with device screen.
     case loginWithDevice
 
-    /// A route to the master password hint screen.
-    case masterPasswordHint
+    /// A route to the master password hint screen for the provided username.
+    case masterPasswordHint(username: String)
 
     /// A route to the self-hosted settings view.
     case selfHosted

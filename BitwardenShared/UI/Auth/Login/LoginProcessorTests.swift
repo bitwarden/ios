@@ -283,8 +283,9 @@ class LoginProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.getMasterPasswordHintPressed` navigates to the master password hint screen.
     func test_receive_getMasterPasswordHintPressed() {
+        subject.state.username = "test@example.com"
         subject.receive(.getMasterPasswordHintPressed)
-        XCTAssertEqual(coordinator.routes.last, .masterPasswordHint)
+        XCTAssertEqual(coordinator.routes.last, .masterPasswordHint(username: "test@example.com"))
     }
 
     /// `receive(_:)` with `.loginWithDevicePressed` navigates to the login with device screen.
