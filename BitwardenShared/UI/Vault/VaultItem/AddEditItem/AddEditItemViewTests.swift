@@ -248,6 +248,134 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .usernameChanged("text"))
     }
 
+    /// Updating the name text field dispatches the `.identityFieldChanged(.firstNameChanged())` action.
+    func test_firstNameTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.firstName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.firstNameChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.lastNameChanged())` action.
+    func test_lastNameTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.lastName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.lastNameChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.middleNameChanged())` action.
+    func test_middleNameTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.middleName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.middleNameChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.userNameChanged())` action.
+    func test_userNameTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.username)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.userNameChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.companyChanged())` action.
+    func test_companyTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.company)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.companyChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.socialSecurityNumberChanged())` action.
+    func test_socialSecurityNumberTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.ssn)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.socialSecurityNumberChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.passportNumberChanged())` action.
+    func test_passportNumberTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.passportNumber)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.passportNumberChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.licenseNumberChanged())` action.
+    func test_licenseNumberTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.licenseNumber)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.licenseNumberChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.emailChanged())` action.
+    func test_emailTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.email)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.emailChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.phoneNumberChanged())` action.
+    func test_phoneTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.phone)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.phoneNumberChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.address1Changed())` action.
+    func test_address1TextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.address1)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.address1Changed("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.address2Changed())` action.
+    func test_address2TextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.address2)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.address2Changed("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.address3Changed())` action.
+    func test_address3TextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.address3)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.address3Changed("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.cityOrTownChanged())` action.
+    func test_cityOrTownTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.cityTown)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.cityOrTownChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.stateOrPostalCodeChanged())` action.
+    func test_stateOrPostalCodeTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.stateProvince)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.stateOrPostalCodeChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.countryChanged())` action.
+    func test_countryTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.country)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.countryChanged("text")))
+    }
+
     // MARK: Snapshots
 
     func test_snapshot_add_empty() {
