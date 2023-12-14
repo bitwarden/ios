@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 import XCTest
 
@@ -8,6 +9,7 @@ import XCTest
 class VaultItemCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var cameraService: MockCameraService!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultItemCoordinator!
@@ -17,12 +19,14 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        cameraService = MockCameraService()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
         vaultRepository = MockVaultRepository()
         subject = VaultItemCoordinator(
             module: module,
             services: ServiceContainer.withMocks(
+                cameraService: cameraService,
                 vaultRepository: vaultRepository
             ),
             stackNavigator: stackNavigator
@@ -31,6 +35,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        cameraService = nil
         module = nil
         stackNavigator = nil
         subject = nil
@@ -102,6 +107,22 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.editItem()` with a malformed cipher fails to trigger the show edit flow.
+    func test_navigateTo_editItem_newCipher() throws {
+        subject.navigate(to: .editItem(cipher: .fixture()), context: nil)
+
+        XCTAssertNil(stackNavigator.actions.last)
+    }
+
+    /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
+    func test_navigateTo_editItem_existingCipher() throws {
+        subject.navigate(to: .editItem(cipher: .loginFixture()), context: nil)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is NavigationView<AddEditItemView>)
+    }
+
     /// `navigate(to:)` with `.generator`, `.password`, and without a delegate does not present the
     /// generator screen.
     func test_navigateTo_generator_withPassword_withoutDelegate() throws {
@@ -150,12 +171,49 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.setupTotpCamera` presents the camera totp setup screen.
-    func test_navigateTo_setupTotpCamera() throws {
-        subject.navigate(to: .setupTotpCamera)
+    func test_navigateTo_setupTotpCamera_success() throws {
+        cameraService.cameraSession = AVCaptureSession()
+        let task = Task {
+            subject.navigate(to: .setupTotpCamera)
+        }
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ScanCodeView.self))
+    }
+
+    /// `navigate(to:)` with `.setupTotpCamera` fails without an AVCaptureSession.
+    ///     The user is redirected to the manual setup.
+    func test_navigateTo_setupTotpCamera_fail_noCapability() throws {
+        cameraService.deviceHasCamera = false
+        let task = Task {
+            subject.navigate(to: .setupTotpCamera)
+        }
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is NavigationView<Text>)
+    }
+
+    /// `navigate(to:)` with `.setupTotpCamera` fails without an AVCaptureSession.
+    ///     The user is redirected to the manual setup.
+    func test_navigateTo_setupTotpCamera_fail_noSession() throws {
+        cameraService.cameraSession = nil
+        let task = Task {
+            subject.navigate(to: .setupTotpCamera)
+        }
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is NavigationView<Text>)
     }
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual totp setup screen.
@@ -164,7 +222,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
+        XCTAssertTrue(action.view is NavigationView<Text>)
     }
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
