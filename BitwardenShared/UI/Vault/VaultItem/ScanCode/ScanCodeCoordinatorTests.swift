@@ -29,7 +29,7 @@ class ScanCodeCoordinatorTests: BitwardenTestCase {
             stackNavigator: stackNavigator
         )
         cameraService.cameraAuthorizationStatus = .authorized
-        cameraService.cameraSession = AVCaptureSession()
+        cameraService.startResult = .success(AVCaptureSession())
     }
 
     override func tearDown() {

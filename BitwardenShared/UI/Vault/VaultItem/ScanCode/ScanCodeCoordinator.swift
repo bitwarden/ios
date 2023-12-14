@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 
 // MARK: - ScanCodeCoordinatorDelegate
@@ -81,6 +82,24 @@ final class ScanCodeCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
+    /// Gets a new camera session for the scan code view.
+    ///
+    /// - Returns: An optional `AVCaptureSession`, nil on error.
+    ///
+    private func getNewCameraSession() async -> AVCaptureSession? {
+        guard services.cameraService.deviceSupportsCamera(),
+              case .authorized = await
+              services.cameraService.checkStatusOrRequestCameraAuthorization() else {
+            return nil
+        }
+        do {
+            return try await services.cameraService.startCameraSession()
+        } catch {
+            services.errorReporter.log(error: error)
+            return nil
+        }
+    }
+
     /// Shows the scan code screen.
     ///
     /// - Parameter type: The type to initialize this generator screen with. If a value is provided,
@@ -92,7 +111,7 @@ final class ScanCodeCoordinator: Coordinator, HasStackNavigator {
             guard services.cameraService.deviceSupportsCamera(),
                   case .authorized = await
                   services.cameraService.checkStatusOrRequestCameraAuthorization(),
-                  let session = await services.cameraService.getCameraSession() else {
+                  let session = await getNewCameraSession() else {
                 showManualTotp()
                 return
             }

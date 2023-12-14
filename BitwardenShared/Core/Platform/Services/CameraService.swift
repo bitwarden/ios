@@ -24,22 +24,21 @@ protocol CameraService: AnyObject {
     ///
     func deviceSupportsCamera() -> Bool
 
-    /// Retrieves an `AVCaptureSession` for scanning QR codes.
+    /// Retrieves the publisher for scan results when scanning QR codes.
     ///
-    /// - Returns: An `AVCaptureSession` if the app is authorized; otherwise, `nil`.
+    /// - Returns: An `AnyPublisher` that emits a`ScanResult` model.
     ///
-    func getCameraSession() async -> AVCaptureSession?
+    func getScanResultPublisher() -> AsyncPublisher<AnyPublisher<ScanResult?, Never>>
 
     /// Starts the camera session for QR code scanning and returns a publisher for scan results.
     ///
     /// This method initializes and starts the camera session.
-    /// It returns an `AnyPublisher` that emits a`ScanResult` model,
-    ///  Non nil if the session scanned a code.
+    /// It returns a new `AVCaptureSession` used to scan QR codes.
     ///
     /// - Throws: An error if the camera session cannot be started.
-    /// - Returns: An `AnyPublisher` that emits a `ScanResult` model.
+    /// - Returns: A new `AVCaptureSession` for video/camera.
     ///
-    func startCameraSession() throws -> AsyncPublisher<AnyPublisher<ScanResult?, Never>>
+    func startCameraSession() async throws -> AVCaptureSession
 
     /// Stops the camera session.
     ///
@@ -127,48 +126,45 @@ extension DefaultCameraService: CameraService {
         return !videoDevices.isEmpty
     }
 
-    func getCameraSession() async -> AVCaptureSession? {
-        let status = await checkStatusOrRequestCameraAuthorization()
-        guard case .authorized = status else {
-            cameraSession = nil
-            return nil
-        }
-        if cameraSession == nil {
-            cameraSession = AVCaptureSession()
-        }
-
-        return cameraSession
+    func getScanResultPublisher() -> AsyncPublisher<AnyPublisher<ScanResult?, Never>> {
+        scanResultsSubject = .init(nil)
+        return scanResultsSubject
+            .eraseToAnyPublisher()
+            .values
     }
 
-    func startCameraSession() throws -> AsyncPublisher<AnyPublisher<ScanResult?, Never>> {
-        guard let cameraSession,
+    func startCameraSession() async throws -> AVCaptureSession {
+        let status = await checkStatusOrRequestCameraAuthorization()
+        guard case .authorized = status,
               let videoDevice = AVCaptureDevice.default(for: .video) else {
             throw CameraServiceError.unableToStartCaptureSession
         }
+        let avCaptureSession = AVCaptureSession()
+        cameraSession = avCaptureSession
         let videoInput = try AVCaptureDeviceInput(device: videoDevice)
-        if cameraSession.canAddInput(videoInput) {
-            cameraSession.addInput(videoInput)
+        if avCaptureSession.canAddInput(videoInput) {
+            avCaptureSession.addInput(videoInput)
         }
-        if cameraSession.canAddOutput(metadataOutput) {
-            cameraSession.addOutput(metadataOutput)
+        if avCaptureSession.canAddOutput(metadataOutput) {
+            avCaptureSession.addOutput(metadataOutput)
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
             metadataOutput.metadataObjectTypes = [.qr]
         } else {
             throw CameraServiceError.unableToStartScanning
         }
         DispatchQueue.global(qos: .userInitiated).async {
-            cameraSession.startRunning()
+            avCaptureSession.startRunning()
         }
+        scanResultsSubject = .init(nil)
 
-        return scanResultsSubject
-            .eraseToAnyPublisher()
-            .values
+        return avCaptureSession
     }
 
     func stopCameraSession() {
         guard let cameraSession else { return }
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             cameraSession.stopRunning()
+            self?.cameraSession = nil
         }
     }
 }

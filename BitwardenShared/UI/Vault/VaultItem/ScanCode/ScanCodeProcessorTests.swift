@@ -1,3 +1,4 @@
+import AVFoundation
 import XCTest
 
 @testable import BitwardenShared
@@ -39,30 +40,16 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
 
     /// `perform()` with `.appeared` logs errors when starting the camera fails.
     func test_perform_appeared_failure() async {
-        let error = CameraServiceError.unableToStartCaptureSession
-        cameraService.startResult = .failure(error)
+        cameraService.deviceHasCamera = false
         await subject.perform(.appeared)
-        XCTAssertEqual(
-            errorReporter.errors as? [CameraServiceError],
-            [error]
-        )
         XCTAssertEqual(coordinator.routes, [.setupTotpManual])
     }
 
-    /// `perform()` with `.appeared` sets up the camera.
-    func test_perform_appeared_success() {
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        waitFor(cameraService.didStart)
-        task.cancel()
-        XCTAssertTrue(cameraService.didStart)
-    }
-
-    /// `perform()` with `.appeared` sets up the camera and responds to QR code scans
+    /// `perform()` with `.appeared` sets up the camera observation and responds to QR code scans
     func test_perform_appeared_qrScan() {
         let publisher = MockCameraService.ScanPublisher(nil)
-        cameraService.startResult = .success(publisher)
+        cameraService.startResult = .success(AVCaptureSession())
+        cameraService.resultsPublisher = publisher
         let task = Task {
             await subject.perform(.appeared)
         }

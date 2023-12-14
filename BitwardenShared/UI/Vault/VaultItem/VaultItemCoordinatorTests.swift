@@ -172,7 +172,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.setupTotpCamera` with context without conformance fails to present.
     func test_navigateTo_setupTotpCamera_noConformance() throws {
-        cameraService.cameraSession = AVCaptureSession()
+        cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
         subject.navigate(to: .setupTotpCamera, context: MockProcessor<Any, Any, Any>(state: ()))
         XCTAssertTrue(stackNavigator.actions.isEmpty)
@@ -180,7 +180,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.setupTotpCamera` without context fails to present.
     func test_navigateTo_setupTotpCamera_noContext() throws {
-        cameraService.cameraSession = AVCaptureSession()
+        cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
         subject.navigate(to: .setupTotpCamera, context: nil)
         XCTAssertTrue(stackNavigator.actions.isEmpty)
@@ -189,7 +189,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.setupTotpCamera` presents the camera totp setup screen.
     func test_navigateTo_setupTotpCamera_success() throws {
         let mockContext = MockScanDelegateProcessor(state: ())
-        cameraService.cameraSession = AVCaptureSession()
+        cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
         let task = Task {
             subject.navigate(to: .setupTotpCamera, context: mockContext)
@@ -208,7 +208,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
     ///     The user is redirected to the manual setup.
     func test_navigateTo_setupTotpCamera_fail() throws {
         let mockContext = MockScanDelegateProcessor(state: ())
-        cameraService.cameraSession = nil
+        cameraService.startResult = .failure(CameraServiceError.unableToStartCaptureSession)
         let task = Task {
             subject.navigate(to: .setupTotpCamera, context: mockContext)
         }
@@ -222,7 +222,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.setupTotpManual` with context without conformance fails to present.
     func test_navigateTo_setupTotpManual_noConformance() throws {
-        cameraService.cameraSession = AVCaptureSession()
+        cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
         subject.navigate(to: .setupTotpManual, context: MockProcessor<Any, Any, Any>(state: ()))
         XCTAssertTrue(stackNavigator.actions.isEmpty)
@@ -230,7 +230,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.setupTotpManual` without context fails to present.
     func test_navigateTo_setupTotpManual_noContext() throws {
-        cameraService.cameraSession = AVCaptureSession()
+        cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
         subject.navigate(to: .setupTotpManual, context: nil)
         XCTAssertTrue(stackNavigator.actions.isEmpty)

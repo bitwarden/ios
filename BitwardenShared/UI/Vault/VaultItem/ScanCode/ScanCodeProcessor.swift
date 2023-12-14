@@ -54,7 +54,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     override func perform(_ effect: ScanCodeEffect) async {
         switch effect {
         case .appeared:
-            await setupCamera()
+            await setupCameraResultsObservation()
         case .disappeared:
             Task {
                 services.cameraService.stopCameraSession()
@@ -76,20 +76,16 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     /// This method checks for camera support and initiates the camera session. If an error occurs,
     /// it logs the error through the provided error reporting service.
     ///
-    private func setupCamera() async {
+    private func setupCameraResultsObservation() async {
         guard services.cameraService.deviceSupportsCamera() else {
             coordinator.navigate(to: .setupTotpManual)
             return
         }
-        do {
-            for await value in try services.cameraService.startCameraSession() {
-                guard let value else { continue }
-                coordinator.navigate(to: .complete(value: value))
-                return
-            }
-        } catch {
-            services.errorReporter.log(error: error)
-            coordinator.navigate(to: .setupTotpManual)
+
+        for await value in services.cameraService.getScanResultPublisher() {
+            guard let value else { continue }
+            coordinator.navigate(to: .complete(value: value))
+            return
         }
     }
 }
