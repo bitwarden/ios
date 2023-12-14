@@ -201,7 +201,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default,
+                matchType: .default(),
                 uri: "uri"
             ),
         ]
@@ -216,7 +216,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default,
+                matchType: .default(),
                 uri: "uri"
             ),
         ]
@@ -231,7 +231,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default,
+                matchType: .default(),
                 uri: "uri"
             ),
         ]
@@ -268,7 +268,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.loginState.uris = [
-            UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
+            UriState(id: "id", matchType: .default(), uri: URL.example.absoluteString),
         ]
         processor.state.owner = "owner"
         processor.state.notes = "Notes"
@@ -286,7 +286,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.loginState.uris = [
-            UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
+            UriState(id: "id", matchType: .default(), uri: URL.example.absoluteString),
         ]
         processor.state.owner = "owner"
         processor.state.notes = "Notes"

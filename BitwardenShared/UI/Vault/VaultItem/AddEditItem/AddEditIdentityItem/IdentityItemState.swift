@@ -11,7 +11,7 @@ struct IdentityItemState: Equatable {
     var title: DefaultableType<TitleType> = .default(TitleType.defaultStateTitle)
 
     /// The firstName for this item.
-    var firsName: String = ""
+    var firstName: String = ""
 
     /// The first name for this item.
     var lastName: String = ""

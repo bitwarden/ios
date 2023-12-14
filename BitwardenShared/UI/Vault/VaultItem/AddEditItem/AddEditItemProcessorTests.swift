@@ -463,7 +463,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default,
+                matchType: .default(),
                 uri: ""
             ),
         ]
@@ -477,7 +477,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default,
+                matchType: .default(),
                 uri: "uri"
             ),
         ]
@@ -491,7 +491,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default,
+                matchType: .default(),
                 uri: "uri"
             ),
         ]
@@ -505,13 +505,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default,
+                matchType: .default(),
                 uri: "uri"
             ),
         ]
         subject.receive(.uriTypeChanged(.custom(.host), index: 5))
 
-        XCTAssertEqual(subject.state.loginState.uris[0].matchType, .default)
+        XCTAssertEqual(subject.state.loginState.uris[0].matchType, .default())
     }
 
     /// `receive(_:)` with `.usernameChanged` without a value updates the state correctly.
@@ -528,5 +528,263 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.usernameChanged(""))
 
         XCTAssertEqual(subject.state.loginState.username, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.firstNameChanged)` with a value updates the state correctly.
+    func test_receive_identity_firstNameChange_withValidValue() {
+        subject.state.identityState.firstName = ""
+        subject.receive(.identityFieldChanged(.firstNameChanged("firstName")))
+
+        XCTAssertEqual(subject.state.identityState.firstName, "firstName")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.firstNameChanged)` without a value updates the state correctly.
+    func test_receive_identity_firstNameChange_withOutValidValue() {
+        subject.state.identityState.firstName = "firstName"
+        subject.receive(.identityFieldChanged(.firstNameChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.firstName, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.middleNameChanged)` with a value updates the state correctly.
+    func test_receive_identity_middleNameChange_withValidValue() {
+        subject.state.identityState.middleName = ""
+        subject.receive(.identityFieldChanged(.middleNameChanged("middleName")))
+
+        XCTAssertEqual(subject.state.identityState.middleName, "middleName")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.middleNameChanged)` without a value updates the state correctly.
+    func test_receive_identity_middleNameChange_withOutValidValue() {
+        subject.state.identityState.middleName = "middleName"
+        subject.receive(.identityFieldChanged(.middleNameChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.middleName, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.lastNameChanged)` with a value updates the state correctly.
+    func test_receive_identity_lastNameChange_withValidValue() {
+        subject.state.identityState.lastName = ""
+        subject.receive(.identityFieldChanged(.lastNameChanged("lastName")))
+
+        XCTAssertEqual(subject.state.identityState.lastName, "lastName")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.lastNameChanged)` without a value updates the state correctly.
+    func test_receive_identity_lastNameChange_withOutValidValue() {
+        subject.state.identityState.lastName = "lastName"
+        subject.receive(.identityFieldChanged(.lastNameChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.lastName, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.userNameChanged)` with a value updates the state correctly.
+    func test_receive_identity_userNameChange_withValidValue() {
+        subject.state.identityState.userName = ""
+        subject.receive(.identityFieldChanged(.userNameChanged("userName")))
+
+        XCTAssertEqual(subject.state.identityState.userName, "userName")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.userNameChanged)` without a value updates the state correctly.
+    func test_receive_identity_userNameChange_withOutValidValue() {
+        subject.state.identityState.userName = "userName"
+        subject.receive(.identityFieldChanged(.userNameChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.userName, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.companyChanged)` with a value updates the state correctly.
+    func test_receive_identity_companyChange_withValidValue() {
+        subject.state.identityState.company = ""
+        subject.receive(.identityFieldChanged(.companyChanged("company")))
+
+        XCTAssertEqual(subject.state.identityState.company, "company")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.companyChanged)` without a value updates the state correctly.
+    func test_receive_identity_companyChange_withOutValidValue() {
+        subject.state.identityState.company = "company"
+        subject.receive(.identityFieldChanged(.companyChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.company, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.passportNumberChanged)` with a value updates the state correctly.
+    func test_receive_identity_passportNumberChange_withValidValue() {
+        subject.state.identityState.passportNumber = ""
+        subject.receive(.identityFieldChanged(.passportNumberChanged("passportNumber")))
+
+        XCTAssertEqual(subject.state.identityState.passportNumber, "passportNumber")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.passportNumberChanged)` without a value updates the state correctly.
+    func test_receive_identity_passportNumberChange_withOutValidValue() {
+        subject.state.identityState.passportNumber = "passportNumber"
+        subject.receive(.identityFieldChanged(.passportNumberChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.passportNumber, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.socialSecurityNumberChanged)`
+    /// with a value updates the state correctly.
+    func test_receive_identity_socialSecurityNumberChange_withValidValue() {
+        subject.state.identityState.socialSecurityNumber = ""
+        subject.receive(.identityFieldChanged(.socialSecurityNumberChanged("socialSecurityNumber")))
+
+        XCTAssertEqual(subject.state.identityState.socialSecurityNumber, "socialSecurityNumber")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.passportNumberChanged)` without a value updates the state correctly.
+    func test_receive_identity_socialSecurityNumberChange_withOutValidValue() {
+        subject.state.identityState.passportNumber = "socialSecurityNumber"
+        subject.receive(.identityFieldChanged(.socialSecurityNumberChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.socialSecurityNumber, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.licenseNumberChanged)` with a value updates the state correctly.
+    func test_receive_identity_licenseNumberChange_withValidValue() {
+        subject.state.identityState.licenseNumber = ""
+        subject.receive(.identityFieldChanged(.licenseNumberChanged("licenseNumber")))
+
+        XCTAssertEqual(subject.state.identityState.licenseNumber, "licenseNumber")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.licenseNumberChanged)` without a value updates the state correctly.
+    func test_receive_identity_licenseNumberChange_withOutValidValue() {
+        subject.state.identityState.licenseNumber = "licenseNumber"
+        subject.receive(.identityFieldChanged(.licenseNumberChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.licenseNumber, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.emailChanged)` with a value updates the state correctly.
+    func test_receive_identity_emailChange_withValidValue() {
+        subject.state.identityState.email = ""
+        subject.receive(.identityFieldChanged(.emailChanged("email")))
+
+        XCTAssertEqual(subject.state.identityState.email, "email")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.emailChanged)` without a value updates the state correctly.
+    func test_receive_identity_emailChange_withOutValidValue() {
+        subject.state.identityState.email = "email"
+        subject.receive(.identityFieldChanged(.emailChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.email, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.phoneNumberChanged)` with a value updates the state correctly.
+    func test_receive_identity_phoneChange_withValidValue() {
+        subject.state.identityState.phone = ""
+        subject.receive(.identityFieldChanged(.phoneNumberChanged("phone")))
+
+        XCTAssertEqual(subject.state.identityState.phone, "phone")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.phoneNumberChanged)` without a value updates the state correctly.
+    func test_receive_identity_phoneChange_withOutValidValue() {
+        subject.state.identityState.phone = "phone"
+        subject.receive(.identityFieldChanged(.phoneNumberChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.phone, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address1Changed)` with a value updates the state correctly.
+    func test_receive_identity_address1Change_withValidValue() {
+        subject.state.identityState.address1 = ""
+        subject.receive(.identityFieldChanged(.address1Changed("address1")))
+
+        XCTAssertEqual(subject.state.identityState.address1, "address1")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address1Changed)` without a value updates the state correctly.
+    func test_receive_identity_address1Change_withOutValidValue() {
+        subject.state.identityState.address1 = "address1"
+        subject.receive(.identityFieldChanged(.address1Changed("")))
+
+        XCTAssertEqual(subject.state.identityState.address1, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address2Changed)` with a value updates the state correctly.
+    func test_receive_identity_address2Change_withValidValue() {
+        subject.state.identityState.address2 = ""
+        subject.receive(.identityFieldChanged(.address2Changed("address2")))
+
+        XCTAssertEqual(subject.state.identityState.address2, "address2")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address2Changed)` without a value updates the state correctly.
+    func test_receive_identity_address2Change_withOutValidValue() {
+        subject.state.identityState.address2 = "address2"
+        subject.receive(.identityFieldChanged(.address2Changed("")))
+
+        XCTAssertEqual(subject.state.identityState.address2, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address3Changed)` with a value updates the state correctly.
+    func test_receive_identity_address3Change_withValidValue() {
+        subject.state.identityState.address3 = ""
+        subject.receive(.identityFieldChanged(.address3Changed("address3")))
+
+        XCTAssertEqual(subject.state.identityState.address3, "address3")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address3Changed)` without a value updates the state correctly.
+    func test_receive_identity_address3Change_withOutValidValue() {
+        subject.state.identityState.address3 = "address3"
+        subject.receive(.identityFieldChanged(.address3Changed("")))
+
+        XCTAssertEqual(subject.state.identityState.address3, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.cityOrTownChanged)` with a value updates the state correctly.
+    func test_receive_identity_cityOrTownChange_withValidValue() {
+        subject.state.identityState.cityOrTown = ""
+        subject.receive(.identityFieldChanged(.cityOrTownChanged("cityOrTown")))
+
+        XCTAssertEqual(subject.state.identityState.cityOrTown, "cityOrTown")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.cityOrTownChanged)` without a value updates the state correctly.
+    func test_receive_identity_cityOrTownChange_withOutValidValue() {
+        subject.state.identityState.cityOrTown = "cityOrTown"
+        subject.receive(.identityFieldChanged(.cityOrTownChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.cityOrTown, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.stateOrPostalCodeChanged)` with a value updates the state correctly.
+    func test_receive_identity_stateOrPostalCodeChange_withValidValue() {
+        subject.state.identityState.stateOrPostalCode = ""
+        subject.receive(.identityFieldChanged(.stateOrPostalCodeChanged("stateOrPostalCode")))
+
+        XCTAssertEqual(subject.state.identityState.stateOrPostalCode, "stateOrPostalCode")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.stateOrPostalCodeChanged)` without
+    ///  a value updates the state correctly.
+    func test_receive_identity_stateOrPostalCodeChange_withOutValidValue() {
+        subject.state.identityState.stateOrPostalCode = "stateOrPostalCode"
+        subject.receive(.identityFieldChanged(.stateOrPostalCodeChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.stateOrPostalCode, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.countryChanged)` with a value updates the state correctly.
+    func test_receive_identity_countryChange_withValidValue() {
+        subject.state.identityState.country = ""
+        subject.receive(.identityFieldChanged(.countryChanged("country")))
+
+        XCTAssertEqual(subject.state.identityState.country, "country")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.countryChanged)` without a value updates the state correctly.
+    func test_receive_identity_countryChange_withOutValidValue() {
+        subject.state.identityState.country = "country"
+        subject.receive(.identityFieldChanged(.countryChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.country, "")
     }
 }

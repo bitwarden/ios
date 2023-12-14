@@ -24,7 +24,7 @@ struct AddEditIdentityItemView: View {
             BitwardenTextField(
                 title: Localizations.firstName,
                 text: store.binding(
-                    get: \.firsName,
+                    get: \.firstName,
                     send: AddEditIdentityItemAction.firstNameChanged
                 )
             )

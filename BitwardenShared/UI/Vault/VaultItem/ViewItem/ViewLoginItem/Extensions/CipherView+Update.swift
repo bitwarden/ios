@@ -6,9 +6,14 @@ extension CipherView {
     }
 
     func identityItemState() -> IdentityItemState {
-        .init(
-            title: .default(TitleType.defaultStateTitle),
-            firsName: identity?.firstName ?? "",
+        var title: DefaultableType<TitleType> = .default(TitleType.defaultStateTitle)
+        if let titleStr = identity?.title, let titleType = TitleType(rawValue: titleStr) {
+            title = .custom(titleType)
+        }
+
+        return .init(
+            title: title,
+            firstName: identity?.firstName ?? "",
             lastName: identity?.lastName ?? "",
             middleName: identity?.middleName ?? "",
             userName: identity?.username ?? "",
@@ -21,8 +26,8 @@ extension CipherView {
             address1: identity?.address1 ?? "",
             address2: identity?.address2 ?? "",
             address3: identity?.address3 ?? "",
-            cityAndTown: identity?.city ?? "",
-            stateAndPostalCode: identity?.state ?? "",
+            cityOrTown: identity?.city ?? "",
+            stateOrPostalCode: identity?.state ?? "",
             country: identity?.country ?? ""
         )
     }

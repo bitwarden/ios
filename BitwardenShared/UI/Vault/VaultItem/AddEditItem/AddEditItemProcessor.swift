@@ -108,7 +108,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
         case let .identityFieldChanged(action):
             switch action {
             case let .firstNameChanged(firstName):
-                state.identityState.firsName = firstName
+                state.identityState.firstName = firstName
             case let .middleNameChanged(middleName):
                 state.identityState.middleName = middleName
             case let .titleChanged(title):
