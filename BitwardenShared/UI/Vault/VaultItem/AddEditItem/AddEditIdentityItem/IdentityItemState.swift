@@ -57,4 +57,31 @@ struct IdentityItemState: Equatable {
 
     /// The country for this item.
     var country: String = ""
+
+    var identityView: IdentityView {
+        var titleStr: String?
+        if case let .custom(titleType) = title {
+            titleStr = titleType.localizedName
+        }
+        return IdentityView(
+            title: titleStr,
+            firstName: firstName.nilIfEmpty,
+            middleName: middleName.nilIfEmpty,
+            lastName: lastName.nilIfEmpty,
+            address1: address1.nilIfEmpty,
+            address2: address2.nilIfEmpty,
+            address3: address3.nilIfEmpty,
+            city: cityOrTown.nilIfEmpty,
+            state: stateOrPostalCode.nilIfEmpty,
+            postalCode: stateOrPostalCode.nilIfEmpty,
+            country: country.nilIfEmpty,
+            company: company.nilIfEmpty,
+            email: email.nilIfEmpty,
+            phone: phone.nilIfEmpty,
+            ssn: socialSecurityNumber.nilIfEmpty,
+            username: userName.nilIfEmpty,
+            passportNumber: passportNumber.nilIfEmpty,
+            licenseNumber: licenseNumber.nilIfEmpty
+        )
+    }
 }

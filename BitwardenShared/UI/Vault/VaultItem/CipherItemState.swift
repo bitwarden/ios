@@ -169,7 +169,7 @@ extension CipherItemState {
             notes: notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(type),
             login: type == .login ? loginState.loginView : nil,
-            identity: nil,
+            identity: type == .identity ? identityState.identityView : nil,
             card: nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             favorite: isFavoriteOn,
