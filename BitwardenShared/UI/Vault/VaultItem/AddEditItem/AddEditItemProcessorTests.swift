@@ -9,7 +9,7 @@ import XCTest
 class AddEditItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var cameraAuthorizationService: MockCameraAuthorizationService!
+    var cameraService: MockCameraService!
     var coordinator: MockCoordinator<VaultItemRoute>!
     var errorReporter: MockErrorReporter!
     var subject: AddEditItemProcessor!
@@ -20,14 +20,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        cameraAuthorizationService = MockCameraAuthorizationService()
+        cameraService = MockCameraService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                cameraAuthorizationService: cameraAuthorizationService,
+                cameraService: cameraService,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository
             ),
@@ -181,7 +181,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
     /// `.setupTotpCamera` route.
     func test_perform_setupTotpPressed_cameraAuthorizationAuthorized() async {
-        cameraAuthorizationService.cameraAuthorizationStatus = .authorized
+        cameraService.cameraAuthorizationStatus = .authorized
         await subject.perform(.setupTotpPressed)
 
         XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
@@ -190,7 +190,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the
     /// `.setupTotpManual` route.
     func test_perform_setupTotpPressed_cameraAuthorizationDenied() async {
-        cameraAuthorizationService.cameraAuthorizationStatus = .denied
+        cameraService.cameraAuthorizationStatus = .denied
         await subject.perform(.setupTotpPressed)
 
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
@@ -199,7 +199,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization restricted navigates to the
     /// `.setupTotpManual` route.
     func test_perform_setupTotpPressed_cameraAuthorizationRestricted() async {
-        cameraAuthorizationService.cameraAuthorizationStatus = .restricted
+        cameraService.cameraAuthorizationStatus = .restricted
         await subject.perform(.setupTotpPressed)
 
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
