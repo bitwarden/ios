@@ -10,7 +10,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = GeneratorModule
 
-    typealias Services = HasCameraAuthorizationService
+    typealias Services = HasCameraService
         & HasVaultRepository
         & GeneratorCoordinator.Services
 
@@ -108,16 +108,34 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// Shows the totp camera setup screen.
     ///
     private func showCamera() {
-        // TODO: BIT-874 Update to show the actual camera screen
-        let view = Text("Camera")
-        stackNavigator.present(view)
+        Task {
+            guard services.cameraService.deviceSupportsCamera(),
+                  let session = await services.cameraService.getCameraSession() else {
+                showManualTotp()
+                return
+            }
+            let processor = ScanCodeProcessor(
+                coordinator: self,
+                services: services,
+                state: .init()
+            )
+            let store = Store(processor: processor)
+            let view = ScanCodeView(
+                cameraSession: session,
+                store: store
+            )
+            let navWrapped = view.navStackWrapped
+
+            stackNavigator.present(navWrapped, animated: true, overFullscreen: true)
+        }
     }
 
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp() {
         let view = Text("Manual Totp")
-        stackNavigator.present(view)
+        let navWrapped = NavigationView { view }
+        stackNavigator.present(navWrapped)
     }
 
     /// Shows the generator screen for the the specified type.
@@ -156,5 +174,16 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         let store = Store(processor: processor)
         let view = ViewItemView(store: store)
         stackNavigator.replace(view)
+    }
+}
+
+extension View {
+    @ViewBuilder var navStackWrapped: some View {
+        if #available(iOSApplicationExtension 16.0, *) {
+            NavigationStack { self }
+        } else {
+            NavigationView { self }
+                .navigationViewStyle(.stack)
+        }
     }
 }
