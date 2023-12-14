@@ -44,24 +44,14 @@ protocol GeneratorDataStore: AnyObject {
 
 extension DataStore: GeneratorDataStore {
     func deleteAllPasswordHistory(userId: String) async throws {
-        try await backgroundContext.perform {
-            try self.backgroundContext.executeAndMergeChanges(
-                PasswordHistoryData.deleteByUserIdRequest(userId: userId),
-                additionalContexts: [self.persistentContainer.viewContext]
-            )
-        }
+        try await executeBatchDelete(PasswordHistoryData.deleteByUserIdRequest(userId: userId))
     }
 
     func deletePasswordHistoryPastLimit(userId: String, limit: Int) async throws {
-        try await backgroundContext.perform {
-            let fetchRequest = PasswordHistoryData.fetchResultRequest()
-            fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastUsedDateDescending]
-            fetchRequest.fetchOffset = limit
-            try self.backgroundContext.executeAndMergeChanges(
-                NSBatchDeleteRequest(fetchRequest: fetchRequest),
-                additionalContexts: [self.persistentContainer.viewContext]
-            )
-        }
+        let fetchRequest = PasswordHistoryData.fetchResultRequest()
+        fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastUsedDateDescending]
+        fetchRequest.fetchOffset = limit
+        try await executeBatchDelete(NSBatchDeleteRequest(fetchRequest: fetchRequest))
     }
 
     func fetchPasswordHistoryMostRecent(userId: String) async throws -> PasswordHistory? {

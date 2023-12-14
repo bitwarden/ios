@@ -423,6 +423,19 @@ extension BitwardenSdk.Folder {
             revisionDate: model.revisionDate
         )
     }
+
+    init(folderData: FolderData) throws {
+        guard let id = folderData.id,
+              let name = folderData.model?.name,
+              let revisionDate = folderData.model?.revisionDate else {
+            throw DataMappingError.invalidData
+        }
+        self.init(
+            id: id,
+            name: name,
+            revisionDate: revisionDate
+        )
+    }
 }
 
 // MARK: - Sends (BitwardenSdk)

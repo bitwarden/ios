@@ -314,6 +314,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             userId: "1",
             passwordHistory: PasswordHistory(password: "PASSWORD", lastUsedDate: Date())
         )
+        try await dataStore.persistentContainer.viewContext.performAndSave {
+            _ = FolderData(
+                context: self.dataStore.persistentContainer.viewContext,
+                userId: "1",
+                folder: Folder(id: "1", name: "FOLDER1", revisionDate: Date())
+            )
+        }
 
         try await subject.logoutAccount()
 
@@ -324,6 +331,10 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try XCTAssertEqual(
             dataStore.persistentContainer.viewContext
                 .count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")),
+            0
+        )
+        try XCTAssertEqual(
+            dataStore.persistentContainer.viewContext.count(for: FolderData.fetchByUserIdRequest(userId: "1")),
             0
         )
     }
