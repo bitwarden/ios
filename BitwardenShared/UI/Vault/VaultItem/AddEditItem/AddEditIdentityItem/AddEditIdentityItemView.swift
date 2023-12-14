@@ -10,6 +10,8 @@ struct AddEditIdentityItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<IdentityItemState, AddEditIdentityItemAction, AddEditItemEffect>
 
+    // MARK: Views
+
     var body: some View {
         LazyVStack(alignment: .leading, spacing: 16) {
             BitwardenMenuField(
@@ -186,7 +188,7 @@ struct AddEditIdentityItemView_Previews: PreviewProvider {
             .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             .ignoresSafeArea()
         }
-        .previewDisplayName("Empty Add Edit State")
+        .previewDisplayName("Empty Add Edit Identity State")
     }
 }
 #endif

@@ -398,7 +398,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
-
     /// Tests the add state with identity item empty.
     func test_snapshot_add_identity_full_fieldsEmpty() {
         processor.state.type = .identity

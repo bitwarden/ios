@@ -18,7 +18,8 @@ enum TitleType: String, Codable, Equatable, Hashable, Menuable {
     /// Dr title for individuals with a doctoral degree.
     case dr = "Dr"
     // swiftlint:enable identifier_name
-
+    
+    /// default state title for title type
     static var defaultStateTitle: String {
         "--\(Localizations.select)--"
     }
