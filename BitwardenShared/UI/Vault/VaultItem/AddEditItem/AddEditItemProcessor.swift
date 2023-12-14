@@ -10,6 +10,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
 
     typealias Services = HasCameraService
         & HasErrorReporter
+        & HasPasteboardService
         & HasVaultRepository
 
     // MARK: Properties
@@ -45,6 +46,10 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         switch effect {
         case .checkPasswordPressed:
             await checkPassword()
+        case .copyTotpPressed:
+            guard let key = state.loginState.authenticatorKey else { return }
+            services.pasteboardService.copy(key)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.authenticatorKey))
         case .savePressed:
             await saveItem()
         case .setupTotpPressed:
@@ -249,6 +254,7 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 extension AddEditItemProcessor: ScanCodeCoordinatorDelegate {
     func didCompleteScan(with value: String) {
         state.loginState.authenticatorKey = value
+        state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         coordinator.navigate(to: .dismiss)
     }
 }

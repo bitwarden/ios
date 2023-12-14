@@ -12,6 +12,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var cameraService: MockCameraService!
     var coordinator: MockCoordinator<VaultItemRoute>!
     var errorReporter: MockErrorReporter!
+    var pasteboardService: MockPasteboardService!
     var subject: AddEditItemProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -23,12 +24,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         cameraService = MockCameraService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
                 errorReporter: errorReporter,
+                pasteboardService: pasteboardService,
                 vaultRepository: vaultRepository
             ),
             state: CipherItemState()
@@ -39,6 +42,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         super.tearDown()
         coordinator = nil
         errorReporter = nil
+        pasteboardService = nil
         subject = nil
         vaultRepository = nil
     }
@@ -73,6 +77,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loginState.password, "password123")
     }
 
+    /// `didCompleteScan` with a value updates the state with the new auth key value
+    /// and navigates to the `.dismiss` route.
+    func test_didCompleteScan() {
+        subject.state.loginState.authenticatorKey = nil
+        subject.didCompleteScan(with: "example.com")
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(subject.state.loginState.authenticatorKey, "example.com")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.authenticatorKeyAdded)
+    }
+
     /// `perform(_:)` with `.checkPasswordPressed` checks the password.
     func test_perform_checkPasswordPressed() async {
         await subject.perform(.checkPasswordPressed)
@@ -89,6 +103,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 ]
             )
         ))
+    }
+
+    /// Tapping the copy button on the auth key row dispatches the `.copyPassword` action.
+    func test_perform_copyTotp() async throws {
+        subject.state.loginState.authenticatorKey = "1234"
+
+        await subject.perform(.copyTotpPressed)
+        XCTAssertEqual(
+            subject.state.loginState.authenticatorKey,
+            pasteboardService.copiedString
+        )
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
@@ -429,6 +454,23 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.passwordChanged(""))
 
         XCTAssertEqual(subject.state.loginState.password, "")
+    }
+
+    /// `receive(_:)` with `.toastShown` without a value updates the state correctly.
+    func test_receive_toastShown_withoutValue() {
+        let toast = Toast(text: "123")
+        subject.state.toast = toast
+        subject.receive(.toastShown(nil))
+
+        XCTAssertEqual(subject.state.toast, nil)
+    }
+
+    /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
+    func test_receive_toastShown_withValue() {
+        let toast = Toast(text: "123")
+        subject.receive(.toastShown(toast))
+
+        XCTAssertEqual(subject.state.toast, toast)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.

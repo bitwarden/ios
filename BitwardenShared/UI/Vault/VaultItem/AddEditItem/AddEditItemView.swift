@@ -213,6 +213,47 @@ struct AddEditItemView_Previews: PreviewProvider {
         .init(timeIntervalSince1970: 1_695_000_000)
     }
 
+    static var cipherState: CipherItemState {
+        CipherItemState(
+            existing: .init(
+                id: .init(),
+                organizationId: nil,
+                folderId: nil,
+                collectionIds: [],
+                key: .init(),
+                name: "Edit Em",
+                notes: nil,
+                type: .login,
+                login: .init(
+                    username: "EddyEddity",
+                    password: "changerdanger",
+                    passwordRevisionDate: fixedDate,
+                    uris: [
+                        .init(uri: "yahoo.com", match: nil),
+                        .init(uri: "account.yahoo.com", match: nil),
+                    ],
+                    totp: nil,
+                    autofillOnPageLoad: nil
+                ),
+                identity: nil,
+                card: nil,
+                secureNote: nil,
+                favorite: true,
+                reprompt: .none,
+                organizationUseTotp: false,
+                edit: true,
+                viewPassword: true,
+                localData: nil,
+                attachments: nil,
+                fields: nil,
+                passwordHistory: nil,
+                creationDate: fixedDate,
+                deletedDate: nil,
+                revisionDate: fixedDate
+            )
+        )!
+    }
+
     static var previews: some View {
         NavigationView {
             AddEditItemView(
@@ -229,48 +270,27 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
-                        state: CipherItemState(
-                            existing: .init(
-                                id: .init(),
-                                organizationId: nil,
-                                folderId: nil,
-                                collectionIds: [],
-                                key: .init(),
-                                name: "Edit Em",
-                                notes: nil,
-                                type: .login,
-                                login: .init(
-                                    username: "EddyEddity",
-                                    password: "changerdanger",
-                                    passwordRevisionDate: fixedDate,
-                                    uris: [
-                                        .init(uri: "yahoo.com", match: nil),
-                                        .init(uri: "account.yahoo.com", match: nil),
-                                    ],
-                                    totp: nil,
-                                    autofillOnPageLoad: nil
-                                ),
-                                identity: nil,
-                                card: nil,
-                                secureNote: nil,
-                                favorite: true,
-                                reprompt: .none,
-                                organizationUseTotp: false,
-                                edit: true,
-                                viewPassword: true,
-                                localData: nil,
-                                attachments: nil,
-                                fields: nil,
-                                passwordHistory: nil,
-                                creationDate: fixedDate,
-                                deletedDate: nil,
-                                revisionDate: fixedDate
-                            )
-                        )!.addEditState
+                        state: cipherState.addEditState
                     )
                 )
             )
         }
         .previewDisplayName("Edit Login")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var state = cipherState
+                            state.loginState.authenticatorKey = "1234"
+                            state.toast = Toast(text: "Authenticator key added.")
+                            return state
+                        }()
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Edit Login: Key Added")
     }
 }
