@@ -38,8 +38,8 @@ protocol CaptchaService {
 class DefaultCaptchaService: CaptchaService {
     // MARK: Properties
 
-    /// A service for retrieving the base url for all requests in this service.
-    let baseUrlService: BaseUrlService
+    /// The service used by the application to manage the environment settings.
+    let environmentService: EnvironmentService
 
     let callbackUrlScheme: String
 
@@ -47,12 +47,10 @@ class DefaultCaptchaService: CaptchaService {
 
     /// Creates a new `DefaultCaptchaService`.
     ///
-    /// - Parameters:
-    ///   - baseUrl: The base url for all requests in this service.
-    ///   - callbackUrlScheme: The callback url scheme for this application. E.g. `"bitwarden"`.
+    /// - Parameter environmentService: The service used by the application to manage the environment settings.
     ///
-    init(baseUrlService: BaseUrlService) {
-        self.baseUrlService = baseUrlService
+    init(environmentService: EnvironmentService) {
+        self.environmentService = environmentService
         callbackUrlScheme = "bitwarden"
     }
 
@@ -85,7 +83,7 @@ class DefaultCaptchaService: CaptchaService {
             URLQueryItem(name: "v", value: "1"),
         ]
 
-        guard let url = baseUrlService.baseUrl
+        guard let url = environmentService.webVaultURL
             .appendingPathComponent("/captcha-mobile-connector.html")
             .appending(queryItems: queryItems)
         else { throw CaptchaURLError.unableToGenerateUrl }

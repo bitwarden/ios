@@ -15,6 +15,9 @@ protocol EnvironmentService {
     /// The URL for the identity API.
     var identityURL: URL { get }
 
+    /// The URL for the web vault.
+    var webVaultURL: URL { get }
+
     /// Loads the URLs for the active account into the environment. This can be called on app launch
     /// whether there's an active account or not to pre-populate the environment. If there's no
     /// active account, the US URLs will be used.
@@ -86,5 +89,9 @@ extension DefaultEnvironmentService {
 
     var eventsURL: URL {
         environmentUrls.eventsURL
+    }
+
+    var webVaultURL: URL {
+        environmentUrls.webVaultURL
     }
 }

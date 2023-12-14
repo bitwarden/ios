@@ -16,7 +16,8 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 apiURL: URL(string: "https://example.com/api")!,
                 baseURL: URL(string: "https://example.com")!,
                 eventsURL: URL(string: "https://example.com/events")!,
-                identityURL: URL(string: "https://example.com/identity")!
+                identityURL: URL(string: "https://example.com/identity")!,
+                webVaultURL: URL(string: "https://example.com")!
             )
         )
     }
@@ -27,7 +28,8 @@ class EnvironmentUrlsTests: BitwardenTestCase {
             environmentUrlData: EnvironmentUrlData(
                 api: URL(string: "https://api.example.com")!,
                 events: URL(string: "https://events.example.com")!,
-                identity: URL(string: "https://identity.example.com")!
+                identity: URL(string: "https://identity.example.com")!,
+                webVault: URL(string: "https://example.com")!
             )
         )
         XCTAssertEqual(
@@ -36,7 +38,8 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 apiURL: URL(string: "https://api.example.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 eventsURL: URL(string: "https://events.example.com")!,
-                identityURL: URL(string: "https://identity.example.com")!
+                identityURL: URL(string: "https://identity.example.com")!,
+                webVaultURL: URL(string: "https://example.com")!
             )
         )
     }
@@ -50,7 +53,8 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 eventsURL: URL(string: "https://events.bitwarden.com")!,
-                identityURL: URL(string: "https://identity.bitwarden.com")!
+                identityURL: URL(string: "https://identity.bitwarden.com")!,
+                webVaultURL: URL(string: "https://vault.bitwarden.com")!
             )
         )
     }
