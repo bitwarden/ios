@@ -17,18 +17,18 @@ protocol TwoStepLoginService: AnyObject {
 class DefaultTwoStepLoginService: TwoStepLoginService {
     // MARK: Properties
 
-    /// A service for retrieving the base url for all requests in this service.
-    let baseUrlService: BaseUrlService
+    /// The service used by the application to manage the environment settings.
+    let environmentService: EnvironmentService
 
     // MARK: Initialization
 
     /// Creates a new `DefaultTwoStepLoginService`.
     ///
     /// - Parameters:
-    ///   - baseUrl: The base url for all requests in this service.
+    ///   - environmentService: The service used by the application to manage the environment settings.
     ///
-    init(baseUrlService: BaseUrlService) {
-        self.baseUrlService = baseUrlService
+    init(environmentService: EnvironmentService) {
+        self.environmentService = environmentService
     }
 
     // MARK: Methods
@@ -39,6 +39,6 @@ class DefaultTwoStepLoginService: TwoStepLoginService {
         // concatenation to get around this limitation. If for some reason this URL creation fails, we pass back the
         // base url for this user. This should take them to the web app regardless,
         // and they can navigate to the settings page from there.
-        URL(string: baseUrlService.baseUrl.absoluteString + "/#/settings") ?? baseUrlService.baseUrl
+        URL(string: environmentService.webVaultURL.absoluteString + "/#/settings") ?? environmentService.webVaultURL
     }
 }

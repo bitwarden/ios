@@ -32,6 +32,7 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.apiURL, URL(string: "https://vault.bitwarden.com/api"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.bitwarden.com/events"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://vault.bitwarden.com/identity"))
+        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
     }
 
     /// `loadURLsForActiveAccount()` loads the URLs for the active account.
@@ -46,6 +47,7 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
+        XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
     }
 
     /// `loadURLsForActiveAccount()` loads the default URLs if there's no active account.
@@ -55,6 +57,7 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.apiURL, URL(string: "https://vault.bitwarden.com/api"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.bitwarden.com/events"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://vault.bitwarden.com/identity"))
+        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
     }
 
     /// `setPreAuthURLs(urls:)` sets the pre-auth URLs.
@@ -66,6 +69,7 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
+        XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
     }
 }

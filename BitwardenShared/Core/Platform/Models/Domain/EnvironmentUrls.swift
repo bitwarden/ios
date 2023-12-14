@@ -16,6 +16,9 @@ struct EnvironmentUrls: Equatable {
 
     /// The URL for the identity API.
     let identityURL: URL
+
+    /// The URL for the web vault.
+    let webVaultURL: URL
 }
 
 extension EnvironmentUrls {
@@ -29,11 +32,13 @@ extension EnvironmentUrls {
             baseURL = base
             eventsURL = base.appendingPathComponent("/events")
             identityURL = base.appendingPathComponent("/identity")
+            webVaultURL = base
         } else {
             apiURL = environmentUrlData.api ?? URL(string: "https://api.bitwarden.com")!
             baseURL = environmentUrlData.base ?? URL(string: "https://vault.bitwarden.com")!
             eventsURL = environmentUrlData.events ?? URL(string: "https://events.bitwarden.com")!
             identityURL = environmentUrlData.identity ?? URL(string: "https://identity.bitwarden.com")!
+            webVaultURL = environmentUrlData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
     }
 }

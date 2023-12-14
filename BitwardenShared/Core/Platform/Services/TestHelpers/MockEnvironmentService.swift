@@ -10,6 +10,7 @@ class MockEnvironmentService: EnvironmentService {
     var apiURL = URL(string: "https://example.com/api")!
     var eventsURL = URL(string: "https://example.com/events")!
     var identityURL = URL(string: "https://example.com/identity")!
+    var webVaultURL = URL(string: "https://example.com")!
 
     func loadURLsForActiveAccount() async {
         didLoadURLsForActiveAccount = true
