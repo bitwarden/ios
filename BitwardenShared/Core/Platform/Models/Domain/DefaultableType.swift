@@ -12,7 +12,7 @@ enum DefaultableType<T: CaseIterable & Menuable>: CaseIterable, Menuable {
     // MARK: Type Properties
 
     static var allCases: [DefaultableType<T>] {
-        [.default(nil)] + T.allCases.map(DefaultableType.custom)
+        [.default()] + T.allCases.map(DefaultableType.custom)
     }
 
     // MARK: Properties

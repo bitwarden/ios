@@ -248,6 +248,14 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .usernameChanged("text"))
     }
 
+    /// Updating the name text field dispatches the `.identityFieldChanged(.userNameChanged())` action.
+    func test_identity_titleMenu_updateValue() throws {
+        processor.state.type = .identity
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.title)
+        try menuField.select(newValue: DefaultableType.custom(TitleType.ms))
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.titleChanged(.custom(.ms))))
+    }
+
     /// Updating the name text field dispatches the `.identityFieldChanged(.firstNameChanged())` action.
     func test_firstNameTextField_updateValue() throws {
         processor.state.type = .identity
@@ -273,7 +281,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.userNameChanged())` action.
-    func test_userNameTextField_updateValue() throws {
+    func test_identity_userNameTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.username)
         try textField.inputBinding().wrappedValue = "text"

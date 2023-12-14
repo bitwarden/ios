@@ -530,6 +530,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loginState.username, "")
     }
 
+    /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
+    func test_receive_identity_titleChange_withValidValue() {
+        subject.state.identityState.title = .default()
+        subject.receive(.identityFieldChanged(.titleChanged(.custom(.mr))))
+        XCTAssertEqual(subject.state.identityState.title, .custom(.mr))
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` without a value updates the state correctly.
+    func test_receive_identity_titleChange_withOutValidValue() {
+        subject.state.identityState.title = DefaultableType.custom(.mr)
+        subject.receive(.identityFieldChanged(.titleChanged(DefaultableType.default())))
+        XCTAssertEqual(subject.state.identityState.title, DefaultableType.default())
+    }
+
     /// `receive(_:)` with `.identityFieldChanged(.firstNameChanged)` with a value updates the state correctly.
     func test_receive_identity_firstNameChange_withValidValue() {
         subject.state.identityState.firstName = ""
