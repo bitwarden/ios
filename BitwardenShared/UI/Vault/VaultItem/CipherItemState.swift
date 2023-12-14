@@ -42,6 +42,9 @@ struct CipherItemState: Equatable {
     /// The state for a login type item.
     var loginState: LoginItemState
 
+    /// The state for a identity type item.
+    var identityState: IdentityItemState
+
     /// The name of this item.
     var name: String
 
@@ -81,6 +84,7 @@ struct CipherItemState: Equatable {
         configuration: Configuration,
         customFields: [CustomFieldState],
         folder: String,
+        identityState: IdentityItemState,
         isFavoriteOn: Bool,
         isMasterPasswordRePromptOn: Bool,
         loginState: LoginItemState,
@@ -92,6 +96,7 @@ struct CipherItemState: Equatable {
     ) {
         self.customFields = customFields
         self.folder = folder
+        self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
         self.loginState = loginState
@@ -108,6 +113,7 @@ struct CipherItemState: Equatable {
             configuration: .add,
             customFields: [],
             folder: "",
+            identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
             loginState: .init(),
@@ -125,6 +131,7 @@ struct CipherItemState: Equatable {
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
             folder: cipherView.folderId ?? "",
+            identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
             loginState: cipherView.loginItemState(),

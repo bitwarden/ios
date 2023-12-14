@@ -115,10 +115,26 @@ struct AddEditItemView: View {
                 loginItems
             case .secureNote:
                 EmptyView()
+            case .identity:
+                identityItems
             default:
                 EmptyView()
             }
         }
+    }
+
+    @ViewBuilder private var identityItems: some View {
+        AddEditIdentityItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.identityState
+                },
+                mapAction: { action in
+                    .identityFieldChanged(action)
+                },
+                mapEffect: { $0 }
+            )
+        )
     }
 
     @ViewBuilder private var loginItems: some View {

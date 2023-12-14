@@ -6,21 +6,21 @@ import Foundation
 enum DefaultableType<T: CaseIterable & Menuable>: CaseIterable, Menuable {
     // MARK: Cases
 
-    case `default`
+    case `default`(String? = nil)
     case custom(T)
 
     // MARK: Type Properties
 
     static var allCases: [DefaultableType<T>] {
-        [.default] + T.allCases.map(DefaultableType.custom)
+        [.default(nil)] + T.allCases.map(DefaultableType.custom)
     }
 
     // MARK: Properties
 
     var localizedName: String {
         switch self {
-        case .default:
-            Localizations.default
+        case let .default(customizedName):
+            customizedName ?? Localizations.default
         case let .custom(value):
             value.localizedName
         }

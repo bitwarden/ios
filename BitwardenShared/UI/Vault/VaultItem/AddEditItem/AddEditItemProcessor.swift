@@ -105,6 +105,43 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
             state.loginState.uris[index].matchType = newValue
         case let .usernameChanged(newValue):
             state.loginState.username = newValue
+        case let .identityFieldChanged(action):
+            switch action {
+            case let .firstNameChanged(firstName):
+                state.identityState.firsName = firstName
+            case let .middleNameChanged(middleName):
+                state.identityState.middleName = middleName
+            case let .titleChanged(title):
+                state.identityState.title = title
+            case let .lastNameChanged(lastName):
+                state.identityState.lastName = lastName
+            case let .userNameChanged(userName):
+                state.identityState.userName = userName
+            case let .companyChanged(company):
+                state.identityState.company = company
+            case let .socialSecurityNumberChanged(ssn):
+                state.identityState.socialSecurityNumber = ssn
+            case let .passportNumberChanged(passportNumber):
+                state.identityState.passportNumber = passportNumber
+            case let .licenseNumberChanged(licenseNumber):
+                state.identityState.licenseNumber = licenseNumber
+            case let .emailChanged(email):
+                state.identityState.email = email
+            case let .phoneNumberChanged(phoneNumber):
+                state.identityState.phone = phoneNumber
+            case let .address1Changed(address1):
+                state.identityState.address1 = address1
+            case let .address2Changed(address2):
+                state.identityState.address2 = address2
+            case let .address3Changed(address3):
+                state.identityState.address3 = address3
+            case let .cityOrTownChanged(cityOrTown):
+                state.identityState.cityOrTown = cityOrTown
+            case let .stateOrPostalCodeChanged(stateOrPostal):
+                state.identityState.stateOrPostalCode = stateOrPostal
+            case let .countryChanged(country):
+                state.identityState.country = country
+            }
         }
     }
 
@@ -142,7 +179,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
         // TODO: BIT-368 Navigate to an `.alert` route with the custom field alert
     }
 
-    /// Builds and navigates ot an alert for overwriting an existing value for the specified type.
+    /// Builds and navigates to an alert for overwriting an existing value for the specified type.
     ///
     /// - Parameter type: The `GeneratorType` that is being overwritten.
     ///

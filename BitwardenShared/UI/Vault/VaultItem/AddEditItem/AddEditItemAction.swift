@@ -60,4 +60,7 @@ enum AddEditItemAction: Equatable {
 
     /// The username field was changed.
     case usernameChanged(String)
+
+    /// The identity field was changed.
+    case identityFieldChanged(AddEditIdentityItemAction)
 }
