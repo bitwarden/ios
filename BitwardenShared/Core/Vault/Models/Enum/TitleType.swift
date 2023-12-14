@@ -3,7 +3,9 @@
 enum TitleType: String, Codable, Equatable, Hashable, Menuable {
     // swiftlint:disable identifier_name
 
-    /// Mr title for adult males.
+    // MARK: Cases
+
+    /// Mr title for adult men.
     case mr = "Mr"
 
     /// Mrs title for married or widowed women.
@@ -18,7 +20,9 @@ enum TitleType: String, Codable, Equatable, Hashable, Menuable {
     /// Dr title for individuals with a doctoral degree.
     case dr = "Dr"
     // swiftlint:enable identifier_name
-    
+
+    // MARK: Type Properties
+
     /// default state title for title type
     static var defaultStateTitle: String {
         "--\(Localizations.select)--"
