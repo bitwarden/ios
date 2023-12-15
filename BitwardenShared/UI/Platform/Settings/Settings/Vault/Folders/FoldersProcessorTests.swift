@@ -64,4 +64,21 @@ class FoldersProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
+
+    /// Receiving `.add` navigates to the add folder screen.
+    func test_receive_add() {
+        subject.receive(.add)
+
+        XCTAssertEqual(coordinator.routes.last, .addEditFolder(folder: nil))
+    }
+
+    /// Receiving `.folderTapped(id:)` navigates to the edit folder screen.
+    func test_receive_folderTapped() {
+        let folder = FolderView.fixture()
+        subject.state.folders = [folder]
+
+        subject.receive(.folderTapped(id: folder.id))
+
+        XCTAssertEqual(coordinator.routes.last, .addEditFolder(folder: folder))
+    }
 }

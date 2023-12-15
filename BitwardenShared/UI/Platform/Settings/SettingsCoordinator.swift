@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SwiftUI
 
 // MARK: - SettingsCoordinatorDelegate
@@ -80,6 +81,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showAbout()
         case .accountSecurity:
             showAccountSecurity()
+        case let .addEditFolder(folder):
+            showAddEditFolder(folder)
         case let .alert(alert):
             stackNavigator.present(alert)
         case .autoFill:
@@ -137,6 +140,22 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController)
+    }
+
+    /// Shows the add or edit folder screen.
+    ///
+    /// - Parameter folder: The existing folder to edit, if applicable.
+    ///
+    private func showAddEditFolder(_ folder: FolderView?) {
+        let mode: AddEditFolderState.Mode = if let folder { .edit(folder) } else { .add }
+        let processor = AddEditFolderProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AddEditFolderState(folderName: folder?.name ?? "", mode: mode)
+        )
+        let view = AddEditFolderView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
     }
 
     /// Shows the auto-fill screen.

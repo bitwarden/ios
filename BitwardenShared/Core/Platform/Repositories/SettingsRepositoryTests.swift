@@ -46,6 +46,14 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `addFolder(name:)` encrypts the folder name and makes the request to add the folder.
+    func test_addFolder() async throws {
+        let folderName = "Test folder name"
+        try await subject.addFolder(name: folderName)
+        XCTAssertEqual(clientVault.clientFolders.encryptedFolders.first?.name, folderName)
+        XCTAssertEqual(folderService.addedFolderName, folderName)
+    }
+
     /// `fetchSync()` has the sync service perform a new sync.
     func test_fetchSync() async throws {
         try await subject.fetchSync()

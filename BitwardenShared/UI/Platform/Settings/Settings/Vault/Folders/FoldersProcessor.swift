@@ -47,11 +47,10 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
     override func receive(_ action: FoldersAction) {
         switch action {
         case .add:
-            // TODO: BIT-452
-            break
-        case .folderTapped:
-            // TODO: BIT-436
-            break
+            coordinator.navigate(to: .addEditFolder(folder: nil))
+        case let .folderTapped(folderID):
+            guard let folder = state.folders.first(where: { $0.id == folderID }) else { return }
+            coordinator.navigate(to: .addEditFolder(folder: folder))
         }
     }
 
