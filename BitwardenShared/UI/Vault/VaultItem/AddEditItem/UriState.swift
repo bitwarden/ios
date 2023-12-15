@@ -43,7 +43,7 @@ struct UriState: Equatable, Hashable, Identifiable {
     ///
     init(
         id: String = UUID().uuidString,
-        matchType: DefaultableType<UriMatchType> = .default(),
+        matchType: DefaultableType<UriMatchType> = .default,
         uri: String = ""
     ) {
         self.id = id
@@ -59,7 +59,7 @@ struct UriState: Equatable, Hashable, Identifiable {
         let matchType: DefaultableType<UriMatchType> = if let matchType = loginUriView.match {
             .custom(UriMatchType(match: matchType))
         } else {
-            .default()
+            .default
         }
 
         self.init(

@@ -24,7 +24,7 @@ enum TitleType: String, Codable, Equatable, Hashable, Menuable {
     // MARK: Type Properties
 
     /// default state title for title type
-    static var defaultStateTitle: String {
+    static var defaultValueLocalizedName: String {
         "--\(Localizations.select)--"
     }
 

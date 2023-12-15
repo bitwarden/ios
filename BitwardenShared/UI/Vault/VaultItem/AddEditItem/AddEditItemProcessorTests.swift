@@ -463,7 +463,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default(),
+                matchType: .default,
                 uri: ""
             ),
         ]
@@ -477,7 +477,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default(),
+                matchType: .default,
                 uri: "uri"
             ),
         ]
@@ -491,7 +491,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default(),
+                matchType: .default,
                 uri: "uri"
             ),
         ]
@@ -505,13 +505,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.uris = [
             UriState(
                 id: "id",
-                matchType: .default(),
+                matchType: .default,
                 uri: "uri"
             ),
         ]
         subject.receive(.uriTypeChanged(.custom(.host), index: 5))
 
-        XCTAssertEqual(subject.state.loginState.uris[0].matchType, .default())
+        XCTAssertEqual(subject.state.loginState.uris[0].matchType, .default)
     }
 
     /// `receive(_:)` with `.usernameChanged` without a value updates the state correctly.
@@ -532,7 +532,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
     func test_receive_identity_titleChange_withValidValue() {
-        subject.state.identityState.title = .default()
+        subject.state.identityState.title = .default
         subject.receive(.identityFieldChanged(.titleChanged(.custom(.mr))))
         XCTAssertEqual(subject.state.identityState.title, .custom(.mr))
     }
@@ -540,8 +540,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` without a value updates the state correctly.
     func test_receive_identity_titleChange_withOutValidValue() {
         subject.state.identityState.title = DefaultableType.custom(.mr)
-        subject.receive(.identityFieldChanged(.titleChanged(DefaultableType.default())))
-        XCTAssertEqual(subject.state.identityState.title, DefaultableType.default())
+        subject.receive(.identityFieldChanged(.titleChanged(DefaultableType.default)))
+        XCTAssertEqual(subject.state.identityState.title, DefaultableType.default)
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.firstNameChanged)` with a value updates the state correctly.

@@ -16,7 +16,7 @@ struct AddEditIdentityItemView: View {
         LazyVStack(alignment: .leading, spacing: 16) {
             BitwardenMenuField(
                 title: Localizations.title,
-                options: [.default(TitleType.defaultStateTitle)] + TitleType.allCases.map(DefaultableType.custom),
+                options: DefaultableType<TitleType>.allCases,
                 selection: store.binding(
                     get: \.title,
                     send: AddEditIdentityItemAction.titleChanged

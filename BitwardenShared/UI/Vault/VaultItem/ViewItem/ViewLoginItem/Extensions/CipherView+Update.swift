@@ -6,7 +6,7 @@ extension CipherView {
     }
 
     func identityItemState() -> IdentityItemState {
-        var title: DefaultableType<TitleType> = .default(TitleType.defaultStateTitle)
+        var title: DefaultableType<TitleType> = .default
         if let titleStr = identity?.title, let titleType = TitleType(rawValue: titleStr) {
             title = .custom(titleType)
         }

@@ -8,7 +8,7 @@ struct IdentityItemState: Equatable {
     // MARK: Properties
 
     /// The title (Mr, Mrs,Ms, Mx, Dr) for this item.
-    var title: DefaultableType<TitleType> = .default(TitleType.defaultStateTitle)
+    var title: DefaultableType<TitleType> = .default
 
     /// The firstName for this item.
     var firstName: String = ""
