@@ -1,6 +1,8 @@
 import BitwardenSdk
 import Foundation
 
+@testable import BitwardenShared
+
 extension IdentityItemState {
     static func fixture(
         title: DefaultableType<TitleType> = .default,
