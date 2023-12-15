@@ -86,7 +86,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_didCompleteScan_failure() {
         subject.state.loginState.totpKey = nil
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
-        subject.didCompleteScan(with: "1234")
+        let task = Task {
+            subject.didCompleteScan(with: "1234")
+        }
+        waitFor(!coordinator.routes.isEmpty && coordinator.routes.last != .dismiss)
+        task.cancel()
+
         XCTAssertEqual(
             coordinator.routes.last,
             .alert(Alert(

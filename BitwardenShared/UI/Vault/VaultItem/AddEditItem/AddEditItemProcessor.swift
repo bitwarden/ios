@@ -263,8 +263,9 @@ extension AddEditItemProcessor: ScanCodeCoordinatorDelegate {
             state.loginState.totpKey = try services.totpService.getTOTPConfiguration(key: key)
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         } catch {
-            let alert = Alert.totpScanFailureAlert()
-            coordinator.navigate(to: .alert(alert))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+            }
         }
     }
 }
