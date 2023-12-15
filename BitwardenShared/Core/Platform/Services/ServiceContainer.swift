@@ -150,7 +150,8 @@ public class ServiceContainer: Services {
 
         let biometricsService = DefaultBiometricsService()
         let clientService = DefaultClientService()
-        let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
+        let dataStore = DataStore(errorReporter: errorReporter)
+        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
@@ -170,6 +171,8 @@ public class ServiceContainer: Services {
 
         let generatorRepository = DefaultGeneratorRepository(
             clientGenerators: clientService.clientGenerator(),
+            clientVaultService: clientService.clientVault(),
+            dataStore: dataStore,
             stateService: stateService
         )
 

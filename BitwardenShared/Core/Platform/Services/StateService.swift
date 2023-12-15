@@ -1,5 +1,7 @@
 import Combine
 
+// swiftlint:disable file_length
+
 // MARK: - StateService
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
@@ -231,14 +233,20 @@ actor DefaultStateService: StateService {
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
 
+    /// The data store that handles performing data requests.
+    let dataStore: DataStore
+
     // MARK: Initialization
 
     /// Initialize a `DefaultStateService`.
     ///
-    /// - Parameter appSettingsStore: The service that persists app settings.
+    /// - Parameters:
+    ///   - appSettingsStore: The service that persists app settings.
+    ///   - dataStore: The data store that handles performing data requests.
     ///
-    init(appSettingsStore: AppSettingsStore) {
+    init(appSettingsStore: AppSettingsStore, dataStore: DataStore) {
         self.appSettingsStore = appSettingsStore
+        self.dataStore = dataStore
     }
 
     // MARK: Methods
@@ -332,6 +340,8 @@ actor DefaultStateService: StateService {
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: userId)
+
+        try await dataStore.deleteDataForUser(userId: userId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {

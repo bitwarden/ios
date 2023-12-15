@@ -3,11 +3,15 @@ import XCTest
 
 @testable import BitwardenShared
 
-class GeneratorRepositoryTests: BitwardenTestCase {
+// swiftlint:disable file_length
+
+class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var clientGenerators: MockClientGenerators!
+    var clientVaultService: MockClientVaultService!
     var cryptoService: MockCryptoService!
+    var generatorDataStore: DataStore!
     var subject: GeneratorRepository!
     var stateService: MockStateService!
 
@@ -17,12 +21,16 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         super.setUp()
 
         clientGenerators = MockClientGenerators()
+        clientVaultService = MockClientVaultService()
         cryptoService = MockCryptoService()
+        generatorDataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
         stateService = MockStateService()
 
         subject = DefaultGeneratorRepository(
             clientGenerators: clientGenerators,
+            clientVaultService: clientVaultService,
             cryptoService: cryptoService,
+            dataStore: generatorDataStore,
             stateService: stateService
         )
     }
@@ -31,108 +39,121 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         super.tearDown()
 
         clientGenerators = nil
+        clientVaultService = nil
         cryptoService = nil
+        generatorDataStore = nil
         subject = nil
         stateService = nil
     }
 
     // MARK: Tests
 
-    /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history, in reverse
-    /// chronological order.
-    func test_addPasswordHistory() throws {
-        var passwordHistoryValues = [PasswordHistoryView]()
-        Task {
-            for await passwordHistory in subject.passwordHistoryPublisher() {
-                passwordHistoryValues = passwordHistory
-            }
-        }
+    /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history.
+    func test_addPasswordHistory() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
         let passwordHistory1 = PasswordHistoryView.fixture(password: "PASSWORD")
-        Task { try await subject.addPasswordHistory(passwordHistory1) }
-        waitFor { passwordHistoryValues.count == 1 }
-        XCTAssertEqual(passwordHistoryValues, [passwordHistory1])
+        try await subject.addPasswordHistory(passwordHistory1)
 
         let passwordHistory2 = PasswordHistoryView.fixture(password: "PASSWORD2")
+        try await subject.addPasswordHistory(passwordHistory2)
+
         let passwordHistory3 = PasswordHistoryView.fixture(password: "PASSWORD3")
-        Task {
-            try await subject.addPasswordHistory(passwordHistory2)
-            try await subject.addPasswordHistory(passwordHistory3)
-        }
-        waitFor { passwordHistoryValues.count == 3 }
-        XCTAssertEqual(passwordHistoryValues, [passwordHistory3, passwordHistory2, passwordHistory1])
+        try await subject.addPasswordHistory(passwordHistory3)
+
+        let results = try generatorDataStore.backgroundContext.fetch(
+            PasswordHistoryData.fetchByUserIdRequest(userId: "1")
+        )
+        XCTAssertEqual(
+            try results.map(PasswordHistory.init),
+            [passwordHistory1, passwordHistory2, passwordHistory3].map(PasswordHistory.init)
+        )
+        XCTAssertEqual(
+            clientVaultService.clientPasswordHistory.encryptedPasswordHistory,
+            [passwordHistory1, passwordHistory2, passwordHistory3]
+        )
     }
 
-//    TODO: BIT-1143 Fix flaky test when migrating this to the database
-//    /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history and limits the
-//    /// maximum size of the history.
-//    func test_addPasswordHistory_limitsMaxValues() throws {
-//        var passwordHistoryValues = [PasswordHistoryView]()
-//        Task {
-//            for await passwordHistory in subject.passwordHistoryPublisher() {
-//                passwordHistoryValues = passwordHistory
-//            }
-//        }
-//
-//        let passwords = (0 ... 150).map { PasswordHistoryView.fixture(password: $0.description) }
-//
-//        Task {
-//            for password in passwords {
-//                try await subject.addPasswordHistory(password)
-//            }
-//        }
-//
-//        waitFor { passwordHistoryValues.first == passwords.last }
-//        XCTAssertEqual(passwordHistoryValues, passwords.suffix(100).reversed())
-//    }
+    /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history and limits the
+    /// maximum size of the history.
+    func test_addPasswordHistory_limitsMaxValues() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        let passwords = (0 ... 150).map { index in
+            // Manually specifying the date as the index value prevents the instances from
+            // getting out of order when sorting by the date.
+            PasswordHistoryView.fixture(
+                password: index.description,
+                lastUsedDate: Date(timeIntervalSince1970: Double(index))
+            )
+        }
+
+        for password in passwords {
+            try await subject.addPasswordHistory(password)
+        }
+
+        XCTAssertEqual(
+            try generatorDataStore.backgroundContext
+                .count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")),
+            100
+        )
+
+        let fetchRequest = PasswordHistoryData.fetchByUserIdRequest(userId: "1")
+        fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastUsedDateDescending]
+        let results = try generatorDataStore.backgroundContext.fetch(fetchRequest)
+        XCTAssertEqual(
+            try results.map(PasswordHistory.init),
+            passwords.suffix(100).reversed().map(PasswordHistory.init)
+        )
+    }
 
     /// `addPasswordHistory()` adds a `PasswordHistoryView` to the list of history and prevents
     /// adding duplicate values at the top of the list.
-    func test_addPasswordHistory_preventsDuplicates() throws {
-        var passwordHistoryValues = [PasswordHistoryView]()
-        Task {
-            for await passwordHistory in subject.passwordHistoryPublisher() {
-                passwordHistoryValues = passwordHistory
-            }
-        }
+    func test_addPasswordHistory_preventsDuplicates() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
-        let passwordHistory = PasswordHistoryView.fixture(password: "PASSWORD")
-        let passwordHistoryDuplicate = PasswordHistoryView.fixture(password: "PASSWORD")
-        let passwordHistoryOther = PasswordHistoryView.fixture(password: "PASSWORD_OTHER")
+        let passwordHistory = PasswordHistoryView.fixture(
+            password: "PASSWORD",
+            lastUsedDate: Date(timeIntervalSince1970: 1)
+        )
+        let passwordHistoryDuplicate = PasswordHistoryView.fixture(
+            password: "PASSWORD",
+            lastUsedDate: Date(timeIntervalSince1970: 2)
+        )
+        let passwordHistoryOther = PasswordHistoryView.fixture(
+            password: "PASSWORD_OTHER",
+            lastUsedDate: Date(timeIntervalSince1970: 3)
+        )
 
-        Task {
-            try await subject.addPasswordHistory(passwordHistory)
-            try await subject.addPasswordHistory(passwordHistoryDuplicate)
-            try await subject.addPasswordHistory(passwordHistoryOther)
-        }
+        try await subject.addPasswordHistory(passwordHistory)
+        try await subject.addPasswordHistory(passwordHistoryDuplicate)
+        try await subject.addPasswordHistory(passwordHistoryOther)
 
-        waitFor { passwordHistoryValues.count == 2 }
-        XCTAssertEqual(passwordHistoryValues, [passwordHistoryOther, passwordHistory])
+        let fetchRequest = PasswordHistoryData.fetchByUserIdRequest(userId: "1")
+        fetchRequest.sortDescriptors = [PasswordHistoryData.sortByLastUsedDateDescending]
+        let results = try generatorDataStore.backgroundContext.fetch(fetchRequest)
+        XCTAssertEqual(
+            try results.map(PasswordHistory.init),
+            [passwordHistoryOther, passwordHistory].map(PasswordHistory.init)
+        )
     }
 
     /// `clearPasswordHistory()` clears the password history list.
-    func test_clearPasswordHistory() throws {
-        var passwordHistoryValues = [PasswordHistoryView]()
-        Task {
-            for await passwordHistory in subject.passwordHistoryPublisher() {
-                passwordHistoryValues = passwordHistory
-            }
-        }
+    func test_clearPasswordHistory() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
         let passwords = (0 ..< 5).map { PasswordHistoryView.fixture(password: $0.description) }
-
-        Task {
-            for password in passwords {
-                try await subject.addPasswordHistory(password)
-            }
+        for password in passwords {
+            try await subject.addPasswordHistory(password)
         }
 
-        waitFor { passwordHistoryValues.count == 5 }
+        try await subject.clearPasswordHistory()
 
-        Task { await subject.clearPasswordHistory() }
-
-        waitFor { passwordHistoryValues.isEmpty }
-        XCTAssertTrue(passwordHistoryValues.isEmpty)
+        XCTAssertEqual(
+            try generatorDataStore.backgroundContext
+                .count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")),
+            0
+        )
     }
 
     /// `generatePassphrase` returns the generated passphrase.
@@ -347,6 +368,36 @@ class GeneratorRepositoryTests: BitwardenTestCase {
         try await subject.setPasswordGenerationOptions(options)
 
         XCTAssertEqual(stateService.passwordGenerationOptions, [account.profile.userId: options])
+    }
+
+    /// `passwordHistoryPublisher()` returns a publisher that the user's password history as it changes.
+    func test_passwordHistoryPublisher() {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        var passwordHistoryValues = [[PasswordHistoryView]]()
+        let task = Task {
+            for try await passwordHistory in try await subject.passwordHistoryPublisher() {
+                passwordHistoryValues.append(passwordHistory)
+            }
+        }
+        waitFor { passwordHistoryValues.count == 1 }
+
+        let passwordHistory1 = PasswordHistoryView.fixture(password: "PASSWORD")
+        Task {
+            try await subject.addPasswordHistory(passwordHistory1)
+        }
+        waitFor { passwordHistoryValues.count == 2 }
+
+        let passwordHistory2 = PasswordHistoryView.fixture(password: "PASSWORD2")
+        Task {
+            try await subject.addPasswordHistory(passwordHistory2)
+        }
+        waitFor { passwordHistoryValues.count == 3 }
+        task.cancel()
+
+        XCTAssertTrue(passwordHistoryValues[0].isEmpty)
+        XCTAssertEqual(passwordHistoryValues[1], [passwordHistory1])
+        XCTAssertEqual(passwordHistoryValues[2], [passwordHistory2, passwordHistory1])
     }
 
     /// `setUsernameGenerationOptions` sets the username generation options for the active account.

@@ -85,12 +85,15 @@ class MockClientFolders: ClientFoldersProtocol {
 // MARK: - MockClientPasswordHistory
 
 class MockClientPasswordHistory: ClientPasswordHistoryProtocol {
+    var encryptedPasswordHistory = [PasswordHistoryView]()
+
     func decryptList(list: [PasswordHistory]) async throws -> [PasswordHistoryView] {
-        fatalError("Not implemented yet")
+        list.map(PasswordHistoryView.init)
     }
 
     func encrypt(passwordHistory: PasswordHistoryView) async throws -> PasswordHistory {
-        fatalError("Not implemented yet")
+        encryptedPasswordHistory.append(passwordHistory)
+        return PasswordHistory(passwordHistoryView: passwordHistory)
     }
 }
 

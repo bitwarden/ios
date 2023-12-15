@@ -3,6 +3,15 @@
 
 import BitwardenSdk
 
+// MARK: - DataMappingError
+
+/// Errors thrown from converting between SDK and app types.
+///
+enum DataMappingError: Error {
+    /// Thrown if an object was unable to be constructed because the data was invalid.
+    case invalidData
+}
+
 // MARK: - Ciphers
 
 extension AttachmentRequestModel {
@@ -340,6 +349,17 @@ extension BitwardenSdk.PasswordHistory {
         self.init(
             password: model.password,
             lastUsedDate: model.lastUsedDate
+        )
+    }
+
+    init(passwordHistoryData: PasswordHistoryData) throws {
+        guard let password = passwordHistoryData.password,
+              let lastUsedDate = passwordHistoryData.lastUsedDate else {
+            throw DataMappingError.invalidData
+        }
+        self.init(
+            password: password,
+            lastUsedDate: lastUsedDate
         )
     }
 }
