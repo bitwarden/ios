@@ -1,14 +1,17 @@
 import AVFoundation
+import Combine
 
 @testable import BitwardenShared
 
 class MockCameraService: CameraService {
+    typealias ScanPublisher = CurrentValueSubject<BitwardenShared.ScanResult?, Never>
+
     var cameraAuthorizationStatus: CameraAuthorizationStatus = .notDetermined
-    var cameraSession: AVCaptureSession?
     var deviceHasCamera: Bool = true
     var didStart: Bool = false
     var didStop: Bool = false
-    var startResult: Result<Void, Error> = .success(())
+    var resultsPublisher = ScanPublisher(nil)
+    var startResult: Result<AVCaptureSession, Error> = .failure(CameraServiceError.unableToStartCaptureSession)
 
     // MARK: CameraService
 
@@ -20,13 +23,15 @@ class MockCameraService: CameraService {
         deviceHasCamera
     }
 
-    func getCameraSession() -> AVCaptureSession? {
-        cameraSession
+    func getScanResultPublisher() -> AsyncPublisher<AnyPublisher<ScanResult?, Never>> {
+        resultsPublisher
+            .eraseToAnyPublisher()
+            .values
     }
 
-    func startCameraSession() throws {
-        try startResult.get()
+    func startCameraSession() throws -> AVCaptureSession {
         didStart = true
+        return try startResult.get()
     }
 
     func stopCameraSession() {

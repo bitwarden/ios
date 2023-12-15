@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 
 // MARK: - ScanCodeProcessor
@@ -13,13 +14,23 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     typealias Services = HasCameraService
         & HasErrorReporter
 
+    // MARK: Properties
+
+    /// A publisher that publishes the processor's scan result when it changes.
+    var qrScanPublisher: AnyPublisher<[ScanResult], Never> {
+        qrScanResultSubject.eraseToAnyPublisher()
+    }
+
     // MARK: Private Properties
 
     /// The `Coordinator` responsible for navigation-related actions.
-    private let coordinator: any Coordinator<VaultItemRoute>
+    private let coordinator: any Coordinator<ScanCodeRoute>
 
     /// The services used by this processor, including camera authorization and error reporting.
     private let services: Services
+
+    /// A subject cointaining the scan code results.
+    private var qrScanResultSubject = CurrentValueSubject<[ScanResult], Never>([])
 
     // MARK: Intialization
 
@@ -31,7 +42,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     ///   - state: The initial state of this processor, representing the UI's state.
     ///
     init(
-        coordinator: any Coordinator<VaultItemRoute>,
+        coordinator: any Coordinator<ScanCodeRoute>,
         services: Services,
         state: ScanCodeState
     ) {
@@ -43,7 +54,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     override func perform(_ effect: ScanCodeEffect) async {
         switch effect {
         case .appeared:
-            setupCamera()
+            await setupCameraResultsObservation()
         case .disappeared:
             services.cameraService.stopCameraSession()
         }
@@ -54,9 +65,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
         case .manualEntryPressed:
-            // TODO: BIT-1065: Scan Logic
-            // https://livefront.atlassian.net/browse/BIT-1065
-            break
+            coordinator.navigate(to: .setupTotpManual)
         }
     }
 
@@ -65,16 +74,16 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     /// This method checks for camera support and initiates the camera session. If an error occurs,
     /// it logs the error through the provided error reporting service.
     ///
-    private func setupCamera() {
+    private func setupCameraResultsObservation() async {
         guard services.cameraService.deviceSupportsCamera() else {
             coordinator.navigate(to: .setupTotpManual)
             return
         }
-        do {
-            try services.cameraService.startCameraSession()
-        } catch {
-            services.errorReporter.log(error: error)
-            coordinator.navigate(to: .setupTotpManual)
+
+        for await value in services.cameraService.getScanResultPublisher() {
+            guard let value else { continue }
+            coordinator.navigate(to: .complete(value: value))
+            return
         }
     }
 }

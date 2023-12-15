@@ -46,23 +46,46 @@ struct AddEditLoginItemView: View {
         }
         .textFieldConfiguration(.password)
 
-        VStack(alignment: .leading, spacing: 8) {
-            Text(Localizations.authenticatorKey)
-                .styleGuide(.subheadline, weight: .semibold)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-            AsyncButton {
-                await store.perform(.setupTotpPressed)
-            } label: {
-                HStack(alignment: .center, spacing: 4) {
-                    Asset.Images.camera.swiftUIImage
-                    Text(Localizations.setupTotp)
-                }
-            }
-            .buttonStyle(.tertiary())
-        }
+        totpView
 
         uriSection
+    }
+
+    /// The view for TOTP authenticator key..
+    @ViewBuilder private var totpView: some View {
+        if let key = store.state.authenticatorKey {
+            BitwardenField(
+                title: Localizations.authenticatorKey,
+                content: {
+                    Text(key)
+                        .styleGuide(.body)
+                },
+                accessoryContent: {
+                    AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
+                        await store.perform(.copyTotpPressed)
+                    }
+                    AccessoryButton(asset: Asset.Images.camera, accessibilityLabel: Localizations.setupTotp) {
+                        await store.perform(.setupTotpPressed)
+                    }
+                }
+            )
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(Localizations.authenticatorKey)
+                    .styleGuide(.subheadline, weight: .semibold)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                AsyncButton {
+                    await store.perform(.setupTotpPressed)
+                } label: {
+                    HStack(alignment: .center, spacing: 4) {
+                        Asset.Images.camera.swiftUIImage
+                        Text(Localizations.setupTotp)
+                    }
+                }
+                .buttonStyle(.tertiary())
+            }
+        }
     }
 
     /// The section for uris.
@@ -133,6 +156,26 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
             .ignoresSafeArea()
         }
         .previewDisplayName("Empty Add Edit State")
+
+        NavigationView {
+            ScrollView {
+                LazyVStack(spacing: 20) {
+                    AddEditLoginItemView(
+                        store: Store(
+                            processor: StateProcessor(
+                                state: LoginItemState(
+                                    authenticatorKey: "1234"
+                                )
+                            )
+                        )
+                    )
+                }
+                .padding(16)
+            }
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .ignoresSafeArea()
+        }
+        .previewDisplayName("Auth Key")
     }
 }
 #endif
