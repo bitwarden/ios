@@ -31,7 +31,7 @@ class PasswordHintViewTests: BitwardenTestCase {
 
     /// Tapping on the dismiss button dispatches the `.dismissPressed` action.
     func test_dismissButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.close)
+        let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }

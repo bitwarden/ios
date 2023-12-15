@@ -35,10 +35,8 @@ struct PasswordHintView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .navigationTitle(Localizations.passwordHint)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                DismissButton {
-                    store.send(.dismissPressed)
-                }
+            cancelToolbarItem {
+                store.send(.dismissPressed)
             }
         }
     }
