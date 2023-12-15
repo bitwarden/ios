@@ -295,8 +295,8 @@ class ViewItemProcessorTests: BitwardenTestCase {
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [textField])
 
-        cipherState.isMasterPasswordRePromptOn = false
         cipherState.loginState.isPasswordVisible = true
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+        XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
     }
 }

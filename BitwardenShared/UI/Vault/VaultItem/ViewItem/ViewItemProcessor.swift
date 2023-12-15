@@ -58,7 +58,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         switch effect {
         case .appeared:
             for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
-                guard let newState = ViewItemState(cipherView: value) else { continue }
+                guard var newState = ViewItemState(cipherView: value) else { continue }
+                newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
             }
         }
@@ -132,7 +133,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             guard let self else { return }
 
             // TODO: BIT-1208 Validate the master password
-            state.isMasterPasswordRequired = false
+            state.hasVerifiedMasterPassword = true
             receive(action)
         }
         coordinator.navigate(to: .alert(alert))
