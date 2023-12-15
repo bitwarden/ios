@@ -18,22 +18,34 @@ class PasswordHintProcessorTests: BitwardenTestCase {
         let state = PasswordHintState()
         subject = PasswordHintProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(),
             state: state
         )
     }
 
     override func tearDown() {
         super.tearDown()
+        coordinator = nil
         subject = nil
     }
 
     // MARK: Tests
 
     /// `perform()` with `.submitPressed` submits the request for the master password hint.
-    func test_perform_submitPressed() async {
+    func test_perform_submitPressed() async throws {
         await subject.perform(.submitPressed)
-        XCTFail("This test has not been implemented yet.")
+
+        // TODO: BIT-733 Assert password hint service calls
+
+        coordinator.loadingOverlaysShown = [LoadingOverlayState(title: Localizations.submitting)]
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, "")
+        XCTAssertEqual(alert.message, Localizations.passwordHintAlert)
+        XCTAssertEqual(alert.alertActions.count, 1)
+
+        try await alert.tapAction(title: Localizations.ok)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// `receive()` with `.dismissPressed` navigates to the `.dismiss` route.

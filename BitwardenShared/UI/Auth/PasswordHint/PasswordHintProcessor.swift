@@ -3,39 +3,24 @@
 /// The processor used to manage state and handle actions for the passwort hint screen.
 ///
 class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintAction, PasswordHintEffect> {
-    // MARK: Types
-
-    typealias Services = HasAppSettingsStore
-        & HasAuthRepository
-        & HasEnvironmentService
-        & HasErrorReporter
-        & HasStateService
-
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<AuthRoute>
 
-    /// The services required by this processor.
-    private let services: Services
-
     // MARK: Initialization
 
-    /// Creates a new `LandingProcessor`.
+    /// Creates a new `PasswordHintProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
-    ///   - services: The services required by this processor.
     ///   - state: The initial state of the processor.
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute>,
-        services: Services,
         state: PasswordHintState
     ) {
         self.coordinator = coordinator
-        self.services = services
-
         super.init(state: state)
     }
 
@@ -44,7 +29,7 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
     override func perform(_ effect: PasswordHintEffect) async {
         switch effect {
         case .submitPressed:
-            print("submit button pressed")
+            await requestPasswordHint(for: state.emailAddress)
         }
     }
 
@@ -55,5 +40,30 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
         case let .emailAddressChanged(newValue):
             state.emailAddress = newValue
         }
+    }
+
+    // MARK: Private Methods
+
+    /// Requests the master password hint for the provided email address.
+    ///
+    /// - Parameter emailAddress: The email address to request the master password hint for.
+    ///
+    private func requestPasswordHint(for emailAddress: String) async {
+        coordinator.showLoadingOverlay(title: Localizations.submitting)
+
+        // TODO: BIT-733 Perform the password hint request
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
+
+        let okAction = AlertAction(title: Localizations.ok, style: .default) { _, _ in
+            self.coordinator.navigate(to: .dismiss)
+        }
+        let alert = Alert(
+            title: "",
+            message: Localizations.passwordHintAlert,
+            alertActions: [okAction]
+        )
+
+        coordinator.hideLoadingOverlay()
+        coordinator.navigate(to: .alert(alert))
     }
 }

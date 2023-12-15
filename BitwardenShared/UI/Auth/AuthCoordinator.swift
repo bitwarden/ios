@@ -256,7 +256,6 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     private func showMasterPasswordHint(for username: String) {
         let processor = PasswordHintProcessor(
             coordinator: asAnyCoordinator(),
-            services: services,
             state: PasswordHintState(emailAddress: username)
         )
         let store = Store(processor: processor)
