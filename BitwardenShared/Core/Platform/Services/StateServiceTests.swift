@@ -315,8 +315,10 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             passwordHistory: PasswordHistory(password: "PASSWORD", lastUsedDate: Date())
         )
         try await dataStore.persistentContainer.viewContext.performAndSave {
+            let context = self.dataStore.persistentContainer.viewContext
+            _ = CollectionData(context: context, userId: "1", collection: .fixture())
             _ = FolderData(
-                context: self.dataStore.persistentContainer.viewContext,
+                context: context,
                 userId: "1",
                 folder: Folder(id: "1", name: "FOLDER1", revisionDate: Date())
             )
@@ -328,15 +330,10 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
 
-        try XCTAssertEqual(
-            dataStore.persistentContainer.viewContext
-                .count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")),
-            0
-        )
-        try XCTAssertEqual(
-            dataStore.persistentContainer.viewContext.count(for: FolderData.fetchByUserIdRequest(userId: "1")),
-            0
-        )
+        let context = dataStore.persistentContainer.viewContext
+        try XCTAssertEqual(context.count(for: CollectionData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: FolderData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)
     }
 
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to
