@@ -56,9 +56,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
         case .appeared:
             await setupCameraResultsObservation()
         case .disappeared:
-            Task {
-                services.cameraService.stopCameraSession()
-            }
+            services.cameraService.stopCameraSession()
         }
     }
 

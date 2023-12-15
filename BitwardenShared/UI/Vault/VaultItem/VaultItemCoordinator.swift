@@ -116,6 +116,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             stackNavigator: stackNavigator
         )
         coordinator.start()
+        coordinator.navigate(to: .scanCode)
     }
 
     /// Shows the totp manual setup screen.
@@ -126,7 +127,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             services: services,
             stackNavigator: stackNavigator
         )
-        coordinator.start(manualEntry: true)
+        coordinator.start()
+        coordinator.navigate(to: .setupTotpManual)
     }
 
     /// Shows the generator screen for the the specified type.

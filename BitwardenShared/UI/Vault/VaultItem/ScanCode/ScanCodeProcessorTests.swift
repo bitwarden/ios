@@ -69,12 +69,8 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.disappeared` stops the camera.
-    func test_perform_disappeared_success() {
-        let task = Task {
-            await subject.perform(.disappeared)
-        }
-        waitFor(cameraService.didStop)
-        task.cancel()
+    func test_perform_disappeared_success() async {
+        await subject.perform(.disappeared)
         XCTAssertTrue(cameraService.didStop)
     }
 

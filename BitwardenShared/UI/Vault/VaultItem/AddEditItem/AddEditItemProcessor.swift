@@ -49,7 +49,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         case .copyTotpPressed:
             guard let key = state.loginState.authenticatorKey else { return }
             services.pasteboardService.copy(key)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.authenticatorKey))
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
         case .savePressed:
             await saveItem()
         case .setupTotpPressed:

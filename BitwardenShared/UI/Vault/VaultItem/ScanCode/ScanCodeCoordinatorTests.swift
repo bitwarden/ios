@@ -108,47 +108,6 @@ class ScanCodeCoordinatorTests: BitwardenTestCase {
         waitFor { window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag) == nil }
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
     }
-
-    /// `start(manualEntry:)`  with `false` navigates to the scan code view.
-    func test_start_manualEntry_false() throws {
-        let task = Task {
-            subject.start(manualEntry: false)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        let view = action.view as? (any View)
-        XCTAssertNotNil(try? view?.inspect().find(ScanCodeView.self))
-    }
-
-    /// `start(manualEntry:)`  with `true` navigates to the manual entry view.
-    func test_start_manualEntry_true() throws {
-        let task = Task {
-            subject.start(manualEntry: true)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is NavigationView<Text>)
-    }
-
-    /// `start()` navigates to the scan code view.
-    func test_start_success() throws {
-        let task = Task {
-            subject.start()
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        let view = action.view as? (any View)
-        XCTAssertNotNil(try? view?.inspect().find(ScanCodeView.self))
-    }
 }
 
 // MARK: - MockScanCodeCoordinatorDelegate
