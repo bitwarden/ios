@@ -138,7 +138,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             let hashedPassword = try await services.clientAuth.hashPassword(
                 email: state.username,
                 password: state.masterPassword,
-                kdfParams: response.sdkKdf
+                kdfParams: response.sdkKdf,
+                purpose: .serverAuthorization
             )
 
             let appID = await services.appIdService.getOrCreateAppId()
