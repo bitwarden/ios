@@ -49,4 +49,11 @@ class SettingsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.routes.last, .other)
     }
+
+    /// Receiving `.vaultPressed` navigates to the vault settings screen.
+    func test_receive_vaultPressed() {
+        subject.receive(.vaultPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .vault)
+    }
 }

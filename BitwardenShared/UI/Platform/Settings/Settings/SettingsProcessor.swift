@@ -39,6 +39,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
             coordinator.navigate(to: .autoFill)
         case .otherPressed:
             coordinator.navigate(to: .other)
+        case .vaultPressed:
+            coordinator.navigate(to: .vault)
         }
     }
 }

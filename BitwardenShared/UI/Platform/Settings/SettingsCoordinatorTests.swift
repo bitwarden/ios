@@ -123,6 +123,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is SettingsView)
     }
 
+    /// `navigate(to:)` with `.vault` pushes the vault settings view onto the stack navigator.
+    func test_navigateTo_vault() throws {
+        subject.navigate(to: .vault)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<VaultSettingsView>)
+    }
+
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
     func test_show_hide_loadingOverlay() throws {
         stackNavigator.rootViewController = UIViewController()
@@ -151,11 +160,11 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
     var didLockVaultCalled = false
     var didLogoutCalled = false
 
-    func didDeleteAccount(otherAccounts: [Account]?) {
+    func didDeleteAccount(otherAccounts _: [Account]?) {
         didDeleteAccountCalled = true
     }
 
-    func didLockVault(account: Account) {
+    func didLockVault(account _: Account) {
         didLockVaultCalled = true
     }
 
