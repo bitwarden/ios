@@ -22,8 +22,8 @@ protocol ScanCodeCoordinatorDelegate: AnyObject {
 final class ScanCodeCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
-        & HasCameraService
+    typealias Services = HasCameraService
+        & HasErrorReporter
 
     // MARK: Private Properties
 

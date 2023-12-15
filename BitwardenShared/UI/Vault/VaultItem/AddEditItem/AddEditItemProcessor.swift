@@ -11,6 +11,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     typealias Services = HasCameraService
         & HasErrorReporter
         & HasPasteboardService
+        & HasTOTPService
         & HasVaultRepository
 
     // MARK: Properties
@@ -253,8 +254,17 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 
 extension AddEditItemProcessor: ScanCodeCoordinatorDelegate {
     func didCompleteScan(with value: String) {
-        state.loginState.authenticatorKey = value
-        state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         coordinator.navigate(to: .dismiss)
+        parseAuthenticatorKey(value)
+    }
+
+    func parseAuthenticatorKey(_ key: String) {
+        do {
+            state.loginState.totpKey = try services.totpService.getTOTPConfiguration(key: key)
+            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+        } catch {
+            let alert = Alert.totpScanFailureAlert()
+            coordinator.navigate(to: .alert(alert))
+        }
     }
 }

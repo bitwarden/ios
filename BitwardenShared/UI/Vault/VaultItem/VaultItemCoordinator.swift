@@ -10,9 +10,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = GeneratorModule
 
-    typealias Services = HasCameraService
-        & HasVaultRepository
+    typealias Services = HasVaultRepository
+        & HasTOTPService
         & GeneratorCoordinator.Services
+        & ScanCodeCoordinator.Services
 
     // MARK: - Private Properties
 

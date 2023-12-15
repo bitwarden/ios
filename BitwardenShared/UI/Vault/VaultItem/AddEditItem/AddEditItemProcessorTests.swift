@@ -13,6 +13,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<VaultItemRoute>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -25,6 +26,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+        totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -32,6 +34,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 cameraService: cameraService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
+                totpService: totpService,
                 vaultRepository: vaultRepository
             ),
             state: CipherItemState()
@@ -44,6 +47,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         errorReporter = nil
         pasteboardService = nil
         subject = nil
+        totpService = nil
         vaultRepository = nil
     }
 
@@ -79,11 +83,34 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `didCompleteScan` with a value updates the state with the new auth key value
     /// and navigates to the `.dismiss` route.
-    func test_didCompleteScan() {
-        subject.state.loginState.authenticatorKey = nil
-        subject.didCompleteScan(with: "example.com")
+    func test_didCompleteScan_failure() {
+        subject.state.loginState.totpKey = nil
+        totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
+        subject.didCompleteScan(with: "1234")
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .alert(Alert(
+                title: Localizations.authenticatorKeyReadError,
+                message: nil,
+                alertActions: [
+                    AlertAction(title: Localizations.ok, style: .default),
+                ]
+            ))
+        )
+        XCTAssertNil(subject.state.loginState.authenticatorKey)
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `didCompleteScan` with a value updates the state with the new auth key value
+    /// and navigates to the `.dismiss` route.
+    func test_didCompleteScan_success() throws {
+        subject.state.loginState.totpKey = nil
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPCodeConfig(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        subject.didCompleteScan(with: key)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
-        XCTAssertEqual(subject.state.loginState.authenticatorKey, "example.com")
+        XCTAssertEqual(subject.state.loginState.authenticatorKey, .base32Key)
         XCTAssertEqual(subject.state.toast?.text, Localizations.authenticatorKeyAdded)
     }
 
@@ -107,7 +134,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// Tapping the copy button on the auth key row dispatches the `.copyPassword` action.
     func test_perform_copyTotp() async throws {
-        subject.state.loginState.authenticatorKey = "1234"
+        subject.state.loginState.totpKey = .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
 
         await subject.perform(.copyTotpPressed)
         XCTAssertEqual(
