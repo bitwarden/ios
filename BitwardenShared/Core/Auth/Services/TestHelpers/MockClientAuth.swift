@@ -16,6 +16,7 @@ class MockClientAuth: ClientAuthProtocol {
     var hashPasswordEmail: String?
     var hashPasswordPassword: String?
     var hashPasswordKdfParams: Kdf?
+    var hashPasswordPurpose: HashPurpose?
 
     var makeRegisterKeysEmail: String?
     var makeRegisterKeysPassword: String?
@@ -29,10 +30,15 @@ class MockClientAuth: ClientAuthProtocol {
     var satisfiesPolicyStrength: UInt8?
     var satisfiesPolicyPolicy: MasterPasswordPolicyOptions?
 
-    func hashPassword(email: String, password: String, kdfParams: Kdf) async throws -> String {
+    var validatePasswordPassword: String?
+    var validatePasswordPasswordHash: String?
+    var validatePasswordResult: Bool = false
+
+    func hashPassword(email: String, password: String, kdfParams: Kdf, purpose: HashPurpose) async throws -> String {
         hashPasswordEmail = email
         hashPasswordPassword = password
         hashPasswordKdfParams = kdfParams
+        hashPasswordPurpose = purpose
 
         return try hashPasswordResult.get()
     }
@@ -59,5 +65,11 @@ class MockClientAuth: ClientAuthProtocol {
         satisfiesPolicyPolicy = policy
 
         return satisfiesPolicyResult
+    }
+
+    func validatePassword(password: String, passwordHash: String) async throws -> Bool {
+        validatePasswordPassword = password
+        validatePasswordPasswordHash = passwordHash
+        return validatePasswordResult
     }
 }

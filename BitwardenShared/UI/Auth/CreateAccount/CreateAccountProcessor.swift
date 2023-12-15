@@ -169,7 +169,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             let hashedPassword = try await services.clientAuth.hashPassword(
                 email: email,
                 password: state.passwordText,
-                kdfParams: kdf
+                kdfParams: kdf,
+                purpose: .serverAuthorization
             )
 
             _ = try await services.accountAPIService.createNewAccount(
