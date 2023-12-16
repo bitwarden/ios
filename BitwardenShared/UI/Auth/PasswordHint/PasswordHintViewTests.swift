@@ -63,5 +63,7 @@ class PasswordHintViewTests: BitwardenTestCase {
     func test_snapshot_withEmailAddress() {
         processor.state.emailAddress = "email@example.com"
         assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortraitAX5)
+        assertSnapshot(of: subject, as: .defaultPortraitDark)
     }
 }
