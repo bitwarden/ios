@@ -37,6 +37,25 @@ enum TitleType: String, Codable, Equatable, Hashable, Menuable {
         case .dr: Localizations.dr
         }
     }
+
+    // MARK: Initializer
+
+    init?(rawValue: String) {
+        switch rawValue {
+        case Localizations.mr:
+            self = .mr
+        case Localizations.mrs:
+            self = .mrs
+        case Localizations.ms:
+            self = .ms
+        case Localizations.mx:
+            self = .mx
+        case Localizations.dr:
+            self = .dr
+        default:
+            return nil
+        }
+    }
 }
 
 extension TitleType: CaseIterable {

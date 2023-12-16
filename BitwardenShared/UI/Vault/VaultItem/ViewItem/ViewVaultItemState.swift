@@ -19,6 +19,9 @@ struct ViewVaultItemState: Equatable {
     /// The login item state.
     var loginState: LoginItemState
 
+    /// The identity item state.
+    var identityState: IdentityItemState
+
     /// The name of this item.
     var name: String
 
@@ -29,5 +32,5 @@ struct ViewVaultItemState: Equatable {
     var updatedDate: Date
 
     /// What cipher type this item is.
-    let type: CipherType = .login
+    var type: CipherType
 }

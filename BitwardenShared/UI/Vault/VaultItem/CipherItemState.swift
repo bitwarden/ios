@@ -72,9 +72,11 @@ struct CipherItemState: Equatable {
             customFields: customFields,
             isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
             loginState: loginState,
+            identityState: identityState,
             name: name,
             notes: notes,
-            updatedDate: updatedDate
+            updatedDate: updatedDate,
+            type: .init(type: cipherView.type)
         )
     }
 
