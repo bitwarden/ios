@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - OtherSettingsProcessor
 
 /// The processor used to manage state and handle actions for the `OtherSettingsView`.
@@ -5,7 +7,8 @@
 final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSettingsAction, OtherSettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasSettingsRepository
+    typealias Services = HasErrorReporter
+        & HasSettingsRepository
 
     // MARK: Properties
 
@@ -37,6 +40,8 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
 
     override func perform(_ effect: OtherSettingsEffect) async {
         switch effect {
+        case .streamLastSyncTime:
+            await streamLastSyncTime()
         case .syncNow:
             await syncVault()
         }
@@ -54,6 +59,18 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
     }
 
     // MARK: Private
+
+    /// Gets the last sync time for the user and streams any changes to it.
+    ///
+    private func streamLastSyncTime() async {
+        do {
+            for await lastSyncTime in try await services.settingsRepository.lastSyncTimePublisher() {
+                state.lastSyncDate = lastSyncTime
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Syncs the user's vault with the API.
     ///

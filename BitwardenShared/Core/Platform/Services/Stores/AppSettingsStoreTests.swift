@@ -128,6 +128,36 @@ class AppSettingsStoreTests: BitwardenTestCase {
         )
     }
 
+    /// `lastSyncTime(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_lastSyncTime_isInitiallyNil() {
+        XCTAssertNil(subject.lastSyncTime(userId: "-1"))
+    }
+
+    /// `lastSyncTime(userId:)` can be used to get the last sync time for a user.
+    func test_lastSyncTime_withValue() {
+        let date1 = Date(year: 2023, month: 12, day: 1)
+        let date2 = Date(year: 2023, month: 10, day: 2)
+
+        subject.setLastSyncTime(date1, userId: "1")
+        subject.setLastSyncTime(date2, userId: "2")
+
+        XCTAssertEqual(subject.lastSyncTime(userId: "1"), date1)
+        XCTAssertEqual(subject.lastSyncTime(userId: "2"), date2)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_1"), 1_701_388_800.0)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_2"), 1_696_204_800.0)
+
+        let date3 = Date(year: 2023, month: 8, day: 1)
+        let date4 = Date(year: 2023, month: 6, day: 2)
+
+        subject.setLastSyncTime(date3, userId: "1")
+        subject.setLastSyncTime(date4, userId: "2")
+
+        XCTAssertEqual(subject.lastSyncTime(userId: "1"), date3)
+        XCTAssertEqual(subject.lastSyncTime(userId: "2"), date4)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_1"), 1_690_848_000.0)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_2"), 1_685_664_000.0)
+    }
+
     /// `passwordGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.
     func test_passwordGenerationOptions_isInitiallyNil() {
         XCTAssertNil(subject.passwordGenerationOptions(userId: "-1"))

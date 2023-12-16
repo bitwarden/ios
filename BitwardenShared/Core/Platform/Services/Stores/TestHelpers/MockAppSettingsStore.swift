@@ -1,4 +1,5 @@
 import Combine
+import Foundation
 
 @testable import BitwardenShared
 
@@ -6,6 +7,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
+    var lastSyncTimeByUserId = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
@@ -25,6 +27,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func encryptedUserKey(userId: String) -> String? {
         encryptedUserKeys[userId]
+    }
+
+    func lastSyncTime(userId: String) -> Date? {
+        lastSyncTimeByUserId[userId]
     }
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
@@ -49,6 +55,10 @@ class MockAppSettingsStore: AppSettingsStore {
             return
         }
         encryptedUserKeys[userId] = key
+    }
+
+    func setLastSyncTime(_ date: Date?, userId: String) {
+        lastSyncTimeByUserId[userId] = date
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {

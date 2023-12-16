@@ -37,6 +37,7 @@ class OtherSettingsViewTests: BitwardenTestCase {
 
     /// The view renders correctly.
     func test_view_render() {
+        processor.state.lastSyncDate = Date(year: 2023, month: 5, day: 14, hour: 16, minute: 52)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

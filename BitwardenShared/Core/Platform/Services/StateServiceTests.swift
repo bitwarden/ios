@@ -301,6 +301,42 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 
+    /// lastSyncTimePublisher()` returns a publisher for the user's last sync time.
+    func test_lastSyncTimePublisher() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var publishedValues = [Date?]()
+        let publisher = try await subject.lastSyncTimePublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        let date = Date(year: 2023, month: 12, day: 1)
+        try await subject.setLastSyncTime(date)
+
+        XCTAssertEqual(publishedValues, [nil, date])
+    }
+
+    /// lastSyncTimePublisher()` gets the initial stored value if a cached sync time doesn't exist.
+    func test_lastSyncTimePublisher_fetchesInitialValue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        let initialSync = Date(year: 2023, month: 12, day: 1)
+        appSettingsStore.lastSyncTimeByUserId["1"] = initialSync
+
+        var publishedValues = [Date?]()
+        let publisher = try await subject.lastSyncTimePublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        let updatedSync = Date(year: 2023, month: 12, day: 4)
+        try await subject.setLastSyncTime(updatedSync)
+
+        XCTAssertEqual(publishedValues, [initialSync, updatedSync])
+    }
+
     /// `logoutAccount()` clears any account data.
     func test_logoutAccount_clearAccountData() async throws {
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -511,6 +547,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setActiveAccount(userId: "1")
         active = try await subject.getActiveAccount()
         XCTAssertEqual(active, account1)
+    }
+
+    /// `setLastSyncTime(_:userId:)` sets the last sync time for a user.
+    func test_setLastSyncTime() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let date = Date(year: 2023, month: 12, day: 1)
+        try await subject.setLastSyncTime(date)
+        XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date)
+
+        let date2 = Date(year: 2023, month: 12, day: 2)
+        try await subject.setLastSyncTime(date2, userId: "1")
+        XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
     }
 
     /// `setActiveAccount(userId: )` succeeds if there is a matching account

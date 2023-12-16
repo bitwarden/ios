@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - OtherSettingsState
 
 /// An object that defines the current state of the `OtherSettingsView`.
@@ -8,6 +10,9 @@ struct OtherSettingsState {
 
     /// Whether the connect to watch toggle is on.
     var isConnectToWatchToggleOn: Bool = false
+
+    /// The date of the last vault sync.
+    var lastSyncDate: Date?
 
     /// A toast message to show in the view.
     var toast: Toast?
