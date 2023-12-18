@@ -21,8 +21,7 @@ struct PasswordHintView: View {
                         send: PasswordHintAction.emailAddressChanged
                     )
                 )
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
+                .textFieldConfiguration(.email)
 
                 AsyncButton(Localizations.submit) {
                     await store.perform(.submitPressed)
