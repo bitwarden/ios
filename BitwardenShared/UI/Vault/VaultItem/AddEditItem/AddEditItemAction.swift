@@ -19,6 +19,9 @@ enum AddEditItemAction: Equatable {
     /// The generate username button was pressed.
     case generateUsernamePressed
 
+    /// The identity field was changed.
+    case identityFieldChanged(AddEditIdentityItemAction)
+
     /// The master password re-prompt toggle was changed.
     case masterPasswordRePromptChanged(Bool)
 
@@ -63,7 +66,4 @@ enum AddEditItemAction: Equatable {
 
     /// The username field was changed.
     case usernameChanged(String)
-
-    /// The identity field was changed.
-    case identityFieldChanged(AddEditIdentityItemAction)
 }
