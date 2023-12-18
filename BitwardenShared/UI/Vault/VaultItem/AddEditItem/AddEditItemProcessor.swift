@@ -78,6 +78,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             } else {
                 presentReplacementAlert(for: .username)
             }
+        case let .identityFieldChanged(action):
+            updateIdentityState(&state, for: action)
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
         case .morePressed:
@@ -112,16 +114,14 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             state.loginState.uris[index].matchType = newValue
         case let .usernameChanged(newValue):
             state.loginState.username = newValue
-        case let .identityFieldChanged(action):
-            updateIdentityState(&state, for: action)
         }
     }
 
     // MARK: Private Methods
 
-
-    /// Receives an `AddEditIdentityItem` action from the `AddEditIdentityView` view's store, and updates the `AddEditIdentityState`.
-    /// 
+    /// Receives an `AddEditIdentityItem` action from the `AddEditIdentityView` view's store, and updates
+    /// the `AddEditIdentityState`.
+    ///
     /// - Parameters:
     ///   - state: The parent `AddEditItemState` to be updated.
     ///   - action: The `AddEditIdentityItemAction` received.
