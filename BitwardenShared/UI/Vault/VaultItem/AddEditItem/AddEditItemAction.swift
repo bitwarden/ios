@@ -4,6 +4,9 @@ import BitwardenSdk
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable {
+    /// Clears the TOTP field.
+    case clearTOTPKey
+
     /// The dismiss button was pressed.
     case dismissPressed
 

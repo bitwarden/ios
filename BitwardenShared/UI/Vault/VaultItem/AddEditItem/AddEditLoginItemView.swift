@@ -57,8 +57,17 @@ struct AddEditLoginItemView: View {
             BitwardenField(
                 title: Localizations.authenticatorKey,
                 content: {
-                    Text(key)
-                        .styleGuide(.body)
+                    HStack {
+                        Text(key)
+                            .styleGuide(.body)
+                        Spacer()
+                        Button(action: {
+                            store.send(.clearTOTPKey)
+                        }, label: {
+                            Image(asset: Asset.Images.cancelRound)
+                        })
+                        .accessibilityLabel(Localizations.clear)
+                    }
                 },
                 accessoryContent: {
                     AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {

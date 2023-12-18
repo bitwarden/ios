@@ -4,7 +4,7 @@ import XCTest
 @testable import BitwardenShared
 
 class AddEditLoginItemViewTests: BitwardenTestCase {
-    // MARK: Tests
+    // MARK: Snapshots
 
     /// Test a snapshot of the addLoginItemView.
     func test_snapshot_addEditLoginItemView() {
