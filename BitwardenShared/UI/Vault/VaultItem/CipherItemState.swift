@@ -33,6 +33,9 @@ struct CipherItemState: Equatable {
     /// The folder this item should be added to.
     var folder: String
 
+    /// The state for a identity type item.
+    var identityState: IdentityItemState
+
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool
 
@@ -41,9 +44,6 @@ struct CipherItemState: Equatable {
 
     /// The state for a login type item.
     var loginState: LoginItemState
-
-    /// The state for a identity type item.
-    var identityState: IdentityItemState
 
     /// The name of this item.
     var name: String

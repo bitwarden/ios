@@ -13,7 +13,7 @@ struct IdentityItemState: Equatable {
     /// The firstName for this item.
     var firstName: String = ""
 
-    /// The first name for this item.
+    /// The last name for this item.
     var lastName: String = ""
 
     /// The middle name for this item.
