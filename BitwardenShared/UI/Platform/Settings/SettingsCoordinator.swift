@@ -74,7 +74,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: SettingsRoute, context: AnyObject?) {
+    func navigate(to route: SettingsRoute, context _: AnyObject?) {
         switch route {
         case .accountSecurity:
             showAccountSecurity()
@@ -98,6 +98,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showOtherScreen()
         case .settings:
             showSettings()
+        case .vault:
+            showVault()
         }
     }
 
@@ -171,5 +173,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
         let view = SettingsView(store: Store(processor: processor))
         stackNavigator.push(view)
+    }
+
+    /// Shows the vault screen.
+    ///
+    private func showVault() {
+        let processor = VaultSettingsProcessor(coordinator: asAnyCoordinator())
+        let view = VaultSettingsView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
     }
 }
