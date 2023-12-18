@@ -104,8 +104,8 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
             showLoginOptions()
         case .loginWithDevice:
             showLoginWithDevice()
-        case .masterPasswordHint:
-            showMasterPasswordHint()
+        case let .masterPasswordHint(username):
+            showMasterPasswordHint(for: username)
         case .selfHosted:
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate)
         case let .switchAccount(userId: userId):
@@ -249,10 +249,20 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
         stackNavigator.push(view)
     }
 
-    /// Shows the master password hint screen.
-    private func showMasterPasswordHint() {
-        let view = Text("Master Password Hint")
-        stackNavigator.push(view)
+    /// Shows the master password hint screen for the provided username.
+    ///
+    /// - Parameter username: The username to get the password hint for.
+    ///
+    private func showMasterPasswordHint(for username: String) {
+        let processor = PasswordHintProcessor(
+            coordinator: asAnyCoordinator(),
+            state: PasswordHintState(emailAddress: username)
+        )
+        let store = Store(processor: processor)
+        let view = PasswordHintView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the self-hosted settings view.
