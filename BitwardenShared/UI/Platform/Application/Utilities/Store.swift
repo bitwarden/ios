@@ -111,17 +111,26 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     ///   - get: A closure that provides a value for the binding from the store's state.
     ///   - stateToAction: A closure that provides a mapping from the binding's value to an action
     ///     that is sent to the store when the value changes.
+    ///   - animation: An optional `Animation` to use when sending the action to the store. Defaults
+    ///     to `nil`.
     /// - Returns: A `Binding` whose value is set from the store's state which triggers an action
     ///     to be sent back to the store when the value changes.
     ///
     open func binding<LocalState>(
         get: @escaping (State) -> LocalState,
-        send stateToAction: @escaping (LocalState) -> Action
+        send stateToAction: @escaping (LocalState) -> Action,
+        animation: Animation? = nil
     ) -> Binding<LocalState> {
         Binding(
             get: { get(self.state) },
             set: { value, _ in
-                self.send(stateToAction(value))
+                if let animation, UI.animated {
+                    withAnimation(animation) {
+                        self.send(stateToAction(value))
+                    }
+                } else {
+                    self.send(stateToAction(value))
+                }
             }
         )
     }
