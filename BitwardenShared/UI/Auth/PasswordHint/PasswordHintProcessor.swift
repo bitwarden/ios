@@ -51,19 +51,24 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
     private func requestPasswordHint(for emailAddress: String) async {
         coordinator.showLoadingOverlay(title: Localizations.submitting)
 
-        // TODO: BIT-733 Perform the password hint request
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
+        do {
+            // TODO: BIT-733 Perform the password hint request
+            try await Task.sleep(nanoseconds: 1_000_000_000)
 
-        let okAction = AlertAction(title: Localizations.ok, style: .default) { _, _ in
-            self.coordinator.navigate(to: .dismiss)
+            let okAction = AlertAction(title: Localizations.ok, style: .default) { _, _ in
+                self.coordinator.navigate(to: .dismiss)
+            }
+            let alert = Alert(
+                title: "",
+                message: Localizations.passwordHintAlert,
+                alertActions: [okAction]
+            )
+
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .alert(alert))
+        } catch {
+            // TODO: BIT-1257 Add error handling
+            print(error)
         }
-        let alert = Alert(
-            title: "",
-            message: Localizations.passwordHintAlert,
-            alertActions: [okAction]
-        )
-
-        coordinator.hideLoadingOverlay()
-        coordinator.navigate(to: .alert(alert))
     }
 }
