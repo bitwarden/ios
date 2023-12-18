@@ -24,7 +24,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     // MARK: Private Properties
 
     /// The `Coordinator` responsible for navigation-related actions.
-    private let coordinator: any Coordinator<ScanCodeRoute>
+    private let coordinator: any Coordinator<AuthenticatorKeyCaptureRoute>
 
     /// The services used by this processor, including camera authorization and error reporting.
     private let services: Services
@@ -42,7 +42,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     ///   - state: The initial state of this processor, representing the UI's state.
     ///
     init(
-        coordinator: any Coordinator<ScanCodeRoute>,
+        coordinator: any Coordinator<AuthenticatorKeyCaptureRoute>,
         services: Services,
         state: ScanCodeState
     ) {
@@ -63,9 +63,9 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     override func receive(_ action: ScanCodeAction) {
         switch action {
         case .dismissPressed:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         case .manualEntryPressed:
-            coordinator.navigate(to: .setupTotpManual)
+            coordinator.navigate(to: .screen(.manual))
         }
     }
 
@@ -76,7 +76,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     ///
     private func setupCameraResultsObservation() async {
         guard services.cameraService.deviceSupportsCamera() else {
-            coordinator.navigate(to: .setupTotpManual)
+            coordinator.navigate(to: .screen(.manual))
             return
         }
 

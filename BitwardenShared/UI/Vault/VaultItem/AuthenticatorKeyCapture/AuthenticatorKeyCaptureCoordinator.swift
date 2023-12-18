@@ -25,6 +25,11 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     typealias Services = HasCameraService
         & HasErrorReporter
 
+    enum StoredRoute: Equatable {
+        case camera
+        case manual
+    }
+
     // MARK: Private Properties
 
     /// A delegate that responds to events in this coordinator.
@@ -37,6 +42,9 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
 
     /// The stack navigator that is managed by this coordinator.
     let stackNavigator: StackNavigator
+
+    /// A variable to store the present route.
+    private var presentScreen: AuthenticatorKeyCaptureScreen?
 
     // MARK: Initialization
 
@@ -59,16 +67,42 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: ScanCodeRoute, context: AnyObject?) {
+    func navigate(to route: AuthenticatorKeyCaptureRoute, context: AnyObject?) {
         switch route {
         case let .complete(value):
             delegate?.didCompleteCapture(with: value.content)
-        case .dismiss:
-            stackNavigator.dismiss()
-        case .scanCode:
-            showScanCode()
-        case .setupTotpManual:
-            showManualTotp()
+        case let .dismiss(onDismiss):
+            stackNavigator.dismiss(completion: { [weak self] in
+                onDismiss?.action()
+                self?.presentScreen = nil
+            })
+        case let .screen(screen):
+            switch screen {
+            case .manual:
+                if stackNavigator.isPresenting {
+                    guard presentScreen != .manual else { return }
+                    stackNavigator.dismiss(completion: { [weak self] in
+                        self?.presentScreen = nil
+                        self?.showManualTotp()
+                    })
+                } else {
+                    presentScreen = nil
+                    showManualTotp()
+                }
+            case .scan:
+                if stackNavigator.isPresenting {
+                    guard presentScreen != .scan else { return }
+                    stackNavigator.dismiss(completion: { [weak self] in
+                        self?.presentScreen = nil
+                        self?.showScanCode()
+                    })
+                } else {
+                    presentScreen = nil
+                    showScanCode()
+                }
+            }
+        case let .addManual(entry: authKey):
+            delegate?.didCompleteCapture(with: authKey)
         }
     }
 
@@ -121,14 +155,26 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
             )
             let navWrapped = view.navStackWrapped
             stackNavigator.present(navWrapped, animated: true, overFullscreen: true)
+            presentScreen = .scan
         }
     }
 
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp() {
-        let view = Text("Manual Totp")
+        guard presentScreen != .manual else {
+            return
+        }
+        let processor = ManualEntryProcessor(
+            coordinator: self,
+            services: services,
+            state: DefaultEntryState()
+        )
+        let view = ManualEntryView(
+            store: Store(processor: processor)
+        )
         let navWrapped = NavigationView { view }
         stackNavigator.present(navWrapped)
+        presentScreen = .manual
     }
 }

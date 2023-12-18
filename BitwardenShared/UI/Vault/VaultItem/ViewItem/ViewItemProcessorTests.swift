@@ -155,7 +155,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
     /// `receive` with `.dismissPressed` navigates to the `.dismiss` route.
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `receive` with `.editPressed` has no change when the state is loading.

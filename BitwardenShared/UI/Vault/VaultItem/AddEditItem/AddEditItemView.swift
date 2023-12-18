@@ -224,6 +224,7 @@ private extension AddEditItemView {
     }
 }
 
+#if DEBUG
 struct AddEditItemView_Previews: PreviewProvider {
     static var fixedDate: Date {
         .init(timeIntervalSince1970: 1_695_000_000)
@@ -310,3 +311,4 @@ struct AddEditItemView_Previews: PreviewProvider {
         .previewDisplayName("Edit Login: Key Added")
     }
 }
+#endif

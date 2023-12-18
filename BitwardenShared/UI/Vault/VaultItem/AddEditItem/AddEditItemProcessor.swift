@@ -61,7 +61,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
         case .dismissPressed:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         case let .favoriteChanged(newValue):
             state.isFavoriteOn = newValue
         case let .folderChanged(newValue):
@@ -262,7 +262,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     private func addItem() async throws {
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     /// Updates the item currently in `state`.
@@ -270,7 +270,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     private func updateItem(cipherView: CipherView) async throws {
         try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
         coordinator.hideLoadingOverlay()
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     /// Kicks off the TOTP setup flow.
@@ -287,7 +287,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
 
 extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
     func didCancelGenerator() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func didCompleteGenerator(for type: GeneratorType, with value: String) {
@@ -297,14 +297,16 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
         case .username:
             state.loginState.username = value
         }
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 }
 
 extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteCapture(with value: String) {
-        coordinator.navigate(to: .dismiss)
-        parseAuthenticatorKey(value)
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.parseAuthenticatorKey(value)
+        })
+        coordinator.navigate(to: .dismiss(dismissAction))
     }
 
     func parseAuthenticatorKey(_ key: String) {
@@ -312,9 +314,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
             state.loginState.totpKey = try services.totpService.getTOTPConfiguration(key: key)
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         } catch {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                self?.coordinator.navigate(to: .alert(.totpScanFailureAlert()))
-            }
+            coordinator.navigate(to: .alert(.totpScanFailureAlert()))
         }
     }
 }

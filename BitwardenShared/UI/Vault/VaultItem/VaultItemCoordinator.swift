@@ -53,8 +53,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             showAddItem(for: group.flatMap(CipherType.init))
         case let .alert(alert):
             stackNavigator.present(alert)
-        case .dismiss:
-            stackNavigator.dismiss()
+        case let .dismiss(onDismiss):
+            stackNavigator.dismiss(completion: {
+                onDismiss?.action()
+            })
         case let .editItem(cipher: cipher):
             showEditItem(for: cipher)
         case let .generator(type, emailWebsite):
@@ -117,7 +119,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             stackNavigator: stackNavigator
         )
         coordinator.start()
-        coordinator.navigate(to: .scanCode)
+        coordinator.navigate(to: .screen(.scan))
     }
 
     /// Shows the totp manual setup screen.
@@ -129,7 +131,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             stackNavigator: stackNavigator
         )
         coordinator.start()
-        coordinator.navigate(to: .setupTotpManual)
+        coordinator.navigate(to: .screen(.manual))
     }
 
     /// Shows the generator screen for the the specified type.

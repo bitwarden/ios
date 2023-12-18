@@ -42,14 +42,16 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `navigate(to:)` with `.dismiss` dismisses the view.
-    func test_navigateTo_cancel() throws {
-        subject.navigate(to: .dismiss)
-        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(lastAction.type, .dismissed)
+    /// `navigate(to:)` with `.addManual` instructs the delegate that the capture flow has
+    /// completed.
+    func test_navigateTo_addManual() {
+        let entry = "manuallyManagedMagic"
+        subject.navigate(to: .addManual(entry: entry))
+        XCTAssertTrue(delegate.didCompleteCaptureCalled)
+        XCTAssertEqual(delegate.didCompleteCaptureValue, entry)
     }
 
-    /// `navigate(to:)` with `.complete` instructs the delegate that the scan flow has
+    /// `navigate(to:)` with `.complete` instructs the delegate that the capture flow has
     /// completed.
     func test_navigateTo_complete() {
         let result = ScanResult(content: "example.com", codeType: .qr)
@@ -58,10 +60,26 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(delegate.didCompleteCaptureValue, "example.com")
     }
 
+    /// `navigate(to:)` with `.dismiss` dismisses the view.
+    func test_navigateTo_dismiss_noAction() throws {
+        subject.navigate(to: .dismiss())
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.dismiss` dismisses the view.
+    func test_navigateTo_dismiss_withAction() throws {
+        var didRun = false
+        subject.navigate(to: .dismiss(DismissAction(action: { didRun = true })))
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
+        XCTAssertTrue(didRun)
+    }
+
     /// `navigate(to:)` with `.scanCode` shows the scan view.
     func test_navigateTo_scanCode() throws {
         let task = Task {
-            subject.navigate(to: .scanCode)
+            subject.navigate(to: .screen(.scan))
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -72,26 +90,14 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         XCTAssertNotNil(try? view?.inspect().find(ScanCodeView.self))
     }
 
-    /// `navigate(to:)` with `.dismiss` dismisses the presented view.
-    func test_navigate_dismiss() throws {
-        let task = Task {
-            subject.navigate(to: .scanCode)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        subject.navigate(to: .dismiss)
-        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(lastAction.type, .dismissed)
-    }
-
     /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view.
     func test_navigateTo_setupTotpManual() throws {
-        subject.navigate(to: .setupTotpManual)
+        subject.navigate(to: .screen(.manual))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is NavigationView<Text>)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.

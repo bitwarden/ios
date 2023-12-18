@@ -101,10 +101,20 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
     /// navigator.
-    func test_navigate_dismiss() throws {
-        subject.navigate(to: .dismiss)
+    func test_navigate_dismiss_noAction() throws {
+        subject.navigate(to: .dismiss())
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .dismissed)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
+    /// navigator.
+    func test_navigate_dismiss_withAction() throws {
+        var didRun = false
+        subject.navigate(to: .dismiss(DismissAction(action: { didRun = true })))
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
+        XCTAssertTrue(didRun)
     }
 
     /// `navigate(to:)` with `.editItem()` with a malformed cipher fails to trigger the show edit flow.
@@ -217,7 +227,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         task.cancel()
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is NavigationView<Text>)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
     }
 
     /// `navigate(to:)` with `.setupTotpManual` with context without conformance fails to present.
@@ -243,7 +254,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is NavigationView<Text>)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
     }
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.

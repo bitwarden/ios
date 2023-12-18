@@ -1,4 +1,5 @@
 import BitwardenSdk
+import SwiftUI
 
 // MARK: VaultItemRoute
 
@@ -15,7 +16,9 @@ enum VaultItemRoute: Equatable, Hashable {
     case alert(_ alert: Alert)
 
     /// A route to dismiss the screen currently presented modally.
-    case dismiss
+    ///
+    /// - Parameter action: The action to perform on dismiss.
+    case dismiss(_ action: DismissAction? = nil)
 
     /// A route to edit an item
     case editItem(cipher: CipherView)
@@ -37,4 +40,26 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     /// - Parameter id: The id of the item to display.
     case viewItem(id: String)
+}
+
+/// An action to perform on dismiss.
+///
+public struct DismissAction {
+    /// A UUID for conformance to Equatable, Hashable.
+    let id: UUID = .init()
+
+    /// The action to perform on dismiss.
+    var action: () -> Void
+}
+
+extension DismissAction: Equatable {
+    public static func == (lhs: DismissAction, rhs: DismissAction) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+extension DismissAction: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
