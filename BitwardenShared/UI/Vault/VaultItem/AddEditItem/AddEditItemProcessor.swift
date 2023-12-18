@@ -301,8 +301,8 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
     }
 }
 
-extension AddEditItemProcessor: ScanCodeCoordinatorDelegate {
-    func didCompleteScan(with value: String) {
+extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
+    func didCompleteCapture(with value: String) {
         coordinator.navigate(to: .dismiss)
         parseAuthenticatorKey(value)
     }

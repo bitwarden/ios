@@ -13,7 +13,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     typealias Services = HasVaultRepository
         & HasTOTPService
         & GeneratorCoordinator.Services
-        & ScanCodeCoordinator.Services
+        & AuthenticatorKeyCaptureCoordinator.Services
 
     // MARK: - Private Properties
 
@@ -61,10 +61,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
         case .setupTotpCamera:
-            guard let delegate = context as? ScanCodeCoordinatorDelegate else { return }
+            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showCamera(delegate: delegate)
         case .setupTotpManual:
-            guard let delegate = context as? ScanCodeCoordinatorDelegate else { return }
+            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
         case let .viewItem(id):
             showViewItem(id: id)
@@ -110,8 +110,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the totp camera setup screen.
     ///
-    private func showCamera(delegate: ScanCodeCoordinatorDelegate) {
-        let coordinator = ScanCodeCoordinator(
+    private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) {
+        let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
             stackNavigator: stackNavigator
@@ -122,8 +122,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the totp manual setup screen.
     ///
-    private func showManualTotp(delegate: ScanCodeCoordinatorDelegate) {
-        let coordinator = ScanCodeCoordinator(
+    private func showManualTotp(delegate: AuthenticatorKeyCaptureDelegate) {
+        let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
             stackNavigator: stackNavigator

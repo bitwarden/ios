@@ -81,13 +81,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loginState.password, "password123")
     }
 
-    /// `didCompleteScan` with a value updates the state with the new auth key value
+    /// `didCompleteCapture` with a value updates the state with the new auth key value
     /// and navigates to the `.dismiss` route.
-    func test_didCompleteScan_failure() {
+    func test_didCompleteCapture_failure() {
         subject.state.loginState.totpKey = nil
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
         let task = Task {
-            subject.didCompleteScan(with: "1234")
+            subject.didCompleteCapture(with: "1234")
         }
         waitFor(!coordinator.routes.isEmpty && coordinator.routes.last != .dismiss)
         task.cancel()
@@ -106,14 +106,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.toast)
     }
 
-    /// `didCompleteScan` with a value updates the state with the new auth key value
+    /// `didCompleteCapture` with a value updates the state with the new auth key value
     /// and navigates to the `.dismiss` route.
-    func test_didCompleteScan_success() throws {
+    func test_didCompleteCapture_success() throws {
         subject.state.loginState.totpKey = nil
         let key = String.base32Key
         let keyConfig = try XCTUnwrap(TOTPCodeConfig(authenticatorKey: key))
         totpService.getTOTPConfigResult = .success(keyConfig)
-        subject.didCompleteScan(with: key)
+        subject.didCompleteCapture(with: key)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
         XCTAssertEqual(subject.state.loginState.authenticatorKey, .base32Key)
         XCTAssertEqual(subject.state.toast?.text, Localizations.authenticatorKeyAdded)
