@@ -19,6 +19,9 @@ protocol ViewVaultItemState: Sendable {
     /// The login item state.
     var loginState: LoginItemState { get set }
 
+    /// The identity item state.
+    var identityState: IdentityItemState { get set }
+
     /// The name of this item.
     var name: String { get set }
 
