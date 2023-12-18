@@ -40,4 +40,7 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to the settings screen.
     case settings
+
+    /// A route to the vault settings view.
+    case vault
 }
