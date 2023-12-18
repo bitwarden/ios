@@ -7,6 +7,7 @@ import BitwardenSdk
 class SyncServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var cipherService: MockCipherService!
     var client: MockHTTPClient!
     var clientCrypto: MockClientCrypto!
     var collectionService: MockCollectionService!
@@ -21,6 +22,7 @@ class SyncServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        cipherService = MockCipherService()
         client = MockHTTPClient()
         clientCrypto = MockClientCrypto()
         collectionService = MockCollectionService()
@@ -30,6 +32,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService = MockStateService()
 
         subject = DefaultSyncService(
+            cipherService: cipherService,
             clientCrypto: clientCrypto,
             collectionService: collectionService,
             errorReporter: errorReporter,
@@ -43,6 +46,7 @@ class SyncServiceTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        cipherService = nil
         client = nil
         clientCrypto = nil
         collectionService = nil
@@ -90,6 +94,38 @@ class SyncServiceTests: BitwardenTestCase {
             Date().timeIntervalSince1970,
             accuracy: 1
         )
+    }
+
+    /// `fetchSync()` replaces the list of the user's ciphers.
+    func test_fetchSync_ciphers() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync()
+
+        let date = Date(year: 2023, month: 8, day: 10, hour: 8, minute: 33, second: 45, nanosecond: 345_000_000)
+        XCTAssertEqual(
+            cipherService.replaceCiphersCiphers,
+            [
+                CipherDetailsResponseModel.fixture(
+                    creationDate: date,
+                    edit: true,
+                    id: "3792af7a-4441-11ee-be56-0242ac120002",
+                    login: .fixture(
+                        password: "encrypted password",
+                        uris: [
+                            CipherLoginUriModel(match: nil, uri: "encrypted uri"),
+                        ],
+                        username: "encrypted username"
+                    ),
+                    name: "encrypted name",
+                    revisionDate: date,
+                    type: .login,
+                    viewPassword: true
+                ),
+            ]
+        )
+        XCTAssertEqual(cipherService.replaceCiphersUserId, "1")
     }
 
     /// `fetchSync()` replaces the list of the user's collections.

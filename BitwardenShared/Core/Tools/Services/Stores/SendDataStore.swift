@@ -73,7 +73,7 @@ extension DataStore: SendDataStore {
 
     func replaceSends(_ sends: [Send], userId: String) async throws {
         let deleteRequest = SendData.deleteByUserIdRequest(userId: userId)
-        let insertRequest = SendData.batchInsertRequest(objects: sends, userId: userId)
+        let insertRequest = try SendData.batchInsertRequest(objects: sends, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
             insertRequest: insertRequest

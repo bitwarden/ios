@@ -25,7 +25,7 @@ protocol ManagedUserObject: ManagedObject {
     ///   - value: The value type object used to update the managed object.
     ///   - userId: The user ID associated with the object.
     ///
-    func update(with value: ValueType, userId: String)
+    func update(with value: ValueType, userId: String) throws
 }
 
 extension ManagedUserObject where Self: NSManagedObject {
@@ -36,9 +36,9 @@ extension ManagedUserObject where Self: NSManagedObject {
     ///   - userId: The user associated with the objects to insert.
     /// - Returns: A `NSBatchInsertRequest` that inserts the objects for the user.
     ///
-    static func batchInsertRequest(objects: [ValueType], userId: String) -> NSBatchInsertRequest {
-        batchInsertRequest(objects: objects) { object, value in
-            object.update(with: value, userId: userId)
+    static func batchInsertRequest(objects: [ValueType], userId: String) throws -> NSBatchInsertRequest {
+        try batchInsertRequest(objects: objects) { object, value in
+            try object.update(with: value, userId: userId)
         }
     }
 

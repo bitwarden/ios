@@ -31,6 +31,9 @@ protocol SyncService: AnyObject {
 class DefaultSyncService: SyncService {
     // MARK: Properties
 
+    /// The service for managing the ciphers for the user.
+    let cipherService: CipherService
+
     /// The client used by the application to handle encryption and decryption setup tasks.
     let clientCrypto: ClientCryptoProtocol
 
@@ -60,6 +63,7 @@ class DefaultSyncService: SyncService {
     /// Initializes a `DefaultSyncService`.
     ///
     /// - Parameters:
+    ///   - cipherService: The service for managing the ciphers for the user.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
@@ -69,6 +73,7 @@ class DefaultSyncService: SyncService {
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///
     init(
+        cipherService: CipherService,
         clientCrypto: ClientCryptoProtocol,
         collectionService: CollectionService,
         errorReporter: ErrorReporter,
@@ -77,6 +82,7 @@ class DefaultSyncService: SyncService {
         stateService: StateService,
         syncAPIService: SyncAPIService
     ) {
+        self.cipherService = cipherService
         self.clientCrypto = clientCrypto
         self.collectionService = collectionService
         self.errorReporter = errorReporter
@@ -119,6 +125,7 @@ extension DefaultSyncService {
         let response = try await syncAPIService.getSync()
         await initializeOrganizationCrypto(syncResponse: response)
 
+        try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)
         try await folderService.replaceFolders(response.folders, userId: userId)
         try await sendService.replaceSends(response.sends, userId: userId)

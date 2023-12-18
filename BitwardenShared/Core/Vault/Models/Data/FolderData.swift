@@ -105,8 +105,8 @@ extension FolderData {
     ///   - userId: The user associated with the `FolderData` objects to insert.
     /// - Returns: A `NSBatchInsertRequest` that inserts `FolderData` objects for the user.
     ///
-    static func batchInsertRequest(folders: [Folder], userId: String) -> NSBatchInsertRequest {
-        batchInsertRequest(objects: folders) { folderData, folder in
+    static func batchInsertRequest(folders: [Folder], userId: String) throws -> NSBatchInsertRequest {
+        try batchInsertRequest(objects: folders) { folderData, folder in
             folderData.update(with: folder, userId: userId)
         }
     }
