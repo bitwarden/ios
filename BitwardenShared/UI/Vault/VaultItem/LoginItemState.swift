@@ -7,6 +7,9 @@ import Foundation
 struct LoginItemState: Equatable {
     // MARK: Properties
 
+    /// The TOTP Key.
+    var authenticatorKey: String?
+
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool = false
 
@@ -29,7 +32,7 @@ struct LoginItemState: Equatable {
             password: password.nilIfEmpty,
             passwordRevisionDate: passwordUpdatedDate,
             uris: nil,
-            totp: nil,
+            totp: authenticatorKey,
             autofillOnPageLoad: nil
         )
     }

@@ -43,6 +43,9 @@ enum AddEditItemAction: Equatable {
     /// The password field was changed.
     case passwordChanged(String)
 
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// The toggle password visibility button was changed.
     case togglePasswordVisibilityChanged(Bool)
 

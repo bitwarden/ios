@@ -7,7 +7,6 @@ extension ServiceContainer {
     static func withMocks(
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         authRepository: AuthRepository = MockAuthRepository(),
-        baseUrlService: BaseUrlService = DefaultBaseUrlService(baseUrl: .example),
         biometricsService: BiometricsService = DefaultBiometricsService(),
         captchaService: CaptchaService = MockCaptchaService(),
         cameraService: CameraService = MockCameraService(),
@@ -32,7 +31,6 @@ extension ServiceContainer {
             ),
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
-            baseUrlService: baseUrlService,
             biometricsService: biometricsService,
             captchaService: captchaService,
             cameraService: cameraService,

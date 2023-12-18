@@ -27,9 +27,6 @@ public class ServiceContainer: Services {
     /// The repository used by the application to manage auth data for the UI layer.
     let authRepository: AuthRepository
 
-    /// The service used by the application to retrieve the current base url for API requests.
-    let baseUrlService: BaseUrlService
-
     /// The service used to obtain the available authentication policies and access controls for the user's device.
     let biometricsService: BiometricsService
 
@@ -83,7 +80,6 @@ public class ServiceContainer: Services {
     ///   - apiService: The service used by the application to make API requests.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
-    ///   - baseUrlService: The service used by the application to retrieve the current base url for API requests.
     ///   - biometricsService: The service used to obtain the available authentication policies
     ///     and access controls for the user's device.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
@@ -105,7 +101,6 @@ public class ServiceContainer: Services {
         apiService: APIService,
         appSettingsStore: AppSettingsStore,
         authRepository: AuthRepository,
-        baseUrlService: BaseUrlService,
         biometricsService: BiometricsService,
         captchaService: CaptchaService,
         cameraService: CameraService,
@@ -125,7 +120,6 @@ public class ServiceContainer: Services {
         self.apiService = apiService
         self.appSettingsStore = appSettingsStore
         self.authRepository = authRepository
-        self.baseUrlService = baseUrlService
         self.biometricsService = biometricsService
         self.captchaService = captchaService
         self.cameraService = cameraService
@@ -153,18 +147,16 @@ public class ServiceContainer: Services {
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
-        let baseUrlService = DefaultBaseUrlService(
-            baseUrl: URL(string: "https://vault.bitwarden.com")!
-        )
 
         let biometricsService = DefaultBiometricsService()
         let clientService = DefaultClientService()
-        let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
+        let dataStore = DataStore(errorReporter: errorReporter)
+        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
 
-        let twoStepLoginService = DefaultTwoStepLoginService(baseUrlService: baseUrlService)
+        let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
 
         let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
@@ -179,6 +171,8 @@ public class ServiceContainer: Services {
 
         let generatorRepository = DefaultGeneratorRepository(
             clientGenerators: clientService.clientGenerator(),
+            clientVaultService: clientService.clientVault(),
+            dataStore: dataStore,
             stateService: stateService
         )
 
@@ -201,9 +195,8 @@ public class ServiceContainer: Services {
             apiService: apiService,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
-            baseUrlService: baseUrlService,
             biometricsService: biometricsService,
-            captchaService: DefaultCaptchaService(baseUrlService: baseUrlService),
+            captchaService: DefaultCaptchaService(environmentService: environmentService),
             cameraService: DefaultCameraService(),
             clientService: clientService,
             environmentService: environmentService,

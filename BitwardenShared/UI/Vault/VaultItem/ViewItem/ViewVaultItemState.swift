@@ -4,33 +4,33 @@ import Foundation
 // MARK: - ViewVaultItemState
 
 /// The state for viewing a login item.
-struct ViewVaultItemState: Equatable {
+protocol ViewVaultItemState: Sendable {
     // MARK: Properties
 
     /// The Cipher underpinning the state
-    var cipher: CipherView
+    var cipher: CipherView { get }
 
     /// The custome fields.
-    var customFields: [CustomFieldState]
+    var customFields: [CustomFieldState] { get set }
 
     /// A flag indicating if master password re-prompt is required.
-    var isMasterPasswordRePromptOn: Bool
+    var isMasterPasswordRePromptOn: Bool { get set }
 
     /// The login item state.
-    var loginState: LoginItemState
+    var loginState: LoginItemState { get set }
 
     /// The identity item state.
-    var identityState: IdentityItemState
+    var identityState: IdentityItemState { get set }
 
     /// The name of this item.
-    var name: String
+    var name: String { get set }
 
     /// The notes of this item.
-    var notes: String
+    var notes: String { get set }
 
     /// When this item was last updated.
-    var updatedDate: Date
+    var updatedDate: Date { get set }
 
     /// What cipher type this item is.
-    var type: CipherType
+    var type: CipherType { get }
 }

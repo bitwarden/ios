@@ -12,7 +12,7 @@ class TwoStepLoginServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        subject = DefaultTwoStepLoginService(baseUrlService: DefaultBaseUrlService(baseUrl: .example))
+        subject = DefaultTwoStepLoginService(environmentService: MockEnvironmentService())
     }
 
     override func tearDown() {

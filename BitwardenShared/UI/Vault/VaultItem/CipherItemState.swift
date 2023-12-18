@@ -54,6 +54,9 @@ struct CipherItemState: Equatable {
     /// The owner of this item.
     var owner: String
 
+    /// A toast for the AddEditItemView
+    var toast: Toast?
+
     /// What cipher type this item is.
     var type: CipherType
 
@@ -62,22 +65,18 @@ struct CipherItemState: Equatable {
 
     // MARK: DerivedProperties
 
+    /// The edit state of the item.
+    var addEditState: AddEditItemState {
+        self
+    }
+
     /// The view state of the item.
     var viewState: ViewVaultItemState? {
-        guard let cipherView = configuration.existingCipherView else {
+        guard case .existing = configuration else {
             return nil
         }
-        return ViewVaultItemState(
-            cipher: cipherView,
-            customFields: customFields,
-            isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
-            loginState: loginState,
-            identityState: identityState,
-            name: name,
-            notes: notes,
-            updatedDate: updatedDate,
-            type: .init(type: cipherView.type)
-        )
+
+        return self
     }
 
     // MARK: Initialization
@@ -154,6 +153,19 @@ struct CipherItemState: Equatable {
     mutating func togglePasswordVisibility(for customFieldState: CustomFieldState) {
         if let index = customFields.firstIndex(of: customFieldState) {
             customFields[index].isPasswordVisible.toggle()
+        }
+    }
+}
+
+extension CipherItemState: AddEditItemState {}
+
+extension CipherItemState: ViewVaultItemState {
+    var cipher: BitwardenSdk.CipherView {
+        switch configuration {
+        case let .existing(cipherView: view):
+            return view
+        case .add:
+            return newCipherView()
         }
     }
 }

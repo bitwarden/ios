@@ -153,7 +153,8 @@ extension DefaultAuthRepository: AuthRepository {
         let hashedPassword = try await clientAuth.hashPassword(
             email: email,
             password: passwordText,
-            kdfParams: kdf
+            kdfParams: kdf,
+            purpose: .serverAuthorization
         )
         return hashedPassword
     }
