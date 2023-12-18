@@ -18,6 +18,9 @@ protocol AddEditItemState: Sendable {
     /// The folder this item should be added to.
     var folder: String { get set }
 
+    /// The state for a identity type item.
+    var identityState: IdentityItemState { get set }
+
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool { get set }
 

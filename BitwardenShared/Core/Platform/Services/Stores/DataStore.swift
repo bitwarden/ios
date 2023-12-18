@@ -22,7 +22,11 @@ class DataStore {
     // MARK: Properties
 
     /// A managed object context which executes on a background queue.
-    private(set) lazy var backgroundContext = persistentContainer.newBackgroundContext()
+    private(set) lazy var backgroundContext: NSManagedObjectContext = {
+        let context = persistentContainer.newBackgroundContext()
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        return context
+    }()
 
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
@@ -71,6 +75,37 @@ class DataStore {
     /// - Parameter userId: The ID of the user associated with the data to delete.
     ///
     func deleteDataForUser(userId: String) async throws {
+        try await deleteAllFolders(userId: userId)
         try await deleteAllPasswordHistory(userId: userId)
+    }
+
+    /// Executes a batch delete request and merges the changes into the background and view contexts.
+    ///
+    /// - Parameter request: The batch delete request to perform.
+    ///
+    func executeBatchDelete(_ request: NSBatchDeleteRequest) async throws {
+        try await backgroundContext.perform {
+            try self.backgroundContext.executeAndMergeChanges(
+                batchDeleteRequest: request,
+                additionalContexts: [self.persistentContainer.viewContext]
+            )
+        }
+    }
+
+    /// Executes a batch delete and batch insert request and merges the changes into the background
+    /// and view contexts.
+    ///
+    /// - Parameters:
+    ///   - deleteRequest: The batch delete request to perform.
+    ///   - insertRequest: The batch insert request to perform.
+    ///
+    func executeBatchReplace(deleteRequest: NSBatchDeleteRequest, insertRequest: NSBatchInsertRequest) async throws {
+        try await backgroundContext.perform {
+            try self.backgroundContext.executeAndMergeChanges(
+                batchDeleteRequest: deleteRequest,
+                batchInsertRequest: insertRequest,
+                additionalContexts: [self.persistentContainer.viewContext]
+            )
+        }
     }
 }

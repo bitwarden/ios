@@ -5,9 +5,18 @@ import SwiftUI
 /// A protocol that defines an object that can be represented and selected in
 /// a `BitwardenMenuField`.
 protocol Menuable: Equatable, Hashable {
+    ///  The custom localizable title value for this default case, defaults to  `Default`.
+    static var defaultValueLocalizedName: String { get }
+
     /// A localized name value. This value is displayed in the Menu when the user
     /// is making a selection between multiple options.
     var localizedName: String { get }
+}
+
+extension Menuable {
+    static var defaultValueLocalizedName: String {
+        Localizations.default
+    }
 }
 
 // MARK: - BitwardenMenuField

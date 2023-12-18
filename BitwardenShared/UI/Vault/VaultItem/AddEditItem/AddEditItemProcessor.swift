@@ -79,6 +79,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             } else {
                 presentReplacementAlert(for: .username)
             }
+        case let .identityFieldChanged(action):
+            updateIdentityState(&state, for: action)
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
         case .morePressed:
@@ -118,6 +120,53 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
 
     // MARK: Private Methods
 
+    /// Receives an `AddEditIdentityItem` action from the `AddEditIdentityView` view's store, and updates
+    /// the `AddEditIdentityState`.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditItemState` to be updated.
+    ///   - action: The `AddEditIdentityItemAction` received.
+    private func updateIdentityState(_ state: inout AddEditItemState, for action: AddEditIdentityItemAction) {
+        switch action {
+        case let .firstNameChanged(firstName):
+            state.identityState.firstName = firstName
+        case let .middleNameChanged(middleName):
+            state.identityState.middleName = middleName
+        case let .titleChanged(title):
+            state.identityState.title = title
+        case let .lastNameChanged(lastName):
+            state.identityState.lastName = lastName
+        case let .userNameChanged(userName):
+            state.identityState.userName = userName
+        case let .companyChanged(company):
+            state.identityState.company = company
+        case let .socialSecurityNumberChanged(ssn):
+            state.identityState.socialSecurityNumber = ssn
+        case let .passportNumberChanged(passportNumber):
+            state.identityState.passportNumber = passportNumber
+        case let .licenseNumberChanged(licenseNumber):
+            state.identityState.licenseNumber = licenseNumber
+        case let .emailChanged(email):
+            state.identityState.email = email
+        case let .phoneNumberChanged(phoneNumber):
+            state.identityState.phone = phoneNumber
+        case let .address1Changed(address1):
+            state.identityState.address1 = address1
+        case let .address2Changed(address2):
+            state.identityState.address2 = address2
+        case let .address3Changed(address3):
+            state.identityState.address3 = address3
+        case let .cityOrTownChanged(cityOrTown):
+            state.identityState.cityOrTown = cityOrTown
+        case let .stateChanged(stateProvince):
+            state.identityState.state = stateProvince
+        case let .postalCodeChanged(postalCode):
+            state.identityState.postalCode = postalCode
+        case let .countryChanged(country):
+            state.identityState.country = country
+        }
+    }
+
     /// Checks the password currently stored in `state`.
     ///
     private func checkPassword() async {
@@ -150,7 +199,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         // TODO: BIT-368 Navigate to an `.alert` route with the custom field alert
     }
 
-    /// Builds and navigates ot an alert for overwriting an existing value for the specified type.
+    /// Builds and navigates to an alert for overwriting an existing value for the specified type.
     ///
     /// - Parameter type: The `GeneratorType` that is being overwritten.
     ///
