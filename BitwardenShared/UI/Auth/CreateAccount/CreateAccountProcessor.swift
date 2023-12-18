@@ -131,7 +131,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     ///
     /// - Parameter captchaToken: The token returned when the captcha flow has completed.
     ///
-    private func createAccount(captchaToken: String? = nil) async { // swiftlint:disable:this function_body_length
+    private func createAccount(captchaToken: String? = nil) async {
+        // swiftlint:disable:previous function_body_length cyclomatic_complexity
         do {
             let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             guard !email.isEmpty else {
