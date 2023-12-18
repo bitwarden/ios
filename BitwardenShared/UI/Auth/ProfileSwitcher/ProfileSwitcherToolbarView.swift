@@ -36,6 +36,7 @@ struct ProfileSwitcherToolbarView: View {
                 EmptyView()
             }
         }
+        .accessibilityLabel(Localizations.account)
     }
 }
 
