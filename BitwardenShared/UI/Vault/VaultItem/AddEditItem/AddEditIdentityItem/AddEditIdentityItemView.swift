@@ -30,7 +30,6 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.firstNameChanged
                 )
             )
-            .textFieldConfiguration(.username)
 
             BitwardenTextField(
                 title: Localizations.middleName,
@@ -39,7 +38,6 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.middleNameChanged
                 )
             )
-            .textFieldConfiguration(.username)
 
             BitwardenTextField(
                 title: Localizations.lastName,
@@ -48,7 +46,6 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.lastNameChanged
                 )
             )
-            .textFieldConfiguration(.username)
 
             BitwardenTextField(
                 title: Localizations.username,
