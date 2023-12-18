@@ -12,6 +12,7 @@ struct CipherItemState: Equatable {
     enum Configuration: Equatable {
         /// A case for new ciphers.
         case add
+
         /// A case to view or edit an existing cipher.
         case existing(cipherView: CipherView)
 
