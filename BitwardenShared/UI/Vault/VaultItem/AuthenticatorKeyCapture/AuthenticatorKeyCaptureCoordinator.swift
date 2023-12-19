@@ -1,34 +1,34 @@
 import AVFoundation
 import SwiftUI
 
-// MARK: - ScanCodeCoordinatorDelegate
+// MARK: - AuthenticatorKeyCaptureDelegate
 
-/// An object that is signaled when specific circumstances in the generator flow have been
+/// An object that is signaled when specific circumstances in the scan flow have been
 /// encountered.
 ///
 @MainActor
-protocol ScanCodeCoordinatorDelegate: AnyObject {
+protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     /// Called when the scan flow has been completed.
     ///
     /// - Parameter value: The code value that was captured.
     ///
-    func didCompleteScan(with value: String)
+    func didCompleteCapture(with value: String)
 }
 
-// MARK: - ScanCodeCoordinator
+// MARK: - AuthenticatorKeyCaptureCoordinator
 
 /// A coordinator that manages navigation in the generator tab.
 ///
-final class ScanCodeCoordinator: Coordinator, HasStackNavigator {
+final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
-        & HasCameraService
+    typealias Services = HasCameraService
+        & HasErrorReporter
 
     // MARK: Private Properties
 
     /// A delegate that responds to events in this coordinator.
-    private weak var delegate: ScanCodeCoordinatorDelegate?
+    private weak var delegate: AuthenticatorKeyCaptureDelegate?
 
     // MARK: Properties
 
@@ -40,7 +40,7 @@ final class ScanCodeCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Initialization
 
-    /// Creates a new `ScanCodeCoordinator`.
+    /// Creates a new `AuthenticatorKeyCaptureCoordinator`.
     ///
     /// - Parameters:
     ///   - delegate: An optional delegate that responds to events in this coordinator.
@@ -48,7 +48,7 @@ final class ScanCodeCoordinator: Coordinator, HasStackNavigator {
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
-        delegate: ScanCodeCoordinatorDelegate?,
+        delegate: AuthenticatorKeyCaptureDelegate?,
         services: Services,
         stackNavigator: StackNavigator
     ) {
@@ -62,7 +62,7 @@ final class ScanCodeCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: ScanCodeRoute, context: AnyObject?) {
         switch route {
         case let .complete(value):
-            delegate?.didCompleteScan(with: value.content)
+            delegate?.didCompleteCapture(with: value.content)
         case .dismiss:
             stackNavigator.dismiss()
         case .scanCode:

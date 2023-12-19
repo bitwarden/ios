@@ -4,13 +4,13 @@ import XCTest
 
 @testable import BitwardenShared
 
-class ScanCodeCoordinatorTests: BitwardenTestCase {
+class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraService: MockCameraService!
-    var delegate: MockScanCodeCoordinatorDelegate!
+    var delegate: MockAuthenticatorKeyCaptureDelegate!
     var stackNavigator: MockStackNavigator!
-    var subject: ScanCodeCoordinator!
+    var subject: AuthenticatorKeyCaptureCoordinator!
 
     // MARK: Setup & Teardown
 
@@ -18,10 +18,10 @@ class ScanCodeCoordinatorTests: BitwardenTestCase {
         super.setUp()
 
         cameraService = MockCameraService()
-        delegate = MockScanCodeCoordinatorDelegate()
+        delegate = MockAuthenticatorKeyCaptureDelegate()
         stackNavigator = MockStackNavigator()
 
-        subject = ScanCodeCoordinator(
+        subject = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 cameraService: cameraService
@@ -54,8 +54,8 @@ class ScanCodeCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_complete() {
         let result = ScanResult(content: "example.com", codeType: .qr)
         subject.navigate(to: .complete(value: result))
-        XCTAssertTrue(delegate.didCompleteScanCalled)
-        XCTAssertEqual(delegate.didCompleteScanValue, "example.com")
+        XCTAssertTrue(delegate.didCompleteCaptureCalled)
+        XCTAssertEqual(delegate.didCompleteCaptureValue, "example.com")
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
@@ -110,20 +110,20 @@ class ScanCodeCoordinatorTests: BitwardenTestCase {
     }
 }
 
-// MARK: - MockScanCodeCoordinatorDelegate
+// MARK: - MockAuthenticatorKeyCaptureDelegate
 
-class MockScanCodeCoordinatorDelegate: ScanCodeCoordinatorDelegate {
+class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     var didCancelScanCalled = false
 
-    var didCompleteScanCalled = false
-    var didCompleteScanValue: String?
+    var didCompleteCaptureCalled = false
+    var didCompleteCaptureValue: String?
 
     func didCancelScan() {
         didCancelScanCalled = true
     }
 
-    func didCompleteScan(with value: String) {
-        didCompleteScanCalled = true
-        didCompleteScanValue = value
+    func didCompleteCapture(with value: String) {
+        didCompleteCaptureCalled = true
+        didCompleteCaptureValue = value
     }
 }
