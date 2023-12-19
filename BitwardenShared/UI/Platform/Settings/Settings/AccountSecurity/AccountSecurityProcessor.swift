@@ -131,7 +131,7 @@ final class AccountSecurityProcessor: StateProcessor<
         }))
     }
 
-    /// Shows an alert prompting the user to enter their PIN. If done successfully, the toggle will be turned on.
+    /// Shows an alert prompting the user to enter their PIN. If set successfully, the toggle will be turned on.
     ///
     /// - Parameter isOn: Whether or not the toggle value is true or false.
     ///
