@@ -105,6 +105,10 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             state.loginState.isPasswordVisible = newValue
         case let .toastShown(newValue):
             state.toast = newValue
+        case let .totpKeyChanged(newValue):
+            state.loginState.totpKey = (newValue != nil)
+                ? TOTPCodeConfig(authenticatorKey: newValue!)
+                : nil
         case let .typeChanged(newValue):
             state.type = newValue
         case let .uriChanged(newValue, index: index):

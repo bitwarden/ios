@@ -265,6 +265,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
     }
 
+    /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
+    func test_receive_clearTOTPKey() {
+        subject.state.loginState.totpKey = .init(authenticatorKey: .base32Key)
+        subject.receive(.totpKeyChanged(nil))
+
+        XCTAssertNil(subject.state.loginState.authenticatorKey)
+    }
+
     /// `receive(_:)` with `.dismiss` navigates to the `.list` route.
     func test_receive_dismiss() {
         subject.receive(.dismissPressed)
