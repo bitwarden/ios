@@ -75,8 +75,7 @@ enum TOTPKey: Equatable {
         } else if key.hasOTPAuthPrefix,
                   let otpAuthModel = OTPAuthModel(otpAuthKey: key) {
             self = .otpAuthUri(otpAuthModel)
-        } else if key.isSteamUri {
-            let keyIndexOffset = key.index(key.startIndex, offsetBy: 8)
+        } else if let keyIndexOffset = key.steamURIKeyIndexOffset {
             let steamKey = String(key.suffix(from: keyIndexOffset))
             self = .steamUri(key: steamKey)
         } else {

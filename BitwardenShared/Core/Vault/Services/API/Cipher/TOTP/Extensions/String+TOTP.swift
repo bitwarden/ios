@@ -11,8 +11,9 @@ extension String {
 
     /// `true` if prefixed with `steam://` and followed by a base 32 string.
     var isSteamUri: Bool {
-        guard lowercased().starts(with: "steam://") else { return false }
-        let keyIndexOffset = index(startIndex, offsetBy: 8)
+        guard let keyIndexOffset = steamURIKeyIndexOffset else {
+            return false
+        }
         let key = String(suffix(from: keyIndexOffset))
         return key.isBase32
     }
@@ -20,5 +21,10 @@ extension String {
     /// `true` if the String begins with "otpauth://"
     var hasOTPAuthPrefix: Bool {
         lowercased().starts(with: "otpauth://")
+    }
+
+    var steamURIKeyIndexOffset: String.Index? {
+        guard lowercased().starts(with: "steam://") else { return nil }
+        return index(startIndex, offsetBy: 8)
     }
 }
