@@ -222,6 +222,11 @@ class ViewItemViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .tallPortrait2)
     }
 
+    func test_snapshot_identity_withAllValues_largeText() {
+        processor.state.loadingState = .data(identityState())
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
+    }
+
     func test_snapshot_login_withAllValues() {
         processor.state.loadingState = .data(loginState())
         assertSnapshot(of: subject, as: .tallPortrait)
