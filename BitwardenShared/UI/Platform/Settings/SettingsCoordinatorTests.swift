@@ -114,6 +114,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(delegate.didLogoutCalled)
     }
 
+    /// `navigate(to:)` with `.folders` pushes the folders view onto the stack navigator.
+    func test_navigateTo_folders() throws {
+        subject.navigate(to: .folders)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<FoldersView>)
+    }
+
     /// `navigate(to:)` with `.other` pushes the other view onto the stack navigator.
     func test_navigateTo_other() throws {
         subject.navigate(to: .other)

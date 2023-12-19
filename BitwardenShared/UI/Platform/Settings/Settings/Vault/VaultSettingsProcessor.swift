@@ -29,8 +29,7 @@ final class VaultSettingsProcessor: StateProcessor<Void, VaultSettingsAction, Vo
             // TODO: BIT-749
             break
         case .foldersTapped:
-            // TODO: BIT-434
-            break
+            coordinator.navigate(to: .folders)
         case .importItemsTapped:
             // TODO: BIT-977
             break

@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Combine
 import Foundation
 
@@ -31,6 +32,11 @@ protocol SettingsRepository: AnyObject {
     ///     Defaults to active account if nil.
     ///
     func unlockVault(userId: String?) async
+
+    // MARK: Publishers
+
+    /// The publisher to keep track of the list of the user's current folders.
+    func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>>
 }
 
 // MARK: - DefaultSettingsRepository
@@ -40,29 +46,41 @@ protocol SettingsRepository: AnyObject {
 class DefaultSettingsRepository {
     // MARK: Properties
 
+    /// The client used by the application to handle vault encryption and decryption tasks.
+    private let clientVault: ClientVaultService
+
     /// The service used by the application to manage account state.
-    let stateService: StateService
+    private let stateService: StateService
+
+    /// The service used to manage syncing and updates to the user's folders.
+    private let folderService: FolderService
 
     /// The service used to handle syncing vault data with the API.
     let syncService: SyncService
 
     /// The service used to manage vault access.
-    let vaultTimeoutService: VaultTimeoutService
+    private let vaultTimeoutService: VaultTimeoutService
 
     // MARK: Initialization
 
     /// Initialize a `DefaultSettingsRepository`.
     ///
     /// - Parameters:
+    ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
     init(
+        clientVault: ClientVaultService,
+        folderService: FolderService,
         stateService: StateService,
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
     ) {
+        self.clientVault = clientVault
+        self.folderService = folderService
         self.stateService = stateService
         self.syncService = syncService
         self.vaultTimeoutService = vaultTimeoutService
@@ -90,5 +108,16 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func unlockVault(userId: String?) async {
         await vaultTimeoutService.unlockVault(userId: userId)
+    }
+
+    // MARK: Publishers
+
+    func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>> {
+        try await folderService.foldersPublisher()
+            .asyncTryMap { folders in
+                try await self.clientVault.folders().decryptList(folders: folders)
+            }
+            .eraseToAnyPublisher()
+            .values
     }
 }

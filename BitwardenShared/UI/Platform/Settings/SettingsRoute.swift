@@ -28,6 +28,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route that dismisses the current view.
     case dismiss
 
+    /// A route to view the folders in the vault.
+    case folders
+
     /// A route to the login screen after the vault has been locked.
     ///
     /// - Parameters:

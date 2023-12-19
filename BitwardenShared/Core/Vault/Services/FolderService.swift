@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Combine
 
 // MARK: - FolderService
 
@@ -11,6 +12,14 @@ protocol FolderService {
     ///   - userId: The user ID associated with the folders.
     ///
     func replaceFolders(_ folders: [FolderResponseModel], userId: String) async throws
+
+    // MARK: Publishers
+
+    /// A publisher for the list of folders.
+    ///
+    /// - Returns: The list of encrypted folders.
+    ///
+    func foldersPublisher() async throws -> AnyPublisher<[Folder], Error>
 }
 
 // MARK: - DefaultFolderService
@@ -41,5 +50,10 @@ class DefaultFolderService: FolderService {
 extension DefaultFolderService {
     func replaceFolders(_ folders: [FolderResponseModel], userId: String) async throws {
         try await folderDataStore.replaceFolders(folders.map(Folder.init), userId: userId)
+    }
+
+    func foldersPublisher() async throws -> AnyPublisher<[Folder], Error> {
+        let userID = try await stateService.getActiveAccountId()
+        return folderDataStore.folderPublisher(userId: userID)
     }
 }

@@ -195,6 +195,8 @@ public class ServiceContainer: Services {
         )
 
         let settingsRepository = DefaultSettingsRepository(
+            clientVault: clientService.clientVault(),
+            folderService: folderService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
