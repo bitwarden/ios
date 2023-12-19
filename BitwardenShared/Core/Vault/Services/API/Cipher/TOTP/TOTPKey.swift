@@ -51,12 +51,11 @@ enum TOTPKey: Equatable {
     /// For `otpAuthUri`, extracts the period from the model.
     var period: Int {
         switch self {
-        case .base32:
+        case .base32,
+             .steamUri:
             return 30
         case let .otpAuthUri(model):
             return model.period
-        case .steamUri:
-            return 30
         }
     }
 
@@ -74,8 +73,7 @@ enum TOTPKey: Equatable {
         } else if key.hasOTPAuthPrefix,
                   let otpAuthModel = OTPAuthModel(otpAuthKey: key) {
             self = .otpAuthUri(otpAuthModel)
-        } else if key.isSteamUri {
-            let keyIndexOffset = key.index(key.startIndex, offsetBy: 8)
+        } else if let keyIndexOffset = key.steamURIKeyIndexOffset {
             let steamKey = String(key.suffix(from: keyIndexOffset))
             self = .steamUri(key: steamKey)
         } else {

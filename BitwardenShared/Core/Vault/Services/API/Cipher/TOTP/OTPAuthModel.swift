@@ -4,11 +4,25 @@ import Foundation
 ///
 /// This model includes the Base32-encoded key, the period, the number of digits, and the hashing algorithm.
 struct OTPAuthModel: Equatable {
+    /// The Base32-encoded key used for generating the OTP.
     let keyB32: String
+
+    /// The time period in seconds for which the OTP is valid.
     let period: Int
+
+    /// The number of digits in the OTP.
     let digits: Int
+
+    /// The hashing algorithm used for generating the OTP.
     let algorithm: TOTPCryptoHashAlgorithm
 
+    /// Initializes a new instance of `OTPAuthModel`.
+    ///
+    /// - Parameters:
+    ///   - keyB32: The Base32-encoded key.
+    ///   - period: The time period in seconds for which the OTP is valid.
+    ///   - digits: The number of digits in the OTP.
+    ///   - algorithm: The hashing algorithm used for generating the OTP.
     init(keyB32: String, period: Int, digits: Int, algorithm: TOTPCryptoHashAlgorithm) {
         self.keyB32 = keyB32
         self.period = period

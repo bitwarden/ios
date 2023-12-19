@@ -149,6 +149,7 @@ protocol HasSystemDevice {
 /// Protocol for an object that provides a `TOTPService`.
 ///
 protocol HasTOTPService {
+    /// A service used to validate authentication keys and generate TOTP codes.
     var totpService: TOTPService { get }
 }
 
