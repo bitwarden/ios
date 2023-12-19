@@ -24,6 +24,19 @@ extension AttachmentRequestModel {
     }
 }
 
+extension AttachmentResponseModel {
+    init(attachment: BitwardenSdk.Attachment) {
+        self.init(
+            fileName: attachment.fileName,
+            id: attachment.id,
+            key: attachment.key,
+            size: attachment.size,
+            sizeName: attachment.sizeName,
+            url: attachment.url
+        )
+    }
+}
+
 extension CipherCardModel {
     init(card: BitwardenSdk.Card) {
         self.init(
@@ -33,6 +46,37 @@ extension CipherCardModel {
             expMonth: card.expMonth,
             expYear: card.expYear,
             number: card.number
+        )
+    }
+}
+
+extension CipherDetailsResponseModel {
+    init(cipher: BitwardenSdk.Cipher) throws {
+        guard let id = cipher.id else { throw DataMappingError.invalidData }
+        self.init(
+            attachments: cipher.attachments?.map(AttachmentResponseModel.init),
+            card: cipher.card.map(CipherCardModel.init),
+            collectionIds: cipher.collectionIds,
+            creationDate: cipher.creationDate,
+            deletedDate: cipher.deletedDate,
+            edit: cipher.edit,
+            favorite: cipher.favorite,
+            fields: cipher.fields?.map(CipherFieldModel.init),
+            folderId: cipher.folderId,
+            id: id,
+            identity: cipher.identity.map(CipherIdentityModel.init),
+            key: cipher.key,
+            login: cipher.login.map(CipherLoginModel.init),
+            name: cipher.name,
+            notes: cipher.notes,
+            organizationId: cipher.organizationId,
+            organizationUseTotp: cipher.organizationUseTotp,
+            passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
+            reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
+            revisionDate: cipher.revisionDate,
+            secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
+            type: BitwardenShared.CipherType(type: cipher.type),
+            viewPassword: cipher.viewPassword
         )
     }
 }
@@ -215,6 +259,13 @@ extension BitwardenSdk.Card {
 }
 
 extension BitwardenSdk.Cipher {
+    init(cipherData: CipherData) throws {
+        guard let model = cipherData.model else {
+            throw DataMappingError.invalidData
+        }
+        self.init(responseModel: model)
+    }
+
     init(responseModel model: CipherDetailsResponseModel) {
         self.init(
             id: model.id,
