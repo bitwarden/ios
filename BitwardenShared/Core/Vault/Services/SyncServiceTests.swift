@@ -81,9 +81,8 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].method, .get)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/sync")
 
-        let lastSyncTime = try await stateService.getLastSyncTime()
         try XCTAssertEqual(
-            XCTUnwrap(lastSyncTime).timeIntervalSince1970,
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]).timeIntervalSince1970,
             Date().timeIntervalSince1970,
             accuracy: 1
         )
