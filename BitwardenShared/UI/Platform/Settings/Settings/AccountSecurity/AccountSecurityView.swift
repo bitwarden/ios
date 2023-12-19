@@ -70,7 +70,7 @@ struct AccountSecurityView: View {
                 SettingsListItem(Localizations.twoStepLogin) {
                     store.send(.twoStepLoginPressed)
                 } trailingContent: {
-                    Image(asset: Asset.Images.externalLink)
+                    Image(asset: Asset.Images.externalLink2)
                         .resizable()
                         .frame(width: 22, height: 22)
                 }

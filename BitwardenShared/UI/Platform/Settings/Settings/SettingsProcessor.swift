@@ -33,6 +33,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
 
     override func receive(_ action: SettingsAction) {
         switch action {
+        case .aboutPressed:
+            coordinator.navigate(to: .about)
         case .accountSecurityPressed:
             coordinator.navigate(to: .accountSecurity)
         case .autoFillPressed:
