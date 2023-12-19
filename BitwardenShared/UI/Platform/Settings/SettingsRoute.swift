@@ -1,6 +1,9 @@
 /// A route to a specific screen in the settings tab.
 ///
 public enum SettingsRoute: Equatable, Hashable {
+    /// A route to the about view.
+    case about
+
     /// A route to the account security screen.
     case accountSecurity
 

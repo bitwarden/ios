@@ -59,7 +59,9 @@ struct SettingsView: View {
                 chevron
             }
 
-            SettingsListItem(Localizations.about, hasDivider: false) {} trailingContent: {
+            SettingsListItem(Localizations.about, hasDivider: false) {
+                store.send(.aboutPressed)
+            } trailingContent: {
                 chevron
             }
         }
