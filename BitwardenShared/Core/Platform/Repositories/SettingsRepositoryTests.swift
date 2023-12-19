@@ -53,6 +53,23 @@ class SettingsRepositoryTests: BitwardenTestCase {
         }
     }
 
+    /// `lastSyncTimePublisher` returns a publisher of the user's last sync time.
+    func test_lastSyncTimePublisher() async throws {
+        var iterator = try await subject.lastSyncTimePublisher().makeAsyncIterator()
+        let initialValue = await iterator.next()
+        try XCTAssertNil(XCTUnwrap(initialValue))
+
+        let initialDate = Date(year: 2023, month: 12, day: 1)
+        stateService.lastSyncTimeSubject.value = initialDate
+        var lastSyncTime = await iterator.next()
+        try XCTAssertEqual(XCTUnwrap(lastSyncTime), initialDate)
+
+        let updatedDate = Date(year: 2023, month: 12, day: 4)
+        stateService.lastSyncTimeSubject.value = updatedDate
+        lastSyncTime = await iterator.next()
+        try XCTAssertEqual(XCTUnwrap(lastSyncTime), updatedDate)
+    }
+
     /// `lockVault(userId:)` passes a user id to be locked.
     func test_lockVault_unknownUserId() {
         let task = Task {

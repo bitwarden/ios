@@ -1,5 +1,6 @@
 import BitwardenSdk
 import Combine
+import Foundation
 
 // MARK: - SyncService
 
@@ -116,6 +117,8 @@ extension DefaultSyncService {
         try await folderService.replaceFolders(response.folders, userId: userId)
 
         syncResponseSubject.value = response
+
+        try await stateService.setLastSyncTime(Date(), userId: userId)
     }
 
     func syncResponsePublisher() -> AnyPublisher<SyncResponseModel?, Never> {

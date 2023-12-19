@@ -80,6 +80,12 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].method, .get)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/sync")
+
+        try XCTAssertEqual(
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]).timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
     }
 
     /// `fetchSync()` replaces the list of the user's collections.

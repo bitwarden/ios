@@ -1,9 +1,18 @@
+import Combine
+import Foundation
+
 /// A protocol for a `SettingsRepository` which manages access to the data needed by the UI layer.
 ///
 protocol SettingsRepository: AnyObject {
     /// Updates the user's vault by syncing it with the API.
     ///
     func fetchSync() async throws
+
+    /// A publisher for the last sync time.
+    ///
+    /// - Returns: A publisher for the last sync time.
+    ///
+    func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>>
 
     /// Locks the user's vault and clears decrypted data from memory.
     ///
@@ -65,6 +74,10 @@ class DefaultSettingsRepository {
 extension DefaultSettingsRepository: SettingsRepository {
     func fetchSync() async throws {
         try await syncService.fetchSync()
+    }
+
+    func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>> {
+        try await stateService.lastSyncTimePublisher().values
     }
 
     func lockVault(userId: String?) async {
