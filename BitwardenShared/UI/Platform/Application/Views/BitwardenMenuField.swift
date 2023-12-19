@@ -73,6 +73,11 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
                 Spacer()
             }
             .contentShape(Rectangle())
+            .transaction { transaction in
+                // Prevents any downstream animations from rendering a fade animation
+                // on this label.
+                transaction.animation = nil
+            }
         }
         .styleGuide(.body)
         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)

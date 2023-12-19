@@ -35,6 +35,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `navigate(to:)` with `.about` pushes the about view onto the stack navigator.
+    func test_navigateTo_about() throws {
+        subject.navigate(to: .about)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<AboutView>)
+    }
+
     /// `navigate(to:)` with `.accountSecurity` pushes the account security view onto the stack navigator.
     func test_navigateTo_accountSecurity() throws {
         subject.navigate(to: .accountSecurity)
