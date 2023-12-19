@@ -53,15 +53,15 @@ struct AddEditLoginItemView: View {
 
     /// The view for TOTP authenticator key..
     @ViewBuilder private var totpView: some View {
-        if let key = store.state.authenticatorKey {
-            BitwardenField(
+        if let key = store.state.authenticatorKey,
+           !key.isEmpty {
+            BitwardenTextField(
                 title: Localizations.authenticatorKey,
-                content: {
-                    Text(key)
-                        .styleGuide(.body)
-                        .lineLimit(1)
-                },
-                accessoryContent: {
+                text: store.binding(
+                    get: { _ in key },
+                    send: AddEditItemAction.totpKeyChanged
+                ),
+                trailingContent: {
                     AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
                         await store.perform(.copyTotpPressed)
                     }
