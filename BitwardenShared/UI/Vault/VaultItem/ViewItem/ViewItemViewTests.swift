@@ -119,8 +119,36 @@ class ViewItemViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    func identityState() -> CipherItemState {
+        var cipherState = CipherItemState(existing: .fixture(id: "1234", name: "identity example", type: .identity))!
+        cipherState.folder = "Folder"
+        cipherState.notes = "This is a long note so that it goes to the next line!"
+        cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
+        cipherState.identityState = .fixture(
+            title: .custom(.dr),
+            firstName: "First",
+            lastName: "Last",
+            middleName: "Middle",
+            userName: "userName",
+            company: "Company name",
+            socialSecurityNumber: "12-345-6789",
+            passportNumber: "passport #",
+            licenseNumber: "license #",
+            email: "hello@email.com",
+            phone: "(123) 456-7890",
+            address1: "123 street",
+            address2: "address2",
+            address3: "address3",
+            cityOrTown: "City",
+            state: "State",
+            postalCode: "1234",
+            country: "country"
+        )
+        return cipherState
+    }
+
     func loginState() -> CipherItemState { // swiftlint:disable:this function_body_length
-        var cipherState = CipherItemState(existing: .loginFixture())!
+        var cipherState = CipherItemState(existing: .fixture(id: "fake-id"))!
         cipherState.folder = "Folder"
         cipherState.loginState.isPasswordVisible = true
         cipherState.name = "Example"
@@ -187,6 +215,16 @@ class ViewItemViewTests: BitwardenTestCase {
             ),
         ]
         return cipherState
+    }
+
+    func test_snapshot_identity_withAllValues() {
+        processor.state.loadingState = .data(identityState())
+        assertSnapshot(of: subject, as: .tallPortrait2)
+    }
+
+    func test_snapshot_identity_withAllValues_largeText() {
+        processor.state.loadingState = .data(identityState())
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
     }
 
     func test_snapshot_login_withAllValues() {
