@@ -27,4 +27,15 @@
         <attribute name="password" attributeType="String"/>
         <attribute name="userId" attributeType="String"/>
     </entity>
+    <entity name="SendData" representedClassName=".SendData" syncable="YES">
+        <attribute name="id" attributeType="String"/>
+        <attribute name="modelData" attributeType="Binary"/>
+        <attribute name="userId" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="userId"/>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
 </model>

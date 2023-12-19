@@ -1,8 +1,11 @@
+// swiftlint:disable:this file_name
+
+import BitwardenSdk
 import Foundation
 
 @testable import BitwardenShared
 
-extension SendResponseModel {
+extension Send {
     static func fixture(
         accessCount: UInt32 = 0,
         accessId: String = "ACCESS_ID",
@@ -19,25 +22,25 @@ extension SendResponseModel {
         password: String? = nil,
         revisionDate: Date = Date(),
         text: SendTextModel? = nil,
-        type: SendType = .text
-    ) -> SendResponseModel {
+        type: BitwardenShared.SendType = .text
+    ) -> Send {
         self.init(
-            accessCount: accessCount,
-            accessId: accessId,
-            deletionDate: deletionDate,
-            disabled: disabled,
-            expirationDate: expirationDate,
-            file: file,
-            hideEmail: hideEmail,
             id: id,
-            key: key,
-            maxAccessCount: maxAccessCount,
+            accessId: accessId,
             name: name,
             notes: notes,
+            key: key,
             password: password,
+            type: SendType(type: type),
+            file: file.map(SendFile.init),
+            text: text.map(SendText.init),
+            maxAccessCount: maxAccessCount,
+            accessCount: accessCount,
+            disabled: disabled,
+            hideEmail: hideEmail,
             revisionDate: revisionDate,
-            text: text,
-            type: type
+            deletionDate: deletionDate,
+            expirationDate: expirationDate
         )
     }
 }
