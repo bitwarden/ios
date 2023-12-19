@@ -11,7 +11,6 @@ struct ViewIdentityItemView: View {
     @ObservedObject var store: Store<IdentityItemState, ViewItemAction, Void>
 
     var body: some View {
-
         if !store.state.identityName.isEmpty {
             BitwardenTextValueField(title: Localizations.identityName, value: store.state.identityName)
         }

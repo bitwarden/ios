@@ -90,7 +90,7 @@ struct IdentityItemState: Equatable {
         return fullAddress
     }
 
-    /// The combination of  `title`, `firstName`, `middleName` and`lastName` for this item.
+    /// The combination of `title`, `firstName`, `middleName` and`lastName` for this item.
     var identityName: String {
         let names = [firstName, middleName, lastName]
         let title = title == .default ? "" : title.localizedName
