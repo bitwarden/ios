@@ -9,6 +9,7 @@ class SyncServiceTests: BitwardenTestCase {
 
     var client: MockHTTPClient!
     var clientCrypto: MockClientCrypto!
+    var collectionService: MockCollectionService!
     var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
     var stateService: MockStateService!
@@ -21,12 +22,14 @@ class SyncServiceTests: BitwardenTestCase {
 
         client = MockHTTPClient()
         clientCrypto = MockClientCrypto()
+        collectionService = MockCollectionService()
         errorReporter = MockErrorReporter()
         folderService = MockFolderService()
         stateService = MockStateService()
 
         subject = DefaultSyncService(
             clientCrypto: clientCrypto,
+            collectionService: collectionService,
             errorReporter: errorReporter,
             folderService: folderService,
             stateService: stateService,
@@ -39,6 +42,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         client = nil
         clientCrypto = nil
+        collectionService = nil
         errorReporter = nil
         folderService = nil
         stateService = nil
@@ -76,6 +80,31 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].method, .get)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/sync")
+    }
+
+    /// `fetchSync()` replaces the list of the user's collections.
+    func test_fetchSync_collections() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync()
+
+        XCTAssertEqual(
+            collectionService.replaceCollectionsCollections,
+            [
+                CollectionDetailsResponseModel.fixture(
+                    id: "f96de98e-618a-4886-b396-66b92a385325",
+                    name: "Engineering",
+                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
+                ),
+                CollectionDetailsResponseModel.fixture(
+                    id: "a468e453-7141-49cf-bb15-58448c2b27b9",
+                    name: "Design",
+                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
+                ),
+            ]
+        )
+        XCTAssertEqual(collectionService.replaceCollectionsUserId, "1")
     }
 
     /// `fetchSync()` replaces the list of the user's folders.

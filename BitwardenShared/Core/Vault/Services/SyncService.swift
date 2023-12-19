@@ -33,6 +33,9 @@ class DefaultSyncService: SyncService {
     /// The client used by the application to handle encryption and decryption setup tasks.
     let clientCrypto: ClientCryptoProtocol
 
+    /// The service for managing the collections for the user.
+    let collectionService: CollectionService
+
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
@@ -54,6 +57,7 @@ class DefaultSyncService: SyncService {
     ///
     /// - Parameters:
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
+    ///   - collectionService: The service for managing the collections for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service for managing the folders for the user.
     ///   - stateService: The service used by the application to manage account state.
@@ -61,12 +65,14 @@ class DefaultSyncService: SyncService {
     ///
     init(
         clientCrypto: ClientCryptoProtocol,
+        collectionService: CollectionService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
         stateService: StateService,
         syncAPIService: SyncAPIService
     ) {
         self.clientCrypto = clientCrypto
+        self.collectionService = collectionService
         self.errorReporter = errorReporter
         self.folderService = folderService
         self.stateService = stateService
@@ -106,6 +112,7 @@ extension DefaultSyncService {
         let response = try await syncAPIService.getSync()
         await initializeOrganizationCrypto(syncResponse: response)
 
+        try await collectionService.replaceCollections(response.collections, userId: userId)
         try await folderService.replaceFolders(response.folders, userId: userId)
 
         syncResponseSubject.value = response

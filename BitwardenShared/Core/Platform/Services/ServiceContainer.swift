@@ -159,11 +159,13 @@ public class ServiceContainer: Services {
         let dataStore = DataStore(errorReporter: errorReporter)
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
+        let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let folderService = DefaultFolderService(folderDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
         let syncService = DefaultSyncService(
             clientCrypto: clientService.clientCrypto(),
+            collectionService: collectionService,
             errorReporter: errorReporter,
             folderService: folderService,
             stateService: stateService,
