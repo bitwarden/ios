@@ -125,7 +125,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.password = "pa$$w0rd"
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true
-        processor.state.isDeactiveThisSendOn = true
+        processor.state.isDeactivateThisSendOn = true
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 }

@@ -51,10 +51,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.deactivateThisSendChanged` updates the deactivate this send toggle.
     func test_receive_deactivateThisSendChanged() {
-        subject.state.isDeactiveThisSendOn = false
+        subject.state.isDeactivateThisSendOn = false
         subject.receive(.deactivateThisSendChanged(true))
 
-        XCTAssertTrue(subject.state.isDeactiveThisSendOn)
+        XCTAssertTrue(subject.state.isDeactivateThisSendOn)
     }
 
     /// `receive(_:)` with `.deletionDateChanged` updates the deletion date.
