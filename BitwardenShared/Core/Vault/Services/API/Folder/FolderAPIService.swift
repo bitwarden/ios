@@ -12,6 +12,16 @@ protocol FolderAPIService {
     /// - Returns: Data returned from the `AddFolderRequest`.
     ///
     func addFolder(name: String) async throws -> FolderResponseModel
+
+    /// Edit an existing folder.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the folder to edit.
+    ///   - name: The new name of the folder.
+    ///
+    /// - Returns: Data returned from the `AddFolderRequest`.
+    ///
+    func editFolder(withID id: String, name: String) async throws -> FolderResponseModel
 }
 
 // MARK: - APIService
@@ -19,5 +29,9 @@ protocol FolderAPIService {
 extension APIService: FolderAPIService {
     func addFolder(name: String) async throws -> FolderResponseModel {
         try await apiService.send(AddFolderRequest(name: name))
+    }
+
+    func editFolder(withID id: String, name: String) async throws -> FolderResponseModel {
+        try await apiService.send(EditFolderRequest(id: id, name: name))
     }
 }
