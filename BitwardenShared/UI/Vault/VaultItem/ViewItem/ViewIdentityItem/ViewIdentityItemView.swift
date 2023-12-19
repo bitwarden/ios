@@ -11,11 +11,9 @@ struct ViewIdentityItemView: View {
     @ObservedObject var store: Store<IdentityItemState, ViewItemAction, Void>
 
     var body: some View {
-        let names = [store.state.firstName, store.state.middleName, store.state.lastName]
-        if store.state.title != .default || names.contains(where: { !$0.isEmpty }) {
-            let title = store.state.title == .default ? "" : store.state.title.localizedName
-            let identityName = ([title] + names).filter { !$0.isEmpty }.joined(separator: " ")
-            BitwardenTextValueField(title: Localizations.identityName, value: identityName)
+
+        if !store.state.identityName.isEmpty {
+            BitwardenTextValueField(title: Localizations.identityName, value: store.state.identityName)
         }
 
         if !store.state.userName.isEmpty {
@@ -46,39 +44,8 @@ struct ViewIdentityItemView: View {
             BitwardenTextValueField(title: Localizations.phone, value: store.state.phone)
         }
 
-        let addresses = [
-            store.state.address1,
-            store.state.address2,
-            store.state.address3,
-            store.state.cityOrTown,
-            store.state.state,
-            store.state.postalCode,
-            store.state.country,
-        ]
-        if addresses.contains(where: { !$0.isEmpty }) {
-            let streets = [
-                store.state.address1,
-                store.state.address2,
-                store.state.address3,
-            ]
-            .filter { !$0.isEmpty }
-            .joined(separator: "\n")
-            let cityStateZipCode = [
-                store.state.cityOrTown,
-                store.state.state,
-                store.state.postalCode,
-            ]
-            .filter { !$0.isEmpty }
-            .joined(separator: " ")
-            let fullAddress = [
-                streets,
-                cityStateZipCode,
-                store.state.country,
-            ]
-            .filter { !$0.isEmpty }
-            .joined(separator: "\n")
-
-            BitwardenTextValueField(title: Localizations.address, value: fullAddress)
+        if !store.state.fullAddress.isEmpty {
+            BitwardenTextValueField(title: Localizations.address, value: store.state.fullAddress)
         }
     }
 }

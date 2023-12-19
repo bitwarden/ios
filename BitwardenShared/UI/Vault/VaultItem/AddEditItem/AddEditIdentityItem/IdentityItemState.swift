@@ -61,6 +61,45 @@ struct IdentityItemState: Equatable {
     /// The country for this item.
     var country: String = ""
 
+    /// The full address for this item.
+    var fullAddress: String {
+        let streets = [
+            address1,
+            address2,
+            address3,
+        ]
+        .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        .joined(separator: "\n")
+
+        let cityStateZipCode = [
+            cityOrTown,
+            state,
+            postalCode,
+        ]
+        .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        .joined(separator: ", ")
+
+        let fullAddress = [
+            streets,
+            cityStateZipCode,
+            country,
+        ]
+        .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        .joined(separator: "\n")
+
+        return fullAddress
+    }
+
+    /// The combination of  `title`, `firstName`, `middleName` and`lastName` for this item.
+    var identityName: String {
+        let names = [firstName, middleName, lastName]
+        let title = title == .default ? "" : title.localizedName
+        let identityName = ([title] + names)
+            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .joined(separator: " ")
+        return identityName
+    }
+
     var identityView: IdentityView {
         var titleStr: String?
         if case let .custom(titleType) = title {
