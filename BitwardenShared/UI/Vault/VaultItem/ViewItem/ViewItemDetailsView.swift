@@ -44,6 +44,14 @@ struct ViewItemDetailsView: View {
                         mapEffect: { $0 }
                     )
                 )
+            case .identity:
+                ViewIdentityItemView(
+                    store: store.child(
+                        state: { _ in store.state.identityState },
+                        mapAction: { $0 },
+                        mapEffect: nil
+                    )
+                )
             default:
                 EmptyView()
             }
