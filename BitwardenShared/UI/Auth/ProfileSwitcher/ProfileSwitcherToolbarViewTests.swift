@@ -31,7 +31,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
 
     /// Tapping the view dispatches the `.requestedProfileSwitcher` action.
     func test_tap_currentAccount() throws {
-        let view = try subject.inspect().find(button: "AA")
+        let view = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.account)
         try view.tap()
 
         XCTAssertEqual(

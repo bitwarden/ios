@@ -6,6 +6,7 @@ import Foundation
 enum DefaultableType<T: CaseIterable & Menuable>: CaseIterable, Menuable {
     // MARK: Cases
 
+    /// placeholder default value of the type.
     case `default`
     case custom(T)
 
@@ -20,7 +21,7 @@ enum DefaultableType<T: CaseIterable & Menuable>: CaseIterable, Menuable {
     var localizedName: String {
         switch self {
         case .default:
-            Localizations.default
+            T.defaultValueLocalizedName
         case let .custom(value):
             value.localizedName
         }

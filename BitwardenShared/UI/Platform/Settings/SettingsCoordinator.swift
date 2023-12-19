@@ -74,8 +74,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: SettingsRoute, context: AnyObject?) {
+    func navigate(to route: SettingsRoute, context _: AnyObject?) {
         switch route {
+        case .about:
+            showAbout()
         case .accountSecurity:
             showAccountSecurity()
         case let .alert(alert):
@@ -98,6 +100,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showOtherScreen()
         case .settings:
             showSettings()
+        case .vault:
+            showVault()
         }
     }
 
@@ -106,6 +110,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     }
 
     // MARK: Private Methods
+
+    /// Shows the about screen.
+    ///
+    private func showAbout() {
+        let processor = AboutProcessor(coordinator: asAnyCoordinator(), state: AboutState())
+
+        let view = AboutView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
 
     /// Shows the account security screen.
     ///
@@ -153,6 +168,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     private func showOtherScreen() {
         let processor = OtherSettingsProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: OtherSettingsState()
         )
 
@@ -171,5 +187,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
         let view = SettingsView(store: Store(processor: processor))
         stackNavigator.push(view)
+    }
+
+    /// Shows the vault screen.
+    ///
+    private func showVault() {
+        let processor = VaultSettingsProcessor(coordinator: asAnyCoordinator())
+        let view = VaultSettingsView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
     }
 }

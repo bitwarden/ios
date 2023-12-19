@@ -144,10 +144,13 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is Text)
     }
 
-    /// `navigate(to:)` with `.masterPasswordHint` pushes the master password hint view onto the stack navigator.
-    func test_navigate_masterPasswordHint() {
-        subject.navigate(to: .masterPasswordHint)
-        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
+    /// `navigate(to:)` with `.masterPasswordHint` presents the master password hint view.
+    func test_navigate_masterPasswordHint() throws {
+        subject.navigate(to: .masterPasswordHint(username: "email@example.com"))
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<PasswordHintView>)
     }
 
     /// `navigate(to:)` with `.selfHosted` pushes the self-hosted view onto the stack navigator.

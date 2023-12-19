@@ -398,9 +398,31 @@ extension BitwardenSdk.UriMatchType {
     }
 }
 
+// MARK: Collections
+
+extension CollectionDetailsResponseModel {
+    init(collection: Collection) {
+        self.init(
+            externalId: collection.externalId,
+            hidePasswords: collection.hidePasswords,
+            id: collection.id,
+            name: collection.name,
+            organizationId: collection.organizationId,
+            readOnly: collection.readOnly
+        )
+    }
+}
+
 // MARK: Collections (BitwardenSdk)
 
 extension BitwardenSdk.Collection {
+    init(collectionData: CollectionData) throws {
+        guard let model = collectionData.model else {
+            throw DataMappingError.invalidData
+        }
+        self.init(collectionDetailsResponseModel: model)
+    }
+
     init(collectionDetailsResponseModel model: CollectionDetailsResponseModel) {
         self.init(
             id: model.id,
@@ -421,6 +443,19 @@ extension BitwardenSdk.Folder {
             id: model.id,
             name: model.name,
             revisionDate: model.revisionDate
+        )
+    }
+
+    init(folderData: FolderData) throws {
+        guard let id = folderData.id,
+              let name = folderData.model?.name,
+              let revisionDate = folderData.model?.revisionDate else {
+            throw DataMappingError.invalidData
+        }
+        self.init(
+            id: id,
+            name: name,
+            revisionDate: revisionDate
         )
     }
 }

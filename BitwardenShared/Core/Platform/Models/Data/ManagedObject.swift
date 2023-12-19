@@ -13,21 +13,49 @@ extension ManagedObject where Self: NSManagedObject {
         String(describing: self)
     }
 
+    /// Returns a `NSBatchInsertRequest` for batch inserting an array of objects.
+    ///
+    /// - Parameters:
+    ///   - objects: The objects (or objects that can be converted to managed objects) to insert.
+    ///   - handler: A handler that is called for each object to set the properties on the
+    ///     `NSManagedObject` to insert.
+    /// - Returns: A `NSBatchInsertRequest` for batch inserting an array of objects.
+    ///
+    static func batchInsertRequest<T>(objects: [T], handler: @escaping (Self, T) -> Void) -> NSBatchInsertRequest {
+        var index = 0
+        return NSBatchInsertRequest(entityName: entityName) { (managedObject: NSManagedObject) -> Bool in
+            guard index < objects.count else { return true }
+            defer { index += 1 }
+
+            if let managedObject = (managedObject as? Self) {
+                handler(managedObject, objects[index])
+            }
+
+            return false
+        }
+    }
+
     /// Returns a `NSFetchRequest` for fetching instances of the managed object.
     ///
+    /// - Parameter predicate: An optional predicate to apply to the fetch request.
     /// - Returns: A `NSFetchRequest` used to fetch instances of the managed object.
     ///
-    static func fetchRequest() -> NSFetchRequest<Self> {
-        NSFetchRequest<Self>(entityName: entityName)
+    static func fetchRequest(predicate: NSPredicate? = nil) -> NSFetchRequest<Self> {
+        let fetchRequest = NSFetchRequest<Self>(entityName: entityName)
+        fetchRequest.predicate = predicate
+        return fetchRequest
     }
 
     /// Returns a `NSFetchRequest` for fetching a generic `NSFetchRequestResult` instances of the
     /// managed object.
     ///
+    /// - Parameter predicate: An optional predicate to apply to the fetch request.
     /// - Returns: A `NSFetchRequest` used to fetch generic `NSFetchRequestResult` instances of the
     ///     managed object.
     ///
-    static func fetchResultRequest() -> NSFetchRequest<NSFetchRequestResult> {
-        NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+    static func fetchResultRequest(predicate: NSPredicate? = nil) -> NSFetchRequest<NSFetchRequestResult> {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        fetchRequest.predicate = predicate
+        return fetchRequest
     }
 }
