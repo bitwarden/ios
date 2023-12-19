@@ -29,11 +29,11 @@ class SettingsProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Receiving `.autoFillPressed` navigates to the auto-fill screen.
-    func test_receive_autoFillPressed() {
-        subject.receive(.autoFillPressed)
+    /// Receiving `.aboutPressed` navigates to the about screen.
+    func test_receive_aboutPressed() {
+        subject.receive(.aboutPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .autoFill)
+        XCTAssertEqual(coordinator.routes.last, .about)
     }
 
     /// Receiving `.accountSecurityPressed` navigates to the account security screen.
@@ -43,10 +43,24 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .accountSecurity)
     }
 
+    /// Receiving `.autoFillPressed` navigates to the auto-fill screen.
+    func test_receive_autoFillPressed() {
+        subject.receive(.autoFillPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .autoFill)
+    }
+
     /// Receiving `.otherPressed` navigates to the other screen.
     func test_receive_otherPressed() {
         subject.receive(.otherPressed)
 
         XCTAssertEqual(coordinator.routes.last, .other)
+    }
+
+    /// Receiving `.vaultPressed` navigates to the vault settings screen.
+    func test_receive_vaultPressed() {
+        subject.receive(.vaultPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .vault)
     }
 }
