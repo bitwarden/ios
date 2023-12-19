@@ -7,6 +7,7 @@ class FolderServiceTests: XCTestCase {
     // MARK: Properties
 
     var folderDataStore: MockFolderDataStore!
+    var stateService: MockStateService!
     var subject: FolderService!
 
     // MARK: Setup & Teardown
@@ -15,10 +16,11 @@ class FolderServiceTests: XCTestCase {
         super.setUp()
 
         folderDataStore = MockFolderDataStore()
+        stateService = MockStateService()
 
         subject = DefaultFolderService(
             folderDataStore: folderDataStore,
-            stateService: MockStateService()
+            stateService: stateService
         )
     }
 
@@ -26,6 +28,7 @@ class FolderServiceTests: XCTestCase {
         super.tearDown()
 
         folderDataStore = nil
+        stateService = nil
         subject = nil
     }
 
@@ -42,5 +45,19 @@ class FolderServiceTests: XCTestCase {
 
         XCTAssertEqual(folderDataStore.replaceFoldersValue, folders.map(Folder.init))
         XCTAssertEqual(folderDataStore.replaceFoldersUserId, "1")
+    }
+
+    /// `foldersPublisher()` returns a publisher that emits data as the data store changes.
+    func test_foldersPublisher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        var iterator = try await subject.foldersPublisher().values.makeAsyncIterator()
+        _ = try await iterator.next()
+
+        let folder = Folder.fixture()
+        folderDataStore.folderSubject.value = [folder]
+        let publisherValue = try await iterator.next()
+        try XCTAssertNotNil(XCTUnwrap(publisherValue))
+        try XCTAssertEqual(XCTUnwrap(publisherValue), [folder])
     }
 }

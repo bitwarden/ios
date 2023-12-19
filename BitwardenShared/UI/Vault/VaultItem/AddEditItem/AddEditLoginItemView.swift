@@ -139,6 +139,9 @@ struct AddEditLoginItemView: View {
 
 #if DEBUG
 struct AddEditLoginItemView_Previews: PreviewProvider {
+    // swiftlint:disable:next line_length
+    static let key = "otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example&algorithm=SHA1&digits=6&period=30"
+
     static var previews: some View {
         NavigationView {
             ScrollView {
@@ -165,7 +168,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                         store: Store(
                             processor: StateProcessor(
                                 state: LoginItemState(
-                                    authenticatorKey: "1234"
+                                    totpKey: .init(authenticatorKey: key)
                                 )
                             )
                         )

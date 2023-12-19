@@ -11,7 +11,11 @@ class AddEditLoginItemViewTests: BitwardenTestCase {
         for preview in AddEditLoginItemView_Previews._allPreviews {
             assertSnapshots(
                 matching: preview.content,
-                as: [.tallPortrait]
+                as: [
+                    .defaultPortrait,
+                    .defaultPortraitDark,
+                    .tallPortraitAX5(heightMultiple: 1.5),
+                ]
             )
         }
     }

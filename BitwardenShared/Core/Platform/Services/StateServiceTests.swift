@@ -352,12 +352,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
         try await dataStore.persistentContainer.viewContext.performAndSave {
             let context = self.dataStore.persistentContainer.viewContext
+            _ = try CipherData(context: context, userId: "1", cipher: .fixture(id: UUID().uuidString))
             _ = CollectionData(context: context, userId: "1", collection: .fixture())
             _ = FolderData(
                 context: context,
                 userId: "1",
                 folder: Folder(id: "1", name: "FOLDER1", revisionDate: Date())
             )
+            _ = SendData(context: context, userId: "1", send: .fixture())
         }
 
         try await subject.logoutAccount()
@@ -367,9 +369,11 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
 
         let context = dataStore.persistentContainer.viewContext
+        try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: CollectionData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: FolderData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: SendData.fetchByUserIdRequest(userId: "1")), 0)
     }
 
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to

@@ -6,7 +6,7 @@ extension SendResponseModel {
     static func fixture(
         accessCount: UInt32 = 0,
         accessId: String = "ACCESS_ID",
-        deletionDate: Date,
+        deletionDate: Date = Date(),
         disabled: Bool = false,
         expirationDate: Date? = nil,
         file: SendFileModel? = nil,
@@ -17,7 +17,7 @@ extension SendResponseModel {
         name: String = "Test Send",
         notes: String? = nil,
         password: String? = nil,
-        revisionDate: Date,
+        revisionDate: Date = Date(),
         text: SendTextModel? = nil,
         type: SendType = .text
     ) -> SendResponseModel {

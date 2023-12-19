@@ -73,7 +73,7 @@ extension DataStore: FolderDataStore {
 
     func replaceFolders(_ folders: [Folder], userId: String) async throws {
         let deleteRequest = FolderData.deleteByUserIdRequest(userId: userId)
-        let insertRequest = FolderData.batchInsertRequest(folders: folders, userId: userId)
+        let insertRequest = try FolderData.batchInsertRequest(folders: folders, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
             insertRequest: insertRequest

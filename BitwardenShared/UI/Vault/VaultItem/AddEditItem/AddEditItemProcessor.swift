@@ -11,6 +11,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     typealias Services = HasCameraService
         & HasErrorReporter
         & HasPasteboardService
+        & HasTOTPService
         & HasVaultRepository
 
     // MARK: Properties
@@ -105,7 +106,9 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         case let .toastShown(newValue):
             state.toast = newValue
         case let .totpKeyChanged(newValue):
-            state.loginState.authenticatorKey = newValue
+            state.loginState.totpKey = (newValue != nil)
+                ? TOTPCodeConfig(authenticatorKey: newValue!)
+                : nil
         case let .typeChanged(newValue):
             state.type = newValue
         case let .uriChanged(newValue, index: index):
@@ -302,10 +305,20 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
     }
 }
 
-extension AddEditItemProcessor: ScanCodeCoordinatorDelegate {
-    func didCompleteScan(with value: String) {
-        state.loginState.authenticatorKey = value
-        state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
+    func didCompleteCapture(with value: String) {
         coordinator.navigate(to: .dismiss)
+        parseAuthenticatorKey(value)
+    }
+
+    func parseAuthenticatorKey(_ key: String) {
+        do {
+            state.loginState.totpKey = try services.totpService.getTOTPConfiguration(key: key)
+            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+        } catch {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+            }
+        }
     }
 }

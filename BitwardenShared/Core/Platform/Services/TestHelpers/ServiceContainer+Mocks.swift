@@ -21,6 +21,7 @@ extension ServiceContainer {
         syncService: SyncService = MockSyncService(),
         systemDevice: SystemDevice = MockSystemDevice(),
         tokenService: TokenService = MockTokenService(),
+        totpService: TOTPService = MockTOTPService(),
         twoStepLoginService: TwoStepLoginService = MockTwoStepLoginService(),
         vaultRepository: VaultRepository = MockVaultRepository(),
         vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService()
@@ -45,6 +46,7 @@ extension ServiceContainer {
             syncService: syncService,
             systemDevice: systemDevice,
             tokenService: tokenService,
+            totpService: totpService,
             twoStepLoginService: twoStepLoginService,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService

@@ -19,6 +19,7 @@ typealias Services = HasAccountAPIService
     & HasSettingsRepository
     & HasStateService
     & HasSystemDevice
+    & HasTOTPService
     & HasTwoStepLoginService
     & HasVaultRepository
     & HasVaultTimeoutService
@@ -143,6 +144,13 @@ protocol HasStateService {
 protocol HasSystemDevice {
     /// The object used by the application to retrieve information about this device.
     var systemDevice: SystemDevice { get }
+}
+
+/// Protocol for an object that provides a `TOTPService`.
+///
+protocol HasTOTPService {
+    /// A service used to validate authentication keys and generate TOTP codes.
+    var totpService: TOTPService { get }
 }
 
 /// Protocol for an object that provides a `TwoStepLoginService`.
