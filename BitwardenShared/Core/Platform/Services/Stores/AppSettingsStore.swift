@@ -38,6 +38,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func lastSyncTime(userId: String) -> Date?
 
+    /// Gets the master password hash for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the master password hash.
+    ///
+    func masterPasswordHash(userId: String) -> String?
+
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
@@ -75,6 +81,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the last sync time.
     ///
     func setLastSyncTime(_ date: Date?, userId: String)
+
+    /// Sets the master password hash for a user ID.
+    ///
+    /// - Parameters:
+    ///   - hash: The user's master password hash.
+    ///   - userId: The user ID associated with the master password hash.
+    ///
+    func setMasterPasswordHash(_ hash: String?, userId: String)
 
     /// Sets the password generation options for a user ID.
     ///
@@ -197,6 +211,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case lastSync(userId: String)
+        case masterPasswordHash(userId: String)
         case passwordGenerationOptions(userId: String)
         case preAuthEnvironmentUrls
         case rememberedEmail
@@ -215,6 +230,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "encPrivateKey_\(userId)"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
+            case let .masterPasswordHash(userId):
+                key = "keyHash_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
             case .preAuthEnvironmentUrls:
@@ -265,6 +282,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
+    func masterPasswordHash(userId: String) -> String? {
+        fetch(for: .masterPasswordHash(userId: userId))
+    }
+
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
@@ -283,6 +304,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
+    }
+
+    func setMasterPasswordHash(_ hash: String?, userId: String) {
+        store(hash, for: .masterPasswordHash(userId: userId))
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
