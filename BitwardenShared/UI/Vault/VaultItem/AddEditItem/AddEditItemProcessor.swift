@@ -59,8 +59,6 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
 
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
-        case .clearTOTPKey:
-            state.loginState.authenticatorKey = nil
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
         case let .favoriteChanged(newValue):
@@ -106,6 +104,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             state.loginState.isPasswordVisible = newValue
         case let .toastShown(newValue):
             state.toast = newValue
+        case let .totpKeyChanged(newValue):
+            state.loginState.authenticatorKey = newValue
         case let .typeChanged(newValue):
             state.type = newValue
         case let .uriChanged(newValue, index: index):

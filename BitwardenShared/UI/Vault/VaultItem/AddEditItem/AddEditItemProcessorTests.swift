@@ -236,7 +236,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
     func test_receive_clearTOTPKey() {
         subject.state.loginState.authenticatorKey = "12354"
-        subject.receive(.clearTOTPKey)
+        subject.receive(.totpKeyChanged(nil))
 
         XCTAssertNil(subject.state.loginState.authenticatorKey)
     }
