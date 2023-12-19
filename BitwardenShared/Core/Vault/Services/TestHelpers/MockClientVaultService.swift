@@ -57,7 +57,7 @@ class MockClientCiphers: ClientCiphersProtocol {
 // MARK: - MockClientCollections
 
 class MockClientCollections: ClientCollectionsProtocol {
-    func decrypt(collection: Collection) async throws -> CollectionView {
+    func decrypt(collection _: Collection) async throws -> CollectionView {
         fatalError("Not implemented yet")
     }
 
@@ -69,15 +69,18 @@ class MockClientCollections: ClientCollectionsProtocol {
 // MARK: - MockClientFolders
 
 class MockClientFolders: ClientFoldersProtocol {
+    var decryptedFolders = [Folder]()
+
     func decrypt(folder: Folder) async throws -> FolderView {
         FolderView(folder: folder)
     }
 
     func decryptList(folders: [Folder]) async throws -> [FolderView] {
-        folders.map(FolderView.init)
+        decryptedFolders = folders
+        return folders.map(FolderView.init)
     }
 
-    func encrypt(folder: FolderView) async throws -> Folder {
+    func encrypt(folder _: FolderView) async throws -> Folder {
         fatalError("Not implemented yet")
     }
 }
@@ -100,31 +103,31 @@ class MockClientPasswordHistory: ClientPasswordHistoryProtocol {
 // MARK: - MockClientSends
 
 class MockClientSends: ClientSendsProtocol {
-    func decrypt(send: Send) async throws -> SendView {
+    func decrypt(send _: Send) async throws -> SendView {
         fatalError("Not implemented yet")
     }
 
-    func decryptBuffer(send: Send, buffer: Data) async throws -> Data {
+    func decryptBuffer(send _: Send, buffer _: Data) async throws -> Data {
         fatalError("Not implemented yet")
     }
 
-    func decryptFile(send: Send, encryptedFilePath: String, decryptedFilePath: String) async throws {
+    func decryptFile(send _: Send, encryptedFilePath _: String, decryptedFilePath _: String) async throws {
         fatalError("Not implemented yet")
     }
 
-    func decryptList(sends: [Send]) async throws -> [BitwardenSdk.SendListView] {
+    func decryptList(sends _: [Send]) async throws -> [BitwardenSdk.SendListView] {
         fatalError("Not implemented yet")
     }
 
-    func encrypt(send: SendView) async throws -> Send {
+    func encrypt(send _: SendView) async throws -> Send {
         fatalError("Not implemented yet")
     }
 
-    func encryptBuffer(send: Send, buffer: Data) async throws -> Data {
+    func encryptBuffer(send _: Send, buffer _: Data) async throws -> Data {
         fatalError("Not implemented yet")
     }
 
-    func encryptFile(send: Send, decryptedFilePath: String, encryptedFilePath: String) async throws {
+    func encryptFile(send _: Send, decryptedFilePath _: String, encryptedFilePath _: String) async throws {
         fatalError("Not implemented yet")
     }
 }

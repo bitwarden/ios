@@ -92,6 +92,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             }
         case .dismiss:
             stackNavigator.dismiss()
+        case .folders:
+            showFolders()
         case let .lockVault(account):
             delegate?.didLockVault(account: account)
         case .logout:
@@ -161,6 +163,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = DeleteAccountView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator.present(navController)
+    }
+
+    /// Shows the folders screen.
+    ///
+    private func showFolders() {
+        let processor = FoldersProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: FoldersState()
+        )
+        let view = FoldersView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
     }
 
     /// Shows the other settings screen.

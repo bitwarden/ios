@@ -21,18 +21,35 @@ extension ManagedObject where Self: NSManagedObject {
     ///     `NSManagedObject` to insert.
     /// - Returns: A `NSBatchInsertRequest` for batch inserting an array of objects.
     ///
-    static func batchInsertRequest<T>(objects: [T], handler: @escaping (Self, T) -> Void) -> NSBatchInsertRequest {
+    static func batchInsertRequest<T>(
+        objects: [T],
+        handler: @escaping (Self, T) throws -> Void
+    ) throws -> NSBatchInsertRequest {
         var index = 0
-        return NSBatchInsertRequest(entityName: entityName) { (managedObject: NSManagedObject) -> Bool in
+        var errorToThrow: Error?
+        let insertRequest = NSBatchInsertRequest(entityName: entityName) { (managedObject: NSManagedObject) -> Bool in
             guard index < objects.count else { return true }
             defer { index += 1 }
 
             if let managedObject = (managedObject as? Self) {
-                handler(managedObject, objects[index])
+                do {
+                    try handler(managedObject, objects[index])
+                } catch {
+                    // The error can't be thrown directly in this closure, so capture it, return
+                    // from the closure, and then throw it.
+                    errorToThrow = error
+                    return true
+                }
             }
 
             return false
         }
+
+        if let errorToThrow {
+            throw errorToThrow
+        }
+
+        return insertRequest
     }
 
     /// Returns a `NSFetchRequest` for fetching instances of the managed object.

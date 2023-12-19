@@ -75,9 +75,11 @@ class DataStore {
     /// - Parameter userId: The ID of the user associated with the data to delete.
     ///
     func deleteDataForUser(userId: String) async throws {
+        try await deleteAllCiphers(userId: userId)
         try await deleteAllCollections(userId: userId)
         try await deleteAllFolders(userId: userId)
         try await deleteAllPasswordHistory(userId: userId)
+        try await deleteAllSends(userId: userId)
     }
 
     /// Executes a batch delete request and merges the changes into the background and view contexts.
