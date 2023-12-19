@@ -17,10 +17,8 @@ struct ManualEntryView: View {
                 titleDisplayMode: .inline
             )
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
-                        store.send(.dismissPressed)
-                    }
+                cancelToolbarItem {
+                    store.send(.dismissPressed)
                 }
             }
     }
