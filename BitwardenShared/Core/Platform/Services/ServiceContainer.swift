@@ -192,6 +192,7 @@ public class ServiceContainer: Services {
 
         let settingsRepository = DefaultSettingsRepository(
             stateService: stateService,
+            syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
 

@@ -8,4 +8,7 @@ struct OtherSettingsState {
 
     /// Whether the connect to watch toggle is on.
     var isConnectToWatchToggleOn: Bool = false
+
+    /// A toast message to show in the view.
+    var toast: Toast?
 }

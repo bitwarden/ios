@@ -168,6 +168,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     private func showOtherScreen() {
         let processor = OtherSettingsProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: OtherSettingsState()
         )
 
