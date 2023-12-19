@@ -78,6 +78,7 @@ class DataStore {
         try await deleteAllCollections(userId: userId)
         try await deleteAllFolders(userId: userId)
         try await deleteAllPasswordHistory(userId: userId)
+        try await deleteAllSends(userId: userId)
     }
 
     /// Executes a batch delete request and merges the changes into the background and view contexts.

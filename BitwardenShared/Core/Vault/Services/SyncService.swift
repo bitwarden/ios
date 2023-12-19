@@ -43,6 +43,9 @@ class DefaultSyncService: SyncService {
     /// The service for managing the folders for the user.
     let folderService: FolderService
 
+    /// The service for managing the sends for the user.
+    let sendService: SendService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -61,6 +64,7 @@ class DefaultSyncService: SyncService {
     ///   - collectionService: The service for managing the collections for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service for managing the folders for the user.
+    ///   - sendService: The service for managing the sends for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///
@@ -69,6 +73,7 @@ class DefaultSyncService: SyncService {
         collectionService: CollectionService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
+        sendService: SendService,
         stateService: StateService,
         syncAPIService: SyncAPIService
     ) {
@@ -76,6 +81,7 @@ class DefaultSyncService: SyncService {
         self.collectionService = collectionService
         self.errorReporter = errorReporter
         self.folderService = folderService
+        self.sendService = sendService
         self.stateService = stateService
         self.syncAPIService = syncAPIService
     }
@@ -115,6 +121,7 @@ extension DefaultSyncService {
 
         try await collectionService.replaceCollections(response.collections, userId: userId)
         try await folderService.replaceFolders(response.folders, userId: userId)
+        try await sendService.replaceSends(response.sends, userId: userId)
 
         syncResponseSubject.value = response
 

@@ -161,6 +161,7 @@ public class ServiceContainer: Services {
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let folderService = DefaultFolderService(folderDataStore: dataStore, stateService: stateService)
+        let sendService = DefaultSendService(sendDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
         let syncService = DefaultSyncService(
@@ -168,6 +169,7 @@ public class ServiceContainer: Services {
             collectionService: collectionService,
             errorReporter: errorReporter,
             folderService: folderService,
+            sendService: sendService,
             stateService: stateService,
             syncAPIService: apiService
         )

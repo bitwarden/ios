@@ -12,6 +12,7 @@ class SyncServiceTests: BitwardenTestCase {
     var collectionService: MockCollectionService!
     var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
+    var sendService: MockSendService!
     var stateService: MockStateService!
     var subject: SyncService!
 
@@ -25,6 +26,7 @@ class SyncServiceTests: BitwardenTestCase {
         collectionService = MockCollectionService()
         errorReporter = MockErrorReporter()
         folderService = MockFolderService()
+        sendService = MockSendService()
         stateService = MockStateService()
 
         subject = DefaultSyncService(
@@ -32,6 +34,7 @@ class SyncServiceTests: BitwardenTestCase {
             collectionService: collectionService,
             errorReporter: errorReporter,
             folderService: folderService,
+            sendService: sendService,
             stateService: stateService,
             syncAPIService: APIService(client: client)
         )
@@ -45,6 +48,7 @@ class SyncServiceTests: BitwardenTestCase {
         collectionService = nil
         errorReporter = nil
         folderService = nil
+        sendService = nil
         stateService = nil
         subject = nil
     }
@@ -111,6 +115,49 @@ class SyncServiceTests: BitwardenTestCase {
             ]
         )
         XCTAssertEqual(collectionService.replaceCollectionsUserId, "1")
+    }
+
+    /// `fetchSync()` replaces the list of the user's sends.
+    func test_fetchSync_sends() async throws {
+        client.result = .httpSuccess(testData: .syncWithSends)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync()
+
+        XCTAssertEqual(
+            sendService.replaceSendsSends,
+            [
+                SendResponseModel.fixture(
+                    accessId: "access id",
+                    deletionDate: Date(timeIntervalSince1970: 1_691_443_980),
+                    id: "fc483c22-443c-11ee-be56-0242ac120002",
+                    key: "encrypted key",
+                    name: "encrypted name",
+                    revisionDate: Date(timeIntervalSince1970: 1_690_925_611.636),
+                    text: SendTextModel(
+                        hidden: false,
+                        text: "encrypted text"
+                    ),
+                    type: .text
+                ),
+                SendResponseModel.fixture(
+                    accessId: "access id",
+                    deletionDate: Date(timeIntervalSince1970: 1_692_230_400),
+                    file: SendFileModel(
+                        fileName: "test.txt",
+                        id: "1",
+                        size: "123",
+                        sizeName: "123 KB"
+                    ),
+                    id: "d7a7e48c-443f-11ee-be56-0242ac120002",
+                    key: "encrypted key",
+                    name: "encrypted name",
+                    revisionDate: Date(timeIntervalSince1970: 1_691_625_600),
+                    type: .file
+                ),
+            ]
+        )
+        XCTAssertEqual(sendService.replaceSendsUserId, "1")
     }
 
     /// `fetchSync()` replaces the list of the user's folders.
