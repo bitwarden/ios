@@ -57,6 +57,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to manage account state.
     let stateService: StateService
 
+    /// The service used to handle syncing vault data with the API.
+    let syncService: SyncService
+
     /// The object used by the application to retrieve information about this device.
     let systemDevice: SystemDevice
 
@@ -94,6 +97,7 @@ public class ServiceContainer: Services {
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - tokenService: The service used by the application to manage account access tokens.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
@@ -115,6 +119,7 @@ public class ServiceContainer: Services {
         pasteboardService: PasteboardService,
         settingsRepository: SettingsRepository,
         stateService: StateService,
+        syncService: SyncService,
         systemDevice: SystemDevice,
         tokenService: TokenService,
         totpService: TOTPService,
@@ -135,6 +140,7 @@ public class ServiceContainer: Services {
         self.pasteboardService = pasteboardService
         self.settingsRepository = settingsRepository
         self.stateService = stateService
+        self.syncService = syncService
         self.systemDevice = systemDevice
         self.tokenService = tokenService
         self.totpService = totpService
@@ -159,13 +165,23 @@ public class ServiceContainer: Services {
         let dataStore = DataStore(errorReporter: errorReporter)
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
+        let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
+        let folderService = DefaultFolderService(folderDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
+
+        let syncService = DefaultSyncService(
+            clientCrypto: clientService.clientCrypto(),
+            collectionService: collectionService,
+            errorReporter: errorReporter,
+            folderService: folderService,
+            stateService: stateService,
+            syncAPIService: apiService
+        )
 
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-
         let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
         let authRepository = DefaultAuthRepository(
@@ -186,6 +202,7 @@ public class ServiceContainer: Services {
 
         let settingsRepository = DefaultSettingsRepository(
             stateService: stateService,
+            syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
 
@@ -195,7 +212,7 @@ public class ServiceContainer: Services {
             clientVault: clientService.clientVault(),
             errorReporter: errorReporter,
             stateService: stateService,
-            syncAPIService: apiService,
+            syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
 
@@ -213,6 +230,7 @@ public class ServiceContainer: Services {
             pasteboardService: DefaultPasteboardService(),
             settingsRepository: settingsRepository,
             stateService: stateService,
+            syncService: syncService,
             systemDevice: UIDevice.current,
             tokenService: tokenService,
             totpService: totpService,

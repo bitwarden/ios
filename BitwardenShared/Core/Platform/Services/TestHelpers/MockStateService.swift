@@ -1,4 +1,5 @@
 import Combine
+import Foundation
 
 @testable import BitwardenShared
 
@@ -10,6 +11,8 @@ class MockStateService: StateService {
     var activeAccount: Account?
     var accounts: [Account]?
     var environmentUrls = [String: EnvironmentUrlData]()
+    var lastSyncTimeByUserId = [String: Date]()
+    var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
@@ -106,6 +109,11 @@ class MockStateService: StateService {
         self.environmentUrls[userId] = environmentUrls
     }
 
+    func setLastSyncTime(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        lastSyncTimeByUserId[userId] = date
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         passwordGenerationOptions[userId] = options
@@ -128,5 +136,9 @@ class MockStateService: StateService {
         activeIdSubject
             .eraseToAnyPublisher()
             .values
+    }
+
+    func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
+        lastSyncTimeSubject.eraseToAnyPublisher()
     }
 }
