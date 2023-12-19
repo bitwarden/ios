@@ -12,7 +12,10 @@ struct ManualEntryView: View {
 
     var body: some View {
         content
-            .navigationTitle(Localizations.authenticatorKeyScanner)
+            .navigationBar(
+                title: Localizations.authenticatorKeyScanner,
+                titleDisplayMode: .inline
+            )
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
@@ -54,7 +57,6 @@ struct ManualEntryView: View {
                 .ignoresSafeArea()
         )
         .scrollView()
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     /// Explanation text for the view and a butotn to launch the scan code view.

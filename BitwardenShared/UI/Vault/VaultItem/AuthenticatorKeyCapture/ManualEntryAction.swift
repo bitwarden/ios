@@ -4,6 +4,7 @@
 ///
 enum ManualEntryAction: Equatable {
     /// The Add Key CTA was pressed with a value.
+    ///
     /// - Parameter code: The code entered by the user.
     ///
     case addPressed(code: String)

@@ -22,6 +22,7 @@ public enum AuthenticatorKeyCaptureRoute: Equatable, Hashable {
 public enum AuthenticatorKeyCaptureScreen {
     /// A screen for manual TOTP entry.
     case manual
+
     /// A screen for QR code capture.
     case scan
 }

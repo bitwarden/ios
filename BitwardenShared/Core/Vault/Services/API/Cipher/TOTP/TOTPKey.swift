@@ -3,8 +3,10 @@
 enum TOTPKey: Equatable {
     /// A base 32 string key
     case base32(key: String)
+
     /// An OTP Auth URI
     case otpAuthUri(OTPAuthModel)
+
     /// A Steam URI
     case steamUri(key: String)
 
@@ -51,12 +53,11 @@ enum TOTPKey: Equatable {
     /// For `otpAuthUri`, extracts the period from the model.
     var period: Int {
         switch self {
-        case .base32:
+        case .base32,
+             .steamUri:
             return 30
         case let .otpAuthUri(model):
             return model.period
-        case .steamUri:
-            return 30
         }
     }
 
