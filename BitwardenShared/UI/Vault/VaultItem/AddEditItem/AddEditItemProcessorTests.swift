@@ -377,6 +377,22 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.isMasterPasswordRePromptOn)
     }
 
+    /// `receive(_:)` with `.morePressed` navigates to the more options alert.
+    func test_receive_morePressed() async throws {
+        subject.receive(.morePressed)
+
+        let optionsAlert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(optionsAlert.title, Localizations.options)
+        XCTAssertNil(optionsAlert.message)
+        XCTAssertEqual(optionsAlert.preferredStyle, .actionSheet)
+        XCTAssertEqual(optionsAlert.alertActions.count, 4)
+        XCTAssertEqual(optionsAlert.alertActions[0].title, Localizations.delete)
+        XCTAssertEqual(optionsAlert.alertActions[1].title, Localizations.attachments)
+        XCTAssertEqual(optionsAlert.alertActions[2].title, Localizations.moveToOrganization)
+        XCTAssertEqual(optionsAlert.alertActions[3].title, Localizations.cancel)
+        XCTAssertEqual(coordinator.routes.last, .alert(optionsAlert))
+    }
+
     /// `receive(_:)` with `.nameChanged` with a value updates the state correctly.
     func test_receive_nameChanged_withValue() {
         subject.state.name = ""

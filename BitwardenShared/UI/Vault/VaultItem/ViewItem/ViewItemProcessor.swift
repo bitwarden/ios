@@ -91,8 +91,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .editPressed:
             editItem()
         case .morePressed:
-            // TODO: BIT-1131 Open item menu
-            print("more pressed")
+            presentMoreOptions()
         case .passwordVisibilityPressed:
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
@@ -121,6 +120,15 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             return
         }
         coordinator.navigate(to: .editItem(cipher: cipher))
+    }
+
+    /// Builds an action sheets for more options and navigates to the alert.
+    ///
+    private func presentMoreOptions() {
+        let alert = Alert.moreOptions {
+            // TODO: BIT-231
+        }
+        coordinator.navigate(to: .alert(alert))
     }
 
     /// Presents the master password reprompt alert for the specified action. This method will

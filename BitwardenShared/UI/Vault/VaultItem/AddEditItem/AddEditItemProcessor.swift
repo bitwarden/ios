@@ -83,8 +83,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
         case .morePressed:
-            // TODO: BIT-1131 Open item menu
-            print("more pressed")
+            presentMoreOptions()
         case let .nameChanged(newValue):
             state.name = newValue
         case .newCustomFieldPressed:
@@ -226,6 +225,15 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
                 ),
             ]
         )
+        coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Builds an action sheets for more options and navigates to the alert.
+    ///
+    private func presentMoreOptions() {
+        let alert = Alert.moreOptions {
+            // TODO: BIT-222
+        }
         coordinator.navigate(to: .alert(alert))
     }
 

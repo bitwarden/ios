@@ -73,6 +73,26 @@ extension Alert {
 
     // MARK: Static Methods
 
+    /// An action sheet alert displaying options such as delete, attachments, and move to organization to the user.
+    /// - Parameter deleteAction: A block that is executed when the user selects the "delete" option.
+    /// - Returns: An action sheet style alert for more options.
+    static func moreOptions(deleteAction: @MainActor @escaping () async -> Void) -> Alert {
+        let deleteAction = AlertAction(title: Localizations.delete, style: .destructive) { _ in
+            await deleteAction()
+        }
+        let attachmentsAction = AlertAction(title: Localizations.attachments, style: .default)
+        let moveToOrganizationAction = AlertAction(title: Localizations.moveToOrganization, style: .default)
+
+        let cancelAction = AlertAction(title: Localizations.cancel, style: .cancel)
+        let alert = Alert(
+            title: Localizations.options,
+            message: nil,
+            preferredStyle: .actionSheet,
+            alertActions: [deleteAction, attachmentsAction, moveToOrganizationAction, cancelAction]
+        )
+        return alert
+    }
+
     /// An alert to show when the user needs to confirm their master password.
     ///
     /// - Parameter completion: A block that is executed when the user interacts with the "Submit" button.
