@@ -43,6 +43,9 @@ struct BitwardenDatePicker: View {
                         anchor: .topLeading
                     )
                     .labelsHidden()
+                    // Set an extremely low opacity here to hide this DatePicker from view while
+                    // simultaniously allowing to still recieve touch events. This is the lowest
+                    // opacity value that still allows user interaction.
                     .opacity(0.011)
 
                 HStack {
@@ -65,6 +68,7 @@ struct BitwardenDatePicker: View {
                 .background(Asset.Colors.fillTertiary.swiftUIColor)
                 .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
                 .clipShape(Capsule())
+                // Turn off hit testing here so that the DatePicker above receives all user interaction.
                 .allowsHitTesting(false)
             }
         }

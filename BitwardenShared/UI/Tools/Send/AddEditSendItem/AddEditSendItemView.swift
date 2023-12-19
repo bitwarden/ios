@@ -41,6 +41,10 @@ struct AddEditSendItemView: View {
                 store.send(.dismissPressed)
             }
         }
+        .animation(.easeInOut(duration: 0.25), value: store.state.type)
+        .animation(.easeInOut(duration: 0.2), value: store.state.deletionDate)
+        .animation(.easeInOut(duration: 0.2), value: store.state.expirationDate)
+        .animation(.default, value: store.state.isOptionsExpanded)
     }
 
     /// The deletion date field.
@@ -51,8 +55,7 @@ struct AddEditSendItemView: View {
                 options: SendDeletionDateType.allCases,
                 selection: store.binding(
                     get: \.deletionDate,
-                    send: AddEditSendItemAction.deletionDateChanged,
-                    animation: .easeInOut(duration: 0.2)
+                    send: AddEditSendItemAction.deletionDateChanged
                 )
             )
 
@@ -90,8 +93,7 @@ struct AddEditSendItemView: View {
                 options: SendExpirationDateType.allCases,
                 selection: store.binding(
                     get: \.expirationDate,
-                    send: AddEditSendItemAction.expirationDateChanged,
-                    animation: .easeInOut(duration: 0.2)
+                    send: AddEditSendItemAction.expirationDateChanged
                 )
             )
 
@@ -170,7 +172,7 @@ struct AddEditSendItemView: View {
 
             Divider()
 
-            Text(Localizations.expirationDateInfo)
+            Text(Localizations.maximumAccessCountInfo)
                 .styleGuide(.footnote)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
         }
@@ -187,9 +189,7 @@ struct AddEditSendItemView: View {
                 send: AddEditSendItemAction.passwordChanged
             )
         )
-        .textContentType(.password)
-        .textInputAutocapitalization(.never)
-        .autocorrectionDisabled()
+        .textFieldConfiguration(.password)
 
         BitwardenTextField(
             title: Localizations.notes,
@@ -207,7 +207,7 @@ struct AddEditSendItemView: View {
         .toggleStyle(.bitwarden)
 
         Toggle(Localizations.disableSend, isOn: store.binding(
-            get: \.isDeactiveThisSendOn,
+            get: \.isDeactivateThisSendOn,
             send: AddEditSendItemAction.deactivateThisSendChanged
         ))
         .toggleStyle(.bitwarden)
@@ -216,9 +216,7 @@ struct AddEditSendItemView: View {
     /// The options button.
     @ViewBuilder private var optionsButton: some View {
         Button {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                store.send(.optionsPressed)
-            }
+            store.send(.optionsPressed)
         } label: {
             HStack(spacing: 8) {
                 Text(Localizations.options)
@@ -275,8 +273,7 @@ struct AddEditSendItemView: View {
 
             Picker(Localizations.type, selection: store.binding(
                 get: \.type,
-                send: AddEditSendItemAction.typeChanged,
-                animation: .easeInOut(duration: 0.25)
+                send: AddEditSendItemAction.typeChanged
             )) {
                 ForEach(SendType.allCases, id: \.self) { sendType in
                     Text(sendType.localizedName)

@@ -1,5 +1,7 @@
 // MARK: - SendExpirationDateType
 
+/// An object that repsents the options available when setting the expiration period for a Send Item.
+///
 enum SendExpirationDateType: CaseIterable, Menuable {
     /// A never ending time period.
     case never

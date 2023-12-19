@@ -18,7 +18,7 @@ struct AddEditSendItemState: Equatable {
     var expirationDate: SendExpirationDateType = .never
 
     /// A flag indicating if this item should be deactivated.
-    var isDeactiveThisSendOn = false
+    var isDeactivateThisSendOn = false
 
     /// A flag indicating if the user's email should be hidden from the display of this item.
     var isHideMyEmailOn = false

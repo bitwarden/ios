@@ -2,6 +2,8 @@ import Foundation
 
 // MARK: - SendDeletionDateType
 
+/// An object that repsents the options available when setting the deletion period for a Send Item.
+///
 enum SendDeletionDateType: CaseIterable, Menuable {
     /// A time period of one hour.
     case oneHour

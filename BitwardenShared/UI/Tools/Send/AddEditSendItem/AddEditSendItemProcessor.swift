@@ -42,7 +42,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         case let .customExpirationDateChanged(newValue):
             state.customExpirationDate = newValue
         case let .deactivateThisSendChanged(newValue):
-            state.isDeactiveThisSendOn = newValue
+            state.isDeactivateThisSendOn = newValue
         case let .deletionDateChanged(newValue):
             state.deletionDate = newValue
         case let .expirationDateChanged(newValue):
