@@ -81,7 +81,7 @@ final class AccountSecurityProcessor: StateProcessor<
         case let .toggleUnlockWithFaceID(isOn):
             state.isUnlockWithFaceIDOn = isOn
         case let .toggleUnlockWithPINCode(isOn):
-            state.isUnlockWithPINCodeOn = isOn
+            toggleUnlockWithPIN(isOn)
         case let .toggleUnlockWithTouchID(isOn):
             state.isUnlockWithTouchIDToggleOn = isOn
         case .twoStepLoginPressed:
@@ -129,5 +129,19 @@ final class AccountSecurityProcessor: StateProcessor<
         coordinator.navigate(to: .alert(.twoStepLoginAlert {
             self.state.twoStepLoginUrl = self.services.twoStepLoginService.twoStepLoginUrl()
         }))
+    }
+
+    /// Shows an alert prompting the user to enter their PIN. If done successfully, the toggle will be turned on.
+    ///
+    /// - Parameter isOn: Whether or not the toggle value is true or false.
+    ///
+    private func toggleUnlockWithPIN(_ isOn: Bool) {
+        if !state.isUnlockWithPINCodeOn {
+            coordinator.navigate(to: .alert(.unlockWithPIN(completion: { _ in
+                self.state.isUnlockWithPINCodeOn = isOn
+            })))
+        } else {
+            state.isUnlockWithPINCodeOn = isOn
+        }
     }
 }
