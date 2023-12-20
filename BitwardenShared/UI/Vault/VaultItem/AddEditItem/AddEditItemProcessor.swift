@@ -54,6 +54,9 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             await saveItem()
         case .setupTotpPressed:
             await setupTotp()
+        case .deletePressed:
+            // TODO: BIT-222
+            print("delete pressed")
         }
     }
 
@@ -82,8 +85,13 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             updateIdentityState(&state, for: action)
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
-        case .morePressed:
-            presentMoreOptions()
+        case let .morePressed(menuAction):
+            switch menuAction {
+            case .attachments:
+                print("attachments")
+            case .moveToOrganization:
+                print("moveToOrganization")
+            }
         case let .nameChanged(newValue):
             state.name = newValue
         case .newCustomFieldPressed:
@@ -225,15 +233,6 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
                 ),
             ]
         )
-        coordinator.navigate(to: .alert(alert))
-    }
-
-    /// Builds an action sheets for more options and navigates to the alert.
-    ///
-    private func presentMoreOptions() {
-        let alert = Alert.moreOptions {
-            // TODO: BIT-222
-        }
         coordinator.navigate(to: .alert(alert))
     }
 

@@ -185,22 +185,6 @@ class ViewItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
     }
 
-    /// `receive(_:)` with `.morePressed` navigates to the more options alert.
-    func test_receive_morePressed() async throws {
-        subject.receive(.morePressed)
-
-        let optionsAlert = try coordinator.unwrapLastRouteAsAlert()
-        XCTAssertEqual(optionsAlert.title, Localizations.options)
-        XCTAssertNil(optionsAlert.message)
-        XCTAssertEqual(optionsAlert.preferredStyle, .actionSheet)
-        XCTAssertEqual(optionsAlert.alertActions.count, 4)
-        XCTAssertEqual(optionsAlert.alertActions[0].title, Localizations.delete)
-        XCTAssertEqual(optionsAlert.alertActions[1].title, Localizations.attachments)
-        XCTAssertEqual(optionsAlert.alertActions[2].title, Localizations.moveToOrganization)
-        XCTAssertEqual(optionsAlert.alertActions[3].title, Localizations.cancel)
-        XCTAssertEqual(coordinator.routes.last, .alert(optionsAlert))
-    }
-
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
     func test_receive_passwordVisibilityPressed_impossible_loading() throws {
         subject.state.loadingState = .loading

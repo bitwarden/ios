@@ -62,6 +62,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
             }
+        case .deletePressed:
+            // TODO: BIT-231
+            print("deletePressed")
         }
     }
 
@@ -90,8 +93,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             coordinator.navigate(to: .dismiss)
         case .editPressed:
             editItem()
-        case .morePressed:
-            presentMoreOptions()
+        case let .morePressed(menuAction):
+            switch menuAction {
+            case .attachments:
+                print("attachments")
+            case .moveToOrganization:
+                print("moveToOrganization")
+            }
         case .passwordVisibilityPressed:
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
@@ -122,19 +130,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.navigate(to: .editItem(cipher: cipher))
     }
 
-    /// Builds an action sheets for more options and navigates to the alert.
-    ///
-    private func presentMoreOptions() {
-        let alert = Alert.moreOptions {
-            // TODO: BIT-231
-        }
-        coordinator.navigate(to: .alert(alert))
-    }
-
-    /// Presents the master password reprompt alert for the specified action. This method will
+    /// Presents the master password re-prompt alert for the specified action. This method will
     /// process the action once the master password has been verified.
     ///
-    /// - Parameter action: The action to process once the password has been verfied.
+    /// - Parameter action: The action to process once the password has been verified.
     ///
     private func presentMasterPasswordRepromptAlert(for action: ViewItemAction) {
         let alert = Alert.masterPasswordPrompt { [weak self] _ in
