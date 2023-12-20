@@ -97,6 +97,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             switch menuAction {
             case .attachments:
                 print("attachments")
+            case .clone:
+                print("clone")
             case .moveToOrganization:
                 print("moveToOrganization")
             }

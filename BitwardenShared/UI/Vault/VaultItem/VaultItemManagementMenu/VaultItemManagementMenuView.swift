@@ -20,6 +20,13 @@ struct VaultItemManagementMenuView: View {
             }
 
             Button {
+                store.send(.clone)
+            } label: {
+                Text(Localizations.clone)
+                    .styleGuide(.body)
+            }
+
+            Button {
                 store.send(.moveToOrganization)
             } label: {
                 Text(Localizations.moveToOrganization)

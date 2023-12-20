@@ -89,6 +89,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             switch menuAction {
             case .attachments:
                 print("attachments")
+            case .clone:
+                print("clone")
             case .moveToOrganization:
                 print("moveToOrganization")
             }

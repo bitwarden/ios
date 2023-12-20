@@ -45,7 +45,14 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .attachments)
     }
 
-    /// Tapping the move to organization option dispatches the `.attachments` action.
+    /// Tapping the attachments option dispatches the `.clone` action.
+    func test_cloneOption_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.clone)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .clone)
+    }
+
+    /// Tapping the move to organization option dispatches the `.moveToOrganization` action.
     func test_moveToOrgOption_tap() throws {
         let button = try subject.inspect().find(button: Localizations.moveToOrganization)
         try button.tap()
