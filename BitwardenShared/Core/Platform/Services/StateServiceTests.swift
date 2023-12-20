@@ -237,6 +237,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getMasterPasswordHash()` returns the user's master password hash.
+    func test_getMasterPasswordHash() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let noPasswordHash = try await subject.getMasterPasswordHash()
+        XCTAssertNil(noPasswordHash)
+
+        appSettingsStore.masterPasswordHashes["1"] = "abcd"
+        let passwordHash = try await subject.getMasterPasswordHash()
+        XCTAssertEqual(passwordHash, "abcd")
+    }
+
+    /// `getMasterPasswordHash()` throws an error if there isn't an active account.
+    func test_getMasterPasswordHash_noAccount() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getMasterPasswordHash()
+        }
+    }
+
     /// `getPasswordGenerationOptions()` gets the saved password generation options for the account.
     func test_getPasswordGenerationOptions() async throws {
         let options1 = PasswordGenerationOptions(length: 30)
@@ -352,12 +371,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
         try await dataStore.persistentContainer.viewContext.performAndSave {
             let context = self.dataStore.persistentContainer.viewContext
+            _ = try CipherData(context: context, userId: "1", cipher: .fixture(id: UUID().uuidString))
             _ = CollectionData(context: context, userId: "1", collection: .fixture())
             _ = FolderData(
                 context: context,
                 userId: "1",
                 folder: Folder(id: "1", name: "FOLDER1", revisionDate: Date())
             )
+            _ = SendData(context: context, userId: "1", send: .fixture())
         }
 
         try await subject.logoutAccount()
@@ -367,9 +388,11 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
 
         let context = dataStore.persistentContainer.viewContext
+        try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: CollectionData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: FolderData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: SendData.fetchByUserIdRequest(userId: "1")), 0)
     }
 
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to
@@ -574,6 +597,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setActiveAccount(userId: "1")
         active = try await subject.getActiveAccount()
         XCTAssertEqual(active, account1)
+    }
+
+    /// `setMasterPasswordHash(_:)` sets the master password hash for a user.
+    func test_setMasterPasswordHash() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setMasterPasswordHash("abcd")
+        XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "abcd"])
+
+        try await subject.setMasterPasswordHash("1234", userId: "1")
+        XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "1234"])
     }
 
     /// `setPasswordGenerationOptions` sets the password generation options for an account.

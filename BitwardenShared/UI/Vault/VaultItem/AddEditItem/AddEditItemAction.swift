@@ -52,6 +52,12 @@ enum AddEditItemAction: Equatable {
     /// The toggle password visibility button was changed.
     case togglePasswordVisibilityChanged(Bool)
 
+    /// The TOTP field was changed.
+    ///
+    /// - Parameter newValue: the updated TOTP key.
+    ///
+    case totpKeyChanged(_ newValue: String?)
+
     /// The type field was changed.
     case typeChanged(CipherType)
 

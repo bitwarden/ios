@@ -73,7 +73,7 @@ extension DataStore: CollectionDataStore {
 
     func replaceCollections(_ collections: [Collection], userId: String) async throws {
         let deleteRequest = CollectionData.deleteByUserIdRequest(userId: userId)
-        let insertRequest = CollectionData.batchInsertRequest(objects: collections, userId: userId)
+        let insertRequest = try CollectionData.batchInsertRequest(objects: collections, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
             insertRequest: insertRequest

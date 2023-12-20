@@ -1,9 +1,16 @@
+import BitwardenSdk
 import Combine
 import Foundation
 
 /// A protocol for a `SettingsRepository` which manages access to the data needed by the UI layer.
 ///
 protocol SettingsRepository: AnyObject {
+    /// Add a new folder.
+    ///
+    /// - Parameter name: The name of the new folder.
+    ///
+    func addFolder(name: String) async throws
+
     /// Updates the user's vault by syncing it with the API.
     ///
     func fetchSync() async throws
@@ -31,6 +38,11 @@ protocol SettingsRepository: AnyObject {
     ///     Defaults to active account if nil.
     ///
     func unlockVault(userId: String?) async
+
+    // MARK: Publishers
+
+    /// The publisher to keep track of the list of the user's current folders.
+    func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>>
 }
 
 // MARK: - DefaultSettingsRepository
@@ -40,29 +52,41 @@ protocol SettingsRepository: AnyObject {
 class DefaultSettingsRepository {
     // MARK: Properties
 
+    /// The client used by the application to handle vault encryption and decryption tasks.
+    private let clientVault: ClientVaultService
+
     /// The service used by the application to manage account state.
-    let stateService: StateService
+    private let stateService: StateService
+
+    /// The service used to manage syncing and updates to the user's folders.
+    private let folderService: FolderService
 
     /// The service used to handle syncing vault data with the API.
     let syncService: SyncService
 
     /// The service used to manage vault access.
-    let vaultTimeoutService: VaultTimeoutService
+    private let vaultTimeoutService: VaultTimeoutService
 
     // MARK: Initialization
 
     /// Initialize a `DefaultSettingsRepository`.
     ///
     /// - Parameters:
+    ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
     init(
+        clientVault: ClientVaultService,
+        folderService: FolderService,
         stateService: StateService,
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
     ) {
+        self.clientVault = clientVault
+        self.folderService = folderService
         self.stateService = stateService
         self.syncService = syncService
         self.vaultTimeoutService = vaultTimeoutService
@@ -72,6 +96,13 @@ class DefaultSettingsRepository {
 // MARK: - SettingsRepository
 
 extension DefaultSettingsRepository: SettingsRepository {
+    func addFolder(name: String) async throws {
+        // Create a new folder with a dummy id in order to encrypt the folder name.
+        let folderView = FolderView(id: UUID().uuidString, name: name, revisionDate: Date.now)
+        let folder = try await clientVault.folders().encrypt(folder: folderView)
+        try await folderService.addFolderWithServer(name: folder.name)
+    }
+
     func fetchSync() async throws {
         try await syncService.fetchSync()
     }
@@ -90,5 +121,16 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func unlockVault(userId: String?) async {
         await vaultTimeoutService.unlockVault(userId: userId)
+    }
+
+    // MARK: Publishers
+
+    func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>> {
+        try await folderService.foldersPublisher()
+            .asyncTryMap { folders in
+                try await self.clientVault.folders().decryptList(folders: folders)
+            }
+            .eraseToAnyPublisher()
+            .values
     }
 }

@@ -53,14 +53,15 @@ struct AddEditLoginItemView: View {
 
     /// The view for TOTP authenticator key..
     @ViewBuilder private var totpView: some View {
-        if let key = store.state.authenticatorKey {
-            BitwardenField(
+        if let key = store.state.authenticatorKey,
+           !key.isEmpty {
+            BitwardenTextField(
                 title: Localizations.authenticatorKey,
-                content: {
-                    Text(key)
-                        .styleGuide(.body)
-                },
-                accessoryContent: {
+                text: store.binding(
+                    get: { _ in key },
+                    send: AddEditItemAction.totpKeyChanged
+                ),
+                trailingContent: {
                     AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
                         await store.perform(.copyTotpPressed)
                     }
@@ -138,6 +139,9 @@ struct AddEditLoginItemView: View {
 
 #if DEBUG
 struct AddEditLoginItemView_Previews: PreviewProvider {
+    // swiftlint:disable:next line_length
+    static let key = "otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example&algorithm=SHA1&digits=6&period=30"
+
     static var previews: some View {
         NavigationView {
             ScrollView {
@@ -164,7 +168,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                         store: Store(
                             processor: StateProcessor(
                                 state: LoginItemState(
-                                    authenticatorKey: "1234"
+                                    totpKey: .init(authenticatorKey: key)
                                 )
                             )
                         )

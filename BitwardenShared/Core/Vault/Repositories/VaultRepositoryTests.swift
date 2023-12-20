@@ -4,10 +4,11 @@ import XCTest
 
 @testable import BitwardenShared
 
-class VaultRepositoryTests: BitwardenTestCase {
+class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
+    var clientAuth: MockClientAuth!
     var clientCiphers: MockClientCiphers!
     var clientCrypto: MockClientCrypto!
     var clientVault: MockClientVaultService!
@@ -23,6 +24,7 @@ class VaultRepositoryTests: BitwardenTestCase {
         super.setUp()
 
         client = MockHTTPClient()
+        clientAuth = MockClientAuth()
         clientCiphers = MockClientCiphers()
         clientCrypto = MockClientCrypto()
         clientVault = MockClientVaultService()
@@ -36,6 +38,7 @@ class VaultRepositoryTests: BitwardenTestCase {
 
         subject = DefaultVaultRepository(
             cipherAPIService: APIService(client: client),
+            clientAuth: clientAuth,
             clientCrypto: clientCrypto,
             clientVault: clientVault,
             errorReporter: errorReporter,
@@ -49,6 +52,7 @@ class VaultRepositoryTests: BitwardenTestCase {
         super.tearDown()
 
         client = nil
+        clientAuth = nil
         clientCiphers = nil
         clientCrypto = nil
         clientVault = nil
@@ -173,6 +177,39 @@ class VaultRepositoryTests: BitwardenTestCase {
             ],
             vaultTimeoutService.timeoutStore
         )
+    }
+
+    /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.
+    func test_validatePassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.masterPasswordHashes["1"] = "wxyz4321"
+        clientAuth.validatePasswordResult = true
+
+        let isValid = try await subject.validatePassword("test1234")
+
+        XCTAssertTrue(isValid)
+        XCTAssertEqual(clientAuth.validatePasswordPassword, "test1234")
+        XCTAssertEqual(clientAuth.validatePasswordPasswordHash, "wxyz4321")
+    }
+
+    /// `validatePassword(_:)` returns `false` if there's no stored password hash.
+    func test_validatePassword_noPasswordHash() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        let isValid = try await subject.validatePassword("not the password")
+
+        XCTAssertFalse(isValid)
+    }
+
+    /// `validatePassword(_:)` returns `false` if the master password doesn't match the stored password hash.
+    func test_validatePassword_notValid() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.masterPasswordHashes["1"] = "wxyz4321"
+        clientAuth.validatePasswordResult = false
+
+        let isValid = try await subject.validatePassword("not the password")
+
+        XCTAssertFalse(isValid)
     }
 
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are

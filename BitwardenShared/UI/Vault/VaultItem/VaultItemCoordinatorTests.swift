@@ -263,16 +263,16 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
     }
 }
 
-/// A MockProcessor with ScanCodeCoordinatorDelegate conformance.
+/// A MockProcessor with AuthenticatorKeyCaptureDelegate conformance.
 ///
-class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, ScanCodeCoordinatorDelegate {
-    /// A property to capture a `didCompleteScan` call value.
+class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyCaptureDelegate {
+    /// A property to capture a `didCompleteCapture` call value.
     var capturedScan: String?
 
     /// A flag to capture a `didCancel` call.
     var didCancel: Bool = false
 
-    func didCompleteScan(with value: String) {
+    func didCompleteCapture(with value: String) {
         capturedScan = value
     }
 
