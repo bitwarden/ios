@@ -95,6 +95,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             }
         case .dismiss:
             stackNavigator.dismiss()
+        case .exportVault:
+            showExportVault()
         case .folders:
             showFolders()
         case let .lockVault(account):
@@ -180,6 +182,18 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             state: DeleteAccountState()
         )
         let view = DeleteAccountView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
+    }
+
+    /// Shows the export vault screen.
+    ///
+    private func showExportVault() {
+        let processor = ExportVaultProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services
+        )
+        let view = ExportVaultView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator.present(navController)
     }
