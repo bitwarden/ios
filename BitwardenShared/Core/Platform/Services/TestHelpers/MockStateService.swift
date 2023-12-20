@@ -13,6 +13,7 @@ class MockStateService: StateService {
     var environmentUrls = [String: EnvironmentUrlData]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
+    var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
@@ -72,6 +73,11 @@ class MockStateService: StateService {
         return environmentUrls[userId]
     }
 
+    func getMasterPasswordHash(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return masterPasswordHashes[userId]
+    }
+
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return passwordGenerationOptions[userId]
@@ -112,6 +118,11 @@ class MockStateService: StateService {
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         lastSyncTimeByUserId[userId] = date
+    }
+
+    func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        masterPasswordHashes[userId] = hash
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {

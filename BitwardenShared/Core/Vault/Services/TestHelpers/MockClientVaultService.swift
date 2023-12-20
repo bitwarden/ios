@@ -70,6 +70,8 @@ class MockClientCollections: ClientCollectionsProtocol {
 
 class MockClientFolders: ClientFoldersProtocol {
     var decryptedFolders = [Folder]()
+    var encryptError: Error?
+    var encryptedFolders = [FolderView]()
 
     func decrypt(folder: Folder) async throws -> FolderView {
         FolderView(folder: folder)
@@ -80,8 +82,12 @@ class MockClientFolders: ClientFoldersProtocol {
         return folders.map(FolderView.init)
     }
 
-    func encrypt(folder _: FolderView) async throws -> Folder {
-        fatalError("Not implemented yet")
+    func encrypt(folder: FolderView) async throws -> Folder {
+        encryptedFolders.append(folder)
+        if let encryptError {
+            throw encryptError
+        }
+        return Folder(folderView: folder)
     }
 }
 

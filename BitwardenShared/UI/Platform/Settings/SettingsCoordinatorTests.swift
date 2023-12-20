@@ -53,6 +53,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UIHostingController<AccountSecurityView>)
     }
 
+    /// `navigate(to:)` with `.addEditFolder` pushes the add/edit folder view onto the stack navigator.
+    func test_navigateTo_addEditFolder() throws {
+        subject.navigate(to: .addEditFolder(folder: nil))
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<AddEditFolderView>)
+    }
+
     /// `navigate(to:)` with `.alert` has the stack navigator present the alert.
     func test_navigateTo_alert() throws {
         let alert = Alert.defaultAlert(
