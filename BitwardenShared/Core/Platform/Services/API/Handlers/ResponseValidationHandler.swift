@@ -13,7 +13,8 @@ struct ResponseValidationError: Error, Equatable {
 
 // MARK: - ResponseValidationHandler
 
-/// A `ResponseHandler` that validates that HTTP responses contain successful (2XX) HTTP status codes.
+/// A `ResponseHandler` that validates that HTTP responses contain successful (2XX) HTTP status
+/// codes or tries to parse the error otherwise.
 ///
 class ResponseValidationHandler: ResponseHandler {
     func handle(_ response: inout HTTPResponse) async throws -> HTTPResponse {
