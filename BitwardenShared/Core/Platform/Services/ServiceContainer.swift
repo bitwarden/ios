@@ -218,6 +218,7 @@ public class ServiceContainer: Services {
 
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
+            clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             clientVault: clientService.clientVault(),
             errorReporter: errorReporter,

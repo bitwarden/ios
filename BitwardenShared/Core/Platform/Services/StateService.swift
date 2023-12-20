@@ -56,6 +56,13 @@ protocol StateService: AnyObject {
     ///
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
 
+    /// Gets the master password hash for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the master password hash.
+    /// - Returns: The user's master password hash.
+    ///
+    func getMasterPasswordHash(userId: String?) async throws -> String?
+
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
@@ -104,6 +111,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the last sync time.
     ///
     func setLastSyncTime(_ date: Date?, userId: String?) async throws
+
+    /// Sets the master password hash for a user ID.
+    ///
+    /// - Parameters:
+    ///   - hash: The user's master password hash.
+    ///   - userId: The user ID associated with the master password hash.
+    ///
+    func setMasterPasswordHash(_ hash: String?, userId: String?) async throws
 
     /// Sets the password generation options for a user ID.
     ///
@@ -168,6 +183,14 @@ extension StateService {
         try await getEnvironmentUrls(userId: nil)
     }
 
+    /// Gets the master password hash for the active account.
+    ///
+    /// - Returns: The user's master password hash.
+    ///
+    func getMasterPasswordHash() async throws -> String? {
+        try await getMasterPasswordHash(userId: nil)
+    }
+
     /// Gets the password generation options for the active account.
     ///
     /// - Returns: The password generation options for the user ID.
@@ -206,6 +229,14 @@ extension StateService {
     ///
     func setLastSyncTime(_ date: Date?) async throws {
         try await setLastSyncTime(date, userId: nil)
+    }
+
+    /// Sets the master password hash for the active account.
+    ///
+    /// - Parameter hash: The user's master password hash.
+    ///
+    func setMasterPasswordHash(_ hash: String?) async throws {
+        try await setMasterPasswordHash(hash, userId: nil)
     }
 
     /// Sets the password generation options for the active account.
@@ -339,6 +370,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
     }
 
+    func getMasterPasswordHash(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.masterPasswordHash(userId: userId)
+    }
+
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.passwordGenerationOptions(userId: userId)
@@ -367,6 +403,7 @@ actor DefaultStateService: StateService {
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
         appSettingsStore.setLastSyncTime(nil, userId: userId)
+        appSettingsStore.setMasterPasswordHash(nil, userId: userId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: userId)
 
         try await dataStore.deleteDataForUser(userId: userId)
@@ -391,6 +428,11 @@ actor DefaultStateService: StateService {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastSyncTime(date, userId: userId)
         lastSyncTimeByUserIdSubject.value[userId] = date
+    }
+
+    func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setMasterPasswordHash(hash, userId: userId)
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
