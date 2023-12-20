@@ -88,10 +88,13 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         case let .morePressed(menuAction):
             switch menuAction {
             case .attachments:
+                // TODO: BIT-364
                 print("attachments")
             case .clone:
+                // TODO: BIT-365
                 print("clone")
             case .moveToOrganization:
+                // TODO: BIT-366
                 print("moveToOrganization")
             }
         case let .nameChanged(newValue):

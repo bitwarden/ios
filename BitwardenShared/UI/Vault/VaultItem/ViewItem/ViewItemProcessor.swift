@@ -96,10 +96,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case let .morePressed(menuAction):
             switch menuAction {
             case .attachments:
+                // TODO: BIT-364
                 print("attachments")
             case .clone:
+                // TODO: BIT-365
                 print("clone")
             case .moveToOrganization:
+                // TODO: BIT-366
                 print("moveToOrganization")
             }
         case .passwordVisibilityPressed:
