@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 // MARK: - CardItemState
 
 /// A model for a credit card item.
@@ -26,6 +28,25 @@ struct CardItemState: Equatable {
 
     /// The visibility of the card number.
     var isNumberVisible: Bool = false
+}
+
+extension CardItemState {
+    var cardView: CardView {
+        .init(
+            cardholderName: cardholderName.nilIfEmpty,
+            expMonth: {
+                guard case let .custom(month) = expirationMonth else { return nil }
+                return "\(month.rawValue)"
+            }(),
+            expYear: expirationYear.nilIfEmpty,
+            code: cardSecurityCode.nilIfEmpty,
+            brand: {
+                guard case let .custom(brand) = brand else { return nil }
+                return brand.rawValue
+            }(),
+            number: cardNumber.nilIfEmpty
+        )
+    }
 }
 
 // MARK: AddEditCardItemState

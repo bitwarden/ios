@@ -113,7 +113,7 @@ struct AddEditCardItemView_Previews: PreviewProvider {
                 .padding(16)
             }
             .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-            .navigationBar(title: "Empty Add Edit State", titleDisplayMode: .inline)
+            .navigationBar(title: "Hidden Add Edit State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Hidden Add Edit State")
 
@@ -140,7 +140,7 @@ struct AddEditCardItemView_Previews: PreviewProvider {
                 .padding(16)
             }
             .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-            .navigationBar(title: "Empty Add Edit State", titleDisplayMode: .inline)
+            .navigationBar(title: "Visible Add Edit State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Visible Add Edit State")
     }

@@ -3,13 +3,13 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AddEditCardItemViewTests: BitwardenTestCase {
+class ViewCardItemViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
-    /// Test preview snapshots of the `AddEditCardItemView`.
+    /// Test preview snapshots of the `ViewCardItemView`.
     ///
-    func test_snapshot_addEditCardItemView() {
-        for preview in AddEditCardItemView_Previews._allPreviews {
+    func test_snapshot_viewCardItemView() {
+        for preview in ViewCardItemView_Previews._allPreviews {
             assertSnapshots(
                 matching: preview.content,
                 as: [

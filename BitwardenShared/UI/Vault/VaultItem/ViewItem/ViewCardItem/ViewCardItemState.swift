@@ -20,4 +20,10 @@ protocol ViewCardItemState: Equatable {
 
     /// The expiration year of the card.
     var expirationYear: String { get }
+
+    /// The visibility of the card number.
+    var isCodeVisible: Bool { get }
+
+    /// The visibility of the security code.
+    var isNumberVisible: Bool { get }
 }

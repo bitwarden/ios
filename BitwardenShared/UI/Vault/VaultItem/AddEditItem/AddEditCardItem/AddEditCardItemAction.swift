@@ -1,6 +1,6 @@
 // MARK: AddEditCardItemAction
 
-/// An enum of actiosn for adding or editing a card Item in it's add/edit state.
+/// An enum of actions for adding or editing a card Item in its add/edit state.
 ///
 enum AddEditCardItemAction: Equatable {
     /// The brand of the card changed.

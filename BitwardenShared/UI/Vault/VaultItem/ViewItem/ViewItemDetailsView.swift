@@ -36,12 +36,12 @@ struct ViewItemDetailsView: View {
 
             // check for type
             switch store.state.type {
-            case .login:
-                ViewLoginItemView(
+            case .card:
+                ViewCardItemView(
                     store: store.child(
-                        state: { _ in store.state.loginState },
+                        state: { _ in store.state.cardItemViewState },
                         mapAction: { $0 },
-                        mapEffect: { $0 }
+                        mapEffect: nil
                     )
                 )
             case .identity:
@@ -52,7 +52,15 @@ struct ViewItemDetailsView: View {
                         mapEffect: nil
                     )
                 )
-            default:
+            case .login:
+                ViewLoginItemView(
+                    store: store.child(
+                        state: { _ in store.state.loginState },
+                        mapAction: { $0 },
+                        mapEffect: { $0 }
+                    )
+                )
+            case .secureNote:
                 EmptyView()
             }
         }

@@ -122,6 +122,24 @@ struct ViewItemView_Previews: PreviewProvider {
         revisionDate: .now
     )
 
+    static var cardState: CipherItemState {
+        var state = CipherItemState(existing: cipher)!
+        state.type = CipherType.card
+        state.isMasterPasswordRePromptOn = true
+        state.name = "Points ALL Day"
+        state.notes = "Why are we so consumption focused?"
+        state.cardItemState = CardItemState(
+            brand: .custom(.americanExpress),
+            cardholderName: "Bitwarden User",
+            cardNumber: "123456789012345",
+            cardSecurityCode: "123",
+            expirationMonth: .custom(.feb),
+            expirationYear: "3009"
+        )
+        state.updatedDate = .init(timeIntervalSince1970: 1_695_000_000)
+        return state
+    }
+
     static var loginState: CipherItemState {
         var state = CipherItemState(existing: cipher)!
         state.customFields = [
@@ -159,6 +177,27 @@ struct ViewItemView_Previews: PreviewProvider {
         }
         .previewDisplayName("Loading")
 
+        cardPreview
+
+        loginPreview
+    }
+
+    @ViewBuilder static var cardPreview: some View {
+        NavigationView {
+            ViewItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ViewItemState(
+                            loadingState: .data(cardState)
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Card")
+    }
+
+    @ViewBuilder static var loginPreview: some View {
         NavigationView {
             ViewItemView(
                 store: Store(

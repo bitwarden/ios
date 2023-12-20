@@ -116,9 +116,9 @@ extension CipherView {
         )
     }
 
-    static func loginFixture(
+    static func cardFixture(
         attachments: [AttachmentView]? = nil,
-        card: CardView? = nil,
+        card: CardView = CardView.fixture(),
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: Date? = nil,
@@ -127,7 +127,56 @@ extension CipherView {
         fields: [FieldView]? = nil,
         folderId: String? = nil,
         id: String = "8675",
-        identity: IdentityView? = nil,
+        key: String? = nil,
+        localData: LocalDataView? = nil,
+        name: String = "Bitwarden",
+        notes: String? = nil,
+        organizationId: String? = nil,
+        organizationUseTotp: Bool = false,
+        passwordHistory: [PasswordHistoryView]? = nil,
+        reprompt: BitwardenSdk.CipherRepromptType = .none,
+        revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        type: BitwardenSdk.CipherType = .login,
+        viewPassword: Bool = true
+    ) -> CipherView {
+        CipherView(
+            id: id,
+            organizationId: organizationId,
+            folderId: folderId,
+            collectionIds: collectionIds,
+            key: key,
+            name: name,
+            notes: notes,
+            type: type,
+            login: nil,
+            identity: nil,
+            card: card,
+            secureNote: nil,
+            favorite: favorite,
+            reprompt: reprompt,
+            organizationUseTotp: organizationUseTotp,
+            edit: edit,
+            viewPassword: viewPassword,
+            localData: localData,
+            attachments: attachments,
+            fields: fields,
+            passwordHistory: passwordHistory,
+            creationDate: creationDate,
+            deletedDate: deletedDate,
+            revisionDate: revisionDate
+        )
+    }
+
+    static func loginFixture(
+        attachments: [AttachmentView]? = nil,
+        collectionIds: [String] = [],
+        creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        deletedDate: Date? = nil,
+        edit: Bool = true,
+        favorite: Bool = false,
+        fields: [FieldView]? = nil,
+        folderId: String? = nil,
+        id: String = "8675",
         key: String? = nil,
         localData: LocalDataView? = nil,
         login: BitwardenSdk.LoginView = .fixture(),
@@ -138,7 +187,6 @@ extension CipherView {
         passwordHistory: [PasswordHistoryView]? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-        secureNote: SecureNoteView? = nil,
         type: BitwardenSdk.CipherType = .login,
         viewPassword: Bool = true
     ) -> CipherView {
@@ -152,9 +200,9 @@ extension CipherView {
             notes: notes,
             type: type,
             login: login,
-            identity: identity,
-            card: card,
-            secureNote: secureNote,
+            identity: nil,
+            card: nil,
+            secureNote: nil,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -187,6 +235,26 @@ extension Collection {
             externalId: externalId,
             hidePasswords: hidePasswords,
             readOnly: readOnly
+        )
+    }
+}
+
+extension BitwardenSdk.CardView {
+    static func fixture(
+        brand: String? = nil,
+        cardholderName: String? = nil,
+        code: String? = nil,
+        expMonth: String? = nil,
+        expYear: String? = nil,
+        number: String? = nil
+    ) -> BitwardenSdk.CardView {
+        BitwardenSdk.CardView(
+            cardholderName: cardholderName,
+            expMonth: expMonth,
+            expYear: expYear,
+            code: code,
+            brand: brand,
+            number: number
         )
     }
 }

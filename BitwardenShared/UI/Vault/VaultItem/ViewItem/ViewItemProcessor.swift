@@ -15,6 +15,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     enum ActionError: Error, Equatable {
         /// An action that requires data has been performed while loading.
         case dataNotLoaded(String)
+
+        /// An error for card action handling
+        case nonCardTypeToggle(String)
+
         /// A password visibility toggle occured when not possible.
         case nonLoginPasswordToggle(String)
     }
@@ -71,6 +75,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             return
         }
         switch action {
+        case let .cardItemAction(cardAction):
+            handleCardAction(cardAction)
         case .checkPasswordPressed:
             // TODO: BIT-1130 Check password
             print("check password")
@@ -121,6 +127,26 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             return
         }
         coordinator.navigate(to: .editItem(cipher: cipher))
+    }
+
+    /// Handles `ViewCardItemAction` events.
+    ///
+    /// - Parameter cardAction: The action to handle.
+    ///
+    private func handleCardAction(_ cardAction: ViewCardItemAction) {
+        guard case var .data(cipherState) = state.loadingState,
+              case .card = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonCardTypeToggle("Cannot handle card action without loaded data")
+            )
+            return
+        }
+        switch cardAction {
+        case let .toggleCodeVisibilityChanged(isVisible):
+            cipherState.cardItemState.isCodeVisible = isVisible
+        case let .toggleNumberVisibilityChanged(isVisible):
+            cipherState.cardItemState.isNumberVisible = isVisible
+        }
     }
 
     /// Presents the master password reprompt alert for the specified action. This method will

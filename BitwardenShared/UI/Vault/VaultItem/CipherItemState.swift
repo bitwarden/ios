@@ -168,6 +168,10 @@ struct CipherItemState: Equatable {
 extension CipherItemState: AddEditItemState {}
 
 extension CipherItemState: ViewVaultItemState {
+    var cardItemViewState: any ViewCardItemState {
+        cardItemState
+    }
+
     var cipher: BitwardenSdk.CipherView {
         switch configuration {
         case let .existing(cipherView: view):
@@ -192,7 +196,7 @@ extension CipherItemState {
             type: BitwardenSdk.CipherType(type),
             login: type == .login ? loginState.loginView : nil,
             identity: type == .identity ? identityState.identityView : nil,
-            card: nil,
+            card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,

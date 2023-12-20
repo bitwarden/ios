@@ -203,7 +203,50 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
-    func test_perform_savePressed() async {
+    func test_perform_savePressed_card() async throws {
+        subject.state.name = "vault item"
+        subject.state.type = .card
+        let expectedCardState = CardItemState(
+            brand: .custom(.visa),
+            cardholderName: "Jane Doe",
+            cardNumber: "12345",
+            cardSecurityCode: "123",
+            expirationMonth: .custom(.apr),
+            expirationYear: "1234"
+        )
+        subject.state.cardItemState = expectedCardState
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).creationDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).revisionDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+
+        let added = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
+        XCTAssertNil(added.identity)
+        XCTAssertNil(added.login)
+        XCTAssertNil(added.secureNote)
+        XCTAssertNotNil(added.card)
+        XCTAssertEqual(added.cardItemState(), expectedCardState)
+        let unwrappedState = try XCTUnwrap(subject.state as? CipherItemState)
+        XCTAssertEqual(
+            added,
+            unwrappedState
+                .newCipherView(
+                    creationDate: vaultRepository.addCipherCiphers[0].creationDate
+                )
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.savePressed` saves the item.
+    func test_perform_savePressed_login() async {
         subject.state.name = "vault item"
         await subject.perform(.savePressed)
 

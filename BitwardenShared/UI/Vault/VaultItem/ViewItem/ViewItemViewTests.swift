@@ -1,4 +1,5 @@
 import SnapshotTesting
+import SwiftUI
 import ViewInspector
 import XCTest
 
@@ -235,5 +236,29 @@ class ViewItemViewTests: BitwardenTestCase {
     func test_snapshot_login_withAllValues_largeText() {
         processor.state.loadingState = .data(loginState())
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
+    }
+
+    /// Snapshots the previews for card types.
+    func test_snapshot_previews_card() {
+        assertSnapshots(
+            matching: ViewItemView_Previews.cardPreview,
+            as: [
+                .tallPortrait,
+                .defaultPortraitDark,
+                .tallPortraitAX5(heightMultiple: 2),
+            ]
+        )
+    }
+
+    /// Snapshots the previews for login types.
+    func test_snapshot_previews_login() {
+        assertSnapshots(
+            matching: ViewItemView_Previews.loginPreview,
+            as: [
+                .tallPortrait,
+                .defaultPortraitDark,
+                .tallPortraitAX5(heightMultiple: 2),
+            ]
+        )
     }
 }
