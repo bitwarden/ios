@@ -16,7 +16,7 @@ class ManualEntryViewTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: DefaultEntryState())
+        processor = MockProcessor(state: DefaultEntryState(deviceSupportsCamera: true))
         let store = Store(processor: processor)
         subject = ManualEntryView(
             store: store
