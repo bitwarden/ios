@@ -8,47 +8,34 @@ struct VaultItemManagementMenuView: View {
     // MARK: Properties
 
     /// The flag for showing/hiding clone option
-    let includeClone: Bool
+    let isCloneEnabled: Bool
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<Void, VaultItemManagementMenuAction, VaultItemManagementMenuEffect>
 
     var body: some View {
         Menu {
-            Button {
+            Button(Localizations.attachments) {
                 store.send(.attachments)
-            } label: {
-                Text(Localizations.attachments)
-                    .styleGuide(.body)
             }
 
-            if includeClone {
-                Button {
+            if isCloneEnabled {
+                Button(Localizations.clone) {
                     store.send(.clone)
-                } label: {
-                    Text(Localizations.clone)
-                        .styleGuide(.body)
                 }
             }
 
-            Button {
+            Button(Localizations.moveToOrganization) {
                 store.send(.moveToOrganization)
-            } label: {
-                Text(Localizations.moveToOrganization)
-                    .styleGuide(.body)
             }
 
-            AsyncButton(role: .destructive) {
+            AsyncButton(Localizations.delete, role: .destructive) {
                 await store.perform(.deleteItem)
-            } label: {
-                Text(Localizations.delete)
-                    .styleGuide(.body)
             }
         } label: {
             Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
                 .resizable()
                 .frame(width: 19, height: 19)
-                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
         .accessibilityLabel(Localizations.options)
     }
@@ -56,7 +43,7 @@ struct VaultItemManagementMenuView: View {
 
 #Preview {
     VaultItemManagementMenuView(
-        includeClone: true, store: Store(
+        isCloneEnabled: true, store: Store(
             processor: StateProcessor(
                 state: ()
             )
