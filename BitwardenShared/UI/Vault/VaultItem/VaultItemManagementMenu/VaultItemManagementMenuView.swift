@@ -36,6 +36,7 @@ struct VaultItemManagementMenuView: View {
             Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
                 .resizable()
                 .frame(width: 19, height: 19)
+                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
         .accessibilityLabel(Localizations.options)
     }
