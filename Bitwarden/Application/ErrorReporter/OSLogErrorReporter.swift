@@ -20,6 +20,9 @@ final class OSLogErrorReporter: ErrorReporter {
     func log(error: Error) {
         logger.error("Error: \(error)")
 
+        // Don't crash for networking related errors.
+        guard !error.isNetworkingError else { return }
+
         // Crash in debug builds to make the error more visible during development.
         assertionFailure("Unexpected error: \(error)")
     }
