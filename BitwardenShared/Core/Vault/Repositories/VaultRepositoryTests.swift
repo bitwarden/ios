@@ -4,9 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-// swiftlint:disable file_length
-
-class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class VaultRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
     var client: MockHTTPClient!
@@ -16,6 +14,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
+    var syncService: MockSyncService!
     var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
@@ -28,6 +27,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientCrypto = MockClientCrypto()
         clientVault = MockClientVaultService()
         errorReporter = MockErrorReporter()
+        syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
 
         clientVault.clientCiphers = clientCiphers
@@ -40,7 +40,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             clientVault: clientVault,
             errorReporter: errorReporter,
             stateService: stateService,
-            syncAPIService: APIService(client: client),
+            syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
     }
@@ -60,32 +60,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Tests
 
-    /// Tests `vaultTimeoutService.lock()` publishes the correct value for whether or not the vault was locked.
-    func test_vault_isLocked_shouldClear() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
-
-        try await subject.fetchSync()
-        XCTAssertNotNil(subject.syncResponseSubject.value)
-
-        vaultTimeoutService.shouldClear = true
-        await subject.vaultTimeoutService.lockVault(userId: "")
-        waitFor(subject.syncResponseSubject.value == nil)
-        XCTAssertNil(subject.syncResponseSubject.value)
-    }
-
-    /// Tests `vaultTimeoutService.lock()` publishes the correct value for whether or not the vault was locked.
-    func test_vault_isLocked_shouldNotClear() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
-
-        try await subject.fetchSync()
-        XCTAssertNotNil(subject.syncResponseSubject.value)
-
-        vaultTimeoutService.shouldClear = false
-        await subject.vaultTimeoutService.lockVault(userId: "")
-        waitFor(subject.syncResponseSubject.value != nil)
-        XCTAssertNotNil(subject.syncResponseSubject.value)
-    }
-
     /// `addCipher()` makes the add cipher API request and updates the vault.
     func test_addCipher() async throws {
         client.results = [
@@ -96,11 +70,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture()
         try await subject.addCipher(cipher)
 
-        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers")
-        XCTAssertEqual(client.requests[1].url.absoluteString, "https://example.com/api/sync")
 
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
     }
 
     /// `addCipher()` throws an error if encrypting the cipher fails.
@@ -141,91 +115,26 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `updateCipher()` makes the update cipher API request and updates the vault.
     func test_updateCipher() async throws {
-        client.results = [
-            .httpSuccess(testData: .cipherResponse),
-            .httpSuccess(testData: .syncWithCipher),
-        ]
+        client.result = .httpSuccess(testData: .cipherResponse)
 
         let cipher = CipherView.fixture(id: "123")
         try await subject.updateCipher(cipher)
 
-        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
-        XCTAssertEqual(client.requests[1].url.absoluteString, "https://example.com/api/sync")
 
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
-    }
-
-    /// `fetchSync()` performs the sync API request.
-    func test_fetchSync() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
-
-        try await subject.fetchSync()
-
-        XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].method, .get)
-        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/sync")
-    }
-
-    /// `fetchSync()` throws an error if the request fails.
-    func test_fetchSync_error() async throws {
-        client.result = .httpFailure()
-
-        await assertAsyncThrows {
-            try await subject.fetchSync()
-        }
-    }
-
-    /// `fetchSync()` initializes the SDK for decrypting organization ciphers.
-    func test_fetchSync_initializeOrgCrypto() async throws {
-        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
-
-        try await subject.fetchSync()
-
-        XCTAssertEqual(
-            clientCrypto.initializeOrgCryptoRequest,
-            InitOrgCryptoRequest(organizationKeys: [
-                "ORG_2": "ORG_2_KEY",
-                "ORG_1": "ORG_1_KEY",
-            ])
-        )
-    }
-
-    /// `fetchSync()` logs an error to the error reporter if initializing organization crypto fails.
-    func test_fetchSync_initializeOrgCrypto_error() async throws {
-        struct InitializeOrgCryptoError: Error {}
-
-        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
-        clientCrypto.initializeOrgCryptoResult = .failure(InitializeOrgCryptoError())
-
-        try await subject.fetchSync()
-
-        XCTAssertTrue(errorReporter.errors.last is InitializeOrgCryptoError)
-    }
-
-    /// `fetchSync()` initializes the SDK for decrypting organization ciphers with an empty
-    /// dictionary if the user isn't a part of any organizations.
-    func test_fetchSync_initializesOrgCrypto_noOrganizations() async throws {
-        client.result = .httpSuccess(testData: .syncWithProfile)
-
-        try await subject.fetchSync()
-
-        XCTAssertEqual(
-            clientCrypto.initializeOrgCryptoRequest,
-            InitOrgCryptoRequest(organizationKeys: [:])
-        )
+        XCTAssertTrue(syncService.didFetchSync)
     }
 
     /// `cipherDetailsPublisher(id:)` returns a publisher for the details of a cipher in the vault.
     func test_cipherDetailsPublisher() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphers.data
+        ))
 
         var iterator = subject.cipherDetailsPublisher(id: "fdabf83f-f1c0-4703-894d-4c0fd6741a9a").makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
         let cipherDetails = await iterator.next()
 
         XCTAssertEqual(cipherDetails?.name, "Apple")
@@ -269,14 +178,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault.
     func test_vaultListPublisher() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphers.data
+        ))
 
         var iterator = subject.vaultListPublisher().makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
         let sections = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
@@ -304,14 +211,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher()` returns a publisher which publishes an empty array if the user's
     /// vault contains no ciphers.
     func test_vaultListPublisher_empty() async throws {
-        client.result = .httpSuccess(testData: .syncWithProfile)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithProfile.data
+        ))
 
         var iterator = subject.vaultListPublisher().makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
         let sections = await iterator.next()
 
         try XCTAssertTrue(XCTUnwrap(sections).isEmpty)
@@ -320,14 +225,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault for a vault that contains collections.
     func test_vaultListPublisher_withCollections() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
 
         var iterator = subject.vaultListPublisher().makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
         let sections = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
@@ -358,14 +261,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault list.
     func test_vaultListPublisher_forGroup_login() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphers.data
+        ))
 
         var iterator = subject.vaultListPublisher(group: .login).makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
         let items = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
@@ -379,16 +280,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher(group:)` returns a publisher for a group of items in a collection within
     /// the vault list.
     func test_vaultListPublisher_forGroup_collection() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
 
         var iterator = subject.vaultListPublisher(
             group: .collection(id: "f96de98e-618a-4886-b396-66b92a385325", name: "Engineering")
         ).makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
         let items = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {

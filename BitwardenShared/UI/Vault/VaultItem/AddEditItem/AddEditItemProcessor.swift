@@ -5,11 +5,13 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the add item screen.
 ///
-final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAction, AddEditItemEffect> {
+final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
     // MARK: Types
 
     typealias Services = HasCameraService
         & HasErrorReporter
+        & HasPasteboardService
+        & HasTOTPService
         & HasVaultRepository
 
     // MARK: Properties
@@ -32,7 +34,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
     init(
         coordinator: AnyCoordinator<VaultItemRoute>,
         services: Services,
-        state: CipherItemState
+        state: AddEditItemState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -45,6 +47,10 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
         switch effect {
         case .checkPasswordPressed:
             await checkPassword()
+        case .copyTotpPressed:
+            guard let key = state.loginState.authenticatorKey else { return }
+            services.pasteboardService.copy(key)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
         case .savePressed:
             await saveItem()
         case .setupTotpPressed:
@@ -73,6 +79,8 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
             } else {
                 presentReplacementAlert(for: .username)
             }
+        case let .identityFieldChanged(action):
+            updateIdentityState(&state, for: action)
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
         case .morePressed:
@@ -95,6 +103,12 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
             state.loginState.uris.remove(at: index)
         case let .togglePasswordVisibilityChanged(newValue):
             state.loginState.isPasswordVisible = newValue
+        case let .toastShown(newValue):
+            state.toast = newValue
+        case let .totpKeyChanged(newValue):
+            state.loginState.totpKey = (newValue != nil)
+                ? TOTPCodeConfig(authenticatorKey: newValue!)
+                : nil
         case let .typeChanged(newValue):
             state.type = newValue
         case let .uriChanged(newValue, index: index):
@@ -109,6 +123,53 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
     }
 
     // MARK: Private Methods
+
+    /// Receives an `AddEditIdentityItem` action from the `AddEditIdentityView` view's store, and updates
+    /// the `AddEditIdentityState`.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditItemState` to be updated.
+    ///   - action: The `AddEditIdentityItemAction` received.
+    private func updateIdentityState(_ state: inout AddEditItemState, for action: AddEditIdentityItemAction) {
+        switch action {
+        case let .firstNameChanged(firstName):
+            state.identityState.firstName = firstName
+        case let .middleNameChanged(middleName):
+            state.identityState.middleName = middleName
+        case let .titleChanged(title):
+            state.identityState.title = title
+        case let .lastNameChanged(lastName):
+            state.identityState.lastName = lastName
+        case let .userNameChanged(userName):
+            state.identityState.userName = userName
+        case let .companyChanged(company):
+            state.identityState.company = company
+        case let .socialSecurityNumberChanged(ssn):
+            state.identityState.socialSecurityNumber = ssn
+        case let .passportNumberChanged(passportNumber):
+            state.identityState.passportNumber = passportNumber
+        case let .licenseNumberChanged(licenseNumber):
+            state.identityState.licenseNumber = licenseNumber
+        case let .emailChanged(email):
+            state.identityState.email = email
+        case let .phoneNumberChanged(phoneNumber):
+            state.identityState.phone = phoneNumber
+        case let .address1Changed(address1):
+            state.identityState.address1 = address1
+        case let .address2Changed(address2):
+            state.identityState.address2 = address2
+        case let .address3Changed(address3):
+            state.identityState.address3 = address3
+        case let .cityOrTownChanged(cityOrTown):
+            state.identityState.cityOrTown = cityOrTown
+        case let .stateChanged(stateProvince):
+            state.identityState.state = stateProvince
+        case let .postalCodeChanged(postalCode):
+            state.identityState.postalCode = postalCode
+        case let .countryChanged(country):
+            state.identityState.country = country
+        }
+    }
 
     /// Checks the password currently stored in `state`.
     ///
@@ -142,7 +203,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
         // TODO: BIT-368 Navigate to an `.alert` route with the custom field alert
     }
 
-    /// Builds and navigates ot an alert for overwriting an existing value for the specified type.
+    /// Builds and navigates to an alert for overwriting an existing value for the specified type.
     ///
     /// - Parameter type: The `GeneratorType` that is being overwritten.
     ///
@@ -203,7 +264,7 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
     /// Adds the item currently in `state`.
     ///
     private func addItem() async throws {
-        try await services.vaultRepository.addCipher(state.newCipherView())
+        try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
         coordinator.navigate(to: .dismiss)
     }
@@ -221,9 +282,9 @@ final class AddEditItemProcessor: StateProcessor<CipherItemState, AddEditItemAct
     private func setupTotp() async {
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
-            coordinator.navigate(to: .setupTotpCamera)
+            coordinator.navigate(to: .setupTotpCamera, context: self)
         } else {
-            coordinator.navigate(to: .setupTotpManual)
+            coordinator.navigate(to: .setupTotpManual, context: self)
         }
     }
 }
@@ -241,5 +302,23 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
             state.loginState.username = value
         }
         coordinator.navigate(to: .dismiss)
+    }
+}
+
+extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
+    func didCompleteCapture(with value: String) {
+        coordinator.navigate(to: .dismiss)
+        parseAuthenticatorKey(value)
+    }
+
+    func parseAuthenticatorKey(_ key: String) {
+        do {
+            state.loginState.totpKey = try services.totpService.getTOTPConfiguration(key: key)
+            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+        } catch {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+            }
+        }
     }
 }

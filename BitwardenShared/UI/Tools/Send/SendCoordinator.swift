@@ -1,3 +1,5 @@
+import SwiftUI
+
 // MARK: - SendCoordinator
 
 /// A coordinator that manages navigation in the send tab.
@@ -24,6 +26,8 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addItem:
             showAddItem()
+        case .dismiss:
+            stackNavigator.dismiss()
         case .list:
             showList()
         }
@@ -38,7 +42,15 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     /// Shows the add item screen.
     ///
     private func showAddItem() {
-        stackNavigator.push(AddSendItemView())
+        let state = AddEditSendItemState()
+        let processor = AddEditSendItemProcessor(
+            coordinator: self,
+            state: state
+        )
+        let view = AddEditSendItemView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the list of sends.

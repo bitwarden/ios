@@ -1,4 +1,7 @@
 import Combine
+import Foundation
+
+// swiftlint:disable file_length
 
 // MARK: - StateService
 
@@ -94,6 +97,14 @@ protocol StateService: AnyObject {
     ///
     func setActiveAccount(userId: String) async throws
 
+    /// Sets the time of the last sync for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The time of the last sync.
+    ///   - userId: The user ID associated with the last sync time.
+    ///
+    func setLastSyncTime(_ date: Date?, userId: String?) async throws
+
     /// Sets the password generation options for a user ID.
     ///
     /// - Parameters:
@@ -132,6 +143,12 @@ protocol StateService: AnyObject {
     /// - Returns: The userId `String` of the active account
     ///
     func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>>
+
+    /// A publisher for the last sync time for the active account.
+    ///
+    /// - Returns: A publisher for the last sync time.
+    ///
+    func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never>
 }
 
 extension StateService {
@@ -180,6 +197,15 @@ extension StateService {
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
         try await setAccountEncryptionKeys(encryptionKeys, userId: nil)
+    }
+
+    /// Sets the time of the last sync for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The time of the last sync (as the number of seconds since the Unix epoch).]
+    ///
+    func setLastSyncTime(_ date: Date?) async throws {
+        try await setLastSyncTime(date, userId: nil)
     }
 
     /// Sets the password generation options for the active account.
@@ -231,14 +257,23 @@ actor DefaultStateService: StateService {
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
 
+    /// The data store that handles performing data requests.
+    let dataStore: DataStore
+
+    /// A subject containing the last sync time mapped to user ID.
+    var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
+
     // MARK: Initialization
 
     /// Initialize a `DefaultStateService`.
     ///
-    /// - Parameter appSettingsStore: The service that persists app settings.
+    /// - Parameters:
+    ///   - appSettingsStore: The service that persists app settings.
+    ///   - dataStore: The data store that handles performing data requests.
     ///
-    init(appSettingsStore: AppSettingsStore) {
+    init(appSettingsStore: AppSettingsStore, dataStore: DataStore) {
         self.appSettingsStore = appSettingsStore
+        self.dataStore = dataStore
     }
 
     // MARK: Methods
@@ -331,7 +366,10 @@ actor DefaultStateService: StateService {
 
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
+        appSettingsStore.setLastSyncTime(nil, userId: userId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: userId)
+
+        try await dataStore.deleteDataForUser(userId: userId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
@@ -347,6 +385,12 @@ actor DefaultStateService: StateService {
         guard state.accounts
             .contains(where: { $0.key == userId }) else { throw StateServiceError.noAccounts }
         state.activeUserId = userId
+    }
+
+    func setLastSyncTime(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setLastSyncTime(date, userId: userId)
+        lastSyncTimeByUserIdSubject.value[userId] = date
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
@@ -381,6 +425,14 @@ actor DefaultStateService: StateService {
 
     func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
         appSettingsStore.activeAccountIdPublisher()
+    }
+
+    func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
+        let userId = try getActiveAccountUserId()
+        if lastSyncTimeByUserIdSubject.value[userId] == nil {
+            lastSyncTimeByUserIdSubject.value[userId] = appSettingsStore.lastSyncTime(userId: userId)
+        }
+        return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
     }
 
     // MARK: Private

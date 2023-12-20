@@ -57,11 +57,17 @@ public class ServiceContainer: Services {
     /// The service used by the application to manage account state.
     let stateService: StateService
 
+    /// The service used to handle syncing vault data with the API.
+    let syncService: SyncService
+
     /// The object used by the application to retrieve information about this device.
     let systemDevice: SystemDevice
 
     /// The service used by the application to manage account access tokens.
     let tokenService: TokenService
+
+    /// The service used by the application to validate TOTP keys and produce TOTP values.
+    let totpService: TOTPService
 
     /// The service used by the application to generate a two step login URL.
     let twoStepLoginService: TwoStepLoginService
@@ -91,8 +97,10 @@ public class ServiceContainer: Services {
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - tokenService: The service used by the application to manage account access tokens.
+    ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///   - twoStepLoginService: The service used by the application to generate a two step login URL.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -111,8 +119,10 @@ public class ServiceContainer: Services {
         pasteboardService: PasteboardService,
         settingsRepository: SettingsRepository,
         stateService: StateService,
+        syncService: SyncService,
         systemDevice: SystemDevice,
         tokenService: TokenService,
+        totpService: TOTPService,
         twoStepLoginService: TwoStepLoginService,
         vaultRepository: VaultRepository,
         vaultTimeoutService: VaultTimeoutService
@@ -130,8 +140,10 @@ public class ServiceContainer: Services {
         self.pasteboardService = pasteboardService
         self.settingsRepository = settingsRepository
         self.stateService = stateService
+        self.syncService = syncService
         self.systemDevice = systemDevice
         self.tokenService = tokenService
+        self.totpService = totpService
         self.twoStepLoginService = twoStepLoginService
         self.vaultRepository = vaultRepository
         self.vaultTimeoutService = vaultTimeoutService
@@ -150,13 +162,30 @@ public class ServiceContainer: Services {
 
         let biometricsService = DefaultBiometricsService()
         let clientService = DefaultClientService()
-        let stateService = DefaultStateService(appSettingsStore: appSettingsStore)
+        let dataStore = DataStore(errorReporter: errorReporter)
+        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
+        let cipherService = DefaultCipherService(cipherDataStore: dataStore, stateService: stateService)
+        let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
+        let folderService = DefaultFolderService(folderDataStore: dataStore, stateService: stateService)
+        let sendService = DefaultSendService(sendDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
 
-        let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
+        let syncService = DefaultSyncService(
+            cipherService: cipherService,
+            clientCrypto: clientService.clientCrypto(),
+            collectionService: collectionService,
+            errorReporter: errorReporter,
+            folderService: folderService,
+            sendService: sendService,
+            stateService: stateService,
+            syncAPIService: apiService
+        )
 
+        let totpService = DefaultTOTPService()
+
+        let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
         let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
         let authRepository = DefaultAuthRepository(
@@ -170,11 +199,16 @@ public class ServiceContainer: Services {
 
         let generatorRepository = DefaultGeneratorRepository(
             clientGenerators: clientService.clientGenerator(),
+            clientVaultService: clientService.clientVault(),
+            dataStore: dataStore,
             stateService: stateService
         )
 
         let settingsRepository = DefaultSettingsRepository(
+            clientVault: clientService.clientVault(),
+            folderService: folderService,
             stateService: stateService,
+            syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
 
@@ -184,7 +218,7 @@ public class ServiceContainer: Services {
             clientVault: clientService.clientVault(),
             errorReporter: errorReporter,
             stateService: stateService,
-            syncAPIService: apiService,
+            syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
 
@@ -202,8 +236,10 @@ public class ServiceContainer: Services {
             pasteboardService: DefaultPasteboardService(),
             settingsRepository: settingsRepository,
             stateService: stateService,
+            syncService: syncService,
             systemDevice: UIDevice.current,
             tokenService: tokenService,
+            totpService: totpService,
             twoStepLoginService: twoStepLoginService,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService

@@ -83,7 +83,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         case .enterpriseSingleSignOnPressed:
             coordinator.navigate(to: .enterpriseSingleSignOn)
         case .getMasterPasswordHintPressed:
-            coordinator.navigate(to: .masterPasswordHint)
+            coordinator.navigate(to: .masterPasswordHint(username: state.username))
         case .loginWithDevicePressed:
             coordinator.navigate(to: .loginWithDevice)
         case let .masterPasswordChanged(newValue):
@@ -138,7 +138,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             let hashedPassword = try await services.clientAuth.hashPassword(
                 email: state.username,
                 password: state.masterPassword,
-                kdfParams: response.sdkKdf
+                kdfParams: response.sdkKdf,
+                purpose: .serverAuthorization
             )
 
             let appID = await services.appIdService.getOrCreateAppId()

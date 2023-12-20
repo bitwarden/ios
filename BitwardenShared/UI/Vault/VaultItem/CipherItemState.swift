@@ -12,6 +12,7 @@ struct CipherItemState: Equatable {
     enum Configuration: Equatable {
         /// A case for new ciphers.
         case add
+
         /// A case to view or edit an existing cipher.
         case existing(cipherView: CipherView)
 
@@ -33,6 +34,9 @@ struct CipherItemState: Equatable {
     /// The folder this item should be added to.
     var folder: String
 
+    /// The state for a identity type item.
+    var identityState: IdentityItemState
+
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool
 
@@ -51,6 +55,9 @@ struct CipherItemState: Equatable {
     /// The owner of this item.
     var owner: String
 
+    /// A toast for the AddEditItemView
+    var toast: Toast?
+
     /// What cipher type this item is.
     var type: CipherType
 
@@ -59,20 +66,18 @@ struct CipherItemState: Equatable {
 
     // MARK: DerivedProperties
 
+    /// The edit state of the item.
+    var addEditState: AddEditItemState {
+        self
+    }
+
     /// The view state of the item.
     var viewState: ViewVaultItemState? {
-        guard let cipherView = configuration.existingCipherView else {
+        guard case .existing = configuration else {
             return nil
         }
-        return ViewVaultItemState(
-            cipher: cipherView,
-            customFields: customFields,
-            isMasterPasswordRePromptOn: isMasterPasswordRePromptOn,
-            loginState: loginState,
-            name: name,
-            notes: notes,
-            updatedDate: updatedDate
-        )
+
+        return self
     }
 
     // MARK: Initialization
@@ -81,6 +86,7 @@ struct CipherItemState: Equatable {
         configuration: Configuration,
         customFields: [CustomFieldState],
         folder: String,
+        identityState: IdentityItemState,
         isFavoriteOn: Bool,
         isMasterPasswordRePromptOn: Bool,
         loginState: LoginItemState,
@@ -92,6 +98,7 @@ struct CipherItemState: Equatable {
     ) {
         self.customFields = customFields
         self.folder = folder
+        self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
         self.loginState = loginState
@@ -108,6 +115,7 @@ struct CipherItemState: Equatable {
             configuration: .add,
             customFields: [],
             folder: "",
+            identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
             loginState: .init(),
@@ -125,6 +133,7 @@ struct CipherItemState: Equatable {
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
             folder: cipherView.folderId ?? "",
+            identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
             loginState: cipherView.loginItemState(),
@@ -149,6 +158,19 @@ struct CipherItemState: Equatable {
     }
 }
 
+extension CipherItemState: AddEditItemState {}
+
+extension CipherItemState: ViewVaultItemState {
+    var cipher: BitwardenSdk.CipherView {
+        switch configuration {
+        case let .existing(cipherView: view):
+            return view
+        case .add:
+            return newCipherView()
+        }
+    }
+}
+
 extension CipherItemState {
     /// Returns a `CipherView` based on the properties of the `CipherItemState`.
     func newCipherView(creationDate: Date = .now) -> CipherView {
@@ -162,7 +184,7 @@ extension CipherItemState {
             notes: notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(type),
             login: type == .login ? loginState.loginView : nil,
-            identity: nil,
+            identity: type == .identity ? identityState.identityView : nil,
             card: nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             favorite: isFavoriteOn,

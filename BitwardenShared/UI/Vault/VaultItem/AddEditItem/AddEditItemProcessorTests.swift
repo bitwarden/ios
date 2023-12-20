@@ -12,6 +12,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var cameraService: MockCameraService!
     var coordinator: MockCoordinator<VaultItemRoute>!
     var errorReporter: MockErrorReporter!
+    var pasteboardService: MockPasteboardService!
+    var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -23,15 +25,19 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         cameraService = MockCameraService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        pasteboardService = MockPasteboardService()
+        totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
                 errorReporter: errorReporter,
+                pasteboardService: pasteboardService,
+                totpService: totpService,
                 vaultRepository: vaultRepository
             ),
-            state: .init()
+            state: CipherItemState()
         )
     }
 
@@ -39,7 +45,9 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         super.tearDown()
         coordinator = nil
         errorReporter = nil
+        pasteboardService = nil
         subject = nil
+        totpService = nil
         vaultRepository = nil
     }
 
@@ -73,6 +81,44 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loginState.password, "password123")
     }
 
+    /// `didCompleteCapture` with a value updates the state with the new auth key value
+    /// and navigates to the `.dismiss` route.
+    func test_didCompleteCapture_failure() {
+        subject.state.loginState.totpKey = nil
+        totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
+        let task = Task {
+            subject.didCompleteCapture(with: "1234")
+        }
+        waitFor(!coordinator.routes.isEmpty && coordinator.routes.last != .dismiss)
+        task.cancel()
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .alert(Alert(
+                title: Localizations.authenticatorKeyReadError,
+                message: nil,
+                alertActions: [
+                    AlertAction(title: Localizations.ok, style: .default),
+                ]
+            ))
+        )
+        XCTAssertNil(subject.state.loginState.authenticatorKey)
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `didCompleteCapture` with a value updates the state with the new auth key value
+    /// and navigates to the `.dismiss` route.
+    func test_didCompleteCapture_success() throws {
+        subject.state.loginState.totpKey = nil
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPCodeConfig(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        subject.didCompleteCapture(with: key)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(subject.state.loginState.authenticatorKey, .base32Key)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.authenticatorKeyAdded)
+    }
+
     /// `perform(_:)` with `.checkPasswordPressed` checks the password.
     func test_perform_checkPasswordPressed() async {
         await subject.perform(.checkPasswordPressed)
@@ -89,6 +135,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 ]
             )
         ))
+    }
+
+    /// Tapping the copy button on the auth key row dispatches the `.copyPassword` action.
+    func test_perform_copyTotp() async throws {
+        subject.state.loginState.totpKey = .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
+
+        await subject.perform(.copyTotpPressed)
+        XCTAssertEqual(
+            subject.state.loginState.authenticatorKey,
+            pasteboardService.copiedString
+        )
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
@@ -163,7 +220,10 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             vaultRepository.addCipherCiphers,
-            [subject.state.newCipherView(creationDate: vaultRepository.addCipherCiphers[0].creationDate)]
+            [
+                (subject.state as? CipherItemState)?
+                    .newCipherView(creationDate: vaultRepository.addCipherCiphers[0].creationDate),
+            ]
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
@@ -203,6 +263,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.setupTotpPressed)
 
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
+    /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
+    func test_receive_clearTOTPKey() {
+        subject.state.loginState.totpKey = .init(authenticatorKey: .base32Key)
+        subject.receive(.totpKeyChanged(nil))
+
+        XCTAssertNil(subject.state.loginState.authenticatorKey)
     }
 
     /// `receive(_:)` with `.dismiss` navigates to the `.list` route.
@@ -428,6 +496,23 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loginState.password, "")
     }
 
+    /// `receive(_:)` with `.toastShown` without a value updates the state correctly.
+    func test_receive_toastShown_withoutValue() {
+        let toast = Toast(text: "123")
+        subject.state.toast = toast
+        subject.receive(.toastShown(nil))
+
+        XCTAssertEqual(subject.state.toast, nil)
+    }
+
+    /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
+    func test_receive_toastShown_withValue() {
+        let toast = Toast(text: "123")
+        subject.receive(.toastShown(toast))
+
+        XCTAssertEqual(subject.state.toast, toast)
+    }
+
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.
     func test_receive_togglePasswordVisibilityChanged_withTrue() {
         subject.state.loginState.isPasswordVisible = false
@@ -528,5 +613,294 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.usernameChanged(""))
 
         XCTAssertEqual(subject.state.loginState.username, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
+    func test_receive_identity_titleChange_withValidValue() {
+        subject.state.identityState.title = .default
+        subject.receive(.identityFieldChanged(.titleChanged(.custom(.mr))))
+        XCTAssertEqual(subject.state.identityState.title, .custom(.mr))
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` without a value updates the state correctly.
+    func test_receive_identity_titleChange_withOutValidValue() {
+        subject.state.identityState.title = DefaultableType.custom(.mr)
+        subject.receive(.identityFieldChanged(.titleChanged(DefaultableType.default)))
+        XCTAssertEqual(subject.state.identityState.title, DefaultableType.default)
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.firstNameChanged)` with a value updates the state correctly.
+    func test_receive_identity_firstNameChange_withValidValue() {
+        subject.state.identityState.firstName = ""
+        subject.receive(.identityFieldChanged(.firstNameChanged("firstName")))
+
+        XCTAssertEqual(subject.state.identityState.firstName, "firstName")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.firstNameChanged)` without a value updates the state correctly.
+    func test_receive_identity_firstNameChange_withOutValidValue() {
+        subject.state.identityState.firstName = "firstName"
+        subject.receive(.identityFieldChanged(.firstNameChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.firstName, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.middleNameChanged)` with a value updates the state correctly.
+    func test_receive_identity_middleNameChange_withValidValue() {
+        subject.state.identityState.middleName = ""
+        subject.receive(.identityFieldChanged(.middleNameChanged("middleName")))
+
+        XCTAssertEqual(subject.state.identityState.middleName, "middleName")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.middleNameChanged)` without a value updates the state correctly.
+    func test_receive_identity_middleNameChange_withOutValidValue() {
+        subject.state.identityState.middleName = "middleName"
+        subject.receive(.identityFieldChanged(.middleNameChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.middleName, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.lastNameChanged)` with a value updates the state correctly.
+    func test_receive_identity_lastNameChange_withValidValue() {
+        subject.state.identityState.lastName = ""
+        subject.receive(.identityFieldChanged(.lastNameChanged("lastName")))
+
+        XCTAssertEqual(subject.state.identityState.lastName, "lastName")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.lastNameChanged)` without a value updates the state correctly.
+    func test_receive_identity_lastNameChange_withOutValidValue() {
+        subject.state.identityState.lastName = "lastName"
+        subject.receive(.identityFieldChanged(.lastNameChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.lastName, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.userNameChanged)` with a value updates the state correctly.
+    func test_receive_identity_userNameChange_withValidValue() {
+        subject.state.identityState.userName = ""
+        subject.receive(.identityFieldChanged(.userNameChanged("userName")))
+
+        XCTAssertEqual(subject.state.identityState.userName, "userName")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.userNameChanged)` without a value updates the state correctly.
+    func test_receive_identity_userNameChange_withOutValidValue() {
+        subject.state.identityState.userName = "userName"
+        subject.receive(.identityFieldChanged(.userNameChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.userName, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.companyChanged)` with a value updates the state correctly.
+    func test_receive_identity_companyChange_withValidValue() {
+        subject.state.identityState.company = ""
+        subject.receive(.identityFieldChanged(.companyChanged("company")))
+
+        XCTAssertEqual(subject.state.identityState.company, "company")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.companyChanged)` without a value updates the state correctly.
+    func test_receive_identity_companyChange_withOutValidValue() {
+        subject.state.identityState.company = "company"
+        subject.receive(.identityFieldChanged(.companyChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.company, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.passportNumberChanged)` with a value updates the state correctly.
+    func test_receive_identity_passportNumberChange_withValidValue() {
+        subject.state.identityState.passportNumber = ""
+        subject.receive(.identityFieldChanged(.passportNumberChanged("passportNumber")))
+
+        XCTAssertEqual(subject.state.identityState.passportNumber, "passportNumber")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.passportNumberChanged)` without a value updates the state correctly.
+    func test_receive_identity_passportNumberChange_withOutValidValue() {
+        subject.state.identityState.passportNumber = "passportNumber"
+        subject.receive(.identityFieldChanged(.passportNumberChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.passportNumber, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.socialSecurityNumberChanged)`
+    /// with a value updates the state correctly.
+    func test_receive_identity_socialSecurityNumberChange_withValidValue() {
+        subject.state.identityState.socialSecurityNumber = ""
+        subject.receive(.identityFieldChanged(.socialSecurityNumberChanged("socialSecurityNumber")))
+
+        XCTAssertEqual(subject.state.identityState.socialSecurityNumber, "socialSecurityNumber")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.passportNumberChanged)` without a value updates the state correctly.
+    func test_receive_identity_socialSecurityNumberChange_withOutValidValue() {
+        subject.state.identityState.passportNumber = "socialSecurityNumber"
+        subject.receive(.identityFieldChanged(.socialSecurityNumberChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.socialSecurityNumber, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.licenseNumberChanged)` with a value updates the state correctly.
+    func test_receive_identity_licenseNumberChange_withValidValue() {
+        subject.state.identityState.licenseNumber = ""
+        subject.receive(.identityFieldChanged(.licenseNumberChanged("licenseNumber")))
+
+        XCTAssertEqual(subject.state.identityState.licenseNumber, "licenseNumber")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.licenseNumberChanged)` without a value updates the state correctly.
+    func test_receive_identity_licenseNumberChange_withOutValidValue() {
+        subject.state.identityState.licenseNumber = "licenseNumber"
+        subject.receive(.identityFieldChanged(.licenseNumberChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.licenseNumber, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.emailChanged)` with a value updates the state correctly.
+    func test_receive_identity_emailChange_withValidValue() {
+        subject.state.identityState.email = ""
+        subject.receive(.identityFieldChanged(.emailChanged("email")))
+
+        XCTAssertEqual(subject.state.identityState.email, "email")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.emailChanged)` without a value updates the state correctly.
+    func test_receive_identity_emailChange_withOutValidValue() {
+        subject.state.identityState.email = "email"
+        subject.receive(.identityFieldChanged(.emailChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.email, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.phoneNumberChanged)` with a value updates the state correctly.
+    func test_receive_identity_phoneChange_withValidValue() {
+        subject.state.identityState.phone = ""
+        subject.receive(.identityFieldChanged(.phoneNumberChanged("phone")))
+
+        XCTAssertEqual(subject.state.identityState.phone, "phone")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.phoneNumberChanged)` without a value updates the state correctly.
+    func test_receive_identity_phoneChange_withOutValidValue() {
+        subject.state.identityState.phone = "phone"
+        subject.receive(.identityFieldChanged(.phoneNumberChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.phone, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address1Changed)` with a value updates the state correctly.
+    func test_receive_identity_address1Change_withValidValue() {
+        subject.state.identityState.address1 = ""
+        subject.receive(.identityFieldChanged(.address1Changed("address1")))
+
+        XCTAssertEqual(subject.state.identityState.address1, "address1")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address1Changed)` without a value updates the state correctly.
+    func test_receive_identity_address1Change_withOutValidValue() {
+        subject.state.identityState.address1 = "address1"
+        subject.receive(.identityFieldChanged(.address1Changed("")))
+
+        XCTAssertEqual(subject.state.identityState.address1, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address2Changed)` with a value updates the state correctly.
+    func test_receive_identity_address2Change_withValidValue() {
+        subject.state.identityState.address2 = ""
+        subject.receive(.identityFieldChanged(.address2Changed("address2")))
+
+        XCTAssertEqual(subject.state.identityState.address2, "address2")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address2Changed)` without a value updates the state correctly.
+    func test_receive_identity_address2Change_withOutValidValue() {
+        subject.state.identityState.address2 = "address2"
+        subject.receive(.identityFieldChanged(.address2Changed("")))
+
+        XCTAssertEqual(subject.state.identityState.address2, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address3Changed)` with a value updates the state correctly.
+    func test_receive_identity_address3Change_withValidValue() {
+        subject.state.identityState.address3 = ""
+        subject.receive(.identityFieldChanged(.address3Changed("address3")))
+
+        XCTAssertEqual(subject.state.identityState.address3, "address3")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.address3Changed)` without a value updates the state correctly.
+    func test_receive_identity_address3Change_withOutValidValue() {
+        subject.state.identityState.address3 = "address3"
+        subject.receive(.identityFieldChanged(.address3Changed("")))
+
+        XCTAssertEqual(subject.state.identityState.address3, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.cityOrTownChanged)` with a value updates the state correctly.
+    func test_receive_identity_cityOrTownChange_withValidValue() {
+        subject.state.identityState.cityOrTown = ""
+        subject.receive(.identityFieldChanged(.cityOrTownChanged("cityOrTown")))
+
+        XCTAssertEqual(subject.state.identityState.cityOrTown, "cityOrTown")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.cityOrTownChanged)` without a value updates the state correctly.
+    func test_receive_identity_cityOrTownChange_withOutValidValue() {
+        subject.state.identityState.cityOrTown = "cityOrTown"
+        subject.receive(.identityFieldChanged(.cityOrTownChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.cityOrTown, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.stateChanged)` with a value updates the state correctly.
+    func test_receive_identity_stateChange_withValidValue() {
+        subject.state.identityState.state = ""
+        subject.receive(.identityFieldChanged(.stateChanged("state")))
+
+        XCTAssertEqual(subject.state.identityState.state, "state")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.stateChanged)` without
+    ///  a value updates the state correctly.
+    func test_receive_identity_stateChange_withOutValidValue() {
+        subject.state.identityState.state = "state"
+        subject.receive(.identityFieldChanged(.stateChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.state, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.postalCodeChanged)` with a value updates the state correctly.
+    func test_receive_identity_postalCodeChange_withValidValue() {
+        subject.state.identityState.state = ""
+        subject.receive(.identityFieldChanged(.postalCodeChanged("55408")))
+
+        XCTAssertEqual(subject.state.identityState.postalCode, "55408")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.postalCodeChanged)` without
+    ///  a value updates the state correctly.
+    func test_receive_identity_postalCodeChange_withOutValidValue() {
+        subject.state.identityState.postalCode = "55408"
+        subject.receive(.identityFieldChanged(.postalCodeChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.postalCode, "")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.countryChanged)` with a value updates the state correctly.
+    func test_receive_identity_countryChange_withValidValue() {
+        subject.state.identityState.country = ""
+        subject.receive(.identityFieldChanged(.countryChanged("country")))
+
+        XCTAssertEqual(subject.state.identityState.country, "country")
+    }
+
+    /// `receive(_:)` with `.identityFieldChanged(.countryChanged)` without a value updates the state correctly.
+    func test_receive_identity_countryChange_withOutValidValue() {
+        subject.state.identityState.country = "country"
+        subject.receive(.identityFieldChanged(.countryChanged("")))
+
+        XCTAssertEqual(subject.state.identityState.country, "")
     }
 }

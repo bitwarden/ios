@@ -79,14 +79,11 @@ class DefaultVaultRepository {
     /// The service used by the application to manage account state.
     let stateService: StateService
 
-    /// The API service used to perform sync API requests.
-    let syncAPIService: SyncAPIService
+    /// The service used to handle syncing vault data with the API.
+    let syncService: SyncService
 
     /// The service used by the application to manage vault access.
     let vaultTimeoutService: VaultTimeoutService
-
-    /// A subject containing the sync response.
-    var syncResponseSubject = CurrentValueSubject<SyncResponseModel?, Never>(nil)
 
     // MARK: Initialization
 
@@ -98,7 +95,7 @@ class DefaultVaultRepository {
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
-    ///   - syncAPIService: The API service used to perform sync API requests.
+    ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
@@ -107,7 +104,7 @@ class DefaultVaultRepository {
         clientVault: ClientVaultService,
         errorReporter: ErrorReporter,
         stateService: StateService,
-        syncAPIService: SyncAPIService,
+        syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.cipherAPIService = cipherAPIService
@@ -115,15 +112,8 @@ class DefaultVaultRepository {
         self.clientVault = clientVault
         self.errorReporter = errorReporter
         self.stateService = stateService
-        self.syncAPIService = syncAPIService
+        self.syncService = syncService
         self.vaultTimeoutService = vaultTimeoutService
-
-        Task {
-            for await shouldClearData in vaultTimeoutService.shouldClearDecryptedDataPublisher() {
-                guard shouldClearData else { continue }
-                syncResponseSubject.value = nil
-            }
-        }
     }
 
     // MARK: Private
@@ -236,20 +226,7 @@ extension DefaultVaultRepository: VaultRepository {
     // MARK: API Methods
 
     func fetchSync() async throws {
-        let response = try await syncAPIService.getSync()
-        let organizationKeysById = response.profile?.organizations?
-            .reduce(into: [String: String]()) { result, organization in
-                guard let id = organization.id, let key = organization.key else { return }
-                result[id] = key
-            } ?? [:]
-        do {
-            try await clientCrypto.initializeOrgCrypto(
-                req: InitOrgCryptoRequest(organizationKeys: organizationKeysById)
-            )
-        } catch {
-            errorReporter.log(error: error)
-        }
-        syncResponseSubject.value = response
+        try await syncService.fetchSync()
     }
 
     // MARK: Data Methods
@@ -275,7 +252,7 @@ extension DefaultVaultRepository: VaultRepository {
     // MARK: Publishers
 
     func vaultListPublisher() -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>> {
-        syncResponseSubject
+        syncService.syncResponsePublisher()
             .asyncCompactMap { response in
                 guard let response else { return nil }
                 return try? await self.vaultListSections(from: response)
@@ -285,7 +262,7 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func vaultListPublisher(group: VaultListGroup) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
-        syncResponseSubject
+        syncService.syncResponsePublisher()
             .asyncCompactMap { response in
                 guard let response else { return nil }
                 return try? await self.vaultListItems(group: group, from: response)
@@ -295,9 +272,11 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>> {
-        syncResponseSubject
+        syncService.syncResponsePublisher()
             .asyncCompactMap { response in
-                guard let cipher = response?.ciphers.first(where: { $0.id == id }) else { return nil }
+                guard let cipher = response?.ciphers.first(where: { $0.id == id }) else {
+                    return nil
+                }
                 return try? await self.clientVault.ciphers().decrypt(cipher: Cipher(responseModel: cipher))
             }
             .eraseToAnyPublisher()

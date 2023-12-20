@@ -171,6 +171,26 @@ extension CipherView {
     }
 }
 
+extension Collection {
+    static func fixture(
+        id: String = "",
+        organizationId: String = "",
+        name: String = "",
+        externalId: String = "",
+        hidePasswords: Bool = false,
+        readOnly: Bool = false
+    ) -> Collection {
+        Collection(
+            id: id,
+            organizationId: organizationId,
+            name: name,
+            externalId: externalId,
+            hidePasswords: hidePasswords,
+            readOnly: readOnly
+        )
+    }
+}
+
 extension BitwardenSdk.LoginView {
     static func fixture(
         password: String? = nil,

@@ -7,6 +7,9 @@ enum AddEditItemEffect {
     /// The check password button was pressed.
     case checkPasswordPressed
 
+    /// The copy totp button was pressed.
+    case copyTotpPressed
+
     /// The save button was pressed.
     case savePressed
 

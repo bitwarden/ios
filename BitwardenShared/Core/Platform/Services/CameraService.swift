@@ -1,4 +1,5 @@
 import AVFoundation
+import Combine
 import Foundation
 
 // MARK: - CameraService
@@ -23,17 +24,21 @@ protocol CameraService: AnyObject {
     ///
     func deviceSupportsCamera() -> Bool
 
-    /// Retrieves an `AVCaptureSession` for scanning QR codes.
+    /// Retrieves the publisher for scan results when scanning QR codes.
     ///
-    /// - Returns: An `AVCaptureSession` if the app is authorized; otherwise, `nil`.
+    /// - Returns: An `AnyPublisher` that emits a`ScanResult` model.
     ///
-    func getCameraSession() async -> AVCaptureSession?
+    func getScanResultPublisher() -> AsyncPublisher<AnyPublisher<ScanResult?, Never>>
 
-    /// Starts the camera session for QR code scanning.
+    /// Starts the camera session for QR code scanning and returns a publisher for scan results.
+    ///
+    /// This method initializes and starts the camera session.
+    /// It returns a new `AVCaptureSession` used to scan QR codes.
     ///
     /// - Throws: An error if the camera session cannot be started.
+    /// - Returns: A new `AVCaptureSession` for video/camera.
     ///
-    func startCameraSession() throws
+    func startCameraSession() async throws -> AVCaptureSession
 
     /// Stops the camera session.
     ///
@@ -47,13 +52,44 @@ protocol CameraService: AnyObject {
 
 enum CameraServiceError: Error, Equatable {
     case unableToStartCaptureSession
+    case unableToStartScanning
+}
+
+/// The default `CameraService` type for the application
+///
+class DefaultCameraService: NSObject {
+    // MARK: Private Properties
+
+    /// The camera session in use.
+    private var cameraSession: AVCaptureSession?
+
+    /// A subject containing an array of scan results.
+    private var scanResultsSubject = CurrentValueSubject<ScanResult?, Never>(nil)
+
+    /// The output of the camera session.
+    private let metadataOutput = AVCaptureMetadataOutput()
+
+    // MARK: Private Methods
+
+    /// Function to call when a scan result is found
+    private func publishScanResult(_ result: ScanResult) {
+        scanResultsSubject.send(result)
+    }
+
+    /// Request camera access from the user.
+    ///
+    private func requestCameraAuthorization() async -> CameraAuthorizationStatus {
+        if await AVCaptureDevice.requestAccess(for: .video) {
+            .authorized
+        } else {
+            .denied
+        }
+    }
 }
 
 // MARK: - DefaultCamerAuthorizationService
 
-class DefaultCameraService: CameraService {
-    var cameraSession: AVCaptureSession?
-
+extension DefaultCameraService: CameraService {
     func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus {
         let status = CameraAuthorizationStatus(
             avAuthorizationStatus: AVCaptureDevice.authorizationStatus(for: .video)
@@ -90,47 +126,64 @@ class DefaultCameraService: CameraService {
         return !videoDevices.isEmpty
     }
 
-    func getCameraSession() async -> AVCaptureSession? {
-        let status = await checkStatusOrRequestCameraAuthorization()
-        guard case .authorized = status else {
-            cameraSession = nil
-            return nil
-        }
-        if cameraSession == nil {
-            cameraSession = AVCaptureSession()
-        }
-
-        return cameraSession
+    func getScanResultPublisher() -> AsyncPublisher<AnyPublisher<ScanResult?, Never>> {
+        scanResultsSubject = .init(nil)
+        return scanResultsSubject
+            .eraseToAnyPublisher()
+            .values
     }
 
-    func startCameraSession() throws {
-        guard let cameraSession,
+    func startCameraSession() async throws -> AVCaptureSession {
+        let status = await checkStatusOrRequestCameraAuthorization()
+        guard case .authorized = status,
               let videoDevice = AVCaptureDevice.default(for: .video) else {
             throw CameraServiceError.unableToStartCaptureSession
         }
+        let avCaptureSession = AVCaptureSession()
+        cameraSession = avCaptureSession
         let videoInput = try AVCaptureDeviceInput(device: videoDevice)
-        if cameraSession.canAddInput(videoInput) {
-            cameraSession.addInput(videoInput)
+        if avCaptureSession.canAddInput(videoInput) {
+            avCaptureSession.addInput(videoInput)
+        }
+        if avCaptureSession.canAddOutput(metadataOutput) {
+            avCaptureSession.addOutput(metadataOutput)
+            metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+            metadataOutput.metadataObjectTypes = [.qr]
+        } else {
+            throw CameraServiceError.unableToStartScanning
         }
         DispatchQueue.global(qos: .userInitiated).async {
-            cameraSession.startRunning()
+            avCaptureSession.startRunning()
         }
+        scanResultsSubject = .init(nil)
+
+        return avCaptureSession
     }
 
     func stopCameraSession() {
         guard let cameraSession else { return }
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             cameraSession.stopRunning()
+            self?.cameraSession = nil
         }
     }
+}
 
-    /// Request camera access from the user.
-    ///
-    private func requestCameraAuthorization() async -> CameraAuthorizationStatus {
-        if await AVCaptureDevice.requestAccess(for: .video) {
-            .authorized
-        } else {
-            .denied
+// MARK: AVCaptureMetadataOutputObjectsDelegate
+
+extension DefaultCameraService: AVCaptureMetadataOutputObjectsDelegate {
+    func metadataOutput(
+        _ output: AVCaptureMetadataOutput,
+        didOutput metadataObjects: [AVMetadataObject],
+        from connection: AVCaptureConnection
+    ) {
+        for metadata in metadataObjects {
+            if let readableObject = metadata as? AVMetadataMachineReadableCodeObject,
+               let stringValue = readableObject.stringValue,
+               readableObject.type == .qr {
+                let scanResult = ScanResult(content: stringValue, codeType: readableObject.type)
+                publishScanResult(scanResult)
+            }
         }
     }
 }

@@ -3,6 +3,18 @@ import SwiftUI
 /// Helper functions extended off the `View` protocol.
 ///
 extension View {
+    /// A `ToolbarItem` for views with an add button.
+    ///
+    /// - Parameter action: The action to perform when the add button is tapped.
+    ///
+    /// - Returns: A `ToolbarItem` with an add button.
+    ///
+    func addToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarButton(asset: Asset.Images.plus, label: Localizations.add, action: action)
+        }
+    }
+
     /// A `ToolbarItem` for views with a dismiss button.
     ///
     /// - Parameter action: The action to perform when the dismiss button is tapped.

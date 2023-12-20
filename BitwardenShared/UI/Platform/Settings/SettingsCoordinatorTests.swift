@@ -35,6 +35,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `navigate(to:)` with `.about` pushes the about view onto the stack navigator.
+    func test_navigateTo_about() throws {
+        subject.navigate(to: .about)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<AboutView>)
+    }
+
     /// `navigate(to:)` with `.accountSecurity` pushes the account security view onto the stack navigator.
     func test_navigateTo_accountSecurity() throws {
         subject.navigate(to: .accountSecurity)
@@ -105,6 +114,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(delegate.didLogoutCalled)
     }
 
+    /// `navigate(to:)` with `.folders` pushes the folders view onto the stack navigator.
+    func test_navigateTo_folders() throws {
+        subject.navigate(to: .folders)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<FoldersView>)
+    }
+
     /// `navigate(to:)` with `.other` pushes the other view onto the stack navigator.
     func test_navigateTo_other() throws {
         subject.navigate(to: .other)
@@ -121,6 +139,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
         XCTAssertTrue(action.view is SettingsView)
+    }
+
+    /// `navigate(to:)` with `.vault` pushes the vault settings view onto the stack navigator.
+    func test_navigateTo_vault() throws {
+        subject.navigate(to: .vault)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<VaultSettingsView>)
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
@@ -151,11 +178,11 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
     var didLockVaultCalled = false
     var didLogoutCalled = false
 
-    func didDeleteAccount(otherAccounts: [Account]?) {
+    func didDeleteAccount(otherAccounts _: [Account]?) {
         didDeleteAccountCalled = true
     }
 
-    func didLockVault(account: Account) {
+    func didLockVault(account _: Account) {
         didLockVaultCalled = true
     }
 

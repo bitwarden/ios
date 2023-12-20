@@ -1,6 +1,9 @@
 /// A route to a specific screen in the settings tab.
 ///
 public enum SettingsRoute: Equatable, Hashable {
+    /// A route to the about view.
+    case about
+
     /// A route to the account security screen.
     case accountSecurity
 
@@ -25,6 +28,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route that dismisses the current view.
     case dismiss
 
+    /// A route to view the folders in the vault.
+    case folders
+
     /// A route to the login screen after the vault has been locked.
     ///
     /// - Parameters:
@@ -40,4 +46,7 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to the settings screen.
     case settings
+
+    /// A route to the vault settings view.
+    case vault
 }

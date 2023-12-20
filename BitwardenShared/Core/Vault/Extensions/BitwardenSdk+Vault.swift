@@ -3,6 +3,15 @@
 
 import BitwardenSdk
 
+// MARK: - DataMappingError
+
+/// Errors thrown from converting between SDK and app types.
+///
+enum DataMappingError: Error {
+    /// Thrown if an object was unable to be constructed because the data was invalid.
+    case invalidData
+}
+
 // MARK: - Ciphers
 
 extension AttachmentRequestModel {
@@ -11,6 +20,19 @@ extension AttachmentRequestModel {
             fileName: attachment.fileName,
             key: attachment.key,
             size: attachment.size
+        )
+    }
+}
+
+extension AttachmentResponseModel {
+    init(attachment: BitwardenSdk.Attachment) {
+        self.init(
+            fileName: attachment.fileName,
+            id: attachment.id,
+            key: attachment.key,
+            size: attachment.size,
+            sizeName: attachment.sizeName,
+            url: attachment.url
         )
     }
 }
@@ -24,6 +46,37 @@ extension CipherCardModel {
             expMonth: card.expMonth,
             expYear: card.expYear,
             number: card.number
+        )
+    }
+}
+
+extension CipherDetailsResponseModel {
+    init(cipher: BitwardenSdk.Cipher) throws {
+        guard let id = cipher.id else { throw DataMappingError.invalidData }
+        self.init(
+            attachments: cipher.attachments?.map(AttachmentResponseModel.init),
+            card: cipher.card.map(CipherCardModel.init),
+            collectionIds: cipher.collectionIds,
+            creationDate: cipher.creationDate,
+            deletedDate: cipher.deletedDate,
+            edit: cipher.edit,
+            favorite: cipher.favorite,
+            fields: cipher.fields?.map(CipherFieldModel.init),
+            folderId: cipher.folderId,
+            id: id,
+            identity: cipher.identity.map(CipherIdentityModel.init),
+            key: cipher.key,
+            login: cipher.login.map(CipherLoginModel.init),
+            name: cipher.name,
+            notes: cipher.notes,
+            organizationId: cipher.organizationId,
+            organizationUseTotp: cipher.organizationUseTotp,
+            passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
+            reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
+            revisionDate: cipher.revisionDate,
+            secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
+            type: BitwardenShared.CipherType(type: cipher.type),
+            viewPassword: cipher.viewPassword
         )
     }
 }
@@ -206,6 +259,13 @@ extension BitwardenSdk.Card {
 }
 
 extension BitwardenSdk.Cipher {
+    init(cipherData: CipherData) throws {
+        guard let model = cipherData.model else {
+            throw DataMappingError.invalidData
+        }
+        self.init(responseModel: model)
+    }
+
     init(responseModel model: CipherDetailsResponseModel) {
         self.init(
             id: model.id,
@@ -342,6 +402,17 @@ extension BitwardenSdk.PasswordHistory {
             lastUsedDate: model.lastUsedDate
         )
     }
+
+    init(passwordHistoryData: PasswordHistoryData) throws {
+        guard let password = passwordHistoryData.password,
+              let lastUsedDate = passwordHistoryData.lastUsedDate else {
+            throw DataMappingError.invalidData
+        }
+        self.init(
+            password: password,
+            lastUsedDate: lastUsedDate
+        )
+    }
 }
 
 extension BitwardenSdk.SecureNote {
@@ -378,9 +449,31 @@ extension BitwardenSdk.UriMatchType {
     }
 }
 
+// MARK: Collections
+
+extension CollectionDetailsResponseModel {
+    init(collection: Collection) {
+        self.init(
+            externalId: collection.externalId,
+            hidePasswords: collection.hidePasswords,
+            id: collection.id,
+            name: collection.name,
+            organizationId: collection.organizationId,
+            readOnly: collection.readOnly
+        )
+    }
+}
+
 // MARK: Collections (BitwardenSdk)
 
 extension BitwardenSdk.Collection {
+    init(collectionData: CollectionData) throws {
+        guard let model = collectionData.model else {
+            throw DataMappingError.invalidData
+        }
+        self.init(collectionDetailsResponseModel: model)
+    }
+
     init(collectionDetailsResponseModel model: CollectionDetailsResponseModel) {
         self.init(
             id: model.id,
@@ -403,60 +496,17 @@ extension BitwardenSdk.Folder {
             revisionDate: model.revisionDate
         )
     }
-}
 
-// MARK: - Sends (BitwardenSdk)
-
-extension BitwardenSdk.Send {
-    init(sendResponseModel model: SendResponseModel) {
-        self.init(
-            id: model.id,
-            accessId: model.accessId,
-            name: model.name,
-            notes: model.notes,
-            key: model.key,
-            password: model.password,
-            type: BitwardenSdk.SendType(type: model.type),
-            file: model.file.map(SendFile.init),
-            text: model.text.map(SendText.init),
-            maxAccessCount: model.maxAccessCount,
-            accessCount: model.accessCount,
-            disabled: model.disabled,
-            hideEmail: model.hideEmail,
-            revisionDate: model.revisionDate,
-            deletionDate: model.deletionDate,
-            expirationDate: model.expirationDate
-        )
-    }
-}
-
-extension BitwardenSdk.SendType {
-    init(type: SendType) {
-        switch type {
-        case .file:
-            self = .file
-        case .text:
-            self = .text
+    init(folderData: FolderData) throws {
+        guard let id = folderData.id,
+              let name = folderData.model?.name,
+              let revisionDate = folderData.model?.revisionDate else {
+            throw DataMappingError.invalidData
         }
-    }
-}
-
-extension BitwardenSdk.SendFile {
-    init(sendFileModel model: SendFileModel) {
         self.init(
-            id: model.id,
-            fileName: model.fileName,
-            size: model.size,
-            sizeName: model.sizeName
-        )
-    }
-}
-
-extension BitwardenSdk.SendText {
-    init(sendTextModel model: SendTextModel) {
-        self.init(
-            text: model.text,
-            hidden: model.hidden
+            id: id,
+            name: name,
+            revisionDate: revisionDate
         )
     }
 }
