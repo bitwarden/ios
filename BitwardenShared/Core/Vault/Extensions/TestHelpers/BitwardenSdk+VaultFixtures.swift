@@ -136,7 +136,6 @@ extension CipherView {
         passwordHistory: [PasswordHistoryView]? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-        type: BitwardenSdk.CipherType = .login,
         viewPassword: Bool = true
     ) -> CipherView {
         CipherView(
@@ -147,7 +146,7 @@ extension CipherView {
             key: key,
             name: name,
             notes: notes,
-            type: type,
+            type: .card,
             login: nil,
             identity: nil,
             card: card,
@@ -187,7 +186,6 @@ extension CipherView {
         passwordHistory: [PasswordHistoryView]? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-        type: BitwardenSdk.CipherType = .login,
         viewPassword: Bool = true
     ) -> CipherView {
         CipherView(
@@ -198,7 +196,7 @@ extension CipherView {
             key: key,
             name: name,
             notes: notes,
-            type: type,
+            type: .login,
             login: login,
             identity: nil,
             card: nil,

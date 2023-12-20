@@ -6,8 +6,9 @@ import BitwardenSdk
 final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
     // MARK: Types
 
-    typealias Services = HasVaultRepository
-        & HasErrorReporter
+    typealias Services = HasErrorReporter
+        & HasPasteboardService
+        & HasVaultRepository
 
     // MARK: Subtypes
 
@@ -81,8 +82,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             // TODO: BIT-1130 Check password
             print("check password")
         case let .copyPressed(value):
-            // TODO: BIT-1121 Copy value to clipboard
-            print("copy: \(value)")
+            copyValue(value)
         case let .customFieldVisibilityPressed(customFieldState):
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
@@ -119,6 +119,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     // MARK: Private Methods
 
+    /// Copies a value to the pasteboard.
+    ///
+    /// - Parameter value: The string to be copied.
+    ///
+    func copyValue(_ value: String) {
+        services.pasteboardService.copy(value)
+    }
+
     /// Triggers the edit state for the item currently stored in `state`.
     ///
     private func editItem() {
@@ -134,18 +142,25 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// - Parameter cardAction: The action to handle.
     ///
     private func handleCardAction(_ cardAction: ViewCardItemAction) {
-        guard case var .data(cipherState) = state.loadingState,
-              case .card = cipherState.type else {
+        guard case var .data(cipherState) = state.loadingState else {
             services.errorReporter.log(
-                error: ActionError.nonCardTypeToggle("Cannot handle card action without loaded data")
+                error: ActionError.dataNotLoaded("Cannot handle card action without loaded data")
+            )
+            return
+        }
+        guard case .card = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonCardTypeToggle("Cannot handle card action on non-card type")
             )
             return
         }
         switch cardAction {
         case let .toggleCodeVisibilityChanged(isVisible):
             cipherState.cardItemState.isCodeVisible = isVisible
+            state.loadingState = .data(cipherState)
         case let .toggleNumberVisibilityChanged(isVisible):
             cipherState.cardItemState.isNumberVisible = isVisible
+            state.loadingState = .data(cipherState)
         }
     }
 
