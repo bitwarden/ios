@@ -12,6 +12,9 @@ struct BitwardenTextField<TrailingContent: View>: View {
     /// The accessibility identifier for the text field.
     let accessibilityIdentifier: String?
 
+    /// Whether the password can be viewed (only applies if a password exists in the field).
+    let canViewPassword: Bool
+
     /// The footer text displayed below the text field.
     let footer: String?
 
@@ -41,7 +44,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
             BitwardenField(title: title, footer: footer) {
                 textField
             } accessoryContent: {
-                if let isPasswordVisible {
+                if let isPasswordVisible, canViewPassword {
                     AccessoryButton(
                         asset: isPasswordVisible.wrappedValue
                             ? Asset.Images.hidden
@@ -109,6 +112,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
     ///
     /// - Parameters:
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
+    ///   - canViewPassword: Whether the password can be viewed.
     ///   - title: The title of the text field.
     ///   - footer: The footer text displayed below the text field.
     ///   - isPasswordVisible: Whether or not the password in the text field is visible.
@@ -119,6 +123,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
     ///
     init(
         accessibilityIdentifier: String? = nil,
+        canViewPassword: Bool = true,
         title: String? = nil,
         footer: String? = nil,
         isPasswordVisible: Binding<Bool>? = nil,
@@ -128,6 +133,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
         @ViewBuilder trailingContent: () -> TrailingContent
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.canViewPassword = canViewPassword
         self.footer = footer
         self.isPasswordVisible = isPasswordVisible
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
@@ -143,6 +149,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     ///
     /// - Parameters:
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
+    ///   - canViewPassword: Whether the password can be viewed.
     ///   - title: The title of the text field.
     ///   - footer: The footer text displayed below the text field.
     ///   - isPasswordVisible: Whether or not the password in the text field is visible.
@@ -153,6 +160,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     ///
     init(
         accessibilityIdentifier: String? = nil,
+        canViewPassword: Bool = true,
         title: String? = nil,
         footer: String? = nil,
         isPasswordVisible: Binding<Bool>? = nil,
@@ -161,6 +169,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         text: Binding<String>
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.canViewPassword = canViewPassword
         self.footer = footer
         self.isPasswordVisible = isPasswordVisible
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId

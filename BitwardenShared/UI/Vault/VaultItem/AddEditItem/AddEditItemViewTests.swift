@@ -572,6 +572,28 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
+    func test_snapshot_edit_full_disabledViewPassword() {
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state.loginState = .fixture(
+            canViewPassword: false,
+            isPasswordVisible: false,
+            password: "password1!",
+            uris: [
+                .init(uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.owner = "owner"
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
     func test_snapshot_edit_full_fieldsNotVisible_largeText() {
         processor.state = CipherItemState(existing: CipherView.loginFixture())!
         processor.state.loginState = .fixture(
