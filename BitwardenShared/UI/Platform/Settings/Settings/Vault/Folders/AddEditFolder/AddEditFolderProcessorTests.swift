@@ -40,6 +40,56 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Perform with `.deleteTapped` presents the confirmation alert and displays an error if
+    /// deleting the folder failed.
+    func test_perform_deleteTapped_genericError() async throws {
+        // Set up the mock data.
+        subject.state.mode = .edit(.fixture(id: "testID"))
+        struct TestError: Error, Equatable {}
+        settingsRepository.deleteFolderResult = .failure(TestError())
+
+        await subject.perform(.deleteTapped)
+
+        // Ensure the alert is shown.
+        var alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .confirmDeleteFolder {})
+
+        // Press the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the error alert is displayed.
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+        )
+        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// Perform with `.deleteTapped` presents the confirmation alert and deletes the account if the user confirms.
+    func test_perform_deleteTapped_success() async throws {
+        // Set up the mock data.
+        subject.state.mode = .edit(.fixture(id: "testID"))
+
+        await subject.perform(.deleteTapped)
+
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .confirmDeleteFolder {})
+
+        // Press the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the folder is deleted and the view is dismissed.
+        XCTAssertEqual(settingsRepository.deletedFolderId, "testID")
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
     func test_perform_savePressed_invalidName() async throws {
         subject.state.folderName = "    "

@@ -3,6 +3,18 @@
 extension Alert {
     // MARK: Methods
 
+    /// Confirm deleting the folder.
+    static func confirmDeleteFolder(action: @MainActor @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.doYouReallyWantToDelete,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
     /// Confirm that the user wants to export their vault.
     ///
     /// - Parameters:

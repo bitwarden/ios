@@ -37,6 +37,8 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
 
     override func perform(_ effect: AddEditFolderEffect) async {
         switch effect {
+        case .deleteTapped:
+            await showDeleteConfirmationAlert()
         case .saveTapped:
             await handleSaveTapped()
         }
@@ -48,9 +50,6 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
             coordinator.navigate(to: .dismiss)
         case let .folderNameTextChanged(text):
             state.folderName = text
-        case .moreTapped:
-            // TODO: BIT-435
-            break
         }
     }
 
@@ -60,6 +59,26 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
     private func addFolder() async throws {
         try await services.settingsRepository.addFolder(name: state.folderName)
         coordinator.navigate(to: .dismiss)
+    }
+
+    /// Deletes a folder.
+    ///
+    /// - Parameter id: The id of the folder to delete.
+    ///
+    private func deleteFolder(withID id: String) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.deleting)
+            try await services.settingsRepository.deleteFolder(id: id)
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            let alert = Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+            coordinator.showAlert(alert)
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Edits an existing folder with the entered name and closes the view.
@@ -95,5 +114,14 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
             coordinator.showAlert(alert)
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Show the dialog to confirm deleting the folder.
+    private func showDeleteConfirmationAlert() async {
+        guard case let .edit(folderView) = state.mode else { return }
+
+        coordinator.showAlert(.confirmDeleteFolder { [weak self] in
+            await self?.deleteFolder(withID: folderView.id)
+        })
     }
 }

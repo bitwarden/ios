@@ -1,4 +1,3 @@
-import BitwardenSdk
 import Networking
 
 /// Data model for performing an add folder request.
