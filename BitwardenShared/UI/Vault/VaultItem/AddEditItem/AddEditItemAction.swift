@@ -4,6 +4,9 @@ import BitwardenSdk
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable {
+    /// A card field changed
+    case cardFieldChanged(AddEditCardItemAction)
+
     /// The dismiss button was pressed.
     case dismissPressed
 

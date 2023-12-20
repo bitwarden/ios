@@ -25,6 +25,9 @@ struct CipherItemState: Equatable {
 
     // MARK: Properties
 
+    /// The card item state.
+    var cardItemState: CardItemState
+
     /// The Add or Existing Configuration.
     let configuration: Configuration
 
@@ -83,6 +86,7 @@ struct CipherItemState: Equatable {
     // MARK: Initialization
 
     private init(
+        cardState: CardItemState,
         configuration: Configuration,
         customFields: [CustomFieldState],
         folder: String,
@@ -96,6 +100,7 @@ struct CipherItemState: Equatable {
         type: CipherType,
         updatedDate: Date
     ) {
+        cardItemState = cardState
         self.customFields = customFields
         self.folder = folder
         self.identityState = identityState
@@ -112,6 +117,7 @@ struct CipherItemState: Equatable {
 
     init(addItem type: CipherType = .login) {
         self.init(
+            cardState: .init(),
             configuration: .add,
             customFields: [],
             folder: "",
@@ -130,6 +136,7 @@ struct CipherItemState: Equatable {
     init?(existing cipherView: CipherView) {
         guard cipherView.id != nil else { return nil }
         self.init(
+            cardState: cipherView.cardItemState(),
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
             folder: cipherView.folderId ?? "",

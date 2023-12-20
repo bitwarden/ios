@@ -60,6 +60,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
 
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case let .cardFieldChanged(cardFieldAction):
+            updateCardState(&state, for: cardFieldAction)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
         case let .favoriteChanged(newValue):
@@ -123,6 +125,33 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     }
 
     // MARK: Private Methods
+
+    /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates
+    /// the `AddEditCardState`.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditCardState` to be updated.
+    ///   - action: The `AddEditCardItemAction` received.
+    private func updateCardState(_ state: inout AddEditItemState, for action: AddEditCardItemAction) {
+        switch action {
+        case let .brandChanged(brand):
+            state.cardItemState.brand = brand
+        case let .cardholderNameChanged(name):
+            state.cardItemState.cardholderName = name
+        case let .cardNumberChanged(number):
+            state.cardItemState.cardNumber = number
+        case let .cardSecurityCodeChanged(code):
+            state.cardItemState.cardSecurityCode = code
+        case let .expirationMonthChanged(month):
+            state.cardItemState.expirationMonth = month
+        case let .expirationYearChanged(year):
+            state.cardItemState.expirationYear = year
+        case let .toggleCodeVisibilityChanged(isVisible):
+            state.cardItemState.isCodeVisible = isVisible
+        case let .toggleNumberVisibilityChanged(isVisible):
+            state.cardItemState.isNumberVisible = isVisible
+        }
+    }
 
     /// Receives an `AddEditIdentityItem` action from the `AddEditIdentityView` view's store, and updates
     /// the `AddEditIdentityState`.
