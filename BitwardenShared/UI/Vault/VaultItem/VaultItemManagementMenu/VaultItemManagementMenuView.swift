@@ -7,6 +7,9 @@ import SwiftUI
 struct VaultItemManagementMenuView: View {
     // MARK: Properties
 
+    /// The flag for showing/hiding clone option
+    let includeClone: Bool
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<Void, VaultItemManagementMenuAction, VaultItemManagementMenuEffect>
 
@@ -19,11 +22,13 @@ struct VaultItemManagementMenuView: View {
                     .styleGuide(.body)
             }
 
-            Button {
-                store.send(.clone)
-            } label: {
-                Text(Localizations.clone)
-                    .styleGuide(.body)
+            if includeClone {
+                Button {
+                    store.send(.clone)
+                } label: {
+                    Text(Localizations.clone)
+                        .styleGuide(.body)
+                }
             }
 
             Button {
@@ -51,7 +56,7 @@ struct VaultItemManagementMenuView: View {
 
 #Preview {
     VaultItemManagementMenuView(
-        store: Store(
+        includeClone: true, store: Store(
             processor: StateProcessor(
                 state: ()
             )

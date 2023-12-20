@@ -27,7 +27,7 @@ struct ViewItemView: View {
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 VaultItemManagementMenuView(
-                    store: store.child(
+                    includeClone: true, store: store.child(
                         state: { _ in },
                         mapAction: { .morePressed($0) },
                         mapEffect: { _ in .deletePressed }

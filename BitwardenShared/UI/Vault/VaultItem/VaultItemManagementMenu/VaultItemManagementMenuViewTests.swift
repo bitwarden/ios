@@ -20,7 +20,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         super.setUp()
         processor = MockProcessor(state: ())
         let store = Store(processor: processor)
-        subject = VaultItemManagementMenuView(store: store)
+        subject = VaultItemManagementMenuView(includeClone: true, store: store)
     }
 
     override func tearDown() {
