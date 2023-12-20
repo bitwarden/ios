@@ -100,7 +100,7 @@ struct AccountSecurityView: View {
     private var sessionTimeoutSection: some View {
         VStack(alignment: .leading) {
             SectionHeaderView(Localizations.sessionTimeout)
-            
+
             VStack(spacing: 0) {
                 SettingsMenuField(
                     title: Localizations.sessionTimeout,
@@ -110,6 +110,18 @@ struct AccountSecurityView: View {
                         send: AccountSecurityAction.sessionTimeoutValueChanged
                     )
                 )
+
+                if store.state.isShowingCustomTimeout {
+                    SettingsPickerField(
+                        title: Localizations.custom,
+                        customTimeoutValue: store.state.customTimeoutString,
+                        pickerValue: store.binding(
+                            get: \.customSessionTimeoutValue,
+                            send: AccountSecurityAction.setCustomSessionTimeoutValue
+                        ),
+                        customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel
+                    )
+                }
 
                 SettingsMenuField(
                     title: Localizations.sessionTimeoutAction,

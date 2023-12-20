@@ -32,6 +32,9 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
     /// Never timeout the session.
     case never
 
+    /// A custom timeout value.
+    case custom
+
     /// All of the cases to show in the menu.
     public static let allCases: [Self] = [
         .immediately,
@@ -43,6 +46,7 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
         .fourHours,
         .onAppRestart,
         .never,
+        .custom,
     ]
 
     var localizedName: String {
@@ -65,6 +69,8 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
             Localizations.onRestart
         case .never:
             Localizations.never
+        case .custom:
+            Localizations.custom
         }
     }
 }
@@ -101,8 +107,26 @@ struct AccountSecurityState: Equatable {
     /// The biometric authentication type for the user's device.
     var biometricAuthenticationType: BiometricAuthenticationType?
 
+    /// The accessibility label used for the custom timeout value.
+    var customTimeoutAccessibilityLabel: String {
+        createCustomTimeoutAccessibilityLabel(customSessionTimeoutValue)
+    }
+
+    /// The custom session timeout value, initially set to 1 minute.
+    var customSessionTimeoutValue: TimeInterval = 60
+
+    /// The string representation of the custom session timeout value.
+    var customTimeoutString: String {
+        formattedCustomTimeoutValue(customSessionTimeoutValue)
+    }
+
     /// Whether the approve login requests toggle is on.
     var isApproveLoginRequestsToggleOn: Bool = false
+
+    /// Whether or not the custom session timeout field is shown.
+    var isShowingCustomTimeout: Bool {
+        sessionTimeoutValue == .custom
+    }
 
     /// Whether the unlock with face ID toggle is on.
     var isUnlockWithFaceIDOn: Bool = false
@@ -121,4 +145,41 @@ struct AccountSecurityState: Equatable {
 
     /// The URL for two step login external link.
     var twoStepLoginUrl: URL?
+}
+
+extension AccountSecurityState {
+    /// Formats the custom session timeout value into a string of `HH:mm`.
+    ///
+    /// - Parameter value: The session timeout value in seconds.
+    /// - Returns: The  custom session timeout value as a string formatted in hours and minutes.
+    ///
+    func formattedCustomTimeoutValue(_ value: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.zeroFormattingBehavior = .pad
+
+        guard let date = formatter.string(from: DateComponents(second: Int(value))) else {
+            return "\(value)"
+        }
+
+        return date
+    }
+
+    /// Creates an accessibility label for the custom session timeout value.
+    ///
+    /// - Parameter value: The session timeout value in seconds.
+    /// - Returns: An accessibility label for the custom session timeout value.
+    ///
+    func createCustomTimeoutAccessibilityLabel(_ value: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.zeroFormattingBehavior = .pad
+        formatter.unitsStyle = .spellOut
+
+        guard let date = formatter.string(from: DateComponents(second: Int(value))) else {
+            return "\(value)"
+        }
+
+        return date
+    }
 }

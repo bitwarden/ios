@@ -77,6 +77,8 @@ final class AccountSecurityProcessor: StateProcessor<
             state.sessionTimeoutAction = newValue
         case let .sessionTimeoutValueChanged(newValue):
             state.sessionTimeoutValue = newValue
+        case let .setCustomSessionTimeoutValue(newValue):
+            state.customSessionTimeoutValue = newValue
         case let .toggleApproveLoginRequestsToggle(isOn):
             state.isApproveLoginRequestsToggleOn = isOn
         case let .toggleUnlockWithFaceID(isOn):
