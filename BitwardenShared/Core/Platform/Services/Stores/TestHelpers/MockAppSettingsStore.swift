@@ -8,6 +8,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var lastSyncTimeByUserId = [String: Date]()
+    var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
@@ -31,6 +32,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func lastSyncTime(userId: String) -> Date? {
         lastSyncTimeByUserId[userId]
+    }
+
+    func masterPasswordHash(userId: String) -> String? {
+        masterPasswordHashes[userId]
     }
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
@@ -59,6 +64,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setLastSyncTime(_ date: Date?, userId: String) {
         lastSyncTimeByUserId[userId] = date
+    }
+
+    func setMasterPasswordHash(_ hash: String?, userId: String) {
+        masterPasswordHashes[userId] = hash
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {

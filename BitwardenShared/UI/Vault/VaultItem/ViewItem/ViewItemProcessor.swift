@@ -129,12 +129,20 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// - Parameter action: The action to process once the password has been verfied.
     ///
     private func presentMasterPasswordRepromptAlert(for action: ViewItemAction) {
-        let alert = Alert.masterPasswordPrompt { [weak self] _ in
+        let alert = Alert.masterPasswordPrompt { [weak self] password in
             guard let self else { return }
 
-            // TODO: BIT-1208 Validate the master password
-            state.hasVerifiedMasterPassword = true
-            receive(action)
+            do {
+                let isValid = try await services.vaultRepository.validatePassword(password)
+                guard isValid else {
+                    coordinator.navigate(to: .alert(Alert.defaultAlert(title: Localizations.invalidMasterPassword)))
+                    return
+                }
+                state.hasVerifiedMasterPassword = true
+                receive(action)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         }
         coordinator.navigate(to: .alert(alert))
     }

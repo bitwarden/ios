@@ -20,6 +20,13 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Validates the user's entered master password to determine if it matches the stored hash.
+    ///
+    /// - Parameter password: The user's master password.
+    /// - Returns: Whether the hash of the password matches the stored hash.
+    ///
+    func validatePassword(_ password: String) async throws -> Bool
+
     // MARK: Publishers
 
     /// A publisher for the details of a cipher in the vault.
@@ -67,6 +74,9 @@ class DefaultVaultRepository {
     /// The API service used to perform API requests for the ciphers in a user's vault.
     let cipherAPIService: CipherAPIService
 
+    /// The client used by the application to handle auth related encryption and decryption tasks.
+    let clientAuth: ClientAuthProtocol
+
     /// The client used by the application to handle encryption and decryption setup tasks.
     let clientCrypto: ClientCryptoProtocol
 
@@ -91,6 +101,7 @@ class DefaultVaultRepository {
     ///
     /// - Parameters:
     ///   - cipherAPIService: The API service used to perform API requests for the ciphers in a user's vault.
+    ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
@@ -100,6 +111,7 @@ class DefaultVaultRepository {
     ///
     init(
         cipherAPIService: CipherAPIService,
+        clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
         clientVault: ClientVaultService,
         errorReporter: ErrorReporter,
@@ -108,6 +120,7 @@ class DefaultVaultRepository {
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.cipherAPIService = cipherAPIService
+        self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
         self.clientVault = clientVault
         self.errorReporter = errorReporter
@@ -247,6 +260,11 @@ extension DefaultVaultRepository: VaultRepository {
         _ = try await cipherAPIService.updateCipher(updatedCipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync()
+    }
+
+    func validatePassword(_ password: String) async throws -> Bool {
+        guard let passwordHash = try await stateService.getMasterPasswordHash() else { return false }
+        return try await clientAuth.validatePassword(password: password, passwordHash: passwordHash)
     }
 
     // MARK: Publishers
