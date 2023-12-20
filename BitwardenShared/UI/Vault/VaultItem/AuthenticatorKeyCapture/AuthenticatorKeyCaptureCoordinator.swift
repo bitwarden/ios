@@ -72,33 +72,45 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         case let .complete(value):
             delegate?.didCompleteCapture(with: value.content)
         case let .dismiss(onDismiss):
-            stackNavigator.dismiss(completion: { [weak self] in
+            stackNavigator.dismissTopMost(completion: { [weak self] in
                 onDismiss?.action()
                 self?.presentScreen = nil
             })
         case let .screen(screen):
             switch screen {
             case .manual:
-                if stackNavigator.isPresenting {
-                    guard presentScreen != .manual else { return }
+                switch presentScreen {
+                case .manual:
+                    return
+                case .scan:
                     stackNavigator.dismiss(completion: { [weak self] in
                         self?.presentScreen = nil
                         self?.showManualTotp()
                     })
-                } else {
+                    return
+                case nil:
                     presentScreen = nil
                     showManualTotp()
+                    return
                 }
             case .scan:
-                if stackNavigator.isPresenting {
-                    guard presentScreen != .scan else { return }
+                guard services.cameraService.deviceSupportsCamera() else {
+                    navigate(to: .screen(.manual), context: context)
+                    return
+                }
+                switch presentScreen {
+                case .manual:
                     stackNavigator.dismiss(completion: { [weak self] in
                         self?.presentScreen = nil
                         self?.showScanCode()
                     })
-                } else {
+                    return
+                case .scan:
+                    return
+                case nil:
                     presentScreen = nil
-                    showScanCode()
+                    showManualTotp()
+                    return
                 }
             }
         case let .addManual(entry: authKey):
@@ -168,7 +180,9 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         let processor = ManualEntryProcessor(
             coordinator: self,
             services: services,
-            state: DefaultEntryState()
+            state: DefaultEntryState(
+                deviceSupportsCamera: services.cameraService.deviceSupportsCamera()
+            )
         )
         let view = ManualEntryView(
             store: Store(processor: processor)

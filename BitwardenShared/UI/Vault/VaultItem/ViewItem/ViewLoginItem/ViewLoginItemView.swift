@@ -11,7 +11,7 @@ struct ViewLoginItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<LoginItemState, ViewItemAction, ViewItemEffect>
+    @ObservedObject var store: Store<ViewLoginItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
         if !store.state.username.isEmpty {
@@ -59,11 +59,35 @@ struct ViewLoginItemView: View {
             }
         }
 
-        // TODO: BIT-1120 Add full support for TOTP display
-        BitwardenField(title: Localizations.verificationCodeTotp) {
-            Text(Localizations.premiumSubscriptionRequired)
-                .styleGuide(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+        if !store.state.isTOTPAvailable {
+            BitwardenField(
+                title: Localizations.verificationCodeTotp
+            ) {
+                Text(Localizations.premiumSubscriptionRequired)
+                    .styleGuide(.footnote)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            }
+        } else if let key = store.state.totpKey {
+            // TODO: BIT-760 - Implement OTP Logic & Calculation
+            BitwardenField(
+                title: Localizations.verificationCodeTotp,
+                content: {
+                    Text("123 456")
+                        .styleGuide(.bodyMonospaced)
+                        .multilineTextAlignment(.leading)
+                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                },
+                accessoryContent: {
+                    Button {
+                        // TODO: BIT-760 - Implement OTP Logic & Calculation
+                    } label: {
+                        Asset.Images.copy.swiftUIImage
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                    }
+                    .accessibilityLabel(Localizations.copy)
+                }
+            )
         }
     }
 }

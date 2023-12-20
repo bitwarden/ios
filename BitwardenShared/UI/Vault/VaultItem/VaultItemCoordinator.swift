@@ -54,7 +54,11 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         case let .alert(alert):
             stackNavigator.present(alert)
         case let .dismiss(onDismiss):
-            stackNavigator.dismiss(completion: {
+            stackNavigator.dismiss(animated: true, completion: {
+                onDismiss?.action()
+            })
+        case let .dismissTopMost(onDismiss):
+            stackNavigator.dismissTopMost(animated: true, completion: {
                 onDismiss?.action()
             })
         case let .editItem(cipher: cipher):

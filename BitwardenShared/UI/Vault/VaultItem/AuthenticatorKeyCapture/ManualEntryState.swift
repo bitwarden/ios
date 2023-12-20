@@ -7,8 +7,13 @@ import SwiftUI
 protocol ManualEntryState: Sendable {
     /// The key for this item.
     var authenticatorKey: String { get set }
+
+    /// Does the device support camera.
+    var deviceSupportsCamera: Bool { get }
 }
 
 struct DefaultEntryState: ManualEntryState {
     var authenticatorKey: String = ""
+
+    var deviceSupportsCamera: Bool
 }

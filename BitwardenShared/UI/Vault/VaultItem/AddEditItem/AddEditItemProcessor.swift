@@ -310,7 +310,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         let dismissAction = DismissAction(action: { [weak self] in
             self?.parseAuthenticatorKey(value)
         })
-        coordinator.navigate(to: .dismiss(dismissAction))
+        coordinator.navigate(to: .dismissTopMost(dismissAction))
     }
 
     func parseAuthenticatorKey(_ key: String) {

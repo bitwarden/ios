@@ -12,6 +12,14 @@ public protocol StackNavigator: Navigator {
     ///
     func dismiss(animated: Bool)
 
+    /// Dismisses the topmost presented view controller on the navigation stack.
+    ///
+    /// - Parameters:
+    ///   - animated: Should the transition animate.
+    ///   - completion: A closure to call on completion.
+    ///
+    func dismissTopMost(animated: Bool, completion: (() -> Void)?)
+
     /// Dismisses the view that was presented modally by the navigator
     /// and executes a block of code when dismissing completes.
     ///
@@ -95,6 +103,16 @@ extension StackNavigator {
         dismiss(animated: UI.animated, completion: completion)
     }
 
+    /// Dismisses the topmost presented view controller on the navigation stack.
+    ///
+    /// - Parameters:
+    ///   - animated: Should the transition animate.
+    ///   - completion: A closure to call on completion.
+    ///
+    public func dismissTopMost(animated: Bool = true, completion: (() -> Void)? = nil) {
+        dismissTopMost(animated: animated, completion: completion)
+    }
+
     /// Pushes a view onto the navigator's stack.
     ///
     /// - Parameters:
@@ -171,6 +189,34 @@ extension UINavigationController: StackNavigator {
 
     public func dismiss(animated: Bool) {
         dismiss(animated: animated, completion: nil)
+    }
+
+    /// Dismisses the topmost presented view controller on the navigation stack.
+    ///
+    /// - Parameters:
+    ///   - animated: Should the transition animate.
+    ///   - completion: A closure to call on completion.
+    ///
+    public func dismissTopMost(animated: Bool = true, completion: (() -> Void)? = nil) {
+        if let topPresentedController = topMostPresentedViewController() {
+            // Dismiss only the topmost presented view controller
+            topPresentedController.dismiss(animated: animated, completion: completion)
+        } else {
+            // Dismiss the current presented view controller
+            dismiss(animated: animated, completion: completion)
+        }
+    }
+
+    /// Returns the topmost presented view controller on the navigation stack.
+    ///
+    /// - Returns: The top most presented view controller.
+    ///
+    private func topMostPresentedViewController() -> UIViewController? {
+        var topController: UIViewController? = self
+        while topController?.presentedViewController != nil {
+            topController = topController?.presentedViewController
+        }
+        return topController
     }
 
     @discardableResult

@@ -49,3 +49,42 @@ extension LoginItemState {
         uris.first.flatMap { URL(string: $0.uri)?.sanitized.host }
     }
 }
+
+// MARK: ViewLoginItemState
+
+protocol ViewLoginItemState: Sendable {
+    // MARK: Properties
+
+    /// The TOTP Key.
+    var authenticatorKey: String? { get }
+
+    /// A flag indicating if the TOTP feature is available.
+    var isTOTPAvailable: Bool { get }
+
+    /// A flag indicating if the password field is visible.
+    var isPasswordVisible: Bool { get }
+
+    /// The password for this item.
+    var password: String { get }
+
+    /// The date the password was last updated.
+    var passwordUpdatedDate: Date? { get }
+
+    /// The TOTP key configuration
+    var totpKey: TOTPCodeConfig? { get }
+
+    /// The uris associated with this item. Used with autofill.
+    var uris: [UriState] { get }
+
+    /// The username for this item.
+    var username: String { get }
+}
+
+extension LoginItemState: ViewLoginItemState {}
+
+// TODO: BIT-1262: Hide TOTP for non-Premium Accounts
+extension ViewLoginItemState {
+    var isTOTPAvailable: Bool {
+        true
+    }
+}

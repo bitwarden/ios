@@ -69,20 +69,22 @@ struct ManualEntryView: View {
 
     /// A view to wrap the button for triggering `.scanCodePressed`.
     ///
-    private var footerButtonContainer: some View {
-        VStack(alignment: .leading, spacing: 0.0, content: {
-            Text(Localizations.cannotAddAuthenticatorKey)
-                .styleGuide(.callout)
-            Button(
-                action: { store.send(.scanCodePressed) },
-                label: {
-                    Text(Localizations.scanQRCode)
-                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                        .styleGuide(.callout)
-                }
-            )
-            .buttonStyle(InlineButtonStyle())
-        })
+    @ViewBuilder private var footerButtonContainer: some View {
+        if store.state.deviceSupportsCamera {
+            VStack(alignment: .leading, spacing: 0.0, content: {
+                Text(Localizations.cannotAddAuthenticatorKey)
+                    .styleGuide(.callout)
+                Button(
+                    action: { store.send(.scanCodePressed) },
+                    label: {
+                        Text(Localizations.scanQRCode)
+                            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                            .styleGuide(.callout)
+                    }
+                )
+                .buttonStyle(InlineButtonStyle())
+            })
+        }
     }
 }
 
@@ -90,6 +92,8 @@ struct ManualEntryView: View {
 struct ManualEntryView_Previews: PreviewProvider {
     struct PreviewState: ManualEntryState {
         var authenticatorKey: String = ""
+
+        var deviceSupportsCamera: Bool = true
 
         var manualEntryState: ManualEntryState {
             self

@@ -18,7 +18,14 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to dismiss the screen currently presented modally.
     ///
     /// - Parameter action: The action to perform on dismiss.
+    ///
     case dismiss(_ action: DismissAction? = nil)
+
+    /// A route to dismiss the top most presented screen.
+    ///
+    /// - Parameter action: The action to perform on dismiss.
+    ///
+    case dismissTopMost(_ action: DismissAction? = nil)
 
     /// A route to edit an item
     case editItem(cipher: CipherView)
