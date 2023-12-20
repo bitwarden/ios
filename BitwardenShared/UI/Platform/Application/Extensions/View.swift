@@ -27,6 +27,18 @@ extension View {
         }
     }
 
+    /// A `ToolbarItem` for views with a more button.
+    ///
+    /// - Parameter action: The action to perform when the more button is tapped.
+    ///
+    /// - Returns: A `ToolbarItem` with a more button.
+    ///
+    func moreToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options, action: action)
+        }
+    }
+
     /// Hides a view based on the specified value.
     ///
     /// NOTE: This should only be used when the view needs to remain in the view hierarchy while hidden,

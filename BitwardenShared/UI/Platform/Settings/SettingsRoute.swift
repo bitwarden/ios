@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 /// A route to a specific screen in the settings tab.
 ///
 public enum SettingsRoute: Equatable, Hashable {
@@ -6,6 +8,12 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to the account security screen.
     case accountSecurity
+
+    /// A route to add a new folder or edit an existing one.
+    ///
+    /// - Parameter folder: The existing folder to edit, if applicable.
+    ///
+    case addEditFolder(folder: FolderView?)
 
     /// A route to display the specified alert.
     ///
