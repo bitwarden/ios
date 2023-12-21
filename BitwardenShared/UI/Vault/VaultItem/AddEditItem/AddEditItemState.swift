@@ -18,6 +18,9 @@ protocol AddEditItemState: Sendable {
     /// The folder this item should be added to.
     var folder: String { get set }
 
+    /// The id of this item.
+    var id: String { get set }
+
     /// The state for a identity type item.
     var identityState: IdentityItemState { get set }
 

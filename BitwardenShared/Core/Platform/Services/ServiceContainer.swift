@@ -169,14 +169,16 @@ public class ServiceContainer: Services {
         let sendService = DefaultSendService(sendDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
-        let folderService = DefaultFolderService(
-            folderAPIService: apiService,
-            folderDataStore: dataStore,
-            stateService: stateService
-        )
+
         let cipherService = DefaultCipherService(
             cipherAPIService: apiService,
             cipherDataStore: dataStore,
+            stateService: stateService
+        )
+
+        let folderService = DefaultFolderService(
+            folderAPIService: apiService,
+            folderDataStore: dataStore,
             stateService: stateService
         )
 

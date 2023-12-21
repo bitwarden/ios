@@ -7,6 +7,7 @@ import XCTest
 class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var cipherDataStore: MockCipherDataStore!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var clientCiphers: MockClientCiphers!
@@ -18,11 +19,21 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var syncService: MockSyncService!
     var vaultTimeoutService: MockVaultTimeoutService!
 
+    let anneAccount = Account
+        .fixture(
+            profile: .fixture(
+                email: "Anne.Account@bitwarden.com",
+                name: "Anne Account",
+                userId: "1"
+            )
+        )
+
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
+        cipherDataStore = MockCipherDataStore()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
         clientCiphers = MockClientCiphers()
@@ -31,13 +42,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         errorReporter = MockErrorReporter()
         syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
-
         clientVault.clientCiphers = clientCiphers
-
         stateService = MockStateService()
+
+        let cipherService = DefaultCipherService(
+            cipherAPIService: APIService(client: client),
+            cipherDataStore: cipherDataStore,
+            stateService: stateService
+        )
 
         subject = DefaultVaultRepository(
             cipherAPIService: APIService(client: client),
+            cipherService: cipherService,
             clientAuth: clientAuth,
             clientCrypto: clientCrypto,
             clientVault: clientVault,
@@ -51,6 +67,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     override func tearDown() {
         super.tearDown()
 
+        cipherDataStore = nil
         client = nil
         clientAuth = nil
         clientCiphers = nil
@@ -90,6 +107,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         await assertAsyncThrows(error: EncryptError()) {
             try await subject.addCipher(.fixture())
         }
+    }
+
+    /// `deleteCipher()` throws noActiveAccount errors.
+    func test_deleteCipher_noActiveAccountError_nil() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.deleteCipher("")
+        }
+    }
+
+    /// `deleteCipher()` throws on id errors.
+    func test_deleteCipher_idError_nil() async throws {
+        stateService.accounts = [anneAccount]
+        stateService.activeAccount = anneAccount
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.deleteCipher("")
+        }
+    }
+
+    /// `deleteCipher()` deletes cipher from back end and local storage.
+    func test_deleteCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        try await subject.deleteCipher("123")
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
+
+        XCTAssertEqual(cipherDataStore.deleteCipherId, "123")
+        XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
     }
 
     /// `updateCipher()` throws on encryption errors.

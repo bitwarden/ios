@@ -148,6 +148,53 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
+    /// generic error alert if soft deleting fails.
+    func test_perform_deletePressed_genericError() async throws {
+        subject.state.id = "123"
+        struct TestError: Error, Equatable {}
+        vaultRepository.deleteCipherResult = .failure(TestError())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        var alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the generic error alert is displayed.
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+        )
+        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
+    /// toast if soft deleting succeeds.
+    func test_perform_deletePressed_success() async throws {
+        subject.state.id = "123"
+        vaultRepository.deleteCipherResult = .success(())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        var alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        XCTAssertNil(errorReporter.errors.first)
+        // Ensure the cipher is deleted and the view is dismissed.
+        XCTAssertEqual(vaultRepository.deletedCipher.last, "123")
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
     func test_perform_savePressed_invalidName() async throws {
         subject.state.name = "    "

@@ -287,6 +287,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         do {
             coordinator.showLoadingOverlay(title: Localizations.softDeleting)
             try await services.vaultRepository.deleteCipher(id)
+            state.toast = Toast(text: Localizations.itemSoftDeleted)
             coordinator.navigate(to: .dismiss)
         } catch {
             let alert = Alert.defaultAlert(
@@ -303,11 +304,11 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     private func showDeleteConfirmation() async {
         let alert = Alert.deleteCipherConfirmation { [weak self] in
             guard let self else { return }
-            if let id = state.cipher.id {
-                await deleteItem(id)
+            if !state.id.isEmpty {
+                await deleteItem(state.id)
             }
         }
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 
     /// Updates the item currently in `state`.

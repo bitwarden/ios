@@ -179,13 +179,15 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// Shows delete cipher confirmation alert.
     ///
     private func showDeleteConfirmation() async {
-        guard case let .data(cipherState) = state.loadingState else { return }
+        guard case let .data(cipherState) = state.loadingState else {
+            return
+        }
         let alert = Alert.deleteCipherConfirmation { [weak self] in
             guard let self else { return }
-            if let id = cipherState.configuration.existingCipherView?.id {
-                await deleteItem(id)
+            if !cipherState.id.isEmpty {
+                await deleteItem(cipherState.id)
             }
         }
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 }
