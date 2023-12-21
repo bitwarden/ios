@@ -49,6 +49,14 @@ protocol StateService: AnyObject {
     ///
     func getActiveAccountId() async throws -> String
 
+    /// Gets the clear clipboard value for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: The time after which the clipboard should clear.
+    ///
+    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
+
     /// Gets the environment URLs for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the environment URLs.
@@ -103,6 +111,14 @@ protocol StateService: AnyObject {
     /// - Returns: The active user account.
     ///
     func setActiveAccount(userId: String) async throws
+
+    /// Sets the clear clipboard value for an account.
+    ///
+    /// - Parameters:
+    ///   - clearClipboardValue: The time after which to clear the clipboard.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
 
     /// Sets the time of the last sync for a user ID.
     ///
@@ -175,6 +191,14 @@ extension StateService {
         try await getAccountEncryptionKeys(userId: nil)
     }
 
+    /// Gets the clear clipboard value for the active account.
+    ///
+    /// - Returns: The clear clipboard value.
+    ///
+    func getClearClipboardValue() async throws -> ClearClipboardValue {
+        try await getClearClipboardValue(userId: nil)
+    }
+
     /// Gets the environment URLs for the active account.
     ///
     /// - Returns: The environment URLs for the active account.
@@ -220,6 +244,14 @@ extension StateService {
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
         try await setAccountEncryptionKeys(encryptionKeys, userId: nil)
+    }
+
+    /// Sets the clear clipboard value for the active account.
+    ///
+    /// - Parameter clearClipboardValue: The time after which to clear the clipboard.
+    ///
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?) async throws {
+        try await setClearClipboardValue(clearClipboardValue, userId: nil)
     }
 
     /// Sets the time of the last sync for a user ID.
@@ -365,6 +397,11 @@ actor DefaultStateService: StateService {
         return activeAccount
     }
 
+    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.clearClipboardValue(userId: userId)
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
@@ -422,6 +459,11 @@ actor DefaultStateService: StateService {
         guard state.accounts
             .contains(where: { $0.key == userId }) else { throw StateServiceError.noAccounts }
         state.activeUserId = userId
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
