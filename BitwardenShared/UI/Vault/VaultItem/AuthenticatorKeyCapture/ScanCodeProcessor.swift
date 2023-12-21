@@ -65,7 +65,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
         case .manualEntryPressed:
-            coordinator.navigate(to: .screen(.manual))
+            coordinator.navigate(to: .manualKeyEntry)
         }
     }
 
@@ -76,7 +76,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     ///
     private func setupCameraResultsObservation() async {
         guard services.cameraService.deviceSupportsCamera() else {
-            coordinator.navigate(to: .screen(.manual))
+            coordinator.navigate(to: .manualKeyEntry)
             return
         }
 

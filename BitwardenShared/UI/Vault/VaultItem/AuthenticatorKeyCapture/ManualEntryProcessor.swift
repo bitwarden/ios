@@ -6,7 +6,7 @@ import SwiftUI
 ///
 /// This class is responsible for handling actions and effects related to manually entry of authenticator keys.
 ///
-final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAction, Void> {
+final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAction, ManualEntryEffect> {
     // MARK: Types
 
     /// A typealias for the services required by this processor.
@@ -15,7 +15,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     // MARK: Private Properties
 
     /// The `Coordinator` responsible for navigation-related actions.
-    private let coordinator: any Coordinator<AuthenticatorKeyCaptureRoute>
+    private let coordinator: AnyAsyncCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureAsyncRoute>
 
     /// The services used by this processor, including camera authorization and error reporting.
     private let services: Services
@@ -30,7 +30,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     ///   - state: The initial state of this processor, representing the UI's state.
     ///
     init(
-        coordinator: any Coordinator<AuthenticatorKeyCaptureRoute>,
+        coordinator: AnyAsyncCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureAsyncRoute>,
         services: Services,
         state: ManualEntryState
     ) {
@@ -39,12 +39,17 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
         super.init(state: state)
     }
 
+    override func perform(_ effect: ManualEntryEffect) async {
+        switch effect {
+        case .scanCodePressed:
+            await coordinator.waitAndNavigate(to: .scanCode, context: nil)
+        }
+    }
+
     override func receive(_ action: ManualEntryAction) {
         switch action {
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
-        case .scanCodePressed:
-            coordinator.navigate(to: .screen(.scan))
         case let .addPressed(code: authKey):
             coordinator.navigate(to: .addManual(entry: authKey))
         case let .authenticatorKeyChanged(newKey):

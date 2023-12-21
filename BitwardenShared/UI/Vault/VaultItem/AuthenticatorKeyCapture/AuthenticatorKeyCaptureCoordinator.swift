@@ -10,16 +10,21 @@ import SwiftUI
 protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     /// Called when the scan flow has been completed.
     ///
-    /// - Parameter value: The code value that was captured.
+    /// - Parameters:
+    ///   - coordinator: The coodrinator sending the action.
+    ///   - value: The code value that was captured.
     ///
-    func didCompleteCapture(with value: String)
+    func didCompleteCapture(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
+        with value: String
+    )
 }
 
 // MARK: - AuthenticatorKeyCaptureCoordinator
 
 /// A coordinator that manages navigation in the generator tab.
 ///
-final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
+final class AuthenticatorKeyCaptureCoordinator: AsyncCoordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasCameraService
@@ -37,9 +42,6 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
 
     /// The stack navigator that is managed by this coordinator.
     let stackNavigator: StackNavigator
-
-    /// A variable to store the present route.
-    private var presentScreen: AuthenticatorKeyCaptureScreen?
 
     // MARK: Initialization
 
@@ -62,54 +64,37 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: AuthenticatorKeyCaptureRoute, context: AnyObject?) {
+    func waitAndNavigate(
+        to route: AuthenticatorKeyCaptureAsyncRoute,
+        context: AnyObject?
+    ) async {
+        switch route {
+        case .scanCode:
+            await showScanCode()
+        }
+    }
+
+    func navigate(
+        to route: AuthenticatorKeyCaptureRoute,
+        context: AnyObject?
+    ) {
         switch route {
         case let .complete(value):
-            delegate?.didCompleteCapture(with: value.content)
+            delegate?.didCompleteCapture(
+                asAnyCoordinator(),
+                with: value.content
+            )
         case let .dismiss(onDismiss):
-            stackNavigator.dismissTopMost(completion: { [weak self] in
+            stackNavigator.dismiss(completion: {
                 onDismiss?.action()
-                self?.presentScreen = nil
             })
-        case let .screen(screen):
-            switch screen {
-            case .manual:
-                switch presentScreen {
-                case .manual:
-                    return
-                case .scan:
-                    stackNavigator.dismiss(completion: { [weak self] in
-                        self?.presentScreen = nil
-                        self?.showManualTotp()
-                    })
-                    return
-                case nil:
-                    presentScreen = nil
-                    showManualTotp()
-                    return
-                }
-            case .scan:
-                guard services.cameraService.deviceSupportsCamera() else {
-                    navigate(to: .screen(.manual), context: context)
-                    return
-                }
-                switch presentScreen {
-                case .manual:
-                    stackNavigator.dismiss(completion: { [weak self] in
-                        self?.presentScreen = nil
-                        self?.showScanCode()
-                    })
-                    return
-                case .scan:
-                    return
-                case nil:
-                    presentScreen = nil
-                    showScanCode()
-                    return
-                }
-            }
         case let .addManual(entry: authKey):
-            delegate?.didCompleteCapture(with: authKey)
+            delegate?.didCompleteCapture(
+                asAnyCoordinator(),
+                with: authKey
+            )
+        case .manualKeyEntry:
+            showManualTotp()
         }
     }
 
@@ -141,39 +126,30 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     ///   then the type field in the generator screen will be hidden, to eliminate the ability to
     ///   switch between the various types.
     ///
-    private func showScanCode() {
-        Task {
-            guard services.cameraService.deviceSupportsCamera(),
-                  case .authorized = await
-                  services.cameraService.checkStatusOrRequestCameraAuthorization(),
-                  let session = await getNewCameraSession() else {
-                showManualTotp()
-                return
-            }
-            let processor = ScanCodeProcessor(
-                coordinator: self,
-                services: services,
-                state: .init()
-            )
-            let store = Store(processor: processor)
-            let view = ScanCodeView(
-                cameraSession: session,
-                store: store
-            )
-            let navWrapped = view.navStackWrapped
-            stackNavigator.present(navWrapped, animated: true, overFullscreen: true)
-            presentScreen = .scan
+    private func showScanCode() async {
+        guard services.cameraService.deviceSupportsCamera(),
+              let session = await getNewCameraSession() else {
+            showManualTotp()
+            return
         }
+        let processor = ScanCodeProcessor(
+            coordinator: asAnyAsyncCoordinator(),
+            services: services,
+            state: .init()
+        )
+        let store = Store(processor: processor)
+        let view = ScanCodeView(
+            cameraSession: session,
+            store: store
+        )
+        stackNavigator.replace(view)
     }
 
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp() {
-        guard presentScreen != .manual else {
-            return
-        }
         let processor = ManualEntryProcessor(
-            coordinator: self,
+            coordinator: asAnyAsyncCoordinator(),
             services: services,
             state: DefaultEntryState(
                 deviceSupportsCamera: services.cameraService.deviceSupportsCamera()
@@ -182,8 +158,6 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         let view = ManualEntryView(
             store: Store(processor: processor)
         )
-        let navWrapped = NavigationView { view }
-        stackNavigator.present(navWrapped)
-        presentScreen = .manual
+        stackNavigator.replace(view)
     }
 }

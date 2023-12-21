@@ -21,12 +21,6 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case dismiss(_ action: DismissAction? = nil)
 
-    /// A route to dismiss the top most presented screen.
-    ///
-    /// - Parameter action: The action to perform on dismiss.
-    ///
-    case dismissTopMost(_ action: DismissAction? = nil)
-
     /// A route to edit an item
     case editItem(cipher: CipherView)
 
@@ -36,9 +30,6 @@ enum VaultItemRoute: Equatable, Hashable {
     ///   - type: The type to generate.
     ///   - emailWebsite: An optional website host used to generate usernames.
     case generator(_ type: GeneratorType, emailWebsite: String? = nil)
-
-    /// A route to the camera screen for setting up TOTP.
-    case setupTotpCamera
 
     /// A route to the manual totp screen for setting up TOTP.
     case setupTotpManual

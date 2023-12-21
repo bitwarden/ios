@@ -13,7 +13,6 @@ final class MockStackNavigator: StackNavigator {
     enum NavigationType {
         case dismissed
         case dismissedWithCompletionHandler
-        case dismissedTopMostWithCompletionHandler
         case pushed
         case popped
         case poppedToRoot
@@ -36,11 +35,6 @@ final class MockStackNavigator: StackNavigator {
     func dismiss(animated: Bool, completion: (() -> Void)?) {
         completion?()
         actions.append(NavigationAction(type: .dismissedWithCompletionHandler, animated: animated))
-    }
-
-    func dismissTopMost(animated: Bool, completion: (() -> Void)?) {
-        completion?()
-        actions.append(NavigationAction(type: .dismissedTopMostWithCompletionHandler, animated: animated))
     }
 
     func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {
@@ -76,15 +70,38 @@ final class MockStackNavigator: StackNavigator {
         alerts.append(alert)
     }
 
-    func present<Content: View>(_ view: Content, animated: Bool, overFullscreen: Bool) {
-        actions.append(NavigationAction(type: .presented,
-                                        view: view,
-                                        animated: animated,
-                                        overFullscreen: overFullscreen))
+    func present<Content: View>(
+        _ view: Content,
+        animated: Bool,
+        overFullscreen: Bool,
+        onCompletion: (() -> Void)?
+    ) {
+        onCompletion?()
+        actions.append(
+            NavigationAction(
+                type: .presented,
+                view: view,
+                animated: animated,
+                overFullscreen: overFullscreen
+            )
+        )
     }
 
-    func present(_ viewController: UIViewController, animated: Bool) {
-        actions.append(NavigationAction(type: .presented, view: viewController, animated: animated))
+    func present(
+        _ viewController: UIViewController,
+        animated: Bool,
+        overFullscreen: Bool,
+        onCompletion: (() -> Void)?
+    ) {
+        onCompletion?()
+        actions.append(
+            NavigationAction(
+                type: .presented,
+                view: viewController,
+                animated: animated,
+                overFullscreen: overFullscreen
+            )
+        )
     }
 
     func replace<Content: View>(_ view: Content, animated: Bool) {

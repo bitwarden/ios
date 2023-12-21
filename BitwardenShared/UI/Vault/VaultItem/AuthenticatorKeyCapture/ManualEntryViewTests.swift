@@ -9,7 +9,7 @@ import XCTest
 class ManualEntryViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<ManualEntryState, ManualEntryAction, Void>!
+    var processor: MockProcessor<ManualEntryState, ManualEntryAction, ManualEntryEffect>!
     var subject: ManualEntryView!
 
     // MARK: Setup & Teardown
@@ -57,7 +57,9 @@ class ManualEntryViewTests: BitwardenTestCase {
     func test_scanCodeButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.scanQRCode)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .scanCodePressed)
+        waitFor(!processor.effects.isEmpty)
+
+        XCTAssertEqual(processor.effects.last, .scanCodePressed)
     }
 
     // MARK: Snapshots

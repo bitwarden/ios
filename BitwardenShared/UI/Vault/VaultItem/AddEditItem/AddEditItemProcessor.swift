@@ -17,7 +17,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultItemRoute>
+    private var coordinator: AnyAsyncCoordinator<VaultItemRoute, AuthenticatorKeyCaptureAsyncRoute>
 
     /// The services required by this processor.
     private let services: Services
@@ -32,7 +32,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     ///   - state: The initial state for the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultItemRoute>,
+        coordinator: AnyAsyncCoordinator<VaultItemRoute, AuthenticatorKeyCaptureAsyncRoute>,
         services: Services,
         state: AddEditItemState
     ) {
@@ -294,7 +294,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     private func setupTotp() async {
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
-            coordinator.navigate(to: .setupTotpCamera, context: self)
+            await coordinator.waitAndNavigate(to: .scanCode, context: self)
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }
@@ -318,11 +318,14 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 }
 
 extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
-    func didCompleteCapture(with value: String) {
+    func didCompleteCapture(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
+        with value: String
+    ) {
         let dismissAction = DismissAction(action: { [weak self] in
             self?.parseAuthenticatorKey(value)
         })
-        coordinator.navigate(to: .dismissTopMost(dismissAction))
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 
     func parseAuthenticatorKey(_ key: String) {

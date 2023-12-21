@@ -16,7 +16,13 @@ enum ManualEntryAction: Equatable {
 
     /// The dismiss button was pressed.
     case dismissPressed
+}
 
+// MARK: - ManualEntryEffect
+
+/// Async Effects that can be processed by a `ScanCodeProcessor`.
+///
+enum ManualEntryEffect {
     /// The scan code button was pressed.
     case scanCodePressed
 }

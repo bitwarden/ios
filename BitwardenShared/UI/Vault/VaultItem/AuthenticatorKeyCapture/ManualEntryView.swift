@@ -8,7 +8,7 @@ struct ManualEntryView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ManualEntryState, ManualEntryAction, Void>
+    @ObservedObject var store: Store<ManualEntryState, ManualEntryAction, ManualEntryEffect>
 
     var body: some View {
         content
@@ -74,14 +74,13 @@ struct ManualEntryView: View {
             VStack(alignment: .leading, spacing: 0.0, content: {
                 Text(Localizations.cannotAddAuthenticatorKey)
                     .styleGuide(.callout)
-                Button(
-                    action: { store.send(.scanCodePressed) },
-                    label: {
-                        Text(Localizations.scanQRCode)
-                            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                            .styleGuide(.callout)
-                    }
-                )
+                AsyncButton {
+                    await store.perform(.scanCodePressed)
+                } label: {
+                    Text(Localizations.scanQRCode)
+                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .styleGuide(.callout)
+                }
                 .buttonStyle(InlineButtonStyle())
             })
         }

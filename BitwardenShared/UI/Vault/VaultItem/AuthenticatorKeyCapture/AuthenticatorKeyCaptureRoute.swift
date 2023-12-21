@@ -14,8 +14,15 @@ public enum AuthenticatorKeyCaptureRoute: Equatable, Hashable {
     /// - Parameter action: The action to perform on dismiss.
     case dismiss(_ action: DismissAction? = nil)
 
-    /// A route to a capture screen.
-    case screen(AuthenticatorKeyCaptureScreen)
+    /// A route to the manual entry view.
+    case manualKeyEntry
+}
+
+/// An async route to a specific screen in the authenticator key capture flow.
+///
+public enum AuthenticatorKeyCaptureAsyncRoute: Equatable, Hashable {
+    /// A route to the scan code view.
+    case scanCode
 }
 
 /// The possible screens for the AuthenticatorKeyCaptureCoordinator.

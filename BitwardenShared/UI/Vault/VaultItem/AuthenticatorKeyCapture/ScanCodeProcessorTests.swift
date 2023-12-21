@@ -42,7 +42,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     func test_perform_appeared_failure() async {
         cameraService.deviceHasCamera = false
         await subject.perform(.appeared)
-        XCTAssertEqual(coordinator.routes, [.screen(.manual)])
+        XCTAssertEqual(coordinator.routes, [.manualKeyEntry])
     }
 
     /// `perform()` with `.appeared` sets up the camera observation and responds to QR code scans
@@ -65,7 +65,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
         cameraService.deviceHasCamera = false
         await subject.perform(.appeared)
         XCTAssertFalse(cameraService.didStart)
-        XCTAssertEqual(coordinator.routes, [.screen(.manual)])
+        XCTAssertEqual(coordinator.routes, [.manualKeyEntry])
     }
 
     /// `perform()` with `.disappeared` stops the camera.
@@ -83,6 +83,6 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     /// `receive()` with `.manualEntryPressed` navigates to `.setupTotpManual`.
     func test_receive_manualEntryPressed() async {
         subject.receive(.manualEntryPressed)
-        XCTAssertEqual(coordinator.routes, [.screen(.manual)])
+        XCTAssertEqual(coordinator.routes, [.manualKeyEntry])
     }
 }

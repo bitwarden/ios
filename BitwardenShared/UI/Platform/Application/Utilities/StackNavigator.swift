@@ -12,14 +12,6 @@ public protocol StackNavigator: Navigator {
     ///
     func dismiss(animated: Bool)
 
-    /// Dismisses the topmost presented view controller on the navigation stack.
-    ///
-    /// - Parameters:
-    ///   - animated: Should the transition animate.
-    ///   - completion: A closure to call on completion.
-    ///
-    func dismissTopMost(animated: Bool, completion: (() -> Void)?)
-
     /// Dismisses the view that was presented modally by the navigator
     /// and executes a block of code when dismissing completes.
     ///
@@ -68,16 +60,29 @@ public protocol StackNavigator: Navigator {
     ///   - view: The view to present.
     ///   - animated: Whether the transition should be animated.
     ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
+    ///   - onCompletion: A closure to call on completion.
     ///
-    func present<Content: View>(_ view: Content, animated: Bool, overFullscreen: Bool)
+    func present<Content: View>(
+        _ view: Content,
+        animated: Bool,
+        overFullscreen: Bool,
+        onCompletion: (() -> Void)?
+    )
 
     /// Presents a view controller modally. Supports presenting on top of presented modals if necessary.
     ///
     /// - Parameters:
     ///   - viewController: The view controller to present.
     ///   - animated: Whether the transition should be animated.
+    ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
+    ///   - onCompletion: A closure to call on completion.
     ///
-    func present(_ viewController: UIViewController, animated: Bool)
+    func present(
+        _ viewController: UIViewController,
+        animated: Bool,
+        overFullscreen: Bool,
+        onCompletion: (() -> Void)?
+    )
 
     /// Replaces the stack with the specified view.
     ///
@@ -101,16 +106,6 @@ extension StackNavigator {
     ///
     func dismiss(completion: (() -> Void)?) {
         dismiss(animated: UI.animated, completion: completion)
-    }
-
-    /// Dismisses the topmost presented view controller on the navigation stack.
-    ///
-    /// - Parameters:
-    ///   - animated: Should the transition animate.
-    ///   - completion: A closure to call on completion.
-    ///
-    public func dismissTopMost(animated: Bool = true, completion: (() -> Void)? = nil) {
-        dismissTopMost(animated: animated, completion: completion)
     }
 
     /// Pushes a view onto the navigator's stack.
@@ -157,18 +152,42 @@ extension StackNavigator {
     /// - Parameters:
     ///   - view: The view to present.
     ///   - animated: Whether the transition should be animated. Defaults to `UI.animated`.
+    ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
+    ///   - onCompletion: The closure to call after presenting.
     ///
-    func present<Content: View>(_ view: Content, animated: Bool = UI.animated) {
-        present(view, animated: animated, overFullscreen: false)
+    func present<Content: View>(
+        _ view: Content,
+        animated: Bool = UI.animated,
+        overFullscreen: Bool = false,
+        onCompletion: (() -> Void)? = nil
+    ) {
+        present(
+            view,
+            animated: animated,
+            overFullscreen: overFullscreen,
+            onCompletion: nil
+        )
     }
 
     /// Presents a view controller modally. Supports presenting on top of presented modals if necessary. Animation is
     /// controlled by `UI.animated`.
     ///
-    /// - Parameter viewController: The view controller to present.
+    /// - Parameters:
+    ///   - viewController: The view controller to present.
+    ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
+    ///   - onCompletion: The closure to call after presenting.
     ///
-    func present(_ viewController: UIViewController) {
-        present(viewController, animated: UI.animated)
+    func present(
+        _ viewController: UIViewController,
+        overFullscreen: Bool = false,
+        onCompletion: (() -> Void)? = nil
+    ) {
+        present(
+            viewController,
+            animated: UI.animated,
+            overFullscreen: overFullscreen,
+            onCompletion: onCompletion
+        )
     }
 
     /// Replaces the stack with the specified view. Animation is controlled by `UI.animated`.
@@ -191,18 +210,6 @@ extension UINavigationController: StackNavigator {
         dismiss(animated: animated, completion: nil)
     }
 
-    /// Dismisses the topmost presented view controller on the navigation stack.
-    ///
-    /// - Parameters:
-    ///   - animated: Should the transition animate.
-    ///   - completion: A closure to call on completion.
-    ///
-    public func dismissTopMost(animated: Bool = true, completion: (() -> Void)? = nil) {
-        let topPresentedController = topmostViewController()
-        // Dismiss only the topmost presented view controller
-        topPresentedController.dismiss(animated: animated, completion: completion)
-    }
-
     @discardableResult
     public func pop(animated: Bool) -> UIViewController? {
         popViewController(animated: animated)
@@ -223,24 +230,41 @@ extension UINavigationController: StackNavigator {
         pushViewController(viewController, animated: animated)
     }
 
-    public func present<Content: View>(_ view: Content, animated: Bool, overFullscreen: Bool) {
+    public func present<Content: View>(
+        _ view: Content,
+        animated: Bool,
+        overFullscreen: Bool,
+        onCompletion: (() -> Void)? = nil
+    ) {
         let controller = UIHostingController(rootView: view)
         controller.isModalInPresentation = true
         if overFullscreen {
             controller.modalPresentationStyle = .overFullScreen
             controller.view.backgroundColor = .clear
         }
-        present(controller, animated: animated)
+        present(controller, animated: animated, onCompletion: onCompletion)
     }
 
-    public func present(_ viewController: UIViewController, animated: Bool) {
+    public func present(
+        _ viewController: UIViewController,
+        animated: Bool,
+        overFullscreen: Bool = false,
+        onCompletion: (() -> Void)? = nil
+    ) {
         var presentedChild = presentedViewController
         var availablePresenter: UIViewController? = self
         while presentedChild != nil {
             availablePresenter = presentedChild
             presentedChild = presentedChild?.presentedViewController
         }
-        availablePresenter?.present(viewController, animated: animated, completion: nil)
+        if overFullscreen {
+            viewController.modalPresentationStyle = .overFullScreen
+        }
+        availablePresenter?.present(
+            viewController,
+            animated: animated,
+            completion: onCompletion
+        )
     }
 
     public func replace<Content: View>(_ view: Content, animated: Bool) {

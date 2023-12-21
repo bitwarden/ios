@@ -37,6 +37,43 @@ class MockCoordinator<Route>: Coordinator {
     }
 }
 
+class MockAsyncCoordinator<Route, AsyncRoute>: AsyncCoordinator {
+    var alertShown = [Alert]()
+    var contexts: [AnyObject?] = []
+    var isLoadingOverlayShowing = false
+    var isStarted: Bool = false
+    var loadingOverlaysShown = [LoadingOverlayState]()
+    var routes: [Route] = []
+    var asyncRoutes: [AsyncRoute] = []
+
+    func hideLoadingOverlay() {
+        isLoadingOverlayShowing = false
+    }
+
+    func navigate(to route: Route, context: AnyObject?) {
+        routes.append(route)
+        contexts.append(context)
+    }
+
+    func showAlert(_ alert: Alert) {
+        alertShown.append(alert)
+    }
+
+    func showLoadingOverlay(_ state: LoadingOverlayState) {
+        isLoadingOverlayShowing = true
+        loadingOverlaysShown.append(state)
+    }
+
+    func start() {
+        isStarted = true
+    }
+
+    func waitAndNavigate(to route: AsyncRoute, context: AnyObject?) {
+        asyncRoutes.append(route)
+        contexts.append(context)
+    }
+}
+
 extension MockCoordinator<AuthRoute> {
     func unwrapLastRouteAsAlert(file: StaticString = #file, line: UInt = #line) throws -> Alert {
         guard case let .alert(alert) = routes.last else {
@@ -79,7 +116,7 @@ extension MockCoordinator<VaultRoute> {
     }
 }
 
-extension MockCoordinator<VaultItemRoute> {
+extension MockAsyncCoordinator<VaultItemRoute, AuthenticatorKeyCaptureAsyncRoute> {
     func unwrapLastRouteAsAlert(file: StaticString = #file, line: UInt = #line) throws -> Alert {
         guard case let .alert(alert) = routes.last else {
             XCTFail(
