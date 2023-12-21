@@ -25,7 +25,7 @@ protocol CipherAPIService {
     /// Performs an API request to delete an existing cipher in the user's vault.
     ///
     /// - Parameter cipher: The cipher that the user is updating.
-    /// - Returns: The cipher that was updated in the user's vault.
+    /// - Returns: The `EmptyResponse`.
     ///
     func deleteCipher(withID id: String) async throws -> EmptyResponse
 
