@@ -87,13 +87,16 @@ extension CipherView {
     /// This function converts the login-related information of the cipher into a `LoginItemState`,
     /// which is used to manage and display login data in the UI.
     ///
-    /// - Parameter showPassword: A Boolean value indicating whether the password should be visible.
+    /// - Parameters:
+    ///   - showPassword: A Boolean value indicating whether the password should be visible.
+    ///   - showTOTP: A Boolean value indicating whether TOTP should be visible.
     /// - Returns: A `LoginItemState` representing the login information of the cipher.
     ///
-    func loginItemState(showPassword: Bool = false) -> LoginItemState {
+    func loginItemState(showPassword: Bool = false, showTOTP: Bool) -> LoginItemState {
         .init(
             canViewPassword: viewPassword,
             isPasswordVisible: showPassword,
+            isTOTPAvailable: showTOTP,
             password: login?.password ?? "",
             passwordUpdatedDate: login?.passwordRevisionDate,
             totpKey: .init(authenticatorKey: login?.totp ?? ""),

@@ -11,7 +11,7 @@ class AddItemStateTests: XCTestCase {
 
     /// `cipher` returns a `CipherView` for a login with the minimal fields entered.
     func test_cipher_login_minimal() {
-        var subject = CipherItemState()
+        var subject = CipherItemState(hasPremium: true)
         subject.name = "Bitwarden"
 
         assertInlineSnapshot(of: subject.newCipherView(creationDate: Date(year: 2023, month: 10, day: 20)), as: .dump) {
@@ -55,7 +55,7 @@ class AddItemStateTests: XCTestCase {
 
     /// `cipher` returns a `CipherView` for a login with all fields entered.
     func test_cipher_login_filled() {
-        var subject = CipherItemState()
+        var subject = CipherItemState(hasPremium: true)
         subject.isFavoriteOn = true
         subject.isMasterPasswordRePromptOn = true
         subject.name = "Bitwarden"
@@ -110,7 +110,7 @@ class AddItemStateTests: XCTestCase {
         let collectionOrg1 = CollectionView.fixture(id: "1", name: "Collection", organizationId: "1")
         let collectionOrg2 = CollectionView.fixture(id: "2", name: "Collection 2", organizationId: "2")
 
-        var subject = CipherItemState()
+        var subject = CipherItemState(hasPremium: true)
         subject.collections = [collectionOrg1, collectionOrg2]
         subject.ownershipOptions = [
             .personal(email: "user@bitwarden.com"),
@@ -126,7 +126,7 @@ class AddItemStateTests: XCTestCase {
 
     /// `toggleCollection(newValue:collectionId:)` toggles whether the cipher is included in the collection.
     func test_toggleCollection() {
-        var subject = CipherItemState()
+        var subject = CipherItemState(hasPremium: true)
         subject.collections = [
             .fixture(id: "1", name: "Collection 1"),
             .fixture(id: "2", name: "Collection 2"),
@@ -144,7 +144,7 @@ class AddItemStateTests: XCTestCase {
 
     /// `owner` returns the selected `CipherOwner` for an organization owned cipher.
     func test_owner_organization() {
-        var subject = CipherItemState()
+        var subject = CipherItemState(hasPremium: true)
 
         XCTAssertNil(subject.owner)
 
@@ -158,7 +158,7 @@ class AddItemStateTests: XCTestCase {
 
     /// `owner` returns the selected `CipherOwner` for a personally owned cipher.
     func test_owner_personal() {
-        var subject = CipherItemState()
+        var subject = CipherItemState(hasPremium: true)
 
         XCTAssertNil(subject.owner)
 
@@ -175,7 +175,7 @@ class AddItemStateTests: XCTestCase {
         let organization1Owner = CipherOwner.organization(id: "1", name: "Organization")
         let organization2Owner = CipherOwner.organization(id: "2", name: "Organization 2")
 
-        var subject = CipherItemState()
+        var subject = CipherItemState(hasPremium: true)
         subject.ownershipOptions = [personalOwner, organization1Owner, organization2Owner]
 
         subject.owner = organization1Owner
@@ -195,7 +195,7 @@ class AddItemStateTests: XCTestCase {
         let organization1Owner = CipherOwner.organization(id: "1", name: "Organization")
         let organization2Owner = CipherOwner.organization(id: "2", name: "Organization 2")
 
-        var subject = CipherItemState()
+        var subject = CipherItemState(hasPremium: true)
         subject.ownershipOptions = [personalOwner, organization1Owner, organization2Owner]
 
         XCTAssertEqual(subject.owner, personalOwner)

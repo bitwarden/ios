@@ -22,6 +22,12 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Validates the user's active account has access to premium features.
+    ///
+    /// - Returns: Whether the active account has premium.
+    ///
+    func doesActiveAccountHavePremium() async throws -> Bool
+
     /// Fetches the ownership options that the user can select from for a cipher.
     ///
     /// - Returns: The list of ownership options for a cipher.
@@ -332,6 +338,11 @@ extension DefaultVaultRepository: VaultRepository {
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        let account = try await stateService.getActiveAccount()
+        return account.profile.hasPremiumPersonally ?? false
+    }
+
     func remove(userId: String?) async {
         await vaultTimeoutService.remove(userId: userId)
     }
@@ -390,4 +401,4 @@ extension DefaultVaultRepository: VaultRepository {
             .eraseToAnyPublisher()
             .values
     }
-}
+} // swiftlint:disable:this file_length
