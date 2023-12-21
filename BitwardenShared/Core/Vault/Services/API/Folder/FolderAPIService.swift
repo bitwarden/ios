@@ -19,7 +19,7 @@ protocol FolderAPIService {
     ///   - id: The ID of the folder to edit.
     ///   - name: The new name of the folder.
     ///
-    /// - Returns: Data returned from the `AddFolderRequest`.
+    /// - Returns: Data returned from the `EditFolderRequest`.
     ///
     func editFolder(withID id: String, name: String) async throws -> FolderResponseModel
 }
