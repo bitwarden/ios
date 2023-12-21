@@ -26,7 +26,7 @@ enum AddEditItemAction: Equatable {
     case masterPasswordRePromptChanged(Bool)
 
     /// The more button was pressed.
-    case morePressed
+    case morePressed(VaultItemManagementMenuAction)
 
     /// The name field was changed.
     case nameChanged(String)

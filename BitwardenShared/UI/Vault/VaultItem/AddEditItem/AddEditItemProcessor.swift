@@ -55,6 +55,9 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             await saveItem()
         case .setupTotpPressed:
             await setupTotp()
+        case .deletePressed:
+            // TODO: BIT-222
+            print("delete pressed")
         }
     }
 
@@ -83,9 +86,18 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             updateIdentityState(&state, for: action)
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
-        case .morePressed:
-            // TODO: BIT-1131 Open item menu
-            print("more pressed")
+        case let .morePressed(menuAction):
+            switch menuAction {
+            case .attachments:
+                // TODO: BIT-364
+                print("attachments")
+            case .clone:
+                // TODO: BIT-365
+                print("clone")
+            case .moveToOrganization:
+                // TODO: BIT-366
+                print("moveToOrganization")
+            }
         case let .nameChanged(newValue):
             state.name = newValue
         case .newCustomFieldPressed:

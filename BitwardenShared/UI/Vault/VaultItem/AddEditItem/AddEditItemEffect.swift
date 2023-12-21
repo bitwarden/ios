@@ -10,6 +10,9 @@ enum AddEditItemEffect {
     /// The copy totp button was pressed.
     case copyTotpPressed
 
+    /// The delete option was pressed.
+    case deletePressed
+
     /// The save button was pressed.
     case savePressed
 

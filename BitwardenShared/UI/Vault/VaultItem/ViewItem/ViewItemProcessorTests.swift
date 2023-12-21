@@ -185,12 +185,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
     }
 
-    /// `receive` with `.morePressed` presents the item options menu.
-    func test_receive_morePressed() {
-        subject.receive(.morePressed)
-        // TODO: BIT-1131 Assertion for menu
-    }
-
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
     func test_receive_passwordVisibilityPressed_impossible_loading() throws {
         subject.state.loadingState = .loading

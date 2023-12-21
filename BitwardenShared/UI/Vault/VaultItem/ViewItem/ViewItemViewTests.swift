@@ -105,13 +105,6 @@ class ViewItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
 
-    /// Tapping the more button dispatches the `.morePressed` action.
-    func test_moreButton_tap() throws {
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.options)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
-    }
-
     // MARK: Snapshots
 
     func test_snapshot_loading() {
