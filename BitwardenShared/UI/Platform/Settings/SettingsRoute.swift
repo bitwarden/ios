@@ -36,6 +36,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route that dismisses the current view.
     case dismiss
 
+    /// A route to the export vault view.
+    case exportVault
+
     /// A route to view the folders in the vault.
     case folders
 
