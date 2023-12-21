@@ -201,6 +201,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         let mockContext = MockScanDelegateProcessor(state: ())
         cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
+        cameraService.deviceHasCamera = true
         let task = Task {
             subject.navigate(to: .setupTotpCamera, context: mockContext)
         }

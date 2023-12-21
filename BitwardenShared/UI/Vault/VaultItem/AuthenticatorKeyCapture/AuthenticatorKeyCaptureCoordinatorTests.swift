@@ -64,7 +64,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_dismiss_noAction() throws {
         subject.navigate(to: .dismiss())
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
+        XCTAssertEqual(lastAction.type, .dismissedTopMostWithCompletionHandler)
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the view.
@@ -72,12 +72,13 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         var didRun = false
         subject.navigate(to: .dismiss(DismissAction(action: { didRun = true })))
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
+        XCTAssertEqual(lastAction.type, .dismissedTopMostWithCompletionHandler)
         XCTAssertTrue(didRun)
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
     func test_navigateTo_scanCode() throws {
+        cameraService.deviceHasCamera = true
         let task = Task {
             subject.navigate(to: .screen(.scan))
         }

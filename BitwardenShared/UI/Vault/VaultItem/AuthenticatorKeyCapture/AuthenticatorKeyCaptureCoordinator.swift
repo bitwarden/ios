@@ -109,7 +109,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
                     return
                 case nil:
                     presentScreen = nil
-                    showManualTotp()
+                    showScanCode()
                     return
                 }
             }

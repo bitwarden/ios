@@ -88,7 +88,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
         subject.didCompleteCapture(with: "1234")
         var dismissAction: DismissAction?
-        if case let .dismiss(onDismiss) = coordinator.routes.last {
+        if case let .dismissTopMost(onDismiss) = coordinator.routes.last {
             dismissAction = onDismiss
         }
         XCTAssertNotNil(dismissAction)
@@ -116,7 +116,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         totpService.getTOTPConfigResult = .success(keyConfig)
         subject.didCompleteCapture(with: key)
         var dismissAction: DismissAction?
-        if case let .dismiss(onDismiss) = coordinator.routes.last {
+        if case let .dismissTopMost(onDismiss) = coordinator.routes.last {
             dismissAction = onDismiss
         }
         XCTAssertNotNil(dismissAction)
