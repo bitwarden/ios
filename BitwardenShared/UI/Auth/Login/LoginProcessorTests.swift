@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - LoginProcessorTests
 
-class LoginProcessorTests: BitwardenTestCase {
+class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
@@ -219,6 +219,10 @@ class LoginProcessorTests: BitwardenTestCase {
                     encryptedUserKey: "KEY"
                 ),
             ]
+        )
+        XCTAssertEqual(
+            stateService.masterPasswordHashes,
+            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
         )
     }
 

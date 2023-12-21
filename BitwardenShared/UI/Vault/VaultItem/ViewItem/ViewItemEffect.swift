@@ -4,4 +4,7 @@
 enum ViewItemEffect: Equatable {
     /// The view item screen appeared.
     case appeared
+
+    /// The delete option was pressed.
+    case deletePressed
 }

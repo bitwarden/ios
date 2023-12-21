@@ -5,6 +5,8 @@ import Foundation
 @testable import BitwardenShared
 
 class MockSettingsRepository: SettingsRepository {
+    var addedFolderName: String?
+    var addFolderResult: Result<Void, Error> = .success(())
     var fetchSyncCalled = false
     var fetchSyncResult: Result<Void, Error> = .success(())
     var foldersListError: Error?
@@ -15,6 +17,11 @@ class MockSettingsRepository: SettingsRepository {
     var unlockVaultCalls = [String?]()
     var logoutResult: Result<Void, StateServiceError> = .failure(.noActiveAccount)
     var foldersListSubject = CurrentValueSubject<[FolderView], Error>([])
+
+    func addFolder(name: String) async throws {
+        addedFolderName = name
+        try addFolderResult.get()
+    }
 
     func fetchSync() async throws {
         fetchSyncCalled = true

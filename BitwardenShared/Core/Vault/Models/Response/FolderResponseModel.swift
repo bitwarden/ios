@@ -1,8 +1,9 @@
 import Foundation
+import Networking
 
 /// API response model for a folder.
 ///
-struct FolderResponseModel: Codable, Equatable, Hashable {
+struct FolderResponseModel: JSONResponse, Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// The folder's identifier.

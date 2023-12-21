@@ -67,6 +67,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
             }
+        case .deletePressed:
+            // TODO: BIT-231
+            print("deletePressed")
         }
     }
 
@@ -96,9 +99,18 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             coordinator.navigate(to: .dismiss)
         case .editPressed:
             editItem()
-        case .morePressed:
-            // TODO: BIT-1131 Open item menu
-            print("more pressed")
+        case let .morePressed(menuAction):
+            switch menuAction {
+            case .attachments:
+                // TODO: BIT-364
+                print("attachments")
+            case .clone:
+                // TODO: BIT-365
+                print("clone")
+            case .moveToOrganization:
+                // TODO: BIT-366
+                print("moveToOrganization")
+            }
         case .passwordVisibilityPressed:
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
@@ -164,18 +176,26 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         }
     }
 
-    /// Presents the master password reprompt alert for the specified action. This method will
+    /// Presents the master password re-prompt alert for the specified action. This method will
     /// process the action once the master password has been verified.
     ///
-    /// - Parameter action: The action to process once the password has been verfied.
+    /// - Parameter action: The action to process once the password has been verified.
     ///
     private func presentMasterPasswordRepromptAlert(for action: ViewItemAction) {
-        let alert = Alert.masterPasswordPrompt { [weak self] _ in
+        let alert = Alert.masterPasswordPrompt { [weak self] password in
             guard let self else { return }
 
-            // TODO: BIT-1208 Validate the master password
-            state.hasVerifiedMasterPassword = true
-            receive(action)
+            do {
+                let isValid = try await services.vaultRepository.validatePassword(password)
+                guard isValid else {
+                    coordinator.navigate(to: .alert(Alert.defaultAlert(title: Localizations.invalidMasterPassword)))
+                    return
+                }
+                state.hasVerifiedMasterPassword = true
+                receive(action)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         }
         coordinator.navigate(to: .alert(alert))
     }

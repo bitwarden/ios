@@ -23,7 +23,7 @@ enum ViewItemAction: Equatable {
     case editPressed
 
     /// The more button was pressed.
-    case morePressed
+    case morePressed(VaultItemManagementMenuAction)
 
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
