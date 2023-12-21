@@ -6,6 +6,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute>!
+    var delegate: MockAddEditFolderDelegate!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
     var subject: AddEditFolderProcessor!
@@ -16,6 +17,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator<SettingsRoute>()
+        delegate = MockAddEditFolderDelegate()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
         let settings = ServiceContainer.withMocks(
@@ -24,6 +26,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
         )
         subject = AddEditFolderProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
             services: settings,
             state: AddEditFolderState(mode: .add)
         )
@@ -33,6 +36,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        delegate = nil
         errorReporter = nil
         settingsRepository = nil
         subject = nil
@@ -112,6 +116,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
         // Ensure the folder is deleted and the view is dismissed.
         XCTAssertEqual(settingsRepository.deletedFolderId, "testID")
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertTrue(delegate.folderDeletedCalled)
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
@@ -186,6 +191,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(settingsRepository.addedFolderName, folderName)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertTrue(delegate.folderAddedCalled)
     }
 
     /// `perform(_:)` with `.savePressed` edits the existing folder.
@@ -197,6 +203,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(settingsRepository.editedFolderName, folderName)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertTrue(delegate.folderEditedCalled)
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
@@ -213,5 +220,23 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
         subject.receive(.folderNameTextChanged("updated name"))
         XCTAssertTrue(subject.state.folderName == "updated name")
+    }
+}
+
+class MockAddEditFolderDelegate: AddEditFolderDelegate {
+    var folderAddedCalled = false
+    var folderDeletedCalled = false
+    var folderEditedCalled = false
+
+    func folderAdded() {
+        folderAddedCalled = true
+    }
+
+    func folderDeleted() {
+        folderDeletedCalled = true
+    }
+
+    func folderEdited() {
+        folderEditedCalled = true
     }
 }

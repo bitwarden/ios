@@ -1,3 +1,18 @@
+// MARK: - AddEditFolderDelegate
+
+/// An object that is notified when specific circumstances in the add/edit folder view have occurred.
+///
+protocol AddEditFolderDelegate: AnyObject {
+    /// Called when the folder has been successfully created.
+    func folderAdded()
+
+    /// Called when the folder has been successfully edited.
+    func folderDeleted()
+
+    /// Called when the folder has been successfully deleted.
+    func folderEdited()
+}
+
 // MARK: - AddEditFolderProcessor
 
 /// The processor used to manage state and handle actions for the `AddEditFoldersView`.
@@ -13,6 +28,9 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
     /// The coordinator used to manage navigation.
     private let coordinator: AnyCoordinator<SettingsRoute>
 
+    /// The delegate that is notified when specific circumstances in the add/edit folder view have occurred.
+    private weak var delegate: AddEditFolderDelegate?
+
     /// The services used by this processor.
     private let services: Services
 
@@ -20,15 +38,19 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator used for navigation.
+    ///   - delegate: The delegate that is notified when specific circumstances in the add/edit
+    ///     folder view have occurred.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///
     init(
         coordinator: AnyCoordinator<SettingsRoute>,
+        delegate: AddEditFolderDelegate?,
         services: Services,
         state: AddEditFolderState
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.services = services
         super.init(state: state)
     }
@@ -59,6 +81,7 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
     private func addFolder() async throws {
         try await services.settingsRepository.addFolder(name: state.folderName)
         coordinator.navigate(to: .dismiss)
+        delegate?.folderAdded()
     }
 
     /// Deletes a folder.
@@ -71,6 +94,7 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
             coordinator.showLoadingOverlay(title: Localizations.deleting)
             try await services.settingsRepository.deleteFolder(id: id)
             coordinator.navigate(to: .dismiss)
+            delegate?.folderDeleted()
         } catch {
             coordinator.showAlert(.networkResponseError(error) {
                 await self.deleteFolder(withID: id)
@@ -86,6 +110,7 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
     private func editFolder(withID id: String) async throws {
         try await services.settingsRepository.editFolder(withID: id, name: state.folderName)
         coordinator.navigate(to: .dismiss)
+        delegate?.folderEdited()
     }
 
     /// Saves the folder either by adding a new folder or editing an existing folder.

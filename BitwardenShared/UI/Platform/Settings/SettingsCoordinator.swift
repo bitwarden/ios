@@ -76,14 +76,14 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: SettingsRoute, context _: AnyObject?) {
+    func navigate(to route: SettingsRoute, context: AnyObject?) {
         switch route {
         case .about:
             showAbout()
         case .accountSecurity:
             showAccountSecurity()
         case let .addEditFolder(folder):
-            showAddEditFolder(folder)
+            showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
         case .appearance:
             showAppearance()
         case let .alert(alert):
@@ -155,10 +155,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter folder: The existing folder to edit, if applicable.
     ///
-    private func showAddEditFolder(_ folder: FolderView?) {
+    private func showAddEditFolder(_ folder: FolderView?, delegate: AddEditFolderDelegate?) {
         let mode: AddEditFolderState.Mode = if let folder { .edit(folder) } else { .add }
         let processor = AddEditFolderProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: delegate,
             services: services,
             state: AddEditFolderState(folderName: folder?.name ?? "", mode: mode)
         )
