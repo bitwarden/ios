@@ -1,6 +1,8 @@
+// MARK: - VaultFilterType
+
 /// An enum that describes the options for filtering the user's vault.
 ///
-enum VaultFilterType: Equatable {
+enum VaultFilterType: Equatable, Hashable {
     /// Show my and all organization vaults in the vault list.
     case allVaults
 
@@ -32,5 +34,13 @@ enum VaultFilterType: Equatable {
         case let .organization(organization):
             organization.name
         }
+    }
+}
+
+// MARK: - Identifiable
+
+extension VaultFilterType: Identifiable {
+    var id: String {
+        title
     }
 }

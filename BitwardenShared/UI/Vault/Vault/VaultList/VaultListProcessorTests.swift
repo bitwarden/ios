@@ -281,4 +281,14 @@ class VaultListProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
+
+    /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.
+    func test_receive_vaultFilterChanged() {
+        let organization = Organization.fixture()
+
+        subject.state.vaultFilterType = .myVault
+        subject.receive(.vaultFilterChanged(.organization(organization)))
+
+        XCTAssertEqual(subject.state.vaultFilterType, .organization(organization))
+    }
 }

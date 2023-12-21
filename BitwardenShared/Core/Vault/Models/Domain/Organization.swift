@@ -1,6 +1,6 @@
 /// A domain model containing the details of an organization.
 ///
-struct Organization: Equatable {
+struct Organization: Equatable, Hashable {
     // MARK: Properties
 
     /// The organization's identifier.

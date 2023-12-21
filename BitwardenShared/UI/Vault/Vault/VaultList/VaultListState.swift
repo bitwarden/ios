@@ -29,4 +29,13 @@ struct VaultListState: Equatable {
     var userInitials: String {
         profileSwitcherState.activeAccountInitials
     }
+
+    /// The list of vault filter options that can be used to filter the vault, if the user is a
+    /// member of any organizations.
+    var vaultFilterOptions: [VaultFilterType] {
+        guard !organizations.isEmpty else { return [] }
+        return [.allVaults, .myVault] + organizations
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            .map(VaultFilterType.organization)
+    }
 }

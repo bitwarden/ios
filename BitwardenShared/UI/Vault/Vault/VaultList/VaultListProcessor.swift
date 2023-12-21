@@ -100,6 +100,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .searchTextChanged(newValue):
             state.searchText = newValue
             state.searchResults = searchVault(for: newValue)
+        case let .vaultFilterChanged(newValue):
+            state.vaultFilterType = newValue
         }
     }
 
