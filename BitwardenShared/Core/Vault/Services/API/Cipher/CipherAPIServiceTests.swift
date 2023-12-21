@@ -75,4 +75,16 @@ class CipherAPIServiceTests: XCTestCase {
             )
         )
     }
+
+    /// `deleteCipher()` performs the delete cipher request.
+    func test_DeleteCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+
+        _ = try await subject.deleteCipher(withID: "123")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .delete)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
+    }
 }

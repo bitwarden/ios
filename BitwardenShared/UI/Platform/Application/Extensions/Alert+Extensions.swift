@@ -73,6 +73,27 @@ extension Alert {
 
     // MARK: Static Methods
 
+    /// An confirmation alert to show when the user wants to delete cipher item .
+    ///
+    /// - Parameter completion: A block that is executed when the user interacts with the "yes" button.
+    ///
+    static func deleteCipherConfirmation(completion: @MainActor @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.doYouReallyWantToSoftDeleteCipher,
+            message: nil,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.yes,
+                    style: .default,
+                    handler: { _ in
+                        await completion()
+                    }
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
     /// An alert to show when the user needs to confirm their master password.
     ///
     /// - Parameter completion: A block that is executed when the user interacts with the "Submit" button.

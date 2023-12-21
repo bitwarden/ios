@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Networking
 
 // MARK: - CipherAPIServiceError
 
@@ -21,6 +22,13 @@ protocol CipherAPIService {
     ///
     func addCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
 
+    /// Performs an API request to delete an existing cipher in the user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is updating.
+    /// - Returns: The cipher that was updated in the user's vault.
+    ///
+    func deleteCipher(withID id: String) async throws -> EmptyResponse
+
     /// Performs an API request to update an existing cipher in the user's vault.
     ///
     /// - Parameter cipher: The cipher that the user is updating.
@@ -32,6 +40,10 @@ protocol CipherAPIService {
 extension APIService: CipherAPIService {
     func addCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
         try await apiService.send(AddCipherRequest(cipher: cipher))
+    }
+
+    func deleteCipher(withID id: String) async throws -> EmptyResponse {
+        try await apiService.send(DeleteCipherRequest(id: id))
     }
 
     func updateCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {

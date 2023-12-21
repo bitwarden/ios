@@ -63,8 +63,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 state = newState
             }
         case .deletePressed:
-            // TODO: BIT-231
-            print("deletePressed")
+            await showDeleteConfirmation()
         }
     }
 
@@ -135,6 +134,24 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.navigate(to: .editItem(cipher: cipher))
     }
 
+    /// Soft Deletes the item currently stored in `state`.
+    ///
+    private func deleteItem(_ id: String) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(.init(title: Localizations.softDeleting))
+            try await services.vaultRepository.deleteCipher(id)
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            let alert = Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+            coordinator.showAlert(alert)
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Presents the master password re-prompt alert for the specified action. This method will
     /// process the action once the master password has been verified.
     ///
@@ -154,6 +171,19 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 receive(action)
             } catch {
                 services.errorReporter.log(error: error)
+            }
+        }
+        coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Shows delete cipher confirmation alert.
+    ///
+    private func showDeleteConfirmation() async {
+        guard case let .data(cipherState) = state.loadingState else { return }
+        let alert = Alert.deleteCipherConfirmation { [weak self] in
+            guard let self else { return }
+            if let id = cipherState.configuration.existingCipherView?.id {
+                await deleteItem(id)
             }
         }
         coordinator.navigate(to: .alert(alert))

@@ -56,8 +56,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         case .setupTotpPressed:
             await setupTotp()
         case .deletePressed:
-            // TODO: BIT-222
-            print("delete pressed")
+            await showDeleteConfirmation()
         }
     }
 
@@ -279,6 +278,36 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
         coordinator.navigate(to: .dismiss)
+    }
+
+    /// Soft Deletes the item currently stored in `state`.
+    ///
+    private func deleteItem(_ id: String) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.softDeleting)
+            try await services.vaultRepository.deleteCipher(id)
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            let alert = Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+            coordinator.showAlert(alert)
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Shows delete cipher confirmation alert.
+    ///
+    private func showDeleteConfirmation() async {
+        let alert = Alert.deleteCipherConfirmation { [weak self] in
+            guard let self else { return }
+            if let id = state.cipher.id {
+                await deleteItem(id)
+            }
+        }
+        coordinator.navigate(to: .alert(alert))
     }
 
     /// Updates the item currently in `state`.

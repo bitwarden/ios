@@ -20,6 +20,12 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Delete a cipher from the user's vault.
+    ///
+    /// - Parameter id: The cipher that the user is added.
+    ///
+    func deleteCipher(_ id: String) async throws
+
     /// Validates the user's entered master password to determine if it matches the stored hash.
     ///
     /// - Parameter password: The user's master password.
@@ -74,6 +80,9 @@ class DefaultVaultRepository {
     /// The API service used to perform API requests for the ciphers in a user's vault.
     let cipherAPIService: CipherAPIService
 
+    /// The service used to manages syncing and updates to the user's ciphers.
+    let cipherService: CipherService
+
     /// The client used by the application to handle auth related encryption and decryption tasks.
     let clientAuth: ClientAuthProtocol
 
@@ -101,6 +110,7 @@ class DefaultVaultRepository {
     ///
     /// - Parameters:
     ///   - cipherAPIService: The API service used to perform API requests for the ciphers in a user's vault.
+    ///   - cipherService: The service used to manages syncing and updates to the user's ciphers.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
@@ -111,6 +121,7 @@ class DefaultVaultRepository {
     ///
     init(
         cipherAPIService: CipherAPIService,
+        cipherService: CipherService,
         clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
         clientVault: ClientVaultService,
@@ -120,6 +131,7 @@ class DefaultVaultRepository {
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.cipherAPIService = cipherAPIService
+        self.cipherService = cipherService
         self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
         self.clientVault = clientVault
@@ -249,6 +261,10 @@ extension DefaultVaultRepository: VaultRepository {
         _ = try await cipherAPIService.addCipher(cipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync()
+    }
+
+    func deleteCipher(_ id: String) async throws {
+        try await cipherService.deleteCipherWithServer(id: id)
     }
 
     func remove(userId: String?) async {
