@@ -7,6 +7,8 @@ import Foundation
 class MockSettingsRepository: SettingsRepository {
     var addedFolderName: String?
     var addFolderResult: Result<Void, Error> = .success(())
+    var editedFolderName: String?
+    var editFolderResult: Result<Void, Error> = .success(())
     var fetchSyncCalled = false
     var fetchSyncResult: Result<Void, Error> = .success(())
     var foldersListError: Error?
@@ -21,6 +23,11 @@ class MockSettingsRepository: SettingsRepository {
     func addFolder(name: String) async throws {
         addedFolderName = name
         try addFolderResult.get()
+    }
+
+    func editFolder(withID _: String, name: String) async throws {
+        editedFolderName = name
+        try editFolderResult.get()
     }
 
     func fetchSync() async throws {

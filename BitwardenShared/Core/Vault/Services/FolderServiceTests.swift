@@ -51,7 +51,23 @@ class FolderServiceTests: XCTestCase {
             revisionDate: Date(year: 2023, month: 12, day: 25)
         )
 
-        try await subject.addFolderWithServer(name: "Something Clever")
+        try await subject.addFolderWithServer(name: folder.name)
+
+        XCTAssertEqual(folderDataStore.upsertFolderUserId, Account.fixtureAccountLogin().profile.userId)
+        XCTAssertEqual(folderDataStore.upsertFolderValue, folder)
+    }
+
+    /// `editFolderWithServer(id:name:)` edits the existing folder in both the backend and the data store.
+    func test_editFolderWithServer() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: .folderResponse)
+        let folder = Folder(
+            id: "123456789",
+            name: "Something Clever",
+            revisionDate: Date(year: 2023, month: 12, day: 25)
+        )
+
+        try await subject.editFolderWithServer(id: folder.id, name: folder.name)
 
         XCTAssertEqual(folderDataStore.upsertFolderUserId, Account.fixtureAccountLogin().profile.userId)
         XCTAssertEqual(folderDataStore.upsertFolderValue, folder)
