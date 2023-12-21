@@ -12,6 +12,7 @@ class MockVaultRepository: VaultRepository {
     var removeAccountIds = [String?]()
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
+    var organizationsSubject = CurrentValueSubject<[Organization], Never>([])
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
@@ -37,6 +38,10 @@ class MockVaultRepository: VaultRepository {
     func updateCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         updateCipherCiphers.append(cipher)
         try updateCipherResult.get()
+    }
+
+    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>> {
+        organizationsSubject.eraseToAnyPublisher().values
     }
 
     func validatePassword(_ password: String) async throws -> Bool {

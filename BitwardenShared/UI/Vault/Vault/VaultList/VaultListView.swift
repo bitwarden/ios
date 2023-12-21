@@ -40,6 +40,7 @@ private struct VaultMainView: View {
             store.send(.searchStateChanged(isSearching: newValue))
         }
         .animation(.default, value: isSearching)
+        .task { await store.perform(.streamOrganizations) }
     }
 
     // MARK: Private Properties
@@ -130,11 +131,36 @@ private struct VaultMainView: View {
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         ScrollView {
             VStack(spacing: 20) {
+                vaultFilterRow()
+
                 ForEach(sections) { section in
                     vaultItemSectionView(title: section.name, items: section.items)
                 }
             }
             .padding(16)
+        }
+    }
+
+    /// Displays the vault filter row if the user is a member of any
+    @ViewBuilder
+    private func vaultFilterRow() -> some View {
+        if !store.state.organizations.isEmpty {
+            HStack(spacing: 0) {
+                Text(store.state.vaultFilterType.filterTitle)
+
+                Spacer()
+
+                Button {
+                } label: {
+                    Asset.Images.horizontalKabob.swiftUIImage
+                }
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .accessibilityLabel(Localizations.more)
+            }
+            .frame(minHeight: 60)
+            .padding(.horizontal, 16)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 

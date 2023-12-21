@@ -59,6 +59,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             await refreshProfileState()
         case .refreshVault:
             await refreshVault()
+        case .streamOrganizations:
+            for await organizations in services.vaultRepository.organizationsPublisher() {
+                state.organizations = organizations
+            }
         }
     }
 

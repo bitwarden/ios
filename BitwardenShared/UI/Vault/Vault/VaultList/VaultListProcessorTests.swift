@@ -125,6 +125,25 @@ class VaultListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(profile1, subject.state.profileSwitcherState.activeAccountProfile)
     }
 
+    /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
+    func test_perform_streamOrganizations() {
+        let task = Task {
+            await subject.perform(.streamOrganizations)
+        }
+
+        let organizations = [
+            Organization(id: "1", name: "Organization1"),
+            Organization(id: "2", name: "Organization2"),
+        ]
+
+        vaultRepository.organizationsSubject.value = organizations
+
+        waitFor { !subject.state.organizations.isEmpty }
+        task.cancel()
+
+        XCTAssertEqual(subject.state.organizations, organizations)
+    }
+
     /// `receive(_:)` with `.addAccountPressed` updates the state correctly
     func test_receive_accountPressed() {
         subject.state.profileSwitcherState.isVisible = true

@@ -101,8 +101,8 @@ class DefaultSyncService: SyncService {
     private func initializeOrganizationCrypto(syncResponse: SyncResponseModel) async {
         let organizationKeysById = syncResponse.profile?.organizations?
             .reduce(into: [String: String]()) { result, organization in
-                guard let id = organization.id, let key = organization.key else { return }
-                result[id] = key
+                guard let key = organization.key else { return }
+                result[organization.id] = key
             } ?? [:]
         do {
             try await clientCrypto.initializeOrgCrypto(

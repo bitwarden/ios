@@ -20,6 +20,18 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Removes an account id.
+    ///
+    ///  - Parameter userId: An optional userId. Defaults to the active user id.
+    ///
+    func remove(userId: String?) async
+
+    /// Updates a cipher in the user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is updating.
+    ///
+    func updateCipher(_ cipher: CipherView) async throws
+
     /// Validates the user's entered master password to determine if it matches the stored hash.
     ///
     /// - Parameter password: The user's master password.
@@ -37,17 +49,11 @@ protocol VaultRepository: AnyObject {
     ///
     func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>>
 
-    /// Removes an account id.
+    /// A publisher for the list of organizations the user is a member of.
     ///
-    ///  - Parameter userId: An optional userId. Defaults to the active user id.
+    /// - Returns: A publisher for the list of organizations the user is a member of.
     ///
-    func remove(userId: String?) async
-
-    /// Updates a cipher in the user's vault.
-    ///
-    /// - Parameter cipher: The cipher that the user is updating.
-    ///
-    func updateCipher(_ cipher: CipherView) async throws
+    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>>
 
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
@@ -269,6 +275,27 @@ extension DefaultVaultRepository: VaultRepository {
 
     // MARK: Publishers
 
+    func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>> {
+        syncService.syncResponsePublisher()
+            .asyncCompactMap { response in
+                guard let cipher = response?.ciphers.first(where: { $0.id == id }) else {
+                    return nil
+                }
+                return try? await self.clientVault.ciphers().decrypt(cipher: Cipher(responseModel: cipher))
+            }
+            .eraseToAnyPublisher()
+            .values
+    }
+
+    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>> {
+        syncService.syncResponsePublisher()
+            .compactMap { response in
+                response?.profile?.organizations?.compactMap(Organization.init)
+            }
+            .eraseToAnyPublisher()
+            .values
+    }
+
     func vaultListPublisher() -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>> {
         syncService.syncResponsePublisher()
             .asyncCompactMap { response in
@@ -284,18 +311,6 @@ extension DefaultVaultRepository: VaultRepository {
             .asyncCompactMap { response in
                 guard let response else { return nil }
                 return try? await self.vaultListItems(group: group, from: response)
-            }
-            .eraseToAnyPublisher()
-            .values
-    }
-
-    func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>> {
-        syncService.syncResponsePublisher()
-            .asyncCompactMap { response in
-                guard let cipher = response?.ciphers.first(where: { $0.id == id }) else {
-                    return nil
-                }
-                return try? await self.clientVault.ciphers().decrypt(cipher: Cipher(responseModel: cipher))
             }
             .eraseToAnyPublisher()
             .values
