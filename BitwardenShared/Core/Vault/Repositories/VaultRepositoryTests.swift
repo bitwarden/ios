@@ -19,15 +19,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var syncService: MockSyncService!
     var vaultTimeoutService: MockVaultTimeoutService!
 
-    let anneAccount = Account
-        .fixture(
-            profile: .fixture(
-                email: "Anne.Account@bitwarden.com",
-                name: "Anne Account",
-                userId: "1"
-            )
-        )
-
     // MARK: Setup & Teardown
 
     override func setUp() {
@@ -118,8 +109,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `deleteCipher()` throws on id errors.
     func test_deleteCipher_idError_nil() async throws {
-        stateService.accounts = [anneAccount]
-        stateService.activeAccount = anneAccount
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
         await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
             try await subject.deleteCipher("")
         }

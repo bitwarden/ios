@@ -12,15 +12,6 @@ class CipherServiceTests: XCTestCase {
     var stateService: MockStateService!
     var subject: CipherService!
 
-    let anneAccount = Account
-        .fixture(
-            profile: .fixture(
-                email: "Anne.Account@bitwarden.com",
-                name: "Anne Account",
-                userId: "1"
-            )
-        )
-
     // MARK: Setup & Teardown
 
     override func setUp() {
@@ -48,12 +39,12 @@ class CipherServiceTests: XCTestCase {
 
     /// `deleteCipherWithServer(id:)` deletes the cipher item from remote server and persisted cipher in the data store.
     func test_deleteCipher() async throws {
-        stateService.accounts = [anneAccount]
-        stateService.activeAccount = anneAccount
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
         client.result = .httpSuccess(testData: APITestData(data: Data()))
         try await subject.deleteCipherWithServer(id: "123")
         XCTAssertEqual(cipherDataStore.deleteCipherId, "123")
-        XCTAssertEqual(cipherDataStore.deleteCipherUserId, "1")
+        XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
     }
 
     /// `replaceCiphers(_:userId:)` replaces the persisted ciphers in the data store.
