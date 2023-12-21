@@ -15,11 +15,11 @@ struct PasswordHintView: View {
             VStack(spacing: 16) {
                 BitwardenTextField(
                     title: Localizations.emailAddress,
-                    footer: Localizations.enterEmailForHint,
                     text: store.binding(
                         get: \.emailAddress,
                         send: PasswordHintAction.emailAddressChanged
-                    )
+                    ),
+                    footer: Localizations.enterEmailForHint
                 )
                 .textFieldConfiguration(.email)
 

@@ -28,22 +28,26 @@ struct AddEditLoginItemView: View {
 
         BitwardenTextField(
             title: Localizations.password,
-            isPasswordVisible: store.binding(
-                get: \.isPasswordVisible,
-                send: AddEditItemAction.togglePasswordVisibilityChanged
-            ),
             text: store.binding(
                 get: \.password,
                 send: AddEditItemAction.passwordChanged
+            ),
+            canViewPassword: store.state.canViewPassword,
+            isPasswordVisible: store.binding(
+                get: \.isPasswordVisible,
+                send: AddEditItemAction.togglePasswordVisibilityChanged
             )
         ) {
-            AccessoryButton(asset: Asset.Images.roundCheck, accessibilityLabel: Localizations.checkPassword) {
-                await store.perform(.checkPasswordPressed)
-            }
-            AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generatePassword) {
-                store.send(.generatePasswordPressed)
+            if store.state.canViewPassword {
+                AccessoryButton(asset: Asset.Images.roundCheck, accessibilityLabel: Localizations.checkPassword) {
+                    await store.perform(.checkPasswordPressed)
+                }
+                AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generatePassword) {
+                    store.send(.generatePasswordPressed)
+                }
             }
         }
+        .disabled(!store.state.canViewPassword)
         .textFieldConfiguration(.password)
 
         totpView
