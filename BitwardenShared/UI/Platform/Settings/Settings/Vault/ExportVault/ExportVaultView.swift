@@ -33,12 +33,10 @@ struct ExportVaultView: View {
 
     /// The button to export the vault.
     private var exportVaultButton: some View {
-        Button {
+        Button(Localizations.exportVault) {
             // TODO: BIT-449
-        } label: {
-            Text(Localizations.exportVault)
         }
-        .buttonStyle(TertiaryButtonStyle())
+        .buttonStyle(.tertiary())
     }
 
     /// The selector to choose the export file format.
