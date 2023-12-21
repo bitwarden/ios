@@ -127,10 +127,10 @@ struct FormTextFieldView<State>: View {
     var body: some View {
         BitwardenTextField(
             title: field.title,
+            text: Binding(get: { field.value }, set: action),
             isPasswordVisible: field.isPasswordVisible.map { isPasswordVisible in
                 Binding(get: { isPasswordVisible }, set: isPasswordVisibleChangedAction ?? { _ in })
-            },
-            text: Binding(get: { field.value }, set: action)
+            }
         )
         .autocorrectionDisabled(field.isAutocorrectDisabled)
         .keyboardType(field.keyboardType)
