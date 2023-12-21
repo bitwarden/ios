@@ -67,7 +67,7 @@ struct ViewLoginItemView: View {
                     .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
-        } else if let key = store.state.totpKey {
+        } else if store.state.totpKey != nil {
             // TODO: BIT-760 - Implement OTP Logic & Calculation
             BitwardenField(
                 title: Localizations.verificationCodeTotp,
