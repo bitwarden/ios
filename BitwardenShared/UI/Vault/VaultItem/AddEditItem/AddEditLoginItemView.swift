@@ -27,15 +27,15 @@ struct AddEditLoginItemView: View {
         }
 
         BitwardenTextField(
-            canViewPassword: store.state.canViewPassword,
             title: Localizations.password,
-            isPasswordVisible: store.binding(
-                get: \.isPasswordVisible,
-                send: AddEditItemAction.togglePasswordVisibilityChanged
-            ),
             text: store.binding(
                 get: \.password,
                 send: AddEditItemAction.passwordChanged
+            ),
+            canViewPassword: store.state.canViewPassword,
+            isPasswordVisible: store.binding(
+                get: \.isPasswordVisible,
+                send: AddEditItemAction.togglePasswordVisibilityChanged
             )
         ) {
             if store.state.canViewPassword {

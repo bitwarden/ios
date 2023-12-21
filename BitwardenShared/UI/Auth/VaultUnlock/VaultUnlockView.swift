@@ -45,14 +45,14 @@ struct VaultUnlockView: View {
             VStack(spacing: 24) {
                 BitwardenTextField(
                     title: Localizations.masterPassword,
+                    text: store.binding(
+                        get: \.masterPassword,
+                        send: VaultUnlockAction.masterPasswordChanged
+                    ),
                     footer: footerText,
                     isPasswordVisible: store.binding(
                         get: \.isMasterPasswordRevealed,
                         send: VaultUnlockAction.revealMasterPasswordFieldPressed
-                    ),
-                    text: store.binding(
-                        get: \.masterPassword,
-                        send: VaultUnlockAction.masterPasswordChanged
                     )
                 )
                 .textFieldConfiguration(.password)
