@@ -15,4 +15,8 @@ extension APITestData {
     // MARK: Pre-Login
 
     static let preLoginSuccess = loadFromJsonBundle(resource: "PreLoginSuccess")
+
+    // MARK: Request Password Hint
+
+    static let passwordHintFailure = loadFromJsonBundle(resource: "PasswordHintFailure")
 }

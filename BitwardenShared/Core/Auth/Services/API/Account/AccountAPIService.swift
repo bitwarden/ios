@@ -35,6 +35,14 @@ protocol AccountAPIService {
     /// - Returns: Information necessary to complete the next step in the auth flow.
     ///
     func preLogin(email: String) async throws -> PreLoginResponseModel
+
+    /// Requests that the password hint for an account tied to the provided email address be sent to
+    /// the user. If this method does not throw an error, than the password hint has been sent to
+    /// the user successfully.
+    ///
+    /// - Parameter email: The email being used to log into the app.
+    ///
+    func requestPasswordHint(for email: String) async throws
 }
 
 // MARK: - APIService
@@ -73,5 +81,10 @@ extension APIService: AccountAPIService {
         let request = PreLoginRequest(body: body)
         let response = try await identityService.send(request)
         return response
+    }
+
+    func requestPasswordHint(for email: String) async throws {
+        let request = PasswordHintRequest(body: PasswordHintRequestModel(email: email))
+        _ = try await apiUnauthenticatedService.send(request)
     }
 }
