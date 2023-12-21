@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - ExportVaultView
 
-/// A view that allows users to export their vault..
+/// A view that allows users to export their vault.
 ///
 struct ExportVaultView: View {
     // MARK: Properties
