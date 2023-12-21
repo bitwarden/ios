@@ -110,14 +110,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRePromptChanged(true))
     }
 
-    /// Tapping the more button dispatches the `.morePressed` action.
-    func test_moreButton_tap() throws {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.options)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
-    }
-
     /// Updating the name text field dispatches the `.nameChanged()` action.
     func test_nameTextField_updateValue() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.name)

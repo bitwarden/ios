@@ -7,6 +7,17 @@ import SwiftUI
 /// displaying additional content on the trailing edge of the text field.
 ///
 struct BitwardenTextField<TrailingContent: View>: View {
+    // MARK: Private Properties
+
+    /// A flag indicating if this field is currently focused.
+    private var isFocused: Bool { isTextFieldFocused || isSecureFieldFocused }
+
+    /// A flag indicating if the secure field is currently focused.
+    @FocusState private var isSecureFieldFocused
+
+    /// A flag indicating if the text field is currently focused.
+    @FocusState private var isTextFieldFocused
+
     // MARK: Properties
 
     /// The accessibility identifier for the text field.
@@ -81,11 +92,13 @@ struct BitwardenTextField<TrailingContent: View>: View {
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
                 TextField(placeholder, text: $text)
+                    .focused($isTextFieldFocused)
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     .hidden(!isPasswordVisible && isPassword)
                     .id(title)
                 if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
+                        .focused($isSecureFieldFocused)
                         .styleGuide(.bodyMonospaced, includeLineSpacing: false)
                         .id(title)
                 }
@@ -101,7 +114,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
                     .frame(width: 14, height: 14)
             }
             .padding(.vertical, 5)
-            .hidden(text.isEmpty)
+            .hidden(text.isEmpty || !isFocused)
         }
         .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
     }

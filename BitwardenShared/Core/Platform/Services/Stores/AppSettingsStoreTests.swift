@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - AppSettingsStoreTests
 
-class AppSettingsStoreTests: BitwardenTestCase {
+class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var subject: AppSettingsStore!
@@ -156,6 +156,30 @@ class AppSettingsStoreTests: BitwardenTestCase {
         XCTAssertEqual(subject.lastSyncTime(userId: "2"), date4)
         XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_1"), 1_690_848_000.0)
         XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_2"), 1_685_664_000.0)
+    }
+
+    /// `masterPasswordHash(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_masterPasswordHash_isInitiallyNil() {
+        XCTAssertNil(subject.masterPasswordHash(userId: "-1"))
+    }
+
+    /// `masterPasswordHash(userId:)` can be used to get the master password hash for a user.
+    func test_masterPasswordHash_withValue() {
+        subject.setMasterPasswordHash("1234", userId: "1")
+        subject.setMasterPasswordHash("9876", userId: "2")
+
+        XCTAssertEqual(subject.masterPasswordHash(userId: "1"), "1234")
+        XCTAssertEqual(subject.masterPasswordHash(userId: "2"), "9876")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:keyHash_1"), "1234")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:keyHash_2"), "9876")
+
+        subject.setMasterPasswordHash("abcd", userId: "1")
+        subject.setMasterPasswordHash("zyxw", userId: "2")
+
+        XCTAssertEqual(subject.masterPasswordHash(userId: "1"), "abcd")
+        XCTAssertEqual(subject.masterPasswordHash(userId: "2"), "zyxw")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:keyHash_1"), "abcd")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:keyHash_2"), "zyxw")
     }
 
     /// `passwordGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.

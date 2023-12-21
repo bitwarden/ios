@@ -75,14 +75,14 @@ struct AddEditItemView: View {
             .navigationTitle(Localizations.editItem)
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    Button {
-                        store.send(.morePressed)
-                    } label: {
-                        Asset.Images.verticalKabob.swiftUIImage
-                            .resizable()
-                            .frame(width: 19, height: 19)
-                    }
-                    .accessibilityLabel(Localizations.options)
+                    VaultItemManagementMenuView(
+                        isCloneEnabled: false, store: store.child(
+                            state: { _ in },
+                            mapAction: { .morePressed($0) },
+                            mapEffect: { _ in .deletePressed }
+                        )
+                    )
+
                     Button {
                         store.send(.dismissPressed)
                     } label: {

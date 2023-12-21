@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - ViewItemProcessorTests
 
-class ViewItemProcessorTests: BitwardenTestCase {
+class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Propteries
 
     var coordinator: MockCoordinator<VaultItemRoute>!
@@ -185,12 +185,6 @@ class ViewItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
     }
 
-    /// `receive` with `.morePressed` presents the item options menu.
-    func test_receive_morePressed() {
-        subject.receive(.morePressed)
-        // TODO: BIT-1131 Assertion for menu
-    }
-
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
     func test_receive_passwordVisibilityPressed_impossible_loading() throws {
         subject.state.loadingState = .loading
@@ -291,12 +285,55 @@ class ViewItemProcessorTests: BitwardenTestCase {
         subject.receive(.passwordVisibilityPressed)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
-        let textField = try XCTUnwrap(alert.alertTextFields.first)
+        XCTAssertNotNil(alert.alertTextFields.first)
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
+
+        XCTAssertEqual(vaultRepository.validatePasswordPasswords, ["password1234"])
 
         cipherState.loginState.isPasswordVisible = true
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
         XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
+    }
+
+    /// If validation the user's password fails, an error is logged.
+    func test_masterPasswordReprompt_submitButtonPressed_error() async throws {
+        struct ValidatePasswordError: Error {}
+        vaultRepository.validatePasswordResult = .failure(ValidatePasswordError())
+
+        let cipherView = CipherView.fixture(id: "1", reprompt: .password)
+        let cipherState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.passwordVisibilityPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertNotNil(alert.alertTextFields.first)
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
+
+        XCTAssertEqual(vaultRepository.validatePasswordPasswords, ["password1234"])
+        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
+        XCTAssertTrue(errorReporter.errors.last is ValidatePasswordError)
+    }
+
+    /// If the user's password validation fails, an invalid password alert is presented.
+    func test_masterPasswordReprompt_submitButtonPressed_invalidPassword() async throws {
+        vaultRepository.validatePasswordResult = .success(false)
+
+        let cipherView = CipherView.fixture(id: "1", reprompt: .password)
+        let cipherState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.passwordVisibilityPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertNotNil(alert.alertTextFields.first)
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
+
+        XCTAssertEqual(vaultRepository.validatePasswordPasswords, ["password1234"])
+        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
+
+        let invalidPasswordAlert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
     }
 }

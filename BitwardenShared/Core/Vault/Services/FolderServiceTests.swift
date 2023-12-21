@@ -6,6 +6,8 @@ import XCTest
 class FolderServiceTests: XCTestCase {
     // MARK: Properties
 
+    var client: MockHTTPClient!
+    var folderAPIService: APIService!
     var folderDataStore: MockFolderDataStore!
     var stateService: MockStateService!
     var subject: FolderService!
@@ -15,10 +17,13 @@ class FolderServiceTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
+        client = MockHTTPClient()
+        folderAPIService = APIService(client: client)
         folderDataStore = MockFolderDataStore()
         stateService = MockStateService()
 
         subject = DefaultFolderService(
+            folderAPIService: folderAPIService,
             folderDataStore: folderDataStore,
             stateService: stateService
         )
@@ -27,12 +32,30 @@ class FolderServiceTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
 
+        client = nil
+        folderAPIService = nil
         folderDataStore = nil
         stateService = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `addFolderWithServer(name:)` adds the new folder in both the backend and the data store.
+    func test_addFolderWithServer() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: .folderResponse)
+        let folder = Folder(
+            id: "123456789",
+            name: "Something Clever",
+            revisionDate: Date(year: 2023, month: 12, day: 25)
+        )
+
+        try await subject.addFolderWithServer(name: "Something Clever")
+
+        XCTAssertEqual(folderDataStore.upsertFolderUserId, Account.fixtureAccountLogin().profile.userId)
+        XCTAssertEqual(folderDataStore.upsertFolderValue, folder)
+    }
 
     /// `replaceFolders(_:userId:)` replaces the persisted folders in the data store.
     func test_replaceFolders() async throws {
