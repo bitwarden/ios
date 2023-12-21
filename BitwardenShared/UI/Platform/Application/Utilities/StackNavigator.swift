@@ -198,25 +198,9 @@ extension UINavigationController: StackNavigator {
     ///   - completion: A closure to call on completion.
     ///
     public func dismissTopMost(animated: Bool = true, completion: (() -> Void)? = nil) {
-        if let topPresentedController = topMostPresentedViewController() {
-            // Dismiss only the topmost presented view controller
-            topPresentedController.dismiss(animated: animated, completion: completion)
-        } else {
-            // Dismiss the current presented view controller
-            dismiss(animated: animated, completion: completion)
-        }
-    }
-
-    /// Returns the topmost presented view controller on the navigation stack.
-    ///
-    /// - Returns: The top most presented view controller.
-    ///
-    private func topMostPresentedViewController() -> UIViewController? {
-        var topController: UIViewController? = self
-        while topController?.presentedViewController != nil {
-            topController = topController?.presentedViewController
-        }
-        return topController
+        let topPresentedController = topmostViewController()
+        // Dismiss only the topmost presented view controller
+        topPresentedController.dismiss(animated: animated, completion: completion)
     }
 
     @discardableResult

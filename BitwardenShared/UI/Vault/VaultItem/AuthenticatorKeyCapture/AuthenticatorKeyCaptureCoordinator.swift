@@ -25,11 +25,6 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     typealias Services = HasCameraService
         & HasErrorReporter
 
-    enum StoredRoute: Equatable {
-        case camera
-        case manual
-    }
-
     // MARK: Private Properties
 
     /// A delegate that responds to events in this coordinator.
