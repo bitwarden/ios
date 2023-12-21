@@ -35,6 +35,7 @@ extension CipherView {
 
     func loginItemState(showPassword: Bool = false) -> LoginItemState {
         .init(
+            canViewPassword: viewPassword,
             isPasswordVisible: showPassword,
             password: login?.password ?? "",
             passwordUpdatedDate: login?.passwordRevisionDate,

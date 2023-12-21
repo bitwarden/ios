@@ -11,6 +11,14 @@ protocol SettingsRepository: AnyObject {
     ///
     func addFolder(name: String) async throws
 
+    /// Edit an existing folder.
+    ///
+    /// - Parameters:
+    ///   - id: The id of the folder to edit
+    ///   - name: The new name of the folder.
+    ///
+    func editFolder(withID id: String, name: String) async throws
+
     /// Updates the user's vault by syncing it with the API.
     ///
     func fetchSync() async throws
@@ -101,6 +109,13 @@ extension DefaultSettingsRepository: SettingsRepository {
         let folderView = FolderView(id: UUID().uuidString, name: name, revisionDate: Date.now)
         let folder = try await clientVault.folders().encrypt(folder: folderView)
         try await folderService.addFolderWithServer(name: folder.name)
+    }
+
+    func editFolder(withID id: String, name: String) async throws {
+        // Encrypt the folder then save the new data.
+        let folderView = FolderView(id: id, name: name, revisionDate: Date.now)
+        let folder = try await clientVault.folders().encrypt(folder: folderView)
+        try await folderService.editFolderWithServer(id: id, name: folder.name)
     }
 
     func fetchSync() async throws {

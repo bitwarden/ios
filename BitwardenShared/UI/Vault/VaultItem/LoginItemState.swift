@@ -7,6 +7,9 @@ import Foundation
 struct LoginItemState: Equatable {
     // MARK: Properties
 
+    /// Whether the user has permissions to view the cipher's password.
+    var canViewPassword: Bool = true
+
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool = false
 

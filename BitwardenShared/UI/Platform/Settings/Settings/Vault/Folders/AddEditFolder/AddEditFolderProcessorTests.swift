@@ -57,8 +57,8 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(_:)` with `.savePressed` displays an alert if saving or updating fails.
-    func test_perform_savePressed_genericErrorAlert() async throws {
+    /// `perform(_:)` with `.savePressed` displays an alert if adding a new folder fails.
+    func test_perform_savePressed_genericErrorAlert_add() async throws {
         subject.state.folderName = "Folder Name"
         struct TestError: Error, Equatable {}
         settingsRepository.addFolderResult = .failure(TestError())
@@ -76,12 +76,46 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
-    /// `perform(_:)` with `.savePressed` saves the item.
-    func test_perform_savePressed() async {
-        subject.state.folderName = "Folder Name"
+    /// `perform(_:)` with `.savePressed` displays an alert if editing an existing folder fails.
+    func test_perform_savePressed_genericErrorAlert_edit() async throws {
+        let folderName = "FolderName"
+        subject.state.mode = .edit(.fixture(name: folderName))
+        subject.state.folderName = folderName
+        struct TestError: Error, Equatable {}
+        settingsRepository.editFolderResult = .failure(TestError())
+
         await subject.perform(.saveTapped)
 
-        XCTAssertEqual(settingsRepository.addedFolderName, "Folder Name")
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+        )
+        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `perform(_:)` with `.savePressed` adds the new folder.
+    func test_perform_savePressed_add() async {
+        let folderName = "FolderName"
+        subject.state.folderName = folderName
+        await subject.perform(.saveTapped)
+
+        XCTAssertEqual(settingsRepository.addedFolderName, folderName)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.savePressed` edits the existing folder.
+    func test_perform_savePressed_edit() async {
+        let folderName = "FolderName"
+        subject.state.mode = .edit(.fixture(name: folderName))
+        subject.state.folderName = folderName
+        await subject.perform(.saveTapped)
+
+        XCTAssertEqual(settingsRepository.editedFolderName, folderName)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// Receiving `.dismiss` dismisses the view.

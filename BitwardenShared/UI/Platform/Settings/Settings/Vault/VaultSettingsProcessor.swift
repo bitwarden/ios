@@ -26,8 +26,7 @@ final class VaultSettingsProcessor: StateProcessor<Void, VaultSettingsAction, Vo
     override func receive(_ action: VaultSettingsAction) {
         switch action {
         case .exportVaultTapped:
-            // TODO: BIT-749
-            break
+            coordinator.navigate(to: .exportVault)
         case .foldersTapped:
             coordinator.navigate(to: .folders)
         case .importItemsTapped:

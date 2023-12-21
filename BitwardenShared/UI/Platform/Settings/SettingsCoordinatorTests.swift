@@ -109,6 +109,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(lastAction.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.exportVault` presents the export vault view.
+    func test_navigateTo_exportVault() throws {
+        subject.navigate(to: .exportVault)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportVaultView>)
+    }
+
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
     func test_navigateTo_lockVault() throws {
         subject.navigate(to: .lockVault(account: .fixture()))

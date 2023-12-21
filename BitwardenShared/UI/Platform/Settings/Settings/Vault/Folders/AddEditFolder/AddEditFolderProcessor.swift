@@ -62,6 +62,15 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
         coordinator.navigate(to: .dismiss)
     }
 
+    /// Edits an existing folder with the entered name and closes the view.
+    ///
+    /// - Parameter folderID: The id of the folder to edit.
+    ///
+    private func editFolder(withID id: String) async throws {
+        try await services.settingsRepository.editFolder(withID: id, name: state.folderName)
+        coordinator.navigate(to: .dismiss)
+    }
+
     /// Saves the folder either by adding a new folder or editing an existing folder.
     private func handleSaveTapped() async {
         defer { coordinator.hideLoadingOverlay() }
@@ -72,9 +81,8 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
             switch state.mode {
             case .add:
                 try await addFolder()
-            case .edit:
-                // TODO: BIT-436
-                break
+            case let .edit(folder):
+                try await editFolder(withID: folder.id)
             }
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))

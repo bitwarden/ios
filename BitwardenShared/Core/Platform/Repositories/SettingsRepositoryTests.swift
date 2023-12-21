@@ -54,6 +54,14 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(folderService.addedFolderName, folderName)
     }
 
+    /// `editFolder(id:name:)` encrypts the folder name and makes the request to edit the folder.
+    func test_editFolder() async throws {
+        let folderName = "Test folder name"
+        try await subject.editFolder(withID: "123456789", name: folderName)
+        XCTAssertEqual(clientVault.clientFolders.encryptedFolders.first?.name, folderName)
+        XCTAssertEqual(folderService.editedFolderName, folderName)
+    }
+
     /// `fetchSync()` has the sync service perform a new sync.
     func test_fetchSync() async throws {
         try await subject.fetchSync()
