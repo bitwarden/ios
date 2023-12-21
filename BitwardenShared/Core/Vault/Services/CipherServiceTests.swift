@@ -42,8 +42,8 @@ class CipherServiceTests: XCTestCase {
         stateService.accounts = [.fixtureAccountLogin()]
         stateService.activeAccount = .fixtureAccountLogin()
         client.result = .httpSuccess(testData: APITestData(data: Data()))
-        try await subject.deleteCipherWithServer(id: "123")
-        XCTAssertEqual(cipherDataStore.deleteCipherId, "123")
+        try await subject.deleteCipherWithServer(id: "TestId")
+        XCTAssertEqual(cipherDataStore.deleteCipherId, "TestId")
         XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
     }
 
