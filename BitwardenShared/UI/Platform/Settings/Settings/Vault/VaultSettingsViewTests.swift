@@ -54,6 +54,6 @@ class VaultSettingsViewTests: BitwardenTestCase {
 
     /// The default view renders correctly.
     func test_snapshot_default() {
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }
