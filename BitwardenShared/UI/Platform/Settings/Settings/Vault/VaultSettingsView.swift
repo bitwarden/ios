@@ -33,7 +33,7 @@ struct VaultSettingsView: View {
                 store.send(.exportVaultTapped)
             }
 
-            SettingsListItem(Localizations.importItems) {
+            SettingsListItem(Localizations.importItems, hasDivider: false) {
                 store.send(.importItemsTapped)
             } trailingContent: {
                 Image(asset: Asset.Images.externalLink2)
@@ -43,4 +43,8 @@ struct VaultSettingsView: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
+}
+
+#Preview {
+    VaultSettingsView(store: Store(processor: StateProcessor(state: ())))
 }
