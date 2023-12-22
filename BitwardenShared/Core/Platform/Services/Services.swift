@@ -16,6 +16,7 @@ typealias Services = HasAccountAPIService
     & HasErrorReporter
     & HasGeneratorRepository
     & HasPasteboardService
+    & HasSendRepository
     & HasSettingsRepository
     & HasStateService
     & HasSystemDevice
@@ -124,6 +125,13 @@ protocol HasGeneratorRepository {
 protocol HasPasteboardService {
     /// The service used by the application for sharing data with other apps.
     var pasteboardService: PasteboardService { get }
+}
+
+/// Protocol for an object that provides a `SendRepository`.
+///
+protocol HasSendRepository {
+    /// The repository used by the application to manage send data for the UI layer.
+    var sendRepository: SendRepository { get }
 }
 
 /// Protocol for an object that provides a `SettingsRepository`.
