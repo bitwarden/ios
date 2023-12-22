@@ -25,6 +25,15 @@ struct VaultListState: Equatable {
 
     // MARK: Computed Properties
 
+    /// The navigation title for the view.
+    var navigationTitle: String {
+        if organizations.isEmpty {
+            Localizations.myVault
+        } else {
+            Localizations.vaults
+        }
+    }
+
     /// The user's initials.
     var userInitials: String {
         profileSwitcherState.activeAccountInitials

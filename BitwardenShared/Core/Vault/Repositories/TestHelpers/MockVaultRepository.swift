@@ -17,6 +17,7 @@ class MockVaultRepository: VaultRepository {
     var validatePasswordResult: Result<Bool, Error> = .success(true)
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
     var vaultListGroupSubject = CurrentValueSubject<[VaultListItem], Never>([])
+    var vaultListFilter: VaultFilterType?
 
     func fetchSync(isManualRefresh _: Bool) async throws {
         fetchSyncCalled = true
@@ -49,8 +50,11 @@ class MockVaultRepository: VaultRepository {
         return try validatePasswordResult.get()
     }
 
-    func vaultListPublisher() -> AsyncPublisher<AnyPublisher<[BitwardenShared.VaultListSection], Never>> {
-        vaultListSubject.eraseToAnyPublisher().values
+    func vaultListPublisher(
+        filter: VaultFilterType
+    ) -> AsyncPublisher<AnyPublisher<[BitwardenShared.VaultListSection], Never>> {
+        vaultListFilter = filter
+        return vaultListSubject.eraseToAnyPublisher().values
     }
 
     func vaultListPublisher(

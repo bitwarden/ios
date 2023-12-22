@@ -40,7 +40,6 @@ private struct VaultMainView: View {
             store.send(.searchStateChanged(isSearching: newValue))
         }
         .animation(.default, value: isSearching)
-        .task { await store.perform(.streamOrganizations) }
     }
 
     // MARK: Private Properties
@@ -258,7 +257,7 @@ struct VaultListView: View {
                 }
             profileSwitcher
         }
-        .navigationTitle(Localizations.myVault)
+        .navigationTitle(store.state.navigationTitle)
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -285,6 +284,10 @@ struct VaultListView: View {
         }
         .task {
             await store.perform(.appeared)
+        }
+        .task { await store.perform(.streamOrganizations) }
+        .task(id: store.state.vaultFilterType) {
+            await store.perform(.streamVaultList)
         }
     }
 

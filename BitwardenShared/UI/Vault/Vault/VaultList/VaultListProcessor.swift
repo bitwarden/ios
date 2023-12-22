@@ -44,9 +44,6 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         switch effect {
         case .appeared:
             await refreshVault(isManualRefresh: false)
-            for await value in services.vaultRepository.vaultListPublisher() {
-                state.loadingState = .data(value)
-            }
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -62,6 +59,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .streamOrganizations:
             for await organizations in services.vaultRepository.organizationsPublisher() {
                 state.organizations = organizations
+            }
+        case .streamVaultList:
+            for await value in services.vaultRepository.vaultListPublisher(filter: state.vaultFilterType) {
+                state.loadingState = .data(value)
             }
         }
     }
