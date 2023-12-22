@@ -44,6 +44,8 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
 
     override func perform(_ effect: OtherSettingsEffect) async {
         switch effect {
+        case .loadInitialValues:
+            await getAllowSyncOnRefresh()
         case .streamLastSyncTime:
             await streamLastSyncTime()
         case .syncNow:
@@ -60,12 +62,22 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             state.toast = newValue
         case let .toggleAllowSyncOnRefresh(isOn):
             state.isAllowSyncOnRefreshToggleOn = isOn
+            updateAllowSyncOnRefresh(isOn)
         case let .toggleConnectToWatch(isOn):
             state.isConnectToWatchToggleOn = isOn
         }
     }
 
     // MARK: Private
+
+    /// Get the value of allowing sync on refresh.
+    private func getAllowSyncOnRefresh() async {
+        do {
+            state.isAllowSyncOnRefreshToggleOn = try await services.settingsRepository.getAllowSyncOnRefresh()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Gets the last sync time for the user and streams any changes to it.
     ///
@@ -93,6 +105,17 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
                 await self.syncVault()
             })
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Update the value of allowing sync on refresh.
+    private func updateAllowSyncOnRefresh(_ newValue: Bool) {
+        Task {
+            do {
+                try await services.settingsRepository.updateAllowSyncOnRefresh(newValue)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         }
     }
 }

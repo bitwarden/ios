@@ -7,9 +7,9 @@ import SwiftUI
 final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, VaultListEffect> {
     // MARK: Types
 
-    typealias Services = HasVaultRepository
-        & HasAuthRepository
+    typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasVaultRepository
 
     // MARK: Private Properties
 
@@ -43,7 +43,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     override func perform(_ effect: VaultListEffect) async {
         switch effect {
         case .appeared:
-            await refreshVault()
+            await refreshVault(isManualRefresh: false)
             for await value in services.vaultRepository.vaultListPublisher() {
                 state.loadingState = .data(value)
             }
@@ -58,7 +58,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .refreshAccountProfiles:
             await refreshProfileState()
         case .refreshVault:
-            await refreshVault()
+            await refreshVault(isManualRefresh: true)
         }
     }
 
@@ -142,9 +142,11 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
 
     /// Refreshes the vault's contents.
     ///
-    private func refreshVault() async {
+    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
+    ///
+    private func refreshVault(isManualRefresh: Bool) async {
         do {
-            try await services.vaultRepository.fetchSync()
+            try await services.vaultRepository.fetchSync(isManualRefresh: isManualRefresh)
         } catch {
             // TODO: BIT-1034 Add an error alert
             print(error)
