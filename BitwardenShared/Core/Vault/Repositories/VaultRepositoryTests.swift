@@ -93,6 +93,38 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations.
+    func test_fetchCipherOwnershipOptions_organizations() async throws {
+        stateService.activeAccount = .fixture()
+        syncService.organizationsToReturn = [
+            .fixture(id: "1", name: "Org1"),
+            .fixture(id: "2", name: "Org2"),
+            .fixture(enabled: false, id: "3", name: "Org Disabled"),
+            .fixture(id: "4", name: "Org Invited", status: .invited),
+            .fixture(id: "5", name: "Org Accepted", status: .accepted),
+        ]
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions()
+
+        XCTAssertEqual(
+            ownershipOptions,
+            [
+                .personal(email: "user@bitwarden.com"),
+                .organization(id: "1", name: "Org1"),
+                .organization(id: "2", name: "Org2"),
+            ]
+        )
+    }
+
+    /// `fetchCipherOwnershipOptions()` returns the ownership options containing the user's personal account.
+    func test_fetchCipherOwnershipOptions_personal() async throws {
+        stateService.activeAccount = .fixture()
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions()
+
+        XCTAssertEqual(ownershipOptions, [.personal(email: "user@bitwarden.com")])
+    }
+
     /// `fetchSync(isManualRefresh:)` only syncs when expected.
     func test_fetchSync() async throws {
         stateService.activeAccount = .fixture()

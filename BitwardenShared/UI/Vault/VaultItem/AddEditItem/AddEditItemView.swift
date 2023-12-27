@@ -24,6 +24,7 @@ struct AddEditItemView: View {
                 existing
             }
         }
+        .task { await store.perform(.fetchCipherOptions) }
         .toast(store.binding(
             get: \.toast,
             send: AddEditItemAction.toastShown
@@ -204,15 +205,18 @@ private extension AddEditItemView {
         }
     }
 
-    var ownershipSection: some View {
-        SectionView(Localizations.ownership) {
-            BitwardenTextField(
-                title: Localizations.whoOwnsThisItem,
-                text: store.binding(
-                    get: \.owner,
-                    send: AddEditItemAction.ownerChanged
+    @ViewBuilder var ownershipSection: some View {
+        if let owner = store.state.owner {
+            SectionView(Localizations.ownership) {
+                BitwardenMenuField(
+                    title: Localizations.whoOwnsThisItem,
+                    options: store.state.ownershipOptions,
+                    selection: store.binding(
+                        get: { _ in owner },
+                        send: AddEditItemAction.ownerChanged
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -229,8 +233,14 @@ struct AddEditItemView_Previews: PreviewProvider {
         .init(timeIntervalSince1970: 1_695_000_000)
     }
 
+    static var emptyCipherState: CipherItemState {
+        var state = CipherItemState()
+        state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        return state
+    }
+
     static var cipherState: CipherItemState {
-        CipherItemState(
+        var state = CipherItemState(
             existing: .init(
                 id: .init(),
                 organizationId: nil,
@@ -268,6 +278,8 @@ struct AddEditItemView_Previews: PreviewProvider {
                 revisionDate: fixedDate
             )
         )!
+        state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        return state
     }
 
     static var previews: some View {
@@ -275,7 +287,7 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
-                        state: CipherItemState().addEditState
+                        state: emptyCipherState.addEditState
                     )
                 )
             )

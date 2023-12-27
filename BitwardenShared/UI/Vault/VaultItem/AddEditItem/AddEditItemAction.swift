@@ -41,7 +41,7 @@ enum AddEditItemAction: Equatable {
     case notesChanged(String)
 
     /// The owner field was changed.
-    case ownerChanged(String)
+    case ownerChanged(CipherOwner)
 
     /// The password field was changed.
     case passwordChanged(String)

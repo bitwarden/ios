@@ -19,6 +19,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     override func setUp() {
         super.setUp()
         processor = MockProcessor(state: CipherItemState())
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
     }
@@ -140,11 +141,16 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("text"))
     }
 
-    /// Updating the owner text field dispatches the `.ownerChanged()` action.
+    /// Updating the owner menu dispatches the `.ownerChanged()` action.
     func test_ownerTextField_updateValue() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.whoOwnsThisItem)
-        try textField.inputBinding().wrappedValue = "text"
-        XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged("text"))
+        let organizationOwner = CipherOwner.organization(id: "1", name: "Bitwarden Organization")
+        processor.state.ownershipOptions = [
+            CipherOwner.personal(email: "user@bitwarden.com"),
+            organizationOwner,
+        ]
+        let menu = try subject.inspect().find(bitwardenMenuField: Localizations.whoOwnsThisItem)
+        try menu.select(newValue: organizationOwner)
+        XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(organizationOwner))
     }
 
     /// Updating the password text field dispatches the `.passwordChanged()` action.
@@ -415,7 +421,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.identityState = .init()
         processor.state.isFavoriteOn = false
         processor.state.isMasterPasswordRePromptOn = false
-        processor.state.owner = ""
         processor.state.notes = ""
         processor.state.folder = ""
 
@@ -448,7 +453,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
 
@@ -481,7 +485,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
 
@@ -504,7 +507,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.loginState.uris = [
             UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
         ]
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
 
@@ -522,7 +524,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.loginState.uris = [
             UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
         ]
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
 
@@ -545,9 +546,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.name = "Name"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
@@ -557,7 +558,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.name = "Secure Note Name"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
 
@@ -579,9 +579,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.name = "Name"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
@@ -600,9 +600,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.name = "Name"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortraitAX5())
     }
@@ -621,9 +621,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
@@ -642,9 +642,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.name = "Name"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortraitAX5())
     }

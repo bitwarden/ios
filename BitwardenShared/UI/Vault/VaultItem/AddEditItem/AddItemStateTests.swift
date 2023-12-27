@@ -103,4 +103,52 @@ class AddItemStateTests: XCTestCase {
             """
         }
     }
+
+    /// `owner` returns the selected `CipherOwner` for an organization owned cipher.
+    func test_owner_organization() {
+        var subject = CipherItemState()
+
+        XCTAssertNil(subject.owner)
+
+        subject.organizationId = "1"
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Organization"),
+        ]
+        XCTAssertEqual(subject.owner, .organization(id: "1", name: "Organization"))
+    }
+
+    /// `owner` returns the selected `CipherOwner` for a personally owned cipher.
+    func test_owner_personal() {
+        var subject = CipherItemState()
+
+        XCTAssertNil(subject.owner)
+
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Organization"),
+        ]
+        XCTAssertEqual(subject.owner, .personal(email: "user@bitwarden.com"))
+    }
+
+    /// Setting the owner updates the cipher's `organizationId`.`
+    func test_owner_updatesOrganizationId() {
+        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let organization1Owner = CipherOwner.organization(id: "1", name: "Organization")
+        let organization2Owner = CipherOwner.organization(id: "2", name: "Organization 2")
+
+        var subject = CipherItemState()
+        subject.ownershipOptions = [personalOwner, organization1Owner, organization2Owner]
+
+        XCTAssertEqual(subject.owner, personalOwner)
+        XCTAssertNil(subject.organizationId)
+
+        subject.owner = organization1Owner
+        XCTAssertEqual(subject.owner, organization1Owner)
+        XCTAssertEqual(subject.organizationId, "1")
+
+        subject.owner = organization2Owner
+        XCTAssertEqual(subject.owner, organization2Owner)
+        XCTAssertEqual(subject.organizationId, "2")
+    }
 }
