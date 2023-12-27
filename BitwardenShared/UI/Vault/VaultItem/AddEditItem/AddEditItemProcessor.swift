@@ -264,11 +264,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
             return
         } catch {
-            let alert = Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
-            coordinator.showAlert(alert)
+            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
     }

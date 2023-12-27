@@ -41,22 +41,6 @@ extension Alert {
         )
     }
 
-    /// An alert shown when creating an account fails.
-    ///
-    /// - Parameter errorMessage: The message to display in the alert.
-    ///
-    /// - Returns: An alert for when creating an account fails.
-    ///
-    static func createAccountAlert(_ errorMessage: String) -> Alert {
-        Alert(
-            title: Localizations.anErrorHasOccurred,
-            message: errorMessage,
-            alertActions: [
-                AlertAction(title: Localizations.ok, style: .default),
-            ]
-        )
-    }
-
     /// An alert that is displayed to confirm the user wants to log out of the account.
     ///
     /// - Parameter action: An action to perform when the user taps `Yes`, to confirm logout.

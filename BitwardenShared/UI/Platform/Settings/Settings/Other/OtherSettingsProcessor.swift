@@ -85,6 +85,7 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             coordinator.showAlert(.networkResponseError(error) {
                 await self.syncVault()
             })
+            services.errorReporter.log(error: error)
         }
     }
 }

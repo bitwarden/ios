@@ -1,3 +1,4 @@
+import Networking
 import XCTest
 
 @testable import BitwardenShared
@@ -176,9 +177,26 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(
             alert,
+            Alert.defaultAlert(title: Localizations.anErrorHasOccurred)
+        )
+    }
+
+    /// `perform(_:)` with `.savePressed` displays an alert containing the message returned by the
+    /// server if saving fails.
+    func test_perform_savePressed_serverErrorAlert() async throws {
+        let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
+        try vaultRepository.addCipherResult = .failure(
+            ServerError.error(errorResponse: ErrorResponseModel(response: response))
+        )
+        subject.state.name = "vault item"
+        await subject.perform(.savePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+                message: "You do not have permissions to edit this."
             )
         )
     }
