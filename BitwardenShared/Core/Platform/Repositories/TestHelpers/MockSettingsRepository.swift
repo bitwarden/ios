@@ -20,6 +20,8 @@ class MockSettingsRepository: SettingsRepository {
     var logoutResult: Result<Void, StateServiceError> = .failure(.noActiveAccount)
     var foldersListSubject = CurrentValueSubject<[FolderView], Error>([])
 
+    var clearClipboardValue: ClearClipboardValue = .never
+
     func addFolder(name: String) async throws {
         addedFolderName = name
         try addFolderResult.get()

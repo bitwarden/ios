@@ -8,6 +8,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
     var clientVault: MockClientVaultService!
     var folderService: MockFolderService!
+    var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: DefaultSettingsRepository!
     var syncService: MockSyncService!
@@ -20,6 +21,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
         clientVault = MockClientVaultService()
         folderService = MockFolderService()
+        pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
@@ -27,6 +29,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         subject = DefaultSettingsRepository(
             clientVault: clientVault,
             folderService: folderService,
+            pasteboardService: pasteboardService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
@@ -38,6 +41,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
         clientVault = nil
         folderService = nil
+        pasteboardService = nil
         stateService = nil
         subject = nil
         syncService = nil
@@ -52,6 +56,15 @@ class SettingsRepositoryTests: BitwardenTestCase {
         try await subject.addFolder(name: folderName)
         XCTAssertEqual(clientVault.clientFolders.encryptedFolders.first?.name, folderName)
         XCTAssertEqual(folderService.addedFolderName, folderName)
+    }
+
+    /// `clearClipboardValue` gets and sets the value from the `PasteboardService`.
+    func test_clearClipboardValue() {
+        pasteboardService.clearClipboardValue = .tenSeconds
+        XCTAssertEqual(subject.clearClipboardValue, .tenSeconds)
+
+        subject.clearClipboardValue = .twentySeconds
+        XCTAssertEqual(pasteboardService.clearClipboardValue, .twentySeconds)
     }
 
     /// `editFolder(id:name:)` encrypts the folder name and makes the request to edit the folder.

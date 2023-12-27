@@ -5,6 +5,9 @@ import Foundation
 /// An object that defines the current state of the `OtherSettingsView`.
 ///
 struct OtherSettingsState {
+    /// The time after which the clipboard should clear.
+    var clearClipboardValue: ClearClipboardValue = .never
+
     /// Whether the allow sync on refresh toggle is on.
     var isAllowSyncOnRefreshToggleOn: Bool = false
 

@@ -208,6 +208,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(accountId, account.profile.userId)
     }
 
+    /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
+    func test_getClearClipboardValue() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.clearClipboardValues["1"] = .twoMinutes
+        let value = try await subject.getClearClipboardValue()
+        XCTAssertEqual(value, .twoMinutes)
+    }
+
+    /// `getClearClipboardValue()` returns `.never` if the active account doesn't have a value set.
+    func test_getClearClipboardValue_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getClearClipboardValue()
+        XCTAssertEqual(value, .never)
+    }
+
     /// `getEnvironmentUrls()` returns the environment URLs for the active account.
     func test_getEnvironmentUrls() async throws {
         let urls = EnvironmentUrlData(base: .example)
@@ -570,6 +585,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setActiveAccount(userId: "1")
         active = try await subject.getActiveAccount()
         XCTAssertEqual(active, account1)
+    }
+
+    /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.
+    func test_setClearClipboardValue() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setClearClipboardValue(.thirtySeconds)
+        XCTAssertEqual(appSettingsStore.clearClipboardValues["1"], .thirtySeconds)
     }
 
     /// `setLastSyncTime(_:userId:)` sets the last sync time for a user.

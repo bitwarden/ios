@@ -56,6 +56,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appId"))
     }
 
+    /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
+    func test_clearClipboardValue_isInitiallyNil() {
+        XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
+    }
+
+    /// `clearClipboardValue(userId:)` can be used to get the clear clipboard value for a user.
+    func test_clearClipboardValue_withValue() {
+        subject.setClearClipboardValue(.tenSeconds, userId: "1")
+        subject.setClearClipboardValue(.never, userId: "2")
+
+        XCTAssertEqual(subject.clearClipboardValue(userId: "1"), .tenSeconds)
+        XCTAssertEqual(subject.clearClipboardValue(userId: "2"), .never)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_1"), 10)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
+    }
+
     /// `encryptedPrivateKey(userId:)` returns `nil` if there isn't a previously stored value.
     func test_encryptedPrivateKey_isInitiallyNil() {
         XCTAssertNil(subject.encryptedPrivateKey(userId: "-1"))
@@ -332,7 +348,8 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
 
         let stateMultipleAccounts = State.fixture(
-            accounts: ["1": .fixture(), "2": .fixture()])
+            accounts: ["1": .fixture(), "2": .fixture()]
+        )
         subject.state = stateMultipleAccounts
         XCTAssertEqual(subject.state, stateMultipleAccounts)
         XCTAssertEqual(

@@ -33,6 +33,10 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
     ) {
         self.coordinator = coordinator
         self.services = services
+
+        var state = state
+        state.clearClipboardValue = self.services.settingsRepository.clearClipboardValue
+
         super.init(state: state)
     }
 
@@ -49,6 +53,9 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
 
     override func receive(_ action: OtherSettingsAction) {
         switch action {
+        case let .clearClipboardValueChanged(newValue):
+            state.clearClipboardValue = newValue
+            services.settingsRepository.clearClipboardValue = newValue
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleAllowSyncOnRefresh(isOn):

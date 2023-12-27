@@ -19,6 +19,14 @@ protocol AppSettingsStore: AnyObject {
     /// The app's account state.
     var state: State? { get set }
 
+    /// Gets the time after which the clipboard should be cleared.
+    ///
+    /// - Parameter userId: The user ID associated with the clipboard clearing time.
+    ///
+    /// - Returns: The time after which the clipboard should be cleared.
+    ///
+    func clearClipboardValue(userId: String) -> ClearClipboardValue
+
     /// Gets the encrypted private key for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the encrypted private key.
@@ -57,6 +65,16 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The username generation options for the user ID.
     ///
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
+
+    /// Sets the time after which the clipboard should be cleared.
+    ///
+    /// - Parameters:
+    ///   - clearClipboardValue: The time after which the clipboard should be cleared.
+    ///   - userId: The user ID associated with the clipboard clearing time.
+    ///
+    /// - Returns: The time after which the clipboard should be cleared.
+    ///
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
 
     /// Sets the encrypted private key for a user ID.
     ///
@@ -140,6 +158,15 @@ class DefaultAppSettingsStore {
 
     // MARK: Private
 
+    /// Fetches a `Int` for the given key from `UserDefaults`.
+    ///
+    /// - Parameter key: The key used to store the value.
+    /// - Returns: The value associated with the given key.
+    ///
+    private func fetch(for key: Keys) -> Int? {
+        userDefaults.integer(forKey: key.storageKey)
+    }
+
     /// Fetches a `String` for the given key from `UserDefaults`.
     ///
     /// - Parameter key: The key used to store the value.
@@ -208,6 +235,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     ///
     enum Keys {
         case appId
+        case clearClipboardValue(userId: String)
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case lastSync(userId: String)
@@ -224,6 +252,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             switch self {
             case .appId:
                 key = "appId"
+            case let .clearClipboardValue(userId):
+                key = "clearClipboard_\(userId)"
             case let .encryptedUserKey(userId):
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
@@ -270,6 +300,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         }
     }
 
+    func clearClipboardValue(userId: String) -> ClearClipboardValue {
+        if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
+           let value = ClearClipboardValue(rawValue: rawValue) {
+            return value
+        }
+        return .never
+    }
+
     func encryptedPrivateKey(userId: String) -> String? {
         fetch(for: .encryptedPrivateKey(userId: userId))
     }
@@ -292,6 +330,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
+        store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {
