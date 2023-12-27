@@ -21,6 +21,9 @@ public enum SettingsRoute: Equatable, Hashable {
     ///
     case alert(_ alert: Alert)
 
+    /// A route to the appearance screen.
+    case appearance
+
     /// A route to the auto-fill screen.
     case autoFill
 

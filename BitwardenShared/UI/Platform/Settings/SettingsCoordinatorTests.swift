@@ -73,6 +73,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.alerts, [alert])
     }
 
+    /// `navigate(to:)` with `.appearance` pushes the appearance view onto the stack navigator.
+    func test_navigateTo_appearance() throws {
+        subject.navigate(to: .appearance)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<AppearanceView>)
+    }
+
     /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
     func test_navigateTo_autoFill() throws {
         subject.navigate(to: .autoFill)
