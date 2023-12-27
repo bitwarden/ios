@@ -54,6 +54,9 @@ class DefaultPasteboardService: PasteboardService {
             for await _ in await self.stateService.activeAccountIdPublisher() {
                 do {
                     clearClipboardValue = try await self.stateService.getClearClipboardValue()
+                } catch StateServiceError.noActiveAccount {
+                    // Revert to the default value and don't record an error if the user isn't logged in.
+                    clearClipboardValue = .never
                 } catch {
                     self.errorReporter.log(error: error)
                 }

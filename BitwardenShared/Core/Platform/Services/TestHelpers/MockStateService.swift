@@ -11,6 +11,7 @@ class MockStateService: StateService {
     var activeAccount: Account?
     var accounts: [Account]?
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var clearClipboardResult: Result<Void, Error> = .success(())
     var environmentUrls = [String: EnvironmentUrlData]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
@@ -70,6 +71,7 @@ class MockStateService: StateService {
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
+        try clearClipboardResult.get()
         let userId = try userId ?? getActiveAccount().profile.userId
         return clearClipboardValues[userId] ?? .never
     }
@@ -117,6 +119,7 @@ class MockStateService: StateService {
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
+        try clearClipboardResult.get()
         let userId = try userId ?? getActiveAccount().profile.userId
         clearClipboardValues[userId] = clearClipboardValue
     }
