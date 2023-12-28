@@ -21,6 +21,12 @@ struct CipherItemState: Equatable {
             guard case let .existing(cipherView) = self else { return nil }
             return cipherView
         }
+
+        /// Whether the configuration is for adding a new cipher.
+        var isAdding: Bool {
+            guard case .add = self else { return false }
+            return true
+        }
     }
 
     // MARK: Properties
