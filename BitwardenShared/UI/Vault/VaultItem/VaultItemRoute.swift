@@ -27,6 +27,9 @@ enum VaultItemRoute: Equatable, Hashable {
     ///   - emailWebsite: An optional website host used to generate usernames.
     case generator(_ type: GeneratorType, emailWebsite: String? = nil)
 
+    /// A route to the move to organization screen.
+    case moveToOrganization(CipherView)
+
     /// A route to the camera screen for setting up TOTP.
     case setupTotpCamera
 

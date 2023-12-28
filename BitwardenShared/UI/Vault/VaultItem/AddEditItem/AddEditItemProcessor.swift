@@ -99,8 +99,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
                 // TODO: BIT-365
                 print("clone")
             case .moveToOrganization:
-                // TODO: BIT-366
-                print("moveToOrganization")
+                coordinator.navigate(to: .moveToOrganization(state.cipher))
             }
         case let .nameChanged(newValue):
             state.name = newValue
@@ -144,7 +143,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     private func fetchCipherOptions() async {
         do {
             state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
-            state.ownershipOptions = try await services.vaultRepository.fetchCipherOwnershipOptions()
+            state.ownershipOptions = try await services.vaultRepository
+                .fetchCipherOwnershipOptions(includePersonal: true)
         } catch {
             services.errorReporter.log(error: error)
         }

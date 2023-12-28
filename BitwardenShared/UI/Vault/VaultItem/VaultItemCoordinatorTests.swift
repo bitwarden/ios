@@ -170,6 +170,16 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         XCTAssertNil(stackNavigator.actions.last)
     }
 
+    /// `navigate(to:)` with `.moveToOrganization()` triggers the move to organization flow.
+    func test_navigateTo_moveToOrganization() throws {
+        subject.navigate(to: .moveToOrganization(.fixture()))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.topViewController is UIHostingController<MoveToOrganizationView>)
+    }
+
     /// `navigate(to:)` with `.setupTotpCamera` with context without conformance fails to present.
     func test_navigateTo_setupTotpCamera_noConformance() throws {
         cameraService.startResult = .success(AVCaptureSession())
