@@ -532,6 +532,25 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
+    func test_snapshot_add_login_collections() {
+        processor.state.collections = [
+            .fixture(id: "1", name: "Design", organizationId: "1"),
+            .fixture(id: "2", name: "Engineering", organizationId: "1"),
+        ]
+        processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
+        processor.state.owner = .organization(id: "1", name: "Organization")
+        processor.state.collectionIds = ["2"]
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot_add_login_collectionsNone() {
+        processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
+        processor.state.owner = .organization(id: "1", name: "Organization")
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
     func test_snapshot_edit_full_fieldsNotVisible() {
         processor.state = CipherItemState(existing: CipherView.loginFixture())!
         processor.state.loginState = .fixture(

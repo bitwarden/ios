@@ -227,6 +227,7 @@ public class ServiceContainer: Services {
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             clientVault: clientService.clientVault(),
+            collectionService: collectionService,
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,

@@ -28,6 +28,13 @@ protocol VaultRepository: AnyObject {
     ///
     func fetchCipherOwnershipOptions() async throws -> [CipherOwner]
 
+    /// Fetches the collections that are available to the user.
+    ///
+    /// - Parameter includeReadOnly: Whether to include read-only collections.
+    /// - Returns: The collections that are available to the user.
+    ///
+    func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView]
+
     /// Removes an account id.
     ///
     ///  - Parameter userId: An optional userId. Defaults to the active user id.
@@ -97,6 +104,9 @@ class DefaultVaultRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
+    /// The service for managing the collections for the user.
+    let collectionService: CollectionService
+
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
@@ -118,6 +128,7 @@ class DefaultVaultRepository {
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - collectionService: The service for managing the collections for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
@@ -128,6 +139,7 @@ class DefaultVaultRepository {
         clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
         clientVault: ClientVaultService,
+        collectionService: CollectionService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         syncService: SyncService,
@@ -137,6 +149,7 @@ class DefaultVaultRepository {
         self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
         self.clientVault = clientVault
+        self.collectionService = collectionService
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.syncService = syncService
@@ -287,6 +300,13 @@ extension DefaultVaultRepository: VaultRepository {
             } ?? []
 
         return [personalOwner] + organizationOwners
+    }
+
+    func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView] {
+        let collections = try await collectionService.fetchAllCollections(includeReadOnly: includeReadOnly)
+        return try await clientVault.collections()
+            .decryptList(collections: collections)
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
     func remove(userId: String?) async {

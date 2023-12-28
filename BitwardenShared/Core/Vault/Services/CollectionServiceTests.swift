@@ -8,6 +8,7 @@ class CollectionServiceTests: XCTestCase {
 
     var collectionDataStore: MockCollectionDataStore!
     var subject: CollectionService!
+    var stateService: MockStateService!
 
     // MARK: Setup & Teardown
 
@@ -15,10 +16,11 @@ class CollectionServiceTests: XCTestCase {
         super.setUp()
 
         collectionDataStore = MockCollectionDataStore()
+        stateService = MockStateService()
 
         subject = DefaultCollectionService(
             collectionDataStore: collectionDataStore,
-            stateService: MockStateService()
+            stateService: stateService
         )
     }
 
@@ -30,6 +32,44 @@ class CollectionServiceTests: XCTestCase {
     }
 
     // MARK: Tests
+
+    /// `fetchAll(includeReadOnly:)` returns all collections, excluding those that are read-only.
+    func test_fetchAll() async throws {
+        let collections: [Collection] = [
+            .fixture(id: "1", name: "Collection 1"),
+            .fixture(id: "2", name: "Collection 2"),
+            .fixture(id: "3", name: "Collection 3", readOnly: true),
+        ]
+
+        collectionDataStore.fetchAllCollectionsResult = .success(collections)
+        stateService.activeAccount = .fixture()
+
+        let fetchedCollections = try await subject.fetchAllCollections(includeReadOnly: false)
+
+        XCTAssertEqual(
+            fetchedCollections,
+            [
+                .fixture(id: "1", name: "Collection 1"),
+                .fixture(id: "2", name: "Collection 2"),
+            ]
+        )
+    }
+
+    /// `fetchAll(includeReadOnly:)` returns all collections, including those that are read-only.
+    func test_fetchAll_includeReadOnly() async throws {
+        let collections: [Collection] = [
+            .fixture(id: "1", name: "Collection 1"),
+            .fixture(id: "2", name: "Collection 2"),
+            .fixture(id: "3", name: "Collection 3", readOnly: true),
+        ]
+
+        collectionDataStore.fetchAllCollectionsResult = .success(collections)
+        stateService.activeAccount = .fixture()
+
+        let fetchedCollections = try await subject.fetchAllCollections(includeReadOnly: true)
+
+        XCTAssertEqual(fetchedCollections, collections)
+    }
 
     /// `replaceCollections(_:userId:)` replaces the persisted collections in the data store.
     func test_replaceCollections() async throws {

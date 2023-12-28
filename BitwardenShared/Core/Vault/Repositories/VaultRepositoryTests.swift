@@ -12,6 +12,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var clientCiphers: MockClientCiphers!
     var clientCrypto: MockClientCrypto!
     var clientVault: MockClientVaultService!
+    var collectionService: MockCollectionService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
@@ -28,6 +29,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientCiphers = MockClientCiphers()
         clientCrypto = MockClientCrypto()
         clientVault = MockClientVaultService()
+        collectionService = MockCollectionService()
         errorReporter = MockErrorReporter()
         syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
@@ -41,6 +43,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             clientAuth: clientAuth,
             clientCrypto: clientCrypto,
             clientVault: clientVault,
+            collectionService: collectionService,
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,
@@ -56,6 +59,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientCiphers = nil
         clientCrypto = nil
         clientVault = nil
+        collectionService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
@@ -123,6 +127,22 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions()
 
         XCTAssertEqual(ownershipOptions, [.personal(email: "user@bitwarden.com")])
+    }
+
+    /// `fetchCollections(includeReadOnly:)` returns the collections for the user.
+    func test_fetchCollections() async throws {
+        collectionService.fetchAllCollectionsResult = .success([
+            .fixture(id: "1", name: "Collection 1"),
+        ])
+        let collections = try await subject.fetchCollections(includeReadOnly: false)
+
+        XCTAssertEqual(
+            collections,
+            [
+                .fixture(id: "1", name: "Collection 1"),
+            ]
+        )
+        try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
     }
 
     /// `fetchSync(isManualRefresh:)` only syncs when expected.
