@@ -169,6 +169,26 @@ class AddItemStateTests: XCTestCase {
         XCTAssertEqual(subject.owner, .personal(email: "user@bitwarden.com"))
     }
 
+    /// Changing the owner clears the list of a cipher's `collectionIds`.
+    func test_owner_clearsCollectionIds() {
+        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let organization1Owner = CipherOwner.organization(id: "1", name: "Organization")
+        let organization2Owner = CipherOwner.organization(id: "2", name: "Organization 2")
+
+        var subject = CipherItemState()
+        subject.ownershipOptions = [personalOwner, organization1Owner, organization2Owner]
+
+        subject.owner = organization1Owner
+
+        subject.collectionIds = ["1"]
+        subject.owner = organization2Owner
+        XCTAssertTrue(subject.collectionIds.isEmpty)
+
+        subject.collectionIds = ["2"]
+        subject.owner = personalOwner
+        XCTAssertTrue(subject.collectionIds.isEmpty)
+    }
+
     /// Setting the owner updates the cipher's `organizationId`.`
     func test_owner_updatesOrganizationId() {
         let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")

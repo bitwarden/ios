@@ -100,6 +100,7 @@ struct CipherItemState: Equatable {
         }
         set {
             organizationId = newValue?.organizationId
+            collectionIds = []
         }
     }
 
