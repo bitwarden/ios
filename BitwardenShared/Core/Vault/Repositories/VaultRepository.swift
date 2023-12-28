@@ -282,7 +282,11 @@ extension DefaultVaultRepository: VaultRepository {
 
     func addCipher(_ cipher: CipherView) async throws {
         let cipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
-        _ = try await cipherAPIService.addCipher(cipher)
+        if cipher.collectionIds.isEmpty {
+            _ = try await cipherAPIService.addCipher(cipher)
+        } else {
+            _ = try await cipherAPIService.addCipherWithCollections(cipher)
+        }
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync(isManualRefresh: false)
     }

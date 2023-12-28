@@ -86,6 +86,24 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    /// `addCipher()` makes the add cipher API request for a cipher with collections and updates the vault.
+    func test_addCipher_withCollections() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+
+        let cipher = CipherView.fixture(collectionIds: ["1", "2", "3"])
+        try await subject.addCipher(cipher)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/create")
+
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
     /// `addCipher()` throws an error if encrypting the cipher fails.
     func test_addCipher_encryptError() async {
         struct EncryptError: Error, Equatable {}
