@@ -6,7 +6,9 @@ import XCTest
 class AboutViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    let version = ": 1.0.0 (1)"
+    let copyrightText = "© Bitwarden Inc. 2015-2023"
+    let version = "Version: 1.0.0 (1)"
+
     var processor: MockProcessor<AboutState, AboutAction, Void>!
     var subject: AboutView!
 
@@ -15,7 +17,7 @@ class AboutViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: AboutState(currentYear: "2023", version: version))
+        processor = MockProcessor(state: AboutState(copyrightText: copyrightText, version: version))
         let store = Store(processor: processor)
 
         subject = AboutView(store: store)
@@ -46,7 +48,7 @@ class AboutViewTests: BitwardenTestCase {
 
     /// Tapping the version button dispatches the `.versionTapped` action.
     func test_versionButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.version + version)
+        let button = try subject.inspect().find(button: version)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .versionTapped)
     }
@@ -55,6 +57,6 @@ class AboutViewTests: BitwardenTestCase {
 
     /// The default view renders correctly.
     func test_snapshot_default() {
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }
