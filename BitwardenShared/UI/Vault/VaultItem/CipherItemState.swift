@@ -83,11 +83,11 @@ struct CipherItemState: Equatable {
     /// The owner of the cipher.
     var owner: CipherOwner? {
         get {
-            guard let organizationId else { return ownershipOptions.first(where: \.ownerType.isPersonal) }
-            return ownershipOptions.first(where: { $0.ownerType.organizationId == organizationId })
+            guard let organizationId else { return ownershipOptions.first(where: \.isPersonal) }
+            return ownershipOptions.first(where: { $0.organizationId == organizationId })
         }
         set {
-            organizationId = newValue?.ownerType.organizationId
+            organizationId = newValue?.organizationId
         }
     }
 

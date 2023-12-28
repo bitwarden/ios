@@ -438,4 +438,4 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             }
         }
     }
-}
+} // swiftlint:disable:this file_length

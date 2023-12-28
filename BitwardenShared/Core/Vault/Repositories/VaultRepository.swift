@@ -270,17 +270,17 @@ extension DefaultVaultRepository: VaultRepository {
 
     func fetchCipherOwnershipOptions() async throws -> [CipherOwner] {
         let email = try await stateService.getActiveAccount().profile.email
-        let emailOwner = CipherOwner.personal(email: email)
+        let personalOwner = CipherOwner.personal(email: email)
 
         let organizations = syncService.organizations()
         let organizationOwners: [CipherOwner] = organizations?
             .filter { $0.enabled && $0.status == .confirmed }
             .compactMap { organization in
-                guard let id = organization.id, let name = organization.name else { return nil }
-                return CipherOwner.organization(id: id, name: name)
+                guard let name = organization.name else { return nil }
+                return CipherOwner.organization(id: organization.id, name: name)
             } ?? []
 
-        return [emailOwner] + organizationOwners
+        return [personalOwner] + organizationOwners
     }
 
     func remove(userId: String?) async {

@@ -12,7 +12,7 @@ extension ProfileOrganizationResponseModel {
         familySponsorshipToDelete: Bool? = nil,
         familySponsorshipValidUntil: Date? = nil,
         hasPublicAndPrivateKeys: Bool = true,
-        id: String? = nil,
+        id: String = "profile-organization-1",
         identifier: String? = nil,
         key: String? = nil,
         keyConnectorEnabled: Bool = false,
