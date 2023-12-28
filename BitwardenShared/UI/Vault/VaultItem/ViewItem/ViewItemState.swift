@@ -27,6 +27,9 @@ struct ViewItemState: Equatable {
             false
         }
     }
+
+    /// A toast message to show in the view.
+    var toast: Toast?
 }
 
 extension ViewItemState {

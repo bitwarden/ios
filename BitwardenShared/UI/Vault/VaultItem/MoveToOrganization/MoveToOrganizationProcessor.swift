@@ -1,3 +1,16 @@
+import BitwardenSdk
+
+// MARK: - MoveToOrganizationProcessorDelegate
+
+/// A delegate of `MoveToOrganizationProcessor` that is notified when the user successfully moves
+/// the cipher to an organization.
+///
+protocol MoveToOrganizationProcessorDelegate: AnyObject {
+    /// Called when the user successfully moves the cipher to an organization.
+    ///
+    func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner)
+}
+
 // MARK: - MoveToOrganizationProcessor
 
 /// The processor used to manage state and handle actions for the move to organization screen.
@@ -17,6 +30,9 @@ class MoveToOrganizationProcessor: StateProcessor<
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultItemRoute>
 
+    /// The delegate for the processor that is notified when the user moves the cipher to an organization.
+    private weak var delegate: MoveToOrganizationProcessorDelegate?
+
     /// The services used by this processor.
     private var services: Services
 
@@ -31,10 +47,12 @@ class MoveToOrganizationProcessor: StateProcessor<
     ///
     init(
         coordinator: AnyCoordinator<VaultItemRoute>,
+        delegate: MoveToOrganizationProcessorDelegate?,
         services: Services,
         state: MoveToOrganizationState
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.services = services
         super.init(state: state)
     }
@@ -45,6 +63,8 @@ class MoveToOrganizationProcessor: StateProcessor<
         switch effect {
         case .fetchCipherOptions:
             await fetchCipherOptions()
+        case .moveCipher:
+            await moveCipher()
         }
     }
 
@@ -54,9 +74,6 @@ class MoveToOrganizationProcessor: StateProcessor<
             state.toggleCollection(newValue: newValue, collectionId: collectionId)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
-        case .moveCipher:
-            // TODO: BIT-840 Move cipher
-            break
         case let .ownerChanged(owner):
             state.owner = owner
         }
@@ -71,6 +88,33 @@ class MoveToOrganizationProcessor: StateProcessor<
             state.ownershipOptions = try await services.vaultRepository
                 .fetchCipherOwnershipOptions(includePersonal: false)
         } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Performs the API request to move the cipher to the organization.
+    ///
+    private func moveCipher() async {
+        guard !state.collectionIds.isEmpty, let owner = state.owner else {
+            coordinator.showAlert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.selectOneCollection
+                )
+            )
+            return
+        }
+
+        do {
+            coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.saving))
+            defer { coordinator.hideLoadingOverlay() }
+
+            try await services.vaultRepository.shareCipher(state.updatedCipher)
+
+            delegate?.didMoveCipher(state.cipher, to: owner)
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
     }

@@ -7,6 +7,7 @@ import XCTest
 class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var cipherService: MockCipherService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var clientCiphers: MockClientCiphers!
@@ -25,6 +26,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     override func setUp() {
         super.setUp()
 
+        cipherService = MockCipherService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
         clientCiphers = MockClientCiphers()
@@ -42,6 +44,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         subject = DefaultVaultRepository(
             cipherAPIService: APIService(client: client),
+            cipherService: cipherService,
             clientAuth: clientAuth,
             clientCrypto: clientCrypto,
             clientVault: clientVault,
@@ -57,6 +60,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     override func tearDown() {
         super.tearDown()
 
+        cipherService = nil
         client = nil
         clientAuth = nil
         clientCiphers = nil
@@ -264,6 +268,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.allowSyncOnRefresh["1"] = false
         try await subject.fetchSync(isManualRefresh: true)
         XCTAssertFalse(syncService.didFetchSync)
+    }
+
+    /// `shareCipher()` has the cipher service share the cipher and updates the vault.
+    func test_shareCipher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let cipher = CipherView.fixture()
+        try await subject.shareCipher(cipher)
+
+        XCTAssertEqual(cipherService.shareWithServerCiphers, [Cipher(cipherView: cipher)])
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    /// `shareCipher()` throws an error if one occurs.
+    func test_shareCipher_error() async throws {
+        struct ShareError: Error, Equatable {}
+
+        cipherService.shareWithServerResult = .failure(ShareError())
+
+        await assertAsyncThrows(error: ShareError()) {
+            try await subject.shareCipher(.fixture())
+        }
     }
 
     /// `updateCipher()` throws on encryption errors.

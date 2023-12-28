@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 // MARK: - ViewItemProcessor
 
@@ -118,6 +119,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
             cipherState.loginState.isPasswordVisible.toggle()
             state.loadingState = .data(cipherState)
+        case let .toastShown(newValue):
+            state.toast = newValue
         }
     }
 
@@ -189,7 +192,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 )
                 return
             }
-            coordinator.navigate(to: .moveToOrganization(cipherView))
+            coordinator.navigate(to: .moveToOrganization(cipherView), context: self)
         }
     }
 
@@ -215,5 +218,15 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
         }
         coordinator.navigate(to: .alert(alert))
+    }
+}
+
+// MARK: - MoveToOrganizationProcessorDelegate
+
+extension ViewItemProcessor: MoveToOrganizationProcessorDelegate {
+    func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
+        DispatchQueue.main.asyncAfter(deadline: UI.after(0.5)) {
+            self.state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
+        }
     }
 }
