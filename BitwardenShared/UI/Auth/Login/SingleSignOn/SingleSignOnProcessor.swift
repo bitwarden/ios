@@ -6,6 +6,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     // MARK: Types
 
     typealias Services = HasErrorReporter
+        & HasStateService
 
     // MARK: Properties
 
@@ -31,6 +32,11 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     ) {
         self.coordinator = coordinator
         self.services = services
+
+        // Set the initial value of the organization identifier, if applicable.
+        var state = state
+        state.identifierText = self.services.stateService.rememberedOrgIdentifier ?? ""
+
         super.init(state: state)
     }
 
@@ -55,5 +61,22 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     // MARK: Private Methods
 
     /// Handle attempting to login.
-    private func handleLoginTapped() async {}
+    private func handleLoginTapped() async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            try EmptyInputValidator(fieldName: Localizations.orgIdentifier)
+                .validate(input: state.identifierText)
+            coordinator.showLoadingOverlay(title: Localizations.loggingIn)
+
+            // TODO: BIT-1308
+
+            services.stateService.rememberedOrgIdentifier = state.identifierText
+        } catch let error as InputValidationError {
+            coordinator.showAlert(Alert.inputValidationAlert(error: error))
+            return
+        } catch {
+            coordinator.showAlert(.networkResponseError(error) { await self.handleLoginTapped() })
+            services.errorReporter.log(error: error)
+        }
+    }
 }

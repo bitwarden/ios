@@ -346,6 +346,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
     }
 
+    /// `rememberedOrgIdentifier` returns `nil` if there isn't a previously stored value.
+    func test_rememberedOrgIdentifier_isInitiallyNil() {
+        XCTAssertNil(subject.rememberedOrgIdentifier)
+    }
+
+    /// `rememberedOrgIdentifier` can be used to get and set the persisted value in user defaults.
+    func test_rememberedOrgIdentifier_withValue() {
+        subject.rememberedOrgIdentifier = "OrgIdentifier9000"
+        XCTAssertEqual(subject.rememberedOrgIdentifier, "OrgIdentifier9000")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:rememberedOrgIdentifier"), "OrgIdentifier9000")
+
+        subject.rememberedOrgIdentifier = nil
+        XCTAssertNil(subject.rememberedOrgIdentifier)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedOrgIdentifier"))
+    }
+
     /// `state` returns `nil` if there isn't a previously stored value.
     func test_state_isInitiallyNil() {
         XCTAssertNil(subject.state)
