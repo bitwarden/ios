@@ -191,8 +191,16 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// Shows the enterprise single sign-on screen.
     private func showEnterpriseSingleSignOn() {
-        let view = Text("Enterprise Single Sign-On")
-        stackNavigator.push(view)
+        let processor = SingleSignOnProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: SingleSignOnState()
+        )
+        let store = Store(processor: processor)
+        let view = SingleSignOnView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the landing screen.
