@@ -139,9 +139,12 @@ class AuthCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.loginWithDevice` pushes the login with device view onto the stack navigator.
-    func test_navigate_loginWithDevice() {
+    func test_navigate_loginWithDevice() throws {
         subject.navigate(to: .loginWithDevice)
-        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<LoginWithDeviceView>)
     }
 
     /// `navigate(to:)` with `.masterPasswordHint` presents the master password hint view.
