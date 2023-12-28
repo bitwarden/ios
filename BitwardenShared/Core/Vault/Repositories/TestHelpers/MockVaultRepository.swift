@@ -17,7 +17,7 @@ class MockVaultRepository: VaultRepository {
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
     var vaultListGroupSubject = CurrentValueSubject<[VaultListItem], Never>([])
 
-    func fetchSync() async throws {
+    func fetchSync(isManualRefresh _: Bool) async throws {
         fetchSyncCalled = true
     }
 
@@ -26,7 +26,7 @@ class MockVaultRepository: VaultRepository {
         try addCipherResult.get()
     }
 
-    func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<BitwardenSdk.CipherView, Never>> {
+    func cipherDetailsPublisher(id _: String) -> AsyncPublisher<AnyPublisher<BitwardenSdk.CipherView, Never>> {
         cipherDetailsSubject.eraseToAnyPublisher().values
     }
 
@@ -49,7 +49,7 @@ class MockVaultRepository: VaultRepository {
     }
 
     func vaultListPublisher(
-        group: BitwardenShared.VaultListGroup
+        group _: BitwardenShared.VaultListGroup
     ) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
         vaultListGroupSubject.eraseToAnyPublisher().values
     }

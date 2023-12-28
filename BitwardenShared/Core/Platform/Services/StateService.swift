@@ -49,6 +49,13 @@ protocol StateService: AnyObject {
     ///
     func getActiveAccountId() async throws -> String
 
+    /// Gets the allow sync on refresh value for an account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The allow sync on refresh value.
+    ///
+    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
+
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -94,7 +101,7 @@ protocol StateService: AnyObject {
     /// Logs the user out of an account.
     ///
     /// - Parameter userId: The user ID of the account to log out of. Defaults to the active
-    ///     account if `nil`.
+    ///   account if `nil`.
     ///
     func logoutAccount(userId: String?) async throws
 
@@ -107,10 +114,18 @@ protocol StateService: AnyObject {
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
 
     /// Sets the active account.
-    /// - Parameter userId: The user Id of the account to set as active
-    /// - Returns: The active user account.
+    ///
+    /// - Parameter userId: The user Id of the account to set as active.
     ///
     func setActiveAccount(userId: String) async throws
+
+    /// Sets the allow sync on refresh value for an account.
+    ///
+    /// - Parameters:
+    ///   - allowSyncOnRefresh: Whether to allow sync on refresh.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -191,6 +206,14 @@ extension StateService {
         try await getAccountEncryptionKeys(userId: nil)
     }
 
+    /// Gets the allow sync on refresh value for the active account.
+    ///
+    /// - Returns: The allow sync on refresh value.
+    ///
+    func getAllowSyncOnRefresh() async throws -> Bool {
+        try await getAllowSyncOnRefresh(userId: nil)
+    }
+
     /// Gets the clear clipboard value for the active account.
     ///
     /// - Returns: The clear clipboard value.
@@ -239,11 +262,18 @@ extension StateService {
 
     /// Sets the account encryption keys for the active account.
     ///
-    /// - Parameters:
-    ///   - encryptionKeys: The account encryption keys.
+    /// - Parameter encryptionKeys: The account encryption keys.
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
         try await setAccountEncryptionKeys(encryptionKeys, userId: nil)
+    }
+
+    /// Sets the allow sync on refresh value for the active account.
+    ///
+    /// - Parameter allowSyncOnRefresh: The allow sync on refresh value.
+    ///
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
+        try await setAllowSyncOnRefresh(allowSyncOnRefresh, userId: nil)
     }
 
     /// Sets the clear clipboard value for the active account.
@@ -256,8 +286,7 @@ extension StateService {
 
     /// Sets the time of the last sync for a user ID.
     ///
-    /// - Parameters:
-    ///   - date: The time of the last sync (as the number of seconds since the Unix epoch).]
+    /// - Parameter date: The time of the last sync (as the number of seconds since the Unix epoch).]
     ///
     func setLastSyncTime(_ date: Date?) async throws {
         try await setLastSyncTime(date, userId: nil)
@@ -273,7 +302,7 @@ extension StateService {
 
     /// Sets the password generation options for the active account.
     ///
-    /// - Parameters options: The user's password generation options.
+    /// - Parameter options: The user's password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?) async throws {
         try await setPasswordGenerationOptions(options, userId: nil)
@@ -291,7 +320,7 @@ extension StateService {
 
     /// Sets the username generation options for the active account.
     ///
-    /// - Parameters options: The user's username generation options.
+    /// - Parameter options: The user's username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?) async throws {
         try await setUsernameGenerationOptions(options, userId: nil)
@@ -397,6 +426,11 @@ actor DefaultStateService: StateService {
         return activeAccount
     }
 
+    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.allowSyncOnRefresh(userId: userId)
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -459,6 +493,11 @@ actor DefaultStateService: StateService {
         guard state.accounts
             .contains(where: { $0.key == userId }) else { throw StateServiceError.noAccounts }
         state.activeUserId = userId
+    }
+
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {

@@ -208,6 +208,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(accountId, account.profile.userId)
     }
 
+    /// `allowSyncOnRefreshes()` returns the allow sync on refresh value for the active account.
+    func test_getAllowSyncOnRefresh() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.allowSyncOnRefreshes["1"] = true
+        let value = try await subject.getAllowSyncOnRefresh()
+        XCTAssertTrue(value)
+    }
+
+    /// `allowSyncOnRefreshes()` defaults to `false` if the active account doesn't have a value set.
+    func test_getAllowSyncOnRefresh_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getAllowSyncOnRefresh()
+        XCTAssertFalse(value)
+    }
+
     /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
     func test_getClearClipboardValue() async throws {
         await subject.addAccount(.fixture())
@@ -585,6 +600,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setActiveAccount(userId: "1")
         active = try await subject.getActiveAccount()
         XCTAssertEqual(active, account1)
+    }
+
+    /// `setAllowSyncOnRefresh(_:userId:)` sets the allow sync on refresh value for a user.
+    func test_setAllowSyncOnRefresh() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setAllowSyncOnRefresh(true)
+        XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
     }
 
     /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.

@@ -27,7 +27,12 @@ struct OtherSettingsView: View {
             get: \.toast,
             send: OtherSettingsAction.toastShown
         ))
-        .task { await store.perform(.streamLastSyncTime) }
+        .task {
+            await store.perform(.streamLastSyncTime)
+        }
+        .task {
+            await store.perform(.loadInitialValues)
+        }
     }
 
     // MARK: Private views

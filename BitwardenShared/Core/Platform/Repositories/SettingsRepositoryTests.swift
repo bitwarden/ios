@@ -81,6 +81,19 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    /// `getAllowSyncOnRefresh()` returns the expected value.
+    func test_getAllowSyncOnRefresh() async throws {
+        stateService.activeAccount = .fixture()
+
+        // Defaults to false if no value is set.
+        var value = try await subject.getAllowSyncOnRefresh()
+        XCTAssertFalse(value)
+
+        stateService.allowSyncOnRefresh["1"] = true
+        value = try await subject.getAllowSyncOnRefresh()
+        XCTAssertTrue(value)
+    }
+
     /// `fetchSync()` throws an error if syncing fails.
     func test_fetchSync_error() async throws {
         struct SyncError: Error, Equatable {}
@@ -176,5 +189,19 @@ class SettingsRepositoryTests: BitwardenTestCase {
         waitFor(!vaultTimeoutService.unlockedIds.isEmpty)
         task.cancel()
         XCTAssertEqual(vaultTimeoutService.unlockedIds, ["123"])
+    }
+
+    /// `updateAllowSyncOnRefresh(_:)` updates the value in the app settings store.
+    func test_updateAllowSyncOnRefresh() async throws {
+        stateService.activeAccount = .fixture()
+
+        // The value should start off with a default of false.
+        var value = try await stateService.getAllowSyncOnRefresh()
+        XCTAssertFalse(value)
+
+        // Set the value and ensure it updates.
+        try await subject.updateAllowSyncOnRefresh(true)
+        value = try await stateService.getAllowSyncOnRefresh()
+        XCTAssertTrue(value)
     }
 }

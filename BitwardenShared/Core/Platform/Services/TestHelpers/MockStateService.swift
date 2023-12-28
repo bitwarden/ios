@@ -10,6 +10,7 @@ class MockStateService: StateService {
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
     var accounts: [Account]?
+    var allowSyncOnRefresh = [String: Bool]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var environmentUrls = [String: EnvironmentUrlData]()
     var lastSyncTimeByUserId = [String: Date]()
@@ -69,6 +70,11 @@ class MockStateService: StateService {
         try getActiveAccount().profile.userId
     }
 
+    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return allowSyncOnRefresh[userId] ?? false
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccount().profile.userId
         return clearClipboardValues[userId] ?? .never
@@ -114,6 +120,11 @@ class MockStateService: StateService {
                   account.profile.userId == userId
               }) else { throw StateServiceError.noAccounts }
         activeAccount = match
+    }
+
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {

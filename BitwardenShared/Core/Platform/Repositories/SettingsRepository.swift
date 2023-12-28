@@ -26,6 +26,9 @@ protocol SettingsRepository: AnyObject {
     ///
     func fetchSync() async throws
 
+    /// Get the current value of the allow sync on refresh value.
+    func getAllowSyncOnRefresh() async throws -> Bool
+
     /// A publisher for the last sync time.
     ///
     /// - Returns: A publisher for the last sync time.
@@ -49,6 +52,12 @@ protocol SettingsRepository: AnyObject {
     ///     Defaults to active account if nil.
     ///
     func unlockVault(userId: String?) async
+
+    /// Update the cached value of the sync on refresh setting.
+    ///
+    /// - Parameter allowSyncOnRefresh: Whether the vault should sync on refreshing.
+    ///
+    func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws
 
     // MARK: Publishers
 
@@ -136,6 +145,10 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await syncService.fetchSync()
     }
 
+    func getAllowSyncOnRefresh() async throws -> Bool {
+        try await stateService.getAllowSyncOnRefresh()
+    }
+
     func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>> {
         try await stateService.lastSyncTimePublisher().values
     }
@@ -150,6 +163,10 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func unlockVault(userId: String?) async {
         await vaultTimeoutService.unlockVault(userId: userId)
+    }
+
+    func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
+        try await stateService.setAllowSyncOnRefresh(allowSyncOnRefresh)
     }
 
     // MARK: Publishers

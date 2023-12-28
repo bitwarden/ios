@@ -56,6 +56,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appId"))
     }
 
+    /// `allowSyncOnRefresh(userId:)` returns `false` if there isn't a previously stored value.
+    func test_allowSyncOnRefresh_isInitiallyFalse() {
+        XCTAssertFalse(subject.allowSyncOnRefresh(userId: "-1"))
+    }
+
+    /// `allowSyncOnRefresh(userId:)` can be used to get the allow sync on refresh value for a user.
+    func test_allowSyncOnRefresh_withValue() {
+        subject.setAllowSyncOnRefresh(true, userId: "1")
+        subject.setAllowSyncOnRefresh(false, userId: "2")
+
+        XCTAssertTrue(subject.allowSyncOnRefresh(userId: "1"))
+        XCTAssertFalse(subject.allowSyncOnRefresh(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_w"))
+    }
+
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
     func test_clearClipboardValue_isInitiallyNil() {
         XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
