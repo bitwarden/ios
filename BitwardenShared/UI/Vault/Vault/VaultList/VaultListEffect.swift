@@ -16,4 +16,7 @@ enum VaultListEffect {
 
     /// Stream the list of organizations for the user.
     case streamOrganizations
+
+    /// Stream the vault list for the user.
+    case streamVaultList
 }

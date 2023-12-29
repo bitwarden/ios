@@ -264,7 +264,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             from: APITestData.syncWithCiphers.data
         ))
 
-        var iterator = subject.vaultListPublisher().makeAsyncIterator()
+        var iterator = subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
         let sections = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
@@ -297,7 +297,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             from: APITestData.syncWithProfile.data
         ))
 
-        var iterator = subject.vaultListPublisher().makeAsyncIterator()
+        var iterator = subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
         let sections = await iterator.next()
 
         try XCTAssertTrue(XCTUnwrap(sections).isEmpty)
@@ -311,7 +311,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             from: APITestData.syncWithCiphersCollections.data
         ))
 
-        var iterator = subject.vaultListPublisher().makeAsyncIterator()
+        var iterator = subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
         let sections = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
@@ -336,6 +336,69 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
               - Group: Engineering (1)
             Section: Trash
               - Group: Trash (1)
+            """
+        }
+    }
+
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections with the my vault filter.
+    func test_vaultListPublisher_withCollections_myVault() async throws {
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
+
+        var iterator = subject.vaultListPublisher(filter: .myVault).makeAsyncIterator()
+        let sections = await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Types
+              - Group: Login (1)
+              - Group: Card (1)
+              - Group: Identity (1)
+              - Group: Secure note (1)
+            Section: Folders
+              - Group: Social (1)
+            Section: No Folder
+              - Cipher: Bitwarden User
+              - Cipher: Top Secret Note
+              - Cipher: Visa
+            Section: Trash
+              - Group: Trash (1)
+            """
+        }
+    }
+
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections with the organization filter.
+    func test_vaultListPublisher_withCollections_organization() async throws {
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
+
+        let organization = Organization.fixture(id: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf")
+        var iterator = subject.vaultListPublisher(filter: .organization(organization)).makeAsyncIterator()
+        let sections = await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Favorites
+              - Cipher: Apple
+            Section: Types
+              - Group: Login (2)
+              - Group: Card (0)
+              - Group: Identity (0)
+              - Group: Secure note (0)
+            Section: No Folder
+              - Cipher: Apple
+              - Cipher: Figma
+            Section: Collections
+              - Group: Design (1)
+              - Group: Engineering (1)
+            Section: Trash
+              - Group: Trash (0)
             """
         }
     }
@@ -406,4 +469,4 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             }
         }
     }
-}
+} // swiftlint:disable:this file_length

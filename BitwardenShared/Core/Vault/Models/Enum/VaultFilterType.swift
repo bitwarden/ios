@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 // MARK: - VaultFilterType
 
 /// An enum that describes the options for filtering the user's vault.
@@ -33,6 +35,56 @@ enum VaultFilterType: Equatable, Hashable {
             Localizations.myVault
         case let .organization(organization):
             organization.name
+        }
+    }
+}
+
+extension VaultFilterType {
+    /// A filter to determine if a `CipherListView` should be included in the vault list with the
+    /// current filter.
+    ///
+    /// - Parameter cipher: The `CipherListView` to determine if it should be in the vault list.
+    /// - Returns: Whether the cipher should be displayed in the vault list.
+    ///
+    func cipherFilter(_ cipher: CipherListView) -> Bool {
+        switch self {
+        case .allVaults:
+            true
+        case .myVault:
+            cipher.organizationId == nil
+        case let .organization(organization):
+            cipher.organizationId == organization.id
+        }
+    }
+
+    /// A filter to determine if a `CollectionView` should be included in the vault list with the
+    /// current filter.
+    ///
+    /// - Parameter collection: The `CollectionView` to determine if it should be in the vault list.
+    /// - Returns: Whether the collection should be displayed in the vault list.
+    ///
+    func collectionFilter(_ collection: CollectionView) -> Bool {
+        switch self {
+        case .allVaults:
+            true
+        case .myVault:
+            false
+        case let .organization(organization):
+            collection.organizationId == organization.id
+        }
+    }
+
+    /// A filter to determine if a `FolderView` should be included in the vault list with the
+    /// current filter.
+    ///
+    /// - Parameter folder: The `FolderView` to determine if it should be in the vault list.
+    /// - Returns: Whether the folder should be displayed in the vault list.
+    ///
+    func folderFilter(_ folder: FolderView) -> Bool {
+        if case .organization = self {
+            false
+        } else {
+            true
         }
     }
 }

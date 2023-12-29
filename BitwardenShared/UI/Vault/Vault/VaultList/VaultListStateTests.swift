@@ -21,6 +21,16 @@ class VaultListStateTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `navigationTitle` returns the navigation bar title for the view.
+    func test_navigationTitle() {
+        XCTAssertEqual(subject.navigationTitle, Localizations.myVault)
+
+        subject.organizations = [
+            Organization.fixture(id: "1", name: "Org 1"),
+        ]
+        XCTAssertEqual(subject.navigationTitle, Localizations.vaults)
+    }
+
     /// `vaultFilterOptions` returns an empty set of filter options if there are no organizations.
     func test_vaultFilterOptions_noOrganizations() {
         XCTAssertEqual(subject.vaultFilterOptions, [])

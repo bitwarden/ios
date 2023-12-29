@@ -63,7 +63,7 @@ protocol VaultRepository: AnyObject {
     /// - Returns: A publisher for the sections of the vault list which will be notified as the
     ///     data changes.
     ///
-    func vaultListPublisher() -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>>
+    func vaultListPublisher(filter: VaultFilterType) -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>>
 
     /// A publisher for a group of items within the vault list.
     ///
@@ -180,17 +180,23 @@ class DefaultVaultRepository {
     /// - Parameter response: The sync response used to build the list of sections.
     /// - Returns: A list of the sections to display in the vault list.
     ///
-    private func vaultListSections(from response: SyncResponseModel) async throws -> [VaultListSection] {
+    private func vaultListSections( // swiftlint:disable:this function_body_length
+        from response: SyncResponseModel,
+        filter: VaultFilterType
+    ) async throws -> [VaultListSection] {
         let ciphers = try await clientVault.ciphers()
             .decryptList(ciphers: response.ciphers.map(Cipher.init))
+            .filter(filter.cipherFilter)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let folders = try await clientVault.folders()
             .decryptList(folders: response.folders.map(Folder.init))
+            .filter(filter.folderFilter)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let collections = try await clientVault.collections()
             .decryptList(collections: response.collections.map(Collection.init))
+            .filter(filter.collectionFilter)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         guard !ciphers.isEmpty else { return [] }
@@ -301,11 +307,11 @@ extension DefaultVaultRepository: VaultRepository {
             .values
     }
 
-    func vaultListPublisher() -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>> {
+    func vaultListPublisher(filter: VaultFilterType) -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>> {
         syncService.syncResponsePublisher()
             .asyncCompactMap { response in
                 guard let response else { return nil }
-                return try? await self.vaultListSections(from: response)
+                return try? await self.vaultListSections(from: response, filter: filter)
             }
             .eraseToAnyPublisher()
             .values
