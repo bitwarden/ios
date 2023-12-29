@@ -169,6 +169,25 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherDetails?.name, "Apple")
     }
 
+    /// `organizationsPublisher()` returns a publisher for the user's organizations.
+    func test_organizationsPublisher() async throws {
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithProfileOrganizations.data
+        ))
+
+        var iterator = subject.organizationsPublisher().makeAsyncIterator()
+        let organizations = await iterator.next()
+
+        XCTAssertEqual(
+            organizations,
+            [
+                Organization(id: "ORG_1", name: "ORG_NAME"),
+                Organization(id: "ORG_2", name: "ORG_NAME"),
+            ]
+        )
+    }
+
     /// `remove(userId:)` Removes an account id from the vault timeout service.
     func test_removeAccountId_success_unlocked() async {
         let account = Account.fixtureAccountLogin()

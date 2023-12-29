@@ -59,6 +59,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             await refreshProfileState()
         case .refreshVault:
             await refreshVault(isManualRefresh: true)
+        case .streamOrganizations:
+            for await organizations in services.vaultRepository.organizationsPublisher() {
+                state.organizations = organizations
+            }
         }
     }
 
@@ -96,6 +100,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .searchTextChanged(newValue):
             state.searchText = newValue
             state.searchResults = searchVault(for: newValue)
+        case let .vaultFilterChanged(newValue):
+            state.vaultFilterType = newValue
         }
     }
 
