@@ -54,6 +54,7 @@ struct VaultListItemRowView: View {
                                 if cipherItem.organizationId != nil {
                                     Asset.Images.collections.swiftUIImage
                                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                        .accessibilityLabel(Localizations.shared)
                                 }
                             }
 
