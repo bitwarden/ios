@@ -21,6 +21,12 @@ struct CipherItemState: Equatable {
             guard case let .existing(cipherView) = self else { return nil }
             return cipherView
         }
+
+        /// Whether the configuration is for adding a new cipher.
+        var isAdding: Bool {
+            guard case .add = self else { return false }
+            return true
+        }
     }
 
     // MARK: Properties
@@ -52,8 +58,11 @@ struct CipherItemState: Equatable {
     /// The notes for this item.
     var notes: String
 
-    /// The owner of this item.
-    var owner: String
+    /// The organization ID of the cipher, if the cipher is owned by an organization.
+    var organizationId: String?
+
+    /// The list of ownership options that can be selected for the cipher.
+    var ownershipOptions: [CipherOwner]
 
     /// A toast for the AddEditItemView
     var toast: Toast?
@@ -69,6 +78,17 @@ struct CipherItemState: Equatable {
     /// The edit state of the item.
     var addEditState: AddEditItemState {
         self
+    }
+
+    /// The owner of the cipher.
+    var owner: CipherOwner? {
+        get {
+            guard let organizationId else { return ownershipOptions.first(where: \.isPersonal) }
+            return ownershipOptions.first(where: { $0.organizationId == organizationId })
+        }
+        set {
+            organizationId = newValue?.organizationId
+        }
     }
 
     /// The view state of the item.
@@ -92,7 +112,6 @@ struct CipherItemState: Equatable {
         loginState: LoginItemState,
         name: String,
         notes: String,
-        owner: String,
         type: CipherType,
         updatedDate: Date
     ) {
@@ -104,7 +123,7 @@ struct CipherItemState: Equatable {
         self.loginState = loginState
         self.name = name
         self.notes = notes
-        self.owner = owner
+        ownershipOptions = []
         self.type = type
         self.updatedDate = updatedDate
         self.configuration = configuration
@@ -121,7 +140,6 @@ struct CipherItemState: Equatable {
             loginState: .init(),
             name: "",
             notes: "",
-            owner: "",
             type: type,
             updatedDate: .now
         )
@@ -139,7 +157,6 @@ struct CipherItemState: Equatable {
             loginState: cipherView.loginItemState(),
             name: cipherView.name,
             notes: cipherView.notes ?? "",
-            owner: "",
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
         )
@@ -176,7 +193,7 @@ extension CipherItemState {
     func newCipherView(creationDate: Date = .now) -> CipherView {
         CipherView(
             id: nil,
-            organizationId: nil,
+            organizationId: organizationId,
             folderId: nil,
             collectionIds: [],
             key: nil,

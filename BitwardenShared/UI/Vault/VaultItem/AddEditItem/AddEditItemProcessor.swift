@@ -51,6 +51,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             guard let key = state.loginState.authenticatorKey else { return }
             services.pasteboardService.copy(key)
             state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+        case .fetchCipherOptions:
+            await fetchCipherOptions()
         case .savePressed:
             await saveItem()
         case .setupTotpPressed:
@@ -135,6 +137,15 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     }
 
     // MARK: Private Methods
+
+    /// Fetches any additional data (e.g. organizations and folders) needed for adding or editing a cipher.
+    private func fetchCipherOptions() async {
+        do {
+            state.ownershipOptions = try await services.vaultRepository.fetchCipherOwnershipOptions()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Receives an `AddEditIdentityItem` action from the `AddEditIdentityView` view's store, and updates
     /// the `AddEditIdentityState`.

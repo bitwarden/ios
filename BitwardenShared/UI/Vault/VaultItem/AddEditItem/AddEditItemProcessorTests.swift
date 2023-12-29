@@ -149,6 +149,15 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
+    func test_perform_fetchCipherOptions() async {
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
+    }
+
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
     func test_perform_savePressed_invalidName() async throws {
         subject.state.name = "    "
@@ -482,20 +491,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.notes, "")
     }
 
-    /// `receive(_:)` with `.ownerChanged` with a value updates the state correctly.
-    func test_receive_ownerChanged_withValue() {
-        subject.state.owner = ""
-        subject.receive(.ownerChanged("owner"))
+    /// `receive(_:)` with `.ownerChanged` updates the state correctly.
+    func test_receive_ownerChanged() {
+        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let organizationOwner = CipherOwner.organization(id: "1", name: "Organization")
+        subject.state.ownershipOptions = [personalOwner, organizationOwner]
 
-        XCTAssertEqual(subject.state.owner, "owner")
-    }
+        XCTAssertEqual(subject.state.owner, personalOwner)
 
-    /// `receive(_:)` with `.ownerChanged` without a value updates the state correctly.
-    func test_receive_ownerChanged_withoutValue() {
-        subject.state.owner = "owner"
-        subject.receive(.ownerChanged(""))
+        subject.receive(.ownerChanged(organizationOwner))
 
-        XCTAssertEqual(subject.state.owner, "")
+        XCTAssertEqual(subject.state.owner, organizationOwner)
     }
 
     /// `receive(_:)` with `.passwordChanged` with a value updates the state correctly.

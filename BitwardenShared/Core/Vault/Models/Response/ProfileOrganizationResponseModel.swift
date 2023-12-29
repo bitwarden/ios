@@ -81,7 +81,7 @@ struct ProfileOrganizationResponseModel: Codable, Equatable {
     let ssoBound: Bool
 
     /// The profile's organization's status.
-    let status: Int?
+    let status: OrganizationUserStatusType
 
     /// The profile's organization's type.
     let type: Int?

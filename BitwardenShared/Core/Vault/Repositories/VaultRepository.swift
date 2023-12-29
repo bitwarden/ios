@@ -22,6 +22,12 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Fetches the ownership options that the user can select from for a cipher.
+    ///
+    /// - Returns: The list of ownership options for a cipher.
+    ///
+    func fetchCipherOwnershipOptions() async throws -> [CipherOwner]
+
     /// Removes an account id.
     ///
     ///  - Parameter userId: An optional userId. Defaults to the active user id.
@@ -266,6 +272,21 @@ extension DefaultVaultRepository: VaultRepository {
         _ = try await cipherAPIService.addCipher(cipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync(isManualRefresh: false)
+    }
+
+    func fetchCipherOwnershipOptions() async throws -> [CipherOwner] {
+        let email = try await stateService.getActiveAccount().profile.email
+        let personalOwner = CipherOwner.personal(email: email)
+
+        let organizations = syncService.organizations()
+        let organizationOwners: [CipherOwner] = organizations?
+            .filter { $0.enabled && $0.status == .confirmed }
+            .compactMap { organization in
+                guard let name = organization.name else { return nil }
+                return CipherOwner.organization(id: organization.id, name: name)
+            } ?? []
+
+        return [personalOwner] + organizationOwners
     }
 
     func remove(userId: String?) async {

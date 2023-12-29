@@ -37,7 +37,10 @@ protocol AddEditItemState: Sendable {
     var notes: String { get set }
 
     /// The owner of this item.
-    var owner: String { get set }
+    var owner: CipherOwner? { get set }
+
+    /// The list of ownership options to allow the user to select from.
+    var ownershipOptions: [CipherOwner] { get set }
 
     /// A toast message to show in the view.
     var toast: Toast? { get set }
