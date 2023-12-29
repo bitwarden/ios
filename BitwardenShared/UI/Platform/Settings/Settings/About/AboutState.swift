@@ -11,6 +11,9 @@ struct AboutState {
     /// Whether the submit crash logs toggle is on.
     var isSubmitCrashLogsToggleOn: Bool = false
 
+    /// A toast message to show in the view.
+    var toast: Toast?
+
     /// The version of the app.
     var version: String = "\(Localizations.version): \(Bundle.main.appVersion) (\(Bundle.main.buildNumber))"
 }

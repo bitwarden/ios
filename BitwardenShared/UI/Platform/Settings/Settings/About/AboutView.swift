@@ -22,6 +22,10 @@ struct AboutView: View {
         }
         .scrollView()
         .navigationBar(title: Localizations.about, titleDisplayMode: .inline)
+        .toast(store.binding(
+            get: \.toast,
+            send: AboutAction.toastShown
+        ))
     }
 
     // MARK: Private views
@@ -77,4 +81,10 @@ struct AboutView: View {
         .styleGuide(.body)
         .padding(.top, 20)
     }
+}
+
+// MARK: - Previews
+
+#Preview {
+    AboutView(store: Store(processor: StateProcessor(state: AboutState())))
 }
