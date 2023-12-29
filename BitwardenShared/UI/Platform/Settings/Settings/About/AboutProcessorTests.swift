@@ -33,6 +33,16 @@ class AboutProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_toastShown() {
+        let toast = Toast(text: "toast!")
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
+
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
+    }
+
     /// `receive(_:)` with action `.isSubmitCrashLogsToggleOn` updates the toggle value in the state.
     func test_receive_toggleSubmitCrashLogs() {
         XCTAssertFalse(subject.state.isSubmitCrashLogsToggleOn)
@@ -47,5 +57,6 @@ class AboutProcessorTests: BitwardenTestCase {
         subject.receive(.versionTapped)
         let text = subject.state.copyrightText + "\n\n" + subject.state.version
         XCTAssertEqual(pasteboardService.copiedString, text)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.version))
     }
 }

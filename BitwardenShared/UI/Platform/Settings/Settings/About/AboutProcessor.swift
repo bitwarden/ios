@@ -42,6 +42,8 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
             break
         case .rateTheAppTapped:
             break
+        case let .toastShown(newValue):
+            state.toast = newValue
         case let .toggleSubmitCrashLogs(isOn):
             state.isSubmitCrashLogsToggleOn = isOn
         case .versionTapped:
@@ -56,5 +58,6 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
         // Copy the copyright text followed by the version info.
         let text = state.copyrightText + "\n\n" + state.version
         services.pasteboardService.copy(text)
+        state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.version))
     }
 }
