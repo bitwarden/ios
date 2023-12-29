@@ -49,6 +49,9 @@ private struct VaultMainView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
+                    vaultFilterRow()
+                        .padding(.top, 16)
+
                     Spacer()
 
                     Text(Localizations.noItems)
