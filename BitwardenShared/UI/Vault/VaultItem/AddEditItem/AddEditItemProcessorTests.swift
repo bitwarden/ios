@@ -199,6 +199,35 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected.
+    func test_perform_savePressed_noCollection() async throws {
+        subject.state.name = "Organization Item"
+        subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
+
+        await subject.perform(.savePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.selectOneCollection
+            )
+        )
+    }
+
+    /// `perform(_:)` with `.savePressed` succeeds if an organization and collection have been selected.
+    func test_perform_savePressed_organizationAndCollection() async throws {
+        subject.state.name = "Organization Item"
+        subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
+        subject.state.collectionIds = ["1"]
+
+        await subject.perform(.savePressed)
+
+        XCTAssertNotNil(vaultRepository.addCipherCiphers.first)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
     /// `perform(_:)` with `.savePressed` displays an alert containing the message returned by the
     /// server if saving fails.
     func test_perform_savePressed_serverErrorAlert() async throws {

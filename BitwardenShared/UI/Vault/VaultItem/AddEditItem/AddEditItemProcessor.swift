@@ -263,6 +263,16 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     /// Saves the item currently stored in `state`.
     ///
     private func saveItem() async {
+        guard state.cipher.organizationId == nil || !state.cipher.collectionIds.isEmpty else {
+            coordinator.showAlert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.selectOneCollection
+                )
+            )
+            return
+        }
+
         defer { coordinator.hideLoadingOverlay() }
         do {
             try EmptyInputValidator(fieldName: Localizations.name)
