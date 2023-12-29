@@ -4,7 +4,7 @@ import Foundation
 
 extension Organization {
     static func fixture(
-        id: String = UUID().uuidString,
+        id: String = "organization-1",
         name: String = ""
     ) -> Organization {
         Organization(
