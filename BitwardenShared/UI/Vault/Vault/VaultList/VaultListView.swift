@@ -285,7 +285,9 @@ struct VaultListView: View {
         .task {
             await store.perform(.appeared)
         }
-        .task { await store.perform(.streamOrganizations) }
+        .task {
+            await store.perform(.streamOrganizations)
+        }
         .task(id: store.state.vaultFilterType) {
             await store.perform(.streamVaultList)
         }
