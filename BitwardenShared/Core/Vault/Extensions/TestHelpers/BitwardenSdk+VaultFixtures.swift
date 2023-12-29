@@ -195,7 +195,7 @@ extension CollectionView {
     static func fixture(
         externalId: String = "",
         hidePasswords: Bool = false,
-        id: String = "",
+        id: String = "collection-view-1",
         name: String = "",
         organizationId: String = "",
         readOnly: Bool = false
