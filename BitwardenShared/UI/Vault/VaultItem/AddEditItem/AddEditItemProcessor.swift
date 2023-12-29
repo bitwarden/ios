@@ -101,7 +101,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
                 // TODO: BIT-365
                 print("clone")
             case .moveToOrganization:
-                coordinator.navigate(to: .moveToOrganization(state.cipher))
+                coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
             }
         case let .nameChanged(newValue):
             state.name = newValue
@@ -387,6 +387,16 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         } catch {
             coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+        }
+    }
+}
+
+// MARK: - MoveToOrganizationProcessorDelegate
+
+extension AddEditItemProcessor: MoveToOrganizationProcessorDelegate {
+    func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
+        DispatchQueue.main.asyncAfter(deadline: UI.after(0.5)) {
+            self.state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
         }
     }
 }
