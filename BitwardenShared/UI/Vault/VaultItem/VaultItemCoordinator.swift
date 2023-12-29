@@ -63,6 +63,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             stackNavigator.dismiss(animated: true, completion: {
                 onDismiss?.action()
             })
+        case let .editCollections(cipher):
+            showEditCollections(cipher: cipher, delegate: context as? EditCollectionsProcessorDelegate)
         case let .editItem(cipher: cipher):
             showEditItem(for: cipher, context: context)
         case let .generator(type, emailWebsite):
@@ -113,6 +115,20 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             let view = AddEditItemView(store: store)
             stackNavigator.replace(view)
         }
+    }
+
+    /// Shows the move to organization screen.
+    ///
+    private func showEditCollections(cipher: CipherView, delegate: EditCollectionsProcessorDelegate?) {
+        let processor = EditCollectionsProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: EditCollectionsState(cipher: cipher)
+        )
+        let view = EditCollectionsView(store: Store(processor: processor))
+        let hostingController = UIHostingController(rootView: view)
+        stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }
 
     /// Shows the edit item screen.

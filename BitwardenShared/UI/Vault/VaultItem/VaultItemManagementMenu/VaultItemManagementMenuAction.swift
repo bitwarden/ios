@@ -8,6 +8,9 @@ enum VaultItemManagementMenuAction: Equatable {
     /// The clone option was pressed.
     case clone
 
+    /// The collections option was pressed.
+    case editCollections
+
     /// The move to organization option was pressed.
     case moveToOrganization
 }

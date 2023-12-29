@@ -176,6 +176,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// - Parameter action: The action that was sent from the menu.
     ///
     private func handleMenuAction(_ action: VaultItemManagementMenuAction) {
+        guard let cipher = state.loadingState.data?.cipher else {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot perform action on cipher until it's loaded.")
+            )
+            return
+        }
+
         switch action {
         case .attachments:
             // TODO: BIT-364
@@ -183,16 +191,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .clone:
             // TODO: BIT-365
             print("clone")
+        case .editCollections:
+            coordinator.navigate(to: .editCollections(cipher), context: self)
         case .moveToOrganization:
-            guard case let .data(cipherState) = state.loadingState,
-                  let cipherView = cipherState.configuration.existingCipherView else {
-                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                services.errorReporter.log(
-                    error: ActionError.dataNotLoaded("Cannot move cipher to organization until it's loaded.")
-                )
-                return
-            }
-            coordinator.navigate(to: .moveToOrganization(cipherView), context: self)
+            coordinator.navigate(to: .moveToOrganization(cipher), context: self)
         }
     }
 

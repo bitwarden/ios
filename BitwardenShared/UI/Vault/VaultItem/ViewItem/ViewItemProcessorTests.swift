@@ -252,7 +252,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state = state
 
         subject.receive(.customFieldVisibilityPressed(customField2))
-        let newLoadingState = try XCTUnwrap(subject.state.loadingState.wrappedData)
+        let newLoadingState = try XCTUnwrap(subject.state.loadingState.data)
         guard let loadingState = newLoadingState.viewState else {
             XCTFail("ViewItemState has incorrect value: \(newLoadingState)")
             return
@@ -313,6 +313,18 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(loginState)
         subject.receive(.editPressed)
         XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
+    }
+
+    /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
+    /// collections view.
+    func test_receive_morePressed_editCollections() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
+
+        subject.receive(.morePressed(.editCollections))
+
+        XCTAssertEqual(coordinator.routes.last, .editCollections(cipher))
+        XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
     }
 
     /// `receive(_:)` with `.morePressed(.moveToOrganization)` navigates the user to the move to

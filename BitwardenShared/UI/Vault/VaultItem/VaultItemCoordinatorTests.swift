@@ -109,6 +109,16 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(view.store.state.type, .card)
     }
 
+    /// `navigate(to:)` with `.editCollections()` triggers the edit collections flow.
+    func test_navigateTo_editCollections() throws {
+        subject.navigate(to: .editCollections(.fixture()))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.topViewController is UIHostingController<EditCollectionsView>)
+    }
+
     /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
     func test_navigate_alert() {
         let alert = BitwardenShared.Alert(
@@ -388,4 +398,4 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     func didCancelScan() {
         didCancel = true
     }
-}
+} // swiftlint:disable:this file_length
