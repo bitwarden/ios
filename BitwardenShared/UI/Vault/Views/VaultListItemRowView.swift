@@ -45,10 +45,17 @@ struct VaultListItemRowView: View {
                     switch store.state.item.itemType {
                     case let .cipher(cipherItem):
                         VStack(alignment: .leading, spacing: 0) {
-                            Text(cipherItem.name)
-                                .styleGuide(.body)
-                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                                .lineLimit(1)
+                            HStack(spacing: 8) {
+                                Text(cipherItem.name)
+                                    .styleGuide(.body)
+                                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                                    .lineLimit(1)
+
+                                if cipherItem.organizationId != nil {
+                                    Asset.Images.collections.swiftUIImage
+                                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                }
+                            }
 
                             if let subTitle = cipherItem.subTitle.nilIfEmpty {
                                 Text(subTitle)

@@ -465,6 +465,29 @@ struct VaultListView_Previews: PreviewProvider {
                                     ],
                                     name: "Collections"
                                 ),
+                                VaultListSection(
+                                    id: "CollectionItems",
+                                    items: [
+                                        .init(cipherListView: .init(
+                                            id: UUID().uuidString,
+                                            organizationId: "1",
+                                            folderId: nil,
+                                            collectionIds: [],
+                                            name: "Example",
+                                            subTitle: "email@example.com",
+                                            type: .login,
+                                            favorite: true,
+                                            reprompt: .none,
+                                            edit: false,
+                                            viewPassword: true,
+                                            attachments: 0,
+                                            creationDate: Date(),
+                                            deletedDate: nil,
+                                            revisionDate: Date()
+                                        ))!,
+                                    ],
+                                    name: "Items"
+                                ),
                             ]),
                             organizations: [Organization(id: "", name: "Org")]
                         )
