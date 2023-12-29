@@ -27,7 +27,12 @@ struct OtherSettingsView: View {
             get: \.toast,
             send: OtherSettingsAction.toastShown
         ))
-        .task { await store.perform(.streamLastSyncTime) }
+        .task {
+            await store.perform(.streamLastSyncTime)
+        }
+        .task {
+            await store.perform(.loadInitialValues)
+        }
     }
 
     // MARK: Private views
@@ -54,12 +59,15 @@ struct OtherSettingsView: View {
     /// The clear clipboard button and description.
     private var clearClipboard: some View {
         VStack(alignment: .leading, spacing: 5) {
-            SettingsListItem(
-                Localizations.clearClipboard,
-                hasDivider: false
-            ) {} trailingContent: {
-                Text(Localizations.fiveMinutes) // TODO: BIT-1183 Dynamic value
-            }
+            SettingsMenuField(
+                title: Localizations.clearClipboard,
+                options: ClearClipboardValue.allCases,
+                hasDivider: false,
+                selection: store.binding(
+                    get: \.clearClipboardValue,
+                    send: OtherSettingsAction.clearClipboardValueChanged
+                )
+            )
             .cornerRadius(10)
 
             Text(Localizations.clearClipboardDescription)
@@ -108,8 +116,6 @@ struct OtherSettingsView: View {
 
 // MARK: Previews
 
-struct OtherSettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        OtherSettingsView(store: Store(processor: StateProcessor(state: OtherSettingsState())))
-    }
+#Preview {
+    OtherSettingsView(store: Store(processor: StateProcessor(state: OtherSettingsState())))
 }

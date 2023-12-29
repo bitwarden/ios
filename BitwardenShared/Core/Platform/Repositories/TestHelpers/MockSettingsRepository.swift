@@ -7,6 +7,8 @@ import Foundation
 class MockSettingsRepository: SettingsRepository {
     var addedFolderName: String?
     var addFolderResult: Result<Void, Error> = .success(())
+    var allowSyncOnRefresh = false
+    var allowSyncOnRefreshResult: Result<Void, Error> = .success(())
     var editedFolderName: String?
     var editFolderResult: Result<Void, Error> = .success(())
     var fetchSyncCalled = false
@@ -19,6 +21,8 @@ class MockSettingsRepository: SettingsRepository {
     var unlockVaultCalls = [String?]()
     var logoutResult: Result<Void, StateServiceError> = .failure(.noActiveAccount)
     var foldersListSubject = CurrentValueSubject<[FolderView], Error>([])
+
+    var clearClipboardValue: ClearClipboardValue = .never
 
     func addFolder(name: String) async throws {
         addedFolderName = name
@@ -33,6 +37,11 @@ class MockSettingsRepository: SettingsRepository {
     func fetchSync() async throws {
         fetchSyncCalled = true
         try fetchSyncResult.get()
+    }
+
+    func getAllowSyncOnRefresh() async throws -> Bool {
+        try allowSyncOnRefreshResult.get()
+        return allowSyncOnRefresh
     }
 
     func isLocked(userId _: String) throws -> Bool {
@@ -52,6 +61,11 @@ class MockSettingsRepository: SettingsRepository {
 
     func unlockVault(userId: String?) {
         lockVaultCalls.append(userId)
+    }
+
+    func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
+        self.allowSyncOnRefresh = allowSyncOnRefresh
+        try allowSyncOnRefreshResult.get()
     }
 
     func logout() async throws {

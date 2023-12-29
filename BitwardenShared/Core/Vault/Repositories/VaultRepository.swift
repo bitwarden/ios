@@ -10,7 +10,9 @@ protocol VaultRepository: AnyObject {
     /// Performs an API request to sync the user's vault data. The publishers in the repository can
     /// be used to subscribe to the vault data, which are updated as a result of the request.
     ///
-    func fetchSync() async throws
+    /// - Parameter isRefresh: Whether the sync is being performed as a manual refresh.
+    ///
+    func fetchSync(isManualRefresh: Bool) async throws
 
     // MARK: Data Methods
 
@@ -244,8 +246,11 @@ class DefaultVaultRepository {
 extension DefaultVaultRepository: VaultRepository {
     // MARK: API Methods
 
-    func fetchSync() async throws {
-        try await syncService.fetchSync()
+    func fetchSync(isManualRefresh: Bool) async throws {
+        let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
+        if !isManualRefresh || allowSyncOnRefresh {
+            try await syncService.fetchSync()
+        }
     }
 
     // MARK: Data Methods
@@ -254,7 +259,7 @@ extension DefaultVaultRepository: VaultRepository {
         let cipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
         _ = try await cipherAPIService.addCipher(cipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
-        try await fetchSync()
+        try await fetchSync(isManualRefresh: false)
     }
 
     func remove(userId: String?) async {
@@ -265,7 +270,7 @@ extension DefaultVaultRepository: VaultRepository {
         let updatedCipher = try await clientVault.ciphers().encrypt(cipherView: updatedCipherView)
         _ = try await cipherAPIService.updateCipher(updatedCipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
-        try await fetchSync()
+        try await fetchSync(isManualRefresh: false)
     }
 
     func validatePassword(_ password: String) async throws -> Bool {

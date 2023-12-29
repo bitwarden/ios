@@ -66,6 +66,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `addCipher()` makes the add cipher API request and updates the vault.
     func test_addCipher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
         client.results = [
             .httpSuccess(testData: .cipherResponse),
             .httpSuccess(testData: .syncWithCipher),
@@ -90,6 +91,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         await assertAsyncThrows(error: EncryptError()) {
             try await subject.addCipher(.fixture())
         }
+    }
+
+    /// `fetchSync(isManualRefresh:)` only syncs when expected.
+    func test_fetchSync() async throws {
+        stateService.activeAccount = .fixture()
+
+        // If it's not a manual refresh, it should sync.
+        try await subject.fetchSync(isManualRefresh: false)
+        XCTAssertTrue(syncService.didFetchSync)
+
+        // If it's a manual refresh and the user has allowed sync on refresh,
+        // it should sync.
+        syncService.didFetchSync = false
+        stateService.allowSyncOnRefresh["1"] = true
+        try await subject.fetchSync(isManualRefresh: true)
+        XCTAssertTrue(syncService.didFetchSync)
+
+        // If it's a manual refresh and the user has not allowed sync on refresh,
+        // it should not sync.
+        syncService.didFetchSync = false
+        stateService.allowSyncOnRefresh["1"] = false
+        try await subject.fetchSync(isManualRefresh: true)
+        XCTAssertFalse(syncService.didFetchSync)
     }
 
     /// `updateCipher()` throws on encryption errors.
@@ -119,6 +143,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `updateCipher()` makes the update cipher API request and updates the vault.
     func test_updateCipher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let cipher = CipherView.fixture(id: "123")

@@ -37,6 +37,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasBiometricsService
         & HasClientAuth
         & HasErrorReporter
+        & HasPasteboardService
         & HasSettingsRepository
         & HasStateService
         & HasTwoStepLoginService
@@ -121,7 +122,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// Shows the about screen.
     ///
     private func showAbout() {
-        let processor = AboutProcessor(coordinator: asAnyCoordinator(), state: AboutState())
+        let processor = AboutProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AboutState()
+        )
 
         let view = AboutView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)

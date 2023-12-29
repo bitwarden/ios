@@ -10,6 +10,9 @@ class MockStateService: StateService {
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
     var accounts: [Account]?
+    var allowSyncOnRefresh = [String: Bool]()
+    var clearClipboardValues = [String: ClearClipboardValue]()
+    var clearClipboardResult: Result<Void, Error> = .success(())
     var environmentUrls = [String: EnvironmentUrlData]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
@@ -68,6 +71,17 @@ class MockStateService: StateService {
         try getActiveAccount().profile.userId
     }
 
+    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return allowSyncOnRefresh[userId] ?? false
+    }
+
+    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
+        try clearClipboardResult.get()
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return clearClipboardValues[userId] ?? .never
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return environmentUrls[userId]
@@ -110,6 +124,17 @@ class MockStateService: StateService {
         activeAccount = match
     }
 
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
+        try clearClipboardResult.get()
+        let userId = try userId ?? getActiveAccount().profile.userId
+        clearClipboardValues[userId] = clearClipboardValue
+    }
+
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         self.environmentUrls[userId] = environmentUrls
@@ -134,7 +159,7 @@ class MockStateService: StateService {
         preAuthEnvironmentUrls = urls
     }
 
-    func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {
+    func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
 
