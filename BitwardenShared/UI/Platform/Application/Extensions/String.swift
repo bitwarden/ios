@@ -21,6 +21,9 @@ enum URLDecodingError: Error, Equatable {
 extension String {
     // MARK: Type Properties
 
+    /// Double paragraph breaks to show the next line of text separated by a blank line.
+    static let newLine = "\n\n"
+
     /// A zero width space. https://symbl.cc/en/200B/
     static let zeroWidthSpace = "\u{200B}"
 

@@ -8,7 +8,4 @@ enum AddEditFolderAction: Equatable {
 
     /// The user edited the folder name text field.
     case folderNameTextChanged(String)
-
-    /// The more toolbar button was tapped.
-    case moreTapped
 }

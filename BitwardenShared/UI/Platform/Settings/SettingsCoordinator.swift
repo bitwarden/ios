@@ -37,6 +37,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasBiometricsService
         & HasClientAuth
         & HasErrorReporter
+        & HasPasteboardService
         & HasSettingsRepository
         & HasStateService
         & HasTwoStepLoginService
@@ -83,6 +84,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showAccountSecurity()
         case let .addEditFolder(folder):
             showAddEditFolder(folder)
+        case .appearance:
+            showAppearance()
         case let .alert(alert):
             stackNavigator.present(alert)
         case .autoFill:
@@ -95,6 +98,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             }
         case .dismiss:
             stackNavigator.dismiss()
+        case .exportVault:
+            showExportVault()
         case .folders:
             showFolders()
         case let .lockVault(account):
@@ -119,7 +124,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// Shows the about screen.
     ///
     private func showAbout() {
-        let processor = AboutProcessor(coordinator: asAnyCoordinator(), state: AboutState())
+        let processor = AboutProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AboutState()
+        )
 
         let view = AboutView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
@@ -158,6 +167,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.present(navController)
     }
 
+    /// Shows the appearance screen.
+    ///
+    private func showAppearance() {
+        let processor = AppearanceProcessor(coordinator: asAnyCoordinator(), state: AppearanceState())
+
+        let view = AppearanceView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
     /// Shows the auto-fill screen.
     ///
     private func showAutoFill() {
@@ -180,6 +200,18 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             state: DeleteAccountState()
         )
         let view = DeleteAccountView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
+    }
+
+    /// Shows the export vault screen.
+    ///
+    private func showExportVault() {
+        let processor = ExportVaultProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services
+        )
+        let view = ExportVaultView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator.present(navController)
     }

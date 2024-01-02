@@ -7,6 +7,12 @@ import Foundation
 class MockSettingsRepository: SettingsRepository {
     var addedFolderName: String?
     var addFolderResult: Result<Void, Error> = .success(())
+    var allowSyncOnRefresh = false
+    var allowSyncOnRefreshResult: Result<Void, Error> = .success(())
+    var deletedFolderId: String?
+    var deleteFolderResult: Result<Void, Error> = .success(())
+    var editedFolderName: String?
+    var editFolderResult: Result<Void, Error> = .success(())
     var fetchSyncCalled = false
     var fetchSyncResult: Result<Void, Error> = .success(())
     var foldersListError: Error?
@@ -18,14 +24,31 @@ class MockSettingsRepository: SettingsRepository {
     var logoutResult: Result<Void, StateServiceError> = .failure(.noActiveAccount)
     var foldersListSubject = CurrentValueSubject<[FolderView], Error>([])
 
+    var clearClipboardValue: ClearClipboardValue = .never
+
     func addFolder(name: String) async throws {
         addedFolderName = name
         try addFolderResult.get()
     }
 
+    func deleteFolder(id: String) async throws {
+        deletedFolderId = id
+        try deleteFolderResult.get()
+    }
+
+    func editFolder(withID _: String, name: String) async throws {
+        editedFolderName = name
+        try editFolderResult.get()
+    }
+
     func fetchSync() async throws {
         fetchSyncCalled = true
         try fetchSyncResult.get()
+    }
+
+    func getAllowSyncOnRefresh() async throws -> Bool {
+        try allowSyncOnRefreshResult.get()
+        return allowSyncOnRefresh
     }
 
     func isLocked(userId _: String) throws -> Bool {
@@ -45,6 +68,11 @@ class MockSettingsRepository: SettingsRepository {
 
     func unlockVault(userId: String?) {
         lockVaultCalls.append(userId)
+    }
+
+    func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
+        self.allowSyncOnRefresh = allowSyncOnRefresh
+        try allowSyncOnRefreshResult.get()
     }
 
     func logout() async throws {

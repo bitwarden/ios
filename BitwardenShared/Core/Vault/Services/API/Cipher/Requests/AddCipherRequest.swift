@@ -1,7 +1,7 @@
 import BitwardenSdk
 import Networking
 
-/// Data model for performing a sync request.
+/// A request model for adding a new cipher.
 ///
 struct AddCipherRequest: Request {
     typealias Response = CipherDetailsResponseModel

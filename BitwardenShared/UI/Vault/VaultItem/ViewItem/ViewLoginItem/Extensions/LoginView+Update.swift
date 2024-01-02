@@ -15,7 +15,7 @@ extension BitwardenSdk.LoginView {
             password: loginState.password.nilIfEmpty,
             passwordRevisionDate: loginView?.passwordRevisionDate,
             uris: loginState.uris.compactMap(\.loginUriView).nilIfEmpty,
-            totp: loginView?.totp,
+            totp: loginState.authenticatorKey,
             autofillOnPageLoad: loginView?.autofillOnPageLoad
         )
     }

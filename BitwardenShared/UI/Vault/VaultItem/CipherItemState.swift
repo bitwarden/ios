@@ -21,9 +21,24 @@ struct CipherItemState: Equatable {
             guard case let .existing(cipherView) = self else { return nil }
             return cipherView
         }
+
+        /// Whether the configuration is for adding a new cipher.
+        var isAdding: Bool {
+            guard case .add = self else { return false }
+            return true
+        }
     }
 
     // MARK: Properties
+
+    /// The card item state.
+    var cardItemState: CardItemState
+
+    /// The list of collection IDs that the cipher is included in.
+    var collectionIds: [String]
+
+    /// The full list of collections for the user, across all organizations.
+    var collections: [CollectionView]
 
     /// The Add or Existing Configuration.
     let configuration: Configuration
@@ -55,8 +70,11 @@ struct CipherItemState: Equatable {
     /// The notes for this item.
     var notes: String
 
-    /// The owner of this item.
-    var owner: String
+    /// The organization ID of the cipher, if the cipher is owned by an organization.
+    var organizationId: String?
+
+    /// The list of ownership options that can be selected for the cipher.
+    var ownershipOptions: [CipherOwner]
 
     /// A toast for the AddEditItemView
     var toast: Toast?
@@ -74,6 +92,24 @@ struct CipherItemState: Equatable {
         self
     }
 
+    /// The list of collections that can be selected from for the current owner.
+    var collectionsForOwner: [CollectionView] {
+        guard let owner, !owner.isPersonal else { return [] }
+        return collections.filter { $0.organizationId == owner.organizationId }
+    }
+
+    /// The owner of the cipher.
+    var owner: CipherOwner? {
+        get {
+            guard let organizationId else { return ownershipOptions.first(where: \.isPersonal) }
+            return ownershipOptions.first(where: { $0.organizationId == organizationId })
+        }
+        set {
+            organizationId = newValue?.organizationId
+            collectionIds = []
+        }
+    }
+
     /// The view state of the item.
     var viewState: ViewVaultItemState? {
         guard case .existing = configuration else {
@@ -86,6 +122,7 @@ struct CipherItemState: Equatable {
     // MARK: Initialization
 
     private init(
+        cardState: CardItemState,
         configuration: Configuration,
         customFields: [CustomFieldState],
         folder: String,
@@ -96,10 +133,12 @@ struct CipherItemState: Equatable {
         loginState: LoginItemState,
         name: String,
         notes: String,
-        owner: String,
         type: CipherType,
         updatedDate: Date
     ) {
+        cardItemState = cardState
+        collectionIds = []
+        collections = []
         self.customFields = customFields
         self.folder = folder
         self.id = id
@@ -109,7 +148,7 @@ struct CipherItemState: Equatable {
         self.loginState = loginState
         self.name = name
         self.notes = notes
-        self.owner = owner
+        ownershipOptions = []
         self.type = type
         self.updatedDate = updatedDate
         self.configuration = configuration
@@ -117,6 +156,7 @@ struct CipherItemState: Equatable {
 
     init(addItem type: CipherType = .login) {
         self.init(
+            cardState: .init(),
             configuration: .add,
             customFields: [],
             folder: "",
@@ -127,7 +167,6 @@ struct CipherItemState: Equatable {
             loginState: .init(),
             name: "",
             notes: "",
-            owner: "",
             type: type,
             updatedDate: .now
         )
@@ -136,6 +175,7 @@ struct CipherItemState: Equatable {
     init?(existing cipherView: CipherView) {
         guard cipherView.id != nil else { return nil }
         self.init(
+            cardState: cipherView.cardItemState(),
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
             folder: cipherView.folderId ?? "",
@@ -146,7 +186,6 @@ struct CipherItemState: Equatable {
             loginState: cipherView.loginItemState(),
             name: cipherView.name,
             notes: cipherView.notes ?? "",
-            owner: "",
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
         )
@@ -163,11 +202,29 @@ struct CipherItemState: Equatable {
             customFields[index].isPasswordVisible.toggle()
         }
     }
+
+    /// Toggles whether the cipher is included in the specified collection.
+    ///
+    /// - Parameters:
+    ///   - newValue: Whether the cipher is included in the collection.
+    ///   - collectionId: The identifier of the collection.
+    ///
+    mutating func toggleCollection(newValue: Bool, collectionId: String) {
+        if newValue {
+            collectionIds.append(collectionId)
+        } else {
+            collectionIds = collectionIds.filter { $0 != collectionId }
+        }
+    }
 }
 
 extension CipherItemState: AddEditItemState {}
 
 extension CipherItemState: ViewVaultItemState {
+    var cardItemViewState: any ViewCardItemState {
+        cardItemState
+    }
+
     var cipher: BitwardenSdk.CipherView {
         switch configuration {
         case let .existing(cipherView: view):
@@ -183,16 +240,16 @@ extension CipherItemState {
     func newCipherView(creationDate: Date = .now) -> CipherView {
         CipherView(
             id: nil,
-            organizationId: nil,
+            organizationId: organizationId,
             folderId: nil,
-            collectionIds: [],
+            collectionIds: collectionIds,
             key: nil,
             name: name,
             notes: notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(type),
             login: type == .login ? loginState.loginView : nil,
             identity: type == .identity ? identityState.identityView : nil,
-            card: nil,
+            card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,

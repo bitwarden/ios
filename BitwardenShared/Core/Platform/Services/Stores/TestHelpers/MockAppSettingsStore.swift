@@ -4,7 +4,9 @@ import Foundation
 @testable import BitwardenShared
 
 class MockAppSettingsStore: AppSettingsStore {
+    var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
+    var clearClipboardValues = [String: ClearClipboardValue]()
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var lastSyncTimeByUserId = [String: Date]()
@@ -21,6 +23,14 @@ class MockAppSettingsStore: AppSettingsStore {
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
+
+    func allowSyncOnRefresh(userId: String) -> Bool {
+        allowSyncOnRefreshes[userId] ?? false
+    }
+
+    func clearClipboardValue(userId: String) -> ClearClipboardValue {
+        clearClipboardValues[userId] ?? .never
+    }
 
     func encryptedPrivateKey(userId: String) -> String? {
         encryptedPrivateKeys[userId]
@@ -44,6 +54,14 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         usernameGenerationOptions[userId]
+    }
+
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
+        allowSyncOnRefreshes[userId] = allowSyncOnRefresh
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
+        clearClipboardValues[userId] = clearClipboardValue
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {

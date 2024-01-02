@@ -208,8 +208,6 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             coordinator.navigate(to: .alert(.passwordIsTooShort))
         } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
             launchCaptchaFlow(with: siteCode)
-        } catch let CreateAccountRequestError.serverError(errorResponse) {
-            coordinator.navigate(to: .alert(.serverError(errorResponse.singleMessage())))
         } catch {
             coordinator.navigate(to: .alert(.networkResponseError(error) {
                 await self.createAccount(captchaToken: captchaToken)

@@ -32,6 +32,9 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
     /// Never timeout the session.
     case never
 
+    /// A custom timeout value.
+    case custom
+
     /// All of the cases to show in the menu.
     public static let allCases: [Self] = [
         .immediately,
@@ -43,6 +46,7 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
         .fourHours,
         .onAppRestart,
         .never,
+        .custom,
     ]
 
     var localizedName: String {
@@ -65,6 +69,8 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
             Localizations.onRestart
         case .never:
             Localizations.never
+        case .custom:
+            Localizations.custom
         }
     }
 }
@@ -101,8 +107,26 @@ struct AccountSecurityState: Equatable {
     /// The biometric authentication type for the user's device.
     var biometricAuthenticationType: BiometricAuthenticationType?
 
+    /// The accessibility label used for the custom timeout value.
+    var customTimeoutAccessibilityLabel: String {
+        customSessionTimeoutValue.timeInHoursMinutes(shouldSpellOut: true)
+    }
+
+    /// The custom session timeout value, initially set to 1 minute.
+    var customSessionTimeoutValue: TimeInterval = 60
+
+    /// The string representation of the custom session timeout value.
+    var customTimeoutString: String {
+        customSessionTimeoutValue.timeInHoursMinutes()
+    }
+
     /// Whether the approve login requests toggle is on.
     var isApproveLoginRequestsToggleOn: Bool = false
+
+    /// Whether or not the custom session timeout field is shown.
+    var isShowingCustomTimeout: Bool {
+        sessionTimeoutValue == .custom
+    }
 
     /// Whether the unlock with face ID toggle is on.
     var isUnlockWithFaceIDOn: Bool = false

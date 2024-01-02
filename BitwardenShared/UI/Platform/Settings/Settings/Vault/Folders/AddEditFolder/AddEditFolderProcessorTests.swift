@@ -40,6 +40,80 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.deleteTapped` presents the confirmation alert and displays an error if
+    /// deleting the folder failed.
+    func test_perform_deleteTapped_genericError() async throws {
+        // Set up the mock data.
+        subject.state.mode = .edit(.fixture(id: "testID"))
+        settingsRepository.deleteFolderResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.deleteTapped)
+
+        // Ensure the alert is shown.
+        var alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .confirmDeleteFolder {})
+
+        // Press the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the error alert is displayed.
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.deleteTapped` presents the confirmation alert and displays a network error with a try again
+    /// button if deleting the folder failed for a networking reason.
+    func test_perform_deleteTapped_networkError() async throws {
+        // Set up the mock data.
+        subject.state.mode = .edit(.fixture(id: "testID"))
+        settingsRepository.deleteFolderResult = .failure(URLError(.timedOut))
+
+        await subject.perform(.deleteTapped)
+
+        // Ensure the alert is shown.
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .confirmDeleteFolder {})
+
+        // Press the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        XCTAssertEqual(settingsRepository.deletedFolderId, "testID")
+
+        // Ensure the error alert is displayed.
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
+        XCTAssertEqual(errorReporter.errors.first as? URLError, URLError(.timedOut))
+
+        // The try again button should retry the call.
+        settingsRepository.deletedFolderId = nil
+        let tryAgainAction = try XCTUnwrap(alert.alertActions.first)
+        await tryAgainAction.handler?(tryAgainAction, [])
+        XCTAssertEqual(settingsRepository.deletedFolderId, "testID")
+    }
+
+    /// `perform(_:)` with `.deleteTapped` presents the confirmation alert and deletes the account if the user confirms.
+    func test_perform_deleteTapped_success() async throws {
+        // Set up the mock data.
+        subject.state.mode = .edit(.fixture(id: "testID"))
+
+        await subject.perform(.deleteTapped)
+
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .confirmDeleteFolder {})
+
+        // Press the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the folder is deleted and the view is dismissed.
+        XCTAssertEqual(settingsRepository.deletedFolderId, "testID")
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
     func test_perform_savePressed_invalidName() async throws {
         subject.state.folderName = "    "
@@ -57,34 +131,75 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(_:)` with `.savePressed` displays an alert if saving or updating fails.
-    func test_perform_savePressed_genericErrorAlert() async throws {
+    /// `perform(_:)` with `.savePressed` displays an alert if adding a new folder fails.
+    func test_perform_savePressed_genericErrorAlert_add() async throws {
         subject.state.folderName = "Folder Name"
-        struct TestError: Error, Equatable {}
-        settingsRepository.addFolderResult = .failure(TestError())
+        settingsRepository.addFolderResult = .failure(BitwardenTestError.example)
 
         await subject.perform(.saveTapped)
 
         let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(
-            alert,
-            Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
-        )
-        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+        XCTAssertEqual(alert, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
 
-    /// `perform(_:)` with `.savePressed` saves the item.
-    func test_perform_savePressed() async {
+    /// `perform(_:)` with `.savePressed` displays an alert if editing an existing folder fails.
+    func test_perform_savePressed_genericErrorAlert_edit() async throws {
+        let folderName = "FolderName"
+        subject.state.mode = .edit(.fixture(name: folderName))
+        subject.state.folderName = folderName
+        settingsRepository.editFolderResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.saveTapped)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.savePressed` displays a network error alert with a try again button if there was a
+    /// networking error.
+    func test_perform_savePressed_networkError() async throws {
         subject.state.folderName = "Folder Name"
+        settingsRepository.addFolderResult = .failure(URLError(.timedOut))
+
         await subject.perform(.saveTapped)
 
         XCTAssertEqual(settingsRepository.addedFolderName, "Folder Name")
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
+        XCTAssertEqual(errorReporter.errors.first as? URLError, URLError(.timedOut))
+
+        // The try again button should retry the call.
+        settingsRepository.addedFolderName = nil
+        let tryAgainAction = try XCTUnwrap(alert.alertActions.first)
+        await tryAgainAction.handler?(tryAgainAction, [])
+        XCTAssertEqual(settingsRepository.addedFolderName, "Folder Name")
     }
 
-    /// Receiving `.dismiss` dismisses the view.
+    /// `perform(_:)` with `.savePressed` adds the new folder.
+    func test_perform_savePressed_add() async {
+        let folderName = "FolderName"
+        subject.state.folderName = folderName
+        await subject.perform(.saveTapped)
+
+        XCTAssertEqual(settingsRepository.addedFolderName, folderName)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.savePressed` edits the existing folder.
+    func test_perform_savePressed_edit() async {
+        let folderName = "FolderName"
+        subject.state.mode = .edit(.fixture(name: folderName))
+        subject.state.folderName = folderName
+        await subject.perform(.saveTapped)
+
+        XCTAssertEqual(settingsRepository.editedFolderName, folderName)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `receive(_:)` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 

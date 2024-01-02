@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - AddEditItemView
 
-/// A view that allows the user to add a new item to a vault.
+/// A view that allows the user to add or edit a new item for a vault.
 ///
 struct AddEditItemView: View {
     // MARK: Private Properties
@@ -24,6 +24,7 @@ struct AddEditItemView: View {
                 existing
             }
         }
+        .task { await store.perform(.fetchCipherOptions) }
         .toast(store.binding(
             get: \.toast,
             send: AddEditItemAction.toastShown
@@ -34,10 +35,8 @@ struct AddEditItemView: View {
         content
             .navigationTitle(Localizations.addItem)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
-                        store.send(.dismissPressed)
-                    }
+                cancelToolbarItem {
+                    store.send(.dismissPressed)
                 }
             }
     }
@@ -54,11 +53,26 @@ struct AddEditItemView: View {
             }
             .padding(16)
         }
+        .animation(.default, value: store.state.collectionsForOwner)
         .background(
             Asset.Colors.backgroundSecondary.swiftUIColor
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder private var cardItems: some View {
+        AddEditCardItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.cardItemState
+                },
+                mapAction: { action in
+                    .cardFieldChanged(action)
+                },
+                mapEffect: { $0 }
+            )
+        )
     }
 
     private var customSection: some View {
@@ -117,14 +131,14 @@ struct AddEditItemView: View {
             )
 
             switch store.state.type {
+            case .card:
+                cardItems
             case .login:
                 loginItems
             case .secureNote:
                 EmptyView()
             case .identity:
                 identityItems
-            default:
-                EmptyView()
             }
         }
     }
@@ -204,15 +218,39 @@ private extension AddEditItemView {
         }
     }
 
-    var ownershipSection: some View {
-        SectionView(Localizations.ownership) {
-            BitwardenTextField(
-                title: Localizations.whoOwnsThisItem,
-                text: store.binding(
-                    get: \.owner,
-                    send: AddEditItemAction.ownerChanged
+    @ViewBuilder var ownershipSection: some View {
+        if store.state.configuration.isAdding, let owner = store.state.owner {
+            SectionView(Localizations.ownership) {
+                BitwardenMenuField(
+                    title: Localizations.whoOwnsThisItem,
+                    options: store.state.ownershipOptions,
+                    selection: store.binding(
+                        get: { _ in owner },
+                        send: AddEditItemAction.ownerChanged
+                    )
                 )
-            )
+            }
+
+            if !owner.isPersonal {
+                SectionView(Localizations.collections) {
+                    if store.state.collectionsForOwner.isEmpty {
+                        Text(Localizations.noCollectionsToList)
+                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                            .multilineTextAlignment(.leading)
+                            .styleGuide(.body)
+                    } else {
+                        ForEach(store.state.collectionsForOwner, id: \.id) { collection in
+                            Toggle(isOn: store.binding(
+                                get: { _ in store.state.collectionIds.contains(collection.id) },
+                                send: { .collectionToggleChanged($0, collectionId: collection.id) }
+                            )) {
+                                Text(collection.name)
+                            }
+                            .toggleStyle(.bitwarden)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -224,13 +262,26 @@ private extension AddEditItemView {
     }
 }
 
+#if DEBUG
+private let multilineText =
+    """
+    I should really keep this safe.
+    Is that right?
+    """
+
 struct AddEditItemView_Previews: PreviewProvider {
     static var fixedDate: Date {
         .init(timeIntervalSince1970: 1_695_000_000)
     }
 
+    static var emptyCipherState: CipherItemState {
+        var state = CipherItemState()
+        state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        return state
+    }
+
     static var cipherState: CipherItemState {
-        CipherItemState(
+        var state = CipherItemState(
             existing: .init(
                 id: .init(),
                 organizationId: nil,
@@ -268,6 +319,8 @@ struct AddEditItemView_Previews: PreviewProvider {
                 revisionDate: fixedDate
             )
         )!
+        state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        return state
     }
 
     static var previews: some View {
@@ -275,12 +328,53 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
-                        state: CipherItemState().addEditState
+                        state: emptyCipherState.addEditState
                     )
                 )
             )
         }
         .previewDisplayName("Empty Add")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: CipherItemState(addItem: .card)
+                            .addEditState
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Add Card")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var copy = cipherState
+                            copy.name = "Sample Card"
+                            copy.type = .card
+                            copy.cardItemState = .init(
+                                brand: .custom(.americanExpress),
+                                cardholderName: "Bitwarden User",
+                                cardNumber: "123456789012345",
+                                cardSecurityCode: "123",
+                                expirationMonth: .custom(.feb),
+                                expirationYear: "3009"
+                            )
+                            copy.folder = "Financials"
+                            copy.isFavoriteOn = false
+                            copy.isMasterPasswordRePromptOn = true
+                            copy.owner = .personal(email: "security@bitwarden.com")
+                            copy.notes = multilineText
+                            return copy.addEditState
+                        }()
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Edit Card")
 
         NavigationView {
             AddEditItemView(
@@ -310,3 +404,4 @@ struct AddEditItemView_Previews: PreviewProvider {
         .previewDisplayName("Edit Login: Key Added")
     }
 }
+#endif // swiftlint:disable:this file_length

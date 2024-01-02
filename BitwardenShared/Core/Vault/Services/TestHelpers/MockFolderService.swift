@@ -5,6 +5,8 @@ import Combine
 
 class MockFolderService: FolderService {
     var addedFolderName: String?
+    var deletedFolderId: String?
+    var editedFolderName: String?
     var replaceFoldersFolders: [FolderResponseModel]?
     var replaceFoldersUserId: String?
 
@@ -12,6 +14,14 @@ class MockFolderService: FolderService {
 
     func addFolderWithServer(name: String) async throws {
         addedFolderName = name
+    }
+
+    func deleteFolderWithServer(id: String) async throws {
+        deletedFolderId = id
+    }
+
+    func editFolderWithServer(id _: String, name: String) async throws {
+        editedFolderName = name
     }
 
     func replaceFolders(_ folders: [FolderResponseModel], userId: String) async throws {

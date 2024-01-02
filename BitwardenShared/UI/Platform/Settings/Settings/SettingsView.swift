@@ -49,7 +49,9 @@ struct SettingsView: View {
                 chevron
             }
 
-            SettingsListItem(Localizations.appearance) {} trailingContent: {
+            SettingsListItem(Localizations.appearance) {
+                store.send(.appearancePressed)
+            } trailingContent: {
                 chevron
             }
 

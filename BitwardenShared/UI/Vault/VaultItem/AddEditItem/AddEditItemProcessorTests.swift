@@ -1,3 +1,5 @@
+import BitwardenSdk
+import Networking
 import XCTest
 
 @testable import BitwardenShared
@@ -23,7 +25,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         super.setUp()
 
         cameraService = MockCameraService()
-        coordinator = MockCoordinator()
+        coordinator = MockCoordinator<VaultItemRoute>()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
@@ -53,30 +55,30 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `didCancelGenerator()` navigates to the `.dismiss` route.
+    /// `didCancelGenerator()` navigates to the `.dismiss()` route.
     func test_didCancelGenerator() {
         subject.didCancelGenerator()
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `didCompleteGenerator` with a password value updates the state with the new password value
-    /// and navigates to the `.dismiss` route.
+    /// and navigates to the `.dismiss()` route.
     func test_didCompleteGenerator_withPassword() {
         subject.state.loginState.username = "username123"
         subject.state.loginState.password = "password123"
         subject.didCompleteGenerator(for: .password, with: "password")
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
         XCTAssertEqual(subject.state.loginState.password, "password")
         XCTAssertEqual(subject.state.loginState.username, "username123")
     }
 
     /// `didCompleteGenerator` with a username value updates the state with the new username value
-    /// and navigates to the `.dismiss` route.
+    /// and navigates to the `.dismiss()` route.
     func test_didCompleteGenerator_withUsername() {
         subject.state.loginState.username = "username123"
         subject.state.loginState.password = "password123"
         subject.didCompleteGenerator(for: .username, with: "email@example.com")
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
         XCTAssertEqual(subject.state.loginState.username, "email@example.com")
         XCTAssertEqual(subject.state.loginState.password, "password123")
     }
@@ -86,12 +88,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_didCompleteCapture_failure() {
         subject.state.loginState.totpKey = nil
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
-        let task = Task {
-            subject.didCompleteCapture(with: "1234")
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
+        subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: "1234")
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
         }
-        waitFor(!coordinator.routes.isEmpty && coordinator.routes.last != .dismiss)
-        task.cancel()
-
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
         XCTAssertEqual(
             coordinator.routes.last,
             .alert(Alert(
@@ -107,14 +111,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `didCompleteCapture` with a value updates the state with the new auth key value
-    /// and navigates to the `.dismiss` route.
+    /// and navigates to the `.dismiss()` route.
     func test_didCompleteCapture_success() throws {
         subject.state.loginState.totpKey = nil
         let key = String.base32Key
         let keyConfig = try XCTUnwrap(TOTPCodeConfig(authenticatorKey: key))
         totpService.getTOTPConfigResult = .success(keyConfig)
-        subject.didCompleteCapture(with: key)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
+        subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: key)
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
         XCTAssertEqual(subject.state.loginState.authenticatorKey, .base32Key)
         XCTAssertEqual(subject.state.toast?.text, Localizations.authenticatorKeyAdded)
     }
@@ -192,7 +202,24 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is deleted and the view is dismissed.
         XCTAssertEqual(vaultRepository.deletedCipher.last, "123")
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
+    func test_perform_fetchCipherOptions() async {
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design"),
+            .fixture(id: "2", name: "Engineering"),
+        ]
+
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
+        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
@@ -223,9 +250,55 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(
             alert,
+            Alert.defaultAlert(title: Localizations.anErrorHasOccurred)
+        )
+    }
+
+    /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected.
+    func test_perform_savePressed_noCollection() async throws {
+        subject.state.name = "Organization Item"
+        subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
+
+        await subject.perform(.savePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+                message: Localizations.selectOneCollection
+            )
+        )
+    }
+
+    /// `perform(_:)` with `.savePressed` succeeds if an organization and collection have been selected.
+    func test_perform_savePressed_organizationAndCollection() async throws {
+        subject.state.name = "Organization Item"
+        subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
+        subject.state.collectionIds = ["1"]
+
+        await subject.perform(.savePressed)
+
+        XCTAssertNotNil(vaultRepository.addCipherCiphers.first)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `perform(_:)` with `.savePressed` displays an alert containing the message returned by the
+    /// server if saving fails.
+    func test_perform_savePressed_serverErrorAlert() async throws {
+        let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
+        try vaultRepository.addCipherResult = .failure(
+            ServerError.error(errorResponse: ErrorResponseModel(response: response))
+        )
+        subject.state.name = "vault item"
+        await subject.perform(.savePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: "You do not have permissions to edit this."
             )
         )
     }
@@ -246,11 +319,54 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
             "secureNote"
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
-    func test_perform_savePressed() async {
+    func test_perform_savePressed_card() async throws {
+        subject.state.name = "vault item"
+        subject.state.type = .card
+        let expectedCardState = CardItemState(
+            brand: .custom(.visa),
+            cardholderName: "Jane Doe",
+            cardNumber: "12345",
+            cardSecurityCode: "123",
+            expirationMonth: .custom(.apr),
+            expirationYear: "1234"
+        )
+        subject.state.cardItemState = expectedCardState
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).creationDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).revisionDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+
+        let added = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
+        XCTAssertNil(added.identity)
+        XCTAssertNil(added.login)
+        XCTAssertNil(added.secureNote)
+        XCTAssertNotNil(added.card)
+        XCTAssertEqual(added.cardItemState(), expectedCardState)
+        let unwrappedState = try XCTUnwrap(subject.state as? CipherItemState)
+        XCTAssertEqual(
+            added,
+            unwrappedState
+                .newCipherView(
+                    creationDate: vaultRepository.addCipherCiphers[0].creationDate
+                )
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `perform(_:)` with `.savePressed` saves the item.
+    func test_perform_savePressed_login() async {
         subject.state.name = "vault item"
         await subject.perform(.savePressed)
 
@@ -272,7 +388,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                     .newCipherView(creationDate: vaultRepository.addCipherCiphers[0].creationDate),
             ]
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
@@ -291,7 +407,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         cameraService.cameraAuthorizationStatus = .authorized
         await subject.perform(.setupTotpPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
+        XCTAssertEqual(coordinator.asyncRoutes.last, .scanCode)
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the
@@ -320,11 +436,28 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.loginState.authenticatorKey)
     }
 
-    /// `receive(_:)` with `.dismiss` navigates to the `.list` route.
+    /// `receive(_:)` with `.collectionToggleChanged` updates the selected collection IDs for the cipher.
+    func test_receive_collectionToggleChanged() {
+        subject.state.collections = [
+            .fixture(id: "1", name: "Design"),
+            .fixture(id: "2", name: "Engineering"),
+        ]
+
+        subject.receive(.collectionToggleChanged(true, collectionId: "1"))
+        XCTAssertEqual(subject.state.collectionIds, ["1"])
+
+        subject.receive(.collectionToggleChanged(true, collectionId: "2"))
+        XCTAssertEqual(subject.state.collectionIds, ["1", "2"])
+
+        subject.receive(.collectionToggleChanged(false, collectionId: "1"))
+        XCTAssertEqual(subject.state.collectionIds, ["2"])
+    }
+
+    /// `receive(_:)` with `.dismiss()` navigates to the `.list` route.
     func test_receive_dismiss() {
         subject.receive(.dismissPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `receive(_:)` with `.favoriteChanged` with `true` updates the state correctly.
@@ -511,20 +644,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.notes, "")
     }
 
-    /// `receive(_:)` with `.ownerChanged` with a value updates the state correctly.
-    func test_receive_ownerChanged_withValue() {
-        subject.state.owner = ""
-        subject.receive(.ownerChanged("owner"))
+    /// `receive(_:)` with `.ownerChanged` updates the state correctly.
+    func test_receive_ownerChanged() {
+        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let organizationOwner = CipherOwner.organization(id: "1", name: "Organization")
+        subject.state.ownershipOptions = [personalOwner, organizationOwner]
 
-        XCTAssertEqual(subject.state.owner, "owner")
-    }
+        XCTAssertEqual(subject.state.owner, personalOwner)
 
-    /// `receive(_:)` with `.ownerChanged` without a value updates the state correctly.
-    func test_receive_ownerChanged_withoutValue() {
-        subject.state.owner = "owner"
-        subject.receive(.ownerChanged(""))
+        subject.receive(.ownerChanged(organizationOwner))
 
-        XCTAssertEqual(subject.state.owner, "")
+        XCTAssertEqual(subject.state.owner, organizationOwner)
     }
 
     /// `receive(_:)` with `.passwordChanged` with a value updates the state correctly.
@@ -662,6 +792,62 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loginState.username, "")
     }
 
+    /// `receive(_:)` with `.cardFieldChanged(.brandChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_cardholderNameChanged_withValidValue() {
+        subject.state.cardItemState.brand = .default
+        subject.receive(.cardFieldChanged(.brandChanged(.custom(.visa))))
+        XCTAssertEqual(subject.state.cardItemState.brand, .custom(.visa))
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.brandChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_cardholderNameChanged_withoutValidValue() {
+        subject.state.cardItemState.brand = .custom(.visa)
+        subject.receive(.cardFieldChanged(.brandChanged(.default)))
+        XCTAssertEqual(subject.state.cardItemState.brand, .default)
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardholderNameChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_cardholderNameChanged() {
+        subject.state.cardItemState.cardholderName = "James"
+        subject.receive(.cardFieldChanged(.cardholderNameChanged("Jane")))
+        XCTAssertEqual(subject.state.cardItemState.cardholderName, "Jane")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardNumberChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_cardNumberChanged() {
+        subject.state.cardItemState.cardNumber = "123"
+        subject.receive(.cardFieldChanged(.cardNumberChanged("12345")))
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "12345")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardSecurityCodeChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_cardSecurityCodeChanged() {
+        subject.state.cardItemState.cardSecurityCode = "123"
+        subject.receive(.cardFieldChanged(.cardSecurityCodeChanged("456")))
+        XCTAssertEqual(subject.state.cardItemState.cardSecurityCode, "456")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.expirationMonthChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_expirationMonthChanged_withValidValue() {
+        subject.state.cardItemState.brand = .default
+        subject.receive(.cardFieldChanged(.expirationMonthChanged(.custom(.jul))))
+        XCTAssertEqual(subject.state.cardItemState.expirationMonth, .custom(.jul))
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.brandChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_expirationMonthChanged_withoutValidValue() {
+        subject.state.cardItemState.expirationMonth = .custom(.jul)
+        subject.receive(.cardFieldChanged(.expirationMonthChanged(.default)))
+        XCTAssertEqual(subject.state.cardItemState.expirationMonth, .default)
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.expirationYearChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_expirationYearChanged() {
+        subject.state.cardItemState.expirationYear = "2009"
+        subject.receive(.cardFieldChanged(.expirationYearChanged("2029")))
+        XCTAssertEqual(subject.state.cardItemState.expirationYear, "2029")
+    }
+
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
     func test_receive_identity_titleChange_withValidValue() {
         subject.state.identityState.title = .default
@@ -674,6 +860,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.identityState.title = DefaultableType.custom(.mr)
         subject.receive(.identityFieldChanged(.titleChanged(DefaultableType.default)))
         XCTAssertEqual(subject.state.identityState.title, DefaultableType.default)
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.toggleCodeVisibilityChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_toggleCodeVisibilityChanged() {
+        subject.receive(.cardFieldChanged(.toggleCodeVisibilityChanged(true)))
+        XCTAssertEqual(subject.state.cardItemState.isCodeVisible, true)
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.toggleNumberVisibilityChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_toggleNumberVisibilityChanged() {
+        subject.receive(.cardFieldChanged(.toggleNumberVisibilityChanged(true)))
+        XCTAssertEqual(subject.state.cardItemState.isNumberVisible, true)
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.firstNameChanged)` with a value updates the state correctly.

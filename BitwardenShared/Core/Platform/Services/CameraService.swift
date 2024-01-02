@@ -163,6 +163,9 @@ extension DefaultCameraService: CameraService {
     func stopCameraSession() {
         guard let cameraSession else { return }
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            cameraSession.outputs.forEach { output in
+                cameraSession.removeOutput(output)
+            }
             cameraSession.stopRunning()
             self?.cameraSession = nil
         }

@@ -77,27 +77,27 @@ struct CreateAccountView: View {
     private var emailAndPassword: some View {
         VStack(spacing: 16) {
             BitwardenTextField(
-                accessibilityIdentifier: "EmailAddressEntry",
                 title: Localizations.emailAddress,
                 text: store.binding(
                     get: \.emailText,
                     send: CreateAccountAction.emailTextChanged
-                )
+                ),
+                accessibilityIdentifier: "EmailAddressEntry"
             )
             .textFieldConfiguration(.email)
 
             BitwardenTextField(
-                accessibilityIdentifier: "MasterPasswordEntry",
                 title: Localizations.masterPassword,
+                text: store.binding(
+                    get: \.passwordText,
+                    send: CreateAccountAction.passwordTextChanged
+                ),
+                accessibilityIdentifier: "MasterPasswordEntry",
                 isPasswordVisible: store.binding(
                     get: \.arePasswordsVisible,
                     send: CreateAccountAction.togglePasswordVisibility
                 ),
-                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
-                text: store.binding(
-                    get: \.passwordText,
-                    send: CreateAccountAction.passwordTextChanged
-                )
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle"
             )
             .textFieldConfiguration(.password)
         }
@@ -107,12 +107,12 @@ struct CreateAccountView: View {
     private var passwordHint: some View {
         VStack(alignment: .leading) {
             BitwardenTextField(
-                accessibilityIdentifier: "MasterPasswordHintLabel",
                 title: Localizations.masterPasswordHint,
                 text: store.binding(
                     get: \.passwordHintText,
                     send: CreateAccountAction.passwordHintTextChanged
-                )
+                ),
+                accessibilityIdentifier: "MasterPasswordHintLabel"
             )
 
             Text(Localizations.masterPasswordHintDescription)
@@ -124,17 +124,17 @@ struct CreateAccountView: View {
     /// The text field for re-typing the master password.
     private var retypePassword: some View {
         BitwardenTextField(
-            accessibilityIdentifier: "ConfirmMasterPasswordEntry",
             title: Localizations.retypeMasterPassword,
+            text: store.binding(
+                get: \.retypePasswordText,
+                send: CreateAccountAction.retypePasswordTextChanged
+            ),
+            accessibilityIdentifier: "ConfirmMasterPasswordEntry",
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,
                 send: CreateAccountAction.togglePasswordVisibility
             ),
-            passwordVisibilityAccessibilityId: "ConfirmPasswordVisibilityToggle",
-            text: store.binding(
-                get: \.retypePasswordText,
-                send: CreateAccountAction.retypePasswordTextChanged
-            )
+            passwordVisibilityAccessibilityId: "ConfirmPasswordVisibilityToggle"
         )
         .textFieldConfiguration(.password)
     }

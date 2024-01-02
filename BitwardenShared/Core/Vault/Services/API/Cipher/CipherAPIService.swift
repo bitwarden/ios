@@ -22,6 +22,14 @@ protocol CipherAPIService {
     ///
     func addCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
 
+    /// Performs an API request to add a new cipher contained within one or more collections to the
+    /// user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is adding.
+    /// - Returns: The cipher that was added to the user's vault.
+    ///
+    func addCipherWithCollections(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
+
     /// Performs an API request to delete an existing cipher in the user's vault.
     ///
     /// - Parameter cipher: The cipher that the user is updating.
@@ -40,6 +48,10 @@ protocol CipherAPIService {
 extension APIService: CipherAPIService {
     func addCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
         try await apiService.send(AddCipherRequest(cipher: cipher))
+    }
+
+    func addCipherWithCollections(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
+        try await apiService.send(AddCipherWithCollectionsRequest(cipher: cipher))
     }
 
     func deleteCipher(withID id: String) async throws -> EmptyResponse {
