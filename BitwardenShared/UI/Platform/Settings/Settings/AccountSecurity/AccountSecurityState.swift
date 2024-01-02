@@ -109,7 +109,7 @@ struct AccountSecurityState: Equatable {
 
     /// The accessibility label used for the custom timeout value.
     var customTimeoutAccessibilityLabel: String {
-        createCustomTimeoutAccessibilityLabel(customSessionTimeoutValue)
+        customSessionTimeoutValue.timeInHoursMinutes(shouldSpellOut: true)
     }
 
     /// The custom session timeout value, initially set to 1 minute.
@@ -117,7 +117,7 @@ struct AccountSecurityState: Equatable {
 
     /// The string representation of the custom session timeout value.
     var customTimeoutString: String {
-        formattedCustomTimeoutValue(customSessionTimeoutValue)
+        customSessionTimeoutValue.timeInHoursMinutes()
     }
 
     /// Whether the approve login requests toggle is on.
@@ -145,41 +145,4 @@ struct AccountSecurityState: Equatable {
 
     /// The URL for two step login external link.
     var twoStepLoginUrl: URL?
-}
-
-extension AccountSecurityState {
-    /// Formats the custom session timeout value into a string of `HH:mm`.
-    ///
-    /// - Parameter value: The session timeout value in seconds.
-    /// - Returns: The  custom session timeout value as a string formatted in hours and minutes.
-    ///
-    func formattedCustomTimeoutValue(_ value: TimeInterval) -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.hour, .minute]
-        formatter.zeroFormattingBehavior = .pad
-
-        guard let date = formatter.string(from: DateComponents(second: Int(value))) else {
-            return "\(value)"
-        }
-
-        return date
-    }
-
-    /// Creates an accessibility label for the custom session timeout value.
-    ///
-    /// - Parameter value: The session timeout value in seconds.
-    /// - Returns: An accessibility label for the custom session timeout value.
-    ///
-    func createCustomTimeoutAccessibilityLabel(_ value: TimeInterval) -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.hour, .minute]
-        formatter.zeroFormattingBehavior = .pad
-        formatter.unitsStyle = .spellOut
-
-        guard let date = formatter.string(from: DateComponents(second: Int(value))) else {
-            return "\(value)"
-        }
-
-        return date
-    }
 }
