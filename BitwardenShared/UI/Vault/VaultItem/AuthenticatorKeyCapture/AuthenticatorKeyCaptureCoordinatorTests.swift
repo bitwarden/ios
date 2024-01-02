@@ -9,6 +9,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
 
     var cameraService: MockCameraService!
     var delegate: MockAuthenticatorKeyCaptureDelegate!
+    var errorReporter: MockErrorReporter!
     var stackNavigator: MockStackNavigator!
     var subject: AuthenticatorKeyCaptureCoordinator!
 
@@ -19,12 +20,14 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
 
         cameraService = MockCameraService()
         delegate = MockAuthenticatorKeyCaptureDelegate()
+        errorReporter = MockErrorReporter()
         stackNavigator = MockStackNavigator()
 
         subject = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: ServiceContainer.withMocks(
-                cameraService: cameraService
+                cameraService: cameraService,
+                errorReporter: errorReporter
             ),
             stackNavigator: stackNavigator
         )
@@ -36,20 +39,24 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         super.tearDown()
 
         cameraService = nil
+        errorReporter = nil
         stackNavigator = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// `navigate(to:)` with `.dismiss` dismisses the view.
-    func test_navigateTo_cancel() throws {
-        subject.navigate(to: .dismiss)
-        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(lastAction.type, .dismissed)
+    /// `navigate(to:)` with `.addManual` instructs the delegate that the capture flow has
+    /// completed.
+    func test_navigateTo_addManual() {
+        let entry = "manuallyManagedMagic"
+        subject.navigate(to: .addManual(entry: entry))
+        XCTAssertTrue(delegate.didCompleteCaptureCalled)
+        XCTAssertEqual(delegate.didCompleteCaptureValue, entry)
+        XCTAssertNotNil(delegate.capturedCaptureCoordinator)
     }
 
-    /// `navigate(to:)` with `.complete` instructs the delegate that the scan flow has
+    /// `navigate(to:)` with `.complete` instructs the delegate that the capture flow has
     /// completed.
     func test_navigateTo_complete() {
         let result = ScanResult(content: "example.com", codeType: .qr)
@@ -58,40 +65,30 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(delegate.didCompleteCaptureValue, "example.com")
     }
 
-    /// `navigate(to:)` with `.scanCode` shows the scan view.
-    func test_navigateTo_scanCode() throws {
-        let task = Task {
-            subject.navigate(to: .scanCode)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        let view = action.view as? (any View)
-        XCTAssertNotNil(try? view?.inspect().find(ScanCodeView.self))
+    /// `navigate(to:)` with `.dismiss` dismisses the view.
+    func test_navigateTo_dismiss_noAction() throws {
+        subject.navigate(to: .dismiss())
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
     }
 
-    /// `navigate(to:)` with `.dismiss` dismisses the presented view.
-    func test_navigate_dismiss() throws {
-        let task = Task {
-            subject.navigate(to: .scanCode)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        subject.navigate(to: .dismiss)
+    /// `navigate(to:)` with `.dismiss` dismisses the view.
+    func test_navigateTo_dismiss_withAction() throws {
+        var didRun = false
+        subject.navigate(to: .dismiss(DismissAction(action: { didRun = true })))
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(lastAction.type, .dismissed)
+        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
+        XCTAssertTrue(didRun)
     }
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view.
     func test_navigateTo_setupTotpManual() throws {
-        subject.navigate(to: .setupTotpManual)
+        subject.navigate(to: .manualKeyEntry)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is NavigationView<Text>)
+        XCTAssertEqual(action.type, .replaced)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
@@ -108,11 +105,76 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         waitFor { window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag) == nil }
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
     }
+
+    /// `navigate(to:)` with `.scanCode` shows the scan view.
+    func test_waitAndNavigateTo_scanCode() throws {
+        cameraService.deviceHasCamera = true
+        let task = Task {
+            await subject.navigate(asyncTo: .scanCode)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ScanCodeView.self))
+    }
+
+    /// `navigate(to:)` with `.scanCode` shows the scan view.
+    func test_waitAndNavigateTo_scanCode_cameraSessionError() throws {
+        cameraService.deviceHasCamera = true
+        struct TestError: Error, Equatable {}
+        cameraService.startResult = .failure(TestError())
+        let task = Task {
+            await subject.navigate(asyncTo: .scanCode)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? TestError, TestError())
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
+    }
+
+    /// `navigate(to:)` with `.scanCode` shows the scan view.
+    func test_waitAndNavigateTo_scanCode_declineAuthorization() throws {
+        cameraService.deviceHasCamera = true
+        cameraService.cameraAuthorizationStatus = .denied
+        let task = Task {
+            await subject.navigate(asyncTo: .scanCode)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
+    }
+
+    /// `navigate(to:)` with `.scanCode` shows the scan view.
+    func test_waitAndNavigateTo_scanCode_noCamera() throws {
+        cameraService.deviceHasCamera = false
+        let task = Task {
+            await subject.navigate(asyncTo: .scanCode)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
+    }
 }
 
 // MARK: - MockAuthenticatorKeyCaptureDelegate
 
 class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
+    var capturedCaptureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>?
     var didCancelScanCalled = false
 
     var didCompleteCaptureCalled = false
@@ -122,8 +184,12 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
         didCancelScanCalled = true
     }
 
-    func didCompleteCapture(with value: String) {
+    func didCompleteCapture(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
+        with value: String
+    ) {
         didCompleteCaptureCalled = true
+        capturedCaptureCoordinator = captureCoordinator
         didCompleteCaptureValue = value
     }
 }

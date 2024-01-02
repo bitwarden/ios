@@ -96,7 +96,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             cipherState.togglePasswordVisibility(for: customFieldState)
             state.loadingState = .data(cipherState)
         case .dismissPressed:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         case .editPressed:
             editItem()
         case let .morePressed(menuAction):

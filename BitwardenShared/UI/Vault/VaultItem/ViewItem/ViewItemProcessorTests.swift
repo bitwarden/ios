@@ -18,7 +18,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     override func setUp() {
         super.setUp()
-        coordinator = MockCoordinator()
+        coordinator = MockCoordinator<VaultItemRoute>()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
@@ -211,7 +211,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `receive` with `.dismissPressed` navigates to the `.dismiss` route.
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `receive` with `.editPressed` has no change when the state is loading.

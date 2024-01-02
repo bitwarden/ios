@@ -25,7 +25,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         super.setUp()
 
         cameraService = MockCameraService()
-        coordinator = MockCoordinator()
+        coordinator = MockCoordinator<VaultItemRoute>()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
@@ -55,30 +55,30 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `didCancelGenerator()` navigates to the `.dismiss` route.
+    /// `didCancelGenerator()` navigates to the `.dismiss()` route.
     func test_didCancelGenerator() {
         subject.didCancelGenerator()
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `didCompleteGenerator` with a password value updates the state with the new password value
-    /// and navigates to the `.dismiss` route.
+    /// and navigates to the `.dismiss()` route.
     func test_didCompleteGenerator_withPassword() {
         subject.state.loginState.username = "username123"
         subject.state.loginState.password = "password123"
         subject.didCompleteGenerator(for: .password, with: "password")
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
         XCTAssertEqual(subject.state.loginState.password, "password")
         XCTAssertEqual(subject.state.loginState.username, "username123")
     }
 
     /// `didCompleteGenerator` with a username value updates the state with the new username value
-    /// and navigates to the `.dismiss` route.
+    /// and navigates to the `.dismiss()` route.
     func test_didCompleteGenerator_withUsername() {
         subject.state.loginState.username = "username123"
         subject.state.loginState.password = "password123"
         subject.didCompleteGenerator(for: .username, with: "email@example.com")
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
         XCTAssertEqual(subject.state.loginState.username, "email@example.com")
         XCTAssertEqual(subject.state.loginState.password, "password123")
     }
@@ -88,12 +88,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_didCompleteCapture_failure() {
         subject.state.loginState.totpKey = nil
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
-        let task = Task {
-            subject.didCompleteCapture(with: "1234")
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
+        subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: "1234")
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
         }
-        waitFor(!coordinator.routes.isEmpty && coordinator.routes.last != .dismiss)
-        task.cancel()
-
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
         XCTAssertEqual(
             coordinator.routes.last,
             .alert(Alert(
@@ -109,14 +111,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `didCompleteCapture` with a value updates the state with the new auth key value
-    /// and navigates to the `.dismiss` route.
+    /// and navigates to the `.dismiss()` route.
     func test_didCompleteCapture_success() throws {
         subject.state.loginState.totpKey = nil
         let key = String.base32Key
         let keyConfig = try XCTUnwrap(TOTPCodeConfig(authenticatorKey: key))
         totpService.getTOTPConfigResult = .success(keyConfig)
-        subject.didCompleteCapture(with: key)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
+        subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: key)
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
         XCTAssertEqual(subject.state.loginState.authenticatorKey, .base32Key)
         XCTAssertEqual(subject.state.toast?.text, Localizations.authenticatorKeyAdded)
     }
@@ -225,7 +233,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertNotNil(vaultRepository.addCipherCiphers.first)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert containing the message returned by the
@@ -264,7 +272,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
             "secureNote"
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
@@ -307,7 +315,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                     creationDate: vaultRepository.addCipherCiphers[0].creationDate
                 )
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
@@ -333,7 +341,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                     .newCipherView(creationDate: vaultRepository.addCipherCiphers[0].creationDate),
             ]
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
@@ -352,7 +360,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         cameraService.cameraAuthorizationStatus = .authorized
         await subject.perform(.setupTotpPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .setupTotpCamera)
+        XCTAssertEqual(coordinator.asyncRoutes.last, .scanCode)
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the
@@ -398,11 +406,11 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.collectionIds, ["2"])
     }
 
-    /// `receive(_:)` with `.dismiss` navigates to the `.list` route.
+    /// `receive(_:)` with `.dismiss()` navigates to the `.list` route.
     func test_receive_dismiss() {
         subject.receive(.dismissPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `receive(_:)` with `.favoriteChanged` with `true` updates the state correctly.

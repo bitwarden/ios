@@ -10,9 +10,14 @@ import SwiftUI
 protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     /// Called when the scan flow has been completed.
     ///
-    /// - Parameter value: The code value that was captured.
+    /// - Parameters:
+    ///   - coordinator: The coodrinator sending the action.
+    ///   - value: The code value that was captured.
     ///
-    func didCompleteCapture(with value: String)
+    func didCompleteCapture(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
+        with value: String
+    )
 }
 
 // MARK: - AuthenticatorKeyCaptureCoordinator
@@ -59,17 +64,43 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: ScanCodeRoute, context: AnyObject?) {
+    func navigate(
+        to route: AuthenticatorKeyCaptureRoute,
+        context: AnyObject?
+    ) {
         switch route {
         case let .complete(value):
-            delegate?.didCompleteCapture(with: value.content)
-        case .dismiss:
-            stackNavigator.dismiss()
-        case .scanCode:
-            showScanCode()
-        case .setupTotpManual:
+            delegate?.didCompleteCapture(
+                asAnyCoordinator(),
+                with: value.content
+            )
+        case let .dismiss(onDismiss):
+            stackNavigator.dismiss(completion: {
+                onDismiss?.action()
+            })
+        case let .addManual(entry: authKey):
+            delegate?.didCompleteCapture(
+                asAnyCoordinator(),
+                with: authKey
+            )
+        case .manualKeyEntry:
             showManualTotp()
+        case .scanCode:
+            Task {
+                await showScanCode()
+            }
         }
+    }
+
+    func navigate(
+        asyncTo route: AuthenticatorKeyCaptureRoute,
+        context: AnyObject?
+    ) async {
+        guard case .scanCode = route else {
+            navigate(to: route, context: context)
+            return
+        }
+        await showScanCode()
     }
 
     func start() {}
@@ -100,35 +131,38 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     ///   then the type field in the generator screen will be hidden, to eliminate the ability to
     ///   switch between the various types.
     ///
-    private func showScanCode() {
-        Task {
-            guard services.cameraService.deviceSupportsCamera(),
-                  case .authorized = await
-                  services.cameraService.checkStatusOrRequestCameraAuthorization(),
-                  let session = await getNewCameraSession() else {
-                showManualTotp()
-                return
-            }
-            let processor = ScanCodeProcessor(
-                coordinator: self,
-                services: services,
-                state: .init()
-            )
-            let store = Store(processor: processor)
-            let view = ScanCodeView(
-                cameraSession: session,
-                store: store
-            )
-            let navWrapped = view.navStackWrapped
-            stackNavigator.present(navWrapped, animated: true, overFullscreen: true)
+    private func showScanCode() async {
+        guard services.cameraService.deviceSupportsCamera(),
+              let session = await getNewCameraSession() else {
+            showManualTotp()
+            return
         }
+        let processor = ScanCodeProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: .init()
+        )
+        let store = Store(processor: processor)
+        let view = ScanCodeView(
+            cameraSession: session,
+            store: store
+        )
+        stackNavigator.replace(view)
     }
 
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp() {
-        let view = Text("Manual Totp")
-        let navWrapped = NavigationView { view }
-        stackNavigator.present(navWrapped)
+        let processor = ManualEntryProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: DefaultEntryState(
+                deviceSupportsCamera: services.cameraService.deviceSupportsCamera()
+            )
+        )
+        let view = ManualEntryView(
+            store: Store(processor: processor)
+        )
+        stackNavigator.replace(view)
     }
 }
