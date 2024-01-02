@@ -55,6 +55,7 @@ struct AddEditItemView: View {
             }
             .padding(16)
         }
+        .animation(.default, value: store.state.collectionsForOwner)
         .background(
             Asset.Colors.backgroundSecondary.swiftUIColor
                 .ignoresSafeArea()
@@ -216,6 +217,27 @@ private extension AddEditItemView {
                         send: AddEditItemAction.ownerChanged
                     )
                 )
+            }
+
+            if !owner.isPersonal {
+                SectionView(Localizations.collections) {
+                    if store.state.collectionsForOwner.isEmpty {
+                        Text(Localizations.noCollectionsToList)
+                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                            .multilineTextAlignment(.leading)
+                            .styleGuide(.body)
+                    } else {
+                        ForEach(store.state.collectionsForOwner, id: \.id) { collection in
+                            Toggle(isOn: store.binding(
+                                get: { _ in store.state.collectionIds.contains(collection.id) },
+                                send: { .collectionToggleChanged($0, collectionId: collection.id) }
+                            )) {
+                                Text(collection.name)
+                            }
+                            .toggleStyle(.bitwarden)
+                        }
+                    }
+                }
             }
         }
     }

@@ -486,6 +486,8 @@ extension BitwardenSdk.Collection {
     }
 }
 
+extension BitwardenSdk.CollectionView: @unchecked Sendable {}
+
 // MARK: - Folders (BitwardenSdk)
 
 extension BitwardenSdk.Folder {

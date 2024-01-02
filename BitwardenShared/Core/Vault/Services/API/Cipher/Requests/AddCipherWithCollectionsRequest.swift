@@ -1,15 +1,15 @@
 import BitwardenSdk
 import Networking
 
-/// A request model for adding a new cipher.
+/// A request model for adding a new cipher within one or more collections.
 ///
-struct AddCipherRequest: Request {
+struct AddCipherWithCollectionsRequest: Request {
     typealias Response = CipherDetailsResponseModel
 
     // MARK: Properties
 
     /// The body of the request.
-    var body: CipherRequestModel? {
+    var body: CipherCreateRequestModel? {
         requestModel
     }
 
@@ -17,18 +17,18 @@ struct AddCipherRequest: Request {
     let method = HTTPMethod.post
 
     /// The URL path for this request.
-    let path = "/ciphers"
+    let path = "/ciphers/create"
 
     /// The request details to include in the body of the request.
-    let requestModel: CipherRequestModel
+    let requestModel: CipherCreateRequestModel
 
     // MARK: Initialization
 
-    /// Initialize an `AddCipherRequest` for a `Cipher`.
+    /// Initialize an `AddCipherWithCollectionsRequest` for a `Cipher`.
     ///
     /// - Parameter cipher: The `Cipher` to add to the user's vault.
     ///
     init(cipher: Cipher) {
-        requestModel = CipherRequestModel(cipher: cipher)
+        requestModel = CipherCreateRequestModel(cipher: cipher)
     }
 }

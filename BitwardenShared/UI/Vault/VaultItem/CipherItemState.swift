@@ -31,6 +31,12 @@ struct CipherItemState: Equatable {
 
     // MARK: Properties
 
+    /// The list of collection IDs that the cipher is included in.
+    var collectionIds: [String]
+
+    /// The full list of collections for the user, across all organizations.
+    var collections: [CollectionView]
+
     /// The Add or Existing Configuration.
     let configuration: Configuration
 
@@ -80,6 +86,12 @@ struct CipherItemState: Equatable {
         self
     }
 
+    /// The list of collections that can be selected from for the current owner.
+    var collectionsForOwner: [CollectionView] {
+        guard let owner, !owner.isPersonal else { return [] }
+        return collections.filter { $0.organizationId == owner.organizationId }
+    }
+
     /// The owner of the cipher.
     var owner: CipherOwner? {
         get {
@@ -88,6 +100,7 @@ struct CipherItemState: Equatable {
         }
         set {
             organizationId = newValue?.organizationId
+            collectionIds = []
         }
     }
 
@@ -115,6 +128,8 @@ struct CipherItemState: Equatable {
         type: CipherType,
         updatedDate: Date
     ) {
+        collectionIds = []
+        collections = []
         self.customFields = customFields
         self.folder = folder
         self.identityState = identityState
@@ -173,6 +188,20 @@ struct CipherItemState: Equatable {
             customFields[index].isPasswordVisible.toggle()
         }
     }
+
+    /// Toggles whether the cipher is included in the specified collection.
+    ///
+    /// - Parameters:
+    ///   - newValue: Whether the cipher is included in the collection.
+    ///   - collectionId: The identifier of the collection.
+    ///
+    mutating func toggleCollection(newValue: Bool, collectionId: String) {
+        if newValue {
+            collectionIds.append(collectionId)
+        } else {
+            collectionIds = collectionIds.filter { $0 != collectionId }
+        }
+    }
 }
 
 extension CipherItemState: AddEditItemState {}
@@ -195,7 +224,7 @@ extension CipherItemState {
             id: nil,
             organizationId: organizationId,
             folderId: nil,
-            collectionIds: [],
+            collectionIds: collectionIds,
             key: nil,
             name: name,
             notes: notes.nilIfEmpty,

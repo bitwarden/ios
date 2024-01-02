@@ -4,6 +4,9 @@ import BitwardenSdk
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable {
+    /// The toggle for including the item in a collection was changed.
+    case collectionToggleChanged(Bool, collectionId: String)
+
     /// The dismiss button was pressed.
     case dismissPressed
 

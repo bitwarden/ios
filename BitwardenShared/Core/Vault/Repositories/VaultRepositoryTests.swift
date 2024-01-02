@@ -12,6 +12,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var clientCiphers: MockClientCiphers!
     var clientCrypto: MockClientCrypto!
     var clientVault: MockClientVaultService!
+    var collectionService: MockCollectionService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
@@ -28,6 +29,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientCiphers = MockClientCiphers()
         clientCrypto = MockClientCrypto()
         clientVault = MockClientVaultService()
+        collectionService = MockCollectionService()
         errorReporter = MockErrorReporter()
         syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
@@ -41,6 +43,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             clientAuth: clientAuth,
             clientCrypto: clientCrypto,
             clientVault: clientVault,
+            collectionService: collectionService,
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,
@@ -56,6 +59,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientCiphers = nil
         clientCrypto = nil
         clientVault = nil
+        collectionService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
@@ -77,6 +81,24 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers")
+
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    /// `addCipher()` makes the add cipher API request for a cipher with collections and updates the vault.
+    func test_addCipher_withCollections() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+
+        let cipher = CipherView.fixture(collectionIds: ["1", "2", "3"])
+        try await subject.addCipher(cipher)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/create")
 
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
         XCTAssertTrue(syncService.didFetchSync)
@@ -123,6 +145,22 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions()
 
         XCTAssertEqual(ownershipOptions, [.personal(email: "user@bitwarden.com")])
+    }
+
+    /// `fetchCollections(includeReadOnly:)` returns the collections for the user.
+    func test_fetchCollections() async throws {
+        collectionService.fetchAllCollectionsResult = .success([
+            .fixture(id: "1", name: "Collection 1"),
+        ])
+        let collections = try await subject.fetchCollections(includeReadOnly: false)
+
+        XCTAssertEqual(
+            collections,
+            [
+                .fixture(id: "1", name: "Collection 1"),
+            ]
+        )
+        try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
     }
 
     /// `fetchSync(isManualRefresh:)` only syncs when expected.

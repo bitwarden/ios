@@ -65,6 +65,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
 
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case let .collectionToggleChanged(newValue, collectionId):
+            state.toggleCollection(newValue: newValue, collectionId: collectionId)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
         case let .favoriteChanged(newValue):
@@ -141,6 +143,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     /// Fetches any additional data (e.g. organizations and folders) needed for adding or editing a cipher.
     private func fetchCipherOptions() async {
         do {
+            state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
             state.ownershipOptions = try await services.vaultRepository.fetchCipherOwnershipOptions()
         } catch {
             services.errorReporter.log(error: error)
@@ -260,6 +263,16 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     /// Saves the item currently stored in `state`.
     ///
     private func saveItem() async {
+        guard state.cipher.organizationId == nil || !state.cipher.collectionIds.isEmpty else {
+            coordinator.showAlert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.selectOneCollection
+                )
+            )
+            return
+        }
+
         defer { coordinator.hideLoadingOverlay() }
         do {
             try EmptyInputValidator(fieldName: Localizations.name)
