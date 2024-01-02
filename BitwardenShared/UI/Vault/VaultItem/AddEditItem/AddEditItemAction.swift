@@ -4,6 +4,9 @@ import BitwardenSdk
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable {
+    /// A card field changed
+    case cardFieldChanged(AddEditCardItemAction)
+
     /// The toggle for including the item in a collection was changed.
     case collectionToggleChanged(Bool, collectionId: String)
 

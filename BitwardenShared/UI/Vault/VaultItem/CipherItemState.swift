@@ -31,6 +31,9 @@ struct CipherItemState: Equatable {
 
     // MARK: Properties
 
+    /// The card item state.
+    var cardItemState: CardItemState
+
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String]
 
@@ -116,6 +119,7 @@ struct CipherItemState: Equatable {
     // MARK: Initialization
 
     private init(
+        cardState: CardItemState,
         configuration: Configuration,
         customFields: [CustomFieldState],
         folder: String,
@@ -128,6 +132,7 @@ struct CipherItemState: Equatable {
         type: CipherType,
         updatedDate: Date
     ) {
+        cardItemState = cardState
         collectionIds = []
         collections = []
         self.customFields = customFields
@@ -146,6 +151,7 @@ struct CipherItemState: Equatable {
 
     init(addItem type: CipherType = .login) {
         self.init(
+            cardState: .init(),
             configuration: .add,
             customFields: [],
             folder: "",
@@ -163,6 +169,7 @@ struct CipherItemState: Equatable {
     init?(existing cipherView: CipherView) {
         guard cipherView.id != nil else { return nil }
         self.init(
+            cardState: cipherView.cardItemState(),
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
             folder: cipherView.folderId ?? "",
@@ -207,6 +214,10 @@ struct CipherItemState: Equatable {
 extension CipherItemState: AddEditItemState {}
 
 extension CipherItemState: ViewVaultItemState {
+    var cardItemViewState: any ViewCardItemState {
+        cardItemState
+    }
+
     var cipher: BitwardenSdk.CipherView {
         switch configuration {
         case let .existing(cipherView: view):
@@ -231,7 +242,7 @@ extension CipherItemState {
             type: BitwardenSdk.CipherType(type),
             login: type == .login ? loginState.loginView : nil,
             identity: type == .identity ? identityState.identityView : nil,
-            card: nil,
+            card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,

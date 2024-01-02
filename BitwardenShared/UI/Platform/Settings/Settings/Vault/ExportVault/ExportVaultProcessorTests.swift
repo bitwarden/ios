@@ -29,28 +29,46 @@ class ExportVaultProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Receiving `.dismiss` dismisses the view.
+    /// `.receive()` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
-    /// Receiving `.fileFormatTypeChanged()` updates the file format.
+    /// `.receive()` with  `.exportVaultTapped` shows the confirm alert for encrypted formats.
+    func test_receive_exportVaultTapped_encrypted() {
+        subject.state.fileFormat = .jsonEncrypted
+        subject.receive(.exportVaultTapped)
+
+        // Confirm that the correct alert is displayed.
+        XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: true, action: {}))
+    }
+
+    /// `.receive()` with `.exportVaultTapped` shows the confirm alert for unencrypted formats.
+    func test_receive_exportVaultTapped_unencrypted() {
+        subject.state.fileFormat = .json
+        subject.receive(.exportVaultTapped)
+
+        // Confirm that the correct alert is displayed.
+        XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: false, action: {}))
+    }
+
+    /// `.receive()` with `.fileFormatTypeChanged()` updates the file format.
     func test_receive_fileFormatTypeChanged() {
         subject.receive(.fileFormatTypeChanged(.csv))
 
         XCTAssertEqual(subject.state.fileFormat, .csv)
     }
 
-    /// Receiving `.passwordTextChanged()` updates the password text.
+    /// `.receive()` with `.passwordTextChanged()` updates the password text.
     func test_receive_passwordTextChanged() {
         subject.receive(.passwordTextChanged("password"))
 
         XCTAssertEqual(subject.state.passwordText, "password")
     }
 
-    /// Receiving `.togglePasswordVisibility()` toggles the password visibility.
+    /// `.receive()` with `.togglePasswordVisibility()` toggles the password visibility.
     func test_receive_togglePasswordVisibility() {
         subject.receive(.togglePasswordVisibility(true))
         XCTAssertTrue(subject.state.isPasswordVisible)

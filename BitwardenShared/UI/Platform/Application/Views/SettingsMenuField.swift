@@ -104,6 +104,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
                 options: MenuPreviewOptions.allCases,
                 selection: .constant(.bear)
             )
+
             SettingsMenuField(
                 title: "Dog",
                 options: MenuPreviewOptions.allCases,
