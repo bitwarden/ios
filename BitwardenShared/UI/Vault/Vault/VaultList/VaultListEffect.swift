@@ -13,4 +13,10 @@ enum VaultListEffect {
 
     /// Refresh the vault list's data.
     case refreshVault
+
+    /// Stream the list of organizations for the user.
+    case streamOrganizations
+
+    /// Stream the vault list for the user.
+    case streamVaultList
 }

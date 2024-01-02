@@ -7,9 +7,9 @@ import SwiftUI
 final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, VaultListEffect> {
     // MARK: Types
 
-    typealias Services = HasVaultRepository
-        & HasAuthRepository
+    typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasVaultRepository
 
     // MARK: Private Properties
 
@@ -43,10 +43,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     override func perform(_ effect: VaultListEffect) async {
         switch effect {
         case .appeared:
-            await refreshVault()
-            for await value in services.vaultRepository.vaultListPublisher() {
-                state.loadingState = .data(value)
-            }
+            await refreshVault(isManualRefresh: false)
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -58,7 +55,15 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .refreshAccountProfiles:
             await refreshProfileState()
         case .refreshVault:
-            await refreshVault()
+            await refreshVault(isManualRefresh: true)
+        case .streamOrganizations:
+            for await organizations in services.vaultRepository.organizationsPublisher() {
+                state.organizations = organizations
+            }
+        case .streamVaultList:
+            for await value in services.vaultRepository.vaultListPublisher(filter: state.vaultFilterType) {
+                state.loadingState = .data(value)
+            }
         }
     }
 
@@ -96,6 +101,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .searchTextChanged(newValue):
             state.searchText = newValue
             state.searchResults = searchVault(for: newValue)
+        case let .vaultFilterChanged(newValue):
+            state.vaultFilterType = newValue
         }
     }
 
@@ -142,9 +149,11 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
 
     /// Refreshes the vault's contents.
     ///
-    private func refreshVault() async {
+    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
+    ///
+    private func refreshVault(isManualRefresh: Bool) async {
         do {
-            try await services.vaultRepository.fetchSync()
+            try await services.vaultRepository.fetchSync(isManualRefresh: isManualRefresh)
         } catch {
             // TODO: BIT-1034 Add an error alert
             print(error)

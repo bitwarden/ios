@@ -11,6 +11,8 @@ class MockCollectionDataStore: CollectionDataStore {
 
     var collectionSubject = CurrentValueSubject<[Collection], Error>([])
 
+    var fetchAllCollectionsResult: Result<[Collection], Error> = .success([])
+
     var replaceCollectionsValue: [Collection]?
     var replaceCollectionsUserId: String?
 
@@ -28,6 +30,10 @@ class MockCollectionDataStore: CollectionDataStore {
 
     func collectionPublisher(userId: String) -> AnyPublisher<[Collection], Error> {
         collectionSubject.eraseToAnyPublisher()
+    }
+
+    func fetchAllCollections(userId: String) async throws -> [Collection] {
+        try fetchAllCollectionsResult.get()
     }
 
     func replaceCollections(_ collections: [Collection], userId: String) async throws {

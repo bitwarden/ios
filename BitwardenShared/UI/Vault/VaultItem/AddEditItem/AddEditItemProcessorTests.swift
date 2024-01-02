@@ -1,3 +1,5 @@
+import BitwardenSdk
+import Networking
 import XCTest
 
 @testable import BitwardenShared
@@ -148,6 +150,23 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
+    func test_perform_fetchCipherOptions() async {
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design"),
+            .fixture(id: "2", name: "Engineering"),
+        ]
+
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
+        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+    }
+
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
     func test_perform_savePressed_invalidName() async throws {
         subject.state.name = "    "
@@ -176,9 +195,55 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(
             alert,
+            Alert.defaultAlert(title: Localizations.anErrorHasOccurred)
+        )
+    }
+
+    /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected.
+    func test_perform_savePressed_noCollection() async throws {
+        subject.state.name = "Organization Item"
+        subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
+
+        await subject.perform(.savePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+                message: Localizations.selectOneCollection
+            )
+        )
+    }
+
+    /// `perform(_:)` with `.savePressed` succeeds if an organization and collection have been selected.
+    func test_perform_savePressed_organizationAndCollection() async throws {
+        subject.state.name = "Organization Item"
+        subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
+        subject.state.collectionIds = ["1"]
+
+        await subject.perform(.savePressed)
+
+        XCTAssertNotNil(vaultRepository.addCipherCiphers.first)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.savePressed` displays an alert containing the message returned by the
+    /// server if saving fails.
+    func test_perform_savePressed_serverErrorAlert() async throws {
+        let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
+        try vaultRepository.addCipherResult = .failure(
+            ServerError.error(errorResponse: ErrorResponseModel(response: response))
+        )
+        subject.state.name = "vault item"
+        await subject.perform(.savePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: "You do not have permissions to edit this."
             )
         )
     }
@@ -314,6 +379,23 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.totpKeyChanged(nil))
 
         XCTAssertNil(subject.state.loginState.authenticatorKey)
+    }
+
+    /// `receive(_:)` with `.collectionToggleChanged` updates the selected collection IDs for the cipher.
+    func test_receive_collectionToggleChanged() {
+        subject.state.collections = [
+            .fixture(id: "1", name: "Design"),
+            .fixture(id: "2", name: "Engineering"),
+        ]
+
+        subject.receive(.collectionToggleChanged(true, collectionId: "1"))
+        XCTAssertEqual(subject.state.collectionIds, ["1"])
+
+        subject.receive(.collectionToggleChanged(true, collectionId: "2"))
+        XCTAssertEqual(subject.state.collectionIds, ["1", "2"])
+
+        subject.receive(.collectionToggleChanged(false, collectionId: "1"))
+        XCTAssertEqual(subject.state.collectionIds, ["2"])
     }
 
     /// `receive(_:)` with `.dismiss` navigates to the `.list` route.
@@ -507,20 +589,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.notes, "")
     }
 
-    /// `receive(_:)` with `.ownerChanged` with a value updates the state correctly.
-    func test_receive_ownerChanged_withValue() {
-        subject.state.owner = ""
-        subject.receive(.ownerChanged("owner"))
+    /// `receive(_:)` with `.ownerChanged` updates the state correctly.
+    func test_receive_ownerChanged() {
+        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let organizationOwner = CipherOwner.organization(id: "1", name: "Organization")
+        subject.state.ownershipOptions = [personalOwner, organizationOwner]
 
-        XCTAssertEqual(subject.state.owner, "owner")
-    }
+        XCTAssertEqual(subject.state.owner, personalOwner)
 
-    /// `receive(_:)` with `.ownerChanged` without a value updates the state correctly.
-    func test_receive_ownerChanged_withoutValue() {
-        subject.state.owner = "owner"
-        subject.receive(.ownerChanged(""))
+        subject.receive(.ownerChanged(organizationOwner))
 
-        XCTAssertEqual(subject.state.owner, "")
+        XCTAssertEqual(subject.state.owner, organizationOwner)
     }
 
     /// `receive(_:)` with `.passwordChanged` with a value updates the state correctly.

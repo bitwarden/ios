@@ -257,6 +257,26 @@ extension BitwardenSdk.CardView {
     }
 }
 
+extension CollectionView {
+    static func fixture(
+        externalId: String = "",
+        hidePasswords: Bool = false,
+        id: String = "collection-view-1",
+        name: String = "",
+        organizationId: String = "",
+        readOnly: Bool = false
+    ) -> CollectionView {
+        CollectionView(
+            id: id,
+            organizationId: organizationId,
+            name: name,
+            externalId: externalId,
+            hidePasswords: hidePasswords,
+            readOnly: readOnly
+        )
+    }
+}
+
 extension BitwardenSdk.LoginView {
     static func fixture(
         password: String? = nil,

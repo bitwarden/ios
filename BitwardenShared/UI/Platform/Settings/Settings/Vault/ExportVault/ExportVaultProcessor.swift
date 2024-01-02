@@ -1,7 +1,7 @@
 // MARK: - ExportVaultProcessor
 
 /// The processor used to manage state and handle actions for the `ExportVaultView`.
-final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAction, ExportVaultEffect> {
+final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAction, Void> {
     // MARK: Types
 
     typealias Services = HasErrorReporter
@@ -34,12 +34,12 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
     // MARK: Methods
 
-    override func perform(_: ExportVaultEffect) async {}
-
     override func receive(_ action: ExportVaultAction) {
         switch action {
         case .dismiss:
             coordinator.navigate(to: .dismiss)
+        case .exportVaultTapped:
+            confirmExportVault()
         case let .fileFormatTypeChanged(fileFormat):
             state.fileFormat = fileFormat
         case let .passwordTextChanged(newValue):
@@ -47,5 +47,19 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         case let .togglePasswordVisibility(isOn):
             state.isPasswordVisible = isOn
         }
+    }
+
+    // MARK: Private Methods
+
+    /// Show an alert to confirm exporting the vault.
+    private func confirmExportVault() {
+        let encrypted = (state.fileFormat == .jsonEncrypted)
+
+        // She the alert to confirm exporting the vault.
+        coordinator.showAlert(.confirmExportVault(encrypted: encrypted) {
+            // TODO: BIT-429
+            // TODO: BIT-447
+            // TODO: BIT-449
+        })
     }
 }

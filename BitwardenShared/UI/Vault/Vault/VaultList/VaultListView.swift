@@ -49,6 +49,9 @@ private struct VaultMainView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
+                    vaultFilterRow()
+                        .padding(.top, 16)
+
                     Spacer()
 
                     Text(Localizations.noItems)
@@ -130,11 +133,49 @@ private struct VaultMainView: View {
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         ScrollView {
             VStack(spacing: 20) {
+                vaultFilterRow()
+
                 ForEach(sections) { section in
                     vaultItemSectionView(title: section.name, items: section.items)
                 }
             }
             .padding(16)
+        }
+    }
+
+    /// Displays the vault filter row if the user is a member of any
+    @ViewBuilder
+    private func vaultFilterRow() -> some View {
+        if !store.state.vaultFilterOptions.isEmpty {
+            HStack(spacing: 0) {
+                Text(store.state.vaultFilterType.filterTitle)
+
+                Spacer()
+
+                Menu {
+                    Picker(selection: store.binding(
+                        get: \.vaultFilterType,
+                        send: VaultListAction.vaultFilterChanged
+                    )) {
+                        ForEach(store.state.vaultFilterOptions) { filter in
+                            Text(filter.title)
+                                .tag(filter)
+                        }
+                    } label: {
+                        EmptyView()
+                    }
+                } label: {
+                    Asset.Images.horizontalKabob.swiftUIImage
+                        .frame(width: 44, height: 44, alignment: .trailing)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityLabel(Localizations.filterByVault)
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            }
+            .frame(minHeight: 60)
+            .padding(.horizontal, 16)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 
@@ -219,7 +260,7 @@ struct VaultListView: View {
                 }
             profileSwitcher
         }
-        .navigationTitle(Localizations.myVault)
+        .navigationTitle(store.state.navigationTitle)
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -246,6 +287,12 @@ struct VaultListView: View {
         }
         .task {
             await store.perform(.appeared)
+        }
+        .task {
+            await store.perform(.streamOrganizations)
+        }
+        .task(id: store.state.vaultFilterType) {
+            await store.perform(.streamVaultList)
         }
     }
 
@@ -418,7 +465,31 @@ struct VaultListView_Previews: PreviewProvider {
                                     ],
                                     name: "Collections"
                                 ),
-                            ])
+                                VaultListSection(
+                                    id: "CollectionItems",
+                                    items: [
+                                        .init(cipherListView: .init(
+                                            id: UUID().uuidString,
+                                            organizationId: "1",
+                                            folderId: nil,
+                                            collectionIds: [],
+                                            name: "Example",
+                                            subTitle: "email@example.com",
+                                            type: .login,
+                                            favorite: true,
+                                            reprompt: .none,
+                                            edit: false,
+                                            viewPassword: true,
+                                            attachments: 0,
+                                            creationDate: Date(),
+                                            deletedDate: nil,
+                                            revisionDate: Date()
+                                        ))!,
+                                    ],
+                                    name: "Items"
+                                ),
+                            ]),
+                            organizations: [Organization(id: "", name: "Org")]
                         )
                     )
                 )

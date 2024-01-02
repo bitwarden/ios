@@ -51,6 +51,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             guard let key = state.loginState.authenticatorKey else { return }
             services.pasteboardService.copy(key)
             state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+        case .fetchCipherOptions:
+            await fetchCipherOptions()
         case .savePressed:
             await saveItem()
         case .setupTotpPressed:
@@ -65,6 +67,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
         switch action {
         case let .cardFieldChanged(cardFieldAction):
             updateCardState(&state, for: cardFieldAction)
+        case let .collectionToggleChanged(newValue, collectionId):
+            state.toggleCollection(newValue: newValue, collectionId: collectionId)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
         case let .favoriteChanged(newValue):
@@ -137,6 +141,16 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     }
 
     // MARK: Private Methods
+
+    /// Fetches any additional data (e.g. organizations and folders) needed for adding or editing a cipher.
+    private func fetchCipherOptions() async {
+        do {
+            state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
+            state.ownershipOptions = try await services.vaultRepository.fetchCipherOwnershipOptions()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates
     /// the `AddEditCardState`.
@@ -278,6 +292,16 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     /// Saves the item currently stored in `state`.
     ///
     private func saveItem() async {
+        guard state.cipher.organizationId == nil || !state.cipher.collectionIds.isEmpty else {
+            coordinator.showAlert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.selectOneCollection
+                )
+            )
+            return
+        }
+
         defer { coordinator.hideLoadingOverlay() }
         do {
             try EmptyInputValidator(fieldName: Localizations.name)
@@ -293,11 +317,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
             return
         } catch {
-            let alert = Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
-            coordinator.showAlert(alert)
+            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
     }

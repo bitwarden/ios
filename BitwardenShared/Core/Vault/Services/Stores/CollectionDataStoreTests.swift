@@ -73,6 +73,17 @@ class CollectionDataStoreTests: BitwardenTestCase {
         XCTAssertEqual(publishedValues[1], collections)
     }
 
+    /// `fetchAllCollections(userId:)` fetches all collections for a user.
+    func test_fetchAllCollections() async throws {
+        try await insertCollections(collections, userId: "1")
+
+        let fetchedCollections = try await subject.fetchAllCollections(userId: "1")
+        XCTAssertEqual(fetchedCollections, collections)
+
+        let emptyCollections = try await subject.fetchAllCollections(userId: "-1")
+        XCTAssertEqual(emptyCollections, [])
+    }
+
     /// `replaceCollections(_:userId)` replaces the list of collections for the user.
     func test_replaceCollections() async throws {
         try await insertCollections(collections, userId: "1")

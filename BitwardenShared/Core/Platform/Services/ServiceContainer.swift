@@ -192,6 +192,11 @@ public class ServiceContainer: Services {
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
         let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
+        let pasteboardService = DefaultPasteboardService(
+            errorReporter: errorReporter,
+            stateService: stateService
+        )
+
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             clientAuth: clientService.clientAuth(),
@@ -211,6 +216,7 @@ public class ServiceContainer: Services {
         let settingsRepository = DefaultSettingsRepository(
             clientVault: clientService.clientVault(),
             folderService: folderService,
+            pasteboardService: pasteboardService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
@@ -221,6 +227,7 @@ public class ServiceContainer: Services {
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             clientVault: clientService.clientVault(),
+            collectionService: collectionService,
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,
@@ -238,7 +245,7 @@ public class ServiceContainer: Services {
             environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
-            pasteboardService: DefaultPasteboardService(),
+            pasteboardService: pasteboardService,
             settingsRepository: settingsRepository,
             stateService: stateService,
             syncService: syncService,

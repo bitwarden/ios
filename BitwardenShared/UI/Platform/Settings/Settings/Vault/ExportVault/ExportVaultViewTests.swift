@@ -6,7 +6,7 @@ import XCTest
 class ExportVaultViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<ExportVaultState, ExportVaultAction, ExportVaultEffect>!
+    var processor: MockProcessor<ExportVaultState, ExportVaultAction, Void>!
     var subject: ExportVaultView!
 
     // MARK: Setup & Teardown
@@ -34,6 +34,14 @@ class ExportVaultViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+    }
+
+    /// Tapping the export vault button sends the `.exportVault` action.
+    func test_exportVaultButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.exportVault)
+        try button.tap()
+
+        XCTAssertEqual(processor.dispatchedActions.last, .exportVaultTapped)
     }
 
     /// Updating the value of the file format sends the  `.fileFormatTypeChanged()` action.

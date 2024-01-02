@@ -71,6 +71,7 @@
         "autofillOnPageLoad": true
       },
       "type": 1,
+      "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
       "organizationUseTotp": false,
       "revisionDate": "2023-08-13T12:15:17Z",
       "collectionIds": [
@@ -152,6 +153,7 @@
         "autofillOnPageLoad": true
       },
       "type": 1,
+      "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
       "organizationUseTotp": false,
       "revisionDate": "2023-12-01T15:49:55Z",
       "collectionIds": [
