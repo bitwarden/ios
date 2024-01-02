@@ -367,7 +367,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                             copy.folder = "Financials"
                             copy.isFavoriteOn = false
                             copy.isMasterPasswordRePromptOn = true
-                            copy.owner = "security@bitwarden.com"
+                            copy.owner = .personal(email: "security@bitwarden.com")
                             copy.notes = multilineText
                             return copy.addEditState
                         }()
@@ -405,4 +405,4 @@ struct AddEditItemView_Previews: PreviewProvider {
         .previewDisplayName("Edit Login: Key Added")
     }
 }
-#endif
+#endif // swiftlint:disable:this file_length

@@ -20,13 +20,12 @@ struct AddEditCardItemView: View {
 
             BitwardenTextField(
                 title: Localizations.number,
-                isPasswordVisible: store.binding(
-                    get: \.isNumberVisible,
-                    send: AddEditCardItemAction.toggleNumberVisibilityChanged
-                ),
                 text: store.binding(
                     get: \.cardNumber,
                     send: AddEditCardItemAction.cardNumberChanged
+                ), isPasswordVisible: store.binding(
+                    get: \.isNumberVisible,
+                    send: AddEditCardItemAction.toggleNumberVisibilityChanged
                 )
             )
             .textFieldConfiguration(.password)
@@ -59,13 +58,12 @@ struct AddEditCardItemView: View {
 
             BitwardenTextField(
                 title: Localizations.securityCode,
-                isPasswordVisible: store.binding(
-                    get: \.isCodeVisible,
-                    send: AddEditCardItemAction.toggleCodeVisibilityChanged
-                ),
                 text: store.binding(
                     get: \.cardSecurityCode,
                     send: AddEditCardItemAction.cardSecurityCodeChanged
+                ), isPasswordVisible: store.binding(
+                    get: \.isCodeVisible,
+                    send: AddEditCardItemAction.toggleCodeVisibilityChanged
                 )
             )
             .textFieldConfiguration(.password)
