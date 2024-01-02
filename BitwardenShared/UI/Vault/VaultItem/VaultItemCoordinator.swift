@@ -75,12 +75,12 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             showViewItem(id: id)
         case .scanCode:
             Task {
-                await navigate(withDelayTo: .scanCode, context: context)
+                await navigate(asyncTo: .scanCode, context: context)
             }
         }
     }
 
-    func navigate(withDelayTo route: VaultItemRoute, context: AnyObject?) async {
+    func navigate(asyncTo route: VaultItemRoute, context: AnyObject?) async {
         guard case .scanCode = route else {
             navigate(to: route, context: context)
             return
@@ -143,7 +143,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             stackNavigator: navigationController
         )
         coordinator.start()
-        await coordinator.navigate(withDelayTo: .scanCode)
+        await coordinator.navigate(asyncTo: .scanCode)
         stackNavigator.present(navigationController, overFullscreen: true)
     }
 

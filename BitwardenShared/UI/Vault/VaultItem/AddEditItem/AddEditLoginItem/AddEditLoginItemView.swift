@@ -11,20 +11,21 @@ struct AddEditLoginItemView: View {
     @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
 
     var body: some View {
-        LazyVStack(alignment: .leading, spacing: 16) {
-            BitwardenTextField(
-                title: Localizations.username,
-                text: store.binding(
-                    get: \.username,
-                    send: AddEditItemAction.usernameChanged
-                )
+        BitwardenTextField(
+            title: Localizations.username,
+            text: store.binding(
+                get: \.username,
+                send: AddEditItemAction.usernameChanged
+            )
+        ) {
+            AccessoryButton(
+                asset: Asset.Images.restart2,
+                accessibilityLabel: Localizations.generateUsername
             ) {
-                AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generateUsername) {
-                    store.send(.generateUsernamePressed)
-                }
+                store.send(.generateUsernamePressed)
             }
-            .textFieldConfiguration(.username)
         }
+        .textFieldConfiguration(.username)
 
         BitwardenTextField(
             title: Localizations.password,

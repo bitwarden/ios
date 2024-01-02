@@ -1,4 +1,5 @@
 import SnapshotTesting
+import SwiftUI
 import ViewInspector
 import XCTest
 
@@ -6,7 +7,7 @@ import XCTest
 
 // MARK: - ViewItemViewTests
 
-class ViewItemViewTests: BitwardenTestCase {
+class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<ViewItemState, ViewItemAction, ViewItemEffect>!
@@ -242,5 +243,65 @@ class ViewItemViewTests: BitwardenTestCase {
     func test_snapshot_login_withAllValues_largeText() {
         processor.state.loadingState = .data(loginState())
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
+    }
+
+    /// Snapshots the previews for card types.
+    func test_snapshot_previews_card() {
+        assertSnapshots(
+            matching: ViewItemView_Previews.cardPreview,
+            as: [
+                .tallPortrait,
+            ]
+        )
+    }
+
+    /// Snapshots the previews for card types.
+    func test_snapshot_previews_card_dark() {
+        assertSnapshots(
+            matching: ViewItemView_Previews.cardPreview,
+            as: [
+                .defaultPortraitDark,
+            ]
+        )
+    }
+
+    /// Snapshots the previews for card types.
+    func test_snapshot_previews_card_largeText() {
+        assertSnapshots(
+            matching: ViewItemView_Previews.cardPreview,
+            as: [
+                .tallPortraitAX5(heightMultiple: 3),
+            ]
+        )
+    }
+
+    /// Snapshots the previews for login types.#imageLiteral(resourceName: "test_snapshot_previews_card_largeText.1.png")
+    func test_snapshot_previews_login() {
+        assertSnapshots(
+            matching: ViewItemView_Previews.loginPreview,
+            as: [
+                .tallPortrait,
+            ]
+        )
+    }
+
+    /// Snapshots the previews for login types.
+    func test_snapshot_previews_login_dark() {
+        assertSnapshots(
+            matching: ViewItemView_Previews.loginPreview,
+            as: [
+                .portraitDark(heightMultiple: 2),
+            ]
+        )
+    }
+
+    /// Snapshots the previews for login types.
+    func test_snapshot_previews_login_largeText() {
+        assertSnapshots(
+            matching: ViewItemView_Previews.loginPreview,
+            as: [
+                .tallPortraitAX5(heightMultiple: 5),
+            ]
+        )
     }
 }

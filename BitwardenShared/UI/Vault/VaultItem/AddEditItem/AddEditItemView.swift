@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - AddEditItemView
 
-/// A view that allows the user to add a new item to a vault.
+/// A view that allows the user to add or edit a new item for a vault.
 ///
 struct AddEditItemView: View {
     // MARK: Private Properties
@@ -63,6 +63,20 @@ struct AddEditItemView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    @ViewBuilder private var cardItems: some View {
+        AddEditCardItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.cardItemState
+                },
+                mapAction: { action in
+                    .cardFieldChanged(action)
+                },
+                mapEffect: { $0 }
+            )
+        )
+    }
+
     private var customSection: some View {
         SectionView(Localizations.customFields) {
             Button(Localizations.newCustomField) {
@@ -119,14 +133,14 @@ struct AddEditItemView: View {
             )
 
             switch store.state.type {
+            case .card:
+                cardItems
             case .login:
                 loginItems
             case .secureNote:
                 EmptyView()
             case .identity:
                 identityItems
-            default:
-                EmptyView()
             }
         }
     }
@@ -251,6 +265,12 @@ private extension AddEditItemView {
 }
 
 #if DEBUG
+private let multilineText =
+    """
+    I should really keep this safe.
+    Is that right?
+    """
+
 struct AddEditItemView_Previews: PreviewProvider {
     static var fixedDate: Date {
         .init(timeIntervalSince1970: 1_695_000_000)
@@ -321,6 +341,47 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
+                        state: CipherItemState(addItem: .card)
+                            .addEditState
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Add Card")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var copy = cipherState
+                            copy.name = "Sample Card"
+                            copy.type = .card
+                            copy.cardItemState = .init(
+                                brand: .custom(.americanExpress),
+                                cardholderName: "Bitwarden User",
+                                cardNumber: "123456789012345",
+                                cardSecurityCode: "123",
+                                expirationMonth: .custom(.feb),
+                                expirationYear: "3009"
+                            )
+                            copy.folder = "Financials"
+                            copy.isFavoriteOn = false
+                            copy.isMasterPasswordRePromptOn = true
+                            copy.owner = .personal(email: "security@bitwarden.com")
+                            copy.notes = multilineText
+                            return copy.addEditState
+                        }()
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Edit Card")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
                         state: cipherState.addEditState
                     )
                 )
@@ -345,4 +406,4 @@ struct AddEditItemView_Previews: PreviewProvider {
         .previewDisplayName("Edit Login: Key Added")
     }
 }
-#endif
+#endif // swiftlint:disable:this file_length

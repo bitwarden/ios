@@ -42,7 +42,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     override func perform(_ effect: ManualEntryEffect) async {
         switch effect {
         case .scanCodePressed:
-            await coordinator.navigate(withDelayTo: .scanCode, context: nil)
+            await coordinator.navigate(asyncTo: .scanCode, context: nil)
         }
     }
 

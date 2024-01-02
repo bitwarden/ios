@@ -4,8 +4,8 @@ import Foundation
 // MARK: - AddEditItemProcessor
 
 /// The processor used to manage state and handle actions for the add item screen.
-///
-final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
+final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
+    StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
     // MARK: Types
 
     typealias Services = HasCameraService
@@ -65,6 +65,8 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
 
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case let .cardFieldChanged(cardFieldAction):
+            updateCardState(&state, for: cardFieldAction)
         case let .collectionToggleChanged(newValue, collectionId):
             state.toggleCollection(newValue: newValue, collectionId: collectionId)
         case .dismissPressed:
@@ -147,6 +149,33 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
             state.ownershipOptions = try await services.vaultRepository.fetchCipherOwnershipOptions()
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates
+    /// the `AddEditCardState`.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditCardState` to be updated.
+    ///   - action: The `AddEditCardItemAction` received.
+    private func updateCardState(_ state: inout AddEditItemState, for action: AddEditCardItemAction) {
+        switch action {
+        case let .brandChanged(brand):
+            state.cardItemState.brand = brand
+        case let .cardholderNameChanged(name):
+            state.cardItemState.cardholderName = name
+        case let .cardNumberChanged(number):
+            state.cardItemState.cardNumber = number
+        case let .cardSecurityCodeChanged(code):
+            state.cardItemState.cardSecurityCode = code
+        case let .expirationMonthChanged(month):
+            state.cardItemState.expirationMonth = month
+        case let .expirationYearChanged(year):
+            state.cardItemState.expirationYear = year
+        case let .toggleCodeVisibilityChanged(isVisible):
+            state.cardItemState.isCodeVisible = isVisible
+        case let .toggleNumberVisibilityChanged(isVisible):
+            state.cardItemState.isNumberVisible = isVisible
         }
     }
 
@@ -314,7 +343,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     private func setupTotp() async {
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
-            await coordinator.navigate(withDelayTo: .scanCode, context: self)
+            await coordinator.navigate(asyncTo: .scanCode, context: self)
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }

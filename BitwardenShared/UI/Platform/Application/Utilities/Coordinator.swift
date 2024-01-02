@@ -21,7 +21,7 @@ public protocol Coordinator<Route>: AnyObject {
     ///     - route:  Navigate to this `Route` with delay.
     ///     - context: An object representing the context where the navigation occurred.
     ///
-    func navigate(withDelayTo route: Route, context: AnyObject?) async
+    func navigate(asyncTo route: Route, context: AnyObject?) async
 
     /// Shows the provided alert on the `stackNavigator`.
     ///
@@ -81,13 +81,13 @@ public extension Coordinator {
     /// - Parameters:
     ///     - route: The specific `Route` to navigate to.
     ///
-    func navigate(withDelayTo route: Route) async {
-        await navigate(withDelayTo: route, context: nil)
+    func navigate(asyncTo route: Route) async {
+        await navigate(asyncTo: route, context: nil)
     }
 
     /// Default to synchronous navigation
     ///
-    func navigate(withDelayTo route: Route, context: AnyObject?) {
+    func navigate(asyncTo route: Route, context: AnyObject?) async {
         navigate(to: route, context: context)
     }
 }

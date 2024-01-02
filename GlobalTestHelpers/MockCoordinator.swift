@@ -25,7 +25,7 @@ class MockCoordinator<Route>: Coordinator {
     }
 
     func navigate(
-        withDelayTo route: Route,
+        asyncTo route: Route,
         context: AnyObject?
     ) async {
         asyncRoutes.append(route)

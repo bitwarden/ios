@@ -276,7 +276,50 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
-    func test_perform_savePressed() async {
+    func test_perform_savePressed_card() async throws {
+        subject.state.name = "vault item"
+        subject.state.type = .card
+        let expectedCardState = CardItemState(
+            brand: .custom(.visa),
+            cardholderName: "Jane Doe",
+            cardNumber: "12345",
+            cardSecurityCode: "123",
+            expirationMonth: .custom(.apr),
+            expirationYear: "1234"
+        )
+        subject.state.cardItemState = expectedCardState
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).creationDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).revisionDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+
+        let added = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
+        XCTAssertNil(added.identity)
+        XCTAssertNil(added.login)
+        XCTAssertNil(added.secureNote)
+        XCTAssertNotNil(added.card)
+        XCTAssertEqual(added.cardItemState(), expectedCardState)
+        let unwrappedState = try XCTUnwrap(subject.state as? CipherItemState)
+        XCTAssertEqual(
+            added,
+            unwrappedState
+                .newCipherView(
+                    creationDate: vaultRepository.addCipherCiphers[0].creationDate
+                )
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `perform(_:)` with `.savePressed` saves the item.
+    func test_perform_savePressed_login() async {
         subject.state.name = "vault item"
         await subject.perform(.savePressed)
 
@@ -702,6 +745,62 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loginState.username, "")
     }
 
+    /// `receive(_:)` with `.cardFieldChanged(.brandChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_cardholderNameChanged_withValidValue() {
+        subject.state.cardItemState.brand = .default
+        subject.receive(.cardFieldChanged(.brandChanged(.custom(.visa))))
+        XCTAssertEqual(subject.state.cardItemState.brand, .custom(.visa))
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.brandChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_cardholderNameChanged_withoutValidValue() {
+        subject.state.cardItemState.brand = .custom(.visa)
+        subject.receive(.cardFieldChanged(.brandChanged(.default)))
+        XCTAssertEqual(subject.state.cardItemState.brand, .default)
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardholderNameChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_cardholderNameChanged() {
+        subject.state.cardItemState.cardholderName = "James"
+        subject.receive(.cardFieldChanged(.cardholderNameChanged("Jane")))
+        XCTAssertEqual(subject.state.cardItemState.cardholderName, "Jane")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardNumberChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_cardNumberChanged() {
+        subject.state.cardItemState.cardNumber = "123"
+        subject.receive(.cardFieldChanged(.cardNumberChanged("12345")))
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "12345")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardSecurityCodeChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_cardSecurityCodeChanged() {
+        subject.state.cardItemState.cardSecurityCode = "123"
+        subject.receive(.cardFieldChanged(.cardSecurityCodeChanged("456")))
+        XCTAssertEqual(subject.state.cardItemState.cardSecurityCode, "456")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.expirationMonthChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_expirationMonthChanged_withValidValue() {
+        subject.state.cardItemState.brand = .default
+        subject.receive(.cardFieldChanged(.expirationMonthChanged(.custom(.jul))))
+        XCTAssertEqual(subject.state.cardItemState.expirationMonth, .custom(.jul))
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.brandChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_expirationMonthChanged_withoutValidValue() {
+        subject.state.cardItemState.expirationMonth = .custom(.jul)
+        subject.receive(.cardFieldChanged(.expirationMonthChanged(.default)))
+        XCTAssertEqual(subject.state.cardItemState.expirationMonth, .default)
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.expirationYearChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_expirationYearChanged() {
+        subject.state.cardItemState.expirationYear = "2009"
+        subject.receive(.cardFieldChanged(.expirationYearChanged("2029")))
+        XCTAssertEqual(subject.state.cardItemState.expirationYear, "2029")
+    }
+
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
     func test_receive_identity_titleChange_withValidValue() {
         subject.state.identityState.title = .default
@@ -714,6 +813,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.identityState.title = DefaultableType.custom(.mr)
         subject.receive(.identityFieldChanged(.titleChanged(DefaultableType.default)))
         XCTAssertEqual(subject.state.identityState.title, DefaultableType.default)
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.toggleCodeVisibilityChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_toggleCodeVisibilityChanged() {
+        subject.receive(.cardFieldChanged(.toggleCodeVisibilityChanged(true)))
+        XCTAssertEqual(subject.state.cardItemState.isCodeVisible, true)
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.toggleNumberVisibilityChanged)` with a value updates the state correctly.
+    func test_receive_cardFieldChanged_toggleNumberVisibilityChanged() {
+        subject.receive(.cardFieldChanged(.toggleNumberVisibilityChanged(true)))
+        XCTAssertEqual(subject.state.cardItemState.isNumberVisible, true)
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.firstNameChanged)` with a value updates the state correctly.

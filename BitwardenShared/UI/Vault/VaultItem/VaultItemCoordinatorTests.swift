@@ -193,7 +193,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_setupTotpCamera_noConformance() async throws {
         cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
-        await subject.navigate(withDelayTo: .scanCode, context: MockProcessor<Any, Any, Any>(state: ()))
+        await subject.navigate(asyncTo: .scanCode, context: MockProcessor<Any, Any, Any>(state: ()))
         XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
@@ -201,7 +201,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_setupTotpCamera_noContext() async throws {
         cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
-        await subject.navigate(withDelayTo: .scanCode, context: nil)
+        await subject.navigate(asyncTo: .scanCode, context: nil)
         XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
@@ -213,7 +213,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         cameraService.deviceHasCamera = true
         let task = Task {
             await subject.navigate(
-                withDelayTo: .scanCode,
+                asyncTo: .scanCode,
                 context: mockContext
             )
         }

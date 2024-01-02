@@ -10,6 +10,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     var coordinator: MockCoordinator<VaultItemRoute>!
     var errorReporter: MockErrorReporter!
+    var pasteboardService: MockPasteboardService!
     var subject: ViewItemProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -19,9 +20,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         super.setUp()
         coordinator = MockCoordinator<VaultItemRoute>()
         errorReporter = MockErrorReporter()
+        pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             errorReporter: errorReporter,
+            pasteboardService: pasteboardService,
             vaultRepository: vaultRepository
         )
         subject = ViewItemProcessor(
@@ -36,6 +39,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         super.tearDown()
         coordinator = nil
         errorReporter = nil
+        pasteboardService = nil
         subject = nil
         vaultRepository = nil
     }
@@ -73,6 +77,58 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
+    /// `receive` with `.cardItemAction` while loading logs an error.
+    func test_receive_cardItemAction_impossible_loading() throws {
+        subject.state.loadingState = .loading
+        subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle card action without loaded data")
+        )
+    }
+
+    /// `receive` with `.cardItemAction` throws if the cipher is not of card type.
+    func test_receive_cardItemAction_impossible_nonCard() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: nil,
+            name: "name",
+            revisionDate: Date(),
+            type: .login
+        )
+        let cipherState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.nonCardTypeToggle("Cannot handle card action on non-card type")
+        )
+    }
+
+    /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
+    /// for `isPasswordVisible`.
+    func test_receive_cardItemAction_code() throws {
+        let cipherView = CipherView.cardFixture(id: "123")
+        var cipherState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
+
+        cipherState.cardItemState.isCodeVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
+    /// for `isPasswordVisible`.
+    func test_receive_cardItemAction_number() throws {
+        let cipherView = CipherView.cardFixture(id: "123")
+        var cipherState = CipherItemState(existing: cipherView)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.cardItemAction(.toggleNumberVisibilityChanged(true)))
+
+        cipherState.cardItemState.isNumberVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
     /// `receive` with `.checkPasswordPressed` checks the password with the HIBP service.
     func test_receive_checkPasswordPressed() {
         subject.receive(.checkPasswordPressed)
@@ -82,7 +138,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `receive` with `.copyPressed` copies the value with the pasteboard service.
     func test_receive_copyPressed() {
         subject.receive(.copyPressed(value: "value"))
-        // TODO: BIT-1121 Assertion for pasteboard service
+        XCTAssertEqual(pasteboardService.copiedString, "value")
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.

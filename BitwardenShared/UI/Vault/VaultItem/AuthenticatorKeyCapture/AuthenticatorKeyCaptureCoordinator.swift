@@ -93,7 +93,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     }
 
     func navigate(
-        withDelayTo route: AuthenticatorKeyCaptureRoute,
+        asyncTo route: AuthenticatorKeyCaptureRoute,
         context: AnyObject?
     ) async {
         guard case .scanCode = route else {
