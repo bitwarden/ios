@@ -9,7 +9,7 @@ extension TimeInterval {
     ///
     /// - Parameter shouldSpellOut: Whether `DateComponentsFormatter.UnitsStyle.spellOut`
     /// is applied for accessibility purposes.
-    /// - Returns: The  custom session timeout value as a string formatted in hours and minutes.
+    /// - Returns: A string from a time interval value in the format of `HH:mm`.
     ///
     func timeInHoursMinutes(shouldSpellOut: Bool = false) -> String {
         let formatter = DateComponentsFormatter()
