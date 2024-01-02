@@ -4,8 +4,8 @@ import Foundation
 // MARK: - AddEditItemProcessor
 
 /// The processor used to manage state and handle actions for the add item screen.
-///
-final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> { // swiftlint:disable:this type_body_length
+final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
+    StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
     // MARK: Types
 
     typealias Services = HasCameraService
