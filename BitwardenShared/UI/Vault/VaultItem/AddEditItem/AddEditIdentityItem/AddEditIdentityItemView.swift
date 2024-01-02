@@ -7,6 +7,7 @@ import SwiftUI
 struct AddEditIdentityItemView: View {
     // MARK: Type
 
+    /// The focusable fields in identity view.
     enum FocusedField: Int, Hashable {
         case firstName
         case middleName
@@ -32,6 +33,7 @@ struct AddEditIdentityItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<IdentityItemState, AddEditIdentityItemAction, AddEditItemEffect>
 
+    /// The currently focused field.
     @FocusState private var focusedField: FocusedField?
 
     // MARK: Views
