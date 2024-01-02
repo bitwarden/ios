@@ -55,6 +55,7 @@ class MoveToOrganizationProcessor: StateProcessor<
         case .dismissPressed:
             coordinator.navigate(to: .dismiss)
         case .moveCipher:
+            // TODO: BIT-840 Move cipher
             break
         case let .ownerChanged(owner):
             state.owner = owner
