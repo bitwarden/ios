@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: AccountSecurityAction
 
 /// Actions handled by the `AccountSecurityProcessor`.
@@ -17,6 +19,9 @@ enum AccountSecurityAction {
 
     /// The session timeout value has changed.
     case sessionTimeoutValueChanged(SessionTimeoutValue)
+
+    /// Sets the custom session timeout value.
+    case setCustomSessionTimeoutValue(TimeInterval)
 
     /// Approve login requests was toggled.
     case toggleApproveLoginRequestsToggle(Bool)
