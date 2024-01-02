@@ -188,6 +188,13 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
     }
 
+    /// `receive(_:)` with `setCustomSessionTimeoutValue(:)` updates the custom session timeout value in the state.
+    func test_receive_setCustomSessionTimeoutValue() {
+        XCTAssertEqual(subject.state.customSessionTimeoutValue, 60)
+        subject.receive(.setCustomSessionTimeoutValue(15))
+        XCTAssertEqual(subject.state.customSessionTimeoutValue, 15)
+    }
+
     /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` updates the state.
     func test_receive_toggleApproveLoginRequestsToggle() {
         subject.state.isApproveLoginRequestsToggleOn = false
