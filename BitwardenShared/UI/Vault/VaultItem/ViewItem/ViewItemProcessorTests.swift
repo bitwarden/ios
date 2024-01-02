@@ -403,4 +403,4 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let invalidPasswordAlert = try coordinator.unwrapLastRouteAsAlert()
         XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
     }
-}
+} // swiftlint:disable:this file_length
