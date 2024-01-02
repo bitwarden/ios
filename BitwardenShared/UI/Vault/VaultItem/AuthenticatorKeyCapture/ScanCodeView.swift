@@ -25,10 +25,8 @@ struct ScanCodeView: View {
             .navigationTitle(Localizations.scanQrTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.close) {
-                        store.send(.dismissPressed)
-                    }
+                cancelToolbarItem {
+                    store.send(.dismissPressed)
                 }
             }
             .task {

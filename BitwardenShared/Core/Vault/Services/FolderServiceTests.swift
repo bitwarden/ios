@@ -57,6 +57,17 @@ class FolderServiceTests: XCTestCase {
         XCTAssertEqual(folderDataStore.upsertFolderValue, folder)
     }
 
+    /// `deleteFolderWithServer(id:)` deletes the folder in both the backend and the data store.
+    func test_deleteFolderWithServer() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+
+        try await subject.deleteFolderWithServer(id: "123456789")
+
+        XCTAssertEqual(folderDataStore.deleteFolderUserId, Account.fixtureAccountLogin().profile.userId)
+        XCTAssertEqual(folderDataStore.deleteFolderId, "123456789")
+    }
+
     /// `editFolderWithServer(id:name:)` edits the existing folder in both the backend and the data store.
     func test_editFolderWithServer() async throws {
         stateService.activeAccount = .fixtureAccountLogin()

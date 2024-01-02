@@ -9,6 +9,8 @@ class MockSettingsRepository: SettingsRepository {
     var addFolderResult: Result<Void, Error> = .success(())
     var allowSyncOnRefresh = false
     var allowSyncOnRefreshResult: Result<Void, Error> = .success(())
+    var deletedFolderId: String?
+    var deleteFolderResult: Result<Void, Error> = .success(())
     var editedFolderName: String?
     var editFolderResult: Result<Void, Error> = .success(())
     var fetchSyncCalled = false
@@ -27,6 +29,11 @@ class MockSettingsRepository: SettingsRepository {
     func addFolder(name: String) async throws {
         addedFolderName = name
         try addFolderResult.get()
+    }
+
+    func deleteFolder(id: String) async throws {
+        deletedFolderId = id
+        try deleteFolderResult.get()
     }
 
     func editFolder(withID _: String, name: String) async throws {
