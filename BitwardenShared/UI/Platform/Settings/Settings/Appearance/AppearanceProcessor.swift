@@ -1,6 +1,6 @@
 // MARK: - AppearanceProcessor
 
-/// The processor used to manage state and handle actions for the `appearanceView`.
+/// The processor used to manage state and handle actions for the `AppearanceView`.
 ///
 final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceAction, Void> {
     // MARK: Properties
@@ -10,7 +10,7 @@ final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceActio
 
     // MARK: Initialization
 
-    /// Initializes a new `AutoFillProcessor`.
+    /// Initializes a new `AppearanceProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.

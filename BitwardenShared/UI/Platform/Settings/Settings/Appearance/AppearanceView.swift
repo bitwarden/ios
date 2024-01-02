@@ -23,7 +23,7 @@ struct AppearanceView: View {
             webSiteIconsToggle
         }
         .scrollView()
-        .navigationBar(title: Localizations.autofill, titleDisplayMode: .inline)
+        .navigationBar(title: Localizations.appearance, titleDisplayMode: .inline)
     }
 
     // MARK: Private views

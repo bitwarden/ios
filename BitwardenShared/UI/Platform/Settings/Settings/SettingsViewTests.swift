@@ -59,7 +59,7 @@ class SettingsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .autoFillPressed)
     }
 
-    /// Tapping the other button dispatches the `.autoFillPressed` action.
+    /// Tapping the other button dispatches the `.otherPressed` action.
     func test_otherButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.other)
         try button.tap()
