@@ -139,3 +139,79 @@ extension CipherView {
         )
     }
 }
+
+extension CipherView {
+    /// Returns a copy of the existing cipher with an updated list of collection IDs.
+    ///
+    /// - Parameter collectionIds: The identifiers of any collections containing the cipher.
+    /// - Returns: A copy of the existing cipher, with the specified properties updated.
+    ///
+    func update(collectionIds: [String]) -> CipherView {
+        update(
+            collectionIds: collectionIds,
+            folderId: folderId,
+            organizationId: organizationId
+        )
+    }
+
+    /// Returns a copy of the existing cipher with an updated organization and list of collection IDs.
+    ///
+    /// - Parameters:
+    ///   - collectionIds: The identifiers of any collections containing the cipher.
+    ///   - organizationId: The identifier of the cipher's organization.
+    /// - Returns: A copy of the existing cipher, with the specified properties updated.
+    ///
+    func update(
+        collectionIds: [String],
+        organizationId: String?
+    ) -> CipherView {
+        update(
+            collectionIds: collectionIds,
+            folderId: folderId,
+            organizationId: organizationId
+        )
+    }
+
+    // MARK: Private
+
+    /// Returns a copy of the existing cipher, updating any of the specified properties.
+    ///
+    /// - Parameters:
+    ///   - collectionIds: The identifiers of any collections containing the cipher.
+    ///   - folderId: The identifier of the cipher's folder
+    ///   - organizationId: The identifier of the cipher's organization.
+    /// - Returns: A copy of the existing cipher, with the specified properties updated.
+    ///
+    private func update(
+        collectionIds: [String],
+        folderId: String?,
+        organizationId: String?
+    ) -> CipherView {
+        CipherView(
+            id: id,
+            organizationId: organizationId,
+            folderId: folderId,
+            collectionIds: collectionIds,
+            key: key,
+            name: name,
+            notes: notes,
+            type: type,
+            login: login,
+            identity: identity,
+            card: card,
+            secureNote: secureNote,
+            favorite: favorite,
+            reprompt: reprompt,
+            organizationUseTotp: organizationUseTotp,
+            edit: edit,
+            viewPassword: viewPassword,
+            localData: localData,
+            attachments: attachments,
+            fields: fields,
+            passwordHistory: passwordHistory,
+            creationDate: creationDate,
+            deletedDate: deletedDate,
+            revisionDate: revisionDate
+        )
+    }
+}

@@ -107,6 +107,12 @@ protocol VaultRepository: AnyObject {
     ///
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>>
 
+    /// Updates the list of collections for a cipher in the user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is updating.
+    ///
+    func updateCipherCollections(_ cipher: CipherView) async throws
+
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
     ///
@@ -511,6 +517,13 @@ extension DefaultVaultRepository: VaultRepository {
     func updateCipher(_ updatedCipherView: CipherView) async throws {
         let updatedCipher = try await clientVault.ciphers().encrypt(cipherView: updatedCipherView)
         _ = try await cipherAPIService.updateCipher(updatedCipher)
+        // TODO: BIT-92 Insert response into database instead of fetching sync.
+        try await fetchSync(isManualRefresh: false)
+    }
+
+    func updateCipherCollections(_ cipher: CipherView) async throws {
+        let encryptedCipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
+        try await cipherService.updateCipherCollectionsWithServer(encryptedCipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync(isManualRefresh: false)
     }

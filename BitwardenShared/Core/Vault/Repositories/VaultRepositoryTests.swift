@@ -313,6 +313,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    /// `updateCipherCollections()` throws an error if one occurs.
+    func test_updateCipherCollections_error() async throws {
+        struct UpdateError: Error, Equatable {}
+
+        cipherService.updateCipherCollectionsWithServerResult = .failure(UpdateError())
+
+        await assertAsyncThrows(error: UpdateError()) {
+            try await subject.updateCipherCollections(.fixture())
+        }
+    }
+
+    /// `updateCipherCollections()` has the cipher service update the cipher's collections and updates the vault.
+    func test_updateCipherCollections() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let cipher = CipherView.fixture()
+        try await subject.updateCipherCollections(cipher)
+
+        XCTAssertEqual(cipherService.updateCipherCollectionsWithServerCiphers, [Cipher(cipherView: cipher)])
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
     /// `shareCipher()` throws an error if one occurs.
     func test_shareCipher_error() async throws {
         struct ShareError: Error, Equatable {}

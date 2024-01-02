@@ -19,6 +19,7 @@ class MockVaultRepository: VaultRepository {
     var fetchSyncCalled = false
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
+    var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
     var removeAccountIds = [String?]()
     var shareCipherResult: Result<Void, Error> = .success(())
     var sharedCiphers = [CipherView]()
@@ -26,7 +27,8 @@ class MockVaultRepository: VaultRepository {
     var softDeleteCipherResult: Result<Void, Error> = .success(())
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
-    var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
+    var updateCipherCollectionsCiphers = [CipherView]()
+    var updateCipherCollectionsResult: Result<Void, Error> = .success(())
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
@@ -74,6 +76,10 @@ class MockVaultRepository: VaultRepository {
         try fetchFoldersResult.get()
     }
 
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
+        organizationsSubject.eraseToAnyPublisher().values
+    }
+
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
     }
@@ -93,8 +99,9 @@ class MockVaultRepository: VaultRepository {
         try updateCipherResult.get()
     }
 
-    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
-        organizationsSubject.eraseToAnyPublisher().values
+    func updateCipherCollections(_ cipher: CipherView) async throws {
+        updateCipherCollectionsCiphers.append(cipher)
+        try updateCipherCollectionsResult.get()
     }
 
     func validatePassword(_ password: String) async throws -> Bool {

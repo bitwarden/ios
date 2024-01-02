@@ -32,6 +32,12 @@ protocol CipherService {
     ///
     func softDeleteCipherWithServer(id: String, _ cipher: Cipher) async throws
 
+    /// Updates the cipher's collections and updates the locally stored data.
+    ///
+    /// - Parameter cipher: The cipher to update.
+    ///
+    func updateCipherCollectionsWithServer(_ cipher: Cipher) async throws
+
     // MARK: Publishers
 
     /// A publisher for the list of ciphers.
@@ -91,10 +97,10 @@ extension DefaultCipherService {
     }
 
     func shareWithServer(_ cipher: Cipher) async throws {
-        let userID = try await stateService.getActiveAccountId()
+        let userId = try await stateService.getActiveAccountId()
         var response = try await cipherAPIService.shareCipher(cipher)
         response.collectionIds = cipher.collectionIds
-        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
+        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)
     }
 
     func softDeleteCipherWithServer(id: String, _ cipher: BitwardenSdk.Cipher) async throws {
@@ -105,6 +111,12 @@ extension DefaultCipherService {
 
         // Soft delete cipher from local storage
         try await cipherDataStore.upsertCipher(cipher, userId: userID)
+    }
+
+    func updateCipherCollectionsWithServer(_ cipher: Cipher) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        try await cipherAPIService.updateCipherCollections(cipher)
+        try await cipherDataStore.upsertCipher(cipher, userId: userId)
     }
 
     // MARK: Publishers
