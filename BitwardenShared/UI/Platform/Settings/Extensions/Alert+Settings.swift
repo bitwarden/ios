@@ -3,9 +3,31 @@
 extension Alert {
     // MARK: Methods
 
+    /// Confirm that the user wants to export their vault.
+    ///
+    /// - Parameters:
+    ///   - encrypted: Whether the user is attempting to export their vault encrypted or not.
+    ///   - action: The action performed when they select export vault.
+    ///
+    /// - Returns: An alert confirming that the user wants to export their vault unencrypted.
+    ///
+    static func confirmExportVault(encrypted: Bool, action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.exportVaultConfirmationTitle,
+            message: encrypted ?
+                (Localizations.encExportKeyWarning + "\n\n" + Localizations.encExportAccountWarning) :
+                Localizations.exportVaultWarning,
+            alertActions: [
+                AlertAction(title: Localizations.exportVault, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
     /// Confirms that the user wants to logout if their session times out.
     ///
     /// - Parameter action: The action performed when they select `Yes`.
+    ///
     /// - Returns: An alert confirming that the user wants to logout if their session times out.
     ///
     static func logoutOnTimeoutAlert(action: @escaping () async -> Void) -> Alert {
@@ -21,8 +43,7 @@ extension Alert {
 
     /// An alert notifying the user that they will be navigated to the web app to set up two step login.
     ///
-    /// - Parameters:
-    ///   - action: The action to perform when the user confirms that they want to be navigated to the
+    /// - Parameter action: The action to perform when the user confirms that they want to be navigated to the
     ///   web app.
     ///
     /// - Returns: An alert notifying the user that they will be navigated to the web app to set up two step login.
