@@ -5,10 +5,34 @@ import SwiftUI
 /// A view that allows the user to add or edit Identity part of the cipherItem to a vault.
 ///
 struct AddEditIdentityItemView: View {
+    // MARK: Type
+
+    enum FocusedField: Int, Hashable {
+        case firstName
+        case middleName
+        case lastName
+        case username
+        case company
+        case ssn
+        case passport
+        case license
+        case email
+        case phone
+        case address1
+        case address2
+        case address3
+        case city
+        case state
+        case zipcode
+        case country
+    }
+
     // MARK: Properties
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<IdentityItemState, AddEditIdentityItemAction, AddEditItemEffect>
+
+    @FocusState private var focusedField: FocusedField?
 
     // MARK: Views
 
@@ -30,6 +54,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.firstNameChanged
                 )
             )
+            .focused($focusedField, equals: .firstName)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.middleName,
@@ -38,6 +64,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.middleNameChanged
                 )
             )
+            .focused($focusedField, equals: .middleName)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.lastName,
@@ -46,6 +74,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.lastNameChanged
                 )
             )
+            .focused($focusedField, equals: .lastName)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.username,
@@ -55,6 +85,8 @@ struct AddEditIdentityItemView: View {
                 )
             )
             .textFieldConfiguration(.username)
+            .focused($focusedField, equals: .username)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.company,
@@ -63,6 +95,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.companyChanged
                 )
             )
+            .focused($focusedField, equals: .company)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.ssn,
@@ -71,6 +105,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.socialSecurityNumberChanged
                 )
             )
+            .focused($focusedField, equals: .ssn)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.passportNumber,
@@ -79,6 +115,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.passportNumberChanged
                 )
             )
+            .focused($focusedField, equals: .passport)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.licenseNumber,
@@ -87,6 +125,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.licenseNumberChanged
                 )
             )
+            .focused($focusedField, equals: .license)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.email,
@@ -96,6 +136,8 @@ struct AddEditIdentityItemView: View {
                 )
             )
             .textFieldConfiguration(.email)
+            .focused($focusedField, equals: .email)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.phone,
@@ -104,6 +146,9 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.phoneNumberChanged
                 )
             )
+            .textFieldConfiguration(.phone)
+            .focused($focusedField, equals: .phone)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.address1,
@@ -112,6 +157,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.address1Changed
                 )
             )
+            .focused($focusedField, equals: .address1)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.address2,
@@ -120,6 +167,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.address2Changed
                 )
             )
+            .focused($focusedField, equals: .address2)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.address3,
@@ -128,6 +177,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.address3Changed
                 )
             )
+            .focused($focusedField, equals: .address3)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.cityTown,
@@ -136,6 +187,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.cityOrTownChanged
                 )
             )
+            .focused($focusedField, equals: .city)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.stateProvince,
@@ -144,6 +197,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.stateChanged
                 )
             )
+            .focused($focusedField, equals: .state)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.zipPostalCode,
@@ -152,6 +207,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.postalCodeChanged
                 )
             )
+            .focused($focusedField, equals: .zipcode)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.country,
@@ -160,6 +217,8 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.countryChanged
                 )
             )
+            .focused($focusedField, equals: .country)
+            .onSubmit { focusNextField($focusedField) }
         }
     }
 }

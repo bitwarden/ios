@@ -12,6 +12,9 @@ struct AddEditItemView: View {
 
     // MARK: Properties
 
+    /// The flag to manage focus state of notes field.
+    @FocusState private var isNotesFocused: Bool
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
 
@@ -196,12 +199,22 @@ private extension AddEditItemView {
 
     var notesSection: some View {
         SectionView(Localizations.notes) {
-            BitwardenTextField(
-                text: store.binding(
+            BitwardenField(title: nil, footer: nil) {
+                TextEditor(text: store.binding(
                     get: \.notes,
                     send: AddEditItemAction.notesChanged
-                )
-            )
+                ))
+                .focused($isNotesFocused)
+                .toolbar(content: {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        if isNotesFocused == true {
+                            Button(Localizations.hide) {
+                                isNotesFocused = false
+                            }
+                        }
+                    }
+                })
+            }
             .accessibilityLabel(Localizations.notes)
         }
     }
