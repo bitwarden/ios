@@ -2,6 +2,8 @@ import SwiftUI
 
 // MARK: - AddEditCardItemView
 
+/// A view that allows the user to add or edit a card item for a vault.
+///
 struct AddEditCardItemView: View {
     // MARK: Properties
 

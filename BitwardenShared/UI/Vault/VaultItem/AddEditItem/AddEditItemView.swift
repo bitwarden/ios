@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - AddEditItemView
 
-/// A view that allows the user to add a new item to a vault.
+/// A view that allows the user to add or edit a new item for a vault.
 ///
 struct AddEditItemView: View {
     // MARK: Private Properties
