@@ -20,12 +20,3 @@ public enum AuthenticatorKeyCaptureRoute: Equatable, Hashable {
     /// A route to the scan code view.
     case scanCode
 }
-
-/// The possible screens for the AuthenticatorKeyCaptureCoordinator.
-public enum AuthenticatorKeyCaptureScreen {
-    /// A screen for manual TOTP entry.
-    case manual
-
-    /// A screen for QR code capture.
-    case scan
-}
