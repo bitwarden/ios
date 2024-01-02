@@ -35,27 +35,29 @@ struct ViewLoginItemView: View {
                     .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
             } accessoryContent: {
-                PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
-                    store.send(.passwordVisibilityPressed)
-                }
+                if store.state.canViewPassword {
+                    PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
+                        store.send(.passwordVisibilityPressed)
+                    }
 
-                Button {
-                    store.send(.checkPasswordPressed)
-                } label: {
-                    Asset.Images.roundCheck.swiftUIImage
-                        .resizable()
-                        .frame(width: 16, height: 16)
-                }
-                .accessibilityLabel(Localizations.checkPassword)
+                    Button {
+                        store.send(.checkPasswordPressed)
+                    } label: {
+                        Asset.Images.roundCheck.swiftUIImage
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                    }
+                    .accessibilityLabel(Localizations.checkPassword)
 
-                Button {
-                    store.send(.copyPressed(value: password))
-                } label: {
-                    Asset.Images.copy.swiftUIImage
-                        .resizable()
-                        .frame(width: 16, height: 16)
+                    Button {
+                        store.send(.copyPressed(value: password))
+                    } label: {
+                        Asset.Images.copy.swiftUIImage
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                    }
+                    .accessibilityLabel(Localizations.copy)
                 }
-                .accessibilityLabel(Localizations.copy)
             }
         }
 

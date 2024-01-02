@@ -45,6 +45,17 @@ public class AppProcessor {
         coordinator.start()
         self.coordinator = coordinator
 
+        Task {
+            await services.environmentService.loadURLsForActiveAccount()
+        }
+
+        Task {
+            for await shouldClearData in services.vaultTimeoutService.shouldClearDecryptedDataPublisher() {
+                guard shouldClearData else { continue }
+                services.syncService.clearCachedData()
+            }
+        }
+
         if let activeAccount = services.appSettingsStore.state?.activeAccount {
             coordinator.navigate(to: .auth(.vaultUnlock(activeAccount)))
         } else {

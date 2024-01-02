@@ -13,15 +13,22 @@ struct AddEditItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<CipherItemState, AddEditItemAction, AddEditItemEffect>
+    @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
 
     var body: some View {
-        switch store.state.configuration {
-        case .add:
-            addView
-        case .existing:
-            editView
+        Group {
+            switch store.state.configuration {
+            case .add:
+                addView
+            case .existing:
+                existing
+            }
         }
+        .task { await store.perform(.fetchCipherOptions) }
+        .toast(store.binding(
+            get: \.toast,
+            send: AddEditItemAction.toastShown
+        ))
     }
 
     private var addView: some View {
@@ -64,19 +71,19 @@ struct AddEditItemView: View {
         }
     }
 
-    private var editView: some View {
+    private var existing: some View {
         content
             .navigationTitle(Localizations.editItem)
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    Button {
-                        store.send(.morePressed)
-                    } label: {
-                        Asset.Images.verticalKabob.swiftUIImage
-                            .resizable()
-                            .frame(width: 19, height: 19)
-                    }
-                    .accessibilityLabel(Localizations.options)
+                    VaultItemManagementMenuView(
+                        isCloneEnabled: false, store: store.child(
+                            state: { _ in },
+                            mapAction: { .morePressed($0) },
+                            mapEffect: { _ in .deletePressed }
+                        )
+                    )
+
                     Button {
                         store.send(.dismissPressed)
                     } label: {
@@ -91,14 +98,16 @@ struct AddEditItemView: View {
 
     private var informationSection: some View {
         SectionView(Localizations.itemInformation) {
-            BitwardenMenuField(
-                title: Localizations.type,
-                options: CipherType.allCases,
-                selection: store.binding(
-                    get: \.type,
-                    send: AddEditItemAction.typeChanged
+            if case .add = store.state.configuration {
+                BitwardenMenuField(
+                    title: Localizations.type,
+                    options: CipherType.allCases,
+                    selection: store.binding(
+                        get: \.type,
+                        send: AddEditItemAction.typeChanged
+                    )
                 )
-            )
+            }
 
             BitwardenTextField(
                 title: Localizations.name,
@@ -113,10 +122,26 @@ struct AddEditItemView: View {
                 loginItems
             case .secureNote:
                 EmptyView()
+            case .identity:
+                identityItems
             default:
                 EmptyView()
             }
         }
+    }
+
+    @ViewBuilder private var identityItems: some View {
+        AddEditIdentityItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.identityState
+                },
+                mapAction: { action in
+                    .identityFieldChanged(action)
+                },
+                mapEffect: { $0 }
+            )
+        )
     }
 
     @ViewBuilder private var loginItems: some View {
@@ -180,15 +205,18 @@ private extension AddEditItemView {
         }
     }
 
-    var ownershipSection: some View {
-        SectionView(Localizations.ownership) {
-            BitwardenTextField(
-                title: Localizations.whoOwnsThisItem,
-                text: store.binding(
-                    get: \.owner,
-                    send: AddEditItemAction.ownerChanged
+    @ViewBuilder var ownershipSection: some View {
+        if store.state.configuration.isAdding, let owner = store.state.owner {
+            SectionView(Localizations.ownership) {
+                BitwardenMenuField(
+                    title: Localizations.whoOwnsThisItem,
+                    options: store.state.ownershipOptions,
+                    selection: store.binding(
+                        get: { _ in owner },
+                        send: AddEditItemAction.ownerChanged
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -200,17 +228,97 @@ private extension AddEditItemView {
     }
 }
 
-struct AddItemView_Previews: PreviewProvider {
+struct AddEditItemView_Previews: PreviewProvider {
+    static var fixedDate: Date {
+        .init(timeIntervalSince1970: 1_695_000_000)
+    }
+
+    static var emptyCipherState: CipherItemState {
+        var state = CipherItemState()
+        state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        return state
+    }
+
+    static var cipherState: CipherItemState {
+        var state = CipherItemState(
+            existing: .init(
+                id: .init(),
+                organizationId: nil,
+                folderId: nil,
+                collectionIds: [],
+                key: .init(),
+                name: "Edit Em",
+                notes: nil,
+                type: .login,
+                login: .init(
+                    username: "EddyEddity",
+                    password: "changerdanger",
+                    passwordRevisionDate: fixedDate,
+                    uris: [
+                        .init(uri: "yahoo.com", match: nil),
+                        .init(uri: "account.yahoo.com", match: nil),
+                    ],
+                    totp: nil,
+                    autofillOnPageLoad: nil
+                ),
+                identity: nil,
+                card: nil,
+                secureNote: nil,
+                favorite: true,
+                reprompt: .none,
+                organizationUseTotp: false,
+                edit: true,
+                viewPassword: true,
+                localData: nil,
+                attachments: nil,
+                fields: nil,
+                passwordHistory: nil,
+                creationDate: fixedDate,
+                deletedDate: nil,
+                revisionDate: fixedDate
+            )
+        )!
+        state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        return state
+    }
+
     static var previews: some View {
         NavigationView {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
-                        state: .init()
+                        state: emptyCipherState.addEditState
                     )
                 )
             )
         }
         .previewDisplayName("Empty Add")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: cipherState.addEditState
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Edit Login")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var state = cipherState
+                            state.loginState.totpKey = .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
+                            state.toast = Toast(text: "Authenticator key added.")
+                            return state
+                        }()
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Edit Login: Key Added")
     }
 }

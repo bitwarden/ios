@@ -6,14 +6,17 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<AuthRoute>!
+    var delegate: MockSelfHostedProcessorDelegate!
     var subject: SelfHostedProcessor!
 
     // MARK: Setup and Teardown
 
     override func setUp() {
         coordinator = MockCoordinator<AuthRoute>()
+        delegate = MockSelfHostedProcessorDelegate()
         subject = SelfHostedProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
             state: SelfHostedState()
         )
 
@@ -22,12 +25,51 @@ class SelfHostedProcessorTests: BitwardenTestCase {
 
     override func tearDown() {
         coordinator = nil
+        delegate = nil
         subject = nil
 
         super.tearDown()
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.saveEnvironment` notifies the delegate that the user saved the URLs.
+    func test_perform_saveEnvironment() async throws {
+        subject.state.serverUrl = "vault.bitwarden.com"
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertEqual(
+            delegate.savedUrls,
+            EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.saveEnvironment` notifies the delegate that the user saved the URLs.
+    func test_perform_saveEnvironment_multipleURLs() async throws {
+        subject.state.apiServerUrl = "vault.bitwarden.com/api"
+        subject.state.iconsServerUrl = "icons.bitwarden.com"
+        subject.state.identityServerUrl = "https://vault.bitwarden.com/identity"
+        subject.state.serverUrl = "vault.bitwarden.com"
+        subject.state.webVaultServerUrl = "https://vault.bitwarden.com"
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertEqual(
+            delegate.savedUrls,
+            EnvironmentUrlData(
+                api: URL(string: "https://vault.bitwarden.com/api")!,
+                base: URL(string: "https://vault.bitwarden.com")!,
+                events: nil,
+                icons: URL(string: "https://icons.bitwarden.com")!,
+                identity: URL(string: "https://vault.bitwarden.com/identity"),
+                notifications: nil,
+                webVault: URL(string: "https://vault.bitwarden.com")!
+            )
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
 
     /// `perform(_:)` with `.saveEnvironment` displays an alert if any of the URLs are invalid.
     func test_perform_saveEnvironment_invalidURLs() async throws {
@@ -85,5 +127,13 @@ class SelfHostedProcessorTests: BitwardenTestCase {
         subject.receive(.webVaultUrlChanged("web vault url"))
 
         XCTAssertEqual(subject.state.webVaultServerUrl, "web vault url")
+    }
+}
+
+class MockSelfHostedProcessorDelegate: SelfHostedProcessorDelegate {
+    var savedUrls: EnvironmentUrlData?
+
+    func didSaveEnvironment(urls: EnvironmentUrlData) {
+        savedUrls = urls
     }
 }

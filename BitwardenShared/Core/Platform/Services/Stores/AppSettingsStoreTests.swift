@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - AppSettingsStoreTests
 
-class AppSettingsStoreTests: BitwardenTestCase {
+class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var subject: AppSettingsStore!
@@ -54,6 +54,38 @@ class AppSettingsStoreTests: BitwardenTestCase {
         subject.appId = nil
         XCTAssertNil(subject.appId)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appId"))
+    }
+
+    /// `allowSyncOnRefresh(userId:)` returns `false` if there isn't a previously stored value.
+    func test_allowSyncOnRefresh_isInitiallyFalse() {
+        XCTAssertFalse(subject.allowSyncOnRefresh(userId: "-1"))
+    }
+
+    /// `allowSyncOnRefresh(userId:)` can be used to get the allow sync on refresh value for a user.
+    func test_allowSyncOnRefresh_withValue() {
+        subject.setAllowSyncOnRefresh(true, userId: "1")
+        subject.setAllowSyncOnRefresh(false, userId: "2")
+
+        XCTAssertTrue(subject.allowSyncOnRefresh(userId: "1"))
+        XCTAssertFalse(subject.allowSyncOnRefresh(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_w"))
+    }
+
+    /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
+    func test_clearClipboardValue_isInitiallyNil() {
+        XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
+    }
+
+    /// `clearClipboardValue(userId:)` can be used to get the clear clipboard value for a user.
+    func test_clearClipboardValue_withValue() {
+        subject.setClearClipboardValue(.tenSeconds, userId: "1")
+        subject.setClearClipboardValue(.never, userId: "2")
+
+        XCTAssertEqual(subject.clearClipboardValue(userId: "1"), .tenSeconds)
+        XCTAssertEqual(subject.clearClipboardValue(userId: "2"), .never)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_1"), 10)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
     }
 
     /// `encryptedPrivateKey(userId:)` returns `nil` if there isn't a previously stored value.
@@ -128,6 +160,60 @@ class AppSettingsStoreTests: BitwardenTestCase {
         )
     }
 
+    /// `lastSyncTime(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_lastSyncTime_isInitiallyNil() {
+        XCTAssertNil(subject.lastSyncTime(userId: "-1"))
+    }
+
+    /// `lastSyncTime(userId:)` can be used to get the last sync time for a user.
+    func test_lastSyncTime_withValue() {
+        let date1 = Date(year: 2023, month: 12, day: 1)
+        let date2 = Date(year: 2023, month: 10, day: 2)
+
+        subject.setLastSyncTime(date1, userId: "1")
+        subject.setLastSyncTime(date2, userId: "2")
+
+        XCTAssertEqual(subject.lastSyncTime(userId: "1"), date1)
+        XCTAssertEqual(subject.lastSyncTime(userId: "2"), date2)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_1"), 1_701_388_800.0)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_2"), 1_696_204_800.0)
+
+        let date3 = Date(year: 2023, month: 8, day: 1)
+        let date4 = Date(year: 2023, month: 6, day: 2)
+
+        subject.setLastSyncTime(date3, userId: "1")
+        subject.setLastSyncTime(date4, userId: "2")
+
+        XCTAssertEqual(subject.lastSyncTime(userId: "1"), date3)
+        XCTAssertEqual(subject.lastSyncTime(userId: "2"), date4)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_1"), 1_690_848_000.0)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_2"), 1_685_664_000.0)
+    }
+
+    /// `masterPasswordHash(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_masterPasswordHash_isInitiallyNil() {
+        XCTAssertNil(subject.masterPasswordHash(userId: "-1"))
+    }
+
+    /// `masterPasswordHash(userId:)` can be used to get the master password hash for a user.
+    func test_masterPasswordHash_withValue() {
+        subject.setMasterPasswordHash("1234", userId: "1")
+        subject.setMasterPasswordHash("9876", userId: "2")
+
+        XCTAssertEqual(subject.masterPasswordHash(userId: "1"), "1234")
+        XCTAssertEqual(subject.masterPasswordHash(userId: "2"), "9876")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:keyHash_1"), "1234")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:keyHash_2"), "9876")
+
+        subject.setMasterPasswordHash("abcd", userId: "1")
+        subject.setMasterPasswordHash("zyxw", userId: "2")
+
+        XCTAssertEqual(subject.masterPasswordHash(userId: "1"), "abcd")
+        XCTAssertEqual(subject.masterPasswordHash(userId: "2"), "zyxw")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:keyHash_1"), "abcd")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:keyHash_2"), "zyxw")
+    }
+
     /// `passwordGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.
     func test_passwordGenerationOptions_isInitiallyNil() {
         XCTAssertNil(subject.passwordGenerationOptions(userId: "-1"))
@@ -166,6 +252,42 @@ class AppSettingsStoreTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "1"), options1)
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "2"), options2)
+    }
+
+    /// `preAuthEnvironmentUrls` returns `nil` if there isn't a previously stored value.
+    func test_preAuthEnvironmentUrls_isInitiallyNil() {
+        XCTAssertNil(subject.preAuthEnvironmentUrls)
+    }
+
+    /// `preAuthEnvironmentUrls` can be used to get and set the persisted value in user defaults.
+    func test_preAuthEnvironmentUrls_withValue() {
+        subject.preAuthEnvironmentUrls = .defaultUS
+        XCTAssertEqual(subject.preAuthEnvironmentUrls, .defaultUS)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultUS
+        )
+
+        subject.preAuthEnvironmentUrls = .defaultEU
+        XCTAssertEqual(subject.preAuthEnvironmentUrls, .defaultEU)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultEU
+        )
     }
 
     /// `usernameGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.
@@ -242,7 +364,8 @@ class AppSettingsStoreTests: BitwardenTestCase {
         )
 
         let stateMultipleAccounts = State.fixture(
-            accounts: ["1": .fixture(), "2": .fixture()])
+            accounts: ["1": .fixture(), "2": .fixture()]
+        )
         subject.state = stateMultipleAccounts
         XCTAssertEqual(subject.state, stateMultipleAccounts)
         XCTAssertEqual(

@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 import XCTest
 
@@ -8,6 +9,7 @@ import XCTest
 class VaultItemCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var cameraService: MockCameraService!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultItemCoordinator!
@@ -17,12 +19,14 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        cameraService = MockCameraService()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
         vaultRepository = MockVaultRepository()
         subject = VaultItemCoordinator(
             module: module,
             services: ServiceContainer.withMocks(
+                cameraService: cameraService,
                 vaultRepository: vaultRepository
             ),
             stackNavigator: stackNavigator
@@ -31,6 +35,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        cameraService = nil
         module = nil
         stackNavigator = nil
         subject = nil
@@ -102,6 +107,22 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.editItem()` with a malformed cipher fails to trigger the show edit flow.
+    func test_navigateTo_editItem_newCipher() throws {
+        subject.navigate(to: .editItem(cipher: .fixture()), context: nil)
+
+        XCTAssertNil(stackNavigator.actions.last)
+    }
+
+    /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
+    func test_navigateTo_editItem_existingCipher() throws {
+        subject.navigate(to: .editItem(cipher: .loginFixture()), context: nil)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is NavigationView<AddEditItemView>)
+    }
+
     /// `navigate(to:)` with `.generator`, `.password`, and without a delegate does not present the
     /// generator screen.
     func test_navigateTo_generator_withPassword_withoutDelegate() throws {
@@ -149,22 +170,80 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         XCTAssertNil(stackNavigator.actions.last)
     }
 
+    /// `navigate(to:)` with `.setupTotpCamera` with context without conformance fails to present.
+    func test_navigateTo_setupTotpCamera_noConformance() throws {
+        cameraService.startResult = .success(AVCaptureSession())
+        cameraService.cameraAuthorizationStatus = .authorized
+        subject.navigate(to: .setupTotpCamera, context: MockProcessor<Any, Any, Any>(state: ()))
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
+    /// `navigate(to:)` with `.setupTotpCamera` without context fails to present.
+    func test_navigateTo_setupTotpCamera_noContext() throws {
+        cameraService.startResult = .success(AVCaptureSession())
+        cameraService.cameraAuthorizationStatus = .authorized
+        subject.navigate(to: .setupTotpCamera, context: nil)
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
     /// `navigate(to:)` with `.setupTotpCamera` presents the camera totp setup screen.
-    func test_navigateTo_setupTotpCamera() throws {
-        subject.navigate(to: .setupTotpCamera)
+    func test_navigateTo_setupTotpCamera_success() throws {
+        let mockContext = MockScanDelegateProcessor(state: ())
+        cameraService.startResult = .success(AVCaptureSession())
+        cameraService.cameraAuthorizationStatus = .authorized
+        let task = Task {
+            subject.navigate(to: .setupTotpCamera, context: mockContext)
+        }
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ScanCodeView.self))
+    }
+
+    /// `navigate(to:)` with `.setupTotpCamera` fails without an AVCaptureSession.
+    ///     The user is redirected to the manual setup.
+    func test_navigateTo_setupTotpCamera_fail() throws {
+        let mockContext = MockScanDelegateProcessor(state: ())
+        cameraService.startResult = .failure(CameraServiceError.unableToStartCaptureSession)
+        let task = Task {
+            subject.navigate(to: .setupTotpCamera, context: mockContext)
+        }
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is NavigationView<Text>)
+    }
+
+    /// `navigate(to:)` with `.setupTotpManual` with context without conformance fails to present.
+    func test_navigateTo_setupTotpManual_noConformance() throws {
+        cameraService.startResult = .success(AVCaptureSession())
+        cameraService.cameraAuthorizationStatus = .authorized
+        subject.navigate(to: .setupTotpManual, context: MockProcessor<Any, Any, Any>(state: ()))
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
+    /// `navigate(to:)` with `.setupTotpManual` without context fails to present.
+    func test_navigateTo_setupTotpManual_noContext() throws {
+        cameraService.startResult = .success(AVCaptureSession())
+        cameraService.cameraAuthorizationStatus = .authorized
+        subject.navigate(to: .setupTotpManual, context: nil)
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual totp setup screen.
-    func test_navigateTo_setupTotpManual() throws {
-        subject.navigate(to: .setupTotpManual)
+    func test_navigateTo_setupTotpManual_success() throws {
+        let mockContext = MockScanDelegateProcessor(state: ())
+        subject.navigate(to: .setupTotpManual, context: mockContext)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is Text)
+        XCTAssertTrue(action.view is NavigationView<Text>)
     }
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
@@ -181,5 +260,23 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
         subject.start()
 
         XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+}
+
+/// A MockProcessor with AuthenticatorKeyCaptureDelegate conformance.
+///
+class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyCaptureDelegate {
+    /// A property to capture a `didCompleteCapture` call value.
+    var capturedScan: String?
+
+    /// A flag to capture a `didCancel` call.
+    var didCancel: Bool = false
+
+    func didCompleteCapture(with value: String) {
+        capturedScan = value
+    }
+
+    func didCancelScan() {
+        didCancel = true
     }
 }

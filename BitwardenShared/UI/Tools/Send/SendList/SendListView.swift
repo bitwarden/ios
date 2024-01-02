@@ -19,6 +19,7 @@ struct SendListView: View {
                     get: \.searchText,
                     send: SendListAction.searchTextChanged
                 ),
+                placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
             .navigationTitle(Localizations.send)

@@ -131,7 +131,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     ///
     /// - Parameter captchaToken: The token returned when the captcha flow has completed.
     ///
-    private func createAccount(captchaToken: String? = nil) async { // swiftlint:disable:this function_body_length
+    private func createAccount(captchaToken: String? = nil) async {
+        // swiftlint:disable:previous function_body_length cyclomatic_complexity
         do {
             let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             guard !email.isEmpty else {
@@ -169,7 +170,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             let hashedPassword = try await services.clientAuth.hashPassword(
                 email: email,
                 password: state.passwordText,
-                kdfParams: kdf
+                kdfParams: kdf,
+                purpose: .serverAuthorization
             )
 
             _ = try await services.accountAPIService.createNewAccount(
@@ -206,8 +208,6 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             coordinator.navigate(to: .alert(.passwordIsTooShort))
         } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
             launchCaptchaFlow(with: siteCode)
-        } catch let CreateAccountRequestError.serverError(errorResponse) {
-            coordinator.navigate(to: .alert(.serverError(errorResponse.singleMessage())))
         } catch {
             coordinator.navigate(to: .alert(.networkResponseError(error) {
                 await self.createAccount(captchaToken: captchaToken)

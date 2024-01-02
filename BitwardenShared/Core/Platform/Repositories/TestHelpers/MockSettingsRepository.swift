@@ -1,13 +1,58 @@
+import BitwardenSdk
+import Combine
+import Foundation
+
 @testable import BitwardenShared
 
 class MockSettingsRepository: SettingsRepository {
+    var addedFolderName: String?
+    var addFolderResult: Result<Void, Error> = .success(())
+    var allowSyncOnRefresh = false
+    var allowSyncOnRefreshResult: Result<Void, Error> = .success(())
+    var editedFolderName: String?
+    var editFolderResult: Result<Void, Error> = .success(())
+    var fetchSyncCalled = false
+    var fetchSyncResult: Result<Void, Error> = .success(())
+    var foldersListError: Error?
     var isLockedResult: Result<Bool, VaultTimeoutServiceError> = .failure(.noAccountFound)
+    var lastSyncTimeError: Error?
+    var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lockVaultCalls = [String?]()
     var unlockVaultCalls = [String?]()
     var logoutResult: Result<Void, StateServiceError> = .failure(.noActiveAccount)
+    var foldersListSubject = CurrentValueSubject<[FolderView], Error>([])
 
-    func isLocked(userId: String) throws -> Bool {
+    var clearClipboardValue: ClearClipboardValue = .never
+
+    func addFolder(name: String) async throws {
+        addedFolderName = name
+        try addFolderResult.get()
+    }
+
+    func editFolder(withID _: String, name: String) async throws {
+        editedFolderName = name
+        try editFolderResult.get()
+    }
+
+    func fetchSync() async throws {
+        fetchSyncCalled = true
+        try fetchSyncResult.get()
+    }
+
+    func getAllowSyncOnRefresh() async throws -> Bool {
+        try allowSyncOnRefreshResult.get()
+        return allowSyncOnRefresh
+    }
+
+    func isLocked(userId _: String) throws -> Bool {
         try isLockedResult.get()
+    }
+
+    func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>> {
+        if let lastSyncTimeError {
+            throw lastSyncTimeError
+        }
+        return lastSyncTimeSubject.eraseToAnyPublisher().values
     }
 
     func lockVault(userId: String?) {
@@ -18,7 +63,19 @@ class MockSettingsRepository: SettingsRepository {
         lockVaultCalls.append(userId)
     }
 
+    func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
+        self.allowSyncOnRefresh = allowSyncOnRefresh
+        try allowSyncOnRefreshResult.get()
+    }
+
     func logout() async throws {
         try logoutResult.get()
+    }
+
+    func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>> {
+        if let foldersListError {
+            throw foldersListError
+        }
+        return AsyncThrowingPublisher(foldersListSubject.eraseToAnyPublisher())
     }
 }

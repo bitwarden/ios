@@ -17,7 +17,7 @@ protocol AuthCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the authentication flow.
 ///
-internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
+final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasAccountAPIService
@@ -28,6 +28,7 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
         & HasSystemDevice
@@ -103,10 +104,10 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
             showLoginOptions()
         case .loginWithDevice:
             showLoginWithDevice()
-        case .masterPasswordHint:
-            showMasterPasswordHint()
+        case let .masterPasswordHint(username):
+            showMasterPasswordHint(for: username)
         case .selfHosted:
-            showSelfHostedView()
+            showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate)
         case let .switchAccount(userId: userId):
             selectAccount(for: userId)
         case let .vaultUnlock(account):
@@ -190,8 +191,16 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// Shows the enterprise single sign-on screen.
     private func showEnterpriseSingleSignOn() {
-        let view = Text("Enterprise Single Sign-On")
-        stackNavigator.push(view)
+        let processor = SingleSignOnProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: SingleSignOnState()
+        )
+        let store = Store(processor: processor)
+        let view = SingleSignOnView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the landing screen.
@@ -244,20 +253,38 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// Shows the login with device screen.
     private func showLoginWithDevice() {
-        let view = Text("Login With Device")
-        stackNavigator.push(view)
+        let processor = LoginWithDeviceProcessor(
+            coordinator: asAnyCoordinator(),
+            state: LoginWithDeviceState()
+        )
+        let store = Store(processor: processor)
+        let view = LoginWithDeviceView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
     }
 
-    /// Shows the master password hint screen.
-    private func showMasterPasswordHint() {
-        let view = Text("Master Password Hint")
-        stackNavigator.push(view)
+    /// Shows the master password hint screen for the provided username.
+    ///
+    /// - Parameter username: The username to get the password hint for.
+    ///
+    private func showMasterPasswordHint(for username: String) {
+        let processor = PasswordHintProcessor(
+            coordinator: asAnyCoordinator(),
+            state: PasswordHintState(emailAddress: username)
+        )
+        let store = Store(processor: processor)
+        let view = PasswordHintView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the self-hosted settings view.
-    private func showSelfHostedView() {
+    private func showSelfHostedView(delegate: SelfHostedProcessorDelegate?) {
         let processor = SelfHostedProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: delegate,
             state: SelfHostedState()
         )
         let view = SelfHostedView(store: Store(processor: processor))
@@ -283,7 +310,7 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
 // MARK: ASWebAuthenticationPresentationContextProviding
 
 extension AuthCoordinator: ASWebAuthenticationPresentationContextProviding {
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+    func presentationAnchor(for _: ASWebAuthenticationSession) -> ASPresentationAnchor {
         stackNavigator.rootViewController?.view.window ?? UIWindow()
     }
 }

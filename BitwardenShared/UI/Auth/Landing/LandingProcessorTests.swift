@@ -10,7 +10,9 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     var appSettingsStore: MockAppSettingsStore!
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<AuthRoute>!
+    var environmentService: MockEnvironmentService!
     var subject: LandingProcessor!
+    var stateService: MockStateService!
 
     // MARK: Setup & Teardown
 
@@ -19,11 +21,15 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         appSettingsStore = MockAppSettingsStore()
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator<AuthRoute>()
+        environmentService = MockEnvironmentService()
+        stateService = MockStateService()
 
         let state = LandingState()
         let services = ServiceContainer.withMocks(
             appSettingsStore: appSettingsStore,
-            authRepository: authRepository
+            authRepository: authRepository,
+            environmentService: environmentService,
+            stateService: stateService
         )
         subject = LandingProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -37,10 +43,67 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         authRepository = nil
         appSettingsStore = nil
         coordinator = nil
+        environmentService = nil
         subject = nil
+        stateService = nil
     }
 
     // MARK: Tests
+
+    /// `didSaveEnvironment(urls:)` with URLs sets the region to self-hosted and sets the URLs in
+    /// the environment.
+    func test_didSaveEnvironment() async {
+        subject.state.region = .unitedStates
+        await subject.didSaveEnvironment(urls: EnvironmentUrlData(base: .example))
+        XCTAssertEqual(subject.state.region, .selfHosted)
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentUrlsData,
+            EnvironmentUrlData(base: .example)
+        )
+    }
+
+    /// `didSaveEnvironment(urls:)` with empty URLs doesn't change the region or the environment URLs.
+    func test_didSaveEnvironment_empty() async {
+        subject.state.region = .unitedStates
+        await subject.didSaveEnvironment(urls: EnvironmentUrlData())
+        XCTAssertEqual(subject.state.region, .unitedStates)
+        XCTAssertNil(environmentService.setPreAuthEnvironmentUrlsData)
+    }
+
+    /// `perform(.appeared)` with no pre-auth URLs defaults the region and URLs to the US environment.
+    func test_perform_appeared_loadsRegion_noPreAuthUrls() async {
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .unitedStates)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
+    }
+
+    /// `perform(.appeared)` with EU pre-auth URLs sets the state to the EU region and sets the
+    /// environment URLs.
+    func test_perform_appeared_loadsRegion_withPreAuthUrls_europe() async {
+        stateService.preAuthEnvironmentUrls = .defaultEU
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .europe)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultEU)
+    }
+
+    /// `perform(.appeared)` with self-hosted pre-auth URLs sets the state to the self-hosted region
+    /// and sets the URLs to the environment.
+    func test_perform_appeared_loadsRegion_withPreAuthUrls_selfHosted() async {
+        let urls = EnvironmentUrlData(base: .example)
+        stateService.preAuthEnvironmentUrls = urls
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .selfHosted)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, urls)
+    }
+
+    /// `perform(.appeared)` with US pre-auth URLs sets the state to the US region and sets the
+    /// environment URLs.
+    func test_perform_appeared_loadsRegion_withPreAuthUrls_unitedStates() async {
+        stateService.preAuthEnvironmentUrls = .defaultUS
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .unitedStates)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
+    }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
     func test_perform_appeared_profiles_single_active() async {
@@ -323,7 +386,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
-        XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted)
     }
 

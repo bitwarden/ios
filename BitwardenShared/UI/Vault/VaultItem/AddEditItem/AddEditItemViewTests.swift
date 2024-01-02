@@ -11,14 +11,15 @@ import XCTest
 class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var processor: MockProcessor<CipherItemState, AddEditItemAction, AddEditItemEffect>!
+    var processor: MockProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect>!
     var subject: AddEditItemView!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: .init())
+        processor = MockProcessor(state: CipherItemState())
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
     }
@@ -44,6 +45,15 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .checkPasswordPressed)
+    }
+
+    /// Tapping the copy totp button performs the `.copyTotp` effect.
+    func test_copyTotpButton_tap() async throws {
+        processor.state.loginState.totpKey = .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.copyTotp)
+        try await button.tap()
+
+        XCTAssertEqual(processor.effects.last, .copyTotpPressed)
     }
 
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
@@ -101,14 +111,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRePromptChanged(true))
     }
 
-    /// Tapping the more button dispatches the `.morePressed` action.
-    func test_moreButton_tap() throws {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.options)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
-    }
-
     /// Updating the name text field dispatches the `.nameChanged()` action.
     func test_nameTextField_updateValue() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.name)
@@ -139,11 +141,16 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("text"))
     }
 
-    /// Updating the owner text field dispatches the `.ownerChanged()` action.
+    /// Updating the owner menu dispatches the `.ownerChanged()` action.
     func test_ownerTextField_updateValue() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.whoOwnsThisItem)
-        try textField.inputBinding().wrappedValue = "text"
-        XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged("text"))
+        let organizationOwner = CipherOwner.organization(id: "1", name: "Bitwarden Organization")
+        processor.state.ownershipOptions = [
+            CipherOwner.personal(email: "user@bitwarden.com"),
+            organizationOwner,
+        ]
+        let menu = try subject.inspect().find(bitwardenMenuField: Localizations.whoOwnsThisItem)
+        try menu.select(newValue: organizationOwner)
+        XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(organizationOwner))
     }
 
     /// Updating the password text field dispatches the `.passwordChanged()` action.
@@ -182,9 +189,18 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
-    func test_setupTotpButton_tap() async throws {
+    func test_setupTotpButton_noKey_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.setupTotp)
         try await button.tap()
+        XCTAssertEqual(processor.effects.last, .setupTotpPressed)
+    }
+
+    /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
+    func test_setupTotpButton_withKey_tap() async throws {
+        processor.state.loginState.totpKey = .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.setupTotp)
+        try await button.tap()
+
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)
     }
 
@@ -248,13 +264,257 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .usernameChanged("text"))
     }
 
+    /// Updating the name text field dispatches the `.identityFieldChanged(.userNameChanged())` action.
+    func test_identity_titleMenu_updateValue() throws {
+        processor.state.type = .identity
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.title)
+        try menuField.select(newValue: DefaultableType.custom(TitleType.ms))
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.titleChanged(.custom(.ms))))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.firstNameChanged())` action.
+    func test_firstNameTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.firstName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.firstNameChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.lastNameChanged())` action.
+    func test_lastNameTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.lastName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.lastNameChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.middleNameChanged())` action.
+    func test_middleNameTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.middleName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.middleNameChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.userNameChanged())` action.
+    func test_identity_userNameTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.username)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.userNameChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.companyChanged())` action.
+    func test_companyTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.company)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.companyChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.socialSecurityNumberChanged())` action.
+    func test_socialSecurityNumberTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.ssn)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.socialSecurityNumberChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.passportNumberChanged())` action.
+    func test_passportNumberTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.passportNumber)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.passportNumberChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.licenseNumberChanged())` action.
+    func test_licenseNumberTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.licenseNumber)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.licenseNumberChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.emailChanged())` action.
+    func test_emailTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.email)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.emailChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.phoneNumberChanged())` action.
+    func test_phoneTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.phone)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.phoneNumberChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.address1Changed())` action.
+    func test_address1TextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.address1)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.address1Changed("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.address2Changed())` action.
+    func test_address2TextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.address2)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.address2Changed("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.address3Changed())` action.
+    func test_address3TextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.address3)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.address3Changed("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.cityOrTownChanged())` action.
+    func test_cityOrTownTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.cityTown)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.cityOrTownChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.stateChanged())` action.
+    func test_stateTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.stateProvince)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.stateChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.postalCodeChanged())` action.
+    func test_postalCodeTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.zipPostalCode)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.postalCodeChanged("text")))
+    }
+
+    /// Updating the name text field dispatches the `.identityFieldChanged(.countryChanged())` action.
+    func test_countryTextField_updateValue() throws {
+        processor.state.type = .identity
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.country)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .identityFieldChanged(.countryChanged("text")))
+    }
+
     // MARK: Snapshots
 
-    func test_snapshot_empty() {
+    func test_snapshot_add_empty() {
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
-    func test_snapshot_full_fieldsVisible() {
+    /// Tests the add state with identity item empty.
+    func test_snapshot_add_identity_full_fieldsEmpty() {
+        processor.state.type = .identity
+        processor.state.name = ""
+        processor.state.identityState = .init()
+        processor.state.isFavoriteOn = false
+        processor.state.isMasterPasswordRePromptOn = false
+        processor.state.notes = ""
+        processor.state.folder = ""
+
+        assertSnapshot(of: subject, as: .tallPortrait2)
+    }
+
+    /// Tests the add state with identity item filled.
+    func test_snapshot_add_identity_full_fieldsFilled() {
+        processor.state.type = .identity
+        processor.state.name = "my identity"
+        processor.state.identityState = .fixture(
+            title: .custom(.dr),
+            firstName: "First",
+            lastName: "Last",
+            middleName: "Middle",
+            userName: "userName",
+            company: "Company name",
+            socialSecurityNumber: "12-345-6789",
+            passportNumber: "passport #",
+            licenseNumber: "license #",
+            email: "hello@email.com",
+            phone: "(123) 456-7890",
+            address1: "123 street",
+            address2: "address2",
+            address3: "address3",
+            cityOrTown: "City",
+            state: "State",
+            postalCode: "1234",
+            country: "country"
+        )
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortrait2)
+    }
+
+    /// Tests the add state with identity item filled with large text.
+    func test_snapshot_add_identity_full_fieldsFilled_largeText() {
+        processor.state.type = .identity
+        processor.state.name = "my identity"
+        processor.state.identityState = .fixture(
+            title: .custom(.dr),
+            firstName: "First",
+            lastName: "Last",
+            middleName: "Middle",
+            userName: "userName",
+            company: "Company name",
+            socialSecurityNumber: "12-345-6789",
+            passportNumber: "passport #",
+            licenseNumber: "license #",
+            email: "hello@email.com",
+            phone: "(123) 456-7890",
+            address1: "123 street",
+            address2: "address2",
+            address3: "address3",
+            cityOrTown: "City",
+            state: "State",
+            postalCode: "1234",
+            country: "country"
+        )
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 7))
+    }
+
+    /// Tests the add state with the password field not visible.
+    func test_snapshot_add_login_full_fieldsNotVisible() {
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.loginState = .fixture(
+            password: "password1!",
+            uris: [
+                .init(uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.loginState.uris = [
+            UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
+        ]
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    /// Tests the add state with all fields.
+    func test_snapshot_add_login_full_fieldsVisible() {
         processor.state.type = .login
         processor.state.name = "Name"
         processor.state.loginState.username = "username"
@@ -264,7 +524,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.loginState.uris = [
             UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
         ]
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
 
@@ -273,65 +532,43 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
-    func test_snapshot_secureNote_full_fieldsVisible() {
+    func test_snapshot_edit_full_fieldsNotVisible() {
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state.loginState = .fixture(
+            isPasswordVisible: false,
+            password: "password1!",
+            uris: [
+                .init(uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot_add_secureNote_full_fieldsVisible() {
         processor.state.type = .secureNote
         processor.state.name = "Secure Note Name"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
-    func test_snapshot_full_fieldsNotVisible() {
-        processor.state.type = .login
-        processor.state.name = "Name"
-        processor.state.loginState = .fixture(
-            password: "password1!",
-            uris: [
-                .init(uri: URL.example.absoluteString),
-            ],
-            username: "username"
-        )
-        processor.state.isFavoriteOn = true
-        processor.state.isMasterPasswordRePromptOn = true
-        processor.state.loginState.uris = [
-            UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
-        ]
-        processor.state.owner = "owner"
-        processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
-
-        assertSnapshot(of: subject, as: .tallPortrait)
-    }
-
-    func test_snapshot__edit_full_fieldsVisible() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
-        processor.state.type = .login
-        processor.state.name = "Name"
-        processor.state.loginState = .fixture(
-            isPasswordVisible: true,
-            password: "password1!",
-            uris: [
-                .init(uri: URL.example.absoluteString),
-            ],
-            username: "username"
-        )
-        processor.state.isFavoriteOn = true
-        processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
-        processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
-
-        assertSnapshot(of: subject, as: .tallPortrait)
-    }
-
-    func test_snapshot__edit_full_fieldsVisible_largeText() {
+    func test_snapshot_edit_full_disabledViewPassword() {
         processor.state = CipherItemState(existing: CipherView.loginFixture())!
         processor.state.loginState = .fixture(
-            isPasswordVisible: true,
+            canViewPassword: false,
+            isPasswordVisible: false,
             password: "password1!",
             uris: [
                 .init(uri: URL.example.absoluteString),
@@ -342,14 +579,14 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.name = "Name"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
-        assertSnapshot(of: subject, as: .tallPortraitAX5())
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
-    func test_snapshot__edit_full_fieldsNotVisible() {
+    func test_snapshot_edit_full_fieldsNotVisible_largeText() {
         processor.state = CipherItemState(existing: CipherView.loginFixture())!
         processor.state.loginState = .fixture(
             isPasswordVisible: false,
@@ -363,17 +600,38 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.name = "Name"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+
+        assertSnapshot(of: subject, as: .tallPortraitAX5())
+    }
+
+    func test_snapshot_edit_full_fieldsVisible() {
+        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.loginState = .fixture(
+            isPasswordVisible: true,
+            password: "password1!",
+            uris: [
+                .init(uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.notes = "Notes"
+        processor.state.folder = "Folder"
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
-    func test_snapshot__edit_full_fieldsNotVisible_largeText() {
+    func test_snapshot_edit_full_fieldsVisible_largeText() {
         processor.state = CipherItemState(existing: CipherView.loginFixture())!
         processor.state.loginState = .fixture(
-            isPasswordVisible: false,
+            isPasswordVisible: true,
             password: "password1!",
             uris: [
                 .init(uri: URL.example.absoluteString),
@@ -384,10 +642,24 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.name = "Name"
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.owner = "owner"
         processor.state.notes = "Notes"
         processor.state.folder = "Folder"
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortraitAX5())
     }
-}
+
+    /// Test a snapshot of the AddEditView previews.
+    func test_snapshot_previews_addEditItemView() {
+        for preview in AddEditItemView_Previews._allPreviews {
+            assertSnapshots(
+                matching: preview.content,
+                as: [
+                    .tallPortrait,
+                    .tallPortraitAX5(heightMultiple: 5),
+                    .defaultPortraitDark,
+                ]
+            )
+        }
+    }
+} // swiftlint:disable:this file_length

@@ -8,6 +8,8 @@ class AppProcessorTests: BitwardenTestCase {
     var appModule: MockAppModule!
     var appSettingStore: MockAppSettingsStore!
     var subject: AppProcessor!
+    var syncService: MockSyncService!
+    var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
 
@@ -16,10 +18,15 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = MockAppModule()
         appSettingStore = MockAppSettingsStore()
+        syncService = MockSyncService()
+        vaultTimeoutService = MockVaultTimeoutService()
+
         subject = AppProcessor(
             appModule: appModule,
             services: ServiceContainer.withMocks(
-                appSettingsStore: appSettingStore
+                appSettingsStore: appSettingStore,
+                syncService: syncService,
+                vaultTimeoutService: vaultTimeoutService
             )
         )
     }
@@ -29,6 +36,8 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = nil
         subject = nil
+        syncService = nil
+        vaultTimeoutService = nil
     }
 
     // MARK: Tests
@@ -55,5 +64,30 @@ class AppProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(appModule.appCoordinator.routes, [.auth(.landing)])
+    }
+
+    /// `start(navigator:)` subscribes to the vault timeout service publisher and clears any cached
+    ///  data if it receives the value to clear cached data.
+    func test_start_shouldClearData() {
+        let rootNavigator = MockRootNavigator()
+
+        subject.start(navigator: rootNavigator)
+
+        vaultTimeoutService.shouldClearSubject.send(true)
+
+        waitFor { syncService.didClearCachedData }
+        XCTAssertTrue(syncService.didClearCachedData)
+    }
+
+    /// `start(navigator:)` subscribes to the vault timeout service publisher and does not clear
+    /// any cached data if the published value is false.
+    func test_start_shouldNotClearData() {
+        let rootNavigator = MockRootNavigator()
+
+        subject.start(navigator: rootNavigator)
+
+        vaultTimeoutService.shouldClearSubject.send(false)
+
+        XCTAssertFalse(syncService.didClearCachedData)
     }
 }

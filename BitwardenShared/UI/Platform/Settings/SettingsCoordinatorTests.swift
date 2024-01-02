@@ -35,6 +35,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `navigate(to:)` with `.about` pushes the about view onto the stack navigator.
+    func test_navigateTo_about() throws {
+        subject.navigate(to: .about)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<AboutView>)
+    }
+
     /// `navigate(to:)` with `.accountSecurity` pushes the account security view onto the stack navigator.
     func test_navigateTo_accountSecurity() throws {
         subject.navigate(to: .accountSecurity)
@@ -42,6 +51,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
         XCTAssertTrue(action.view is UIHostingController<AccountSecurityView>)
+    }
+
+    /// `navigate(to:)` with `.addEditFolder` pushes the add/edit folder view onto the stack navigator.
+    func test_navigateTo_addEditFolder() throws {
+        subject.navigate(to: .addEditFolder(folder: nil))
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<AddEditFolderView>)
     }
 
     /// `navigate(to:)` with `.alert` has the stack navigator present the alert.
@@ -73,12 +91,31 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<DeleteAccountView>)
     }
 
+    /// `navigate(to:)` with `.didDeleteAccount(otherAccounts:)` calls the delegate method
+    /// that performs navigation post-deletion.
+    func test_navigateTo_didDeleteAccount() throws {
+        subject.navigate(to: .didDeleteAccount(otherAccounts: []))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+        XCTAssertTrue(delegate.didDeleteAccountCalled)
+    }
+
     /// `navigate(to:)` with `.dismiss` dismisses the presented view.
     func test_navigateTo_dismiss() throws {
         subject.navigate(to: .dismiss)
 
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(lastAction.type, .dismissed)
+    }
+
+    /// `navigate(to:)` with `.exportVault` presents the export vault view.
+    func test_navigateTo_exportVault() throws {
+        subject.navigate(to: .exportVault)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportVaultView>)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
@@ -93,6 +130,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .logout)
 
         XCTAssertTrue(delegate.didLogoutCalled)
+    }
+
+    /// `navigate(to:)` with `.folders` pushes the folders view onto the stack navigator.
+    func test_navigateTo_folders() throws {
+        subject.navigate(to: .folders)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<FoldersView>)
     }
 
     /// `navigate(to:)` with `.other` pushes the other view onto the stack navigator.
@@ -111,6 +157,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
         XCTAssertTrue(action.view is SettingsView)
+    }
+
+    /// `navigate(to:)` with `.vault` pushes the vault settings view onto the stack navigator.
+    func test_navigateTo_vault() throws {
+        subject.navigate(to: .vault)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<VaultSettingsView>)
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
@@ -137,10 +192,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
+    var didDeleteAccountCalled = false
     var didLockVaultCalled = false
     var didLogoutCalled = false
 
-    func didLockVault(account: Account) {
+    func didDeleteAccount(otherAccounts _: [Account]?) {
+        didDeleteAccountCalled = true
+    }
+
+    func didLockVault(account _: Account) {
         didLockVaultCalled = true
     }
 

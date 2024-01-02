@@ -49,6 +49,9 @@ private struct VaultMainView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
+                    vaultFilterRow()
+                        .padding(.top, 16)
+
                     Spacer()
 
                     Text(Localizations.noItems)
@@ -129,12 +132,50 @@ private struct VaultMainView: View {
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         ScrollView {
-            LazyVStack(spacing: 20) {
+            VStack(spacing: 20) {
+                vaultFilterRow()
+
                 ForEach(sections) { section in
                     vaultItemSectionView(title: section.name, items: section.items)
                 }
             }
             .padding(16)
+        }
+    }
+
+    /// Displays the vault filter row if the user is a member of any
+    @ViewBuilder
+    private func vaultFilterRow() -> some View {
+        if !store.state.vaultFilterOptions.isEmpty {
+            HStack(spacing: 0) {
+                Text(store.state.vaultFilterType.filterTitle)
+
+                Spacer()
+
+                Menu {
+                    Picker(selection: store.binding(
+                        get: \.vaultFilterType,
+                        send: VaultListAction.vaultFilterChanged
+                    )) {
+                        ForEach(store.state.vaultFilterOptions) { filter in
+                            Text(filter.title)
+                                .tag(filter)
+                        }
+                    } label: {
+                        EmptyView()
+                    }
+                } label: {
+                    Asset.Images.horizontalKabob.swiftUIImage
+                        .frame(width: 44, height: 44, alignment: .trailing)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityLabel(Localizations.filterByVault)
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            }
+            .frame(minHeight: 60)
+            .padding(.horizontal, 16)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 
@@ -178,7 +219,7 @@ private struct VaultMainView: View {
                 SectionHeaderView("\(items.count)")
             }
 
-            VStack(alignment: .leading, spacing: 0) {
+            LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(items) { item in
                     Button {
                         store.send(.itemPressed(item: item))
@@ -219,7 +260,7 @@ struct VaultListView: View {
                 }
             profileSwitcher
         }
-        .navigationTitle(Localizations.myVault)
+        .navigationTitle(store.state.navigationTitle)
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -246,6 +287,12 @@ struct VaultListView: View {
         }
         .task {
             await store.perform(.appeared)
+        }
+        .task {
+            await store.perform(.streamOrganizations)
+        }
+        .task(id: store.state.vaultFilterType) {
+            await store.perform(.streamVaultList)
         }
     }
 
@@ -397,6 +444,35 @@ struct VaultListView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("My Vault")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            loadingState: .data([
+                                VaultListSection(
+                                    id: "Collections",
+                                    items: [
+                                        VaultListItem(
+                                            id: "31",
+                                            itemType: .group(.collection(id: "", name: "Design"), 0)
+                                        ),
+                                        VaultListItem(
+                                            id: "32",
+                                            itemType: .group(.collection(id: "", name: "Engineering"), 2)
+                                        ),
+                                    ],
+                                    name: "Collections"
+                                ),
+                            ]),
+                            organizations: [Organization(id: "", name: "Org")]
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("My Vault - Collections")
 
         NavigationView {
             VaultListView(

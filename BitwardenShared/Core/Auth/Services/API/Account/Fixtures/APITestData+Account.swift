@@ -9,6 +9,7 @@ extension APITestData {
     static let createAccountNilValidationErrors = loadFromJsonBundle(resource: "CreateAccountNilValidationErrors")
     static let createAccountRequest = loadFromJsonBundle(resource: "CreateAccountRequest")
     static let createAccountSuccess = loadFromJsonBundle(resource: "CreateAccountSuccess")
+    static let deleteAccountRequestFailure = loadFromJsonBundle(resource: "DeleteAccountRequestFailure")
     static let hibpLeakedPasswords = loadFromBundle(resource: "hibpLeakedPasswords", extension: "txt")
 
     // MARK: Pre-Login

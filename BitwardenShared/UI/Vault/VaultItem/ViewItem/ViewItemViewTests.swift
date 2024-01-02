@@ -105,13 +105,6 @@ class ViewItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
 
-    /// Tapping the more button dispatches the `.morePressed` action.
-    func test_moreButton_tap() throws {
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.options)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
-    }
-
     // MARK: Snapshots
 
     func test_snapshot_loading() {
@@ -119,15 +112,48 @@ class ViewItemViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
-    func loginState() -> CipherItemState { // swiftlint:disable:this function_body_length
-        var cipherState = CipherItemState(existing: .loginFixture())!
+    func identityState() -> CipherItemState {
+        var cipherState = CipherItemState(existing: .fixture(id: "1234", name: "identity example", type: .identity))!
         cipherState.folder = "Folder"
-        cipherState.loginState.isPasswordVisible = true
+        cipherState.notes = "This is a long note so that it goes to the next line!"
+        cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
+        cipherState.identityState = .fixture(
+            title: .custom(.dr),
+            firstName: "First",
+            lastName: "Last",
+            middleName: "Middle",
+            userName: "userName",
+            company: "Company name",
+            socialSecurityNumber: "12-345-6789",
+            passportNumber: "passport #",
+            licenseNumber: "license #",
+            email: "hello@email.com",
+            phone: "(123) 456-7890",
+            address1: "123 street",
+            address2: "address2",
+            address3: "address3",
+            cityOrTown: "City",
+            state: "State",
+            postalCode: "1234",
+            country: "country"
+        )
+        return cipherState
+    }
+
+    func loginState( // swiftlint:disable:this function_body_length
+        canViewPassword: Bool = true,
+        isPasswordVisible: Bool = true
+    ) -> CipherItemState {
+        var cipherState = CipherItemState(existing: .fixture(id: "fake-id"))!
+        cipherState.folder = "Folder"
         cipherState.name = "Example"
         cipherState.notes = "This is a long note so that it goes to the next line!"
+        cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
+        cipherState.loginState.canViewPassword = canViewPassword
+        cipherState.loginState.isPasswordVisible = isPasswordVisible
         cipherState.loginState.password = "Password1234!"
         cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
-        cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
+        cipherState.loginState.username = "email@example.com"
         cipherState.loginState.uris = [
             UriState(
                 matchType: .custom(.startsWith),
@@ -138,8 +164,6 @@ class ViewItemViewTests: BitwardenTestCase {
                 uri: "https://www.example.com/account/login"
             ),
         ]
-        cipherState.loginState.username = "email@example.com"
-        cipherState.loginState.isPasswordVisible = true
         cipherState.customFields = [
             CustomFieldState(
                 linkedIdType: nil,
@@ -187,6 +211,26 @@ class ViewItemViewTests: BitwardenTestCase {
             ),
         ]
         return cipherState
+    }
+
+    func test_snapshot_identity_withAllValues() {
+        processor.state.loadingState = .data(identityState())
+        assertSnapshot(of: subject, as: .tallPortrait2)
+    }
+
+    func test_snapshot_identity_withAllValues_largeText() {
+        processor.state.loadingState = .data(identityState())
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
+    }
+
+    func test_snapshot_login_disabledViewPassword() {
+        processor.state.loadingState = .data(
+            loginState(
+                canViewPassword: false,
+                isPasswordVisible: false
+            )
+        )
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_login_withAllValues() {

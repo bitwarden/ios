@@ -19,11 +19,14 @@ enum AddEditItemAction: Equatable {
     /// The generate username button was pressed.
     case generateUsernamePressed
 
+    /// The identity field was changed.
+    case identityFieldChanged(AddEditIdentityItemAction)
+
     /// The master password re-prompt toggle was changed.
     case masterPasswordRePromptChanged(Bool)
 
     /// The more button was pressed.
-    case morePressed
+    case morePressed(VaultItemManagementMenuAction)
 
     /// The name field was changed.
     case nameChanged(String)
@@ -38,13 +41,22 @@ enum AddEditItemAction: Equatable {
     case notesChanged(String)
 
     /// The owner field was changed.
-    case ownerChanged(String)
+    case ownerChanged(CipherOwner)
 
     /// The password field was changed.
     case passwordChanged(String)
 
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// The toggle password visibility button was changed.
     case togglePasswordVisibilityChanged(Bool)
+
+    /// The TOTP field was changed.
+    ///
+    /// - Parameter newValue: the updated TOTP key.
+    ///
+    case totpKeyChanged(_ newValue: String?)
 
     /// The type field was changed.
     case typeChanged(CipherType)

@@ -10,7 +10,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     typealias Services = HasAppSettingsStore
         & HasAuthRepository
+        & HasEnvironmentService
         & HasErrorReporter
+        & HasStateService
 
     // MARK: Private Properties
 
@@ -70,6 +72,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
+            await loadRegion()
             await refreshProfileState()
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
@@ -126,6 +129,23 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         )
     }
 
+    /// Sets the region to the last used region.
+    ///
+    private func loadRegion() async {
+        guard let urls = await services.stateService.getPreAuthEnvironmentUrls() else {
+            await setRegion(.unitedStates, urls: .defaultUS)
+            return
+        }
+
+        if urls.base == EnvironmentUrlData.defaultUS.base {
+            await setRegion(.unitedStates, urls: urls)
+        } else if urls.base == EnvironmentUrlData.defaultEU.base {
+            await setRegion(.europe, urls: urls)
+        } else {
+            await setRegion(.selfHosted, urls: urls)
+        }
+    }
+
     /// Validate the currently entered email address and navigate to the login screen.
     ///
     private func validateEmailAndContinue() {
@@ -148,10 +168,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private func presentRegionSelectionAlert() {
         let actions = RegionType.allCases.map { region in
             AlertAction(title: region.baseUrlDescription, style: .default) { [weak self] _ in
-                self?.state.region = region
-
-                if region == .selfHosted {
-                    self?.coordinator.navigate(to: .selfHosted)
+                if let urls = region.defaultURLs {
+                    await self?.setRegion(region, urls: urls)
+                } else {
+                    self?.coordinator.navigate(to: .selfHosted, context: self)
                 }
             }
         }
@@ -165,6 +185,18 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         coordinator.navigate(to: .alert(alert))
     }
 
+    /// Sets the region and the URLs to use.
+    ///
+    /// - Parameters:
+    ///   - region: The region to use.
+    ///   - urls: The URLs that the app should use for the region.
+    ///
+    private func setRegion(_ region: RegionType, urls: EnvironmentUrlData) async {
+        guard !urls.isEmpty else { return }
+        await services.environmentService.setPreAuthURLs(urls: urls)
+        state.region = region
+    }
+
     /// Updates the value of `rememberedEmail` in the app settings store with the `email` value in `state`.
     ///
     private func updateRememberedEmail() {
@@ -173,5 +205,13 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         } else {
             services.appSettingsStore.rememberedEmail = nil
         }
+    }
+}
+
+// MARK: - SelfHostedProcessorDelegate
+
+extension LandingProcessor: SelfHostedProcessorDelegate {
+    func didSaveEnvironment(urls: EnvironmentUrlData) async {
+        await setRegion(.selfHosted, urls: urls)
     }
 }

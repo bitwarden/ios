@@ -7,6 +7,9 @@ import Foundation
 struct LoginItemState: Equatable {
     // MARK: Properties
 
+    /// Whether the user has permissions to view the cipher's password.
+    var canViewPassword: Bool = true
+
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool = false
 
@@ -16,11 +19,19 @@ struct LoginItemState: Equatable {
     /// The date the password was last updated.
     var passwordUpdatedDate: Date?
 
+    /// The TOTP key configuration
+    var totpKey: TOTPCodeConfig?
+
     /// The uris associated with this item. Used with autofill.
     var uris: [UriState] = [UriState()]
 
     /// The username for this item.
     var username: String = ""
+
+    /// The TOTP Key.
+    var authenticatorKey: String? {
+        totpKey?.authenticatorKey
+    }
 
     /// BitwardenSDK loginView representation of loginItemState.
     var loginView: BitwardenSdk.LoginView {
@@ -29,7 +40,7 @@ struct LoginItemState: Equatable {
             password: password.nilIfEmpty,
             passwordRevisionDate: passwordUpdatedDate,
             uris: nil,
-            totp: nil,
+            totp: authenticatorKey,
             autofillOnPageLoad: nil
         )
     }

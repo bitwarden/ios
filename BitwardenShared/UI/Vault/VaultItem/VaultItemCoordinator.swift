@@ -10,9 +10,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = GeneratorModule
 
-    typealias Services = HasCameraAuthorizationService
-        & HasVaultRepository
+    typealias Services = HasVaultRepository
+        & HasTOTPService
         & GeneratorCoordinator.Services
+        & AuthenticatorKeyCaptureCoordinator.Services
 
     // MARK: - Private Properties
 
@@ -60,9 +61,11 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
         case .setupTotpCamera:
-            showCamera()
+            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
+            showCamera(delegate: delegate)
         case .setupTotpManual:
-            showManualTotp()
+            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
+            showManualTotp(delegate: delegate)
         case let .viewItem(id):
             showViewItem(id: id)
         }
@@ -107,17 +110,26 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the totp camera setup screen.
     ///
-    private func showCamera() {
-        // TODO: BIT-874 Update to show the actual camera screen
-        let view = Text("Camera")
-        stackNavigator.present(view)
+    private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) {
+        let coordinator = AuthenticatorKeyCaptureCoordinator(
+            delegate: delegate,
+            services: services,
+            stackNavigator: stackNavigator
+        )
+        coordinator.start()
+        coordinator.navigate(to: .scanCode)
     }
 
     /// Shows the totp manual setup screen.
     ///
-    private func showManualTotp() {
-        let view = Text("Manual Totp")
-        stackNavigator.present(view)
+    private func showManualTotp(delegate: AuthenticatorKeyCaptureDelegate) {
+        let coordinator = AuthenticatorKeyCaptureCoordinator(
+            delegate: delegate,
+            services: services,
+            stackNavigator: stackNavigator
+        )
+        coordinator.start()
+        coordinator.navigate(to: .setupTotpManual)
     }
 
     /// Shows the generator screen for the the specified type.
@@ -156,5 +168,16 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         let store = Store(processor: processor)
         let view = ViewItemView(store: store)
         stackNavigator.replace(view)
+    }
+}
+
+extension View {
+    @ViewBuilder var navStackWrapped: some View {
+        if #available(iOSApplicationExtension 16.0, *) {
+            NavigationStack { self }
+        } else {
+            NavigationView { self }
+                .navigationViewStyle(.stack)
+        }
     }
 }

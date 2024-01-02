@@ -28,41 +28,69 @@ struct AddEditLoginItemView: View {
 
         BitwardenTextField(
             title: Localizations.password,
-            isPasswordVisible: store.binding(
-                get: \.isPasswordVisible,
-                send: AddEditItemAction.togglePasswordVisibilityChanged
-            ),
             text: store.binding(
                 get: \.password,
                 send: AddEditItemAction.passwordChanged
+            ),
+            canViewPassword: store.state.canViewPassword,
+            isPasswordVisible: store.binding(
+                get: \.isPasswordVisible,
+                send: AddEditItemAction.togglePasswordVisibilityChanged
             )
         ) {
-            AccessoryButton(asset: Asset.Images.roundCheck, accessibilityLabel: Localizations.checkPassword) {
-                await store.perform(.checkPasswordPressed)
-            }
-            AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generatePassword) {
-                store.send(.generatePasswordPressed)
-            }
-        }
-        .textFieldConfiguration(.password)
-
-        VStack(alignment: .leading, spacing: 8) {
-            Text(Localizations.authenticatorKey)
-                .styleGuide(.subheadline, weight: .semibold)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-            AsyncButton {
-                await store.perform(.setupTotpPressed)
-            } label: {
-                HStack(alignment: .center, spacing: 4) {
-                    Asset.Images.camera.swiftUIImage
-                    Text(Localizations.setupTotp)
+            if store.state.canViewPassword {
+                AccessoryButton(asset: Asset.Images.roundCheck, accessibilityLabel: Localizations.checkPassword) {
+                    await store.perform(.checkPasswordPressed)
+                }
+                AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generatePassword) {
+                    store.send(.generatePasswordPressed)
                 }
             }
-            .buttonStyle(.tertiary())
         }
+        .disabled(!store.state.canViewPassword)
+        .textFieldConfiguration(.password)
+
+        totpView
 
         uriSection
+    }
+
+    /// The view for TOTP authenticator key..
+    @ViewBuilder private var totpView: some View {
+        if let key = store.state.authenticatorKey,
+           !key.isEmpty {
+            BitwardenTextField(
+                title: Localizations.authenticatorKey,
+                text: store.binding(
+                    get: { _ in key },
+                    send: AddEditItemAction.totpKeyChanged
+                ),
+                trailingContent: {
+                    AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
+                        await store.perform(.copyTotpPressed)
+                    }
+                    AccessoryButton(asset: Asset.Images.camera, accessibilityLabel: Localizations.setupTotp) {
+                        await store.perform(.setupTotpPressed)
+                    }
+                }
+            )
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(Localizations.authenticatorKey)
+                    .styleGuide(.subheadline, weight: .semibold)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                AsyncButton {
+                    await store.perform(.setupTotpPressed)
+                } label: {
+                    HStack(alignment: .center, spacing: 4) {
+                        Asset.Images.camera.swiftUIImage
+                        Text(Localizations.setupTotp)
+                    }
+                }
+                .buttonStyle(.tertiary())
+            }
+        }
     }
 
     /// The section for uris.
@@ -115,6 +143,9 @@ struct AddEditLoginItemView: View {
 
 #if DEBUG
 struct AddEditLoginItemView_Previews: PreviewProvider {
+    // swiftlint:disable:next line_length
+    static let key = "otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example&algorithm=SHA1&digits=6&period=30"
+
     static var previews: some View {
         NavigationView {
             ScrollView {
@@ -133,6 +164,26 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
             .ignoresSafeArea()
         }
         .previewDisplayName("Empty Add Edit State")
+
+        NavigationView {
+            ScrollView {
+                LazyVStack(spacing: 20) {
+                    AddEditLoginItemView(
+                        store: Store(
+                            processor: StateProcessor(
+                                state: LoginItemState(
+                                    totpKey: .init(authenticatorKey: key)
+                                )
+                            )
+                        )
+                    )
+                }
+                .padding(16)
+            }
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .ignoresSafeArea()
+        }
+        .previewDisplayName("Auth Key")
     }
 }
 #endif

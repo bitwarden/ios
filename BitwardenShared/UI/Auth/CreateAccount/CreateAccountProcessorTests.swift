@@ -176,7 +176,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
 
         client.result = .httpFailure(
-            CreateAccountRequestError.serverError(errorResponse)
+            ServerError.error(errorResponse: errorResponse)
         )
 
         await subject.perform(.createAccount)
@@ -184,7 +184,12 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             coordinator.routes.last,
-            .alert(.createAccountAlert("Email 'j@a.com' is already taken."))
+            .alert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: "Email 'j@a.com' is already taken."
+                )
+            )
         )
     }
 
@@ -213,7 +218,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
 
         client.result = .httpFailure(
-            CreateAccountRequestError.serverError(errorResponse)
+            ServerError.error(errorResponse: errorResponse)
         )
 
         await subject.perform(.createAccount)
@@ -221,7 +226,12 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             coordinator.routes.last,
-            .alert(.createAccountAlert("The field Email must be a string with a maximum length of 256."))
+            .alert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: "The field Email must be a string with a maximum length of 256."
+                )
+            )
         )
     }
 
@@ -294,7 +304,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
 
         client.result = .httpFailure(
-            CreateAccountRequestError.serverError(errorResponse)
+            ServerError.error(errorResponse: errorResponse)
         )
 
         await subject.perform(.createAccount)
@@ -302,7 +312,12 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             coordinator.routes.last,
-            .alert(.createAccountAlert("The field MasterPasswordHint must be a string with a maximum length of 50."))
+            .alert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: "The field MasterPasswordHint must be a string with a maximum length of 50."
+                )
+            )
         )
     }
 
@@ -322,7 +337,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
 
         client.result = .httpFailure(
-            CreateAccountRequestError.serverError(errorResponse)
+            ServerError.error(errorResponse: errorResponse)
         )
 
         await subject.perform(.createAccount)
@@ -330,7 +345,12 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             coordinator.routes.last,
-            .alert(.createAccountAlert("The Email field is not a supported e-mail address format."))
+            .alert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: "The Email field is not a supported e-mail address format."
+                )
+            )
         )
     }
 
@@ -384,10 +404,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(
-            coordinator.routes.last,
-            .alert(.createAccountAlert("Password confirmation is not correct."))
-        )
+        XCTAssertEqual(coordinator.routes.last, .alert(.passwordsDontMatch))
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password isn't long enough.
@@ -403,10 +420,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(
-            coordinator.routes.last,
-            .alert(.createAccountAlert("Master password must be at least 12 characters long."))
-        )
+        XCTAssertEqual(coordinator.routes.last, .alert(.passwordIsTooShort))
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the request times out.

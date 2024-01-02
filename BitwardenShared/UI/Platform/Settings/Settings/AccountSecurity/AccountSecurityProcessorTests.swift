@@ -126,11 +126,59 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `receive(_:)` with `sessionTimeoutActionChanged(:)` updates the session timeout action in the state.
-    func test_receive_sessionTimeoutActionChanged() {
+    /// `receive(_:)` with `sessionTimeoutActionChanged(:)` presents an alert if `logout` was selected.
+    /// It then updates the state if `Yes` was tapped on the alert, confirming the user's decision.
+    func test_receive_sessionTimeoutActionChanged_logout() async throws {
         XCTAssertEqual(subject.state.sessionTimeoutAction, .lock)
         subject.receive(.sessionTimeoutActionChanged(.logout))
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.warning)
+        XCTAssertEqual(alert.message, Localizations.vaultTimeoutLogOutConfirmation)
+        XCTAssertEqual(alert.alertActions.count, 2)
+
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.yes)
+        XCTAssertEqual(alert.alertActions[0].style, .default)
+        XCTAssertNotNil(alert.alertActions[0].handler)
+
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[1].style, .cancel)
+        XCTAssertNil(alert.alertActions[1].handler)
+
+        try await alert.tapAction(title: Localizations.yes)
+
         XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+    }
+
+    /// `receive(_:)` with `sessionTimeoutActionChanged(:)` updates the state when `lock` was selected.
+    func test_receive_sessionTimeoutActionChanged_lock() async throws {
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .lock)
+        subject.receive(.sessionTimeoutActionChanged(.logout))
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+
+        subject.receive(.sessionTimeoutActionChanged(.lock))
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .lock)
+    }
+
+    /// `receive(_:)` with `sessionTimeoutActionChanged(:)` doesn't update the state if the value did not change.
+    func test_receive_sessionTimeoutActionChanged_sameValue() async throws {
+        subject.receive(.sessionTimeoutActionChanged(.logout))
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+
+        subject.receive(.twoStepLoginPressed)
+        let twoStepLoginAlert = try coordinator.unwrapLastRouteAsAlert()
+        try await twoStepLoginAlert.tapAction(title: Localizations.cancel)
+
+        // Should not show alert since the state's sessionTimeoutAction is already .logout
+        subject.receive(.sessionTimeoutActionChanged(.logout))
+        let lastShownAlert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(lastShownAlert, twoStepLoginAlert)
     }
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` updates the session timeout value in the state.
@@ -163,11 +211,16 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isUnlockWithFaceIDOn)
     }
 
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state.
-    func test_receive_toggleUnlockWithPINCode() {
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state when submit has been pressed.
+    func test_receive_toggleUnlockWithPINCode() async throws {
         subject.state.isUnlockWithPINCodeOn = false
         subject.receive(.toggleUnlockWithPINCode(true))
 
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+
+        try await alert.tapAction(title: Localizations.submit)
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }
 
@@ -193,6 +246,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         // Tapping yes navigates the user to the web app.
         try await alert.tapAction(title: Localizations.yes)
+
         XCTAssertNotNil(subject.state.twoStepLoginUrl)
     }
 
@@ -202,6 +256,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
         try await alert.tapAction(title: Localizations.yes)
+
         XCTAssertEqual(subject.state.twoStepLoginUrl, URL.example)
     }
 }

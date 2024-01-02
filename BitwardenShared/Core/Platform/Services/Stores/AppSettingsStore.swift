@@ -4,17 +4,38 @@ import OSLog
 
 // MARK: - AppSettingsStore
 
+// swiftlint:disable file_length
+
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
     /// The app's unique identifier.
     var appId: String? { get set }
 
+    /// The environment URLs used prior to user authentication.
+    var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
+
     /// The email being remembered on the landing screen.
     var rememberedEmail: String? { get set }
 
     /// The app's account state.
     var state: State? { get set }
+
+    /// Whether the vault should sync on refreshing.
+    ///
+    /// - Parameter userId: The user ID associated with the sync on refresh setting.
+    ///
+    /// - Returns: Whether the vault should sync on refreshing.
+    ///
+    func allowSyncOnRefresh(userId: String) -> Bool
+
+    /// Gets the time after which the clipboard should be cleared.
+    ///
+    /// - Parameter userId: The user ID associated with the clipboard clearing time.
+    ///
+    /// - Returns: The time after which the clipboard should be cleared.
+    ///
+    func clearClipboardValue(userId: String) -> ClearClipboardValue
 
     /// Gets the encrypted private key for the user ID.
     ///
@@ -27,6 +48,19 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the encrypted user key.
     ///
     func encryptedUserKey(userId: String) -> String?
+
+    /// Gets the time of the last sync for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the last sync time.
+    /// - Returns: The time of the last sync for the user.
+    ///
+    func lastSyncTime(userId: String) -> Date?
+
+    /// Gets the master password hash for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the master password hash.
+    ///
+    func masterPasswordHash(userId: String) -> String?
 
     /// Gets the password generation options for a user ID.
     ///
@@ -41,6 +75,24 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The username generation options for the user ID.
     ///
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
+
+    /// Whether the vault should sync on refreshing.
+    ///
+    /// - Parameters:
+    ///   - allowSyncOnRefresh: Whether the vault should sync on refreshing.
+    ///   - userId: The user ID associated with the sync on refresh setting.
+    ///
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
+
+    /// Sets the time after which the clipboard should be cleared.
+    ///
+    /// - Parameters:
+    ///   - clearClipboardValue: The time after which the clipboard should be cleared.
+    ///   - userId: The user ID associated with the clipboard clearing time.
+    ///
+    /// - Returns: The time after which the clipboard should be cleared.
+    ///
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
 
     /// Sets the encrypted private key for a user ID.
     ///
@@ -57,6 +109,22 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the encrypted user key.
     ///
     func setEncryptedUserKey(key: String?, userId: String)
+
+    /// Sets the time of the last sync for the user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The time of the last sync.
+    ///   - userId: The user ID associated with the last sync time.
+    ///
+    func setLastSyncTime(_ date: Date?, userId: String)
+
+    /// Sets the master password hash for a user ID.
+    ///
+    /// - Parameters:
+    ///   - hash: The user's master password hash.
+    ///   - userId: The user ID associated with the master password hash.
+    ///
+    func setMasterPasswordHash(_ hash: String?, userId: String)
 
     /// Sets the password generation options for a user ID.
     ///
@@ -107,6 +175,24 @@ class DefaultAppSettingsStore {
     }
 
     // MARK: Private
+
+    /// Fetches a `Bool` for the given key from `UserDefaults`.
+    ///
+    /// - Parameter key: The key used to store the value.
+    /// - Returns: The value associated with the given key.
+    ///
+    private func fetch(for key: Keys) -> Bool {
+        userDefaults.bool(forKey: key.storageKey)
+    }
+
+    /// Fetches a `Int` for the given key from `UserDefaults`.
+    ///
+    /// - Parameter key: The key used to store the value.
+    /// - Returns: The value associated with the given key.
+    ///
+    private func fetch(for key: Keys) -> Int? {
+        userDefaults.integer(forKey: key.storageKey)
+    }
 
     /// Fetches a `String` for the given key from `UserDefaults`.
     ///
@@ -175,10 +261,15 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case allowSyncOnRefresh(userId: String)
         case appId
+        case clearClipboardValue(userId: String)
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
+        case lastSync(userId: String)
+        case masterPasswordHash(userId: String)
         case passwordGenerationOptions(userId: String)
+        case preAuthEnvironmentUrls
         case rememberedEmail
         case state
         case usernameGenerationOptions(userId: String)
@@ -187,14 +278,24 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         var storageKey: String {
             let key: String
             switch self {
+            case let .allowSyncOnRefresh(userId):
+                key = "syncOnRefresh_\(userId)"
             case .appId:
                 key = "appId"
+            case let .clearClipboardValue(userId):
+                key = "clearClipboard_\(userId)"
             case let .encryptedUserKey(userId):
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
                 key = "encPrivateKey_\(userId)"
+            case let .lastSync(userId):
+                key = "lastSync_\(userId)"
+            case let .masterPasswordHash(userId):
+                key = "keyHash_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
+            case .preAuthEnvironmentUrls:
+                key = "preAuthEnvironmentUrls"
             case .rememberedEmail:
                 key = "rememberedEmail"
             case .state:
@@ -211,6 +312,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .appId) }
     }
 
+    var preAuthEnvironmentUrls: EnvironmentUrlData? {
+        get { fetch(for: .preAuthEnvironmentUrls) }
+        set { store(newValue, for: .preAuthEnvironmentUrls) }
+    }
+
     var rememberedEmail: String? {
         get { fetch(for: .rememberedEmail) }
         set { store(newValue, for: .rememberedEmail) }
@@ -224,12 +330,32 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         }
     }
 
+    func allowSyncOnRefresh(userId: String) -> Bool {
+        fetch(for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func clearClipboardValue(userId: String) -> ClearClipboardValue {
+        if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
+           let value = ClearClipboardValue(rawValue: rawValue) {
+            return value
+        }
+        return .never
+    }
+
     func encryptedPrivateKey(userId: String) -> String? {
         fetch(for: .encryptedPrivateKey(userId: userId))
     }
 
     func encryptedUserKey(userId: String) -> String? {
         fetch(for: .encryptedUserKey(userId: userId))
+    }
+
+    func lastSyncTime(userId: String) -> Date? {
+        fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
+    }
+
+    func masterPasswordHash(userId: String) -> String? {
+        fetch(for: .masterPasswordHash(userId: userId))
     }
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
@@ -240,12 +366,28 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .usernameGenerationOptions(userId: userId))
     }
 
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
+        store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
+        store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
+    }
+
     func setEncryptedPrivateKey(key: String?, userId: String) {
         store(key, for: .encryptedPrivateKey(userId: userId))
     }
 
     func setEncryptedUserKey(key: String?, userId: String) {
         store(key, for: .encryptedUserKey(userId: userId))
+    }
+
+    func setLastSyncTime(_ date: Date?, userId: String) {
+        store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
+    }
+
+    func setMasterPasswordHash(_ hash: String?, userId: String) {
+        store(hash, for: .masterPasswordHash(userId: userId))
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {

@@ -2,4 +2,7 @@
 
 /// Effects handled by the `DeleteAccountProcessor`.
 ///
-enum DeleteAccountEffect {}
+enum DeleteAccountEffect {
+    /// The delete account button was pressed.
+    case deleteAccount
+}

@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - LoginProcessorTests
 
-class LoginProcessorTests: BitwardenTestCase {
+class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
@@ -70,6 +70,7 @@ class LoginProcessorTests: BitwardenTestCase {
         ]
         subject.state.username = "email@example.com"
         subject.state.masterPassword = "Password1234!"
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
 
         subject.captchaCompleted(token: "token")
 
@@ -177,6 +178,7 @@ class LoginProcessorTests: BitwardenTestCase {
         ]
         subject.state.username = "email@example.com"
         subject.state.masterPassword = "Password1234!"
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
 
         await subject.perform(.loginWithMasterPasswordPressed)
 
@@ -217,6 +219,10 @@ class LoginProcessorTests: BitwardenTestCase {
                     encryptedUserKey: "KEY"
                 ),
             ]
+        )
+        XCTAssertEqual(
+            stateService.masterPasswordHashes,
+            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
         )
     }
 
@@ -281,8 +287,9 @@ class LoginProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.getMasterPasswordHintPressed` navigates to the master password hint screen.
     func test_receive_getMasterPasswordHintPressed() {
+        subject.state.username = "test@example.com"
         subject.receive(.getMasterPasswordHintPressed)
-        XCTAssertEqual(coordinator.routes.last, .masterPasswordHint)
+        XCTAssertEqual(coordinator.routes.last, .masterPasswordHint(username: "test@example.com"))
     }
 
     /// `receive(_:)` with `.loginWithDevicePressed` navigates to the login with device screen.

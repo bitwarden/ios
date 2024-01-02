@@ -14,14 +14,14 @@ protocol GeneratorRepository: AnyObject {
 
     /// Removes all of the entries from the user's password history.
     ///
-    func clearPasswordHistory() async
+    func clearPasswordHistory() async throws
 
     /// A publisher for the user's password history items.
     ///
     /// - Returns: A publisher for the user's password history items which will be notified as the
     ///     data changes.
     ///
-    func passwordHistoryPublisher() -> AsyncPublisher<AnyPublisher<[PasswordHistoryView], Never>>
+    func passwordHistoryPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[PasswordHistoryView], Error>>
 
     // MARK: Generator
 
@@ -80,11 +80,14 @@ class DefaultGeneratorRepository {
     /// The client used for generating passwords and passphrases.
     let clientGenerators: ClientGeneratorsProtocol
 
+    /// The client used by the application to handle vault encryption and decryption tasks.
+    let clientVaultService: ClientVaultService
+
     /// The service used to handle cryptographic operations.
     let cryptoService: CryptoService
 
-    /// A subject containing the user's password history.
-    var passwordHistorySubject = CurrentValueSubject<[PasswordHistoryView], Never>([])
+    /// The data store that handles performing data requests for the generator.
+    let dataStore: GeneratorDataStore
 
     /// The service used by the application to manage account state.
     let stateService: StateService
@@ -95,17 +98,41 @@ class DefaultGeneratorRepository {
     ///
     /// - Parameters:
     ///   - clientGenerators: The client used for generating passwords and passphrases.
+    ///   - clientVaultService: The client used by the application to handle vault encryption and
+    ///     decryption tasks.
     ///   - cryptoService: The service used to handle cryptographic operations.
+    ///   - dataStore: The data store that handles performing data requests for the generator.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
         clientGenerators: ClientGeneratorsProtocol,
+        clientVaultService: ClientVaultService,
         cryptoService: CryptoService = DefaultCryptoService(randomNumberGenerator: SecureRandomNumberGenerator()),
+        dataStore: GeneratorDataStore,
         stateService: StateService
     ) {
         self.clientGenerators = clientGenerators
+        self.clientVaultService = clientVaultService
         self.cryptoService = cryptoService
+        self.dataStore = dataStore
         self.stateService = stateService
+    }
+
+    // MARK: Private
+
+    /// Determines if the password is a duplicate of the most recent password in the history.
+    ///
+    /// - Parameters:
+    ///   - passwordHistory: The password history item to check if it's a duplicate.
+    ///   - userId: The ID of the user associated with the password.
+    /// - Returns: Whether the password is a duplicate of the most recent password in the history.
+    ///
+    private func isDuplicateOfMostRecent(passwordHistory: PasswordHistoryView, userId: String) async throws -> Bool {
+        guard let mostRecentEncrypted = try? await dataStore.fetchPasswordHistoryMostRecent(userId: userId) else {
+            return false
+        }
+        let mostRecent = try await clientVaultService.passwordHistory().decryptList(list: [mostRecentEncrypted]).first
+        return mostRecent?.password == passwordHistory.password
     }
 }
 
@@ -115,22 +142,34 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     // MARK: Password History
 
     func addPasswordHistory(_ passwordHistory: PasswordHistoryView) async throws {
+        let userId = try await stateService.getActiveAccountId()
+
         // Prevent adding a duplicate at the top of the list.
-        guard passwordHistorySubject.value.first?.password != passwordHistory.password else { return }
+        guard try await !isDuplicateOfMostRecent(passwordHistory: passwordHistory, userId: userId) else { return }
 
-        passwordHistorySubject.value.insert(passwordHistory, at: 0)
+        let encryptedPasswordHistory = try await clientVaultService.passwordHistory().encrypt(
+            passwordHistory: passwordHistory
+        )
+        try await dataStore.insertPasswordHistory(userId: userId, passwordHistory: encryptedPasswordHistory)
 
-        if passwordHistorySubject.value.count > Constants.maxPasswordsInHistory {
-            passwordHistorySubject.value = Array(passwordHistorySubject.value.prefix(100))
-        }
+        // Remove any passwords past the max limit.
+        try await dataStore.deletePasswordHistoryPastLimit(userId: userId, limit: Constants.maxPasswordsInHistory)
     }
 
-    func clearPasswordHistory() async {
-        passwordHistorySubject.value.removeAll()
+    func clearPasswordHistory() async throws {
+        let userId = try await stateService.getActiveAccountId()
+        try await dataStore.deleteAllPasswordHistory(userId: userId)
     }
 
-    func passwordHistoryPublisher() -> AsyncPublisher<AnyPublisher<[PasswordHistoryView], Never>> {
-        passwordHistorySubject.eraseToAnyPublisher().values
+    func passwordHistoryPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[PasswordHistoryView], Error>> {
+        let userId = try await stateService.getActiveAccountId()
+        return dataStore.passwordHistoryPublisher(userId: userId)
+            .asyncTryMap { passwordHistory in
+                try await self.clientVaultService.passwordHistory()
+                    .decryptList(list: passwordHistory)
+            }
+            .eraseToAnyPublisher()
+            .values
     }
 
     // MARK: Generator

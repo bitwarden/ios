@@ -7,18 +7,19 @@ typealias Services = HasAccountAPIService
     & HasAppSettingsStore
     & HasAuthAPIService
     & HasAuthRepository
-    & HasBaseUrlService
     & HasBiometricsService
     & HasCaptchaService
-    & HasCameraAuthorizationService
+    & HasCameraService
     & HasClientAuth
     & HasDeviceAPIService
+    & HasEnvironmentService
     & HasErrorReporter
     & HasGeneratorRepository
     & HasPasteboardService
     & HasSettingsRepository
     & HasStateService
     & HasSystemDevice
+    & HasTOTPService
     & HasTwoStepLoginService
     & HasVaultRepository
     & HasVaultTimeoutService
@@ -65,24 +66,17 @@ protocol HasAuthRepository {
     var authRepository: AuthRepository { get }
 }
 
-/// Protocol for an object that provides a `BaseUrlService`.
-///
-protocol HasBaseUrlService {
-    /// The service used by the application to retrieve the current base url for API requests.
-    var baseUrlService: BaseUrlService { get }
-}
-
 /// Protocol for obtaining the device's biometric authentication type.
 ///
 protocol HasBiometricsService {
     var biometricsService: BiometricsService { get }
 }
 
-/// Protocol for an object that provides a `CameraAuthorizationService`.
+/// Protocol for an object that provides a `CameraService`.
 ///
-protocol HasCameraAuthorizationService {
+protocol HasCameraService {
     /// The service used by the application to query for and request camera authorization.
-    var cameraAuthorizationService: CameraAuthorizationService { get }
+    var cameraService: CameraService { get }
 }
 
 /// Protocol for an object that provides a `CaptchaService`.
@@ -102,6 +96,13 @@ protocol HasClientAuth {
 protocol HasDeviceAPIService {
     /// The service used by the application to make device-related API requests.
     var deviceAPIService: DeviceAPIService { get }
+}
+
+/// Protocol for an object that provides an `EnvironmentService`.
+///
+protocol HasEnvironmentService {
+    /// The service used by the application to manage the environment settings.
+    var environmentService: EnvironmentService { get }
 }
 
 /// Protocol for an object that provides an `ErrorReporter`.
@@ -143,6 +144,13 @@ protocol HasStateService {
 protocol HasSystemDevice {
     /// The object used by the application to retrieve information about this device.
     var systemDevice: SystemDevice { get }
+}
+
+/// Protocol for an object that provides a `TOTPService`.
+///
+protocol HasTOTPService {
+    /// A service used to validate authentication keys and generate TOTP codes.
+    var totpService: TOTPService { get }
 }
 
 /// Protocol for an object that provides a `TwoStepLoginService`.

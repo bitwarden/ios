@@ -6,7 +6,7 @@ import Combine
 class MockGeneratorRepository: GeneratorRepository {
     var addPasswordHistoryCalled = false
     var clearPasswordHistoryCalled = false
-    var passwordHistorySubject = CurrentValueSubject<[PasswordHistoryView], Never>([])
+    var passwordHistorySubject = CurrentValueSubject<[PasswordHistoryView], Error>([])
 
     var passphraseGeneratorRequest: PassphraseGeneratorRequest?
     var passphraseResult: Result<String, Error> = .success("PASSPHRASE")
@@ -41,7 +41,7 @@ class MockGeneratorRepository: GeneratorRepository {
         passwordHistorySubject.value.removeAll()
     }
 
-    func passwordHistoryPublisher() -> AsyncPublisher<AnyPublisher<[PasswordHistoryView], Never>> {
+    func passwordHistoryPublisher() -> AsyncThrowingPublisher<AnyPublisher<[PasswordHistoryView], Error>> {
         passwordHistorySubject.eraseToAnyPublisher().values
     }
 

@@ -11,24 +11,17 @@ struct ViewItemState: Equatable {
     /// appropriate internal state.
     var loadingState: LoadingState<CipherItemState> = .loading
 
+    /// A flag indicating if the master password has been verified yet.
+    var hasVerifiedMasterPassword = false
+
     /// A flag indicating if the master password is required before interacting with this item.
     var isMasterPasswordRequired: Bool {
-        get {
-            switch loadingState {
-            case let .data(state):
-                state.isMasterPasswordRePromptOn
-            case .loading:
-                false
-            }
-        }
-        set {
-            switch loadingState {
-            case var .data(state):
-                state.isMasterPasswordRePromptOn = newValue
-                loadingState = .data(state)
-            case .loading:
-                break
-            }
+        guard !hasVerifiedMasterPassword else { return false }
+        return switch loadingState {
+        case let .data(state):
+            state.isMasterPasswordRePromptOn
+        case .loading:
+            false
         }
     }
 }

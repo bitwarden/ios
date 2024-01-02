@@ -12,8 +12,7 @@ final class AccountSecurityProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasBaseUrlService
-        & HasBiometricsService
+    typealias Services = HasBiometricsService
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
@@ -73,8 +72,8 @@ final class AccountSecurityProcessor: StateProcessor<
             coordinator.navigate(to: .deleteAccount)
         case .logout:
             showLogoutConfirmation()
-        case let .sessionTimeoutActionChanged(newValue):
-            state.sessionTimeoutAction = newValue
+        case let .sessionTimeoutActionChanged(action):
+            saveTimeoutActionSetting(action)
         case let .sessionTimeoutValueChanged(newValue):
             state.sessionTimeoutValue = newValue
         case let .setCustomSessionTimeoutValue(newValue):
@@ -84,7 +83,7 @@ final class AccountSecurityProcessor: StateProcessor<
         case let .toggleUnlockWithFaceID(isOn):
             state.isUnlockWithFaceIDOn = isOn
         case let .toggleUnlockWithPINCode(isOn):
-            state.isUnlockWithPINCodeOn = isOn
+            toggleUnlockWithPIN(isOn)
         case let .toggleUnlockWithTouchID(isOn):
             state.isUnlockWithTouchIDToggleOn = isOn
         case .twoStepLoginPressed:
@@ -93,6 +92,23 @@ final class AccountSecurityProcessor: StateProcessor<
     }
 
     // MARK: Private
+
+    /// Saves the user's session timeout action.
+    ///
+    /// - Parameter action: The action to perform on session timeout.
+    ///
+    private func saveTimeoutActionSetting(_ action: SessionTimeoutAction) {
+        guard action != state.sessionTimeoutAction else { return }
+        if action == .logout {
+            coordinator.navigate(to: .alert(.logoutOnTimeoutAlert {
+                // TODO: BIT-1125 Persist the setting
+                self.state.sessionTimeoutAction = action
+            }))
+        } else {
+            // TODO: BIT-1125 Persist the setting
+            state.sessionTimeoutAction = action
+        }
+    }
 
     /// Shows an alert asking the user to confirm that they want to logout.
     ///
@@ -115,5 +131,19 @@ final class AccountSecurityProcessor: StateProcessor<
         coordinator.navigate(to: .alert(.twoStepLoginAlert {
             self.state.twoStepLoginUrl = self.services.twoStepLoginService.twoStepLoginUrl()
         }))
+    }
+
+    /// Shows an alert prompting the user to enter their PIN. If set successfully, the toggle will be turned on.
+    ///
+    /// - Parameter isOn: Whether or not the toggle value is true or false.
+    ///
+    private func toggleUnlockWithPIN(_ isOn: Bool) {
+        if !state.isUnlockWithPINCodeOn {
+            coordinator.navigate(to: .alert(.unlockWithPIN(completion: { _ in
+                self.state.isUnlockWithPINCodeOn = isOn
+            })))
+        } else {
+            state.isUnlockWithPINCodeOn = isOn
+        }
     }
 }

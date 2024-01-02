@@ -7,7 +7,7 @@ extension CipherDetailsResponseModel {
         attachments: [AttachmentResponseModel]? = nil,
         card: CipherCardModel? = nil,
         collectionIds: [String] = [],
-        creationDate: Date,
+        creationDate: Date = Date(),
         deletedDate: Date? = nil,
         edit: Bool = false,
         favorite: Bool = false,
@@ -23,7 +23,7 @@ extension CipherDetailsResponseModel {
         organizationUseTotp: Bool = false,
         passwordHistory: [CipherPasswordHistoryModel]? = nil,
         reprompt: CipherRepromptType = .none,
-        revisionDate: Date,
+        revisionDate: Date = Date(),
         secureNote: CipherSecureNoteModel? = nil,
         type: CipherType = .login,
         viewPassword: Bool = false

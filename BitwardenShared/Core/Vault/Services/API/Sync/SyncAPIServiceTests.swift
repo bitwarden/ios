@@ -15,10 +15,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
 
         client = MockHTTPClient()
 
-        subject = APIService(
-            baseUrlService: DefaultBaseUrlService(baseUrl: .example),
-            client: client
-        )
+        subject = APIService(client: client)
     }
 
     override func tearDown() {

@@ -35,3 +35,11 @@ extension Array: JSONResponse where Element: JSONResponse {
         Element.decoder
     }
 }
+
+/// A response for a request when the API returns no data.
+///
+public struct EmptyResponse: Response {
+    public init(response _: HTTPResponse) throws {
+        // No-op: Empty or ignored response so there's nothing to parse.
+    }
+}

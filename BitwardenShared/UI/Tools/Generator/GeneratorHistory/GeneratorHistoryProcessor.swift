@@ -10,7 +10,8 @@ final class GeneratorHistoryProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasGeneratorRepository
+    typealias Services = HasErrorReporter
+        & HasGeneratorRepository
         & HasPasteboardService
 
     // MARK: Private Properties
@@ -45,11 +46,19 @@ final class GeneratorHistoryProcessor: StateProcessor<
     override func perform(_ effect: GeneratorHistoryEffect) async {
         switch effect {
         case .appeared:
-            for await passwordHistory in services.generatorRepository.passwordHistoryPublisher() {
-                state.passwordHistory = passwordHistory
+            do {
+                for try await passwordHistory in try await services.generatorRepository.passwordHistoryPublisher() {
+                    state.passwordHistory = passwordHistory
+                }
+            } catch {
+                services.errorReporter.log(error: error)
             }
         case .clearList:
-            await services.generatorRepository.clearPasswordHistory()
+            do {
+                try await services.generatorRepository.clearPasswordHistory()
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         }
     }
 

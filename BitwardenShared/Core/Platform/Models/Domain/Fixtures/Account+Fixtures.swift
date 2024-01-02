@@ -1,3 +1,5 @@
+import Foundation
+
 @testable import BitwardenShared
 
 extension Account {
@@ -27,7 +29,9 @@ extension Account {
                 ),
                 userId: "13512467-9cfe-43b0-969f-07534084764b"
             ),
-            settings: Account.AccountSettings(environmentUrls: nil),
+            settings: Account.AccountSettings(
+                environmentUrls: EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
+            ),
             tokens: Account.AccountTokens.fixture(
                 accessToken: IdentityTokenResponseModel.fixture().accessToken
             )
@@ -73,7 +77,7 @@ extension Account.AccountProfile {
 
 extension Account.AccountSettings {
     static func fixture(
-        environmentUrls: EnvironmentUrlData = .fixture()
+        environmentUrls: EnvironmentUrlData? = .fixture()
     ) -> Account.AccountSettings {
         Account.AccountSettings(
             environmentUrls: environmentUrls

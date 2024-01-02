@@ -28,4 +28,16 @@ public enum RegionType: CaseIterable {
         case .unitedStates: return "bitwarden.com"
         }
     }
+
+    /// The default URLs for the region.
+    var defaultURLs: EnvironmentUrlData? {
+        switch self {
+        case .europe:
+            return .defaultEU
+        case .unitedStates:
+            return .defaultUS
+        case .selfHosted:
+            return nil
+        }
+    }
 }

@@ -16,6 +16,7 @@ class CipherTypeTests: BitwardenTestCase {
     /// `init` with a `VaultListGroup` produces the correct value.
     func test_init_group() {
         XCTAssertEqual(CipherType(group: .card), .card)
+        XCTAssertNil(CipherType(group: .collection(id: "id", name: "name")))
         XCTAssertNil(CipherType(group: .folder(id: "id", name: "name")))
         XCTAssertEqual(CipherType(group: .identity), .identity)
         XCTAssertEqual(CipherType(group: .login), .login)

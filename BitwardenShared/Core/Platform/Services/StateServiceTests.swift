@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -6,6 +7,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
+    var dataStore: DataStore!
     var subject: DefaultStateService!
 
     // MARK: Setup & Teardown
@@ -14,14 +16,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         super.setUp()
 
         appSettingsStore = MockAppSettingsStore()
+        dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
 
-        subject = DefaultStateService(appSettingsStore: appSettingsStore)
+        subject = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
         appSettingsStore = nil
+        dataStore = nil
         subject = nil
     }
 
@@ -49,6 +56,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let state = try XCTUnwrap(appSettingsStore.state)
         XCTAssertEqual(state.accounts, ["1": existingAccount, "2": newAccount])
         XCTAssertEqual(state.activeUserId, "2")
+    }
+
+    /// `.deleteAccount()` deletes the active user's account, removing it from the state.
+    func test_deleteAccount() async throws {
+        let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
+        await subject.addAccount(newAccount)
+
+        try await subject.deleteAccount()
+
+        // User is removed from the state.
+        let state = try XCTUnwrap(appSettingsStore.state)
+        XCTAssertTrue(state.accounts.isEmpty)
+        XCTAssertNil(state.activeUserId)
     }
 
     /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
@@ -188,6 +208,84 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(accountId, account.profile.userId)
     }
 
+    /// `allowSyncOnRefreshes()` returns the allow sync on refresh value for the active account.
+    func test_getAllowSyncOnRefresh() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.allowSyncOnRefreshes["1"] = true
+        let value = try await subject.getAllowSyncOnRefresh()
+        XCTAssertTrue(value)
+    }
+
+    /// `allowSyncOnRefreshes()` defaults to `false` if the active account doesn't have a value set.
+    func test_getAllowSyncOnRefresh_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getAllowSyncOnRefresh()
+        XCTAssertFalse(value)
+    }
+
+    /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
+    func test_getClearClipboardValue() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.clearClipboardValues["1"] = .twoMinutes
+        let value = try await subject.getClearClipboardValue()
+        XCTAssertEqual(value, .twoMinutes)
+    }
+
+    /// `getClearClipboardValue()` returns `.never` if the active account doesn't have a value set.
+    func test_getClearClipboardValue_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getClearClipboardValue()
+        XCTAssertEqual(value, .never)
+    }
+
+    /// `getEnvironmentUrls()` returns the environment URLs for the active account.
+    func test_getEnvironmentUrls() async throws {
+        let urls = EnvironmentUrlData(base: .example)
+        let account = Account.fixture(settings: .fixture(environmentUrls: urls))
+        appSettingsStore.state = State(
+            accounts: [account.profile.userId: account],
+            activeUserId: account.profile.userId
+        )
+        let accountUrls = try await subject.getEnvironmentUrls()
+        XCTAssertEqual(accountUrls, urls)
+    }
+
+    /// `getEnvironmentUrls()` returns `nil` if the active account doesn't have URLs set.
+    func test_getEnvironmentUrls_notSet() async throws {
+        let account = Account.fixture(settings: .fixture(environmentUrls: nil))
+        appSettingsStore.state = State(
+            accounts: [account.profile.userId: account],
+            activeUserId: account.profile.userId
+        )
+        let urls = try await subject.getEnvironmentUrls()
+        XCTAssertNil(urls)
+    }
+
+    /// `getEnvironmentUrls()` returns `nil` if the user doesn't exist.
+    func test_getEnvironmentUrls_noUser() async throws {
+        let urls = try await subject.getEnvironmentUrls(userId: "-1")
+        XCTAssertNil(urls)
+    }
+
+    /// `getMasterPasswordHash()` returns the user's master password hash.
+    func test_getMasterPasswordHash() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let noPasswordHash = try await subject.getMasterPasswordHash()
+        XCTAssertNil(noPasswordHash)
+
+        appSettingsStore.masterPasswordHashes["1"] = "abcd"
+        let passwordHash = try await subject.getMasterPasswordHash()
+        XCTAssertEqual(passwordHash, "abcd")
+    }
+
+    /// `getMasterPasswordHash()` throws an error if there isn't an active account.
+    func test_getMasterPasswordHash_noAccount() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getMasterPasswordHash()
+        }
+    }
+
     /// `getPasswordGenerationOptions()` gets the saved password generation options for the account.
     func test_getPasswordGenerationOptions() async throws {
         let options1 = PasswordGenerationOptions(length: 30)
@@ -211,6 +309,20 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let fetchedOptionsNoAccount = try await subject.getPasswordGenerationOptions(userId: "-1")
         XCTAssertNil(fetchedOptionsNoAccount)
+    }
+
+    /// `getPreAuthEnvironmentUrls` returns the saved pre-auth URLs.
+    func test_getPreAuthEnvironmentUrls() async {
+        let urls = EnvironmentUrlData(base: .example)
+        appSettingsStore.preAuthEnvironmentUrls = urls
+        let preAuthUrls = await subject.getPreAuthEnvironmentUrls()
+        XCTAssertEqual(preAuthUrls, urls)
+    }
+
+    /// `getPreAuthEnvironmentUrls` returns `nil` if the URLs haven't been set.
+    func test_getPreAuthEnvironmentUrls_notSet() async {
+        let urls = await subject.getPreAuthEnvironmentUrls()
+        XCTAssertNil(urls)
     }
 
     /// `getUsernameGenerationOptions()` gets the saved username generation options for the account.
@@ -238,6 +350,42 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 
+    /// lastSyncTimePublisher()` returns a publisher for the user's last sync time.
+    func test_lastSyncTimePublisher() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var publishedValues = [Date?]()
+        let publisher = try await subject.lastSyncTimePublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        let date = Date(year: 2023, month: 12, day: 1)
+        try await subject.setLastSyncTime(date)
+
+        XCTAssertEqual(publishedValues, [nil, date])
+    }
+
+    /// lastSyncTimePublisher()` gets the initial stored value if a cached sync time doesn't exist.
+    func test_lastSyncTimePublisher_fetchesInitialValue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        let initialSync = Date(year: 2023, month: 12, day: 1)
+        appSettingsStore.lastSyncTimeByUserId["1"] = initialSync
+
+        var publishedValues = [Date?]()
+        let publisher = try await subject.lastSyncTimePublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        let updatedSync = Date(year: 2023, month: 12, day: 4)
+        try await subject.setLastSyncTime(updatedSync)
+
+        XCTAssertEqual(publishedValues, [initialSync, updatedSync])
+    }
+
     /// `logoutAccount()` clears any account data.
     func test_logoutAccount_clearAccountData() async throws {
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -247,12 +395,34 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedUserKey: "USER_KEY"
         ))
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
+        try await dataStore.insertPasswordHistory(
+            userId: "1",
+            passwordHistory: PasswordHistory(password: "PASSWORD", lastUsedDate: Date())
+        )
+        try await dataStore.persistentContainer.viewContext.performAndSave {
+            let context = self.dataStore.persistentContainer.viewContext
+            _ = try CipherData(context: context, userId: "1", cipher: .fixture(id: UUID().uuidString))
+            _ = CollectionData(context: context, userId: "1", collection: .fixture())
+            _ = FolderData(
+                context: context,
+                userId: "1",
+                folder: Folder(id: "1", name: "FOLDER1", revisionDate: Date())
+            )
+            _ = SendData(context: context, userId: "1", send: .fixture())
+        }
 
         try await subject.logoutAccount()
 
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
+
+        let context = dataStore.persistentContainer.viewContext
+        try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: CollectionData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: FolderData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: SendData.fetchByUserIdRequest(userId: "1")), 0)
     }
 
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to
@@ -432,6 +602,35 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(active, account1)
     }
 
+    /// `setAllowSyncOnRefresh(_:userId:)` sets the allow sync on refresh value for a user.
+    func test_setAllowSyncOnRefresh() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setAllowSyncOnRefresh(true)
+        XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
+    }
+
+    /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.
+    func test_setClearClipboardValue() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setClearClipboardValue(.thirtySeconds)
+        XCTAssertEqual(appSettingsStore.clearClipboardValues["1"], .thirtySeconds)
+    }
+
+    /// `setLastSyncTime(_:userId:)` sets the last sync time for a user.
+    func test_setLastSyncTime() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let date = Date(year: 2023, month: 12, day: 1)
+        try await subject.setLastSyncTime(date)
+        XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date)
+
+        let date2 = Date(year: 2023, month: 12, day: 2)
+        try await subject.setLastSyncTime(date2, userId: "1")
+        XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
+    }
+
     /// `setActiveAccount(userId: )` succeeds if there is a matching account
     func test_setActiveAccount_match_multi() async throws {
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
@@ -446,6 +645,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(active, account1)
     }
 
+    /// `setMasterPasswordHash(_:)` sets the master password hash for a user.
+    func test_setMasterPasswordHash() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setMasterPasswordHash("abcd")
+        XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "abcd"])
+
+        try await subject.setMasterPasswordHash("1234", userId: "1")
+        XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "1234"])
+    }
+
     /// `setPasswordGenerationOptions` sets the password generation options for an account.
     func test_setPasswordGenerationOptions() async throws {
         let options1 = PasswordGenerationOptions(length: 30)
@@ -458,6 +668,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["1"], options1)
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["2"], options2)
+    }
+
+    /// `setPreAuthEnvironmentUrls` saves the pre-auth URLs.
+    func test_setPreAuthEnvironmentUrls() async {
+        let urls = EnvironmentUrlData(base: .example)
+        await subject.setPreAuthEnvironmentUrls(urls)
+        XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
     }
 
     /// `setUsernameGenerationOptions` sets the username generation options for an account.
