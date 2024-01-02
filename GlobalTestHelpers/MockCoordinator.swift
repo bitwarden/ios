@@ -13,6 +13,7 @@ class MockCoordinator<Route>: Coordinator {
     var isStarted: Bool = false
     var loadingOverlaysShown = [LoadingOverlayState]()
     var routes: [Route] = []
+    var asyncRoutes: [Route] = []
 
     func hideLoadingOverlay() {
         isLoadingOverlayShowing = false
@@ -23,54 +24,25 @@ class MockCoordinator<Route>: Coordinator {
         contexts.append(context)
     }
 
-    func showAlert(_ alert: Alert) {
-        alertShown.append(alert)
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        isLoadingOverlayShowing = true
-        loadingOverlaysShown.append(state)
-    }
-
-    func start() {
-        isStarted = true
-    }
-}
-
-class MockAsyncCoordinator<Route, AsyncRoute>: AsyncCoordinator {
-    var alertShown = [Alert]()
-    var contexts: [AnyObject?] = []
-    var isLoadingOverlayShowing = false
-    var isStarted: Bool = false
-    var loadingOverlaysShown = [LoadingOverlayState]()
-    var routes: [Route] = []
-    var asyncRoutes: [AsyncRoute] = []
-
-    func hideLoadingOverlay() {
-        isLoadingOverlayShowing = false
-    }
-
-    func navigate(to route: Route, context: AnyObject?) {
-        routes.append(route)
-        contexts.append(context)
-    }
-
-    func showAlert(_ alert: Alert) {
-        alertShown.append(alert)
-    }
-
-    func showLoadingOverlay(_ state: LoadingOverlayState) {
-        isLoadingOverlayShowing = true
-        loadingOverlaysShown.append(state)
-    }
-
-    func start() {
-        isStarted = true
-    }
-
-    func waitAndNavigate(to route: AsyncRoute, context: AnyObject?) {
+    func navigate(
+        withDelayTo route: Route,
+        context: AnyObject?
+    ) async {
         asyncRoutes.append(route)
         contexts.append(context)
+    }
+
+    func showAlert(_ alert: Alert) {
+        alertShown.append(alert)
+    }
+
+    func showLoadingOverlay(_ state: LoadingOverlayState) {
+        isLoadingOverlayShowing = true
+        loadingOverlaysShown.append(state)
+    }
+
+    func start() {
+        isStarted = true
     }
 }
 
@@ -116,7 +88,7 @@ extension MockCoordinator<VaultRoute> {
     }
 }
 
-extension MockAsyncCoordinator<VaultItemRoute, AuthenticatorKeyCaptureAsyncRoute> {
+extension MockCoordinator<VaultItemRoute> {
     func unwrapLastRouteAsAlert(file: StaticString = #file, line: UInt = #line) throws -> Alert {
         guard case let .alert(alert) = routes.last else {
             XCTFail(

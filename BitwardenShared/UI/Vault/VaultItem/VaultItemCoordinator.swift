@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A coordinator that manages navigation for displaying, editing, and adding individual vault items.
 ///
-class VaultItemCoordinator: AsyncCoordinator, HasStackNavigator {
+class VaultItemCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = GeneratorModule
@@ -73,15 +73,20 @@ class VaultItemCoordinator: AsyncCoordinator, HasStackNavigator {
             showManualTotp(delegate: delegate)
         case let .viewItem(id):
             showViewItem(id: id)
+        case .scanCode:
+            Task {
+                await navigate(withDelayTo: .scanCode, context: context)
+            }
         }
     }
 
-    func waitAndNavigate(to route: AuthenticatorKeyCaptureAsyncRoute, context: AnyObject?) async {
-        switch route {
-        case .scanCode:
-            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
-            await showCamera(delegate: delegate)
+    func navigate(withDelayTo route: VaultItemRoute, context: AnyObject?) async {
+        guard case .scanCode = route else {
+            navigate(to: route, context: context)
+            return
         }
+        guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
+        await showCamera(delegate: delegate)
     }
 
     func start() {}
@@ -95,7 +100,7 @@ class VaultItemCoordinator: AsyncCoordinator, HasStackNavigator {
     private func showAddItem(for type: CipherType?) {
         let state = CipherItemState(addItem: type ?? .login)
         let processor = AddEditItemProcessor(
-            coordinator: asAnyAsyncCoordinator(),
+            coordinator: asAnyCoordinator(),
             services: services,
             state: state
         )
@@ -112,7 +117,7 @@ class VaultItemCoordinator: AsyncCoordinator, HasStackNavigator {
         guard let state = CipherItemState(existing: cipherView) else { return }
         if context is VaultItemCoordinator {
             let processor = AddEditItemProcessor(
-                coordinator: asAnyAsyncCoordinator(),
+                coordinator: asAnyCoordinator(),
                 services: services,
                 state: state
             )
@@ -138,7 +143,7 @@ class VaultItemCoordinator: AsyncCoordinator, HasStackNavigator {
             stackNavigator: navigationController
         )
         coordinator.start()
-        await coordinator.waitAndNavigate(to: .scanCode)
+        await coordinator.navigate(withDelayTo: .scanCode)
         stackNavigator.present(navigationController, overFullscreen: true)
     }
 
@@ -150,7 +155,7 @@ class VaultItemCoordinator: AsyncCoordinator, HasStackNavigator {
             delegate: delegate,
             services: services,
             stackNavigator: navigationController
-        ).asAnyAsyncCoordinator()
+        ).asAnyCoordinator()
         coordinator.start()
         coordinator.navigate(to: .manualKeyEntry, context: nil)
         stackNavigator.present(navigationController)

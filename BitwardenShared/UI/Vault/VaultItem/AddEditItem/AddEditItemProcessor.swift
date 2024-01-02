@@ -17,7 +17,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyAsyncCoordinator<VaultItemRoute, AuthenticatorKeyCaptureAsyncRoute>
+    private var coordinator: AnyCoordinator<VaultItemRoute>
 
     /// The services required by this processor.
     private let services: Services
@@ -32,7 +32,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     ///   - state: The initial state for the processor.
     ///
     init(
-        coordinator: AnyAsyncCoordinator<VaultItemRoute, AuthenticatorKeyCaptureAsyncRoute>,
+        coordinator: AnyCoordinator<VaultItemRoute>,
         services: Services,
         state: AddEditItemState
     ) {
@@ -314,7 +314,7 @@ final class AddEditItemProcessor: StateProcessor<AddEditItemState, AddEditItemAc
     private func setupTotp() async {
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
-            await coordinator.waitAndNavigate(to: .scanCode, context: self)
+            await coordinator.navigate(withDelayTo: .scanCode, context: self)
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }

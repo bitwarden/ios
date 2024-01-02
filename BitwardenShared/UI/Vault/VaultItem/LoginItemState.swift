@@ -61,6 +61,9 @@ protocol ViewLoginItemState: Sendable {
     /// The TOTP Key.
     var authenticatorKey: String? { get }
 
+    /// Whether the user has permissions to view the cipher's password.
+    var canViewPassword: Bool { get }
+
     /// A flag indicating if the TOTP feature is available.
     var isTOTPAvailable: Bool { get }
 

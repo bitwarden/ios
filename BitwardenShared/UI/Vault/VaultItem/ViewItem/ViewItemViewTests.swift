@@ -230,6 +230,7 @@ class ViewItemViewTests: BitwardenTestCase {
                 isPasswordVisible: false
             )
         )
+        // TODO: BIT-1262: Hide TOTP for non-Premium Accounts, update snapshot with logic.
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 

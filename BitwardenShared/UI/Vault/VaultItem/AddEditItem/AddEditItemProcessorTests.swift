@@ -12,7 +12,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraService: MockCameraService!
-    var coordinator: MockAsyncCoordinator<VaultItemRoute, AuthenticatorKeyCaptureAsyncRoute>!
+    var coordinator: MockCoordinator<VaultItemRoute>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var totpService: MockTOTPService!
@@ -25,13 +25,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         super.setUp()
 
         cameraService = MockCameraService()
-        coordinator = MockAsyncCoordinator<VaultItemRoute, AuthenticatorKeyCaptureAsyncRoute>()
+        coordinator = MockCoordinator<VaultItemRoute>()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
-            coordinator: coordinator.asAnyAsyncCoordinator(),
+            coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
                 errorReporter: errorReporter,
@@ -233,7 +233,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertNotNil(vaultRepository.addCipherCiphers.first)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert containing the message returned by the

@@ -24,7 +24,7 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the generator tab.
 ///
-final class AuthenticatorKeyCaptureCoordinator: AsyncCoordinator, HasStackNavigator {
+final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasCameraService
@@ -64,16 +64,6 @@ final class AuthenticatorKeyCaptureCoordinator: AsyncCoordinator, HasStackNaviga
 
     // MARK: Methods
 
-    func waitAndNavigate(
-        to route: AuthenticatorKeyCaptureAsyncRoute,
-        context: AnyObject?
-    ) async {
-        switch route {
-        case .scanCode:
-            await showScanCode()
-        }
-    }
-
     func navigate(
         to route: AuthenticatorKeyCaptureRoute,
         context: AnyObject?
@@ -95,7 +85,22 @@ final class AuthenticatorKeyCaptureCoordinator: AsyncCoordinator, HasStackNaviga
             )
         case .manualKeyEntry:
             showManualTotp()
+        case .scanCode:
+            Task {
+                await showScanCode()
+            }
         }
+    }
+
+    func navigate(
+        withDelayTo route: AuthenticatorKeyCaptureRoute,
+        context: AnyObject?
+    ) async {
+        guard case .scanCode = route else {
+            navigate(to: route, context: context)
+            return
+        }
+        await showScanCode()
     }
 
     func start() {}
@@ -133,7 +138,7 @@ final class AuthenticatorKeyCaptureCoordinator: AsyncCoordinator, HasStackNaviga
             return
         }
         let processor = ScanCodeProcessor(
-            coordinator: asAnyAsyncCoordinator(),
+            coordinator: asAnyCoordinator(),
             services: services,
             state: .init()
         )
@@ -149,7 +154,7 @@ final class AuthenticatorKeyCaptureCoordinator: AsyncCoordinator, HasStackNaviga
     ///
     private func showManualTotp() {
         let processor = ManualEntryProcessor(
-            coordinator: asAnyAsyncCoordinator(),
+            coordinator: asAnyCoordinator(),
             services: services,
             state: DefaultEntryState(
                 deviceSupportsCamera: services.cameraService.deviceSupportsCamera()

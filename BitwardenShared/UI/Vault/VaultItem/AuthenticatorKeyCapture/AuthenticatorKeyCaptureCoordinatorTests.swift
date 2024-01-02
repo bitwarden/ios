@@ -110,7 +110,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     func test_waitAndNavigateTo_scanCode() throws {
         cameraService.deviceHasCamera = true
         let task = Task {
-            await subject.waitAndNavigate(to: .scanCode)
+            await subject.navigate(withDelayTo: .scanCode)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -127,7 +127,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         struct TestError: Error, Equatable {}
         cameraService.startResult = .failure(TestError())
         let task = Task {
-            await subject.waitAndNavigate(to: .scanCode)
+            await subject.navigate(withDelayTo: .scanCode)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -144,7 +144,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         cameraService.deviceHasCamera = true
         cameraService.cameraAuthorizationStatus = .denied
         let task = Task {
-            await subject.waitAndNavigate(to: .scanCode)
+            await subject.navigate(withDelayTo: .scanCode)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -159,7 +159,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     func test_waitAndNavigateTo_scanCode_noCamera() throws {
         cameraService.deviceHasCamera = false
         let task = Task {
-            await subject.waitAndNavigate(to: .scanCode)
+            await subject.navigate(withDelayTo: .scanCode)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()

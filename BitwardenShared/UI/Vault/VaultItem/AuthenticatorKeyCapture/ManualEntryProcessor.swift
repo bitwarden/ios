@@ -15,7 +15,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     // MARK: Private Properties
 
     /// The `Coordinator` responsible for navigation-related actions.
-    private let coordinator: AnyAsyncCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureAsyncRoute>
+    private let coordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>
 
     /// The services used by this processor, including camera authorization and error reporting.
     private let services: Services
@@ -30,7 +30,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     ///   - state: The initial state of this processor, representing the UI's state.
     ///
     init(
-        coordinator: AnyAsyncCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureAsyncRoute>,
+        coordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
         services: Services,
         state: ManualEntryState
     ) {
@@ -42,7 +42,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     override func perform(_ effect: ManualEntryEffect) async {
         switch effect {
         case .scanCodePressed:
-            await coordinator.waitAndNavigate(to: .scanCode, context: nil)
+            await coordinator.navigate(withDelayTo: .scanCode, context: nil)
         }
     }
 

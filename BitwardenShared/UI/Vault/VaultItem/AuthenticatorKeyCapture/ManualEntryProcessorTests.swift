@@ -3,7 +3,7 @@ import XCTest
 @testable import BitwardenShared
 
 final class ManualEntryProcessorTests: BitwardenTestCase {
-    var coordinator: MockAsyncCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureAsyncRoute>!
+    var coordinator: MockCoordinator<AuthenticatorKeyCaptureRoute>!
     var subject: ManualEntryProcessor!
 
     // MARK: Setup & Teardown
@@ -11,9 +11,9 @@ final class ManualEntryProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        coordinator = MockAsyncCoordinator()
+        coordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
         subject = ManualEntryProcessor(
-            coordinator: coordinator.asAnyAsyncCoordinator(),
+            coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(),
             state: DefaultEntryState(deviceSupportsCamera: true)
         )

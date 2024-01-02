@@ -8,11 +8,13 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to the add item screen.
     ///
     /// - Parameter group: An optional `VaultListGroup` that the user wants to add an item for.
+    ///
     case addItem(group: VaultListGroup? = nil)
 
     /// A route to display the specified alert.
     ///
     /// - Parameter alert: The alert to display.
+    ///
     case alert(_ alert: Alert)
 
     /// A route to dismiss the screen currently presented modally.
@@ -22,6 +24,7 @@ enum VaultItemRoute: Equatable, Hashable {
     case dismiss(_ action: DismissAction? = nil)
 
     /// A route to edit an item
+    ///
     case editItem(cipher: CipherView)
 
     /// A route to the username/password generator screen.
@@ -29,14 +32,21 @@ enum VaultItemRoute: Equatable, Hashable {
     /// - Parameters:
     ///   - type: The type to generate.
     ///   - emailWebsite: An optional website host used to generate usernames.
+    ///
     case generator(_ type: GeneratorType, emailWebsite: String? = nil)
 
     /// A route to the manual totp screen for setting up TOTP.
+    ///
     case setupTotpManual
+
+    /// A route to the scan code screen. Deftaults to `.setupTotpManual` if camera is unavailable.
+    ///
+    case scanCode
 
     /// A route to the view item screen.
     ///
     /// - Parameter id: The id of the item to display.
+    ///
     case viewItem(id: String)
 }
 

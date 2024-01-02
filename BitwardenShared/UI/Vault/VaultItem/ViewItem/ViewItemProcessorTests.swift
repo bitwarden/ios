@@ -8,7 +8,7 @@ import XCTest
 class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Propteries
 
-    var coordinator: MockAsyncCoordinator<VaultItemRoute, AuthenticatorKeyCaptureAsyncRoute>!
+    var coordinator: MockCoordinator<VaultItemRoute>!
     var errorReporter: MockErrorReporter!
     var subject: ViewItemProcessor!
     var vaultRepository: MockVaultRepository!
@@ -17,7 +17,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     override func setUp() {
         super.setUp()
-        coordinator = MockAsyncCoordinator<VaultItemRoute, AuthenticatorKeyCaptureAsyncRoute>()
+        coordinator = MockCoordinator<VaultItemRoute>()
         errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
