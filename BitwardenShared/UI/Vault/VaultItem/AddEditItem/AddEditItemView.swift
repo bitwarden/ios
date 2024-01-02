@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SwiftUI
 
 // MARK: - AddEditItemView
@@ -173,9 +174,10 @@ struct AddEditItemView: View {
 private extension AddEditItemView {
     var miscellaneousSection: some View {
         SectionView(Localizations.miscellaneous) {
-            BitwardenTextField(
+            BitwardenMenuField(
                 title: Localizations.folder,
-                text: store.binding(
+                options: store.state.folders,
+                selection: store.binding(
                     get: \.folder,
                     send: AddEditItemAction.folderChanged
                 )
@@ -363,7 +365,10 @@ struct AddEditItemView_Previews: PreviewProvider {
                                 expirationMonth: .custom(.feb),
                                 expirationYear: "3009"
                             )
-                            copy.folder = "Financials"
+                            copy.folderId = "1"
+                            copy.folders = [
+                                .custom(FolderView(id: "1", name: "Financials", revisionDate: Date())),
+                            ]
                             copy.isFavoriteOn = false
                             copy.isMasterPasswordRePromptOn = true
                             copy.owner = .personal(email: "security@bitwarden.com")

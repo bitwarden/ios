@@ -54,6 +54,17 @@ class FolderDataStoreTests: BitwardenTestCase {
         )
     }
 
+    /// `fetchAllFolders(userId:)` fetches all folders for a user.
+    func test_fetchAllCollections() async throws {
+        try await insertFolders(folders, userId: "1")
+
+        let fetchedFolders = try await subject.fetchAllFolders(userId: "1")
+        XCTAssertEqual(fetchedFolders, folders)
+
+        let emptyFolders = try await subject.fetchAllFolders(userId: "-1")
+        XCTAssertEqual(emptyFolders, [])
+    }
+
     /// `folderPublisher(userId:)` returns a publisher for a user's folder objects.
     func test_folderPublisher() async throws {
         var publishedValues = [[Folder]]()

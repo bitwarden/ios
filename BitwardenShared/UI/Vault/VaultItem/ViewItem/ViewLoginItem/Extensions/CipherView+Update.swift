@@ -111,7 +111,7 @@ extension CipherView {
         CipherView(
             id: id,
             organizationId: organizationId,
-            folderId: folderId,
+            folderId: addEditState.folderId,
             collectionIds: collectionIds,
             key: addEditState.configuration.existingCipherView?.key,
             name: addEditState.name,

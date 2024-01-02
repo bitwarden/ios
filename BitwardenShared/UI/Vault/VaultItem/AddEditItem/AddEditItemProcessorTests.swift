@@ -164,13 +164,22 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "1", name: "Design"),
             .fixture(id: "2", name: "Engineering"),
         ]
+        let folders: [FolderView] = [
+            .fixture(id: "1", name: "Social"),
+            .fixture(id: "2", name: "Work"),
+        ]
 
         vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .success(collections)
+        vaultRepository.fetchFoldersResult = .success(folders)
 
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(
+            subject.state.folders,
+            [.default] + folders.map { .custom($0) }
+        )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
     }
@@ -437,18 +446,31 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.folderChanged` with a value updates the state correctly.
     func test_receive_folderChanged_withValue() {
-        subject.state.folder = ""
-        subject.receive(.folderChanged("📁"))
+        let folder = FolderView.fixture(id: "1", name: "📁")
+        subject.state.folders = [
+            .default,
+            .custom(folder),
+            .custom(.fixture(id: "2", name: "💾")),
+        ]
+        subject.receive(.folderChanged(.custom(folder)))
 
-        XCTAssertEqual(subject.state.folder, "📁")
+        XCTAssertEqual(subject.state.folder, .custom(folder))
+        XCTAssertEqual(subject.state.folderId, "1")
     }
 
     /// `receive(_:)` with `.folderChanged` without a value updates the state correctly.
     func test_receive_folderChanged_withoutValue() {
-        subject.state.folder = "📁"
-        subject.receive(.folderChanged(""))
+        subject.state.folders = [
+            .default,
+            .custom(.fixture(id: "1", name: "📁")),
+            .custom(.fixture(id: "2", name: "💾")),
+        ]
+        subject.state.folderId = "1"
 
-        XCTAssertEqual(subject.state.folder, "")
+        subject.receive(.folderChanged(.default))
+
+        XCTAssertEqual(subject.state.folder, .default)
+        XCTAssertNil(subject.state.folderId)
     }
 
     /// `receive(_:)` with `.generatePasswordPressed` navigates to the `.generator` route.
