@@ -43,12 +43,14 @@ class APIService {
             buildNumber: Bundle.main.buildNumber,
             systemDevice: UIDevice.current
         )
+        let responseValidationHandler = ResponseValidationHandler()
 
         let accountTokenProvider = AccountTokenProvider(
             httpService: HTTPService(
                 baseUrlGetter: { environmentService.identityURL },
                 client: client,
-                requestHandlers: [defaultHeadersRequestHandler]
+                requestHandlers: [defaultHeadersRequestHandler],
+                responseHandlers: [responseValidationHandler]
             ),
             tokenService: tokenService
         )
@@ -57,27 +59,32 @@ class APIService {
             baseUrlGetter: { environmentService.apiURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler],
+            responseHandlers: [responseValidationHandler],
             tokenProvider: accountTokenProvider
         )
         apiUnauthenticatedService = HTTPService(
             baseUrlGetter: { environmentService.apiURL },
             client: client,
-            requestHandlers: [defaultHeadersRequestHandler]
+            requestHandlers: [defaultHeadersRequestHandler],
+            responseHandlers: [responseValidationHandler]
         )
         eventsService = HTTPService(
             baseUrlGetter: { environmentService.eventsURL },
             client: client,
-            requestHandlers: [defaultHeadersRequestHandler]
+            requestHandlers: [defaultHeadersRequestHandler],
+            responseHandlers: [responseValidationHandler]
         )
         hibpService = HTTPService(
             baseURL: URL(string: "https://api.pwnedpasswords.com")!,
             client: client,
-            requestHandlers: [defaultHeadersRequestHandler]
+            requestHandlers: [defaultHeadersRequestHandler],
+            responseHandlers: [responseValidationHandler]
         )
         identityService = HTTPService(
             baseUrlGetter: { environmentService.identityURL },
             client: client,
-            requestHandlers: [defaultHeadersRequestHandler]
+            requestHandlers: [defaultHeadersRequestHandler],
+            responseHandlers: [responseValidationHandler]
         )
     }
 }

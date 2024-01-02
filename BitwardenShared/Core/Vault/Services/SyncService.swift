@@ -17,6 +17,12 @@ protocol SyncService: AnyObject {
     ///
     func fetchSync() async throws
 
+    /// Returns the list of organizations from the sync response.
+    ///
+    /// - Returns: The list of organizations the user a member of.
+    ///
+    func organizations() -> [ProfileOrganizationResponseModel]?
+
     /// A publisher for the sync response.
     ///
     /// - Returns: A publisher for the sync response.
@@ -101,8 +107,8 @@ class DefaultSyncService: SyncService {
     private func initializeOrganizationCrypto(syncResponse: SyncResponseModel) async {
         let organizationKeysById = syncResponse.profile?.organizations?
             .reduce(into: [String: String]()) { result, organization in
-                guard let id = organization.id, let key = organization.key else { return }
-                result[id] = key
+                guard let key = organization.key else { return }
+                result[organization.id] = key
             } ?? [:]
         do {
             try await clientCrypto.initializeOrgCrypto(
@@ -133,6 +139,10 @@ extension DefaultSyncService {
         syncResponseSubject.value = response
 
         try await stateService.setLastSyncTime(Date(), userId: userId)
+    }
+
+    func organizations() -> [ProfileOrganizationResponseModel]? {
+        syncResponseSubject.value?.profile?.organizations
     }
 
     func syncResponsePublisher() -> AnyPublisher<SyncResponseModel?, Never> {

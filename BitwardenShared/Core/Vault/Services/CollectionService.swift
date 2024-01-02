@@ -5,6 +5,13 @@ import BitwardenSdk
 /// A protocol for a `CollectionService` which manages syncing and updates to the user's collections.
 ///
 protocol CollectionService {
+    /// Fetches the collections that are available to the user.
+    ///
+    /// - Parameter includeReadOnly: Whether to include read-only collections.
+    /// - Returns: The collections that are available to the user.
+    ///
+    func fetchAllCollections(includeReadOnly: Bool) async throws -> [Collection]
+
     /// Replaces the persisted list of collections for the user.
     ///
     /// - Parameters:
@@ -40,6 +47,12 @@ class DefaultCollectionService: CollectionService {
 }
 
 extension DefaultCollectionService {
+    func fetchAllCollections(includeReadOnly: Bool) async throws -> [Collection] {
+        let userId = try await stateService.getActiveAccountId()
+        return try await collectionDataStore.fetchAllCollections(userId: userId)
+            .filter { includeReadOnly ? true : !$0.readOnly }
+    }
+
     func replaceCollections(_ collections: [CollectionDetailsResponseModel], userId: String) async throws {
         try await collectionDataStore.replaceCollections(collections.map(Collection.init), userId: userId)
     }

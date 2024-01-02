@@ -28,6 +28,7 @@ struct SectionView<Content: View>: View {
             VStack(alignment: .leading, spacing: contentSpacing) {
                 content
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 

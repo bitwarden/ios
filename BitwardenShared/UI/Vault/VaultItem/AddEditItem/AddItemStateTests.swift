@@ -1,3 +1,4 @@
+import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
 
@@ -102,5 +103,110 @@ class AddItemStateTests: XCTestCase {
 
             """
         }
+    }
+
+    /// `collectionsForOwner` returns the filtered collections based on the selected owner.
+    func test_collectionsForOwner() {
+        let collectionOrg1 = CollectionView.fixture(id: "1", name: "Collection", organizationId: "1")
+        let collectionOrg2 = CollectionView.fixture(id: "2", name: "Collection 2", organizationId: "2")
+
+        var subject = CipherItemState()
+        subject.collections = [collectionOrg1, collectionOrg2]
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Organization 1"),
+            .organization(id: "2", name: "Organization 2"),
+        ]
+
+        XCTAssertEqual(subject.collectionsForOwner, [])
+
+        subject.owner = .organization(id: "1", name: "Organization")
+        XCTAssertEqual(subject.collectionsForOwner, [collectionOrg1])
+    }
+
+    /// `toggleCollection(newValue:collectionId:)` toggles whether the cipher is included in the collection.
+    func test_toggleCollection() {
+        var subject = CipherItemState()
+        subject.collections = [
+            .fixture(id: "1", name: "Collection 1"),
+            .fixture(id: "2", name: "Collection 2"),
+        ]
+
+        subject.toggleCollection(newValue: true, collectionId: "1")
+        XCTAssertEqual(subject.collectionIds, ["1"])
+
+        subject.toggleCollection(newValue: true, collectionId: "2")
+        XCTAssertEqual(subject.collectionIds, ["1", "2"])
+
+        subject.toggleCollection(newValue: false, collectionId: "1")
+        XCTAssertEqual(subject.collectionIds, ["2"])
+    }
+
+    /// `owner` returns the selected `CipherOwner` for an organization owned cipher.
+    func test_owner_organization() {
+        var subject = CipherItemState()
+
+        XCTAssertNil(subject.owner)
+
+        subject.organizationId = "1"
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Organization"),
+        ]
+        XCTAssertEqual(subject.owner, .organization(id: "1", name: "Organization"))
+    }
+
+    /// `owner` returns the selected `CipherOwner` for a personally owned cipher.
+    func test_owner_personal() {
+        var subject = CipherItemState()
+
+        XCTAssertNil(subject.owner)
+
+        subject.ownershipOptions = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Organization"),
+        ]
+        XCTAssertEqual(subject.owner, .personal(email: "user@bitwarden.com"))
+    }
+
+    /// Changing the owner clears the list of a cipher's `collectionIds`.
+    func test_owner_clearsCollectionIds() {
+        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let organization1Owner = CipherOwner.organization(id: "1", name: "Organization")
+        let organization2Owner = CipherOwner.organization(id: "2", name: "Organization 2")
+
+        var subject = CipherItemState()
+        subject.ownershipOptions = [personalOwner, organization1Owner, organization2Owner]
+
+        subject.owner = organization1Owner
+
+        subject.collectionIds = ["1"]
+        subject.owner = organization2Owner
+        XCTAssertTrue(subject.collectionIds.isEmpty)
+
+        subject.collectionIds = ["2"]
+        subject.owner = personalOwner
+        XCTAssertTrue(subject.collectionIds.isEmpty)
+    }
+
+    /// Setting the owner updates the cipher's `organizationId`.`
+    func test_owner_updatesOrganizationId() {
+        let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
+        let organization1Owner = CipherOwner.organization(id: "1", name: "Organization")
+        let organization2Owner = CipherOwner.organization(id: "2", name: "Organization 2")
+
+        var subject = CipherItemState()
+        subject.ownershipOptions = [personalOwner, organization1Owner, organization2Owner]
+
+        XCTAssertEqual(subject.owner, personalOwner)
+        XCTAssertNil(subject.organizationId)
+
+        subject.owner = organization1Owner
+        XCTAssertEqual(subject.owner, organization1Owner)
+        XCTAssertEqual(subject.organizationId, "1")
+
+        subject.owner = organization2Owner
+        XCTAssertEqual(subject.owner, organization2Owner)
+        XCTAssertEqual(subject.organizationId, "2")
     }
 }

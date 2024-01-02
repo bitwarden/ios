@@ -30,7 +30,7 @@ struct ProfileOrganizationResponseModel: Codable, Equatable {
     let hasPublicAndPrivateKeys: Bool
 
     /// The profile organization's identifier.
-    let id: String?
+    let id: String
 
     /// The profile organization's identifier.
     let identifier: String?
@@ -81,7 +81,7 @@ struct ProfileOrganizationResponseModel: Codable, Equatable {
     let ssoBound: Bool
 
     /// The profile's organization's status.
-    let status: Int?
+    let status: OrganizationUserStatusType
 
     /// The profile's organization's type.
     let type: Int?

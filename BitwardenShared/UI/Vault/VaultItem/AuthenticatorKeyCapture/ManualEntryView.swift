@@ -57,7 +57,7 @@ struct ManualEntryView: View {
         .scrollView()
     }
 
-    /// Explanation text for the view and a butotn to launch the scan code view.
+    /// Explanation text for the view and a button to launch the scan code view.
     ///
     private var footer: some View {
         Group {

@@ -5,6 +5,9 @@ import Foundation
 /// A protocol for a `SettingsRepository` which manages access to the data needed by the UI layer.
 ///
 protocol SettingsRepository: AnyObject {
+    /// Get or set the clear clipboard raw value.
+    var clearClipboardValue: ClearClipboardValue { get set }
+
     /// Add a new folder.
     ///
     /// - Parameter name: The name of the new folder.
@@ -22,6 +25,9 @@ protocol SettingsRepository: AnyObject {
     /// Updates the user's vault by syncing it with the API.
     ///
     func fetchSync() async throws
+
+    /// Get the current value of the allow sync on refresh value.
+    func getAllowSyncOnRefresh() async throws -> Bool
 
     /// A publisher for the last sync time.
     ///
@@ -47,6 +53,12 @@ protocol SettingsRepository: AnyObject {
     ///
     func unlockVault(userId: String?) async
 
+    /// Update the cached value of the sync on refresh setting.
+    ///
+    /// - Parameter allowSyncOnRefresh: Whether the vault should sync on refreshing.
+    ///
+    func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws
+
     // MARK: Publishers
 
     /// The publisher to keep track of the list of the user's current folders.
@@ -63,14 +75,17 @@ class DefaultSettingsRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     private let clientVault: ClientVaultService
 
-    /// The service used by the application to manage account state.
-    private let stateService: StateService
-
     /// The service used to manage syncing and updates to the user's folders.
     private let folderService: FolderService
 
+    /// The service used to manage copy/pasting from the device's clipboard.
+    private let pasteboardService: PasteboardService
+
+    /// The service used by the application to manage account state.
+    private let stateService: StateService
+
     /// The service used to handle syncing vault data with the API.
-    let syncService: SyncService
+    private let syncService: SyncService
 
     /// The service used to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
@@ -82,6 +97,7 @@ class DefaultSettingsRepository {
     /// - Parameters:
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
+    ///   - pasteboardService: The service used to manage copy/pasting from the device's clipboard.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - vaultTimeoutService: The service used to manage vault access.
@@ -89,12 +105,14 @@ class DefaultSettingsRepository {
     init(
         clientVault: ClientVaultService,
         folderService: FolderService,
+        pasteboardService: PasteboardService,
         stateService: StateService,
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.clientVault = clientVault
         self.folderService = folderService
+        self.pasteboardService = pasteboardService
         self.stateService = stateService
         self.syncService = syncService
         self.vaultTimeoutService = vaultTimeoutService
@@ -104,6 +122,11 @@ class DefaultSettingsRepository {
 // MARK: - SettingsRepository
 
 extension DefaultSettingsRepository: SettingsRepository {
+    var clearClipboardValue: ClearClipboardValue {
+        get { pasteboardService.clearClipboardValue }
+        set { pasteboardService.updateClearClipboardValue(newValue) }
+    }
+
     func addFolder(name: String) async throws {
         // Create a new folder with a dummy id in order to encrypt the folder name.
         let folderView = FolderView(id: UUID().uuidString, name: name, revisionDate: Date.now)
@@ -122,6 +145,10 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await syncService.fetchSync()
     }
 
+    func getAllowSyncOnRefresh() async throws -> Bool {
+        try await stateService.getAllowSyncOnRefresh()
+    }
+
     func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>> {
         try await stateService.lastSyncTimePublisher().values
     }
@@ -136,6 +163,10 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func unlockVault(userId: String?) async {
         await vaultTimeoutService.unlockVault(userId: userId)
+    }
+
+    func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
+        try await stateService.setAllowSyncOnRefresh(allowSyncOnRefresh)
     }
 
     // MARK: Publishers

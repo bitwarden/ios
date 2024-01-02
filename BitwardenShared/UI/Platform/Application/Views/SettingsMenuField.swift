@@ -38,6 +38,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
                         .multilineTextAlignment(.leading)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                         .padding(.vertical, 19)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Spacer()
 
