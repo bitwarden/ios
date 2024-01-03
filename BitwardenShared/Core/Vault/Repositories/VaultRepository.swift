@@ -28,6 +28,12 @@ protocol VaultRepository: AnyObject {
     ///
     func deleteCipher(_ id: String) async throws
 
+    /// Validates the user's active account has access to premium features.
+    ///
+    /// - Returns: Whether the active account has premium.
+    ///
+    func doesActiveAccountHavePremium() async throws -> Bool
+
     /// Fetches the ownership options that the user can select from for a cipher.
     ///
     /// - Returns: The list of ownership options for a cipher.
@@ -40,6 +46,12 @@ protocol VaultRepository: AnyObject {
     /// - Returns: The collections that are available to the user.
     ///
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView]
+
+    /// Fetches the folders that are available to the user.
+    ///
+    /// - Returns: The folders that are available to the user.
+    ///
+    func fetchFolders() async throws -> [FolderView]
 
     /// Removes an account id.
     ///
@@ -119,6 +131,9 @@ class DefaultVaultRepository {
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
+    /// The service used to manage syncing and updates to the user's folders.
+    let folderService: FolderService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -140,6 +155,7 @@ class DefaultVaultRepository {
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -152,6 +168,7 @@ class DefaultVaultRepository {
         clientVault: ClientVaultService,
         collectionService: CollectionService,
         errorReporter: ErrorReporter,
+        folderService: FolderService,
         stateService: StateService,
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
@@ -163,6 +180,7 @@ class DefaultVaultRepository {
         self.clientVault = clientVault
         self.collectionService = collectionService
         self.errorReporter = errorReporter
+        self.folderService = folderService
         self.stateService = stateService
         self.syncService = syncService
         self.vaultTimeoutService = vaultTimeoutService
@@ -329,6 +347,18 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.deleteCipherWithServer(id: id)
     }
 
+    func fetchFolders() async throws -> [FolderView] {
+        let folders = try await folderService.fetchAllFolders()
+        return try await clientVault.folders()
+            .decryptList(folders: folders)
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        let account = try await stateService.getActiveAccount()
+        return account.profile.hasPremiumPersonally ?? false
+    }
+
     func remove(userId: String?) async {
         await vaultTimeoutService.remove(userId: userId)
     }
@@ -387,4 +417,4 @@ extension DefaultVaultRepository: VaultRepository {
             .eraseToAnyPublisher()
             .values
     }
-}
+} // swiftlint:disable:this file_length

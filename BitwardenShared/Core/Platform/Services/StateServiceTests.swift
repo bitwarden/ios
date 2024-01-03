@@ -505,6 +505,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
     }
 
+    /// `rememberedOrgIdentifier` gets and sets the value as expected.
+    func test_rememberedOrgIdentifier() {
+        // Getting the value should get the value from the app settings store.
+        appSettingsStore.rememberedOrgIdentifier = "ImALumberjack"
+        XCTAssertEqual(subject.rememberedOrgIdentifier, "ImALumberjack")
+
+        // Setting the value should update the value in the app settings store.
+        subject.rememberedOrgIdentifier = "AndImOk"
+        XCTAssertEqual(appSettingsStore.rememberedOrgIdentifier, "AndImOk")
+    }
+
     /// `setAccountEncryptionKeys(_:userId:)` sets the encryption keys for the user account.
     func test_setAccountEncryptionKeys() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))

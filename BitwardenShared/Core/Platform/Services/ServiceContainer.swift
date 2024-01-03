@@ -237,6 +237,7 @@ public class ServiceContainer: Services {
             clientVault: clientService.clientVault(),
             collectionService: collectionService,
             errorReporter: errorReporter,
+            folderService: folderService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService

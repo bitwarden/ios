@@ -28,7 +28,13 @@ protocol AddEditItemState: Sendable {
     var customFields: [CustomFieldState] { get set }
 
     /// The folder this item should be added to.
-    var folder: String { get set }
+    var folder: DefaultableType<FolderView> { get set }
+
+    /// The identifier of the folder for this item.
+    var folderId: String? { get set }
+
+    /// The list of all folders that the item could be added to.
+    var folders: [DefaultableType<FolderView>] { get set }
 
     /// The id of this item.
     var id: String { get set }

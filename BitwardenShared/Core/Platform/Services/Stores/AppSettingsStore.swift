@@ -18,6 +18,9 @@ protocol AppSettingsStore: AnyObject {
     /// The email being remembered on the landing screen.
     var rememberedEmail: String? { get set }
 
+    /// The organization identifier being remembered on the single-sign on screen.
+    var rememberedOrgIdentifier: String? { get set }
+
     /// The app's account state.
     var state: State? { get set }
 
@@ -271,6 +274,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case passwordGenerationOptions(userId: String)
         case preAuthEnvironmentUrls
         case rememberedEmail
+        case rememberedOrgIdentifier
         case state
         case usernameGenerationOptions(userId: String)
 
@@ -298,6 +302,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "preAuthEnvironmentUrls"
             case .rememberedEmail:
                 key = "rememberedEmail"
+            case .rememberedOrgIdentifier:
+                key = "rememberedOrgIdentifier"
             case .state:
                 key = "state"
             case let .usernameGenerationOptions(userId):
@@ -320,6 +326,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var rememberedEmail: String? {
         get { fetch(for: .rememberedEmail) }
         set { store(newValue, for: .rememberedEmail) }
+    }
+
+    var rememberedOrgIdentifier: String? {
+        get { fetch(for: .rememberedOrgIdentifier) }
+        set { store(newValue, for: .rememberedOrgIdentifier) }
     }
 
     var state: State? {

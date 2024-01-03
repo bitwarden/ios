@@ -9,11 +9,14 @@ class MockVaultRepository: VaultRepository {
     var cipherDetailsSubject = CurrentValueSubject<BitwardenSdk.CipherView, Never>(.fixture())
     var deletedCipher = [String]()
     var deleteCipherResult: Result<Void, Error> = .success(())
+    var doesActiveAccountHavePremiumCalled = false
     var fetchCipherOwnershipOptions = [CipherOwner]()
     var fetchCollectionsIncludeReadOnly: Bool?
     var fetchCollectionsResult: Result<[CollectionView], Error> = .success([])
+    var fetchFoldersResult: Result<[FolderView], Error> = .success([])
     var fetchSyncCalled = false
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
+    var hasPremiumResult: Result<Bool, Error> = .success(true)
     var removeAccountIds = [String?]()
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
@@ -41,6 +44,11 @@ class MockVaultRepository: VaultRepository {
         deletedCipher.append(id)
         try deleteCipherResult.get()
     }
+    
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        doesActiveAccountHavePremiumCalled = true
+        return try hasPremiumResult.get()
+    }
 
     func fetchCipherOwnershipOptions() async throws -> [CipherOwner] {
         fetchCipherOwnershipOptions
@@ -49,6 +57,10 @@ class MockVaultRepository: VaultRepository {
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView] {
         fetchCollectionsIncludeReadOnly = includeReadOnly
         return try fetchCollectionsResult.get()
+    }
+
+    func fetchFolders() async throws -> [FolderView] {
+        try fetchFoldersResult.get()
     }
 
     func remove(userId: String?) async {

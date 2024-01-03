@@ -98,16 +98,20 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// - Parameter type: An optional `CipherType` to initialize this view with.
     ///
     private func showAddItem(for type: CipherType?) {
-        let state = CipherItemState(addItem: type ?? .login)
-        let processor = AddEditItemProcessor(
-            coordinator: asAnyCoordinator(),
-            delegate: nil,
-            services: services,
-            state: state
-        )
-        let store = Store(processor: processor)
-        let view = AddEditItemView(store: store)
-        stackNavigator.replace(view)
+        Task {
+            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
+                ?? false
+            let state = CipherItemState(addItem: type ?? .login, hasPremium: hasPremium)
+            let processor = AddEditItemProcessor(
+                coordinator: asAnyCoordinator(),
+                delegate: nil,
+                services: services,
+                state: state
+            )
+            let store = Store(processor: processor)
+            let view = AddEditItemView(store: store)
+            stackNavigator.replace(view)
+        }
     }
 
     /// Shows the edit item screen.
@@ -115,23 +119,27 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// - Parameter cipherView: A `CipherView` to initialize this view with.
     ///
     private func showEditItem(for cipherView: CipherView, context: AnyObject?) {
-        guard let state = CipherItemState(existing: cipherView) else { return }
-        if context is VaultItemCoordinator {
-            let processor = AddEditItemProcessor(
-                coordinator: asAnyCoordinator(),
-                delegate: context as? CipherItemOperationDelegate,
-                services: services,
-                state: state
-            )
-            let store = Store(processor: processor)
-            let view = AddEditItemView(store: store)
-            stackNavigator.replace(view)
-        } else {
-            let navigationController = UINavigationController()
-            let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
-            coordinator.start()
-            coordinator.navigate(to: .editItem(cipher: cipherView), context: self)
-            stackNavigator.present(navigationController)
+        Task {
+            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
+                ?? false
+            guard let state = CipherItemState(existing: cipherView, hasPremium: hasPremium) else { return }
+            if context is VaultItemCoordinator {
+                let processor = AddEditItemProcessor(
+                    coordinator: asAnyCoordinator(),
+                    delegate: context as? CipherItemOperationDelegate,
+                    services: services,
+                    state: state
+                )
+                let store = Store(processor: processor)
+                let view = AddEditItemView(store: store)
+                stackNavigator.replace(view)
+            } else {
+                let navigationController = UINavigationController()
+                let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
+                coordinator.start()
+                coordinator.navigate(to: .editItem(cipher: cipherView), context: self)
+                stackNavigator.present(navigationController)
+            }
         }
     }
 

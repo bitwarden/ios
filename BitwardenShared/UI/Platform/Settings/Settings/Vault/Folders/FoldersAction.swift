@@ -8,4 +8,7 @@ enum FoldersAction: Equatable {
 
     /// A folder was tapped.
     case folderTapped(id: String)
+
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
 }

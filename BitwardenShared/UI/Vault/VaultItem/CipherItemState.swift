@@ -31,6 +31,9 @@ struct CipherItemState: Equatable {
 
     // MARK: Properties
 
+    /// A flag indicating if this account has premium features.
+    var accountHasPremium: Bool
+
     /// The card item state.
     var cardItemState: CardItemState
 
@@ -46,8 +49,11 @@ struct CipherItemState: Equatable {
     /// The custom fields.
     var customFields: [CustomFieldState]
 
-    /// The folder this item should be added to.
-    var folder: String
+    /// The identifier of the folder for this item.
+    var folderId: String?
+
+    /// The list of all folders that the item could be added to.
+    var folders: [DefaultableType<FolderView>]
 
     /// The id of this item.
     var id: String
@@ -98,6 +104,19 @@ struct CipherItemState: Equatable {
         return collections.filter { $0.organizationId == owner.organizationId }
     }
 
+    /// The folder this item should be added to.
+    var folder: DefaultableType<FolderView> {
+        get {
+            guard let folderId,
+                  let folder = folders.first(where: { $0.customValue?.id == folderId })?.customValue else {
+                return .default
+            }
+            return .custom(folder)
+        } set {
+            folderId = newValue.customValue?.id
+        }
+    }
+
     /// The owner of the cipher.
     var owner: CipherOwner? {
         get {
@@ -122,10 +141,11 @@ struct CipherItemState: Equatable {
     // MARK: Initialization
 
     private init(
+        accountHasPremium: Bool,
         cardState: CardItemState,
         configuration: Configuration,
         customFields: [CustomFieldState],
-        folder: String,
+        folderId: String?,
         id: String,
         identityState: IdentityItemState,
         isFavoriteOn: Bool,
@@ -136,15 +156,17 @@ struct CipherItemState: Equatable {
         type: CipherType,
         updatedDate: Date
     ) {
+        self.accountHasPremium = accountHasPremium
         cardItemState = cardState
         collectionIds = []
         collections = []
         self.customFields = customFields
-        self.folder = folder
+        self.folderId = folderId
         self.id = id
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
+        folders = []
         self.loginState = loginState
         self.name = name
         self.notes = notes
@@ -154,17 +176,18 @@ struct CipherItemState: Equatable {
         self.configuration = configuration
     }
 
-    init(addItem type: CipherType = .login) {
+    init(addItem type: CipherType = .login, hasPremium: Bool) {
         self.init(
+            accountHasPremium: hasPremium,
             cardState: .init(),
             configuration: .add,
             customFields: [],
-            folder: "",
+            folderId: nil,
             id: "",
             identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
-            loginState: .init(),
+            loginState: .init(isTOTPAvailable: hasPremium),
             name: "",
             notes: "",
             type: type,
@@ -172,18 +195,19 @@ struct CipherItemState: Equatable {
         )
     }
 
-    init?(existing cipherView: CipherView) {
+    init?(existing cipherView: CipherView, hasPremium: Bool) {
         guard cipherView.id != nil else { return nil }
         self.init(
+            accountHasPremium: hasPremium,
             cardState: cipherView.cardItemState(),
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
-            folder: cipherView.folderId ?? "",
+            folderId: cipherView.folderId,
             id: cipherView.id ?? "",
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
-            loginState: cipherView.loginItemState(),
+            loginState: cipherView.loginItemState(showTOTP: hasPremium),
             name: cipherView.name,
             notes: cipherView.notes ?? "",
             type: .init(type: cipherView.type),
@@ -241,7 +265,7 @@ extension CipherItemState {
         CipherView(
             id: nil,
             organizationId: organizationId,
-            folderId: nil,
+            folderId: folderId,
             collectionIds: collectionIds,
             key: nil,
             name: name,

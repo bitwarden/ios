@@ -15,6 +15,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var clientVault: MockClientVaultService!
     var collectionService: MockCollectionService!
     var errorReporter: MockErrorReporter!
+    var folderService: MockFolderService!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
     var syncService: MockSyncService!
@@ -33,6 +34,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientVault = MockClientVaultService()
         collectionService = MockCollectionService()
         errorReporter = MockErrorReporter()
+        folderService = MockFolderService()
         syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
         clientVault.clientCiphers = clientCiphers
@@ -52,6 +54,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             clientVault: clientVault,
             collectionService: collectionService,
             errorReporter: errorReporter,
+            folderService: folderService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
@@ -69,6 +72,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientVault = nil
         collectionService = nil
         errorReporter = nil
+        folderService = nil
         stateService = nil
         subject = nil
         vaultTimeoutService = nil
@@ -152,6 +156,39 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
     }
 
+    /// Tests the ability to determine if an account has premium.
+    func test_doesActiveAccountHavePremium_error() async {
+        stateService.activeAccount = nil
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.doesActiveAccountHavePremium()
+        }
+    }
+
+    /// Tests the ability to determine if an account has premium.
+    func test_doesActiveAccountHavePremium_false() async throws {
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                hasPremiumPersonally: false
+            )
+        )
+
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// Tests the ability to determine if an account has premium.
+    func test_doesActiveAccountHavePremium_true() async throws {
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                hasPremiumPersonally: true
+            )
+        )
+
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
     /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations.
     func test_fetchCipherOwnershipOptions_organizations() async throws {
         stateService.activeAccount = .fixture()
@@ -198,6 +235,26 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ]
         )
         try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
+    }
+
+    /// `fetchFolders` returns the folders for the user.
+    func test_fetchFolders() async throws {
+        let folders: [Folder] = [
+            .fixture(id: "1", name: "Other Folder", revisionDate: Date(year: 2023, month: 12, day: 1)),
+            .fixture(id: "2", name: "Folder", revisionDate: Date(year: 2023, month: 12, day: 2)),
+        ]
+        folderService.fetchAllFoldersResult = .success(folders)
+
+        let fetchedFolders = try await subject.fetchFolders()
+
+        XCTAssertEqual(
+            fetchedFolders,
+            [
+                .fixture(id: "2", name: "Folder", revisionDate: Date(year: 2023, month: 12, day: 2)),
+                .fixture(id: "1", name: "Other Folder", revisionDate: Date(year: 2023, month: 12, day: 1)),
+            ]
+        )
+        XCTAssertEqual(clientVault.clientFolders.decryptedFolders, folders)
     }
 
     /// `fetchSync(isManualRefresh:)` only syncs when expected.
