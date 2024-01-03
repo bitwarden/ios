@@ -17,7 +17,7 @@ enum AddEditItemAction: Equatable {
     case favoriteChanged(Bool)
 
     /// The folder field was changed.
-    case folderChanged(String)
+    case folderChanged(DefaultableType<FolderView>)
 
     /// The generate password button was pressed.
     case generatePasswordPressed

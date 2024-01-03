@@ -147,6 +147,10 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         do {
             state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
             state.ownershipOptions = try await services.vaultRepository.fetchCipherOwnershipOptions()
+
+            let folders = try await services.vaultRepository.fetchFolders()
+                .map { DefaultableType<FolderView>.custom($0) }
+            state.folders = [.default] + folders
         } catch {
             services.errorReporter.log(error: error)
         }

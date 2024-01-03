@@ -115,7 +115,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     func identityState() -> CipherItemState {
         var cipherState = CipherItemState(existing: .fixture(id: "1234", name: "identity example", type: .identity))!
-        cipherState.folder = "Folder"
+        cipherState.folderId = "1"
+        cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         cipherState.notes = "This is a long note so that it goes to the next line!"
         cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.identityState = .fixture(
@@ -146,7 +147,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         isPasswordVisible: Bool = true
     ) -> CipherItemState {
         var cipherState = CipherItemState(existing: .fixture(id: "fake-id"))!
-        cipherState.folder = "Folder"
+        cipherState.folderId = "1"
+        cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         cipherState.name = "Example"
         cipherState.notes = "This is a long note so that it goes to the next line!"
         cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)

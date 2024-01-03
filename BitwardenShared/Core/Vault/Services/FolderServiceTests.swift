@@ -84,6 +84,22 @@ class FolderServiceTests: XCTestCase {
         XCTAssertEqual(folderDataStore.upsertFolderValue, folder)
     }
 
+    /// `fetchAllFolders` returns all folders.
+    func test_fetchAllFolders() async throws {
+        let folders: [Folder] = [
+            .fixture(id: "1", name: "Folder 1"),
+            .fixture(id: "2", name: "Folder 2"),
+            .fixture(id: "3", name: "Folder 3"),
+        ]
+
+        folderDataStore.fetchAllFoldersResult = .success(folders)
+        stateService.activeAccount = .fixture()
+
+        let fetchedFolders = try await subject.fetchAllFolders()
+
+        XCTAssertEqual(fetchedFolders, folders)
+    }
+
     /// `replaceFolders(_:userId:)` replaces the persisted folders in the data store.
     func test_replaceFolders() async throws {
         let folders: [FolderResponseModel] = [
