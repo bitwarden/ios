@@ -47,10 +47,12 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
     override func receive(_ action: FoldersAction) {
         switch action {
         case .add:
-            coordinator.navigate(to: .addEditFolder(folder: nil))
+            coordinator.navigate(to: .addEditFolder(folder: nil), context: self)
         case let .folderTapped(folderID):
             guard let folder = state.folders.first(where: { $0.id == folderID }) else { return }
-            coordinator.navigate(to: .addEditFolder(folder: folder))
+            coordinator.navigate(to: .addEditFolder(folder: folder), context: self)
+        case let .toastShown(newValue):
+            state.toast = newValue
         }
     }
 
@@ -66,5 +68,24 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+}
+
+// MARK: - CaptchaFlowDelegate
+
+extension FoldersProcessor: AddEditFolderDelegate {
+    /// Show the toast that the folder was successfully added.
+    func folderAdded() {
+        state.toast = Toast(text: Localizations.folderCreated)
+    }
+
+    /// Show the toast that the folder was successfully deleted.
+    func folderDeleted() {
+        state.toast = Toast(text: Localizations.folderDeleted)
+    }
+
+    /// Show the toast that the folder was successfully edited.
+    func folderEdited() {
+        state.toast = Toast(text: Localizations.folderUpdated)
     }
 }

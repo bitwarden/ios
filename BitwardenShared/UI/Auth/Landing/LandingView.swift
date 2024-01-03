@@ -75,12 +75,12 @@ struct LandingView: View {
                     .frame(maxWidth: .infinity)
 
                 BitwardenTextField(
-                    accessibilityIdentifier: "EmailAddressEntry",
                     title: Localizations.emailAddress,
                     text: store.binding(
                         get: \.email,
                         send: LandingAction.emailChanged
-                    )
+                    ),
+                    accessibilityIdentifier: "EmailAddressEntry"
                 )
                 .textFieldConfiguration(.email)
 

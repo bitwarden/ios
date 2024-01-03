@@ -44,26 +44,9 @@ class VaultListProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
-    func test_perform_appeared() throws {
-        let vaultListItem = VaultListItem.fixture()
-        vaultRepository.vaultListSubject.send([
-            VaultListSection(
-                id: "1",
-                items: [vaultListItem],
-                name: "Name"
-            ),
-        ])
+    func test_perform_appeared() async {
+        await subject.perform(.appeared)
 
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-
-        waitFor(subject.state.loadingState != .loading)
-        task.cancel()
-
-        let sections = try XCTUnwrap(subject.state.loadingState.wrappedData)
-        XCTAssertEqual(sections.count, 1)
-        XCTAssertEqual(sections[0].items, [vaultListItem])
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
@@ -123,6 +106,48 @@ class VaultListProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual([profile2], subject.state.profileSwitcherState.alternateAccounts)
         XCTAssertEqual(profile1, subject.state.profileSwitcherState.activeAccountProfile)
+    }
+
+    /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
+    func test_perform_streamOrganizations() {
+        let task = Task {
+            await subject.perform(.streamOrganizations)
+        }
+
+        let organizations = [
+            Organization(id: "1", name: "Organization1"),
+            Organization(id: "2", name: "Organization2"),
+        ]
+
+        vaultRepository.organizationsSubject.value = organizations
+
+        waitFor { !subject.state.organizations.isEmpty }
+        task.cancel()
+
+        XCTAssertEqual(subject.state.organizations, organizations)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
+    func test_perform_streamVaultList() throws {
+        let vaultListItem = VaultListItem.fixture()
+        vaultRepository.vaultListSubject.send([
+            VaultListSection(
+                id: "1",
+                items: [vaultListItem],
+                name: "Name"
+            ),
+        ])
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(subject.state.loadingState != .loading)
+        task.cancel()
+
+        let sections = try XCTUnwrap(subject.state.loadingState.wrappedData)
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[0].items, [vaultListItem])
     }
 
     /// `receive(_:)` with `.addAccountPressed` updates the state correctly
@@ -261,5 +286,15 @@ class VaultListProcessorTests: BitwardenTestCase {
         subject.receive(.profileSwitcherAction(.requestedProfileSwitcher(visible: true)))
 
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.
+    func test_receive_vaultFilterChanged() {
+        let organization = Organization.fixture()
+
+        subject.state.vaultFilterType = .myVault
+        subject.receive(.vaultFilterChanged(.organization(organization)))
+
+        XCTAssertEqual(subject.state.vaultFilterType, .organization(organization))
     }
 }

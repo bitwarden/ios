@@ -83,6 +83,19 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
         )
     }
 
+    /// A default snapshot in portrait on iPhone 13, with precision 1, perceptual precision of 0.95
+    /// and in dark mode.
+    static func portraitDark(heightMultiple: CGFloat = 1) -> Snapshotting {
+        var viewImageConfig = ViewImageConfig.iPhone13(.portrait)
+        viewImageConfig.size?.height *= heightMultiple
+        return .image(
+            precision: defaultPrecision,
+            perceptualPrecision: defaultPerceptualPrecision,
+            layout: .device(config: viewImageConfig),
+            traits: .init(userInterfaceStyle: .dark)
+        )
+    }
+
     /// A tall snapshot in portrait on iPhone 13, with precision 1, perceptual precision of 0.95 and in light mode.
     /// Should be used when the height of a screen exceeds the height of the `defaultPortrait` with large font sizes.
     ///

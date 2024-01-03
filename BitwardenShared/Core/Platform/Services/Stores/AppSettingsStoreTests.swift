@@ -56,6 +56,38 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appId"))
     }
 
+    /// `allowSyncOnRefresh(userId:)` returns `false` if there isn't a previously stored value.
+    func test_allowSyncOnRefresh_isInitiallyFalse() {
+        XCTAssertFalse(subject.allowSyncOnRefresh(userId: "-1"))
+    }
+
+    /// `allowSyncOnRefresh(userId:)` can be used to get the allow sync on refresh value for a user.
+    func test_allowSyncOnRefresh_withValue() {
+        subject.setAllowSyncOnRefresh(true, userId: "1")
+        subject.setAllowSyncOnRefresh(false, userId: "2")
+
+        XCTAssertTrue(subject.allowSyncOnRefresh(userId: "1"))
+        XCTAssertFalse(subject.allowSyncOnRefresh(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_w"))
+    }
+
+    /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
+    func test_clearClipboardValue_isInitiallyNil() {
+        XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
+    }
+
+    /// `clearClipboardValue(userId:)` can be used to get the clear clipboard value for a user.
+    func test_clearClipboardValue_withValue() {
+        subject.setClearClipboardValue(.tenSeconds, userId: "1")
+        subject.setClearClipboardValue(.never, userId: "2")
+
+        XCTAssertEqual(subject.clearClipboardValue(userId: "1"), .tenSeconds)
+        XCTAssertEqual(subject.clearClipboardValue(userId: "2"), .never)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_1"), 10)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
+    }
+
     /// `encryptedPrivateKey(userId:)` returns `nil` if there isn't a previously stored value.
     func test_encryptedPrivateKey_isInitiallyNil() {
         XCTAssertNil(subject.encryptedPrivateKey(userId: "-1"))
@@ -314,6 +346,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
     }
 
+    /// `rememberedOrgIdentifier` returns `nil` if there isn't a previously stored value.
+    func test_rememberedOrgIdentifier_isInitiallyNil() {
+        XCTAssertNil(subject.rememberedOrgIdentifier)
+    }
+
+    /// `rememberedOrgIdentifier` can be used to get and set the persisted value in user defaults.
+    func test_rememberedOrgIdentifier_withValue() {
+        subject.rememberedOrgIdentifier = "OrgIdentifier9000"
+        XCTAssertEqual(subject.rememberedOrgIdentifier, "OrgIdentifier9000")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:rememberedOrgIdentifier"), "OrgIdentifier9000")
+
+        subject.rememberedOrgIdentifier = nil
+        XCTAssertNil(subject.rememberedOrgIdentifier)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedOrgIdentifier"))
+    }
+
     /// `state` returns `nil` if there isn't a previously stored value.
     func test_state_isInitiallyNil() {
         XCTAssertNil(subject.state)
@@ -332,7 +380,8 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
 
         let stateMultipleAccounts = State.fixture(
-            accounts: ["1": .fixture(), "2": .fixture()])
+            accounts: ["1": .fixture(), "2": .fixture()]
+        )
         subject.state = stateMultipleAccounts
         XCTAssertEqual(subject.state, stateMultipleAccounts)
         XCTAssertEqual(

@@ -188,6 +188,13 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
     }
 
+    /// `receive(_:)` with `setCustomSessionTimeoutValue(:)` updates the custom session timeout value in the state.
+    func test_receive_setCustomSessionTimeoutValue() {
+        XCTAssertEqual(subject.state.customSessionTimeoutValue, 60)
+        subject.receive(.setCustomSessionTimeoutValue(15))
+        XCTAssertEqual(subject.state.customSessionTimeoutValue, 15)
+    }
+
     /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` updates the state.
     func test_receive_toggleApproveLoginRequestsToggle() {
         subject.state.isApproveLoginRequestsToggleOn = false
@@ -204,11 +211,16 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isUnlockWithFaceIDOn)
     }
 
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state.
-    func test_receive_toggleUnlockWithPINCode() {
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state when submit has been pressed.
+    func test_receive_toggleUnlockWithPINCode() async throws {
         subject.state.isUnlockWithPINCodeOn = false
         subject.receive(.toggleUnlockWithPINCode(true))
 
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+
+        try await alert.tapAction(title: Localizations.submit)
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }
 

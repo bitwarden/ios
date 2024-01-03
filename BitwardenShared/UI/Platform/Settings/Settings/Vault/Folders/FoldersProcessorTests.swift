@@ -41,6 +41,30 @@ class FoldersProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `folderAdded()` delegate method shows the expected toast.
+    func test_delegate_folderAdded() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.folderAdded()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.folderCreated)
+    }
+
+    /// `folderDeleted()` delegate method shows the expected toast.
+    func test_delegate_folderDeleted() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.folderDeleted()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.folderDeleted)
+    }
+
+    /// `folderEdited()` delegate method shows the expected toast.
+    func test_delegate_folderEdited() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.folderEdited()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.folderUpdated)
+    }
+
     /// `perform(_:)` with `.streamFolders` updates the state's list of folders whenever it changes.
     func test_perform_streamFolders() {
         let task = Task {
@@ -80,5 +104,15 @@ class FoldersProcessorTests: BitwardenTestCase {
         subject.receive(.folderTapped(id: folder.id))
 
         XCTAssertEqual(coordinator.routes.last, .addEditFolder(folder: folder))
+    }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_toastShown() {
+        let toast = Toast(text: "toast!")
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
+
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
     }
 }

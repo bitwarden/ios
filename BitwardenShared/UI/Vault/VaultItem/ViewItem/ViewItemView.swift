@@ -26,14 +26,13 @@ struct ViewItemView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button {
-                    store.send(.morePressed)
-                } label: {
-                    Asset.Images.verticalKabob.swiftUIImage
-                        .resizable()
-                        .frame(width: 19, height: 19)
-                }
-                .accessibilityLabel(Localizations.options)
+                VaultItemManagementMenuView(
+                    isCloneEnabled: true, store: store.child(
+                        state: { _ in },
+                        mapAction: { .morePressed($0) },
+                        mapEffect: { _ in .deletePressed }
+                    )
+                )
 
                 Button {
                     store.send(.dismissPressed)
@@ -122,8 +121,26 @@ struct ViewItemView_Previews: PreviewProvider {
         revisionDate: .now
     )
 
+    static var cardState: CipherItemState {
+        var state = CipherItemState(existing: cipher, hasPremium: true)!
+        state.type = CipherType.card
+        state.isMasterPasswordRePromptOn = true
+        state.name = "Points ALL Day"
+        state.notes = "Why are we so consumption focused?"
+        state.cardItemState = CardItemState(
+            brand: .custom(.americanExpress),
+            cardholderName: "Bitwarden User",
+            cardNumber: "123456789012345",
+            cardSecurityCode: "123",
+            expirationMonth: .custom(.feb),
+            expirationYear: "3009"
+        )
+        state.updatedDate = .init(timeIntervalSince1970: 1_695_000_000)
+        return state
+    }
+
     static var loginState: CipherItemState {
-        var state = CipherItemState(existing: cipher)!
+        var state = CipherItemState(existing: cipher, hasPremium: true)!
         state.customFields = [
             CustomFieldState(
                 linkedIdType: nil,
@@ -159,6 +176,27 @@ struct ViewItemView_Previews: PreviewProvider {
         }
         .previewDisplayName("Loading")
 
+        cardPreview
+
+        loginPreview
+    }
+
+    @ViewBuilder static var cardPreview: some View {
+        NavigationView {
+            ViewItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ViewItemState(
+                            loadingState: .data(cardState)
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Card")
+    }
+
+    @ViewBuilder static var loginPreview: some View {
         NavigationView {
             ViewItemView(
                 store: Store(

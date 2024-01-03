@@ -42,20 +42,12 @@ struct GeneratorView: View {
             send: GeneratorAction.toastShown
         ))
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
-                    Button {
-                        store.send(.showPasswordHistory)
-                    } label: {
-                        Text(Localizations.passwordHistory)
-                    }
-                } label: {
-                    Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
-                        .resizable()
-                        .frame(width: 19, height: 19)
-                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            moreToolbarItem {
+                Button(Localizations.passwordHistory) {
+                    store.send(.showPasswordHistory)
                 }
             }
+
             ToolbarItem(placement: .navigationBarTrailing) {
                 if store.state.presentationMode.isDismissButtonVisible {
                     Button {

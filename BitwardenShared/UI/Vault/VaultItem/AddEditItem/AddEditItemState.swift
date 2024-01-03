@@ -6,8 +6,20 @@ import Foundation
 protocol AddEditItemState: Sendable {
     // MARK: Properties
 
+    /// The card item state.
+    var cardItemState: CardItemState { get set }
+
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
+
+    /// The list of collection IDs that the cipher is included in.
+    var collectionIds: [String] { get set }
+
+    /// The full list of collections for the user, across all organizations.
+    var collections: [CollectionView] { get set }
+
+    /// The list of collections that can be selected from for the current owner.
+    var collectionsForOwner: [CollectionView] { get }
 
     /// The Add or Existing Configuration.
     var configuration: CipherItemState.Configuration { get }
@@ -16,7 +28,13 @@ protocol AddEditItemState: Sendable {
     var customFields: [CustomFieldState] { get set }
 
     /// The folder this item should be added to.
-    var folder: String { get set }
+    var folder: DefaultableType<FolderView> { get set }
+
+    /// The identifier of the folder for this item.
+    var folderId: String? { get set }
+
+    /// The list of all folders that the item could be added to.
+    var folders: [DefaultableType<FolderView>] { get set }
 
     /// The state for a identity type item.
     var identityState: IdentityItemState { get set }
@@ -37,7 +55,10 @@ protocol AddEditItemState: Sendable {
     var notes: String { get set }
 
     /// The owner of this item.
-    var owner: String { get set }
+    var owner: CipherOwner? { get set }
+
+    /// The list of ownership options to allow the user to select from.
+    var ownershipOptions: [CipherOwner] { get set }
 
     /// A toast message to show in the view.
     var toast: Toast? { get set }
@@ -47,4 +68,12 @@ protocol AddEditItemState: Sendable {
 
     /// When this item was last updated.
     var updatedDate: Date { get set }
+
+    /// Toggles whether the cipher is included in the specified collection.
+    ///
+    /// - Parameters:
+    ///   - newValue: Whether the cipher is included in the collection.
+    ///   - collectionId: The identifier of the collection.
+    ///
+    mutating func toggleCollection(newValue: Bool, collectionId: String)
 }

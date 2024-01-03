@@ -51,10 +51,53 @@ class FolderServiceTests: XCTestCase {
             revisionDate: Date(year: 2023, month: 12, day: 25)
         )
 
-        try await subject.addFolderWithServer(name: "Something Clever")
+        try await subject.addFolderWithServer(name: folder.name)
 
         XCTAssertEqual(folderDataStore.upsertFolderUserId, Account.fixtureAccountLogin().profile.userId)
         XCTAssertEqual(folderDataStore.upsertFolderValue, folder)
+    }
+
+    /// `deleteFolderWithServer(id:)` deletes the folder in both the backend and the data store.
+    func test_deleteFolderWithServer() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+
+        try await subject.deleteFolderWithServer(id: "123456789")
+
+        XCTAssertEqual(folderDataStore.deleteFolderUserId, Account.fixtureAccountLogin().profile.userId)
+        XCTAssertEqual(folderDataStore.deleteFolderId, "123456789")
+    }
+
+    /// `editFolderWithServer(id:name:)` edits the existing folder in both the backend and the data store.
+    func test_editFolderWithServer() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: .folderResponse)
+        let folder = Folder(
+            id: "123456789",
+            name: "Something Clever",
+            revisionDate: Date(year: 2023, month: 12, day: 25)
+        )
+
+        try await subject.editFolderWithServer(id: folder.id, name: folder.name)
+
+        XCTAssertEqual(folderDataStore.upsertFolderUserId, Account.fixtureAccountLogin().profile.userId)
+        XCTAssertEqual(folderDataStore.upsertFolderValue, folder)
+    }
+
+    /// `fetchAllFolders` returns all folders.
+    func test_fetchAllFolders() async throws {
+        let folders: [Folder] = [
+            .fixture(id: "1", name: "Folder 1"),
+            .fixture(id: "2", name: "Folder 2"),
+            .fixture(id: "3", name: "Folder 3"),
+        ]
+
+        folderDataStore.fetchAllFoldersResult = .success(folders)
+        stateService.activeAccount = .fixture()
+
+        let fetchedFolders = try await subject.fetchAllFolders()
+
+        XCTAssertEqual(fetchedFolders, folders)
     }
 
     /// `replaceFolders(_:userId:)` replaces the persisted folders in the data store.

@@ -23,7 +23,5 @@ struct APITestData {
 }
 
 extension APITestData {
-    // Create static instances to load API responses from the bundle or static data.
-    // Example:
-    // static let getSync = loadFromBundle(resource: "getSync", extension: "json")
+    static let bitwardenErrorMessage = loadFromJsonBundle(resource: "BitwardenErrorMessage")
 }

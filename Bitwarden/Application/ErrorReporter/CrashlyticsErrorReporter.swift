@@ -25,6 +25,9 @@ final class CrashlyticsErrorReporter: ErrorReporter {
     // MARK: ErrorReporter
 
     func log(error: Error) {
+        // Don't log networking related errors to Crashlytics.
+        guard !error.isNetworkingError else { return }
+
         Crashlytics.crashlytics().record(error: error)
     }
 }

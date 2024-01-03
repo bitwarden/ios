@@ -46,7 +46,7 @@ class VaultListViewTests: BitwardenTestCase {
     /// Tapping the add an item button dispatches the `.addItemPressed` action.
     func test_addItemButton_tap() throws {
         processor.state.loadingState = .data([])
-        let button = try subject.inspect().find(button: Localizations.addAnItem)
+        let button = try subject.inspect().find(button: Localizations.add)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
@@ -145,6 +145,12 @@ class VaultListViewTests: BitwardenTestCase {
                 items: [
                     .fixture(),
                     .fixture(cipherListView: .fixture(id: "12", subTitle: "", type: .secureNote)),
+                    .fixture(cipherListView: .fixture(
+                        id: "13",
+                        organizationId: "1",
+                        name: "Bitwarden",
+                        subTitle: "user@bitwarden.com"
+                    )),
                 ],
                 name: "Favorites"
             ),
@@ -171,7 +177,10 @@ class VaultListViewTests: BitwardenTestCase {
                 name: "Types"
             ),
         ])
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
     }
 
     func test_snapshot_withSearchResult() {

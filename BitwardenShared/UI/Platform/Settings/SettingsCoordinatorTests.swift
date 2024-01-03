@@ -73,6 +73,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.alerts, [alert])
     }
 
+    /// `navigate(to:)` with `.appearance` pushes the appearance view onto the stack navigator.
+    func test_navigateTo_appearance() throws {
+        subject.navigate(to: .appearance)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<AppearanceView>)
+    }
+
     /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
     func test_navigateTo_autoFill() throws {
         subject.navigate(to: .autoFill)
@@ -107,6 +116,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(lastAction.type, .dismissed)
+    }
+
+    /// `navigate(to:)` with `.exportVault` presents the export vault view.
+    func test_navigateTo_exportVault() throws {
+        subject.navigate(to: .exportVault)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportVaultView>)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.

@@ -6,8 +6,9 @@ import BitwardenSdk
 final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
     // MARK: Types
 
-    typealias Services = HasVaultRepository
-        & HasErrorReporter
+    typealias Services = HasErrorReporter
+        & HasPasteboardService
+        & HasVaultRepository
 
     // MARK: Subtypes
 
@@ -15,6 +16,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     enum ActionError: Error, Equatable {
         /// An action that requires data has been performed while loading.
         case dataNotLoaded(String)
+
+        /// An error for card action handling
+        case nonCardTypeToggle(String)
+
         /// A password visibility toggle occured when not possible.
         case nonLoginPasswordToggle(String)
     }
@@ -58,10 +63,15 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         switch effect {
         case .appeared:
             for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
-                guard var newState = ViewItemState(cipherView: value) else { continue }
+                let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
+                    ?? false
+                guard var newState = ViewItemState(cipherView: value, hasPremium: hasPremium) else { continue }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
             }
+        case .deletePressed:
+            // TODO: BIT-231
+            print("deletePressed")
         }
     }
 
@@ -71,12 +81,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             return
         }
         switch action {
+        case let .cardItemAction(cardAction):
+            handleCardAction(cardAction)
         case .checkPasswordPressed:
             // TODO: BIT-1130 Check password
             print("check password")
         case let .copyPressed(value):
-            // TODO: BIT-1121 Copy value to clipboard
-            print("copy: \(value)")
+            copyValue(value)
         case let .customFieldVisibilityPressed(customFieldState):
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
@@ -87,12 +98,21 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             cipherState.togglePasswordVisibility(for: customFieldState)
             state.loadingState = .data(cipherState)
         case .dismissPressed:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         case .editPressed:
             editItem()
-        case .morePressed:
-            // TODO: BIT-1131 Open item menu
-            print("more pressed")
+        case let .morePressed(menuAction):
+            switch menuAction {
+            case .attachments:
+                // TODO: BIT-364
+                print("attachments")
+            case .clone:
+                // TODO: BIT-365
+                print("clone")
+            case .moveToOrganization:
+                // TODO: BIT-366
+                print("moveToOrganization")
+            }
         case .passwordVisibilityPressed:
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
@@ -113,6 +133,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     // MARK: Private Methods
 
+    /// Copies a value to the pasteboard.
+    ///
+    /// - Parameter value: The string to be copied.
+    ///
+    func copyValue(_ value: String) {
+        services.pasteboardService.copy(value)
+    }
+
     /// Triggers the edit state for the item currently stored in `state`.
     ///
     private func editItem() {
@@ -123,10 +151,37 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.navigate(to: .editItem(cipher: cipher))
     }
 
-    /// Presents the master password reprompt alert for the specified action. This method will
+    /// Handles `ViewCardItemAction` events.
+    ///
+    /// - Parameter cardAction: The action to handle.
+    ///
+    private func handleCardAction(_ cardAction: ViewCardItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle card action without loaded data")
+            )
+            return
+        }
+        guard case .card = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonCardTypeToggle("Cannot handle card action on non-card type")
+            )
+            return
+        }
+        switch cardAction {
+        case let .toggleCodeVisibilityChanged(isVisible):
+            cipherState.cardItemState.isCodeVisible = isVisible
+            state.loadingState = .data(cipherState)
+        case let .toggleNumberVisibilityChanged(isVisible):
+            cipherState.cardItemState.isNumberVisible = isVisible
+            state.loadingState = .data(cipherState)
+        }
+    }
+
+    /// Presents the master password re-prompt alert for the specified action. This method will
     /// process the action once the master password has been verified.
     ///
-    /// - Parameter action: The action to process once the password has been verfied.
+    /// - Parameter action: The action to process once the password has been verified.
     ///
     private func presentMasterPasswordRepromptAlert(for action: ViewItemAction) {
         let alert = Alert.masterPasswordPrompt { [weak self] password in
