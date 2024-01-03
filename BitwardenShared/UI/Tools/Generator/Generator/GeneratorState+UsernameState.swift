@@ -1,7 +1,18 @@
+import BitwardenSdk
+
 extension GeneratorState {
     /// Data model for the values that can be set for generating a username.
     ///
     struct UsernameState: Equatable {
+        // MARK: Types
+
+        /// Errors thrown for generating usernames.
+        ///
+        enum UsernameGeneratorError: Error { // swiftlint:disable:this nesting
+            /// A username generation request for a website was required, but no website is present.
+            case missingWebsite
+        }
+
         // MARK: Properties
 
         /// An optional website host used to generate usernames (either plus addressed or catch all).
@@ -130,5 +141,72 @@ extension GeneratorState.UsernameState {
             simpleLoginApiKey: simpleLoginAPIKey.nilIfEmpty,
             type: usernameGeneratorType
         )
+    }
+
+    /// Returns a `UsernameGeneratorRequest` containing the user selected settings for generating a
+    /// username.
+    func usernameGeneratorRequest() throws -> UsernameGeneratorRequest {
+        switch usernameGeneratorType {
+        case .catchAllEmail:
+            try catchAllGeneratorRequest()
+        case .forwardedEmail:
+            forwardedEmailGeneratorRequest()
+        case .plusAddressedEmail:
+            try plusAddressedEmailGeneratorRequest()
+        case .randomWord:
+            UsernameGeneratorRequest.word(capitalize: capitalize, includeNumber: includeNumber)
+        }
+    }
+
+    // MARK: Private
+
+    /// Returns a `UsernameGeneratorRequest` used to generate a catch-all username.
+    ///
+    private func catchAllGeneratorRequest() throws -> UsernameGeneratorRequest {
+        let type: AppendType
+        switch catchAllEmailType {
+        case .random:
+            type = AppendType.random
+        case .website:
+            guard let emailWebsite else { throw UsernameGeneratorError.missingWebsite }
+            type = AppendType.websiteName(website: emailWebsite)
+        }
+        return UsernameGeneratorRequest.catchall(type: type, domain: domain)
+    }
+
+    /// Returns a `UsernameGeneratorRequest` used to generate a forwarded email alias username.
+    ///
+    private func forwardedEmailGeneratorRequest() -> UsernameGeneratorRequest {
+        let service: ForwarderServiceType = switch forwardedEmailService {
+        case .addyIO:
+            ForwarderServiceType.addyIo(
+                apiToken: addyIOAPIAccessToken,
+                domain: addyIODomainName,
+                baseUrl: "https://app.addy.io"
+            )
+        case .duckDuckGo:
+            ForwarderServiceType.duckDuckGo(token: duckDuckGoAPIKey)
+        case .fastmail:
+            ForwarderServiceType.fastmail(apiToken: fastmailAPIKey)
+        case .firefoxRelay:
+            ForwarderServiceType.firefox(apiToken: firefoxRelayAPIAccessToken)
+        case .simpleLogin:
+            ForwarderServiceType.simpleLogin(apiKey: simpleLoginAPIKey)
+        }
+        return UsernameGeneratorRequest.forwarded(service: service, website: emailWebsite)
+    }
+
+    /// Returns a `UsernameGeneratorRequest` used to generate a plus-addressed email username.
+    ///
+    private func plusAddressedEmailGeneratorRequest() throws -> UsernameGeneratorRequest {
+        let type: AppendType
+        switch plusAddressedEmailType {
+        case .random:
+            type = AppendType.random
+        case .website:
+            guard let emailWebsite else { throw UsernameGeneratorError.missingWebsite }
+            type = AppendType.websiteName(website: emailWebsite)
+        }
+        return UsernameGeneratorRequest.subaddress(type: type, email: email)
     }
 }

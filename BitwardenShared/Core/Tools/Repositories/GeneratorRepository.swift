@@ -39,6 +39,13 @@ protocol GeneratorRepository: AnyObject {
     ///
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String
 
+    /// Generates a username based on the username settings.
+    ///
+    /// - Parameter settings: The settings used to generate the username.
+    /// - Returns: The generated username.
+    ///
+    func generateUsername(settings: UsernameGeneratorRequest) async throws -> String
+
     /// Generates a plus-addressed email based on the username generation options.
     ///
     /// - Returns: The generated plus-addressed email.
@@ -180,6 +187,10 @@ extension DefaultGeneratorRepository: GeneratorRepository {
 
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String {
         try await clientGenerators.password(settings: settings)
+    }
+
+    func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
+        try await clientGenerators.username(settings: settings)
     }
 
     func generateUsernamePlusAddressedEmail(email: String) async throws -> String {

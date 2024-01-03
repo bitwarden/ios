@@ -593,6 +593,110 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(subject.plusAddressedEmailType, .website)
     }
 
+    /// `usernameGeneratorRequest()` returns a request for generating catch-all emails.
+    func test_usernameState_usernameGeneratorRequest_catchAllEmail() {
+        var subject = GeneratorState.UsernameState()
+        subject.usernameGeneratorType = .catchAllEmail
+        subject.domain = "bitwarden.com"
+        subject.emailWebsite = "example.com"
+
+        subject.catchAllEmailType = .random
+        try XCTAssertEqual(
+            subject.usernameGeneratorRequest(),
+            .catchall(type: .random, domain: "bitwarden.com")
+        )
+
+        subject.catchAllEmailType = .website
+        try XCTAssertEqual(
+            subject.usernameGeneratorRequest(),
+            .catchall(type: .websiteName(website: "example.com"), domain: "bitwarden.com")
+        )
+    }
+
+    /// `usernameGeneratorRequest()` returns a request for generating forwarded email aliases.
+    func test_usernameState_usernameGeneratorRequest_forwardedEmail() {
+        var subject = GeneratorState.UsernameState()
+        subject.usernameGeneratorType = .forwardedEmail
+        subject.addyIOAPIAccessToken = "ADDY IO TOKEN"
+        subject.addyIODomainName = "addy-example.com"
+        subject.duckDuckGoAPIKey = "DUCK DUCK GO TOKEN"
+        subject.fastmailAPIKey = "FASTMAIL TOKEN"
+        subject.firefoxRelayAPIAccessToken = "FIREFOX TOKEN"
+        subject.simpleLoginAPIKey = "SIMPLE LOGIN TOKEN"
+        subject.emailWebsite = "example.com"
+
+        subject.forwardedEmailService = .addyIO
+        try XCTAssertEqual(
+            subject.usernameGeneratorRequest(),
+            .forwarded(
+                service: .addyIo(
+                    apiToken: "ADDY IO TOKEN",
+                    domain: "addy-example.com",
+                    baseUrl: "https://app.addy.io"
+                ),
+                website: "example.com"
+            )
+        )
+
+        subject.forwardedEmailService = .duckDuckGo
+        try XCTAssertEqual(
+            subject.usernameGeneratorRequest(),
+            .forwarded(service: .duckDuckGo(token: "DUCK DUCK GO TOKEN"), website: "example.com")
+        )
+
+        subject.forwardedEmailService = .fastmail
+        try XCTAssertEqual(
+            subject.usernameGeneratorRequest(),
+            .forwarded(service: .fastmail(apiToken: "FASTMAIL TOKEN"), website: "example.com")
+        )
+
+        subject.forwardedEmailService = .firefoxRelay
+        try XCTAssertEqual(
+            subject.usernameGeneratorRequest(),
+            .forwarded(service: .firefox(apiToken: "FIREFOX TOKEN"), website: "example.com")
+        )
+
+        subject.forwardedEmailService = .simpleLogin
+        try XCTAssertEqual(
+            subject.usernameGeneratorRequest(),
+            .forwarded(service: .simpleLogin(apiKey: "SIMPLE LOGIN TOKEN"), website: "example.com")
+        )
+    }
+
+    /// `usernameGeneratorRequest()` returns a request for generating plus-addressed emails.
+    func test_usernameState_usernameGeneratorRequest_plusAddressedEmail() {
+        var subject = GeneratorState.UsernameState()
+        subject.usernameGeneratorType = .plusAddressedEmail
+        subject.email = "user@bitwarden.com"
+        subject.emailWebsite = "example.com"
+
+        subject.plusAddressedEmailType = .random
+        try XCTAssertEqual(
+            subject.usernameGeneratorRequest(),
+            .subaddress(type: .random, email: "user@bitwarden.com")
+        )
+
+        subject.plusAddressedEmailType = .website
+        try XCTAssertEqual(
+            subject.usernameGeneratorRequest(),
+            .subaddress(type: .websiteName(website: "example.com"), email: "user@bitwarden.com")
+        )
+    }
+
+    /// `usernameGeneratorRequest()` returns a request for generating random words.
+    func test_usernameState_usernameGeneratorRequest_randomWord() {
+        var subject = GeneratorState.UsernameState()
+        subject.usernameGeneratorType = .randomWord
+
+        try XCTAssertEqual(subject.usernameGeneratorRequest(), .word(capitalize: false, includeNumber: false))
+
+        subject.capitalize = true
+        try XCTAssertEqual(subject.usernameGeneratorRequest(), .word(capitalize: true, includeNumber: false))
+
+        subject.includeNumber = true
+        try XCTAssertEqual(subject.usernameGeneratorRequest(), .word(capitalize: true, includeNumber: true))
+    }
+
     // MARK: Private
 
     /// Returns a string containing a description of the vault list items.

@@ -232,6 +232,28 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
     }
 
+    /// `generateUsername()` returns the generated username.
+    func test_generateUsername() async throws {
+        let username = try await subject.generateUsername(
+            settings: UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com")
+        )
+
+        XCTAssertEqual(username, "USERNAME")
+    }
+
+    /// `generateUsername` throws an error if generating a username fails.
+    func test_generateUsername_error() async {
+        struct GenerateUsernameError: Error, Equatable {}
+
+        clientGenerators.usernameResult = .failure(GenerateUsernameError())
+
+        await assertAsyncThrows(error: GenerateUsernameError()) {
+            _ = try await subject.generateUsername(
+                settings: UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com")
+            )
+        }
+    }
+
     /// `generateUsernamePlusAddressedEmail` returns the generated plus addressed email.
     func test_generateUsernamePlusAddressedEmail() async throws {
         var email = try await subject.generateUsernamePlusAddressedEmail(email: "user@bitwarden.com")

@@ -155,7 +155,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             )
             try Task.checkCancellation()
             try await setGeneratedValue(password)
+        } catch is CancellationError {
+            // No-op: don't log or alert for cancellation errors.
         } catch {
+            coordinator.showAlert(.networkResponseError(error))
             Logger.application.error("Generator: error generating password: \(error)")
         }
     }
@@ -164,25 +167,15 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     ///
     func generateUsername() async {
         do {
-            let username: String
-            switch state.usernameState.usernameGeneratorType {
-            case .catchAllEmail:
-                // TODO: BIT-396 Generate catch-all email
-                username = "-"
-            case .forwardedEmail:
-                // TODO: BIT-406 Generate forwarded email
-                username = "-"
-            case .plusAddressedEmail:
-                username = try await services.generatorRepository.generateUsernamePlusAddressedEmail(
-                    email: state.usernameState.email
-                )
-            case .randomWord:
-                // TODO: BIT-407 Generate random word
-                username = "-"
-            }
+            let username = try await services.generatorRepository.generateUsername(
+                settings: state.usernameState.usernameGeneratorRequest()
+            )
             try Task.checkCancellation()
             try await setGeneratedValue(username)
+        } catch is CancellationError {
+            // No-op: don't log or alert for cancellation errors.
         } catch {
+            coordinator.showAlert(.networkResponseError(error))
             Logger.application.error("Generator: error generating username: \(error)")
         }
     }
