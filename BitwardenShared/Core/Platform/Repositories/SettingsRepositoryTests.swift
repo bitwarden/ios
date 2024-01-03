@@ -67,6 +67,12 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(pasteboardService.clearClipboardValue, .twentySeconds)
     }
 
+    /// `deleteFolder(id:)` makes the request to delete the folder.
+    func test_deleteFolder() async throws {
+        try await subject.deleteFolder(id: "123456789")
+        XCTAssertEqual(folderService.deletedFolderId, "123456789")
+    }
+
     /// `editFolder(id:name:)` encrypts the folder name and makes the request to edit the folder.
     func test_editFolder() async throws {
         let folderName = "Test folder name"

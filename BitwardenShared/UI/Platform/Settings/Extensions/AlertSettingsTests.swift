@@ -3,6 +3,17 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertSettingsTests: BitwardenTestCase {
+    /// `confirmDeleteFolder(action:)` constructs an `Alert` with the title,
+    /// message, yes, and cancel buttons to confirm deleting a folder.
+    func test_confirmDeleteFolder() {
+        let subject = Alert.confirmDeleteFolder {}
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.doYouReallyWantToDelete)
+        XCTAssertNil(subject.message)
+    }
+
     /// `confirmExportVault(encrypted:action:)` constructs an `Alert` with the title, message, and Yes and Export vault
     /// buttons.
     func test_confirmExportVault() {

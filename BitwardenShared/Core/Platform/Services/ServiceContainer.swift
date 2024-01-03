@@ -190,6 +190,7 @@ public class ServiceContainer: Services {
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
+
         let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
         let pasteboardService = DefaultPasteboardService(

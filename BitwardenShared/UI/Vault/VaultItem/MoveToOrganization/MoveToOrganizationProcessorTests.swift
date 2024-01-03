@@ -89,7 +89,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `receive(_:)` with `.ownerChanged` updates the state correctly.

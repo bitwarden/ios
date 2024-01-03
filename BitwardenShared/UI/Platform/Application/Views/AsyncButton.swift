@@ -75,6 +75,6 @@ extension AsyncButton where Label == Text {
     ///   - action: The async action to perform when the user interacts with this button.
     ///
     init<S>(_ title: S, role: ButtonRole? = nil, action: @escaping () async -> Void) where S: StringProtocol {
-        self.init(action: action, label: { Text(title) })
+        self.init(role: role, action: action, label: { Text(title) })
     }
 }

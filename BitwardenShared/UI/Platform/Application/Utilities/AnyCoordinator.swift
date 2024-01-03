@@ -11,6 +11,9 @@ open class AnyCoordinator<Route>: Coordinator {
     /// A closure that wraps the `navigate(to:)` method.
     private let doNavigate: (Route, AnyObject?) -> Void
 
+    /// A closure that wraps the `navigate(asyncTo:)` method.
+    private let doAsyncNavigate: (Route, AnyObject?) async -> Void
+
     /// A closure that wraps the `showAlert(_:)` method.
     private let doShowAlert: (Alert) -> Void
 
@@ -28,6 +31,9 @@ open class AnyCoordinator<Route>: Coordinator {
     ///
     public init<C: Coordinator>(_ coordinator: C) where C.Route == Route {
         doHideLoadingOverlay = { coordinator.hideLoadingOverlay() }
+        doAsyncNavigate = { route, context in
+            await coordinator.navigate(asyncTo: route, context: context)
+        }
         doNavigate = { route, context in
             coordinator.navigate(to: route, context: context)
         }
@@ -40,6 +46,10 @@ open class AnyCoordinator<Route>: Coordinator {
 
     open func navigate(to route: Route, context: AnyObject?) {
         doNavigate(route, context)
+    }
+
+    open func navigate(asyncTo route: Route, context: AnyObject?) async {
+        await doAsyncNavigate(route, context)
     }
 
     open func showAlert(_ alert: Alert) {

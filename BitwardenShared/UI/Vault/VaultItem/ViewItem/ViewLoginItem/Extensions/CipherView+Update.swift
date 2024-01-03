@@ -96,6 +96,7 @@ extension CipherView {
             isPasswordVisible: showPassword,
             password: login?.password ?? "",
             passwordUpdatedDate: login?.passwordRevisionDate,
+            totpKey: .init(authenticatorKey: login?.totp ?? ""),
             uris: login?.uris?.map(UriState.init) ?? [],
             username: login?.username ?? ""
         )

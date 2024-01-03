@@ -53,7 +53,7 @@ class MoveToOrganizationProcessor: StateProcessor<
         case let .collectionToggleChanged(newValue, collectionId):
             state.toggleCollection(newValue: newValue, collectionId: collectionId)
         case .dismissPressed:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         case .moveCipher:
             // TODO: BIT-840 Move cipher
             break

@@ -35,10 +35,8 @@ struct AddEditItemView: View {
         content
             .navigationTitle(Localizations.addItem)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
-                        store.send(.dismissPressed)
-                    }
+                cancelToolbarItem {
+                    store.send(.dismissPressed)
                 }
             }
     }
@@ -270,6 +268,7 @@ private let multilineText =
     I should really keep this safe.
     Is that right?
     """
+
 struct AddEditItemView_Previews: PreviewProvider {
     static var fixedDate: Date {
         .init(timeIntervalSince1970: 1_695_000_000)
