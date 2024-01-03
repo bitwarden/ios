@@ -39,6 +39,10 @@ struct VaultGroupView: View {
         .task {
             await store.perform(.appeared)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultGroupAction.toastShown
+        ))
     }
 
     // MARK: Private Properties

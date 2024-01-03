@@ -1,6 +1,15 @@
 import BitwardenSdk
 import Foundation
 
+// MARK: - CipherItemOperationDelegate
+
+/// An object that is notified when specific circumstances in the add/edit/delete item view have occurred.
+///
+protocol CipherItemOperationDelegate: AnyObject {
+    /// Called when the cipher item has been successfully deleted.
+    func itemDeleted()
+}
+
 // MARK: - AddEditItemProcessor
 
 /// The processor used to manage state and handle actions for the add item screen.
@@ -19,6 +28,9 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultItemRoute>
 
+    /// The delegate that is notified when delete cipher item have occurred.
+    private weak var delegate: CipherItemOperationDelegate?
+
     /// The services required by this processor.
     private let services: Services
 
@@ -28,15 +40,18 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
+    ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - services: The services required by this processor.
     ///   - state: The initial state for the processor.
     ///
     init(
         coordinator: AnyCoordinator<VaultItemRoute>,
+        delegate: CipherItemOperationDelegate?,
         services: Services,
         state: AddEditItemState
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.services = services
         super.init(state: state)
     }
@@ -336,8 +351,9 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         do {
             coordinator.showLoadingOverlay(title: Localizations.softDeleting)
             try await services.vaultRepository.deleteCipher(id)
-            state.toast = Toast(text: Localizations.itemSoftDeleted)
-            coordinator.navigate(to: .dismiss())
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemDeleted()
+            })))
         } catch {
             let alert = Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,

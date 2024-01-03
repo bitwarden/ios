@@ -17,4 +17,7 @@ enum VaultGroupAction: Equatable {
 
     /// The search bar's text was changed.
     case searchTextChanged(String)
+
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
 }

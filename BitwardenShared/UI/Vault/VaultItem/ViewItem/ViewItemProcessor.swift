@@ -29,6 +29,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The `Coordinator` for this processor.
     private let coordinator: any Coordinator<VaultItemRoute>
 
+    /// The delegate that is notified when delete cipher item have occurred.
+    private weak var delegate: CipherItemOperationDelegate?
+
     /// The ID of the item being viewed.
     private let itemId: String
 
@@ -41,17 +44,20 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     ///
     /// - Parameters:
     ///   - coordiantor: The `Coordinator` for this processor.
+    ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - itemId: The id of the item that is being viewed.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of this processor.
     ///
     init(
         coordinator: any Coordinator<VaultItemRoute>,
+        delegate: CipherItemOperationDelegate?,
         itemId: String,
         services: Services,
         state: ViewItemState
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.itemId = itemId
         self.services = services
         super.init(state: state)
@@ -145,7 +151,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
               case let .existing(cipher) = cipherState.configuration else {
             return
         }
-        coordinator.navigate(to: .editItem(cipher: cipher))
+        coordinator.navigate(to: .editItem(cipher: cipher), context: self)
     }
 
     /// Soft Deletes the item currently stored in `state`.
@@ -155,7 +161,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         do {
             coordinator.showLoadingOverlay(.init(title: Localizations.softDeleting))
             try await services.vaultRepository.deleteCipher(id)
-            coordinator.navigate(to: .dismiss())
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemDeleted()
+            })))
         } catch {
             let alert = Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
@@ -230,5 +238,15 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
         }
         coordinator.showAlert(alert)
+    }
+}
+
+// MARK: - CipherItemOperationDelegate
+
+extension ViewItemProcessor: CipherItemOperationDelegate {
+    func itemDeleted() {
+        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+            self?.delegate?.itemDeleted()
+        })))
     }
 }

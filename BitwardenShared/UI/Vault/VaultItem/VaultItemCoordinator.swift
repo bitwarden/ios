@@ -72,7 +72,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
         case let .viewItem(id):
-            showViewItem(id: id)
+            showViewItem(id: id, delegate: context as? CipherItemOperationDelegate)
         case .scanCode:
             Task {
                 await navigate(asyncTo: .scanCode, context: context)
@@ -101,6 +101,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         let state = CipherItemState(addItem: type ?? .login)
         let processor = AddEditItemProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: nil,
             services: services,
             state: state
         )
@@ -118,6 +119,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         if context is VaultItemCoordinator {
             let processor = AddEditItemProcessor(
                 coordinator: asAnyCoordinator(),
+                delegate: context as? CipherItemOperationDelegate,
                 services: services,
                 state: state
             )
@@ -187,9 +189,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter id: The id of the item to show.
     ///
-    private func showViewItem(id: String) {
+    private func showViewItem(id: String, delegate: CipherItemOperationDelegate?) {
         let processor = ViewItemProcessor(
             coordinator: self,
+            delegate: delegate,
             itemId: id,
             services: services,
             state: ViewItemState()

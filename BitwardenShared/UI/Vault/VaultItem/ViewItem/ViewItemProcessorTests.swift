@@ -9,6 +9,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     // MARK: Propteries
 
     var coordinator: MockCoordinator<VaultItemRoute>!
+    var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var subject: ViewItemProcessor!
@@ -19,6 +20,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator<VaultItemRoute>()
+        delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
@@ -29,6 +31,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
         subject = ViewItemProcessor(
             coordinator: coordinator,
+            delegate: delegate,
             itemId: "id",
             services: services,
             state: ViewItemState()
@@ -272,7 +275,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is deleted and the view is dismissed.
         XCTAssertEqual(vaultRepository.deletedCipher.last, "123")
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
     /// `receive` with `.editPressed` has no change when the state is loading.

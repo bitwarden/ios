@@ -13,6 +13,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     var cameraService: MockCameraService!
     var coordinator: MockCoordinator<VaultItemRoute>!
+    var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var totpService: MockTOTPService!
@@ -26,12 +27,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         cameraService = MockCameraService()
         coordinator = MockCoordinator<VaultItemRoute>()
+        delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
                 errorReporter: errorReporter,
@@ -192,7 +195,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         vaultRepository.deleteCipherResult = .success(())
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
-        var alert = coordinator.alertShown.last
+        let alert = coordinator.alertShown.last
         XCTAssertEqual(alert, .deleteCipherConfirmation {})
 
         // Tap the "Yes" button on the alert.
@@ -202,7 +205,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is deleted and the view is dismissed.
         XCTAssertEqual(vaultRepository.deletedCipher.last, "123")
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
@@ -1147,5 +1156,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.identityFieldChanged(.countryChanged("")))
 
         XCTAssertEqual(subject.state.identityState.country, "")
+    }
+}
+
+// MARK: MockCipherItemOperationDelegate
+
+class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
+    var itemDeletedCalled = false
+    func itemDeleted() {
+        itemDeletedCalled = true
     }
 }
