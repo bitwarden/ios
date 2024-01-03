@@ -618,6 +618,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.isMasterPasswordRePromptOn)
     }
 
+    /// `receive(_:)` with `.morePressed(.moveToOrganization)` navigates the user to the move to
+    /// organization view.
+    func test_receive_morePressed_moveToOrganization() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+
+        subject.receive(.morePressed(.moveToOrganization))
+
+        XCTAssertEqual(coordinator.routes.last, .moveToOrganization(cipher))
+    }
+
     /// `receive(_:)` with `.nameChanged` with a value updates the state correctly.
     func test_receive_nameChanged_withValue() {
         subject.state.name = ""

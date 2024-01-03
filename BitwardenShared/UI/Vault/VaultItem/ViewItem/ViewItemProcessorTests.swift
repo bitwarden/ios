@@ -303,6 +303,17 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
     }
 
+    /// `receive(_:)` with `.morePressed(.moveToOrganization)` navigates the user to the move to
+    /// organization view.
+    func test_receive_morePressed_moveToOrganization() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false)))
+
+        subject.receive(.morePressed(.moveToOrganization))
+
+        XCTAssertEqual(coordinator.routes.last, .moveToOrganization(cipher))
+    }
+
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
     func test_receive_passwordVisibilityPressed_impossible_loading() throws {
         subject.state.loadingState = .loading
