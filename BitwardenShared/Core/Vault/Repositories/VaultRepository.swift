@@ -176,6 +176,48 @@ class DefaultVaultRepository {
 
     // MARK: Private
 
+    /// Returns a list of TOTP type items from a SyncResponseModel.
+    ///
+    /// - Parameter response: The SyncResponseModel providing the list of TOTP keys.
+    /// - Returns: A list of totpKey type items in the vault list.
+    ///
+    private func totpListItems(
+        from response: SyncResponseModel
+    ) async throws -> [VaultListItem] {
+        let responseCiphers = response.ciphers.map(Cipher.init)
+        let active = responseCiphers.filter { cipher in
+            cipher.deletedDate == nil
+                && cipher.type == .login
+                && cipher.login?.totp != nil
+        }
+        let listItemTransform: (CipherListView) async throws -> VaultListItem? = { [weak self] cipherListView in
+            guard let self,
+                  let id = cipherListView.id,
+                  let cipher = active.first(where: { $0.id == id }) else {
+                return nil
+            }
+            let decoded = try await clientVault.ciphers()
+                .decrypt(cipher: cipher)
+            guard let login = decoded.login,
+                  let key = login.totp,
+                  let totpKey = TOTPKey(key) else { return nil }
+            return VaultListItem(
+                id: id,
+                itemType: .totp(
+                    id: id,
+                    loginView: login,
+                    totpKey: totpKey
+                )
+            )
+        }
+        let totpItems: [VaultListItem] = try await clientVault.ciphers()
+            .decryptList(ciphers: active)
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            .asyncMap(listItemTransform)
+            .compactMap { $0 }
+        return totpItems
+    }
+
     /// Returns a list of items that are grouped together in the vault list from a sync response.
     ///
     /// - Parameters:
@@ -187,8 +229,9 @@ class DefaultVaultRepository {
         group: VaultListGroup,
         from response: SyncResponseModel
     ) async throws -> [VaultListItem] {
+        let responseCiphers = response.ciphers.map(Cipher.init)
         let ciphers = try await clientVault.ciphers()
-            .decryptList(ciphers: response.ciphers.map(Cipher.init))
+            .decryptList(ciphers: responseCiphers)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
@@ -208,7 +251,7 @@ class DefaultVaultRepository {
         case let .folder(id, _):
             return activeCiphers.filter { $0.folderId == id }.compactMap(VaultListItem.init)
         case .totp:
-            return []
+            return try await totpListItems(from: response)
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
         }
@@ -250,14 +293,12 @@ class DefaultVaultRepository {
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
-        let oneTimePasswords: [CipherView] = try await responseCiphers
-            .asyncMap { try await clientVault.ciphers().decrypt(cipher: $0) }
-            .filter { $0.deletedDate == nil && $0.type == .login && $0.login?.totp != nil }
+        let oneTimePasswordCount: Int = try await totpListItems(from: response).count
 
         let totpItems = [
             VaultListItem(
                 id: "Types.VerificationCodes",
-                itemType: .group(.totp, oneTimePasswords.count)
+                itemType: .group(.totp, oneTimePasswordCount)
             ),
         ]
 
