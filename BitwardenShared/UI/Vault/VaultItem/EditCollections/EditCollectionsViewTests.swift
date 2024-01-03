@@ -29,7 +29,7 @@ class EditCollectionsViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the move button dispatches the `.dismissPressed` action.
+    /// Tapping the cancel button dispatches the `.dismissPressed` action.
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()

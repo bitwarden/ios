@@ -1,7 +1,7 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - MoveToOrganizationView
+// MARK: - EditCollectionsView
 
 /// A view that allows the user to move a cipher between collections.
 ///
@@ -20,10 +20,8 @@ struct EditCollectionsView: View {
             .task { await store.perform(.fetchCipherOptions) }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    AsyncButton {
+                    AsyncButton(Localizations.save) {
                         await store.perform(.save)
-                    } label: {
-                        Text(Localizations.save)
                     }
                     .buttonStyle(.toolbar)
                 }
