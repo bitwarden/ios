@@ -8,6 +8,14 @@ protocol AuthAPIService {
     ///
     func getIdentityToken(_ request: IdentityTokenRequestModel) async throws -> IdentityTokenResponseModel
 
+    /// Queries the API to pre-validate single-sign on for the requested organization identifier.
+    ///
+    /// - Parameter organizationIdentifier: The organization identifier.
+    ///
+    /// - Returns: A `PreValidateSingleSignOnResponse`.
+    ///
+    func preValidateSingleSignOn(organizationIdentifier: String) async throws -> PreValidateSingleSignOnResponse
+
     /// Performs the identity token refresh request to get a new access token.
     ///
     /// - Parameter request: The user's refresh token used to get a new access token.
@@ -19,6 +27,11 @@ protocol AuthAPIService {
 extension APIService: AuthAPIService {
     func getIdentityToken(_ request: IdentityTokenRequestModel) async throws -> IdentityTokenResponseModel {
         try await identityService.send(IdentityTokenRequest(requestModel: request))
+    }
+
+    func preValidateSingleSignOn(organizationIdentifier: String) async throws -> PreValidateSingleSignOnResponse {
+        let request = PreValidateSingleSignOnRequest(organizationIdentifier: organizationIdentifier)
+        return try await identityService.send(request)
     }
 
     func refreshIdentityToken(refreshToken: String) async throws -> IdentityTokenRefreshResponseModel {

@@ -27,6 +27,9 @@ public class ServiceContainer: Services {
     /// The repository used by the application to manage auth data for the UI layer.
     let authRepository: AuthRepository
 
+    /// The service used by the application to handle authentication tasks.
+    let authService: AuthService
+
     /// The service used to obtain the available authentication policies and access controls for the user's device.
     let biometricsService: BiometricsService
 
@@ -84,8 +87,10 @@ public class ServiceContainer: Services {
     ///
     /// - Parameters:
     ///   - apiService: The service used by the application to make API requests.
+    ///   - appIdService: The service used by the application to manage the app's ID.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
+    ///   - authService: The service used by the application to handle authentication tasks.
     ///   - biometricsService: The service used to obtain the available authentication policies
     ///     and access controls for the user's device.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
@@ -107,8 +112,10 @@ public class ServiceContainer: Services {
     ///
     init(
         apiService: APIService,
+        appIdService: AppIdService,
         appSettingsStore: AppSettingsStore,
         authRepository: AuthRepository,
+        authService: AuthService,
         biometricsService: BiometricsService,
         captchaService: CaptchaService,
         cameraService: CameraService,
@@ -128,8 +135,10 @@ public class ServiceContainer: Services {
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.apiService = apiService
+        self.appIdService = appIdService
         self.appSettingsStore = appSettingsStore
         self.authRepository = authRepository
+        self.authService = authService
         self.biometricsService = biometricsService
         self.captchaService = captchaService
         self.cameraService = cameraService
@@ -147,8 +156,6 @@ public class ServiceContainer: Services {
         self.twoStepLoginService = twoStepLoginService
         self.vaultRepository = vaultRepository
         self.vaultTimeoutService = vaultTimeoutService
-
-        appIdService = AppIdService(appSettingStore: appSettingsStore)
     }
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
@@ -159,6 +166,7 @@ public class ServiceContainer: Services {
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
+        let appIdService = AppIdService(appSettingStore: appSettingsStore)
 
         let biometricsService = DefaultBiometricsService()
         let clientService = DefaultClientService()
@@ -209,6 +217,15 @@ public class ServiceContainer: Services {
             stateService: stateService
         )
 
+        let authService = DefaultAuthService(
+            appIdService: appIdService,
+            authAPIService: apiService,
+            clientGenerators: clientService.clientGenerator(),
+            environmentService: environmentService,
+            stateService: stateService,
+            systemDevice: UIDevice.current
+        )
+
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             clientAuth: clientService.clientAuth(),
@@ -252,8 +269,10 @@ public class ServiceContainer: Services {
 
         self.init(
             apiService: apiService,
+            appIdService: appIdService,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
+            authService: authService,
             biometricsService: biometricsService,
             captchaService: DefaultCaptchaService(environmentService: environmentService),
             cameraService: DefaultCameraService(),
