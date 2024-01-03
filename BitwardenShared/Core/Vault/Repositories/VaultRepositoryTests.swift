@@ -587,6 +587,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 result.append(indent + "- Cipher: \(cipher.name)")
             case let .group(group, count):
                 result.append(indent + "- Group: \(group.name) (\(count))")
+            case let .totp(id: id, _, totpKey: totpKey):
+                result.append(indent + "- TOTP: \(id) \(totpKey.algorithm.rawValue) \(totpKey.base32Key)")
             }
             if item != items.last {
                 result.append("\n")
