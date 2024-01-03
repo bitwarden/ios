@@ -8,6 +8,7 @@ class MockVaultRepository: VaultRepository {
     var addCipherResult: Result<Void, Error> = .success(())
     var cipherDetailsSubject = CurrentValueSubject<BitwardenSdk.CipherView, Never>(.fixture())
     var doesActiveAccountHavePremiumCalled = false
+    var fetchCipherOwnershipOptionsIncludePersonal: Bool? // swiftlint:disable:this identifier_name
     var fetchCipherOwnershipOptions = [CipherOwner]()
     var fetchCollectionsIncludeReadOnly: Bool?
     var fetchCollectionsResult: Result<[CollectionView], Error> = .success([])
@@ -43,8 +44,9 @@ class MockVaultRepository: VaultRepository {
         return try hasPremiumResult.get()
     }
 
-    func fetchCipherOwnershipOptions() async throws -> [CipherOwner] {
-        fetchCipherOwnershipOptions
+    func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {
+        fetchCipherOwnershipOptionsIncludePersonal = includePersonal
+        return fetchCipherOwnershipOptions
     }
 
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView] {

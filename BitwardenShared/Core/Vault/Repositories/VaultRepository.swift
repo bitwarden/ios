@@ -30,9 +30,10 @@ protocol VaultRepository: AnyObject {
 
     /// Fetches the ownership options that the user can select from for a cipher.
     ///
+    /// - Parameter includePersonal: Whether to include the user's personal vault in the list.
     /// - Returns: The list of ownership options for a cipher.
     ///
-    func fetchCipherOwnershipOptions() async throws -> [CipherOwner]
+    func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner]
 
     /// Fetches the collections that are available to the user.
     ///
@@ -366,10 +367,7 @@ extension DefaultVaultRepository: VaultRepository {
         try await fetchSync(isManualRefresh: false)
     }
 
-    func fetchCipherOwnershipOptions() async throws -> [CipherOwner] {
-        let email = try await stateService.getActiveAccount().profile.email
-        let personalOwner = CipherOwner.personal(email: email)
-
+    func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {
         let organizations = syncService.organizations()
         let organizationOwners: [CipherOwner] = organizations?
             .filter { $0.enabled && $0.status == .confirmed }
@@ -378,7 +376,13 @@ extension DefaultVaultRepository: VaultRepository {
                 return CipherOwner.organization(id: organization.id, name: name)
             } ?? []
 
-        return [personalOwner] + organizationOwners
+        if includePersonal {
+            let email = try await stateService.getActiveAccount().profile.email
+            let personalOwner = CipherOwner.personal(email: email)
+            return [personalOwner] + organizationOwners
+        } else {
+            return organizationOwners
+        }
     }
 
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView] {
