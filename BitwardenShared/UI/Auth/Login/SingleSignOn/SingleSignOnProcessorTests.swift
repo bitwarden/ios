@@ -36,6 +36,34 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.loginPressed` displays an alert if organization identifier field is invalid.
+    func test_perform_loginPressed_invalidIdentifier() async throws {
+        subject.state.identifierText = "    "
+
+        await subject.perform(.loginTapped)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.validationFieldRequired(Localizations.orgIdentifier),
+                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
+            )
+        )
+    }
+
+    /// `perform(_:)` with `.loginPressed` attempts to login.
+    func test_perform_loginPressed_success() async throws {
+        subject.state.identifierText = "TestIdentifier"
+
+        await subject.perform(.loginTapped)
+
+        // TODO: BIT-1308
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
+    }
+
     /// `receive(_:)` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {
         subject.receive(.dismiss)
