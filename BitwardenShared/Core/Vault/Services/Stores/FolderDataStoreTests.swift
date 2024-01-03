@@ -55,7 +55,7 @@ class FolderDataStoreTests: BitwardenTestCase {
     }
 
     /// `fetchAllFolders(userId:)` fetches all folders for a user.
-    func test_fetchAllCollections() async throws {
+    func test_fetchAllFolders() async throws {
         try await insertFolders(folders, userId: "1")
 
         let fetchedFolders = try await subject.fetchAllFolders(userId: "1")

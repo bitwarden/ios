@@ -23,7 +23,7 @@ protocol FolderDataStore: AnyObject {
 
     /// Fetches the folders that are available to the user.
     ///
-    /// - Parameter userId: The user ID of the user associated with the collections to fetch.
+    /// - Parameter userId: The user ID of the user associated with the folders to fetch.
     /// - Returns: The folders that are available to the user.
     ///
     func fetchAllFolders(userId: String) async throws -> [Folder]
