@@ -1,6 +1,6 @@
 import BitwardenSdk // swiftlint:disable:this file_name
 
-// MARK: - LoginView+Update
+// MARK: - IdentityView+Update
 
 extension BitwardenSdk.IdentityView {
     /// initializes a new IdentityView with updated properties
