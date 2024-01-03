@@ -31,6 +31,9 @@ struct CipherItemState: Equatable {
 
     // MARK: Properties
 
+    /// A flag indicating if this account has premium features.
+    var accountHasPremium: Bool
+
     /// The card item state.
     var cardItemState: CardItemState
 
@@ -135,6 +138,7 @@ struct CipherItemState: Equatable {
     // MARK: Initialization
 
     private init(
+        accountHasPremium: Bool,
         cardState: CardItemState,
         configuration: Configuration,
         customFields: [CustomFieldState],
@@ -148,6 +152,7 @@ struct CipherItemState: Equatable {
         type: CipherType,
         updatedDate: Date
     ) {
+        self.accountHasPremium = accountHasPremium
         cardItemState = cardState
         collectionIds = []
         collections = []
@@ -166,8 +171,9 @@ struct CipherItemState: Equatable {
         self.configuration = configuration
     }
 
-    init(addItem type: CipherType = .login) {
+    init(addItem type: CipherType = .login, hasPremium: Bool) {
         self.init(
+            accountHasPremium: hasPremium,
             cardState: .init(),
             configuration: .add,
             customFields: [],
@@ -175,7 +181,7 @@ struct CipherItemState: Equatable {
             identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
-            loginState: .init(),
+            loginState: .init(isTOTPAvailable: hasPremium),
             name: "",
             notes: "",
             type: type,
@@ -183,9 +189,10 @@ struct CipherItemState: Equatable {
         )
     }
 
-    init?(existing cipherView: CipherView) {
+    init?(existing cipherView: CipherView, hasPremium: Bool) {
         guard cipherView.id != nil else { return nil }
         self.init(
+            accountHasPremium: hasPremium,
             cardState: cipherView.cardItemState(),
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
@@ -193,7 +200,7 @@ struct CipherItemState: Equatable {
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
-            loginState: cipherView.loginItemState(),
+            loginState: cipherView.loginItemState(showTOTP: hasPremium),
             name: cipherView.name,
             notes: cipherView.notes ?? "",
             type: .init(type: cipherView.type),

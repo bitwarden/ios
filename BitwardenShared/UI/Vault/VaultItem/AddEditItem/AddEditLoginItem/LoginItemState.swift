@@ -13,6 +13,9 @@ struct LoginItemState: Equatable {
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool = false
 
+    /// A flag indicating if the totp feature is available.
+    let isTOTPAvailable: Bool
+
     /// The password for this item.
     var password: String = ""
 
@@ -87,10 +90,3 @@ protocol ViewLoginItemState: Sendable {
 }
 
 extension LoginItemState: ViewLoginItemState {}
-
-// TODO: BIT-1262: Hide TOTP for non-Premium Accounts
-extension ViewLoginItemState {
-    var isTOTPAvailable: Bool {
-        true
-    }
-}

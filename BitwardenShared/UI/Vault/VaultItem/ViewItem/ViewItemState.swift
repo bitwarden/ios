@@ -11,6 +11,9 @@ struct ViewItemState: Equatable {
     /// appropriate internal state.
     var loadingState: LoadingState<CipherItemState> = .loading
 
+    /// A flag indicating if the user has premium fatures.
+    var hasPremiumFeatures = false
+
     /// A flag indicating if the master password has been verified yet.
     var hasVerifiedMasterPassword = false
 
@@ -31,10 +34,15 @@ extension ViewItemState {
 
     /// Creates a new `ViewItemState` from a provided `CipherView` from the vault.
     ///
-    /// - Parameter cipherView: The `CipherView` to create this state with.
+    /// - Parameters:
+    ///   - cipherView: The `CipherView` to create this state with.
+    ///   - hasPremium: Does the account have premium features.
     ///
-    init?(cipherView: CipherView) {
-        guard let cipherItemState = CipherItemState(existing: cipherView) else { return nil }
+    init?(cipherView: CipherView, hasPremium: Bool) {
+        guard let cipherItemState = CipherItemState(
+            existing: cipherView,
+            hasPremium: hasPremium
+        ) else { return nil }
         self.init(loadingState: .data(cipherItemState))
     }
 }

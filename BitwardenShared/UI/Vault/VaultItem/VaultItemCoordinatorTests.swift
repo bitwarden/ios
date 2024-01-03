@@ -1,12 +1,13 @@
 import AVFoundation
 import SwiftUI
+import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
 
 // MARK: - VaultItemCooridnatorTests
 
-class VaultItemCoordinatorTests: BitwardenTestCase {
+class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cameraService: MockCameraService!
@@ -45,8 +46,45 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
+    func test_navigateTo_addItem_nonPremium() throws {
+        vaultRepository.hasPremiumResult = .success(false)
+        let task = Task {
+            subject.navigate(to: .addItem())
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertEqual(view.store.state.type, .login)
+        XCTAssertFalse(view.store.state.loginState.isTOTPAvailable)
+    }
+
+    /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
+    func test_navigateTo_addItem_unknownPremium() throws {
+        struct TestError: Error {}
+        vaultRepository.hasPremiumResult = .failure(TestError())
+        let task = Task {
+            subject.navigate(to: .addItem())
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertEqual(view.store.state.type, .login)
+        XCTAssertFalse(view.store.state.loginState.isTOTPAvailable)
+    }
+
+    /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem_withoutGroup() throws {
-        subject.navigate(to: .addItem())
+        let task = Task {
+            subject.navigate(to: .addItem())
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -57,7 +95,11 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.addItem` with a group pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem_withGroup() throws {
-        subject.navigate(to: .addItem(group: .card))
+        let task = Task {
+            subject.navigate(to: .addItem(group: .card))
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -126,7 +168,11 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
     func test_navigateTo_editItem_existingCipher_withoutContext() throws {
-        subject.navigate(to: .editItem(cipher: .loginFixture()), context: nil)
+        let task = Task {
+            subject.navigate(to: .editItem(cipher: .loginFixture()), context: nil)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
@@ -135,11 +181,46 @@ class VaultItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
     func test_navigateTo_editItem_existingCipher_withContext() throws {
-        subject.navigate(to: .editItem(cipher: .loginFixture()), context: subject)
+        let task = Task {
+            subject.navigate(to: .editItem(cipher: .loginFixture()), context: subject)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         XCTAssertTrue(action.view is AddEditItemView)
+    }
+
+    /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
+    func test_navigateTo_editItem_existingCipher_nonPremium() throws {
+        vaultRepository.hasPremiumResult = .success(false)
+        let task = Task {
+            subject.navigate(to: .editItem(cipher: .loginFixture()), context: subject)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertFalse(view.store.state.loginState.isTOTPAvailable)
+    }
+
+    /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
+    func test_navigateTo_editItem_existingCipher_unknownPremium() throws {
+        struct TestError: Error {}
+        vaultRepository.hasPremiumResult = .failure(TestError())
+        let task = Task {
+            subject.navigate(to: .editItem(cipher: .loginFixture()), context: subject)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertFalse(view.store.state.loginState.isTOTPAvailable)
     }
 
     /// `navigate(to:)` with `.generator`, `.password`, and without a delegate does not present the

@@ -122,7 +122,7 @@ struct ViewItemView_Previews: PreviewProvider {
     )
 
     static var cardState: CipherItemState {
-        var state = CipherItemState(existing: cipher)!
+        var state = CipherItemState(existing: cipher, hasPremium: true)!
         state.type = CipherType.card
         state.isMasterPasswordRePromptOn = true
         state.name = "Points ALL Day"
@@ -140,7 +140,7 @@ struct ViewItemView_Previews: PreviewProvider {
     }
 
     static var loginState: CipherItemState {
-        var state = CipherItemState(existing: cipher)!
+        var state = CipherItemState(existing: cipher, hasPremium: true)!
         state.customFields = [
             CustomFieldState(
                 linkedIdType: nil,

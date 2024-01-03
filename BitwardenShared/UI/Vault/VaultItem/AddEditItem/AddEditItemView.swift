@@ -277,7 +277,7 @@ struct AddEditItemView_Previews: PreviewProvider {
     }
 
     static var emptyCipherState: CipherItemState {
-        var state = CipherItemState()
+        var state = CipherItemState(hasPremium: true)
         state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
         return state
     }
@@ -319,7 +319,8 @@ struct AddEditItemView_Previews: PreviewProvider {
                 creationDate: fixedDate,
                 deletedDate: nil,
                 revisionDate: fixedDate
-            )
+            ),
+            hasPremium: true
         )!
         state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
         return state
@@ -330,7 +331,9 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
-                        state: emptyCipherState.addEditState
+                        state: CipherItemState(
+                            hasPremium: true
+                        ).addEditState
                     )
                 )
             )
@@ -341,8 +344,11 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
-                        state: CipherItemState(addItem: .card)
-                            .addEditState
+                        state: CipherItemState(
+                            addItem: .card,
+                            hasPremium: true
+                        )
+                        .addEditState
                     )
                 )
             )

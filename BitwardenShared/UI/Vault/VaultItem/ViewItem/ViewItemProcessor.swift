@@ -63,7 +63,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         switch effect {
         case .appeared:
             for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
-                guard var newState = ViewItemState(cipherView: value) else { continue }
+                let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
+                    ?? false
+                guard var newState = ViewItemState(cipherView: value, hasPremium: hasPremium) else { continue }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
             }

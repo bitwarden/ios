@@ -119,6 +119,39 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// Tests the ability to determine if an account has premium.
+    func test_doesActiveAccountHavePremium_error() async {
+        stateService.activeAccount = nil
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.doesActiveAccountHavePremium()
+        }
+    }
+
+    /// Tests the ability to determine if an account has premium.
+    func test_doesActiveAccountHavePremium_false() async throws {
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                hasPremiumPersonally: false
+            )
+        )
+
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// Tests the ability to determine if an account has premium.
+    func test_doesActiveAccountHavePremium_true() async throws {
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                hasPremiumPersonally: true
+            )
+        )
+
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
     /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations.
     func test_fetchCipherOwnershipOptions_organizations() async throws {
         stateService.activeAccount = .fixture()

@@ -39,7 +39,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 totpService: totpService,
                 vaultRepository: vaultRepository
             ),
-            state: CipherItemState()
+            state: CipherItemState(hasPremium: true)
         )
     }
 
@@ -361,6 +361,52 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
+    }
+
+    /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
+    func test_perform_savePressed_existing_error() async throws {
+        let cipher = CipherView.fixture(id: "123")
+        let maybeCipherState = CipherItemState(existing: cipher, hasPremium: true)
+        let cipherState = try XCTUnwrap(maybeCipherState)
+        struct EncryptError: Error, Equatable {}
+        vaultRepository.updateCipherResult = .failure(EncryptError())
+
+        subject.state = cipherState.addEditState
+        subject.state.name = "vault item"
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
+    }
+
+    /// `perform(_:)` with `.savePressed` saves the item.
+    func test_perform_savePressed_existing_success() async throws {
+        let cipher = CipherView.fixture(id: "123")
+        let maybeCipherState = CipherItemState(existing: cipher, hasPremium: true)
+        let cipherState = try XCTUnwrap(maybeCipherState)
+        vaultRepository.updateCipherResult = .success(())
+
+        subject.state = cipherState.addEditState
+        subject.state.name = "vault item"
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.updateCipherCiphers.first).creationDate.timeIntervalSince1970,
+            cipher.creationDate.timeIntervalSince1970,
+            accuracy: 1
+        )
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.updateCipherCiphers.first).revisionDate.timeIntervalSince1970,
+            cipher.revisionDate.timeIntervalSince1970,
+            accuracy: 1
+        )
+
+        XCTAssertEqual(
+            vaultRepository.updateCipherCiphers,
+            [
+                cipher.updatedView(with: subject.state),
+            ]
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the

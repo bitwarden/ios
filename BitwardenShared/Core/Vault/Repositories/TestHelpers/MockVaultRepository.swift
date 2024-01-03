@@ -7,12 +7,14 @@ class MockVaultRepository: VaultRepository {
     var addCipherCiphers = [BitwardenSdk.CipherView]()
     var addCipherResult: Result<Void, Error> = .success(())
     var cipherDetailsSubject = CurrentValueSubject<BitwardenSdk.CipherView, Never>(.fixture())
+    var doesActiveAccountHavePremiumCalled = false
     var fetchCipherOwnershipOptions = [CipherOwner]()
     var fetchCollectionsIncludeReadOnly: Bool?
     var fetchCollectionsResult: Result<[CollectionView], Error> = .success([])
     var fetchFoldersResult: Result<[FolderView], Error> = .success([])
     var fetchSyncCalled = false
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
+    var hasPremiumResult: Result<Bool, Error> = .success(true)
     var removeAccountIds = [String?]()
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
@@ -34,6 +36,11 @@ class MockVaultRepository: VaultRepository {
 
     func cipherDetailsPublisher(id _: String) -> AsyncPublisher<AnyPublisher<BitwardenSdk.CipherView, Never>> {
         cipherDetailsSubject.eraseToAnyPublisher().values
+    }
+
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        doesActiveAccountHavePremiumCalled = true
+        return try hasPremiumResult.get()
     }
 
     func fetchCipherOwnershipOptions() async throws -> [CipherOwner] {
