@@ -207,6 +207,8 @@ class DefaultVaultRepository {
             return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case let .folder(id, _):
             return activeCiphers.filter { $0.folderId == id }.compactMap(VaultListItem.init)
+        case .totp:
+            return []
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
         }
@@ -221,8 +223,10 @@ class DefaultVaultRepository {
         from response: SyncResponseModel,
         filter: VaultFilterType
     ) async throws -> [VaultListSection] {
+        let responseCiphers: [Cipher] = response.ciphers.map(Cipher.init)
+
         let ciphers = try await clientVault.ciphers()
-            .decryptList(ciphers: response.ciphers.map(Cipher.init))
+            .decryptList(ciphers: responseCiphers)
             .filter(filter.cipherFilter)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
@@ -245,6 +249,17 @@ class DefaultVaultRepository {
 
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
+
+        let oneTimePasswords: [CipherView] = try await responseCiphers
+            .asyncMap { try await clientVault.ciphers().decrypt(cipher: $0) }
+            .filter { $0.deletedDate == nil && $0.type == .login && $0.login?.totp != nil }
+
+        let totpItems = [
+            VaultListItem(
+                id: "Types.VerificationCodes",
+                itemType: .group(.totp, oneTimePasswords.count)
+            ),
+        ]
 
         let folderItems = folders.map { folder in
             let cipherCount = activeCiphers.lazy.filter { $0.folderId == folder.id }.count
@@ -275,6 +290,7 @@ class DefaultVaultRepository {
         ]
 
         return [
+            VaultListSection(id: "TOTP", items: totpItems, name: Localizations.totp),
             VaultListSection(id: "Favorites", items: ciphersFavorites, name: Localizations.favorites),
             VaultListSection(id: "Types", items: types, name: Localizations.types),
             VaultListSection(id: "Folders", items: folderItems, name: Localizations.folders),

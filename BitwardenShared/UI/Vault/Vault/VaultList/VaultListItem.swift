@@ -63,6 +63,8 @@ extension VaultListItem {
                 return Asset.Images.globe
             case .secureNote:
                 return Asset.Images.doc
+            case .totp:
+                return Asset.Images.clock
             case .trash:
                 return Asset.Images.trash
             }

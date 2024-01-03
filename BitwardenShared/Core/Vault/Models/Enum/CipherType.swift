@@ -31,6 +31,7 @@ extension CipherType {
             self = .secureNote
         case .collection,
              .folder,
+             .totp,
              .trash:
             return nil
         }

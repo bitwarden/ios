@@ -396,6 +396,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
             """
+            Section: TOTP
+              - Group: Verification codes (0)
             Section: Favorites
               - Cipher: Apple
             Section: Types
@@ -443,6 +445,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
             """
+            Section: TOTP
+              - Group: Verification codes (0)
             Section: Favorites
               - Cipher: Apple
             Section: Types
@@ -480,6 +484,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
             """
+            Section: TOTP
+              - Group: Verification codes (0)
             Section: Types
               - Group: Login (1)
               - Group: Card (1)
@@ -511,6 +517,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
             """
+            Section: TOTP
+              - Group: Verification codes (0)
             Section: Favorites
               - Cipher: Apple
             Section: Types

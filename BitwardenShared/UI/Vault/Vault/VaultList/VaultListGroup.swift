@@ -17,6 +17,9 @@ public enum VaultListGroup: Equatable, Hashable {
     /// A group of secure note type ciphers.
     case secureNote
 
+    /// A group of TOTP Enabled login types.
+    case totp
+
     // MARK: Collections
 
     /// A group of ciphers within a collection.
@@ -49,6 +52,8 @@ extension VaultListGroup {
             return Localizations.typeLogin
         case .secureNote:
             return Localizations.typeSecureNote
+        case .totp:
+            return Localizations.verificationCodes
         case .trash:
             return Localizations.trash
         }
@@ -69,6 +74,8 @@ extension VaultListGroup {
             return Localizations.logins
         case .secureNote:
             return Localizations.secureNotes
+        case .totp:
+            return Localizations.verificationCodes
         case .trash:
             return Localizations.trash
         }
