@@ -57,13 +57,20 @@ extension View {
 
     /// A `ToolbarItem` for views with a more button.
     ///
-    /// - Parameter action: The action to perform when the more button is tapped.
+    /// - Parameter content: The content to display in the menu when the more icon is tapped.
     ///
-    /// - Returns: A `ToolbarItem` with a more button.
+    /// - Returns: A `ToolbarItem` with a more button that shows a menu.
     ///
-    func moreToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options, action: action)
+    func moreToolbarItem(_ content: () -> some View) -> some ToolbarContent {
+        ToolbarItem {
+            Menu {
+                content()
+            } label: {
+                Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
+                    .resizable()
+                    .frame(width: 19, height: 19)
+                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            }
         }
     }
 

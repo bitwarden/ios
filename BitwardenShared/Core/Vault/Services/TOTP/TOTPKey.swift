@@ -3,8 +3,10 @@
 enum TOTPKey: Equatable {
     /// A base 32 string key
     case base32(key: String)
+
     /// An OTP Auth URI
     case otpAuthUri(OTPAuthModel)
+
     /// A Steam URI
     case steamUri(key: String)
 

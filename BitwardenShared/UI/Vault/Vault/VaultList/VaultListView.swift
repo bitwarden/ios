@@ -276,10 +276,8 @@ struct VaultListView: View {
                     )
                 )
             }
-            ToolbarItem(placement: .primaryAction) {
-                AddItemButton {
-                    store.send(.addItemPressed)
-                }
+            addToolbarItem {
+                store.send(.addItemPressed)
             }
         }
         .task {

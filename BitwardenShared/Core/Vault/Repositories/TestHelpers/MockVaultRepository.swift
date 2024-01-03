@@ -10,6 +10,7 @@ class MockVaultRepository: VaultRepository {
     var fetchCipherOwnershipOptions = [CipherOwner]()
     var fetchCollectionsIncludeReadOnly: Bool?
     var fetchCollectionsResult: Result<[CollectionView], Error> = .success([])
+    var fetchFoldersResult: Result<[FolderView], Error> = .success([])
     var fetchSyncCalled = false
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var removeAccountIds = [String?]()
@@ -42,6 +43,10 @@ class MockVaultRepository: VaultRepository {
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView] {
         fetchCollectionsIncludeReadOnly = includeReadOnly
         return try fetchCollectionsResult.get()
+    }
+
+    func fetchFolders() async throws -> [FolderView] {
+        try fetchFoldersResult.get()
     }
 
     func remove(userId: String?) async {

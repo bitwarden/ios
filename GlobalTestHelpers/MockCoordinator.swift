@@ -13,6 +13,7 @@ class MockCoordinator<Route>: Coordinator {
     var isStarted: Bool = false
     var loadingOverlaysShown = [LoadingOverlayState]()
     var routes: [Route] = []
+    var asyncRoutes: [Route] = []
 
     func hideLoadingOverlay() {
         isLoadingOverlayShowing = false
@@ -20,6 +21,14 @@ class MockCoordinator<Route>: Coordinator {
 
     func navigate(to route: Route, context: AnyObject?) {
         routes.append(route)
+        contexts.append(context)
+    }
+
+    func navigate(
+        asyncTo route: Route,
+        context: AnyObject?
+    ) async {
+        asyncRoutes.append(route)
         contexts.append(context)
     }
 

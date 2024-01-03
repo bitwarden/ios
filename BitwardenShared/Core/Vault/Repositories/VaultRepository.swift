@@ -35,6 +35,12 @@ protocol VaultRepository: AnyObject {
     ///
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView]
 
+    /// Fetches the folders that are available to the user.
+    ///
+    /// - Returns: The folders that are available to the user.
+    ///
+    func fetchFolders() async throws -> [FolderView]
+
     /// Removes an account id.
     ///
     ///  - Parameter userId: An optional userId. Defaults to the active user id.
@@ -110,6 +116,9 @@ class DefaultVaultRepository {
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
+    /// The service used to manage syncing and updates to the user's folders.
+    let folderService: FolderService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -130,6 +139,7 @@ class DefaultVaultRepository {
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -141,6 +151,7 @@ class DefaultVaultRepository {
         clientVault: ClientVaultService,
         collectionService: CollectionService,
         errorReporter: ErrorReporter,
+        folderService: FolderService,
         stateService: StateService,
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
@@ -151,6 +162,7 @@ class DefaultVaultRepository {
         self.clientVault = clientVault
         self.collectionService = collectionService
         self.errorReporter = errorReporter
+        self.folderService = folderService
         self.stateService = stateService
         self.syncService = syncService
         self.vaultTimeoutService = vaultTimeoutService
@@ -310,6 +322,13 @@ extension DefaultVaultRepository: VaultRepository {
         let collections = try await collectionService.fetchAllCollections(includeReadOnly: includeReadOnly)
         return try await clientVault.collections()
             .decryptList(collections: collections)
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    func fetchFolders() async throws -> [FolderView] {
+        let folders = try await folderService.fetchAllFolders()
+        return try await clientVault.folders()
+            .decryptList(folders: folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 

@@ -1,4 +1,5 @@
 import SnapshotTesting
+import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
@@ -42,20 +43,22 @@ class AddEditFolderViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
 
+    /// Tapping the delete button performs the `.deleteTapped` effect.
+    func test_deleteButton_tap() async throws {
+        processor.state.mode = .edit(.fixture())
+
+        let menu = try subject.inspect().find(ViewType.Menu.self, containing: Localizations.options)
+        let button = try menu.find(asyncButton: Localizations.delete)
+        try await button.tap()
+
+        XCTAssertEqual(processor.effects.last, .deleteTapped)
+    }
+
     /// Updating the text field dispatches the `.folderNameTextChanged()` action.
     func test_nameField_updateValue() throws {
         let textfield = try subject.inspect().find(viewWithId: Localizations.name).textField()
         try textfield.setInput("text")
         XCTAssertEqual(processor.dispatchedActions.last, .folderNameTextChanged("text"))
-    }
-
-    /// Tapping the more button dispatches the `.moreTapped` action.
-    func test_moreButton_tap() throws {
-        processor.state.mode = .edit(.fixture())
-
-        let button = try subject.inspect().find(button: Localizations.options)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .moreTapped)
     }
 
     /// Tapping the save button performs the `.saveTapped` effect.

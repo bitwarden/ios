@@ -9,11 +9,12 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = GeneratorModule
+        & VaultItemModule
 
-    typealias Services = HasVaultRepository
-        & HasTOTPService
+    typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
-        & AuthenticatorKeyCaptureCoordinator.Services
+        & HasTOTPService
+        & HasVaultRepository
 
     // MARK: - Private Properties
 
@@ -27,6 +28,11 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     /// The stack navigator that is managed by this coordinator.
     var stackNavigator: StackNavigator
+
+    // MARK: Private Properties
+
+    /// The coordinator currently being displayed.
+    private var childCoordinator: AnyObject?
 
     // MARK: Initialization
 
@@ -53,22 +59,34 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             showAddItem(for: group.flatMap(CipherType.init))
         case let .alert(alert):
             stackNavigator.present(alert)
-        case .dismiss:
-            stackNavigator.dismiss()
+        case let .dismiss(onDismiss):
+            stackNavigator.dismiss(animated: true, completion: {
+                onDismiss?.action()
+            })
         case let .editItem(cipher: cipher):
-            showEditItem(for: cipher)
+            showEditItem(for: cipher, context: context)
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
-        case .setupTotpCamera:
-            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
-            showCamera(delegate: delegate)
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
         case let .viewItem(id):
             showViewItem(id: id)
+        case .scanCode:
+            Task {
+                await navigate(asyncTo: .scanCode, context: context)
+            }
         }
+    }
+
+    func navigate(asyncTo route: VaultItemRoute, context: AnyObject?) async {
+        guard case .scanCode = route else {
+            navigate(to: route, context: context)
+            return
+        }
+        guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
+        await showCamera(delegate: delegate)
     }
 
     func start() {}
@@ -95,41 +113,52 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter cipherView: A `CipherView` to initialize this view with.
     ///
-    private func showEditItem(for cipherView: CipherView) {
+    private func showEditItem(for cipherView: CipherView, context: AnyObject?) {
         guard let state = CipherItemState(existing: cipherView) else { return }
-        let processor = AddEditItemProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: state
-        )
-        let store = Store(processor: processor)
-        let view = AddEditItemView(store: store)
-        let navWrapped = NavigationView { view }
-        stackNavigator.present(navWrapped)
+        if context is VaultItemCoordinator {
+            let processor = AddEditItemProcessor(
+                coordinator: asAnyCoordinator(),
+                services: services,
+                state: state
+            )
+            let store = Store(processor: processor)
+            let view = AddEditItemView(store: store)
+            stackNavigator.replace(view)
+        } else {
+            let navigationController = UINavigationController()
+            let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
+            coordinator.start()
+            coordinator.navigate(to: .editItem(cipher: cipherView), context: self)
+            stackNavigator.present(navigationController)
+        }
     }
 
     /// Shows the totp camera setup screen.
     ///
-    private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) {
+    private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
+        let navigationController = UINavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: navigationController
         )
         coordinator.start()
-        coordinator.navigate(to: .scanCode)
+        await coordinator.navigate(asyncTo: .scanCode)
+        stackNavigator.present(navigationController, overFullscreen: true)
     }
 
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp(delegate: AuthenticatorKeyCaptureDelegate) {
+        let navigationController = UINavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
-            stackNavigator: stackNavigator
-        )
+            stackNavigator: navigationController
+        ).asAnyCoordinator()
         coordinator.start()
-        coordinator.navigate(to: .setupTotpManual)
+        coordinator.navigate(to: .manualKeyEntry, context: nil)
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the generator screen for the the specified type.
@@ -148,7 +177,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         let coordinator = module.makeGeneratorCoordinator(
             delegate: delegate,
             stackNavigator: navigationController
-        )
+        ).asAnyCoordinator()
         coordinator.start()
         coordinator.navigate(to: .generator(staticType: type, emailWebsite: emailWebsite))
         stackNavigator.present(navigationController)

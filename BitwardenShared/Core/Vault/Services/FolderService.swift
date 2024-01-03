@@ -12,6 +12,12 @@ protocol FolderService {
     ///
     func addFolderWithServer(name: String) async throws
 
+    /// Delete a folder for the current user, both in the backend and in local storage.
+    ///
+    /// - Parameter id: The id of the folder to delete.
+    ///
+    func deleteFolderWithServer(id: String) async throws
+
     /// Edit a folder for the current user, both in the backend and in local storage.
     ///
     /// - Parameters:
@@ -19,6 +25,12 @@ protocol FolderService {
     ///   - name: The new name of the folder.
     ///
     func editFolderWithServer(id: String, name: String) async throws
+
+    /// Fetches the folders that are available to the user.
+    ///
+    /// - Returns: The folders that are available to the user.
+    ///
+    func fetchAllFolders() async throws -> [Folder]
 
     /// Replaces the persisted list of folders for the user.
     ///
@@ -82,6 +94,16 @@ extension DefaultFolderService {
         try await folderDataStore.upsertFolder(Folder(folderResponseModel: response), userId: userID)
     }
 
+    func deleteFolderWithServer(id: String) async throws {
+        let userID = try await stateService.getActiveAccountId()
+
+        // Delete the folder in the backend.
+        _ = try await folderAPIService.deleteFolder(withID: id)
+
+        // Delete the folder in the local data store.
+        try await folderDataStore.deleteFolder(id: id, userId: userID)
+    }
+
     func editFolderWithServer(id: String, name: String) async throws {
         let userID = try await stateService.getActiveAccountId()
 
@@ -90,6 +112,11 @@ extension DefaultFolderService {
 
         // Edit the folder in the local data store.
         try await folderDataStore.upsertFolder(Folder(folderResponseModel: response), userId: userID)
+    }
+
+    func fetchAllFolders() async throws -> [Folder] {
+        let userId = try await stateService.getActiveAccountId()
+        return try await folderDataStore.fetchAllFolders(userId: userId)
     }
 
     func replaceFolders(_ folders: [FolderResponseModel], userId: String) async throws {

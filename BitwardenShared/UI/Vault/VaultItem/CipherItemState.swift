@@ -31,6 +31,9 @@ struct CipherItemState: Equatable {
 
     // MARK: Properties
 
+    /// The card item state.
+    var cardItemState: CardItemState
+
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String]
 
@@ -43,8 +46,11 @@ struct CipherItemState: Equatable {
     /// The custom fields.
     var customFields: [CustomFieldState]
 
-    /// The folder this item should be added to.
-    var folder: String
+    /// The identifier of the folder for this item.
+    var folderId: String?
+
+    /// The list of all folders that the item could be added to.
+    var folders: [DefaultableType<FolderView>]
 
     /// The state for a identity type item.
     var identityState: IdentityItemState
@@ -92,6 +98,19 @@ struct CipherItemState: Equatable {
         return collections.filter { $0.organizationId == owner.organizationId }
     }
 
+    /// The folder this item should be added to.
+    var folder: DefaultableType<FolderView> {
+        get {
+            guard let folderId,
+                  let folder = folders.first(where: { $0.customValue?.id == folderId })?.customValue else {
+                return .default
+            }
+            return .custom(folder)
+        } set {
+            folderId = newValue.customValue?.id
+        }
+    }
+
     /// The owner of the cipher.
     var owner: CipherOwner? {
         get {
@@ -116,9 +135,10 @@ struct CipherItemState: Equatable {
     // MARK: Initialization
 
     private init(
+        cardState: CardItemState,
         configuration: Configuration,
         customFields: [CustomFieldState],
-        folder: String,
+        folderId: String?,
         identityState: IdentityItemState,
         isFavoriteOn: Bool,
         isMasterPasswordRePromptOn: Bool,
@@ -128,13 +148,15 @@ struct CipherItemState: Equatable {
         type: CipherType,
         updatedDate: Date
     ) {
+        cardItemState = cardState
         collectionIds = []
         collections = []
         self.customFields = customFields
-        self.folder = folder
+        self.folderId = folderId
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
+        folders = []
         self.loginState = loginState
         self.name = name
         self.notes = notes
@@ -146,9 +168,10 @@ struct CipherItemState: Equatable {
 
     init(addItem type: CipherType = .login) {
         self.init(
+            cardState: .init(),
             configuration: .add,
             customFields: [],
-            folder: "",
+            folderId: nil,
             identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
@@ -163,9 +186,10 @@ struct CipherItemState: Equatable {
     init?(existing cipherView: CipherView) {
         guard cipherView.id != nil else { return nil }
         self.init(
+            cardState: cipherView.cardItemState(),
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
-            folder: cipherView.folderId ?? "",
+            folderId: cipherView.folderId,
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
@@ -207,6 +231,10 @@ struct CipherItemState: Equatable {
 extension CipherItemState: AddEditItemState {}
 
 extension CipherItemState: ViewVaultItemState {
+    var cardItemViewState: any ViewCardItemState {
+        cardItemState
+    }
+
     var cipher: BitwardenSdk.CipherView {
         switch configuration {
         case let .existing(cipherView: view):
@@ -223,7 +251,7 @@ extension CipherItemState {
         CipherView(
             id: nil,
             organizationId: organizationId,
-            folderId: nil,
+            folderId: folderId,
             collectionIds: collectionIds,
             key: nil,
             name: name,
@@ -231,7 +259,7 @@ extension CipherItemState {
             type: BitwardenSdk.CipherType(type),
             login: type == .login ? loginState.loginView : nil,
             identity: type == .identity ? identityState.identityView : nil,
-            card: nil,
+            card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,

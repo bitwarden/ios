@@ -14,6 +14,12 @@ protocol SettingsRepository: AnyObject {
     ///
     func addFolder(name: String) async throws
 
+    /// Delete a folder.
+    ///
+    /// - Parameter id: The id of the folder to delete.
+    ///
+    func deleteFolder(id: String) async throws
+
     /// Edit an existing folder.
     ///
     /// - Parameters:
@@ -132,6 +138,10 @@ extension DefaultSettingsRepository: SettingsRepository {
         let folderView = FolderView(id: UUID().uuidString, name: name, revisionDate: Date.now)
         let folder = try await clientVault.folders().encrypt(folder: folderView)
         try await folderService.addFolderWithServer(name: folder.name)
+    }
+
+    func deleteFolder(id: String) async throws {
+        try await folderService.deleteFolderWithServer(id: id)
     }
 
     func editFolder(withID id: String, name: String) async throws {

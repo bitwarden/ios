@@ -7,6 +7,9 @@ import Foundation
 protocol ViewVaultItemState: Sendable {
     // MARK: Properties
 
+    /// The card item state.
+    var cardItemViewState: any ViewCardItemState { get }
+
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
 

@@ -1,8 +1,9 @@
+import BitwardenSdk
 import SwiftUI
 
 // MARK: - AddEditItemView
 
-/// A view that allows the user to add a new item to a vault.
+/// A view that allows the user to add or edit a new item for a vault.
 ///
 struct AddEditItemView: View {
     // MARK: Private Properties
@@ -38,10 +39,8 @@ struct AddEditItemView: View {
         content
             .navigationTitle(Localizations.addItem)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
-                        store.send(.dismissPressed)
-                    }
+                cancelToolbarItem {
+                    store.send(.dismissPressed)
                 }
             }
     }
@@ -64,6 +63,20 @@ struct AddEditItemView: View {
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder private var cardItems: some View {
+        AddEditCardItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.cardItemState
+                },
+                mapAction: { action in
+                    .cardFieldChanged(action)
+                },
+                mapEffect: { $0 }
+            )
+        )
     }
 
     private var customSection: some View {
@@ -122,14 +135,14 @@ struct AddEditItemView: View {
             )
 
             switch store.state.type {
+            case .card:
+                cardItems
             case .login:
                 loginItems
             case .secureNote:
                 EmptyView()
             case .identity:
                 identityItems
-            default:
-                EmptyView()
             }
         }
     }
@@ -164,9 +177,10 @@ struct AddEditItemView: View {
 private extension AddEditItemView {
     var miscellaneousSection: some View {
         SectionView(Localizations.miscellaneous) {
-            BitwardenTextField(
+            BitwardenMenuField(
                 title: Localizations.folder,
-                text: store.binding(
+                options: store.state.folders,
+                selection: store.binding(
                     get: \.folder,
                     send: AddEditItemAction.folderChanged
                 )
@@ -263,6 +277,13 @@ private extension AddEditItemView {
     }
 }
 
+#if DEBUG
+private let multilineText =
+    """
+    I should really keep this safe.
+    Is that right?
+    """
+
 struct AddEditItemView_Previews: PreviewProvider {
     static var fixedDate: Date {
         .init(timeIntervalSince1970: 1_695_000_000)
@@ -333,6 +354,50 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
+                        state: CipherItemState(addItem: .card)
+                            .addEditState
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Add Card")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var copy = cipherState
+                            copy.name = "Sample Card"
+                            copy.type = .card
+                            copy.cardItemState = .init(
+                                brand: .custom(.americanExpress),
+                                cardholderName: "Bitwarden User",
+                                cardNumber: "123456789012345",
+                                cardSecurityCode: "123",
+                                expirationMonth: .custom(.feb),
+                                expirationYear: "3009"
+                            )
+                            copy.folderId = "1"
+                            copy.folders = [
+                                .custom(FolderView(id: "1", name: "Financials", revisionDate: Date())),
+                            ]
+                            copy.isFavoriteOn = false
+                            copy.isMasterPasswordRePromptOn = true
+                            copy.owner = .personal(email: "security@bitwarden.com")
+                            copy.notes = multilineText
+                            return copy.addEditState
+                        }()
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Edit Card")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
                         state: cipherState.addEditState
                     )
                 )
@@ -357,3 +422,4 @@ struct AddEditItemView_Previews: PreviewProvider {
         .previewDisplayName("Edit Login: Key Added")
     }
 }
+#endif // swiftlint:disable:this file_length
