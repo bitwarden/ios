@@ -16,16 +16,17 @@ extension SendFileModel {
 }
 
 extension SendResponseModel {
-    init(send: Send) {
+    init(send: Send) throws {
+        guard let id = send.id, let accessId = send.accessId else { throw DataMappingError.missingId }
         self.init(
             accessCount: send.accessCount,
-            accessId: send.accessId,
+            accessId: accessId,
             deletionDate: send.deletionDate,
             disabled: send.disabled,
             expirationDate: send.expirationDate,
             file: send.file.map(SendFileModel.init),
             hideEmail: send.hideEmail,
-            id: send.id,
+            id: id,
             key: send.key,
             maxAccessCount: send.maxAccessCount,
             name: send.name,
