@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - AccessibleHStack
 
-/// An `HStack` that will automatically convert to a `VStack` when the user's dynamic type settings 
+/// An `HStack` that will automatically convert to a `VStack` when the user's dynamic type settings
 /// exceed the specified value.
 ///
 struct AccessibleHStack<Content>: View where Content: View {
@@ -11,6 +11,7 @@ struct AccessibleHStack<Content>: View where Content: View {
     /// The content to display in this stack.
     private let content: Content
 
+    /// The current Dynamic Type size.
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     /// A flag indicating if this stack should be using an `HStack` to layout its content
@@ -26,17 +27,31 @@ struct AccessibleHStack<Content>: View where Content: View {
     /// `HStack`) or horizontal (in a `VStack`) screen coordinate for every subview.
     let alignment: Alignment
 
+    /// The minimum `DynamicTypeSize` for this view to layout its content vertically.
+    ///
+    /// Once the current `DynamicTypeSize` setting matches or exceeds this value this view's
+    /// `content` will be rendered in a `VStack`. If `nil` is provided,
+    /// `DynamicTypeSize.isAccessibilitySize` will be used to swap between `HStack` and `VStack`
+    /// instead.
+    let minVerticalDynamicTypeSize: DynamicTypeSize?
+
     /// The distance between adjacent subviews, or `nil` if you want the stack to choose a default
     /// distance for each pair of subviews.
     let spacing: CGFloat?
 
-    /// The minimum `DynamicTypeSize` for this view to layout its content vertically.
-    ///
-    /// Once the current `DynamicTypeSize` setting matches or exceeds this value this view's
-    /// `content` will be rendered in a `VStack`. If `nil` is provided, 
-    /// `DynamicTypeSize.isAccessibilitySize` will be used to swap between `HStack` and `VStack`
-    /// instead.
-    let minVerticalDynamicTypeSize: DynamicTypeSize?
+    // MARK: View
+
+    var body: some View {
+        if isLayoutHorizontal {
+            HStack(alignment: alignment.vertical, spacing: spacing) {
+                content
+            }
+        } else {
+            VStack(alignment: alignment.horizontal, spacing: spacing) {
+                content
+            }
+        }
+    }
 
     // MARK: Initialization
 
@@ -64,19 +79,5 @@ struct AccessibleHStack<Content>: View where Content: View {
         self.spacing = spacing
         self.minVerticalDynamicTypeSize = minVerticalDynamicTypeSize
         self.content = content()
-    }
-
-    // MARK: View
-
-    var body: some View {
-        if isLayoutHorizontal {
-            HStack(alignment: alignment.vertical, spacing: spacing) {
-                content
-            }
-        } else {
-            VStack(alignment: alignment.horizontal, spacing: spacing) {
-                content
-            }
-        }
     }
 }
