@@ -154,7 +154,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                     AddEditLoginItemView(
                         store: Store(
                             processor: StateProcessor(
-                                state: LoginItemState()
+                                state: LoginItemState(isTOTPAvailable: false)
                             )
                         )
                     )
@@ -173,6 +173,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                         store: Store(
                             processor: StateProcessor(
                                 state: LoginItemState(
+                                    isTOTPAvailable: true,
                                     totpKey: .init(authenticatorKey: key)
                                 )
                             )

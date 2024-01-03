@@ -39,7 +39,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 totpService: totpService,
                 vaultRepository: vaultRepository
             ),
-            state: CipherItemState()
+            state: CipherItemState(hasPremium: true)
         )
     }
 
@@ -164,13 +164,22 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "1", name: "Design"),
             .fixture(id: "2", name: "Engineering"),
         ]
+        let folders: [FolderView] = [
+            .fixture(id: "1", name: "Social"),
+            .fixture(id: "2", name: "Work"),
+        ]
 
         vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .success(collections)
+        vaultRepository.fetchFoldersResult = .success(folders)
 
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(
+            subject.state.folders,
+            [.default] + folders.map { .custom($0) }
+        )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
     }
@@ -354,6 +363,52 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
     }
 
+    /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
+    func test_perform_savePressed_existing_error() async throws {
+        let cipher = CipherView.fixture(id: "123")
+        let maybeCipherState = CipherItemState(existing: cipher, hasPremium: true)
+        let cipherState = try XCTUnwrap(maybeCipherState)
+        struct EncryptError: Error, Equatable {}
+        vaultRepository.updateCipherResult = .failure(EncryptError())
+
+        subject.state = cipherState.addEditState
+        subject.state.name = "vault item"
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
+    }
+
+    /// `perform(_:)` with `.savePressed` saves the item.
+    func test_perform_savePressed_existing_success() async throws {
+        let cipher = CipherView.fixture(id: "123")
+        let maybeCipherState = CipherItemState(existing: cipher, hasPremium: true)
+        let cipherState = try XCTUnwrap(maybeCipherState)
+        vaultRepository.updateCipherResult = .success(())
+
+        subject.state = cipherState.addEditState
+        subject.state.name = "vault item"
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.updateCipherCiphers.first).creationDate.timeIntervalSince1970,
+            cipher.creationDate.timeIntervalSince1970,
+            accuracy: 1
+        )
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.updateCipherCiphers.first).revisionDate.timeIntervalSince1970,
+            cipher.revisionDate.timeIntervalSince1970,
+            accuracy: 1
+        )
+
+        XCTAssertEqual(
+            vaultRepository.updateCipherCiphers,
+            [
+                cipher.updatedView(with: subject.state),
+            ]
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
     /// `.setupTotpCamera` route.
     func test_perform_setupTotpPressed_cameraAuthorizationAuthorized() async {
@@ -437,18 +492,31 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.folderChanged` with a value updates the state correctly.
     func test_receive_folderChanged_withValue() {
-        subject.state.folder = ""
-        subject.receive(.folderChanged("📁"))
+        let folder = FolderView.fixture(id: "1", name: "📁")
+        subject.state.folders = [
+            .default,
+            .custom(folder),
+            .custom(.fixture(id: "2", name: "💾")),
+        ]
+        subject.receive(.folderChanged(.custom(folder)))
 
-        XCTAssertEqual(subject.state.folder, "📁")
+        XCTAssertEqual(subject.state.folder, .custom(folder))
+        XCTAssertEqual(subject.state.folderId, "1")
     }
 
     /// `receive(_:)` with `.folderChanged` without a value updates the state correctly.
     func test_receive_folderChanged_withoutValue() {
-        subject.state.folder = "📁"
-        subject.receive(.folderChanged(""))
+        subject.state.folders = [
+            .default,
+            .custom(.fixture(id: "1", name: "📁")),
+            .custom(.fixture(id: "2", name: "💾")),
+        ]
+        subject.state.folderId = "1"
 
-        XCTAssertEqual(subject.state.folder, "")
+        subject.receive(.folderChanged(.default))
+
+        XCTAssertEqual(subject.state.folder, .default)
+        XCTAssertNil(subject.state.folderId)
     }
 
     /// `receive(_:)` with `.generatePasswordPressed` navigates to the `.generator` route.
@@ -554,7 +622,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// organization view.
     func test_receive_morePressed_moveToOrganization() throws {
         let cipher = CipherView.fixture(id: "1")
-        subject.state = try XCTUnwrap(CipherItemState(existing: cipher))
+        subject.state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
 
         subject.receive(.morePressed(.moveToOrganization))
 

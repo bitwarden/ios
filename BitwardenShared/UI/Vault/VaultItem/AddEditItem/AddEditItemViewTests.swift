@@ -18,7 +18,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: CipherItemState())
+        processor = MockProcessor(state: CipherItemState(hasPremium: true))
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
@@ -58,7 +58,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     func test_dismissButton_tap() throws {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -77,9 +77,10 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Updating the folder text field dispatches the `.folderChanged()` action.
     func test_folderTextField_updateValue() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.folder)
-        try textField.inputBinding().wrappedValue = "text"
-        XCTAssertEqual(processor.dispatchedActions.last, .folderChanged("text"))
+        let folder = FolderView.fixture(name: "Folder")
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.folder)
+        try menuField.select(newValue: DefaultableType<FolderView>.custom(folder))
+        XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
     }
 
     /// Tapping the generate password button dispatches the `.generatePasswordPressed` action.
@@ -422,7 +423,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = false
         processor.state.isMasterPasswordRePromptOn = false
         processor.state.notes = ""
-        processor.state.folder = ""
+        processor.state.folderId = nil
 
         assertSnapshot(of: subject, as: .tallPortrait2)
     }
@@ -454,7 +455,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
 
         assertSnapshot(of: subject, as: .tallPortrait2)
     }
@@ -486,7 +488,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
 
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 7))
     }
@@ -508,7 +511,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
         ]
         processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
@@ -525,7 +529,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             UriState(id: "id", matchType: .default, uri: URL.example.absoluteString),
         ]
         processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
 
         processor.state.loginState.isPasswordVisible = true
 
@@ -552,7 +557,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     func test_snapshot_edit_full_fieldsNotVisible() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
         processor.state.loginState = .fixture(
             isPasswordVisible: false,
             password: "password1!",
@@ -566,7 +571,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortrait)
@@ -578,13 +584,14 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_edit_full_disabledViewPassword() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
         processor.state.loginState = .fixture(
             canViewPassword: false,
             isPasswordVisible: false,
@@ -599,14 +606,15 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_edit_full_fieldsNotVisible_largeText() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
         processor.state.loginState = .fixture(
             isPasswordVisible: false,
             password: "password1!",
@@ -620,14 +628,15 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortraitAX5())
     }
 
     func test_snapshot_edit_full_fieldsVisible() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
         processor.state.type = .login
         processor.state.name = "Name"
         processor.state.loginState = .fixture(
@@ -641,14 +650,15 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_edit_full_fieldsVisible_largeText() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture())!
+        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
         processor.state.loginState = .fixture(
             isPasswordVisible: true,
             password: "password1!",
@@ -662,7 +672,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
-        processor.state.folder = "Folder"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortraitAX5())

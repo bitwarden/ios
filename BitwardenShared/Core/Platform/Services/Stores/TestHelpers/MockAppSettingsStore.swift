@@ -14,6 +14,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
+    var rememberedOrgIdentifier: String?
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)

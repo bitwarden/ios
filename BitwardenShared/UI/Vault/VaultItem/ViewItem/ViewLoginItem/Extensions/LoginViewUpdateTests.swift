@@ -14,7 +14,7 @@ final class LoginViewUpdateTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         subject = LoginView.fixture()
-        loginState = LoginItemState()
+        loginState = LoginItemState(isTOTPAvailable: true)
     }
 
     override func tearDown() {

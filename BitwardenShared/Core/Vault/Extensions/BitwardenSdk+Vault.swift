@@ -512,3 +512,13 @@ extension BitwardenSdk.Folder {
         )
     }
 }
+
+extension BitwardenSdk.FolderView: Menuable, @unchecked Sendable {
+    static var defaultValueLocalizedName: String {
+        Localizations.folderNone
+    }
+
+    var localizedName: String {
+        name
+    }
+}

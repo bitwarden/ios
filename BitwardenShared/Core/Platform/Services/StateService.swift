@@ -8,6 +8,9 @@ import Foundation
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
 protocol StateService: AnyObject {
+    /// The organization identifier being remembered on the single-sign on screen.
+    var rememberedOrgIdentifier: String? { get set }
+
     /// Adds a new account to the app's state after a successful login.
     ///
     /// - Parameter account: The `Account` to add.
@@ -345,6 +348,12 @@ enum StateServiceError: Error {
 ///
 actor DefaultStateService: StateService {
     // MARK: Properties
+
+    /// The organization identifier being remembered on the single-sign on screen.
+    nonisolated var rememberedOrgIdentifier: String? {
+        get { appSettingsStore.rememberedOrgIdentifier }
+        set { appSettingsStore.rememberedOrgIdentifier = newValue }
+    }
 
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
