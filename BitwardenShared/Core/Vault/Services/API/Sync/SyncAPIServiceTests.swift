@@ -44,6 +44,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "3792af7a-4441-11ee-be56-0242ac120002",
                         login: .fixture(
                             password: "encrypted password",
+                            totp: "totp",
                             uris: [
                                 CipherLoginUriModel(match: nil, uri: "encrypted uri"),
                             ],

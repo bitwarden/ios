@@ -9,6 +9,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasPasteboardService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -70,14 +71,17 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .addItemPressed:
             setProfileSwitcher(visible: false)
             coordinator.navigate(to: .addItem())
+        case let .copyTOTPCode(code):
+            services.pasteboardService.copy(code)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(code))
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
-            case let .totp(id: id, _, _):
-                coordinator.navigate(to: .viewItem(id: id))
+            case let .totp(model):
+                coordinator.navigate(to: .viewItem(id: model.id))
             }
         case .morePressed:
             // TODO: BIT-375 Show item actions
@@ -103,6 +107,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             state.searchResults = searchVault(for: newValue)
         case let .toastShown(newValue):
             state.toast = newValue
+        case .totpCodeExpired:
+            Task { await refreshVault(isManualRefresh: true) }
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }

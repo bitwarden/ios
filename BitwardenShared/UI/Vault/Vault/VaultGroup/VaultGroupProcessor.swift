@@ -6,7 +6,9 @@ import Foundation
 final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupAction, VaultGroupEffect> {
     // MARK: Types
 
-    typealias Services = HasVaultRepository
+    typealias Services = HasErrorReporter
+        & HasPasteboardService
+        & HasVaultRepository
 
     // MARK: Private Properties
 
@@ -52,14 +54,17 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         switch action {
         case .addItemPressed:
             coordinator.navigate(to: .addItem(group: state.group))
+        case let .copyTOTPCode(code):
+            services.pasteboardService.copy(code)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(code))
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
-            case let .totp(id: id, _, _):
-                coordinator.navigate(to: .viewItem(id: id))
+            case let .totp(model):
+                coordinator.navigate(to: .viewItem(id: model.id))
             }
         case let .morePressed(item):
             // TODO: BIT-375 Show the more menu
@@ -68,10 +73,24 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             state.searchText = newValue
         case let .toastShown(newValue):
             state.toast = newValue
+        case .totpCodeExpired:
+            Task { await refreshTOTPCodes() }
         }
     }
 
     // MARK: Private Methods
+
+    /// Refreshes the vault group's TOTP Codes.
+    ///
+    private func refreshTOTPCodes() async {
+        guard case let .data(items) = state.loadingState else { return }
+        do {
+            let refreshedItems = try await services.vaultRepository.refreshTOTPCodes(for: items)
+            state.loadingState = .data(refreshedItems)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Refreshes the vault group's contents.
     ///

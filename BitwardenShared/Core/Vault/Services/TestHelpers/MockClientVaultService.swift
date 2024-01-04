@@ -9,6 +9,8 @@ class MockClientVaultService: ClientVaultService {
     var clientFolders = MockClientFolders()
     var clientPasswordHistory = MockClientPasswordHistory()
     var clientSends = MockClientSends()
+    var totpCode = "123456"
+    var totpPeriod: UInt32 = 30
 
     func ciphers() -> ClientCiphersProtocol {
         clientCiphers
@@ -20,6 +22,10 @@ class MockClientVaultService: ClientVaultService {
 
     func folders() -> ClientFoldersProtocol {
         clientFolders
+    }
+
+    func generateTOTPCode(for key: String, date: Date?) async throws -> BitwardenShared.TOTPCode {
+        TOTPCode(code: totpCode, date: date ?? Date(), period: totpPeriod)
     }
 
     func passwordHistory() -> ClientPasswordHistoryProtocol {

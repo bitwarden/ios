@@ -58,7 +58,7 @@ class CipherAPIServiceTests: XCTestCase {
                     autofillOnPageLoad: nil,
                     password: "encrypted password",
                     passwordRevisionDate: nil,
-                    totp: nil,
+                    totp: "totp",
                     uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
                     username: "encrypted username"
                 ),
@@ -106,7 +106,7 @@ class CipherAPIServiceTests: XCTestCase {
                     autofillOnPageLoad: nil,
                     password: "encrypted password",
                     passwordRevisionDate: nil,
-                    totp: nil,
+                    totp: "totp",
                     uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
                     username: "encrypted username"
                 ),
@@ -166,7 +166,7 @@ class CipherAPIServiceTests: XCTestCase {
                     autofillOnPageLoad: nil,
                     password: "encrypted password",
                     passwordRevisionDate: nil,
-                    totp: nil,
+                    totp: "totp",
                     uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
                     username: "encrypted username"
                 ),

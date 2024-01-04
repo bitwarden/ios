@@ -291,6 +291,67 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(syncService.didFetchSync)
     }
 
+    /// `refreshTOTPCodes(:)` should not update non-totp items
+    func test_refreshTOTPCodes_invalid_noKey() async throws {
+        let newCode = "999232"
+        clientVault.totpCode = newCode
+        let totpModel = VaultListTOTP(
+            iconBaseURL: nil,
+            id: "123",
+            loginView: .fixture(),
+            totpCode: .init(
+                code: "123456",
+                date: Date(),
+                period: 30
+            )
+        )
+        let item: VaultListItem = .fixtureTOTP(totp: totpModel)
+        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItem = try XCTUnwrap(newItems.first)
+        XCTAssertEqual(newItem, item)
+    }
+
+    /// `refreshTOTPCodes(:)` should not update non-totp items
+    func test_refreshTOTPCodes_invalid_nonTOTP() async throws {
+        let newCode = "999232"
+        clientVault.totpCode = newCode
+        let item: VaultListItem = .fixture()
+        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItem = try XCTUnwrap(newItems.first)
+        XCTAssertEqual(newItem, item)
+    }
+
+    /// `refreshTOTPCodes(:)` should update correctly
+    func test_refreshTOTPCodes_valid() async throws {
+        let newCode = "999232"
+        clientVault.totpCode = newCode
+        let totpModel = VaultListTOTP(
+            iconBaseURL: nil,
+            id: "123",
+            loginView: .fixture(totp: .base32Key),
+            totpCode: .init(
+                code: "123456",
+                date: Date(),
+                period: 30
+            )
+        )
+        let item: VaultListItem = .fixtureTOTP(totp: totpModel)
+        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItem = try XCTUnwrap(newItems.first)
+        switch newItem.itemType {
+        case let .totp(model):
+            XCTAssertEqual(model.id, totpModel.id)
+            XCTAssertEqual(model.iconBaseURL, totpModel.iconBaseURL)
+            XCTAssertEqual(model.loginView, totpModel.loginView)
+            XCTAssertNotEqual(model.totpCode.code, totpModel.totpCode.code)
+            XCTAssertNotEqual(model.totpCode.date, totpModel.totpCode.date)
+            XCTAssertEqual(model.totpCode.period, totpModel.totpCode.period)
+            XCTAssertEqual(model.totpCode.code, newCode)
+        default:
+            XCTFail("Invalid return type")
+        }
+    }
+
     /// `shareCipher()` has the cipher service share the cipher and updates the vault.
     func test_shareCipher() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
@@ -479,6 +540,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault.
     func test_vaultListPublisher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
         try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
             SyncResponseModel.self,
             from: APITestData.syncWithCiphers.data
@@ -489,6 +551,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
             """
+            Section: TOTP
+              - Group: Verification codes (1)
             Section: Favorites
               - Cipher: Apple
             Section: Types
@@ -672,8 +736,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 result.append(indent + "- Cipher: \(cipher.name)")
             case let .group(group, count):
                 result.append(indent + "- Group: \(group.name) (\(count))")
-            case let .totp(id: id, _, totpKey: totpKey):
-                result.append(indent + "- TOTP: \(id) \(totpKey.algorithm.rawValue) \(totpKey.base32Key)")
+            case let .totp(model):
+                result.append(indent + "- TOTP: \(model.id) \(model.totpCode.displayCode)")
             }
             if item != items.last {
                 result.append("\n")

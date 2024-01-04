@@ -101,8 +101,12 @@ struct VaultGroupView: View {
                                 },
                                 mapAction: { action in
                                     switch action {
+                                    case let .copyTOTPCode(code):
+                                        return .copyTOTPCode(code)
                                     case .morePressed:
                                         return .morePressed(item)
+                                    case .totpCodeExpired:
+                                        return .totpCodeExpired(item)
                                     }
                                 },
                                 mapEffect: nil

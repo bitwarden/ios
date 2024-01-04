@@ -54,6 +54,13 @@ protocol VaultRepository: AnyObject {
     ///
     func fetchFolders() async throws -> [FolderView]
 
+    /// Regenerates the TOTP codes for a list of Vault Items.
+    ///
+    /// - Parameter items: The list of items that need updated TOTP codes.
+    /// - Returns: An updated list of items with new TOTP codes.
+    ///
+    func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem]
+
     /// Removes an account id.
     ///
     ///  - Parameter userId: An optional userId. Defaults to the active user id.
@@ -233,15 +240,23 @@ class DefaultVaultRepository {
             let decoded = try await clientVault.ciphers()
                 .decrypt(cipher: cipher)
             guard let login = decoded.login,
-                  let key = login.totp,
-                  let totpKey = TOTPKey(key) else { return nil }
+                  let key = login.totp else {
+                return nil
+            }
+            let code = try await clientVault.generateTOTPCode(for: key, date: Date())
+            let iconsBaseURL = try await stateService.getActiveAccount()
+                .settings
+                .environmentUrls?
+                .icons
+            let listModel = VaultListTOTP(
+                iconBaseURL: iconsBaseURL,
+                id: id,
+                loginView: login,
+                totpCode: code
+            )
             return VaultListItem(
                 id: id,
-                itemType: .totp(
-                    id: id,
-                    loginView: login,
-                    totpKey: totpKey
-                )
+                itemType: .totp(listModel)
             )
         }
         let totpItems: [VaultListItem] = try await clientVault.ciphers()
@@ -336,7 +351,7 @@ class DefaultVaultRepository {
             filter: filter
         ).count
 
-        var totpItems = (oneTimePasswordCount > 0) ? [
+        let totpItems = (oneTimePasswordCount > 0) ? [
             VaultListItem(
                 id: "Types.VerificationCodes",
                 itemType: .group(.totp, oneTimePasswordCount)
@@ -457,6 +472,21 @@ extension DefaultVaultRepository: VaultRepository {
     func doesActiveAccountHavePremium() async throws -> Bool {
         let account = try await stateService.getActiveAccount()
         return account.profile.hasPremiumPersonally ?? false
+    }
+
+    func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
+        try await items.asyncMap { item in
+            guard case var .totp(model) = item.itemType,
+                  let key = model.loginView.totp else {
+                return item
+            }
+            let code = try await clientVault.generateTOTPCode(for: key, date: Date())
+            model.totpCode = code
+            return .init(
+                id: item.id,
+                itemType: .totp(model)
+            )
+        }
     }
 
     func remove(userId: String?) async {

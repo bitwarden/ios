@@ -107,4 +107,29 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
     }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_totpExpired() throws {
+        let result = VaultListItem.fixtureTOTP()
+        subject.state.loadingState = .data([
+            result,
+        ])
+        let newResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                totpCode: .init(
+                    code: "345678",
+                    date: Date(),
+                    period: 30
+                )
+            )
+        )
+        vaultRepository.refreshTOTPCodesResult = .success([
+            newResult,
+        ])
+        subject.receive(.totpCodeExpired(.fixture()))
+        waitFor(vaultRepository.refreshTOTPCodesCalled)
+        waitFor(subject.state.loadingState.data == [newResult])
+        let first = try XCTUnwrap(subject.state.loadingState.data?.first)
+        XCTAssertEqual(first, newResult)
+    }
 }

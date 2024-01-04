@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 /// Data model for an item displayed in the vault list.
 ///
@@ -14,12 +15,10 @@ struct VaultListItem: Equatable, Identifiable {
         case group(VaultListGroup, Int)
 
         /// A TOTP Code Item.
-        /// - Parameters:
-        ///   - id: The id of the cipher.
-        ///   - loginView: The `LoginView` for the item.
-        ///   - totpKey: The TOTP key to generate a code.
         ///
-        case totp(id: String, loginView: BitwardenSdk.LoginView, totpKey: TOTPKey)
+        /// - Parameter totp: The TOTP model for a cipher.
+        ///
+        case totp(_ totp: VaultListTOTP)
     }
 
     // MARK: Properties
@@ -80,4 +79,22 @@ extension VaultListItem {
             return Asset.Images.clock
         }
     }
+}
+
+struct VaultListTOTP: Equatable {
+    /// The base url used to fetch icons
+    ///
+    let iconBaseURL: URL?
+
+    /// The id of the associated Cipher.
+    ///
+    let id: String
+
+    /// The `BitwardenSdk.LoginView` used to populate the view.
+    ///
+    let loginView: BitwardenSdk.LoginView
+
+    /// The current TOTP code for the cipher.
+    ///
+    var totpCode: TOTPCode
 }

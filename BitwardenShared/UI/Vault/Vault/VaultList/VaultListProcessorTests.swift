@@ -9,6 +9,7 @@ class VaultListProcessorTests: BitwardenTestCase {
 
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultRoute>!
+    var pasteboardService: MockPasteboardService!
     var subject: VaultListProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -21,9 +22,11 @@ class VaultListProcessorTests: BitwardenTestCase {
         super.setUp()
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
+        pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
+            pasteboardService: pasteboardService,
             vaultRepository: vaultRepository
         )
         subject = VaultListProcessor(
@@ -37,6 +40,7 @@ class VaultListProcessorTests: BitwardenTestCase {
         super.tearDown()
         authRepository = nil
         coordinator = nil
+        pasteboardService = nil
         subject = nil
         vaultRepository = nil
     }
@@ -238,6 +242,13 @@ class VaultListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemSoftDeleted)
     }
 
+    /// `receive` with `.copyTOTPCode` copies the value with the pasteboard service.
+    func test_receive_copyTOTPCode() {
+        subject.receive(.copyTOTPCode("123456"))
+        XCTAssertEqual(pasteboardService.copiedString, "123456")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied("123456"))
+    }
+
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     func test_receive_itemPressed() {
         let item = VaultListItem.fixture()
@@ -304,6 +315,14 @@ class VaultListProcessorTests: BitwardenTestCase {
         subject.receive(.profileSwitcherAction(.requestedProfileSwitcher(visible: true)))
 
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_totpExpired() {
+        subject.receive(.totpCodeExpired(.fixture()))
+
+        waitFor(vaultRepository.fetchSyncCalled)
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
     /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.
