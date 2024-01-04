@@ -179,11 +179,14 @@ class DefaultVaultRepository {
 
     /// Returns a list of TOTP type items from a SyncResponseModel.
     ///
-    /// - Parameter response: The SyncResponseModel providing the list of TOTP keys.
+    /// - Parameters
+    ///   - response: The SyncResponseModel providing the list of TOTP keys.
+    ///   - filter: The filter applied to the response.
     /// - Returns: A list of totpKey type items in the vault list.
     ///
     private func totpListItems(
-        from response: SyncResponseModel
+        from response: SyncResponseModel,
+        filter: VaultFilterType?
     ) async throws -> [VaultListItem] {
         let responseCiphers = response.ciphers.map(Cipher.init)
         let active = responseCiphers.filter { cipher in
@@ -213,6 +216,7 @@ class DefaultVaultRepository {
         }
         let totpItems: [VaultListItem] = try await clientVault.ciphers()
             .decryptList(ciphers: active)
+            .filter(filter?.cipherFilter(_:) ?? { _ in true })
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             .asyncMap(listItemTransform)
             .compactMap { $0 }
@@ -252,7 +256,10 @@ class DefaultVaultRepository {
         case let .folder(id, _):
             return activeCiphers.filter { $0.folderId == id }.compactMap(VaultListItem.init)
         case .totp:
-            return try await totpListItems(from: response)
+            return try await totpListItems(
+                from: response,
+                filter: nil
+            )
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
         }
@@ -294,14 +301,17 @@ class DefaultVaultRepository {
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
-        let oneTimePasswordCount: Int = try await totpListItems(from: response).count
+        let oneTimePasswordCount: Int = try await totpListItems(
+            from: response,
+            filter: filter
+        ).count
 
-        let totpItems = [
+        var totpItems = (oneTimePasswordCount > 0) ? [
             VaultListItem(
                 id: "Types.VerificationCodes",
                 itemType: .group(.totp, oneTimePasswordCount)
             ),
-        ]
+        ] : []
 
         let folderItems = folders.map { folder in
             let cipherCount = activeCiphers.lazy.filter { $0.folderId == folder.id }.count
