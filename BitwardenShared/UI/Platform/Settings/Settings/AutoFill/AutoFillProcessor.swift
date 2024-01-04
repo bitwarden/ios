@@ -28,6 +28,8 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Voi
 
     override func receive(_ action: AutoFillAction) {
         switch action {
+        case .appExtensionTapped:
+            coordinator.navigate(to: .appExtension)
         case let .toggleCopyTOTPToggle(isOn):
             state.isCopyTOTPToggleOn = isOn
         }
