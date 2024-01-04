@@ -58,6 +58,6 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
         // Copy the copyright text followed by the version info.
         let text = state.copyrightText + "\n\n" + state.version
         services.pasteboardService.copy(text)
-        state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.version))
+        state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 }
