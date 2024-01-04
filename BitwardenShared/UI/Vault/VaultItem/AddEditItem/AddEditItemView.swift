@@ -218,6 +218,7 @@ private extension AddEditItemView {
                     get: \.notes,
                     send: AddEditItemAction.notesChanged
                 ))
+                .fixedSize(horizontal: false, vertical: true)
                 .focused($isNotesFocused)
                 .toolbar(content: {
                     ToolbarItemGroup(placement: .keyboard) {
