@@ -218,8 +218,10 @@ public class ServiceContainer: Services {
         )
 
         let authService = DefaultAuthService(
+            accountAPIService: apiService,
             appIdService: appIdService,
             authAPIService: apiService,
+            clientAuth: clientService.clientAuth(),
             clientGenerators: clientService.clientGenerator(),
             environmentService: environmentService,
             stateService: stateService,

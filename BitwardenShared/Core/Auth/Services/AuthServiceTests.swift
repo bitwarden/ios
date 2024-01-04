@@ -7,9 +7,11 @@ import XCTest
 class AuthServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var accountAPIService: AccountAPIService!
     var appSettingsStore: MockAppSettingsStore!
     var authAPIService: AuthAPIService!
     var client: MockHTTPClient!
+    var clientAuth: MockClientAuth!
     var clientGenerators: MockClientGenerators!
     var environmentService: MockEnvironmentService!
     var stateService: MockStateService!
@@ -21,17 +23,21 @@ class AuthServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        appSettingsStore = MockAppSettingsStore()
         client = MockHTTPClient()
+        accountAPIService = APIService(client: client)
+        appSettingsStore = MockAppSettingsStore()
         authAPIService = APIService(client: client)
+        clientAuth = MockClientAuth()
         clientGenerators = MockClientGenerators()
         environmentService = MockEnvironmentService()
         stateService = MockStateService()
         systemDevice = MockSystemDevice()
 
         subject = DefaultAuthService(
+            accountAPIService: accountAPIService,
             appIdService: AppIdService(appSettingStore: appSettingsStore),
             authAPIService: authAPIService,
+            clientAuth: clientAuth,
             clientGenerators: clientGenerators,
             environmentService: environmentService,
             stateService: stateService,
@@ -42,9 +48,11 @@ class AuthServiceTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        accountAPIService = nil
         appSettingsStore = nil
         authAPIService = nil
         client = nil
+        clientAuth = nil
         clientGenerators = nil
         environmentService = nil
         stateService = nil
@@ -85,8 +93,66 @@ class AuthServiceTests: BitwardenTestCase {
         XCTAssertEqual("PASSWORD", result.1)
     }
 
-    /// `loginSingleSignOn(code:)` returns an account if the vault is still locked after authenticating.
-    func test_loginSingleSignOn_success_vaultLocked() async throws {
+    /// `loginWithMasterPassword(_:username:captchaToken:)` logs in with the password.
+    func test_loginWithMasterPassword() async throws {
+        // Set up the mock data.
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appSettingsStore.appId = "App id"
+        clientAuth.hashPasswordResult = .success("hashed password")
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // Attempt to login.
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            captchaToken: nil
+        )
+
+        // Verify the results.
+        let preLoginRequest = PreLoginRequestModel(
+            email: "email@example.com"
+        )
+        let tokenRequest = IdentityTokenRequestModel(
+            authenticationMethod: .password(
+                username: "email@example.com",
+                password: "hashed password"
+            ),
+            captchaToken: nil,
+            deviceInfo: DeviceInfo(
+                identifier: "App id",
+                name: "Model id"
+            )
+        )
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
+        XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
+
+        XCTAssertEqual(clientAuth.hashPasswordEmail, "email@example.com")
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
+        XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+
+        XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys,
+            [
+                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    encryptedPrivateKey: "PRIVATE_KEY",
+                    encryptedUserKey: "KEY"
+                ),
+            ]
+        )
+        XCTAssertEqual(
+            stateService.masterPasswordHashes,
+            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
+        )
+    }
+
+    /// `loginWithSingleSignOn(code:)` returns an account if the vault is still locked after authenticating.
+    func test_loginSingleSignOn_vaultLocked() async throws {
         // Set up the mock data.
         appSettingsStore.appId = "App id"
         client.result = .httpSuccess(testData: .identityTokenSuccess)
@@ -94,7 +160,7 @@ class AuthServiceTests: BitwardenTestCase {
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
-        let account = try await subject.loginSingleSignOn(code: "super_cool_secret_code")
+        let account = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code")
 
         // Verify the results.
         let tokenRequest = IdentityTokenRequestModel(

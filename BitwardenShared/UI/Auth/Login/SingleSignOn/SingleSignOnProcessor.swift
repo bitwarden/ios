@@ -100,8 +100,8 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
             coordinator.navigate(
                 to: .singleSignOn(
                     callbackUrlScheme: services.authService.callbackUrlScheme,
-                    state: result.1,
-                    url: result.0
+                    state: result.state,
+                    url: result.url
                 ),
                 context: self
             )
@@ -122,7 +122,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
         Task {
             do {
                 // Use the code to authenticate the user with Bitwarden.
-                let account = try await self.services.authService.loginSingleSignOn(code: code)
+                let account = try await self.services.authService.loginWithSingleSignOn(code: code)
 
                 // Remember the organization identifier after successfully logging on.
                 services.stateService.rememberedOrgIdentifier = state.identifierText

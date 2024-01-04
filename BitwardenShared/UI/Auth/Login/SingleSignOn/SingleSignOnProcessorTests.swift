@@ -114,14 +114,14 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     /// `singleSignOnCompleted(code:)` handles any errors correctly.
     func test_singleSignOnCompleted_error() {
         // Set up the mock data.
-        authService.loginSingleSignOnResult = .failure(BitwardenTestError.example)
+        authService.loginWithSingleSignOnResult = .failure(BitwardenTestError.example)
 
         // Receive the completed code.
         subject.singleSignOnCompleted(code: "super_cool_secret_code")
         waitFor(!errorReporter.errors.isEmpty)
 
         // Verify the results.
-        XCTAssertEqual(authService.loginSingleSignOnCode, "super_cool_secret_code")
+        XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
@@ -130,7 +130,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     /// `singleSignOnCompleted(code:)` navigates to the vault unlock view if the vault is still locked.
     func test_singleSignOnCompleted_vaultLocked() {
         // Set up the mock data.
-        authService.loginSingleSignOnResult = .success(.fixtureAccountLogin())
+        authService.loginWithSingleSignOnResult = .success(.fixtureAccountLogin())
         subject.state.identifierText = "TeamLivefront"
 
         // Receive the completed code.
@@ -138,7 +138,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.routes.isEmpty)
 
         // Verify the results.
-        XCTAssertEqual(authService.loginSingleSignOnCode, "super_cool_secret_code")
+        XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "TeamLivefront")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.vaultUnlock(.fixtureAccountLogin(), animated: false), .dismiss])
@@ -147,7 +147,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     /// `singleSignOnCompleted(code:)` navigates to the complete route if the vault is unlocked.
     func test_singleSignOnCompleted_vaultUnlocked() {
         // Set up the mock data.
-        authService.loginSingleSignOnResult = .success(nil)
+        authService.loginWithSingleSignOnResult = .success(nil)
         subject.state.identifierText = "TeamLivefront"
 
         // Receive the completed code.
@@ -155,7 +155,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.routes.isEmpty)
 
         // Verify the results.
-        XCTAssertEqual(authService.loginSingleSignOnCode, "super_cool_secret_code")
+        XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "TeamLivefront")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.complete, .dismiss])

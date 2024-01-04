@@ -10,9 +10,6 @@ enum AuthError: Error {
     /// There was a problem extracting the code from the single sign on WebAuth response.
     case unableToDecodeSSOResponse
 
-    /// There was a problem generating the single sign on code challenge.
-    case unableToGenerateSSOCodeChallenge
-
     /// There was a problem generating the single sign on url.
     case unableToGenerateSSOUrl
 }
@@ -31,14 +28,23 @@ protocol AuthService {
     /// - Returns: The url to use when opening the single sign on flow and the state that the
     ///   auth result will have to match.
     ///
-    func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (URL, String)
+    func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String)
+
+    /// Login with the master password.
+    ///
+    /// - Parameters:
+    ///   - password: The master password.
+    ///   - username: The username.
+    ///   - captchaToken: An optional captcha token value to add to the token request.
+    ///
+    func loginWithMasterPassword(_ password: String, username: String, captchaToken: String?) async throws
 
     /// Login with the single sign on code.
     ///
     /// - Parameter code: The code received from the single sign on WebAuth flow.
     /// - Returns: An account for which to unlock the vault, or nil if the vault does not need to be unlocked.
     ///
-    func loginSingleSignOn(code: String) async throws -> Account?
+    func loginWithSingleSignOn(code: String) async throws -> Account?
 }
 
 // MARK: - DefaultAuthService
@@ -48,14 +54,20 @@ protocol AuthService {
 class DefaultAuthService: AuthService {
     // MARK: Properties
 
+    /// The API service used to make calls related to the account process.
+    private let accountAPIService: AccountAPIService
+
     /// The service used by the application to manage the app's ID.
-    let appIdService: AppIdService
+    private let appIdService: AppIdService
 
     /// The API service used to make calls related to the auth process.
     private let authAPIService: AuthAPIService
 
     /// The callback url scheme for this application.
     let callbackUrlScheme = "bitwarden"
+
+    /// The client used by the application to handle auth related encryption and decryption tasks.
+    let clientAuth: ClientAuthProtocol
 
     /// The client used for generating passwords and passphrases.
     private let clientGenerators: ClientGeneratorsProtocol
@@ -80,23 +92,29 @@ class DefaultAuthService: AuthService {
     /// Creates a new `DefaultSingleSignOnService`.
     ///
     /// - Parameters:
+    ///   - accountAPIService: The API service used to make calls related to the account process.
     ///   - appIdService: The service used by the application to manage the app's ID.
     ///   - authAPIService: The API service used to make calls related to the auth process.
+    ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientGenerators: The client used for generating passwords and passphrases.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - stateService: The object used by the application to retrieve information about this device.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///
     init(
+        accountAPIService: AccountAPIService,
         appIdService: AppIdService,
         authAPIService: AuthAPIService,
+        clientAuth: ClientAuthProtocol,
         clientGenerators: ClientGeneratorsProtocol,
         environmentService: EnvironmentService,
         stateService: StateService,
         systemDevice: SystemDevice
     ) {
+        self.accountAPIService = accountAPIService
         self.appIdService = appIdService
         self.authAPIService = authAPIService
+        self.clientAuth = clientAuth
         self.clientGenerators = clientGenerators
         self.environmentService = environmentService
         self.stateService = stateService
@@ -105,7 +123,7 @@ class DefaultAuthService: AuthService {
 
     // MARK: Methods
 
-    func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (URL, String) {
+    func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String) {
         // First pre-validate the organization identifier and get the resulting token.
         let response = try await authAPIService.preValidateSingleSignOn(
             organizationIdentifier: organizationIdentifier
@@ -125,10 +143,9 @@ class DefaultAuthService: AuthService {
             minSpecial: 0
         )
         codeVerifier = try await clientGenerators.password(settings: passwordSettings)
-        guard let codeChallenge = codeVerifier.data(using: .utf8)?
+        let codeChallenge = Data(codeVerifier.utf8)
             .generatedHashBase64Encoded(using: SHA256.self)
             .urlEncoded()
-        else { throw AuthError.unableToGenerateSSOCodeChallenge }
 
         let state = try await clientGenerators.password(settings: passwordSettings)
 
@@ -153,18 +170,69 @@ class DefaultAuthService: AuthService {
         return (url, state)
     }
 
-    func loginSingleSignOn(code: String) async throws -> Account? {
+    func loginWithMasterPassword(_ masterPassword: String, username: String, captchaToken: String?) async throws {
+        // Complete the pre-login steps.
+        let response = try await accountAPIService.preLogin(email: username)
+
+        // Get the identity token to log in to Bitwarden.
+        try await getIdentityTokenResponse(
+            authenticationMethod: .password(
+                username: username,
+                password: hashPassword(
+                    username: username,
+                    password: masterPassword,
+                    kdf: response.sdkKdf,
+                    purpose: .serverAuthorization
+                )
+            ),
+            captchaToken: captchaToken
+        )
+
+        // Save the master password.
+        try await stateService.setMasterPasswordHash(
+            hashPassword(
+                username: username,
+                password: masterPassword,
+                kdf: response.sdkKdf,
+                purpose: .localAuthorization
+            )
+        )
+    }
+
+    func loginWithSingleSignOn(code: String) async throws -> Account? {
+        // Get the identity token to log in to Bitwarden.
+        try await getIdentityTokenResponse(
+            authenticationMethod: .authorizationCode(
+                code: code,
+                codeVerifier: codeVerifier,
+                redirectUri: singleSignOnCallbackUrl
+            )
+        )
+
+        // Return the account if the vault still needs to be unlocked and nil otherwise.
+        // TODO: - Wait for SDK to support unlocking vault for TDE accounts.
+        return try await stateService.getActiveAccount()
+    }
+
+    // MARK: Private Methods
+
+    /// Get an identity token and handle the response.
+    ///
+    /// - Parameters:
+    ///   - authenticationMethod: The authentication method to use.
+    ///   - captchaToken: The optional captcha token. Defaults to `nil`.
+    ///
+    private func getIdentityTokenResponse(
+        authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod,
+        captchaToken: String? = nil
+    ) async throws {
         // Get the app's id.
         let appID = await appIdService.getOrCreateAppId()
 
         // Get the identity token from Bitwarden.
         let identityTokenRequest = IdentityTokenRequestModel(
-            authenticationMethod: .authorizationCode(
-                code: code,
-                codeVerifier: codeVerifier,
-                redirectUri: singleSignOnCallbackUrl
-            ),
-            captchaToken: nil,
+            authenticationMethod: authenticationMethod,
+            captchaToken: captchaToken,
             deviceInfo: DeviceInfo(
                 identifier: appID,
                 name: systemDevice.modelIdentifier
@@ -180,9 +248,29 @@ class DefaultAuthService: AuthService {
         // Save the encryption keys.
         let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
         try await stateService.setAccountEncryptionKeys(encryptionKeys)
+    }
 
-        // Return the account if the vault still needs to be unlocked and nil otherwise.
-        // TODO: - Wait for SDK to support unlocking vault for TDE accounts.
-        return account
+    /// Returns a hash of the provided password.
+    ///
+    /// - Parameters:
+    ///   - username: The username.
+    ///   - password: The password.
+    ///   - kdf: The KDF parameters used to generate the hash.
+    ///   - purpose: The purpose of the hash.
+    ///
+    /// - Returns: A hash of the provided password.
+    ///
+    private func hashPassword(
+        username: String,
+        password: String,
+        kdf: BitwardenSdk.Kdf,
+        purpose: HashPurpose
+    ) async throws -> String {
+        try await clientAuth.hashPassword(
+            email: username,
+            password: password,
+            kdfParams: kdf,
+            purpose: purpose
+        )
     }
 }
