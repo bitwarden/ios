@@ -83,7 +83,7 @@ extension View {
     }
 
     /// Applies the `ScrollViewModifier` to a view.
-    /// 
+    ///
     /// - Parameter addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
     ///
     /// - Returns: A view within a `ScrollView`.
