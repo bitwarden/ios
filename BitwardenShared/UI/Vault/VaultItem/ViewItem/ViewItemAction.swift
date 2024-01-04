@@ -2,6 +2,9 @@
 
 /// Actions that can be processed by a `ViewItemProcessor`.
 enum ViewItemAction: Equatable {
+    /// A card item action
+    case cardItemAction(ViewCardItemAction)
+
     /// The check password button was pressed.
     case checkPasswordPressed
 
@@ -20,7 +23,7 @@ enum ViewItemAction: Equatable {
     case editPressed
 
     /// The more button was pressed.
-    case morePressed
+    case morePressed(VaultItemManagementMenuAction)
 
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
@@ -30,7 +33,8 @@ enum ViewItemAction: Equatable {
     /// `ViewItemState`.
     var requiresMasterPasswordReprompt: Bool {
         switch self {
-        case .copyPressed,
+        case .cardItemAction,
+             .copyPressed,
              .customFieldVisibilityPressed,
              .editPressed,
              .passwordVisibilityPressed:

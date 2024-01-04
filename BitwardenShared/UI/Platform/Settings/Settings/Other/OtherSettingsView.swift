@@ -7,7 +7,7 @@ import SwiftUI
 struct OtherSettingsView: View {
     // MARK: Properties
 
-    @ObservedObject var store: Store<OtherSettingsState, OtherSettingsAction, Void>
+    @ObservedObject var store: Store<OtherSettingsState, OtherSettingsAction, OtherSettingsEffect>
 
     // MARK: View
 
@@ -23,6 +23,16 @@ struct OtherSettingsView: View {
         }
         .scrollView()
         .navigationBar(title: Localizations.other, titleDisplayMode: .inline)
+        .toast(store.binding(
+            get: \.toast,
+            send: OtherSettingsAction.toastShown
+        ))
+        .task {
+            await store.perform(.streamLastSyncTime)
+        }
+        .task {
+            await store.perform(.loadInitialValues)
+        }
     }
 
     // MARK: Private views
@@ -49,12 +59,15 @@ struct OtherSettingsView: View {
     /// The clear clipboard button and description.
     private var clearClipboard: some View {
         VStack(alignment: .leading, spacing: 5) {
-            SettingsListItem(
-                Localizations.clearClipboard,
-                hasDivider: false
-            ) {} trailingContent: {
-                Text(Localizations.fiveMinutes) // TODO: BIT-1183 Dynamic value
-            }
+            SettingsMenuField(
+                title: Localizations.clearClipboard,
+                options: ClearClipboardValue.allCases,
+                hasDivider: false,
+                selection: store.binding(
+                    get: \.clearClipboardValue,
+                    send: OtherSettingsAction.clearClipboardValueChanged
+                )
+            )
             .cornerRadius(10)
 
             Text(Localizations.clearClipboardDescription)
@@ -80,14 +93,19 @@ struct OtherSettingsView: View {
     /// The sync now button and last synced description.
     private var syncNow: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Button {} label: {
+            AsyncButton {
+                await store.perform(.syncNow)
+            } label: {
                 Text(Localizations.syncNow)
             }
             .buttonStyle(.tertiary())
 
-            HStack(spacing: 0) {
-                Text(Localizations.lastSync + " ")
-                Text("5/14/2023 4:52 PM") // TODO: BIT-1182 Dynamic date value
+            Group {
+                if let lastSyncDate = store.state.lastSyncDate {
+                    FormattedDateTimeView(label: Localizations.lastSync, separator: "", date: lastSyncDate)
+                } else {
+                    Text(Localizations.lastSync + " --")
+                }
             }
             .styleGuide(.footnote)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
@@ -98,8 +116,6 @@ struct OtherSettingsView: View {
 
 // MARK: Previews
 
-struct OtherSettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        OtherSettingsView(store: Store(processor: StateProcessor(state: OtherSettingsState())))
-    }
+#Preview {
+    OtherSettingsView(store: Store(processor: StateProcessor(state: OtherSettingsState())))
 }

@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 /// A route to a specific screen in the settings tab.
 ///
 public enum SettingsRoute: Equatable, Hashable {
@@ -7,11 +9,20 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the account security screen.
     case accountSecurity
 
+    /// A route to add a new folder or edit an existing one.
+    ///
+    /// - Parameter folder: The existing folder to edit, if applicable.
+    ///
+    case addEditFolder(folder: FolderView?)
+
     /// A route to display the specified alert.
     ///
     /// - Parameter alert: The alert to display.
     ///
     case alert(_ alert: Alert)
+
+    /// A route to the appearance screen.
+    case appearance
 
     /// A route to the auto-fill screen.
     case autoFill
@@ -27,6 +38,12 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route that dismisses the current view.
     case dismiss
+
+    /// A route to the export vault view.
+    case exportVault
+
+    /// A route to view the folders in the vault.
+    case folders
 
     /// A route to the login screen after the vault has been locked.
     ///

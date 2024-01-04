@@ -208,6 +208,36 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(accountId, account.profile.userId)
     }
 
+    /// `allowSyncOnRefreshes()` returns the allow sync on refresh value for the active account.
+    func test_getAllowSyncOnRefresh() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.allowSyncOnRefreshes["1"] = true
+        let value = try await subject.getAllowSyncOnRefresh()
+        XCTAssertTrue(value)
+    }
+
+    /// `allowSyncOnRefreshes()` defaults to `false` if the active account doesn't have a value set.
+    func test_getAllowSyncOnRefresh_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getAllowSyncOnRefresh()
+        XCTAssertFalse(value)
+    }
+
+    /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
+    func test_getClearClipboardValue() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.clearClipboardValues["1"] = .twoMinutes
+        let value = try await subject.getClearClipboardValue()
+        XCTAssertEqual(value, .twoMinutes)
+    }
+
+    /// `getClearClipboardValue()` returns `.never` if the active account doesn't have a value set.
+    func test_getClearClipboardValue_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getClearClipboardValue()
+        XCTAssertEqual(value, .never)
+    }
+
     /// `getEnvironmentUrls()` returns the environment URLs for the active account.
     func test_getEnvironmentUrls() async throws {
         let urls = EnvironmentUrlData(base: .example)
@@ -235,6 +265,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getEnvironmentUrls_noUser() async throws {
         let urls = try await subject.getEnvironmentUrls(userId: "-1")
         XCTAssertNil(urls)
+    }
+
+    /// `getMasterPasswordHash()` returns the user's master password hash.
+    func test_getMasterPasswordHash() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let noPasswordHash = try await subject.getMasterPasswordHash()
+        XCTAssertNil(noPasswordHash)
+
+        appSettingsStore.masterPasswordHashes["1"] = "abcd"
+        let passwordHash = try await subject.getMasterPasswordHash()
+        XCTAssertEqual(passwordHash, "abcd")
+    }
+
+    /// `getMasterPasswordHash()` throws an error if there isn't an active account.
+    func test_getMasterPasswordHash_noAccount() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getMasterPasswordHash()
+        }
     }
 
     /// `getPasswordGenerationOptions()` gets the saved password generation options for the account.
@@ -301,6 +350,42 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 
+    /// lastSyncTimePublisher()` returns a publisher for the user's last sync time.
+    func test_lastSyncTimePublisher() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var publishedValues = [Date?]()
+        let publisher = try await subject.lastSyncTimePublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        let date = Date(year: 2023, month: 12, day: 1)
+        try await subject.setLastSyncTime(date)
+
+        XCTAssertEqual(publishedValues, [nil, date])
+    }
+
+    /// lastSyncTimePublisher()` gets the initial stored value if a cached sync time doesn't exist.
+    func test_lastSyncTimePublisher_fetchesInitialValue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        let initialSync = Date(year: 2023, month: 12, day: 1)
+        appSettingsStore.lastSyncTimeByUserId["1"] = initialSync
+
+        var publishedValues = [Date?]()
+        let publisher = try await subject.lastSyncTimePublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        let updatedSync = Date(year: 2023, month: 12, day: 4)
+        try await subject.setLastSyncTime(updatedSync)
+
+        XCTAssertEqual(publishedValues, [initialSync, updatedSync])
+    }
+
     /// `logoutAccount()` clears any account data.
     func test_logoutAccount_clearAccountData() async throws {
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -315,11 +400,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             passwordHistory: PasswordHistory(password: "PASSWORD", lastUsedDate: Date())
         )
         try await dataStore.persistentContainer.viewContext.performAndSave {
+            let context = self.dataStore.persistentContainer.viewContext
+            _ = try CipherData(context: context, userId: "1", cipher: .fixture(id: UUID().uuidString))
+            _ = CollectionData(context: context, userId: "1", collection: .fixture())
             _ = FolderData(
-                context: self.dataStore.persistentContainer.viewContext,
+                context: context,
                 userId: "1",
                 folder: Folder(id: "1", name: "FOLDER1", revisionDate: Date())
             )
+            _ = SendData(context: context, userId: "1", send: .fixture())
         }
 
         try await subject.logoutAccount()
@@ -328,15 +417,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
 
-        try XCTAssertEqual(
-            dataStore.persistentContainer.viewContext
-                .count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")),
-            0
-        )
-        try XCTAssertEqual(
-            dataStore.persistentContainer.viewContext.count(for: FolderData.fetchByUserIdRequest(userId: "1")),
-            0
-        )
+        let context = dataStore.persistentContainer.viewContext
+        try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: CollectionData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: FolderData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: SendData.fetchByUserIdRequest(userId: "1")), 0)
     }
 
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to
@@ -417,6 +503,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         // Additional user keys are removed.
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, ["2": "2:PRIVATE_KEY"])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
+    }
+
+    /// `rememberedOrgIdentifier` gets and sets the value as expected.
+    func test_rememberedOrgIdentifier() {
+        // Getting the value should get the value from the app settings store.
+        appSettingsStore.rememberedOrgIdentifier = "ImALumberjack"
+        XCTAssertEqual(subject.rememberedOrgIdentifier, "ImALumberjack")
+
+        // Setting the value should update the value in the app settings store.
+        subject.rememberedOrgIdentifier = "AndImOk"
+        XCTAssertEqual(appSettingsStore.rememberedOrgIdentifier, "AndImOk")
     }
 
     /// `setAccountEncryptionKeys(_:userId:)` sets the encryption keys for the user account.
@@ -516,6 +613,35 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(active, account1)
     }
 
+    /// `setAllowSyncOnRefresh(_:userId:)` sets the allow sync on refresh value for a user.
+    func test_setAllowSyncOnRefresh() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setAllowSyncOnRefresh(true)
+        XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
+    }
+
+    /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.
+    func test_setClearClipboardValue() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setClearClipboardValue(.thirtySeconds)
+        XCTAssertEqual(appSettingsStore.clearClipboardValues["1"], .thirtySeconds)
+    }
+
+    /// `setLastSyncTime(_:userId:)` sets the last sync time for a user.
+    func test_setLastSyncTime() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let date = Date(year: 2023, month: 12, day: 1)
+        try await subject.setLastSyncTime(date)
+        XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date)
+
+        let date2 = Date(year: 2023, month: 12, day: 2)
+        try await subject.setLastSyncTime(date2, userId: "1")
+        XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
+    }
+
     /// `setActiveAccount(userId: )` succeeds if there is a matching account
     func test_setActiveAccount_match_multi() async throws {
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
@@ -528,6 +654,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setActiveAccount(userId: "1")
         active = try await subject.getActiveAccount()
         XCTAssertEqual(active, account1)
+    }
+
+    /// `setMasterPasswordHash(_:)` sets the master password hash for a user.
+    func test_setMasterPasswordHash() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setMasterPasswordHash("abcd")
+        XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "abcd"])
+
+        try await subject.setMasterPasswordHash("1234", userId: "1")
+        XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "1234"])
     }
 
     /// `setPasswordGenerationOptions` sets the password generation options for an account.

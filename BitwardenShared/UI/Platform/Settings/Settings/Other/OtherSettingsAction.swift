@@ -3,6 +3,12 @@
 /// Actions handled by the `OtherSettingsProcessor`.
 ///
 enum OtherSettingsAction {
+    /// The clear clipboard value was changed.
+    case clearClipboardValueChanged(ClearClipboardValue)
+
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// The allow sync on refresh toggle value changed.
     case toggleAllowSyncOnRefresh(Bool)
 

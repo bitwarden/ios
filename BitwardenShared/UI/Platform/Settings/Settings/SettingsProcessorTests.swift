@@ -43,6 +43,13 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .accountSecurity)
     }
 
+    /// Receiving `.appearancePressed` navigates to the appearance screen.
+    func test_receive_appearancePressed() {
+        subject.receive(.appearancePressed)
+
+        XCTAssertEqual(coordinator.routes.last, .appearance)
+    }
+
     /// Receiving `.autoFillPressed` navigates to the auto-fill screen.
     func test_receive_autoFillPressed() {
         subject.receive(.autoFillPressed)

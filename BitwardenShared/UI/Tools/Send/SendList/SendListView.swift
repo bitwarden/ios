@@ -36,10 +36,8 @@ struct SendListView: View {
                     .buttonStyle(.toolbar)
                 }
 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    AddItemButton {
-                        store.send(.addItemPressed)
-                    }
+                addToolbarItem {
+                    store.send(.addItemPressed)
                 }
             }
     }

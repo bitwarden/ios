@@ -5,11 +5,12 @@ import XCTest
 
 // MARK: - ViewItemProcessorTests
 
-class ViewItemProcessorTests: BitwardenTestCase {
+class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Propteries
 
     var coordinator: MockCoordinator<VaultItemRoute>!
     var errorReporter: MockErrorReporter!
+    var pasteboardService: MockPasteboardService!
     var subject: ViewItemProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -17,11 +18,13 @@ class ViewItemProcessorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        coordinator = MockCoordinator()
+        coordinator = MockCoordinator<VaultItemRoute>()
         errorReporter = MockErrorReporter()
+        pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             errorReporter: errorReporter,
+            pasteboardService: pasteboardService,
             vaultRepository: vaultRepository
         )
         subject = ViewItemProcessor(
@@ -36,6 +39,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
         super.tearDown()
         coordinator = nil
         errorReporter = nil
+        pasteboardService = nil
         subject = nil
         vaultRepository = nil
     }
@@ -67,10 +71,123 @@ class ViewItemProcessorTests: BitwardenTestCase {
         waitFor(subject.state.loadingState != .loading)
         task.cancel()
 
-        let expectedState = CipherItemState(existing: cipherItem)!
+        let expectedState = CipherItemState(existing: cipherItem, hasPremium: true)!
 
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
+    func test_perform_appeared_invalidFixture() {
+        let cipherItem = CipherView.fixture()
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(vaultRepository.doesActiveAccountHavePremiumCalled)
+        task.cancel()
+
+        XCTAssertEqual(
+            subject.state.loadingState,
+            .loading
+        )
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` observe the premium status of a user.
+    func test_perform_appeared_nonPremium() {
+        let cipherItem = CipherView.loginFixture(
+            id: "id"
+        )
+        vaultRepository.hasPremiumResult = .success(false)
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading)
+        task.cancel()
+
+        let expectedState = CipherItemState(existing: cipherItem, hasPremium: false)!
+
+        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` observe the premium status of a user.
+    func test_perform_appeared_unknownPremium() {
+        let cipherItem = CipherView.loginFixture(
+            id: "id"
+        )
+        struct TestError: Error, Equatable {}
+        vaultRepository.hasPremiumResult = .failure(TestError())
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading)
+        task.cancel()
+
+        let expectedState = CipherItemState(existing: cipherItem, hasPremium: false)!
+
+        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `receive` with `.cardItemAction` while loading logs an error.
+    func test_receive_cardItemAction_impossible_loading() throws {
+        subject.state.loadingState = .loading
+        subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle card action without loaded data")
+        )
+    }
+
+    /// `receive` with `.cardItemAction` throws if the cipher is not of card type.
+    func test_receive_cardItemAction_impossible_nonCard() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: nil,
+            name: "name",
+            revisionDate: Date(),
+            type: .login
+        )
+        let cipherState = CipherItemState(existing: cipherView, hasPremium: true)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.nonCardTypeToggle("Cannot handle card action on non-card type")
+        )
+    }
+
+    /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
+    /// for `isPasswordVisible`.
+    func test_receive_cardItemAction_code() throws {
+        let cipherView = CipherView.cardFixture(id: "123")
+        var cipherState = CipherItemState(existing: cipherView, hasPremium: true)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
+
+        cipherState.cardItemState.isCodeVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
+    /// for `isPasswordVisible`.
+    func test_receive_cardItemAction_number() throws {
+        let cipherView = CipherView.cardFixture(id: "123")
+        var cipherState = CipherItemState(existing: cipherView, hasPremium: true)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.cardItemAction(.toggleNumberVisibilityChanged(true)))
+
+        cipherState.cardItemState.isNumberVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
     }
 
     /// `receive` with `.checkPasswordPressed` checks the password with the HIBP service.
@@ -82,7 +199,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
     /// `receive` with `.copyPressed` copies the value with the pasteboard service.
     func test_receive_copyPressed() {
         subject.receive(.copyPressed(value: "value"))
-        // TODO: BIT-1121 Assertion for pasteboard service
+        XCTAssertEqual(pasteboardService.copiedString, "value")
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
@@ -109,7 +226,8 @@ class ViewItemProcessorTests: BitwardenTestCase {
             value: "value 3"
         )
         var cipherState = CipherItemState(
-            existing: CipherView.loginFixture()
+            existing: CipherView.loginFixture(),
+            hasPremium: true
         )!
         cipherState.customFields = [
             customField1,
@@ -155,7 +273,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
     /// `receive` with `.dismissPressed` navigates to the `.dismiss` route.
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `receive` with `.editPressed` has no change when the state is loading.
@@ -179,16 +297,21 @@ class ViewItemProcessorTests: BitwardenTestCase {
             name: "name",
             revisionDate: Date()
         )
-        let loginState = CipherItemState(existing: cipherView)!
+        let loginState = CipherItemState(existing: cipherView, hasPremium: true)!
         subject.state.loadingState = .data(loginState)
         subject.receive(.editPressed)
         XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
     }
 
-    /// `receive` with `.morePressed` presents the item options menu.
-    func test_receive_morePressed() {
-        subject.receive(.morePressed)
-        // TODO: BIT-1131 Assertion for menu
+    /// `receive(_:)` with `.morePressed(.moveToOrganization)` navigates the user to the move to
+    /// organization view.
+    func test_receive_morePressed_moveToOrganization() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false)))
+
+        subject.receive(.morePressed(.moveToOrganization))
+
+        XCTAssertEqual(coordinator.routes.last, .moveToOrganization(cipher))
     }
 
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
@@ -211,7 +334,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
             revisionDate: Date(),
             type: .card
         )
-        let cipherState = CipherItemState(existing: cipherView)!
+        let cipherState = CipherItemState(existing: cipherView, hasPremium: true)!
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
         XCTAssertEqual(
@@ -237,7 +360,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
             name: "name",
             revisionDate: Date()
         )
-        var cipherState = CipherItemState(existing: cipherView)!
+        var cipherState = CipherItemState(existing: cipherView, hasPremium: true)!
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
 
@@ -262,7 +385,7 @@ class ViewItemProcessorTests: BitwardenTestCase {
             reprompt: .password,
             revisionDate: Date()
         )
-        let loginState = CipherItemState(existing: cipherView)!
+        let loginState = CipherItemState(existing: cipherView, hasPremium: true)!
         subject.state.loadingState = .data(loginState)
         subject.receive(.passwordVisibilityPressed)
 
@@ -286,17 +409,60 @@ class ViewItemProcessorTests: BitwardenTestCase {
             reprompt: .password,
             revisionDate: Date()
         )
-        var cipherState = CipherItemState(existing: cipherView)!
+        var cipherState = CipherItemState(existing: cipherView, hasPremium: true)!
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
-        let textField = try XCTUnwrap(alert.alertTextFields.first)
+        XCTAssertNotNil(alert.alertTextFields.first)
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
+
+        XCTAssertEqual(vaultRepository.validatePasswordPasswords, ["password1234"])
 
         cipherState.loginState.isPasswordVisible = true
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
         XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
     }
-}
+
+    /// If validation the user's password fails, an error is logged.
+    func test_masterPasswordReprompt_submitButtonPressed_error() async throws {
+        struct ValidatePasswordError: Error {}
+        vaultRepository.validatePasswordResult = .failure(ValidatePasswordError())
+
+        let cipherView = CipherView.fixture(id: "1", reprompt: .password)
+        let cipherState = CipherItemState(existing: cipherView, hasPremium: true)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.passwordVisibilityPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertNotNil(alert.alertTextFields.first)
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
+
+        XCTAssertEqual(vaultRepository.validatePasswordPasswords, ["password1234"])
+        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
+        XCTAssertTrue(errorReporter.errors.last is ValidatePasswordError)
+    }
+
+    /// If the user's password validation fails, an invalid password alert is presented.
+    func test_masterPasswordReprompt_submitButtonPressed_invalidPassword() async throws {
+        vaultRepository.validatePasswordResult = .success(false)
+
+        let cipherView = CipherView.fixture(id: "1", reprompt: .password)
+        let cipherState = CipherItemState(existing: cipherView, hasPremium: true)!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.passwordVisibilityPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertNotNil(alert.alertTextFields.first)
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
+
+        XCTAssertEqual(vaultRepository.validatePasswordPasswords, ["password1234"])
+        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
+
+        let invalidPasswordAlert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+} // swiftlint:disable:this file_length

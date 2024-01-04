@@ -1,14 +1,20 @@
 import Combine
+import Foundation
 
 @testable import BitwardenShared
 
 class MockAppSettingsStore: AppSettingsStore {
+    var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
+    var clearClipboardValues = [String: ClearClipboardValue]()
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
+    var lastSyncTimeByUserId = [String: Date]()
+    var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
+    var rememberedOrgIdentifier: String?
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)
@@ -19,6 +25,14 @@ class MockAppSettingsStore: AppSettingsStore {
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
 
+    func allowSyncOnRefresh(userId: String) -> Bool {
+        allowSyncOnRefreshes[userId] ?? false
+    }
+
+    func clearClipboardValue(userId: String) -> ClearClipboardValue {
+        clearClipboardValues[userId] ?? .never
+    }
+
     func encryptedPrivateKey(userId: String) -> String? {
         encryptedPrivateKeys[userId]
     }
@@ -27,12 +41,28 @@ class MockAppSettingsStore: AppSettingsStore {
         encryptedUserKeys[userId]
     }
 
+    func lastSyncTime(userId: String) -> Date? {
+        lastSyncTimeByUserId[userId]
+    }
+
+    func masterPasswordHash(userId: String) -> String? {
+        masterPasswordHashes[userId]
+    }
+
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         passwordGenerationOptions[userId]
     }
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         usernameGenerationOptions[userId]
+    }
+
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
+        allowSyncOnRefreshes[userId] = allowSyncOnRefresh
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
+        clearClipboardValues[userId] = clearClipboardValue
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {
@@ -49,6 +79,14 @@ class MockAppSettingsStore: AppSettingsStore {
             return
         }
         encryptedUserKeys[userId] = key
+    }
+
+    func setLastSyncTime(_ date: Date?, userId: String) {
+        lastSyncTimeByUserId[userId] = date
+    }
+
+    func setMasterPasswordHash(_ hash: String?, userId: String) {
+        masterPasswordHashes[userId] = hash
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {

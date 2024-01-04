@@ -1,4 +1,5 @@
 import Combine
+import Foundation
 
 // swiftlint:disable file_length
 
@@ -7,6 +8,9 @@ import Combine
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
 protocol StateService: AnyObject {
+    /// The organization identifier being remembered on the single-sign on screen.
+    var rememberedOrgIdentifier: String? { get set }
+
     /// Adds a new account to the app's state after a successful login.
     ///
     /// - Parameter account: The `Account` to add.
@@ -48,12 +52,34 @@ protocol StateService: AnyObject {
     ///
     func getActiveAccountId() async throws -> String
 
+    /// Gets the allow sync on refresh value for an account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The allow sync on refresh value.
+    ///
+    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
+
+    /// Gets the clear clipboard value for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: The time after which the clipboard should clear.
+    ///
+    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
+
     /// Gets the environment URLs for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the environment URLs.
     /// - Returns: The user's environment URLs.
     ///
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
+
+    /// Gets the master password hash for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the master password hash.
+    /// - Returns: The user's master password hash.
+    ///
+    func getMasterPasswordHash(userId: String?) async throws -> String?
 
     /// Gets the password generation options for a user ID.
     ///
@@ -78,7 +104,7 @@ protocol StateService: AnyObject {
     /// Logs the user out of an account.
     ///
     /// - Parameter userId: The user ID of the account to log out of. Defaults to the active
-    ///     account if `nil`.
+    ///   account if `nil`.
     ///
     func logoutAccount(userId: String?) async throws
 
@@ -91,10 +117,42 @@ protocol StateService: AnyObject {
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
 
     /// Sets the active account.
-    /// - Parameter userId: The user Id of the account to set as active
-    /// - Returns: The active user account.
+    ///
+    /// - Parameter userId: The user Id of the account to set as active.
     ///
     func setActiveAccount(userId: String) async throws
+
+    /// Sets the allow sync on refresh value for an account.
+    ///
+    /// - Parameters:
+    ///   - allowSyncOnRefresh: Whether to allow sync on refresh.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
+
+    /// Sets the clear clipboard value for an account.
+    ///
+    /// - Parameters:
+    ///   - clearClipboardValue: The time after which to clear the clipboard.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the time of the last sync for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The time of the last sync.
+    ///   - userId: The user ID associated with the last sync time.
+    ///
+    func setLastSyncTime(_ date: Date?, userId: String?) async throws
+
+    /// Sets the master password hash for a user ID.
+    ///
+    /// - Parameters:
+    ///   - hash: The user's master password hash.
+    ///   - userId: The user ID associated with the master password hash.
+    ///
+    func setMasterPasswordHash(_ hash: String?, userId: String?) async throws
 
     /// Sets the password generation options for a user ID.
     ///
@@ -134,6 +192,12 @@ protocol StateService: AnyObject {
     /// - Returns: The userId `String` of the active account
     ///
     func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>>
+
+    /// A publisher for the last sync time for the active account.
+    ///
+    /// - Returns: A publisher for the last sync time.
+    ///
+    func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never>
 }
 
 extension StateService {
@@ -145,12 +209,36 @@ extension StateService {
         try await getAccountEncryptionKeys(userId: nil)
     }
 
+    /// Gets the allow sync on refresh value for the active account.
+    ///
+    /// - Returns: The allow sync on refresh value.
+    ///
+    func getAllowSyncOnRefresh() async throws -> Bool {
+        try await getAllowSyncOnRefresh(userId: nil)
+    }
+
+    /// Gets the clear clipboard value for the active account.
+    ///
+    /// - Returns: The clear clipboard value.
+    ///
+    func getClearClipboardValue() async throws -> ClearClipboardValue {
+        try await getClearClipboardValue(userId: nil)
+    }
+
     /// Gets the environment URLs for the active account.
     ///
     /// - Returns: The environment URLs for the active account.
     ///
     func getEnvironmentUrls() async throws -> EnvironmentUrlData? {
         try await getEnvironmentUrls(userId: nil)
+    }
+
+    /// Gets the master password hash for the active account.
+    ///
+    /// - Returns: The user's master password hash.
+    ///
+    func getMasterPasswordHash() async throws -> String? {
+        try await getMasterPasswordHash(userId: nil)
     }
 
     /// Gets the password generation options for the active account.
@@ -177,16 +265,47 @@ extension StateService {
 
     /// Sets the account encryption keys for the active account.
     ///
-    /// - Parameters:
-    ///   - encryptionKeys: The account encryption keys.
+    /// - Parameter encryptionKeys: The account encryption keys.
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
         try await setAccountEncryptionKeys(encryptionKeys, userId: nil)
     }
 
+    /// Sets the allow sync on refresh value for the active account.
+    ///
+    /// - Parameter allowSyncOnRefresh: The allow sync on refresh value.
+    ///
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
+        try await setAllowSyncOnRefresh(allowSyncOnRefresh, userId: nil)
+    }
+
+    /// Sets the clear clipboard value for the active account.
+    ///
+    /// - Parameter clearClipboardValue: The time after which to clear the clipboard.
+    ///
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?) async throws {
+        try await setClearClipboardValue(clearClipboardValue, userId: nil)
+    }
+
+    /// Sets the time of the last sync for a user ID.
+    ///
+    /// - Parameter date: The time of the last sync (as the number of seconds since the Unix epoch).]
+    ///
+    func setLastSyncTime(_ date: Date?) async throws {
+        try await setLastSyncTime(date, userId: nil)
+    }
+
+    /// Sets the master password hash for the active account.
+    ///
+    /// - Parameter hash: The user's master password hash.
+    ///
+    func setMasterPasswordHash(_ hash: String?) async throws {
+        try await setMasterPasswordHash(hash, userId: nil)
+    }
+
     /// Sets the password generation options for the active account.
     ///
-    /// - Parameters options: The user's password generation options.
+    /// - Parameter options: The user's password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?) async throws {
         try await setPasswordGenerationOptions(options, userId: nil)
@@ -204,7 +323,7 @@ extension StateService {
 
     /// Sets the username generation options for the active account.
     ///
-    /// - Parameters options: The user's username generation options.
+    /// - Parameter options: The user's username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?) async throws {
         try await setUsernameGenerationOptions(options, userId: nil)
@@ -230,11 +349,20 @@ enum StateServiceError: Error {
 actor DefaultStateService: StateService {
     // MARK: Properties
 
+    /// The organization identifier being remembered on the single-sign on screen.
+    nonisolated var rememberedOrgIdentifier: String? {
+        get { appSettingsStore.rememberedOrgIdentifier }
+        set { appSettingsStore.rememberedOrgIdentifier = newValue }
+    }
+
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
 
     /// The data store that handles performing data requests.
     let dataStore: DataStore
+
+    /// A subject containing the last sync time mapped to user ID.
+    var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     // MARK: Initialization
 
@@ -307,9 +435,24 @@ actor DefaultStateService: StateService {
         return activeAccount
     }
 
+    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.allowSyncOnRefresh(userId: userId)
+    }
+
+    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.clearClipboardValue(userId: userId)
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
+    }
+
+    func getMasterPasswordHash(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.masterPasswordHash(userId: userId)
     }
 
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
@@ -339,6 +482,8 @@ actor DefaultStateService: StateService {
 
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
+        appSettingsStore.setLastSyncTime(nil, userId: userId)
+        appSettingsStore.setMasterPasswordHash(nil, userId: userId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: userId)
 
         try await dataStore.deleteDataForUser(userId: userId)
@@ -357,6 +502,27 @@ actor DefaultStateService: StateService {
         guard state.accounts
             .contains(where: { $0.key == userId }) else { throw StateServiceError.noAccounts }
         state.activeUserId = userId
+    }
+
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setLastSyncTime(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setLastSyncTime(date, userId: userId)
+        lastSyncTimeByUserIdSubject.value[userId] = date
+    }
+
+    func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setMasterPasswordHash(hash, userId: userId)
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
@@ -391,6 +557,14 @@ actor DefaultStateService: StateService {
 
     func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
         appSettingsStore.activeAccountIdPublisher()
+    }
+
+    func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
+        let userId = try getActiveAccountUserId()
+        if lastSyncTimeByUserIdSubject.value[userId] == nil {
+            lastSyncTimeByUserIdSubject.value[userId] = appSettingsStore.lastSyncTime(userId: userId)
+        }
+        return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
     }
 
     // MARK: Private

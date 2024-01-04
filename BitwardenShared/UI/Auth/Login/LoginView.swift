@@ -45,17 +45,17 @@ struct LoginView: View {
     @ViewBuilder var textField: some View {
         VStack(alignment: .leading, spacing: 8) {
             BitwardenTextField(
-                accessibilityIdentifier: "MasterPasswordEntry",
                 title: Localizations.masterPassword,
+                text: store.binding(
+                    get: \.masterPassword,
+                    send: LoginAction.masterPasswordChanged
+                ),
+                accessibilityIdentifier: "MasterPasswordEntry",
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: LoginAction.revealMasterPasswordFieldPressed
                 ),
-                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
-                text: store.binding(
-                    get: \.masterPassword,
-                    send: LoginAction.masterPasswordChanged
-                )
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle"
             )
             .textFieldConfiguration(.password)
 

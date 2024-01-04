@@ -21,6 +21,13 @@ protocol FolderDataStore: AnyObject {
     ///
     func deleteFolder(id: String, userId: String) async throws
 
+    /// Fetches the folders that are available to the user.
+    ///
+    /// - Parameter userId: The user ID of the user associated with the folders to fetch.
+    /// - Returns: The folders that are available to the user.
+    ///
+    func fetchAllFolders(userId: String) async throws -> [Folder]
+
     /// A publisher for a user's folder objects.
     ///
     /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
@@ -59,6 +66,13 @@ extension DataStore: FolderDataStore {
         }
     }
 
+    func fetchAllFolders(userId: String) async throws -> [Folder] {
+        try await backgroundContext.perform {
+            let fetchRequest = FolderData.fetchByUserIdRequest(userId: userId)
+            return try self.backgroundContext.fetch(fetchRequest).map(Folder.init)
+        }
+    }
+
     func folderPublisher(userId: String) -> AnyPublisher<[Folder], Error> {
         let fetchRequest = FolderData.fetchByUserIdRequest(userId: userId)
         // A sort descriptor is needed by `NSFetchedResultsController`.
@@ -73,7 +87,7 @@ extension DataStore: FolderDataStore {
 
     func replaceFolders(_ folders: [Folder], userId: String) async throws {
         let deleteRequest = FolderData.deleteByUserIdRequest(userId: userId)
-        let insertRequest = FolderData.batchInsertRequest(folders: folders, userId: userId)
+        let insertRequest = try FolderData.batchInsertRequest(folders: folders, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
             insertRequest: insertRequest

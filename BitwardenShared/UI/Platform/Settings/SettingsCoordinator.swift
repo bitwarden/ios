@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SwiftUI
 
 // MARK: - SettingsCoordinatorDelegate
@@ -36,6 +37,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasBiometricsService
         & HasClientAuth
         & HasErrorReporter
+        & HasPasteboardService
         & HasSettingsRepository
         & HasStateService
         & HasTwoStepLoginService
@@ -74,12 +76,16 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: SettingsRoute, context _: AnyObject?) {
+    func navigate(to route: SettingsRoute, context: AnyObject?) {
         switch route {
         case .about:
             showAbout()
         case .accountSecurity:
             showAccountSecurity()
+        case let .addEditFolder(folder):
+            showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
+        case .appearance:
+            showAppearance()
         case let .alert(alert):
             stackNavigator.present(alert)
         case .autoFill:
@@ -92,6 +98,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             }
         case .dismiss:
             stackNavigator.dismiss()
+        case .exportVault:
+            showExportVault()
+        case .folders:
+            showFolders()
         case let .lockVault(account):
             delegate?.didLockVault(account: account)
         case .logout:
@@ -114,7 +124,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// Shows the about screen.
     ///
     private func showAbout() {
-        let processor = AboutProcessor(coordinator: asAnyCoordinator(), state: AboutState())
+        let processor = AboutProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AboutState()
+        )
 
         let view = AboutView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
@@ -132,6 +146,34 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
 
         let view = AccountSecurityView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
+    /// Shows the add or edit folder screen.
+    ///
+    /// - Parameter folder: The existing folder to edit, if applicable.
+    ///
+    private func showAddEditFolder(_ folder: FolderView?, delegate: AddEditFolderDelegate?) {
+        let mode: AddEditFolderState.Mode = if let folder { .edit(folder) } else { .add }
+        let processor = AddEditFolderProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: AddEditFolderState(folderName: folder?.name ?? "", mode: mode)
+        )
+        let view = AddEditFolderView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
+    }
+
+    /// Shows the appearance screen.
+    ///
+    private func showAppearance() {
+        let processor = AppearanceProcessor(coordinator: asAnyCoordinator(), state: AppearanceState())
+
+        let view = AppearanceView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController)
@@ -163,11 +205,38 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.present(navController)
     }
 
+    /// Shows the export vault screen.
+    ///
+    private func showExportVault() {
+        let processor = ExportVaultProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services
+        )
+        let view = ExportVaultView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
+    }
+
+    /// Shows the folders screen.
+    ///
+    private func showFolders() {
+        let processor = FoldersProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: FoldersState()
+        )
+        let view = FoldersView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
     /// Shows the other settings screen.
     ///
     private func showOtherScreen() {
         let processor = OtherSettingsProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: OtherSettingsState()
         )
 

@@ -11,7 +11,15 @@ class ViewItemStateTests: BitwardenTestCase {
     /// been verified yet.
     func test_isMasterPasswordRequired_repromptOn_unverifiedPassword() {
         let subject = ViewItemState(
-            loadingState: .data(CipherItemState(existing: .fixture(id: "id", reprompt: .password))!),
+            loadingState: .data(
+                CipherItemState(
+                    existing: .fixture(
+                        id: "id",
+                        reprompt: .password
+                    ),
+                    hasPremium: true
+                )!
+            ),
             hasVerifiedMasterPassword: false
         )
         XCTAssertTrue(subject.isMasterPasswordRequired)
@@ -21,7 +29,15 @@ class ViewItemStateTests: BitwardenTestCase {
     /// verified.
     func test_isMasterPasswordRequired_repromptOn_verifiedPassword() {
         let subject = ViewItemState(
-            loadingState: .data(CipherItemState(existing: .fixture(id: "id", reprompt: .password))!),
+            loadingState: .data(
+                CipherItemState(
+                    existing: .fixture(
+                        id: "id",
+                        reprompt: .password
+                    ),
+                    hasPremium: true
+                )!
+            ),
             hasVerifiedMasterPassword: true
         )
         XCTAssertFalse(subject.isMasterPasswordRequired)
@@ -31,7 +47,15 @@ class ViewItemStateTests: BitwardenTestCase {
     /// been verified yet.
     func test_isMasterPasswordRequired_repromptOff_unverifiedPassword() {
         let subject = ViewItemState(
-            loadingState: .data(CipherItemState(existing: .fixture(id: "id", reprompt: .none))!),
+            loadingState: .data(
+                CipherItemState(
+                    existing: .fixture(
+                        id: "id",
+                        reprompt: .none
+                    ),
+                    hasPremium: true
+                )!
+            ),
             hasVerifiedMasterPassword: false
         )
         XCTAssertFalse(subject.isMasterPasswordRequired)
@@ -41,7 +65,15 @@ class ViewItemStateTests: BitwardenTestCase {
     /// been verified.
     func test_isMasterPasswordRequired_repromptOff_verifiedPassword() {
         let subject = ViewItemState(
-            loadingState: .data(CipherItemState(existing: .fixture(id: "id", reprompt: .none))!),
+            loadingState: .data(
+                CipherItemState(
+                    existing: .fixture(
+                        id: "id",
+                        reprompt: .none
+                    ),
+                    hasPremium: true
+                )!
+            ),
             hasVerifiedMasterPassword: true
         )
         XCTAssertFalse(subject.isMasterPasswordRequired)

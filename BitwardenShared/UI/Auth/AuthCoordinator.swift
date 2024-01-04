@@ -17,7 +17,7 @@ protocol AuthCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the authentication flow.
 ///
-internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
+final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasAccountAPIService
@@ -191,8 +191,16 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// Shows the enterprise single sign-on screen.
     private func showEnterpriseSingleSignOn() {
-        let view = Text("Enterprise Single Sign-On")
-        stackNavigator.push(view)
+        let processor = SingleSignOnProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: SingleSignOnState()
+        )
+        let store = Store(processor: processor)
+        let view = SingleSignOnView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the landing screen.
@@ -245,8 +253,15 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// Shows the login with device screen.
     private func showLoginWithDevice() {
-        let view = Text("Login With Device")
-        stackNavigator.push(view)
+        let processor = LoginWithDeviceProcessor(
+            coordinator: asAnyCoordinator(),
+            state: LoginWithDeviceState()
+        )
+        let store = Store(processor: processor)
+        let view = LoginWithDeviceView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the master password hint screen for the provided username.
@@ -296,7 +311,7 @@ internal final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
 // MARK: ASWebAuthenticationPresentationContextProviding
 
 extension AuthCoordinator: ASWebAuthenticationPresentationContextProviding {
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+    func presentationAnchor(for _: ASWebAuthenticationSession) -> ASPresentationAnchor {
         stackNavigator.rootViewController?.view.window ?? UIWindow()
     }
 }

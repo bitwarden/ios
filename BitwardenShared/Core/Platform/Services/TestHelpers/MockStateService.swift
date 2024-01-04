@@ -1,4 +1,5 @@
 import Combine
+import Foundation
 
 @testable import BitwardenShared
 
@@ -9,9 +10,16 @@ class MockStateService: StateService {
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
     var accounts: [Account]?
+    var allowSyncOnRefresh = [String: Bool]()
+    var clearClipboardValues = [String: ClearClipboardValue]()
+    var clearClipboardResult: Result<Void, Error> = .success(())
     var environmentUrls = [String: EnvironmentUrlData]()
+    var lastSyncTimeByUserId = [String: Date]()
+    var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
+    var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var rememberedOrgIdentifier: String?
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
@@ -64,9 +72,25 @@ class MockStateService: StateService {
         try getActiveAccount().profile.userId
     }
 
+    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return allowSyncOnRefresh[userId] ?? false
+    }
+
+    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
+        try clearClipboardResult.get()
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return clearClipboardValues[userId] ?? .never
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return environmentUrls[userId]
+    }
+
+    func getMasterPasswordHash(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return masterPasswordHashes[userId]
     }
 
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
@@ -101,9 +125,30 @@ class MockStateService: StateService {
         activeAccount = match
     }
 
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
+        try clearClipboardResult.get()
+        let userId = try userId ?? getActiveAccount().profile.userId
+        clearClipboardValues[userId] = clearClipboardValue
+    }
+
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         self.environmentUrls[userId] = environmentUrls
+    }
+
+    func setLastSyncTime(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        lastSyncTimeByUserId[userId] = date
+    }
+
+    func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        masterPasswordHashes[userId] = hash
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
@@ -115,7 +160,7 @@ class MockStateService: StateService {
         preAuthEnvironmentUrls = urls
     }
 
-    func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {
+    func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
 
@@ -128,5 +173,9 @@ class MockStateService: StateService {
         activeIdSubject
             .eraseToAnyPublisher()
             .values
+    }
+
+    func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
+        lastSyncTimeSubject.eraseToAnyPublisher()
     }
 }

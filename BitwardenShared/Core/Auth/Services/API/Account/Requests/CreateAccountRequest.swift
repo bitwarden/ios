@@ -9,11 +9,6 @@ enum CreateAccountRequestError: Error, Equatable {
     ///
     /// - Parameter hCaptchaSiteCode: The site code to use when authenticating with hCaptcha.
     case captchaRequired(hCaptchaSiteCode: String)
-
-    /// A validation error occurred when creating an account.
-    ///
-    /// - Parameter errorResponse: The error response returned from the server.
-    case serverError(_ errorResponse: ErrorResponseModel)
 }
 
 // MARK: - CreateAccountRequest
@@ -52,7 +47,7 @@ struct CreateAccountRequest: Request {
                 throw CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
             }
 
-            throw CreateAccountRequestError.serverError(errorResponse)
+            throw ServerError.error(errorResponse: errorResponse)
         default:
             return
         }

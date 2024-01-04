@@ -32,10 +32,8 @@ struct VaultGroupView: View {
         .navigationTitle(store.state.group.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                AddItemButton {
-                    store.send(.addItemPressed)
-                }
+            addToolbarItem {
+                store.send(.addItemPressed)
             }
         }
         .task {

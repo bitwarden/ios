@@ -4,18 +4,20 @@ import XCTest
 
 @testable import BitwardenShared
 
-// swiftlint:disable file_length
-
 class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
+    var clientAuth: MockClientAuth!
     var clientCiphers: MockClientCiphers!
     var clientCrypto: MockClientCrypto!
     var clientVault: MockClientVaultService!
+    var collectionService: MockCollectionService!
     var errorReporter: MockErrorReporter!
+    var folderService: MockFolderService!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
+    var syncService: MockSyncService!
     var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
@@ -24,10 +26,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         super.setUp()
 
         client = MockHTTPClient()
+        clientAuth = MockClientAuth()
         clientCiphers = MockClientCiphers()
         clientCrypto = MockClientCrypto()
         clientVault = MockClientVaultService()
+        collectionService = MockCollectionService()
         errorReporter = MockErrorReporter()
+        folderService = MockFolderService()
+        syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
 
         clientVault.clientCiphers = clientCiphers
@@ -36,11 +42,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         subject = DefaultVaultRepository(
             cipherAPIService: APIService(client: client),
+            clientAuth: clientAuth,
             clientCrypto: clientCrypto,
             clientVault: clientVault,
+            collectionService: collectionService,
             errorReporter: errorReporter,
+            folderService: folderService,
             stateService: stateService,
-            syncAPIService: APIService(client: client),
+            syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
     }
@@ -49,10 +58,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         super.tearDown()
 
         client = nil
+        clientAuth = nil
         clientCiphers = nil
         clientCrypto = nil
         clientVault = nil
+        collectionService = nil
         errorReporter = nil
+        folderService = nil
         stateService = nil
         subject = nil
         vaultTimeoutService = nil
@@ -60,34 +72,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Tests
 
-    /// Tests `vaultTimeoutService.lock()` publishes the correct value for whether or not the vault was locked.
-    func test_vault_isLocked_shouldClear() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
-
-        try await subject.fetchSync()
-        XCTAssertNotNil(subject.syncResponseSubject.value)
-
-        vaultTimeoutService.shouldClear = true
-        await subject.vaultTimeoutService.lockVault(userId: "")
-        waitFor(subject.syncResponseSubject.value == nil)
-        XCTAssertNil(subject.syncResponseSubject.value)
-    }
-
-    /// Tests `vaultTimeoutService.lock()` publishes the correct value for whether or not the vault was locked.
-    func test_vault_isLocked_shouldNotClear() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
-
-        try await subject.fetchSync()
-        XCTAssertNotNil(subject.syncResponseSubject.value)
-
-        vaultTimeoutService.shouldClear = false
-        await subject.vaultTimeoutService.lockVault(userId: "")
-        waitFor(subject.syncResponseSubject.value != nil)
-        XCTAssertNotNil(subject.syncResponseSubject.value)
-    }
-
     /// `addCipher()` makes the add cipher API request and updates the vault.
     func test_addCipher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
         client.results = [
             .httpSuccess(testData: .cipherResponse),
             .httpSuccess(testData: .syncWithCipher),
@@ -96,11 +83,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture()
         try await subject.addCipher(cipher)
 
-        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers")
-        XCTAssertEqual(client.requests[1].url.absoluteString, "https://example.com/api/sync")
 
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    /// `addCipher()` makes the add cipher API request for a cipher with collections and updates the vault.
+    func test_addCipher_withCollections() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+
+        let cipher = CipherView.fixture(collectionIds: ["1", "2", "3"])
+        try await subject.addCipher(cipher)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/create")
+
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
     }
 
     /// `addCipher()` throws an error if encrypting the cipher fails.
@@ -112,6 +117,153 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         await assertAsyncThrows(error: EncryptError()) {
             try await subject.addCipher(.fixture())
         }
+    }
+
+    /// Tests the ability to determine if an account has premium.
+    func test_doesActiveAccountHavePremium_error() async {
+        stateService.activeAccount = nil
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.doesActiveAccountHavePremium()
+        }
+    }
+
+    /// Tests the ability to determine if an account has premium.
+    func test_doesActiveAccountHavePremium_false() async throws {
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                hasPremiumPersonally: false
+            )
+        )
+
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// Tests the ability to determine if an account has premium.
+    func test_doesActiveAccountHavePremium_true() async throws {
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                hasPremiumPersonally: true
+            )
+        )
+
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations.
+    func test_fetchCipherOwnershipOptions_organizations() async throws {
+        stateService.activeAccount = .fixture()
+        syncService.organizationsToReturn = [
+            .fixture(id: "1", name: "Org1"),
+            .fixture(id: "2", name: "Org2"),
+            .fixture(enabled: false, id: "3", name: "Org Disabled"),
+            .fixture(id: "4", name: "Org Invited", status: .invited),
+            .fixture(id: "5", name: "Org Accepted", status: .accepted),
+        ]
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
+
+        XCTAssertEqual(
+            ownershipOptions,
+            [
+                .personal(email: "user@bitwarden.com"),
+                .organization(id: "1", name: "Org1"),
+                .organization(id: "2", name: "Org2"),
+            ]
+        )
+    }
+
+    /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations
+    /// without the personal vault.
+    func test_fetchCipherOwnershipOptions_organizationsWithoutPersonal() async throws {
+        stateService.activeAccount = .fixture()
+        syncService.organizationsToReturn = [
+            .fixture(id: "1", name: "Org1"),
+            .fixture(id: "2", name: "Org2"),
+            .fixture(enabled: false, id: "3", name: "Org Disabled"),
+            .fixture(id: "4", name: "Org Invited", status: .invited),
+            .fixture(id: "5", name: "Org Accepted", status: .accepted),
+        ]
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: false)
+
+        XCTAssertEqual(
+            ownershipOptions,
+            [
+                .organization(id: "1", name: "Org1"),
+                .organization(id: "2", name: "Org2"),
+            ]
+        )
+    }
+
+    /// `fetchCipherOwnershipOptions()` returns the ownership options containing the user's personal account.
+    func test_fetchCipherOwnershipOptions_personal() async throws {
+        stateService.activeAccount = .fixture()
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
+
+        XCTAssertEqual(ownershipOptions, [.personal(email: "user@bitwarden.com")])
+    }
+
+    /// `fetchCollections(includeReadOnly:)` returns the collections for the user.
+    func test_fetchCollections() async throws {
+        collectionService.fetchAllCollectionsResult = .success([
+            .fixture(id: "1", name: "Collection 1"),
+        ])
+        let collections = try await subject.fetchCollections(includeReadOnly: false)
+
+        XCTAssertEqual(
+            collections,
+            [
+                .fixture(id: "1", name: "Collection 1"),
+            ]
+        )
+        try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
+    }
+
+    /// `fetchFolders` returns the folders for the user.
+    func test_fetchFolders() async throws {
+        let folders: [Folder] = [
+            .fixture(id: "1", name: "Other Folder", revisionDate: Date(year: 2023, month: 12, day: 1)),
+            .fixture(id: "2", name: "Folder", revisionDate: Date(year: 2023, month: 12, day: 2)),
+        ]
+        folderService.fetchAllFoldersResult = .success(folders)
+
+        let fetchedFolders = try await subject.fetchFolders()
+
+        XCTAssertEqual(
+            fetchedFolders,
+            [
+                .fixture(id: "2", name: "Folder", revisionDate: Date(year: 2023, month: 12, day: 2)),
+                .fixture(id: "1", name: "Other Folder", revisionDate: Date(year: 2023, month: 12, day: 1)),
+            ]
+        )
+        XCTAssertEqual(clientVault.clientFolders.decryptedFolders, folders)
+    }
+
+    /// `fetchSync(isManualRefresh:)` only syncs when expected.
+    func test_fetchSync() async throws {
+        stateService.activeAccount = .fixture()
+
+        // If it's not a manual refresh, it should sync.
+        try await subject.fetchSync(isManualRefresh: false)
+        XCTAssertTrue(syncService.didFetchSync)
+
+        // If it's a manual refresh and the user has allowed sync on refresh,
+        // it should sync.
+        syncService.didFetchSync = false
+        stateService.allowSyncOnRefresh["1"] = true
+        try await subject.fetchSync(isManualRefresh: true)
+        XCTAssertTrue(syncService.didFetchSync)
+
+        // If it's a manual refresh and the user has not allowed sync on refresh,
+        // it should not sync.
+        syncService.didFetchSync = false
+        stateService.allowSyncOnRefresh["1"] = false
+        try await subject.fetchSync(isManualRefresh: true)
+        XCTAssertFalse(syncService.didFetchSync)
     }
 
     /// `updateCipher()` throws on encryption errors.
@@ -141,94 +293,49 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `updateCipher()` makes the update cipher API request and updates the vault.
     func test_updateCipher() async throws {
-        client.results = [
-            .httpSuccess(testData: .cipherResponse),
-            .httpSuccess(testData: .syncWithCipher),
-        ]
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: .cipherResponse)
 
         let cipher = CipherView.fixture(id: "123")
         try await subject.updateCipher(cipher)
 
-        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
-        XCTAssertEqual(client.requests[1].url.absoluteString, "https://example.com/api/sync")
 
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
-    }
-
-    /// `fetchSync()` performs the sync API request.
-    func test_fetchSync() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
-
-        try await subject.fetchSync()
-
-        XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].method, .get)
-        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/sync")
-    }
-
-    /// `fetchSync()` throws an error if the request fails.
-    func test_fetchSync_error() async throws {
-        client.result = .httpFailure()
-
-        await assertAsyncThrows {
-            try await subject.fetchSync()
-        }
-    }
-
-    /// `fetchSync()` initializes the SDK for decrypting organization ciphers.
-    func test_fetchSync_initializeOrgCrypto() async throws {
-        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
-
-        try await subject.fetchSync()
-
-        XCTAssertEqual(
-            clientCrypto.initializeOrgCryptoRequest,
-            InitOrgCryptoRequest(organizationKeys: [
-                "ORG_2": "ORG_2_KEY",
-                "ORG_1": "ORG_1_KEY",
-            ])
-        )
-    }
-
-    /// `fetchSync()` logs an error to the error reporter if initializing organization crypto fails.
-    func test_fetchSync_initializeOrgCrypto_error() async throws {
-        struct InitializeOrgCryptoError: Error {}
-
-        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
-        clientCrypto.initializeOrgCryptoResult = .failure(InitializeOrgCryptoError())
-
-        try await subject.fetchSync()
-
-        XCTAssertTrue(errorReporter.errors.last is InitializeOrgCryptoError)
-    }
-
-    /// `fetchSync()` initializes the SDK for decrypting organization ciphers with an empty
-    /// dictionary if the user isn't a part of any organizations.
-    func test_fetchSync_initializesOrgCrypto_noOrganizations() async throws {
-        client.result = .httpSuccess(testData: .syncWithProfile)
-
-        try await subject.fetchSync()
-
-        XCTAssertEqual(
-            clientCrypto.initializeOrgCryptoRequest,
-            InitOrgCryptoRequest(organizationKeys: [:])
-        )
+        XCTAssertTrue(syncService.didFetchSync)
     }
 
     /// `cipherDetailsPublisher(id:)` returns a publisher for the details of a cipher in the vault.
     func test_cipherDetailsPublisher() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphers.data
+        ))
 
         var iterator = subject.cipherDetailsPublisher(id: "fdabf83f-f1c0-4703-894d-4c0fd6741a9a").makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
         let cipherDetails = await iterator.next()
 
         XCTAssertEqual(cipherDetails?.name, "Apple")
+    }
+
+    /// `organizationsPublisher()` returns a publisher for the user's organizations.
+    func test_organizationsPublisher() async throws {
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithProfileOrganizations.data
+        ))
+
+        var iterator = subject.organizationsPublisher().makeAsyncIterator()
+        let organizations = await iterator.next()
+
+        XCTAssertEqual(
+            organizations,
+            [
+                Organization(id: "ORG_1", name: "ORG_NAME"),
+                Organization(id: "ORG_2", name: "ORG_NAME"),
+            ]
+        )
     }
 
     /// `remove(userId:)` Removes an account id from the vault timeout service.
@@ -266,17 +373,48 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.
+    func test_validatePassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.masterPasswordHashes["1"] = "wxyz4321"
+        clientAuth.validatePasswordResult = true
+
+        let isValid = try await subject.validatePassword("test1234")
+
+        XCTAssertTrue(isValid)
+        XCTAssertEqual(clientAuth.validatePasswordPassword, "test1234")
+        XCTAssertEqual(clientAuth.validatePasswordPasswordHash, "wxyz4321")
+    }
+
+    /// `validatePassword(_:)` returns `false` if there's no stored password hash.
+    func test_validatePassword_noPasswordHash() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        let isValid = try await subject.validatePassword("not the password")
+
+        XCTAssertFalse(isValid)
+    }
+
+    /// `validatePassword(_:)` returns `false` if the master password doesn't match the stored password hash.
+    func test_validatePassword_notValid() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.masterPasswordHashes["1"] = "wxyz4321"
+        clientAuth.validatePasswordResult = false
+
+        let isValid = try await subject.validatePassword("not the password")
+
+        XCTAssertFalse(isValid)
+    }
+
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault.
     func test_vaultListPublisher() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphers.data
+        ))
 
-        var iterator = subject.vaultListPublisher().makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
+        var iterator = subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
         let sections = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
@@ -304,14 +442,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher()` returns a publisher which publishes an empty array if the user's
     /// vault contains no ciphers.
     func test_vaultListPublisher_empty() async throws {
-        client.result = .httpSuccess(testData: .syncWithProfile)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithProfile.data
+        ))
 
-        var iterator = subject.vaultListPublisher().makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
+        var iterator = subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
         let sections = await iterator.next()
 
         try XCTAssertTrue(XCTUnwrap(sections).isEmpty)
@@ -320,14 +456,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault for a vault that contains collections.
     func test_vaultListPublisher_withCollections() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
 
-        var iterator = subject.vaultListPublisher().makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
+        var iterator = subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
         let sections = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
@@ -356,16 +490,77 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections with the my vault filter.
+    func test_vaultListPublisher_withCollections_myVault() async throws {
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
+
+        var iterator = subject.vaultListPublisher(filter: .myVault).makeAsyncIterator()
+        let sections = await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Types
+              - Group: Login (1)
+              - Group: Card (1)
+              - Group: Identity (1)
+              - Group: Secure note (1)
+            Section: Folders
+              - Group: Social (1)
+            Section: No Folder
+              - Cipher: Bitwarden User
+              - Cipher: Top Secret Note
+              - Cipher: Visa
+            Section: Trash
+              - Group: Trash (1)
+            """
+        }
+    }
+
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections with the organization filter.
+    func test_vaultListPublisher_withCollections_organization() async throws {
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
+
+        let organization = Organization.fixture(id: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf")
+        var iterator = subject.vaultListPublisher(filter: .organization(organization)).makeAsyncIterator()
+        let sections = await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Favorites
+              - Cipher: Apple
+            Section: Types
+              - Group: Login (2)
+              - Group: Card (0)
+              - Group: Identity (0)
+              - Group: Secure note (0)
+            Section: No Folder
+              - Cipher: Apple
+              - Cipher: Figma
+            Section: Collections
+              - Group: Design (1)
+              - Group: Engineering (1)
+            Section: Trash
+              - Group: Trash (0)
+            """
+        }
+    }
+
     /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault list.
     func test_vaultListPublisher_forGroup_login() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphers.data
+        ))
 
         var iterator = subject.vaultListPublisher(group: .login).makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
         let items = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
@@ -379,16 +574,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher(group:)` returns a publisher for a group of items in a collection within
     /// the vault list.
     func test_vaultListPublisher_forGroup_collection() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
 
         var iterator = subject.vaultListPublisher(
             group: .collection(id: "f96de98e-618a-4886-b396-66b92a385325", name: "Engineering")
         ).makeAsyncIterator()
-
-        Task {
-            try await subject.fetchSync()
-        }
-
         let items = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
@@ -426,4 +619,4 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             }
         }
     }
-}
+} // swiftlint:disable:this file_length
