@@ -78,9 +78,9 @@ extension Alert {
     /// - Parameter completion: The code block that's executed when the user has entered their pin.
     /// - Returns: An alert that prompts the user to enter their PIN.
     ///
-    static func unlockWithPIN(completion: @MainActor @escaping (String) async -> Void) -> Alert {
+    static func enterPINCode(completion: @MainActor @escaping (String) async -> Void) -> Alert {
         Alert(
-            title: Localizations.unlockWithPIN,
+            title: Localizations.enterPIN,
             message: Localizations.setPINDescription,
             alertActions: [
                 AlertAction(

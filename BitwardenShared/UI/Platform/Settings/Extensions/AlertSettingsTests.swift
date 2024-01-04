@@ -45,13 +45,13 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.vaultTimeoutLogOutConfirmation)
     }
 
-    /// `unlockWithPIN(completion:)` constructs an `Alert` with the correct title, message, Submit and Cancel buttons.
-    func test_unlockWithPINAlert() {
-        let subject = Alert.unlockWithPIN { _ in }
+    /// `enterPINCode(completion:)` constructs an `Alert` with the correct title, message, Submit and Cancel buttons.
+    func test_enterPINCodeAlert() {
+        let subject = Alert.enterPINCode { _ in }
 
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
+        XCTAssertEqual(subject.title, Localizations.enterPIN)
         XCTAssertEqual(subject.message, Localizations.setPINDescription)
     }
 }
