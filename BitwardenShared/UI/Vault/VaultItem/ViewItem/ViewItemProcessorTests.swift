@@ -283,7 +283,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// generic error alert if soft deleting fails.
     func test_perform_deletePressed_genericError() async throws {
         let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(id: "123")
+            existing: CipherView.loginFixture(id: "123"),
+            hasPremium: false
         )!
 
         let state = ViewItemState(
@@ -317,7 +318,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// toast if soft deleting succeeds.
     func test_perform_deletePressed_success() async throws {
         let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(id: "123")
+            existing: CipherView.loginFixture(id: "123"),
+            hasPremium: false
         )!
 
         let state = ViewItemState(
