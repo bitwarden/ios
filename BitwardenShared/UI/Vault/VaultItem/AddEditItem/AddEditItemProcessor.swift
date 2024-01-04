@@ -395,8 +395,6 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
 
 extension AddEditItemProcessor: MoveToOrganizationProcessorDelegate {
     func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
-        DispatchQueue.main.asyncAfter(deadline: UI.after(0.5)) {
-            self.state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
-        }
+        state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
 }
