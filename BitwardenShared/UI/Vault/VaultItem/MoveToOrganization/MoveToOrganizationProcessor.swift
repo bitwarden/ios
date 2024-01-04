@@ -111,8 +111,9 @@ class MoveToOrganizationProcessor: StateProcessor<
 
             try await services.vaultRepository.shareCipher(state.updatedCipher)
 
-            delegate?.didMoveCipher(state.cipher, to: owner)
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss(DismissAction {
+                self.delegate?.didMoveCipher(self.state.cipher, to: owner)
+            }))
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)

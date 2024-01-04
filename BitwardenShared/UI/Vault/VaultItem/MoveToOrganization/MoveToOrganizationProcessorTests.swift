@@ -85,7 +85,11 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(sharedCipher.collectionIds, ["1"])
         XCTAssertEqual(sharedCipher.organizationId, "123")
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        guard case let .dismiss(dismissAction) = coordinator.routes.last else {
+            return XCTFail("Expected a `.dismiss` route.")
+        }
+        dismissAction?.action()
+
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.saving)])
         XCTAssertEqual(delegate.didMoveCipherCipher, subject.state.cipher)
         XCTAssertEqual(delegate.didMoveCipherOrganization, .organization(id: "123", name: "Organization"))
