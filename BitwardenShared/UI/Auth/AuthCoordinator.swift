@@ -36,6 +36,9 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Properties
 
+    /// A delegate used to communicate with the app extension.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The delegate for this coordinator. Used to signal when auth has been completed.
     private weak var delegate: (any AuthCoordinatorDelegate)?
 
@@ -53,17 +56,20 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// Creates a new `AuthCoordinator`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: The delegate for this coordinator. Used to signal when auth has been completed.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        appExtensionDelegate: AppExtensionDelegate?,
         delegate: AuthCoordinatorDelegate,
         rootNavigator: RootNavigator,
         services: Services,
         stackNavigator: StackNavigator
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.delegate = delegate
         self.rootNavigator = rootNavigator
         self.services = services
@@ -298,6 +304,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     ///
     private func showVaultUnlock(account: Account) {
         let processor = VaultUnlockProcessor(
+            appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultUnlockState(account: account)

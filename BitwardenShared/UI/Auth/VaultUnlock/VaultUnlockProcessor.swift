@@ -10,6 +10,9 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
 
     // MARK: Private Properties
 
+    /// A delegate used to communicate with the app extension.
+    private var appExtensionDelegate: AppExtensionDelegate?
+
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<AuthRoute>
 
@@ -21,15 +24,18 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     /// Initialize a `VaultUnlockProcessor`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - coordinator: The coordinator that handles navigation.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///
     init(
+        appExtensionDelegate: AppExtensionDelegate?,
         coordinator: AnyCoordinator<AuthRoute>,
         services: Services,
         state: VaultUnlockState
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
         self.services = services
         super.init(state: state)
@@ -40,6 +46,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     override func perform(_ effect: VaultUnlockEffect) async {
         switch effect {
         case .appeared:
+            state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
             await refreshProfileState()
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
@@ -56,6 +63,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
 
     override func receive(_ action: VaultUnlockAction) {
         switch action {
+        case .cancelPressed:
+            appExtensionDelegate?.didCancel()
         case let .masterPasswordChanged(masterPassword):
             state.masterPassword = masterPassword
         case .morePressed:
@@ -147,7 +156,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             state.profileSwitcherState = ProfileSwitcherState(
                 accounts: accounts,
                 activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible
+                isVisible: state.profileSwitcherState.isVisible,
+                shouldAlwaysHideAddAccount: appExtensionDelegate?.isInAppExtension ?? false
             )
         } catch {
             state.profileSwitcherState = .empty()

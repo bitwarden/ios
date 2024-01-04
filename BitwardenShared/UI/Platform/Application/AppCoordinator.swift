@@ -10,8 +10,12 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// The types of modules used by this coordinator.
     typealias Module = AuthModule
         & TabModule
+        & VaultModule
 
     // MARK: Private Properties
+
+    /// The context that the app is running within.
+    private let appContext: AppContext
 
     /// The coordinator currently being displayed.
     private var childCoordinator: AnyObject?
@@ -29,10 +33,16 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// Creates a new `AppCoordinator`.
     ///
     /// - Parameters:
+    ///   - appContext: The context that the app is running within.
     ///   - module: The module to use for creating child coordinators.
     ///   - rootNavigator: The navigator to use for presenting screens.
     ///
-    init(module: Module, rootNavigator: RootNavigator) {
+    init(
+        appContext: AppContext,
+        module: Module,
+        rootNavigator: RootNavigator
+    ) {
+        self.appContext = appContext
         self.module = module
         self.rootNavigator = rootNavigator
     }
@@ -95,13 +105,38 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             childCoordinator = coordinator
         }
     }
+
+    /// Shows the vault route (not in a tab). This is used within the app extensions.
+    ///
+    /// - Parameter route: The vault route to show.
+    ///
+    private func showVault(route: VaultRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<VaultRoute> {
+            coordinator.navigate(to: route)
+        } else {
+            let stackNavigator = UINavigationController()
+            let coordinator = module.makeVaultCoordinator(
+                delegate: self,
+                stackNavigator: stackNavigator
+            )
+            coordinator.start()
+            coordinator.navigate(to: route)
+            childCoordinator = coordinator
+            rootNavigator.show(child: stackNavigator)
+        }
+    }
 }
 
 // MARK: - AuthCoordinatorDelegate
 
 extension AppCoordinator: AuthCoordinatorDelegate {
     func didCompleteAuth() {
-        showTab(route: .vault(.list))
+        switch appContext {
+        case .mainApp:
+            showTab(route: .vault(.list))
+        case .appExtension:
+            showVault(route: .autofillList)
+        }
     }
 }
 

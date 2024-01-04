@@ -5,6 +5,7 @@ import XCTest
 class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appExtensionDelegate: MockAppExtensionDelegate!
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<AuthRoute>!
     var subject: VaultUnlockProcessor!
@@ -14,10 +15,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     override func setUp() {
         super.setUp()
 
+        appExtensionDelegate = MockAppExtensionDelegate()
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
 
         subject = VaultUnlockProcessor(
+            appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(authRepository: authRepository),
             state: VaultUnlockState(account: .fixture())
@@ -27,6 +30,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     override func tearDown() {
         super.tearDown()
 
+        appExtensionDelegate = nil
         authRepository = nil
         coordinator = nil
         subject = nil
@@ -70,6 +74,26 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
+    /// `perform(.appeared)` refreshes the profile switcher and disables add account when running
+    /// in the app extension.
+    func test_perform_appeared_refreshProfile_inAppExtension() async {
+        let profile = ProfileSwitcherItem()
+        authRepository.accountsResult = .success([profile])
+        appExtensionDelegate.isInAppExtension = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(
+            subject.state.profileSwitcherState,
+            ProfileSwitcherState(
+                accounts: [profile],
+                activeAccountId: nil,
+                isVisible: false,
+                shouldAlwaysHideAddAccount: true
+            )
+        )
+    }
+
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
     func test_perform_appeared_single_active() async {
         let profile = ProfileSwitcherItem()
@@ -80,6 +104,17 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
         XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
         XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
+    }
+
+    /// `perform(.appeared)` sets the state property for whether the app is running in an extension.
+    func test_perform_appeared_setsIsInAppExtension() async {
+        appExtensionDelegate.isInAppExtension = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isInAppExtension)
+
+        appExtensionDelegate.isInAppExtension = false
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.isInAppExtension)
     }
 
     /// `perform(.appeared)`
@@ -411,6 +446,13 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `receive(_:)` with `.cancelPressed` notifies the delegate that cancel was pressed.
+    func test_receive_cancelPressed() {
+        subject.receive(.cancelPressed)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
     }
 
     /// `receive(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.

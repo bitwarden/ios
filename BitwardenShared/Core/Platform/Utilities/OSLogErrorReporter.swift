@@ -1,9 +1,8 @@
-import BitwardenShared
 import OSLog
 
 /// An `ErrorReporter` that logs non-fatal errors to the console via OSLog.
 ///
-final class OSLogErrorReporter: ErrorReporter {
+public final class OSLogErrorReporter: ErrorReporter {
     // MARK: Properties
 
     /// The logger instance to log local messages.
@@ -13,11 +12,15 @@ final class OSLogErrorReporter: ErrorReporter {
 
     /// This exists here satisfy the `ErrorReporter` protocol, but doesn't do anything since we
     /// don't report these errors to an external service.
-    var isEnabled = true
+    public var isEnabled = true
+
+    // MARK: Initialization
+
+    public init() {}
 
     // MARK: ErrorReporter
 
-    func log(error: Error) {
+    public func log(error: Error) {
         logger.error("Error: \(error)")
 
         // Don't crash for networking related errors.
