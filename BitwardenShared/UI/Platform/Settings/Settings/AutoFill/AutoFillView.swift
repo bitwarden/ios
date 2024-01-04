@@ -20,7 +20,6 @@ struct AutoFillView: View {
         }
         .scrollView()
         .navigationBar(title: Localizations.autofill, titleDisplayMode: .inline)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
     }
 
     // MARK: Private views
@@ -69,7 +68,9 @@ struct AutoFillView: View {
             SectionHeaderView(Localizations.autofill)
 
             VStack(spacing: 0) {
-                SettingsListItem(Localizations.passwordAutofill) {}
+                SettingsListItem(Localizations.passwordAutofill) {
+                    store.send(.passwordAutoFillTapped)
+                }
 
                 SettingsListItem(
                     Localizations.appExtension,
@@ -83,10 +84,8 @@ struct AutoFillView: View {
     }
 }
 
-// MARK: Previews
+// MARK: - Previews
 
-struct AutoFillView_Previews: PreviewProvider {
-    static var previews: some View {
-        AutoFillView(store: Store(processor: StateProcessor(state: AutoFillState())))
-    }
+#Preview {
+    AutoFillView(store: Store(processor: StateProcessor(state: AutoFillState())))
 }

@@ -4,6 +4,8 @@ import XCTest
 @testable import BitwardenShared
 
 class AutoFillViewTests: BitwardenTestCase {
+    // MARK: Properties
+
     var processor: MockProcessor<AutoFillState, AutoFillAction, Void>!
     var subject: AutoFillView!
 
@@ -32,6 +34,13 @@ class AutoFillViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.appExtension)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .appExtensionTapped)
+    }
+
+    /// Tapping the password auto-fill button dispatches the `.passwordAutoFillTapped` action.
+    func test_passwordAutoFillButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.passwordAutofill)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .passwordAutoFillTapped)
     }
 
     // MARK: Snapshots
