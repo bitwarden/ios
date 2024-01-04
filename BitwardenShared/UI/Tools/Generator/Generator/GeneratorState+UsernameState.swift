@@ -122,6 +122,31 @@ extension GeneratorState {
 }
 
 extension GeneratorState.UsernameState {
+    /// Returns whether the inputs for generating the username are valid and a new username can be
+    /// generated.
+    ///
+    var canGenerateUsername: Bool {
+        switch usernameGeneratorType {
+        case .catchAllEmail,
+             .plusAddressedEmail,
+             .randomWord:
+            true
+        case .forwardedEmail:
+            switch forwardedEmailService {
+            case .addyIO:
+                [addyIOAPIAccessToken, addyIODomainName].allSatisfy { !$0.isEmpty }
+            case .duckDuckGo:
+                !duckDuckGoAPIKey.isEmpty
+            case .fastmail:
+                !fastmailAPIKey.isEmpty
+            case .firefoxRelay:
+                !firefoxRelayAPIAccessToken.isEmpty
+            case .simpleLogin:
+                !simpleLoginAPIKey.isEmpty
+            }
+        }
+    }
+
     /// Returns a `UsernameGenerationOptions` containing the user selected settings for generating
     /// a username used to persist the options between app launches.
     var usernameGenerationOptions: UsernameGenerationOptions {

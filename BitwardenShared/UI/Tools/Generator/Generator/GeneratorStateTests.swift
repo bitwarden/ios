@@ -574,6 +574,49 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(subject.length, 7)
     }
 
+    /// `usernameState.canGenerateUsername` returns whether a username can be generated based on
+    /// the provided inputs.
+    func test_usernameState_canGenerateUsername() {
+        var subject = GeneratorState().usernameState
+
+        subject.usernameGeneratorType = .catchAllEmail
+        XCTAssertTrue(subject.canGenerateUsername)
+
+        subject.usernameGeneratorType = .plusAddressedEmail
+        XCTAssertTrue(subject.canGenerateUsername)
+
+        subject.usernameGeneratorType = .randomWord
+        XCTAssertTrue(subject.canGenerateUsername)
+
+        subject.usernameGeneratorType = .forwardedEmail
+
+        subject.forwardedEmailService = .addyIO
+        XCTAssertFalse(subject.canGenerateUsername)
+        subject.addyIODomainName = "bitwarden.com"
+        subject.addyIOAPIAccessToken = "token"
+        XCTAssertTrue(subject.canGenerateUsername)
+
+        subject.forwardedEmailService = .duckDuckGo
+        XCTAssertFalse(subject.canGenerateUsername)
+        subject.duckDuckGoAPIKey = "apiKey"
+        XCTAssertTrue(subject.canGenerateUsername)
+
+        subject.forwardedEmailService = .fastmail
+        XCTAssertFalse(subject.canGenerateUsername)
+        subject.fastmailAPIKey = "apiKey"
+        XCTAssertTrue(subject.canGenerateUsername)
+
+        subject.forwardedEmailService = .firefoxRelay
+        XCTAssertFalse(subject.canGenerateUsername)
+        subject.firefoxRelayAPIAccessToken = "apiKey"
+        XCTAssertTrue(subject.canGenerateUsername)
+
+        subject.forwardedEmailService = .simpleLogin
+        XCTAssertFalse(subject.canGenerateUsername)
+        subject.simpleLoginAPIKey = "apiKey"
+        XCTAssertTrue(subject.canGenerateUsername)
+    }
+
     /// `usernameState.update(with:)` sets the email type to random if an email website doesn't exist.
     func test_usernameState_updateWithOptions_nilWebsite() {
         var subject = GeneratorState().usernameState

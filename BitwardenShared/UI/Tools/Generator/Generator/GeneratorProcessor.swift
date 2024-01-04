@@ -166,6 +166,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Generate a new username.
     ///
     func generateUsername() async {
+        guard state.usernameState.canGenerateUsername else { return }
+
         do {
             let username = try await services.generatorRepository.generateUsername(
                 settings: state.usernameState.usernameGeneratorRequest()
