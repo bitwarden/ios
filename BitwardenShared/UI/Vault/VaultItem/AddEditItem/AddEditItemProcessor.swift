@@ -107,18 +107,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
         case let .morePressed(menuAction):
-            switch menuAction {
-            case .attachments:
-                // TODO: BIT-364
-                print("attachments")
-            case .clone:
-                // we don't show clone option in edit item state
-                break
-            case .editCollections:
-                coordinator.navigate(to: .editCollections(state.cipher), context: self)
-            case .moveToOrganization:
-                coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
-            }
+            handleMenuAction(menuAction)
         case let .nameChanged(newValue):
             state.name = newValue
         case .newCustomFieldPressed:
@@ -169,6 +158,24 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             state.folders = [.default] + folders
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Handles an action associated with the `VaultItemManagementMenuAction` menu.
+    ///
+    /// - Parameter action: The action that was sent from the menu.
+    ///
+    private func handleMenuAction(_ action: VaultItemManagementMenuAction) {
+        switch action {
+        case .attachments:
+            coordinator.navigate(to: .attachments)
+        case .clone:
+            // we don't show clone option in edit item state
+            break
+        case .editCollections:
+            coordinator.navigate(to: .editCollections(state.cipher), context: self)
+        case .moveToOrganization:
+            coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
         }
     }
 
