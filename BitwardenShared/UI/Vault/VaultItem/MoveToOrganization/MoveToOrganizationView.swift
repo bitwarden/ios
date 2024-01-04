@@ -20,10 +20,8 @@ struct MoveToOrganizationView: View {
             .task { await store.perform(.fetchCipherOptions) }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    AsyncButton {
+                    AsyncButton(Localizations.move) {
                         await store.perform(.moveCipher)
-                    } label: {
-                        Text(Localizations.move)
                     }
                     .buttonStyle(.toolbar)
                 }
