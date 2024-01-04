@@ -30,19 +30,19 @@ extension TextFieldConfiguration {
         textInputAutocapitalization: .never
     )
 
-    /// A `TextFieldConfiguration` for applying common properties to phone text fields.
-    static let phone = TextFieldConfiguration(
-        isAutocorrectionDisabled: true,
-        keyboardType: .numberPad,
-        textContentType: .telephoneNumber,
-        textInputAutocapitalization: .never
-    )
-
     /// A `TextFieldConfiguration` for applying common properties to password text fields.
     static let password = TextFieldConfiguration(
         isAutocorrectionDisabled: true,
         keyboardType: .default,
         textContentType: .password,
+        textInputAutocapitalization: .never
+    )
+
+    /// A `TextFieldConfiguration` for applying common properties to phone text fields.
+    static let phone = TextFieldConfiguration(
+        isAutocorrectionDisabled: true,
+        keyboardType: .numberPad,
+        textContentType: .telephoneNumber,
         textInputAutocapitalization: .never
     )
 
