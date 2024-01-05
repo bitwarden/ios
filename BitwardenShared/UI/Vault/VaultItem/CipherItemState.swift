@@ -49,9 +49,6 @@ struct CipherItemState: Equatable {
     /// The custom fields.
     var customFields: [CustomFieldState]
 
-    /// When this item was last soft deleted.
-    var deletedDate: Date?
-
     /// The identifier of the folder for this item.
     var folderId: String?
 

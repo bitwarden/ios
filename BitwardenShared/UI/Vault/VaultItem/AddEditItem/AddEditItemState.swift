@@ -69,9 +69,6 @@ protocol AddEditItemState: Sendable {
     /// When this item was last updated.
     var updatedDate: Date { get set }
 
-    /// When this item was last soft deleted.
-    var deletedDate: Date? { get set }
-
     /// Toggles whether the cipher is included in the specified collection.
     ///
     /// - Parameters:
