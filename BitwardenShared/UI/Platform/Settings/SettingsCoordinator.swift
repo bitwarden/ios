@@ -110,6 +110,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             delegate?.didLogout()
         case .other:
             showOtherScreen()
+        case .passwordAutoFill:
+            showPasswordAutoFill()
         case .settings:
             showSettings()
         case .vault:
@@ -256,6 +258,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
 
         let view = OtherSettingsView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
+    /// Shows the password auto-fill screen.
+    ///
+    private func showPasswordAutoFill() {
+        let view = PasswordAutoFillView()
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController)

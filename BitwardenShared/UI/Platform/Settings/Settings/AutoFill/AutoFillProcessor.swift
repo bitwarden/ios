@@ -30,6 +30,8 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Voi
         switch action {
         case .appExtensionTapped:
             coordinator.navigate(to: .appExtension)
+        case .passwordAutoFillTapped:
+            coordinator.navigate(to: .passwordAutoFill)
         case let .toggleCopyTOTPToggle(isOn):
             state.isCopyTOTPToggleOn = isOn
         }
