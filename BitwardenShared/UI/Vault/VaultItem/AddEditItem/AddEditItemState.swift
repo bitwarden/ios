@@ -36,9 +36,6 @@ protocol AddEditItemState: Sendable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>] { get set }
 
-    /// The id of this item.
-    var id: String { get set }
-
     /// The state for a identity type item.
     var identityState: IdentityItemState { get set }
 
@@ -71,6 +68,9 @@ protocol AddEditItemState: Sendable {
 
     /// When this item was last updated.
     var updatedDate: Date { get set }
+
+    /// When this item was last soft deleted.
+    var deletedDate: Date? { get set }
 
     /// Toggles whether the cipher is included in the specified collection.
     ///

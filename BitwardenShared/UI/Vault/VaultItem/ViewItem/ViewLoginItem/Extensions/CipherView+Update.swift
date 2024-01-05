@@ -134,7 +134,7 @@ extension CipherView {
             fields: fields,
             passwordHistory: passwordHistory,
             creationDate: creationDate,
-            deletedDate: nil,
+            deletedDate: addEditState.deletedDate,
             revisionDate: revisionDate
         )
     }

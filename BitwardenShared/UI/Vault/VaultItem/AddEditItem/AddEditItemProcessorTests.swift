@@ -164,9 +164,9 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
     /// generic error alert if soft deleting fails.
     func test_perform_deletePressed_genericError() async throws {
-        subject.state.id = "123"
+        subject.state = CipherItemState(existing: .fixture(id: "123"), hasPremium: false)!
         struct TestError: Error, Equatable {}
-        vaultRepository.deleteCipherResult = .failure(TestError())
+        vaultRepository.softDeleteCipherResult = .failure(TestError())
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
         var alert = coordinator.alertShown.last
@@ -180,10 +180,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(
             alert,
-            Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
+            .networkResponseError(TestError())
         )
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
@@ -191,8 +188,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
     /// toast if soft deleting succeeds.
     func test_perform_deletePressed_success() async throws {
-        subject.state.id = "123"
-        vaultRepository.deleteCipherResult = .success(())
+        subject.state = CipherItemState(existing: .fixture(id: "123"), hasPremium: false)!
+        vaultRepository.softDeleteCipherResult = .success(())
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
         let alert = coordinator.alertShown.last
@@ -204,7 +201,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is deleted and the view is dismissed.
-        XCTAssertEqual(vaultRepository.deletedCipher.last, "123")
+        let deletedCipher: CipherView = .fixture(deletedDate: .now, id: "123")
+        XCTAssertEqual(vaultRepository.softDeletedCipher.last?.id, deletedCipher.id)
+        XCTAssertEqual(
+            try XCTUnwrap(vaultRepository.softDeletedCipher.last?.deletedDate).timeIntervalSince1970,
+            try XCTUnwrap(deletedCipher.deletedDate).timeIntervalSince1970,
+            accuracy: 1
+        )
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = coordinator.routes.last {
             dismissAction = onDismiss

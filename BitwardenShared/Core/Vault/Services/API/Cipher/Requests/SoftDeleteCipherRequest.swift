@@ -1,9 +1,9 @@
 import BitwardenSdk
 import Networking
 
-/// Data model for performing a delete cipher request.
+/// Data model for performing a soft delete cipher request.
 ///
-struct DeleteCipherRequest: Request {
+struct SoftDeleteCipherRequest: Request {
     typealias Response = EmptyResponse
 
     // MARK: Properties
@@ -12,11 +12,11 @@ struct DeleteCipherRequest: Request {
     var id: String
 
     /// The HTTP method for this request.
-    let method = HTTPMethod.delete
+    let method = HTTPMethod.put
 
     /// The URL path for this request.
     var path: String {
-        "/ciphers/" + id
+        "/ciphers/" + id + "/delete"
     }
 
     // MARK: Initialization

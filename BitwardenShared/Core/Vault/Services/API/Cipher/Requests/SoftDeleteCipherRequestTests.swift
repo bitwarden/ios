@@ -3,10 +3,10 @@ import XCTest
 
 @testable import BitwardenShared
 
-class DeleteCipherRequestTests: BitwardenTestCase {
+class SoftDeleteCipherRequestTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: DeleteCipherRequest?
+    var subject: SoftDeleteCipherRequest?
 
     override func tearDown() {
         super.tearDown()
@@ -27,20 +27,20 @@ class DeleteCipherRequestTests: BitwardenTestCase {
 
     /// `body` returns nil.
     func test_body() throws {
-        subject = try DeleteCipherRequest(id: "123")
+        subject = try SoftDeleteCipherRequest(id: "123")
         XCTAssertNotNil(subject)
         XCTAssertNil(subject?.body)
     }
 
     /// `method` returns the method of the request.
     func test_method() throws {
-        subject = try DeleteCipherRequest(id: "123")
-        XCTAssertEqual(subject?.method, .delete)
+        subject = try SoftDeleteCipherRequest(id: "123")
+        XCTAssertEqual(subject?.method, .put)
     }
 
     /// `path` returns the path of the request.
     func test_path() throws {
-        subject = try DeleteCipherRequest(id: "123")
-        XCTAssertEqual(subject?.path, "/ciphers/123")
+        subject = try SoftDeleteCipherRequest(id: "123")
+        XCTAssertEqual(subject?.path, "/ciphers/123/delete")
     }
 }

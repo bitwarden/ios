@@ -350,20 +350,19 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
 
     /// Soft Deletes the item currently stored in `state`.
     ///
-    private func deleteItem(_ id: String) async {
+    private func deleteItem() async {
         defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(title: Localizations.softDeleting)
-            try await services.vaultRepository.deleteCipher(id)
-            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemDeleted()
-            })))
+            state.deletedDate = .now
+            if let updatedCipher = state.configuration.existingCipherView?.updatedView(with: state) {
+                try await services.vaultRepository.softDeleteCipher(updatedCipher)
+                coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                    self?.delegate?.itemDeleted()
+                })))
+            }
         } catch {
-            let alert = Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
-            coordinator.showAlert(alert)
+            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
     }
@@ -373,9 +372,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     private func showDeleteConfirmation() async {
         let alert = Alert.deleteCipherConfirmation { [weak self] in
             guard let self else { return }
-            if !state.id.isEmpty {
-                await deleteItem(state.id)
-            }
+            await deleteItem()
         }
         coordinator.showAlert(alert)
     }

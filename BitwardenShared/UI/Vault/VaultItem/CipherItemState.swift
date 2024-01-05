@@ -55,9 +55,6 @@ struct CipherItemState: Equatable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>]
 
-    /// The id of this item.
-    var id: String
-
     /// The state for a identity type item.
     var identityState: IdentityItemState
 
@@ -90,6 +87,8 @@ struct CipherItemState: Equatable {
 
     /// When this item was last updated.
     var updatedDate: Date
+
+    var deletedDate: Date?
 
     // MARK: DerivedProperties
 
@@ -146,7 +145,6 @@ struct CipherItemState: Equatable {
         configuration: Configuration,
         customFields: [CustomFieldState],
         folderId: String?,
-        id: String,
         identityState: IdentityItemState,
         isFavoriteOn: Bool,
         isMasterPasswordRePromptOn: Bool,
@@ -162,7 +160,6 @@ struct CipherItemState: Equatable {
         collections = []
         self.customFields = customFields
         self.folderId = folderId
-        self.id = id
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
@@ -183,7 +180,6 @@ struct CipherItemState: Equatable {
             configuration: .add,
             customFields: [],
             folderId: nil,
-            id: "",
             identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
@@ -203,7 +199,6 @@ struct CipherItemState: Equatable {
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
-            id: cipherView.id ?? "",
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
@@ -288,5 +283,12 @@ extension CipherItemState {
             deletedDate: nil,
             revisionDate: creationDate
         )
+    }
+
+    /// Returns a `CipherView` based on current state and adds deletion date.
+    func softDeletedCipherView() -> CipherView {
+        var softDeletedState = self
+        softDeletedState.deletedDate = .now
+        return cipher.updatedView(with: softDeletedState)
     }
 }

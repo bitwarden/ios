@@ -24,7 +24,7 @@ protocol VaultRepository: AnyObject {
 
     /// Delete a cipher from the user's vault.
     ///
-    /// - Parameter id: The cipher that the user is added.
+    /// - Parameter id: The cipher id that to be deleted.
     ///
     func deleteCipher(_ id: String) async throws
 
@@ -58,6 +58,12 @@ protocol VaultRepository: AnyObject {
     ///  - Parameter userId: An optional userId. Defaults to the active user id.
     ///
     func remove(userId: String?) async
+
+    /// Soft delete a cipher from the user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is soft deleting.
+    ///
+    func softDeleteCipher(_ cipher: CipherView) async throws
 
     /// Updates a cipher in the user's vault.
     ///
@@ -361,6 +367,12 @@ extension DefaultVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         await vaultTimeoutService.remove(userId: userId)
+    }
+
+    func softDeleteCipher(_ cipher: CipherView) async throws {
+        guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        let updatedCipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
+        try await cipherService.softDeleteCipherWithServer(id: id, updatedCipher)
     }
 
     func updateCipher(_ updatedCipherView: CipherView) async throws {

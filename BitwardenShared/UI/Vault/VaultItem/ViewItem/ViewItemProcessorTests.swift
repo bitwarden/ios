@@ -292,7 +292,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
         subject.state = state
         struct TestError: Error, Equatable {}
-        vaultRepository.deleteCipherResult = .failure(TestError())
+        vaultRepository.softDeleteCipherResult = .failure(TestError())
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
         var alert = coordinator.alertShown.last
@@ -306,10 +306,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(
             alert,
-            Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
+            .networkResponseError(TestError())
         )
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
@@ -326,7 +323,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             loadingState: .data(cipherState)
         )
         subject.state = state
-        vaultRepository.deleteCipherResult = .success(())
+        vaultRepository.softDeleteCipherResult = .success(())
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
         let alert = coordinator.alertShown.last
@@ -338,7 +335,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is deleted and the view is dismissed.
-        XCTAssertEqual(vaultRepository.deletedCipher.last, "123")
+        XCTAssertEqual(vaultRepository.softDeletedCipher.last?.id, "123")
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = coordinator.routes.last {
             dismissAction = onDismiss

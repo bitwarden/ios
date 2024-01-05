@@ -156,22 +156,19 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.navigate(to: .editItem(cipher: cipher), context: self)
     }
 
-    /// Soft Deletes the item currently stored in `state`.
+    /// Soft deletes the item currently stored in `state`.
     ///
-    private func deleteItem(_ id: String) async {
+    private func deleteItem(_ cipher: CipherView) async {
         defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(.init(title: Localizations.softDeleting))
-            try await services.vaultRepository.deleteCipher(id)
+
+            try await services.vaultRepository.softDeleteCipher(cipher)
             coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
                 self?.delegate?.itemDeleted()
             })))
         } catch {
-            let alert = Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                alertActions: [AlertAction(title: Localizations.ok, style: .default)]
-            )
-            coordinator.showAlert(alert)
+            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
     }
@@ -235,9 +232,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         }
         let alert = Alert.deleteCipherConfirmation { [weak self] in
             guard let self else { return }
-            if !cipherState.id.isEmpty {
-                await deleteItem(cipherState.id)
-            }
+            await deleteItem(cipherState.softDeletedCipherView())
         }
         coordinator.showAlert(alert)
     }

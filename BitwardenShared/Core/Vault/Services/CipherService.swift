@@ -18,6 +18,12 @@ protocol CipherService {
     ///   - userId: The user ID associated with the ciphers.
     ///
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws
+
+    /// soft deletes a cipher for the current user both in the backend and in local storage..
+    ///
+    /// - Parameter cipher: The  cipher item to be soft deleted.
+    ///
+    func softDeleteCipherWithServer(id: String, _ cipher: Cipher) async throws
 }
 
 // MARK: - DefaultCipherService
@@ -67,5 +73,15 @@ extension DefaultCipherService {
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
         try await cipherDataStore.replaceCiphers(ciphers.map(Cipher.init), userId: userId)
+    }
+
+    func softDeleteCipherWithServer(id: String, _ cipher: Cipher) async throws {
+        let userID = try await stateService.getActiveAccountId()
+
+        // Soft delete cipher from backend.
+        _ = try await cipherAPIService.softDeleteCipher(withID: id)
+
+        // Soft delete cipher from local storage
+        try await cipherDataStore.upsertCipher(cipher, userId: userID)
     }
 }

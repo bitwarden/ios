@@ -387,6 +387,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `softDeleteCipher()` throws on id errors.
+    func test_softDeleteCipher_idError_nil() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.softDeleteCipher(.fixture())
+        }
+    }
+
+    /// `softDeleteCipher()` deletes cipher from back end and local storage.
+    func test_softDeleteCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        let cipherView: CipherView = .fixture(deletedDate: .now, id: "123")
+        try await subject.softDeleteCipher(cipherView)
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/delete")
+        let cipher = try await subject.clientVault.ciphers().encrypt(cipherView: cipherView)
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, cipher)
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
+    }
+
     /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.
     func test_validatePassword() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))

@@ -18,6 +18,8 @@ class MockVaultRepository: VaultRepository {
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var removeAccountIds = [String?]()
+    var softDeletedCipher = [CipherView]()
+    var softDeleteCipherResult: Result<Void, Error> = .success(())
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
     var organizationsSubject = CurrentValueSubject<[Organization], Never>([])
@@ -44,7 +46,7 @@ class MockVaultRepository: VaultRepository {
         deletedCipher.append(id)
         try deleteCipherResult.get()
     }
-    
+
     func doesActiveAccountHavePremium() async throws -> Bool {
         doesActiveAccountHavePremiumCalled = true
         return try hasPremiumResult.get()
@@ -65,6 +67,11 @@ class MockVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
+    }
+
+    func softDeleteCipher(_ cipher: CipherView) async throws {
+        softDeletedCipher.append(cipher)
+        try softDeleteCipherResult.get()
     }
 
     func updateCipher(_ cipher: BitwardenSdk.CipherView) async throws {
