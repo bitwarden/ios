@@ -128,7 +128,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             if context is VaultItemCoordinator {
                 let processor = AddEditItemProcessor(
                     coordinator: asAnyCoordinator(),
-                    delegate: context as? CipherItemOperationDelegate,
+                    delegate: nil,
                     services: services,
                     state: state
                 )
