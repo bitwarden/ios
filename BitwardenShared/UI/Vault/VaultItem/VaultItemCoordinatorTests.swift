@@ -185,8 +185,24 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         task.cancel()
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is AddEditItemView)
+    }
+
+    /// `navigate(to:)` with `.editItem()` with a non empty stack presents a new vault item coordinator.
+    func test_navigateTo_editItem_presentsCoordinator() throws {
+        stackNavigator.isEmpty = false
+
+        let task = Task {
+            subject.navigate(to: .editItem(cipher: .loginFixture()), context: nil)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertEqual(module.vaultItemCoordinator.routes, [.editItem(cipher: .loginFixture())])
     }
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.

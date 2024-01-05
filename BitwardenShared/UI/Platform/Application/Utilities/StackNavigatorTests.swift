@@ -21,6 +21,17 @@ class StackNavigatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `isEmpty` returns whether the navigator's stack is empty.
+    func test_isEmpty() {
+        XCTAssertTrue(subject.isEmpty)
+
+        subject.pushViewController(UIViewController(), animated: false)
+        XCTAssertFalse(subject.isEmpty)
+
+        subject.viewControllers = []
+        XCTAssertTrue(subject.isEmpty)
+    }
+
     /// `isPresenting` returns true when a view is being presented on this navigator.
     func test_isPresenting() {
         XCTAssertFalse(subject.isPresenting)
