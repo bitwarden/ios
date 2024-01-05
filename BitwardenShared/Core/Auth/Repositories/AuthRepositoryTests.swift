@@ -11,6 +11,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var clientAuth: MockClientAuth!
     var clientCrypto: MockClientCrypto!
     var environmentService: MockEnvironmentService!
+    var organizationService: MockOrganizationService!
     var subject: DefaultAuthRepository!
     var stateService: MockStateService!
     var vaultTimeoutService: MockVaultTimeoutService!
@@ -75,6 +76,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         accountAPIService = APIService(client: client)
         clientCrypto = MockClientCrypto()
         environmentService = MockEnvironmentService()
+        organizationService = MockOrganizationService()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
 
@@ -83,6 +85,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             clientAuth: clientAuth,
             clientCrypto: clientCrypto,
             environmentService: environmentService,
+            organizationService: organizationService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
@@ -96,6 +99,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientAuth = nil
         clientCrypto = nil
         environmentService = nil
+        organizationService = nil
         subject = nil
         stateService = nil
         vaultTimeoutService = nil
@@ -353,6 +357,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             )
         )
         XCTAssertEqual(vaultTimeoutService.timeoutStore, ["1": false])
+        XCTAssertTrue(organizationService.initializeOrganizationCryptoCalled)
     }
 
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.
@@ -395,4 +400,4 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
     }
-}
+} // swiftlint:disable:this file_length

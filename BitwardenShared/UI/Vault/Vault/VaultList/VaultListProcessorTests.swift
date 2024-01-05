@@ -115,8 +115,8 @@ class VaultListProcessorTests: BitwardenTestCase {
         }
 
         let organizations = [
-            Organization(id: "1", name: "Organization1"),
-            Organization(id: "2", name: "Organization2"),
+            Organization.fixture(id: "1", name: "Organization1"),
+            Organization.fixture(id: "2", name: "Organization2"),
         ]
 
         vaultRepository.organizationsSubject.value = organizations
@@ -145,7 +145,7 @@ class VaultListProcessorTests: BitwardenTestCase {
         waitFor(subject.state.loadingState != .loading)
         task.cancel()
 
-        let sections = try XCTUnwrap(subject.state.loadingState.wrappedData)
+        let sections = try XCTUnwrap(subject.state.loadingState.data)
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[0].items, [vaultListItem])
     }

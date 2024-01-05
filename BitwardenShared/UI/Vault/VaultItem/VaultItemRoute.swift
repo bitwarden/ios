@@ -23,6 +23,9 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case dismiss(_ action: DismissAction? = nil)
 
+    /// A route to edit the collections of a cipher.
+    case editCollections(CipherView)
+
     /// A route to edit an item
     ///
     case editItem(cipher: CipherView)

@@ -17,9 +17,11 @@ class MockVaultRepository: VaultRepository {
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var removeAccountIds = [String?]()
+    var shareCipherResult: Result<Void, Error> = .success(())
+    var sharedCiphers = [CipherView]()
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
-    var organizationsSubject = CurrentValueSubject<[Organization], Never>([])
+    var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
@@ -62,12 +64,17 @@ class MockVaultRepository: VaultRepository {
         removeAccountIds.append(userId)
     }
 
+    func shareCipher(_ cipher: CipherView) async throws {
+        sharedCiphers.append(cipher)
+        try shareCipherResult.get()
+    }
+
     func updateCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         updateCipherCiphers.append(cipher)
         try updateCipherResult.get()
     }
 
-    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>> {
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
         organizationsSubject.eraseToAnyPublisher().values
     }
 

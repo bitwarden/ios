@@ -24,6 +24,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the appearance screen.
     case appearance
 
+    /// A route to the app extension screen.
+    case appExtension
+
     /// A route to the auto-fill screen.
     case autoFill
 
@@ -57,6 +60,9 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to the other view.
     case other
+
+    /// A route to the password auto-fill screen.
+    case passwordAutoFill
 
     /// A route to the settings screen.
     case settings

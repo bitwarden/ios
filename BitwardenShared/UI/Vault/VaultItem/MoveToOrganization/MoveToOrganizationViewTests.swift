@@ -37,10 +37,10 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
     }
 
     /// Tapping the move button dispatches the `.moveCipher` action.
-    func test_moveButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.move)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .moveCipher)
+    func test_moveButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.move)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .moveCipher)
     }
 
     /// Updating the organization menu owner dispatches the `.ownerChanged()` action.

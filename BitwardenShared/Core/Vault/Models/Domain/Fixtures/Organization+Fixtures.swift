@@ -4,12 +4,18 @@ import Foundation
 
 extension Organization {
     static func fixture(
+        enabled: Bool = true,
         id: String = "organization-1",
-        name: String = ""
+        key: String? = nil,
+        name: String = "",
+        status: OrganizationUserStatusType = .confirmed
     ) -> Organization {
         Organization(
+            enabled: enabled,
             id: id,
-            name: name
+            key: key,
+            name: name,
+            status: status
         )
     }
 }

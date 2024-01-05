@@ -6,6 +6,9 @@ import SwiftUI
 ///
 @MainActor
 public protocol StackNavigator: Navigator {
+    /// Whether the stack of views in the navigator is empty.
+    var isEmpty: Bool { get }
+
     /// Dismisses the view that was presented modally by the navigator.
     ///
     /// - Parameters animated: Whether the transition should be animated.
@@ -202,6 +205,10 @@ extension StackNavigator {
 // MARK: - UINavigationController
 
 extension UINavigationController: StackNavigator {
+    public var isEmpty: Bool {
+        viewControllers.isEmpty
+    }
+
     public var rootViewController: UIViewController? {
         self
     }

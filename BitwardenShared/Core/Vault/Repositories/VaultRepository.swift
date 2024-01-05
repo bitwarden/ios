@@ -61,6 +61,12 @@ protocol VaultRepository: AnyObject {
     ///
     func remove(userId: String?) async
 
+    /// Shares a cipher with an organization.
+    ///
+    /// - Parameter cipher: The cipher to share.
+    ///
+    func shareCipher(_ cipher: CipherView) async throws
+
     /// Updates a cipher in the user's vault.
     ///
     /// - Parameter cipher: The cipher that the user is updating.
@@ -88,7 +94,7 @@ protocol VaultRepository: AnyObject {
     ///
     /// - Returns: A publisher for the list of organizations the user is a member of.
     ///
-    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>>
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>>
 
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
@@ -115,7 +121,7 @@ class DefaultVaultRepository {
     /// The API service used to perform API requests for the ciphers in a user's vault.
     let cipherAPIService: CipherAPIService
 
-    /// The API service used to perform API requests for the ciphers in a user's vault.
+    /// The service used to manage syncing and updates to the user's ciphers.
     let cipherService: CipherService
 
     /// The client used by the application to handle auth related encryption and decryption tasks.
@@ -136,6 +142,9 @@ class DefaultVaultRepository {
     /// The service used to manage syncing and updates to the user's folders.
     let folderService: FolderService
 
+    /// The service used to manage syncing and updates to the user's organizations.
+    let organizationService: OrganizationService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -151,13 +160,14 @@ class DefaultVaultRepository {
     ///
     /// - Parameters:
     ///   - cipherAPIService: The API service used to perform API requests for the ciphers in a user's vault.
-    ///   - cipherService: The  service used to perform  requests for the ciphers in a user's vault.
+    ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
+    ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -171,6 +181,7 @@ class DefaultVaultRepository {
         collectionService: CollectionService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
+        organizationService: OrganizationService,
         stateService: StateService,
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
@@ -183,6 +194,7 @@ class DefaultVaultRepository {
         self.collectionService = collectionService
         self.errorReporter = errorReporter
         self.folderService = folderService
+        self.organizationService = organizationService
         self.stateService = stateService
         self.syncService = syncService
         self.vaultTimeoutService = vaultTimeoutService
@@ -338,13 +350,12 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {
-        let organizations = syncService.organizations()
-        let organizationOwners: [CipherOwner] = organizations?
+        let organizations = try await organizationService.fetchAllOrganizations()
+        let organizationOwners: [CipherOwner] = organizations
             .filter { $0.enabled && $0.status == .confirmed }
-            .compactMap { organization in
-                guard let name = organization.name else { return nil }
-                return CipherOwner.organization(id: organization.id, name: name)
-            } ?? []
+            .map { organization in
+                CipherOwner.organization(id: organization.id, name: organization.name)
+            }
 
         if includePersonal {
             let email = try await stateService.getActiveAccount().profile.email
@@ -378,6 +389,13 @@ extension DefaultVaultRepository: VaultRepository {
         await vaultTimeoutService.remove(userId: userId)
     }
 
+    func shareCipher(_ cipher: CipherView) async throws {
+        let encryptedCipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
+        try await cipherService.shareWithServer(encryptedCipher)
+        // TODO: BIT-92 Insert response into database instead of fetching sync.
+        try await fetchSync(isManualRefresh: false)
+    }
+
     func updateCipher(_ updatedCipherView: CipherView) async throws {
         let updatedCipher = try await clientVault.ciphers().encrypt(cipherView: updatedCipherView)
         _ = try await cipherAPIService.updateCipher(updatedCipher)
@@ -404,13 +422,8 @@ extension DefaultVaultRepository: VaultRepository {
             .values
     }
 
-    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>> {
-        syncService.syncResponsePublisher()
-            .compactMap { response in
-                response?.profile?.organizations?.compactMap(Organization.init)
-            }
-            .eraseToAnyPublisher()
-            .values
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
+        try await organizationService.organizationsPublisher().eraseToAnyPublisher().values
     }
 
     func vaultListPublisher(filter: VaultFilterType) -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>> {

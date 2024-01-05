@@ -46,6 +46,18 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     // MARK: Tests
 
+    /// `didMoveCipher(_:to:)` displays a toast after the cipher is moved to the organization.
+    func test_didMoveCipher() {
+        subject.didMoveCipher(.fixture(name: "Bitwarden Password"), to: .organization(id: "1", name: "Organization"))
+
+        waitFor { subject.state.toast != nil }
+
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.movedItemToOrg("Bitwarden Password", "Organization")
+        )
+    }
+
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     func test_perform_appeared() {
         let cipherItem = CipherView.fixture(
@@ -240,7 +252,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state = state
 
         subject.receive(.customFieldVisibilityPressed(customField2))
-        let newLoadingState = try XCTUnwrap(subject.state.loadingState.wrappedData)
+        let newLoadingState = try XCTUnwrap(subject.state.loadingState.data)
         guard let loadingState = newLoadingState.viewState else {
             XCTFail("ViewItemState has incorrect value: \(newLoadingState)")
             return
@@ -303,6 +315,18 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
     }
 
+    /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
+    /// collections view.
+    func test_receive_morePressed_editCollections() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
+
+        subject.receive(.morePressed(.editCollections))
+
+        XCTAssertEqual(coordinator.routes.last, .editCollections(cipher))
+        XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
+    }
+
     /// `receive(_:)` with `.morePressed(.moveToOrganization)` navigates the user to the move to
     /// organization view.
     func test_receive_morePressed_moveToOrganization() throws {
@@ -312,6 +336,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.morePressed(.moveToOrganization))
 
         XCTAssertEqual(coordinator.routes.last, .moveToOrganization(cipher))
+        XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
     }
 
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
@@ -390,6 +415,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.passwordVisibilityPressed)
 
         XCTAssertEqual(try coordinator.unwrapLastRouteAsAlert(), .masterPasswordPrompt(completion: { _ in }))
+    }
+
+    /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
+    func test_receive_toastShown_withValue() {
+        let toast = Toast(text: "123")
+        subject.receive(.toastShown(toast))
+
+        XCTAssertEqual(subject.state.toast, toast)
     }
 
     /// Tapping the "Submit" button in the master password reprompt alert validates the entered

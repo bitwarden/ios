@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 // MARK: - ViewItemProcessor
 
@@ -118,6 +119,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
             cipherState.loginState.isPasswordVisible.toggle()
             state.loadingState = .data(cipherState)
+        case let .toastShown(newValue):
+            state.toast = newValue
         }
     }
 
@@ -173,6 +176,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// - Parameter action: The action that was sent from the menu.
     ///
     private func handleMenuAction(_ action: VaultItemManagementMenuAction) {
+        guard let cipher = state.loadingState.data?.cipher else {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot perform action on cipher until it's loaded.")
+            )
+            return
+        }
+
         switch action {
         case .attachments:
             // TODO: BIT-364
@@ -180,16 +191,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .clone:
             // TODO: BIT-365
             print("clone")
+        case .editCollections:
+            coordinator.navigate(to: .editCollections(cipher), context: self)
         case .moveToOrganization:
-            guard case let .data(cipherState) = state.loadingState,
-                  let cipherView = cipherState.configuration.existingCipherView else {
-                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                services.errorReporter.log(
-                    error: ActionError.dataNotLoaded("Cannot move cipher to organization until it's loaded.")
-                )
-                return
-            }
-            coordinator.navigate(to: .moveToOrganization(cipherView))
+            coordinator.navigate(to: .moveToOrganization(cipher), context: self)
         }
     }
 
@@ -215,5 +220,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
         }
         coordinator.navigate(to: .alert(alert))
+    }
+}
+
+// MARK: - MoveToOrganizationProcessorDelegate
+
+extension ViewItemProcessor: MoveToOrganizationProcessorDelegate {
+    func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
+        state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
 }

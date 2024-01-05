@@ -59,9 +59,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .search(text):
             state.searchResults = await searchVault(for: text)
         case .streamOrganizations:
-            for await organizations in services.vaultRepository.organizationsPublisher() {
-                state.organizations = organizations
-            }
+            await streamOrganizations()
         case .streamVaultList:
             for await value in services.vaultRepository.vaultListPublisher(filter: state.vaultFilterType) {
                 state.loadingState = .data(value)
@@ -220,5 +218,17 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             state.profileSwitcherState.hasSetAccessibilityFocus = false
         }
         state.profileSwitcherState.isVisible = visible
+    }
+
+    /// Streams the user's organizations.
+    ///
+    private func streamOrganizations() async {
+        do {
+            for try await organizations in try await services.vaultRepository.organizationsPublisher() {
+                state.organizations = organizations
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 }

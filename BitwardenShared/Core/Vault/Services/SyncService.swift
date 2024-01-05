@@ -17,12 +17,6 @@ protocol SyncService: AnyObject {
     ///
     func fetchSync() async throws
 
-    /// Returns the list of organizations from the sync response.
-    ///
-    /// - Returns: The list of organizations the user a member of.
-    ///
-    func organizations() -> [ProfileOrganizationResponseModel]?
-
     /// A publisher for the sync response.
     ///
     /// - Returns: A publisher for the sync response.
@@ -40,17 +34,14 @@ class DefaultSyncService: SyncService {
     /// The service for managing the ciphers for the user.
     let cipherService: CipherService
 
-    /// The client used by the application to handle encryption and decryption setup tasks.
-    let clientCrypto: ClientCryptoProtocol
-
     /// The service for managing the collections for the user.
     let collectionService: CollectionService
 
-    /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
-
     /// The service for managing the folders for the user.
     let folderService: FolderService
+
+    /// The service for managing the organizations for the user.
+    let organizationService: OrganizationService
 
     /// The service for managing the sends for the user.
     let sendService: SendService
@@ -70,53 +61,29 @@ class DefaultSyncService: SyncService {
     ///
     /// - Parameters:
     ///   - cipherService: The service for managing the ciphers for the user.
-    ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - collectionService: The service for managing the collections for the user.
-    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service for managing the folders for the user.
+    ///   - organizationService: The service for managing the organizations for the user.
     ///   - sendService: The service for managing the sends for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///
     init(
         cipherService: CipherService,
-        clientCrypto: ClientCryptoProtocol,
         collectionService: CollectionService,
-        errorReporter: ErrorReporter,
         folderService: FolderService,
+        organizationService: OrganizationService,
         sendService: SendService,
         stateService: StateService,
         syncAPIService: SyncAPIService
     ) {
         self.cipherService = cipherService
-        self.clientCrypto = clientCrypto
         self.collectionService = collectionService
-        self.errorReporter = errorReporter
         self.folderService = folderService
+        self.organizationService = organizationService
         self.sendService = sendService
         self.stateService = stateService
         self.syncAPIService = syncAPIService
-    }
-
-    // MARK: Private
-
-    /// Initializes the SDK's crypto for any organizations the users is a member of.
-    ///
-    /// - Parameter syncResponse: The sync response from the API.
-    ///
-    private func initializeOrganizationCrypto(syncResponse: SyncResponseModel) async {
-        let organizationKeysById = syncResponse.profile?.organizations?
-            .reduce(into: [String: String]()) { result, organization in
-                guard let key = organization.key else { return }
-                result[organization.id] = key
-            } ?? [:]
-        do {
-            try await clientCrypto.initializeOrgCrypto(
-                req: InitOrgCryptoRequest(organizationKeys: organizationKeysById)
-            )
-        } catch {
-            errorReporter.log(error: error)
-        }
     }
 }
 
@@ -129,7 +96,13 @@ extension DefaultSyncService {
         let userId = try await stateService.getActiveAccountId()
 
         let response = try await syncAPIService.getSync()
-        await initializeOrganizationCrypto(syncResponse: response)
+
+        if let organizations = response.profile?.organizations {
+            await organizationService.initializeOrganizationCrypto(
+                organizations: organizations.compactMap(Organization.init)
+            )
+            try await organizationService.replaceOrganizations(organizations, userId: userId)
+        }
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)
@@ -139,10 +112,6 @@ extension DefaultSyncService {
         syncResponseSubject.value = response
 
         try await stateService.setLastSyncTime(Date(), userId: userId)
-    }
-
-    func organizations() -> [ProfileOrganizationResponseModel]? {
-        syncResponseSubject.value?.profile?.organizations
     }
 
     func syncResponsePublisher() -> AnyPublisher<SyncResponseModel?, Never> {
