@@ -69,7 +69,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
         case let .moveToOrganization(cipher):
-            showMoveToOrganization(cipher: cipher)
+            showMoveToOrganization(cipher: cipher, delegate: context as? MoveToOrganizationProcessorDelegate)
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
@@ -173,9 +173,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the move to organization screen.
     ///
-    private func showMoveToOrganization(cipher: CipherView) {
+    private func showMoveToOrganization(cipher: CipherView, delegate: MoveToOrganizationProcessorDelegate?) {
         let processor = MoveToOrganizationProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: delegate,
             services: services,
             state: MoveToOrganizationState(cipher: cipher)
         )

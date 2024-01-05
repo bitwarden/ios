@@ -7,6 +7,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<VaultItemRoute>!
+    var delegate: MockMoveToOrganizationProcessorDelegate!
     var errorReporter: MockErrorReporter!
     var subject: MoveToOrganizationProcessor!
     var vaultRepository: MockVaultRepository!
@@ -17,11 +18,13 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator()
+        delegate = MockMoveToOrganizationProcessorDelegate()
         errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
 
         subject = MoveToOrganizationProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository
@@ -34,6 +37,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        delegate = nil
         errorReporter = nil
         subject = nil
         vaultRepository = nil
@@ -66,6 +70,62 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
+    /// `perform(_:)` with `.moveCipher` shares the updated cipher.
+    func test_perform_moveCipher() async {
+        subject.state.ownershipOptions = [.organization(id: "123", name: "Organization")]
+        subject.state.collectionIds = ["1"]
+        subject.state.organizationId = "123"
+
+        await subject.perform(.moveCipher)
+
+        XCTAssertEqual(vaultRepository.sharedCiphers, [subject.state.updatedCipher])
+        let sharedCipher = vaultRepository.sharedCiphers[0]
+        XCTAssertEqual(sharedCipher.collectionIds, ["1"])
+        XCTAssertEqual(sharedCipher.organizationId, "123")
+
+        guard case let .dismiss(dismissAction) = coordinator.routes.last else {
+            return XCTFail("Expected a `.dismiss` route.")
+        }
+        dismissAction?.action()
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.saving)])
+        XCTAssertEqual(delegate.didMoveCipherCipher, subject.state.cipher)
+        XCTAssertEqual(delegate.didMoveCipherOrganization, .organization(id: "123", name: "Organization"))
+    }
+
+    /// `perform(_:)` with `.moveCipher` shows an alert if an error occurs sharing the cipher.
+    func test_perform_moveCipher_error() async {
+        subject.state.ownershipOptions = [.organization(id: "123", name: "Organization")]
+        subject.state.collectionIds = ["1"]
+        subject.state.organizationId = "123"
+
+        struct ShareCipherError: Error, Equatable {}
+        vaultRepository.shareCipherResult = .failure(ShareCipherError())
+
+        await subject.perform(.moveCipher)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred
+            )
+        )
+        XCTAssertEqual(errorReporter.errors.last as? ShareCipherError, ShareCipherError())
+    }
+
+    /// `perform(_:)` with `.moveCipher` shows an alert if no collections have been selected.
+    func test_perform_moveCipher_errorNoCollections() async {
+        await subject.perform(.moveCipher)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.selectOneCollection
+            )
+        )
     }
 
     /// `receive(_:)` with `.collectionToggleChanged` updates the selected collection IDs for the cipher.
@@ -103,5 +163,15 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
         subject.receive(.ownerChanged(organization2))
 
         XCTAssertEqual(subject.state.owner, organization2)
+    }
+}
+
+class MockMoveToOrganizationProcessorDelegate: MoveToOrganizationProcessorDelegate {
+    var didMoveCipherCipher: CipherView?
+    var didMoveCipherOrganization: CipherOwner?
+
+    func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
+        didMoveCipherCipher = cipher
+        didMoveCipherOrganization = organization
     }
 }

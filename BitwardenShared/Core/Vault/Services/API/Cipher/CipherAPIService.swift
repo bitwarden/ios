@@ -29,6 +29,13 @@ protocol CipherAPIService {
     ///
     func addCipherWithCollections(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
 
+    /// Performs an API request to share a cipher with an organization.
+    ///
+    /// - Parameter cipher: The cipher to share.
+    /// - Returns: The cipher that was shared with the organization.
+    ///
+    func shareCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
+
     /// Performs an API request to update an existing cipher in the user's vault.
     ///
     /// - Parameter cipher: The cipher that the user is updating.
@@ -44,6 +51,10 @@ extension APIService: CipherAPIService {
 
     func addCipherWithCollections(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
         try await apiService.send(AddCipherWithCollectionsRequest(cipher: cipher))
+    }
+
+    func shareCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
+        try await apiService.send(ShareCipherRequest(cipher: cipher))
     }
 
     func updateCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {

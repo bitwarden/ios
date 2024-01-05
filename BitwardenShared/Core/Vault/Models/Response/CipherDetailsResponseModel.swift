@@ -13,7 +13,7 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     let card: CipherCardModel?
 
     /// The identifiers for collections which contain this cipher.
-    let collectionIds: [String]?
+    var collectionIds: [String]?
 
     /// The date the cipher was created.
     let creationDate: Date
