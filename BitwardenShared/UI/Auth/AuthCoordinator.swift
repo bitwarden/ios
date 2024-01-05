@@ -36,10 +36,13 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Properties
 
-    /// A delegate used to communicate with the app extension.
+    /// A delegate used to communicate with the app extension. This should be passed to any
+    /// processors that need to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
 
-    /// The delegate for this coordinator. Used to signal when auth has been completed.
+    /// The delegate for this coordinator. Used to signal when auth has been completed. This should
+    /// be used by the coordinator to communicate to its parent coordinator when auth completes and
+    /// the auth flow should be dismissed.
     private weak var delegate: (any AuthCoordinatorDelegate)?
 
     /// The root navigator used to display this coordinator's interface.

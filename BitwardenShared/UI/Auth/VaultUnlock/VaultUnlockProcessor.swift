@@ -11,7 +11,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     // MARK: Private Properties
 
     /// A delegate used to communicate with the app extension.
-    private var appExtensionDelegate: AppExtensionDelegate?
+    private weak var appExtensionDelegate: AppExtensionDelegate?
 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<AuthRoute>
