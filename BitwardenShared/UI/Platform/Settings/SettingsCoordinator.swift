@@ -84,10 +84,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showAccountSecurity()
         case let .addEditFolder(folder):
             showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
-        case .appearance:
-            showAppearance()
         case let .alert(alert):
             stackNavigator.present(alert)
+        case .appearance:
+            showAppearance()
+        case .appExtension:
+            showAppExtension()
         case .autoFill:
             showAutoFill()
         case .deleteAccount:
@@ -174,6 +176,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let processor = AppearanceProcessor(coordinator: asAnyCoordinator(), state: AppearanceState())
 
         let view = AppearanceView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
+    /// Shows the app extension screen.
+    ///
+    private func showAppExtension() {
+        let processor = AppExtensionProcessor(
+            coordinator: asAnyCoordinator(),
+            state: AppExtensionState()
+        )
+        let view = AppExtensionView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController)

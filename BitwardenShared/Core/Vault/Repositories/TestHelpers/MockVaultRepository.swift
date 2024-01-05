@@ -17,6 +17,8 @@ class MockVaultRepository: VaultRepository {
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var removeAccountIds = [String?]()
+    var shareCipherResult: Result<Void, Error> = .success(())
+    var sharedCiphers = [CipherView]()
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
     var organizationsSubject = CurrentValueSubject<[Organization], Never>([])
@@ -60,6 +62,11 @@ class MockVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
+    }
+
+    func shareCipher(_ cipher: CipherView) async throws {
+        sharedCiphers.append(cipher)
+        try shareCipherResult.get()
     }
 
     func updateCipher(_ cipher: BitwardenSdk.CipherView) async throws {

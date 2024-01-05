@@ -9,9 +9,6 @@ enum MoveToOrganizationAction: Equatable {
     /// The dismiss button was pressed.
     case dismissPressed
 
-    /// The move button was tapped.
-    case moveCipher
-
     /// The owner field was changed.
     case ownerChanged(CipherOwner)
 }
