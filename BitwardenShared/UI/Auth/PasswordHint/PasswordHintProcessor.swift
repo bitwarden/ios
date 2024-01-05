@@ -3,10 +3,17 @@
 /// The processor used to manage state and handle actions for the passwort hint screen.
 ///
 class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintAction, PasswordHintEffect> {
+    // MARK: Types
+
+    typealias Services = HasAccountAPIService
+
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<AuthRoute>
+
+    /// The services required by this processor.
+    private let services: Services
 
     // MARK: Initialization
 
@@ -18,9 +25,11 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute>,
+        services: Services,
         state: PasswordHintState
     ) {
         self.coordinator = coordinator
+        self.services = services
         super.init(state: state)
     }
 
@@ -49,11 +58,11 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
     /// - Parameter emailAddress: The email address to request the master password hint for.
     ///
     private func requestPasswordHint(for emailAddress: String) async {
+        defer { coordinator.hideLoadingOverlay() }
         coordinator.showLoadingOverlay(title: Localizations.submitting)
 
         do {
-            // TODO: BIT-733 Perform the password hint request
-            try await Task.sleep(nanoseconds: 1_000_000_000)
+            try await services.accountAPIService.requestPasswordHint(for: emailAddress)
 
             let okAction = AlertAction(title: Localizations.ok, style: .default) { _, _ in
                 self.coordinator.navigate(to: .dismiss)

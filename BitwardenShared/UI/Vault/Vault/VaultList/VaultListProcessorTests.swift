@@ -145,7 +145,7 @@ class VaultListProcessorTests: BitwardenTestCase {
         waitFor(subject.state.loadingState != .loading)
         task.cancel()
 
-        let sections = try XCTUnwrap(subject.state.loadingState.wrappedData)
+        let sections = try XCTUnwrap(subject.state.loadingState.data)
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[0].items, [vaultListItem])
     }
