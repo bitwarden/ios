@@ -22,6 +22,12 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Delete a cipher from the user's vault.
+    ///
+    /// - Parameter id: The cipher id that to be deleted.
+    ///
+    func deleteCipher(_ id: String) async throws
+
     /// Validates the user's active account has access to premium features.
     ///
     /// - Returns: Whether the active account has premium.
@@ -59,6 +65,12 @@ protocol VaultRepository: AnyObject {
     /// - Parameter cipher: The cipher to share.
     ///
     func shareCipher(_ cipher: CipherView) async throws
+
+    /// Soft delete a cipher from the user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is soft deleting.
+    ///
+    func softDeleteCipher(_ cipher: CipherView) async throws
 
     /// Updates a cipher in the user's vault.
     ///
@@ -364,6 +376,10 @@ extension DefaultVaultRepository: VaultRepository {
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
+    func deleteCipher(_ id: String) async throws {
+        try await cipherService.deleteCipherWithServer(id: id)
+    }
+
     func fetchFolders() async throws -> [FolderView] {
         let folders = try await folderService.fetchAllFolders()
         return try await clientVault.folders()
@@ -385,6 +401,38 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.shareWithServer(encryptedCipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync(isManualRefresh: false)
+    }
+
+    func softDeleteCipher(_ cipher: CipherView) async throws {
+        guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        let softDeletedCipher = CipherView(
+            id: cipher.id,
+            organizationId: cipher.organizationId,
+            folderId: cipher.folderId,
+            collectionIds: cipher.collectionIds,
+            key: cipher.key,
+            name: cipher.name,
+            notes: cipher.notes,
+            type: cipher.type,
+            login: cipher.login,
+            identity: cipher.identity,
+            card: cipher.card,
+            secureNote: cipher.secureNote,
+            favorite: cipher.favorite,
+            reprompt: cipher.reprompt,
+            organizationUseTotp: cipher.organizationUseTotp,
+            edit: cipher.edit,
+            viewPassword: cipher.viewPassword,
+            localData: cipher.localData,
+            attachments: cipher.attachments,
+            fields: cipher.fields,
+            passwordHistory: cipher.passwordHistory,
+            creationDate: cipher.creationDate,
+            deletedDate: .now,
+            revisionDate: cipher.revisionDate
+        )
+        let encryptCipher = try await clientVault.ciphers().encrypt(cipherView: softDeletedCipher)
+        try await cipherService.softDeleteCipherWithServer(id: id, encryptCipher)
     }
 
     func updateCipher(_ updatedCipherView: CipherView) async throws {

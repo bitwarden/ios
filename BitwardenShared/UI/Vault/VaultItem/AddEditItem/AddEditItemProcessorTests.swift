@@ -13,6 +13,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     var cameraService: MockCameraService!
     var coordinator: MockCoordinator<VaultItemRoute>!
+    var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var totpService: MockTOTPService!
@@ -26,12 +27,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         cameraService = MockCameraService()
         coordinator = MockCoordinator<VaultItemRoute>()
+        delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
                 errorReporter: errorReporter,
@@ -168,6 +171,64 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             subject.state.loginState.authenticatorKey,
             pasteboardService.copiedString
         )
+    }
+
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
+    /// generic error alert if soft deleting fails.
+    func test_perform_deletePressed_genericError() async throws {
+        subject.state = CipherItemState(existing: .fixture(id: "123"), hasPremium: false)!
+        struct TestError: Error, Equatable {}
+        vaultRepository.softDeleteCipherResult = .failure(TestError())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        var alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the generic error alert is displayed.
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert,
+            .networkResponseError(TestError())
+        )
+        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
+    /// toast if soft deleting succeeds.
+    func test_perform_deletePressed_success() async throws {
+        subject.state = CipherItemState(existing: .fixture(id: "123"), hasPremium: false)!
+        vaultRepository.softDeleteCipherResult = .success(())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        XCTAssertNil(errorReporter.errors.first)
+        // Ensure the cipher is deleted and the view is dismissed.
+        let deletedCipher: CipherView = .fixture(id: "123")
+        XCTAssertEqual(
+            vaultRepository.softDeletedCipher.last?.id,
+            deletedCipher.id
+        )
+        XCTAssertEqual(
+            vaultRepository.softDeletedCipher.last,
+            deletedCipher
+        )
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
@@ -1203,5 +1264,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.identityFieldChanged(.countryChanged("")))
 
         XCTAssertEqual(subject.state.identityState.country, "")
+    }
+}
+
+// MARK: MockCipherItemOperationDelegate
+
+class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
+    var itemDeletedCalled = false
+    func itemDeleted() {
+        itemDeletedCalled = true
     }
 }

@@ -7,6 +7,7 @@ import XCTest
 class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var cipherDataStore: MockCipherDataStore!
     var cipherService: MockCipherService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
@@ -27,6 +28,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     override func setUp() {
         super.setUp()
 
+        cipherDataStore = MockCipherDataStore()
         cipherService = MockCipherService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
@@ -39,9 +41,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         organizationService = MockOrganizationService()
         syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
-
         clientVault.clientCiphers = clientCiphers
-
         stateService = MockStateService()
 
         subject = DefaultVaultRepository(
@@ -63,6 +63,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     override func tearDown() {
         super.tearDown()
 
+        cipherDataStore = nil
         cipherService = nil
         client = nil
         clientAuth = nil
@@ -125,6 +126,22 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         await assertAsyncThrows(error: EncryptError()) {
             try await subject.addCipher(.fixture())
         }
+    }
+
+    /// `deleteCipher()` throws on id errors.
+    func test_deleteCipher_idError_nil() async throws {
+        cipherService.deleteWithServerResult = .failure(CipherAPIServiceError.updateMissingId)
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.deleteCipher("")
+        }
+    }
+
+    /// `deleteCipher()` deletes cipher from back end and local storage.
+    func test_deleteCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        cipherService.deleteWithServerResult = .success(())
+        try await subject.deleteCipher("123")
+        XCTAssertEqual(cipherService.deleteCipherId, "123")
     }
 
     /// Tests the ability to determine if an account has premium.
@@ -402,6 +419,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ],
             vaultTimeoutService.timeoutStore
         )
+    }
+
+    /// `softDeleteCipher()` throws on id errors.
+    func test_softDeleteCipher_idError_nil() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.softDeleteCipher(.fixture())
+        }
+    }
+
+    /// `softDeleteCipher()` deletes cipher from back end and local storage.
+    func test_softDeleteCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        let cipherView: CipherView = .fixture(id: "123")
+        cipherService.softDeleteWithServerResult = .success(())
+        try await subject.softDeleteCipher(cipherView)
+        XCTAssertNil(cipherView.deletedDate)
+        XCTAssertNotNil(cipherService.softDeleteCipher?.deletedDate)
+        XCTAssertEqual(cipherService.softDeleteCipherId, "123")
     }
 
     /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.
