@@ -21,7 +21,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         /// An error for card action handling
         case nonCardTypeToggle(String)
 
-        /// A password visibility toggle occured when not possible.
+        /// A password visibility toggle occurred when not possible.
         case nonLoginPasswordToggle(String)
     }
 
@@ -39,7 +39,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The services used by this processor.
     private let services: Services
 
-    // MARK: Intialization
+    // MARK: Initialization
 
     /// Creates a new `ViewItemProcessor`.
     ///

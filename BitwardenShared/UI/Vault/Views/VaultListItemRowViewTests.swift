@@ -7,7 +7,7 @@ import XCTest
 class VaultListItemRowViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<VaultListItemRowState, VaultListItemRowAction, Void>!
+    var processor: MockProcessor<VaultListItemRowState, Void, VaultListItemRowEffect>!
     var subject: VaultListItemRowView!
 
     // MARK: Setup & Teardown
@@ -28,9 +28,9 @@ class VaultListItemRowViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    func test_moreButton_tap() throws {
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.more)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
+    func test_moreButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.more)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .morePressed)
     }
 }
