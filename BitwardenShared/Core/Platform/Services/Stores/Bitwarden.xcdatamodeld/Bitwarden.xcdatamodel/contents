@@ -33,6 +33,11 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="OrganizationData" representedClassName=".OrganizationData" syncable="YES">
+        <attribute name="id" attributeType="String"/>
+        <attribute name="modelData" attributeType="Binary"/>
+        <attribute name="userId" attributeType="String"/>
+    </entity>
     <entity name="PasswordHistoryData" representedClassName=".PasswordHistoryData" syncable="YES">
         <attribute name="lastUsedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="password" attributeType="String"/>

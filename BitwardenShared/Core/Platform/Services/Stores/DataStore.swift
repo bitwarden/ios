@@ -78,6 +78,7 @@ class DataStore {
         try await deleteAllCiphers(userId: userId)
         try await deleteAllCollections(userId: userId)
         try await deleteAllFolders(userId: userId)
+        try await deleteAllOrganizations(userId: userId)
         try await deleteAllPasswordHistory(userId: userId)
         try await deleteAllSends(userId: userId)
     }
