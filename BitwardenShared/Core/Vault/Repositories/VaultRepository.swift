@@ -36,9 +36,10 @@ protocol VaultRepository: AnyObject {
 
     /// Fetches the ownership options that the user can select from for a cipher.
     ///
+    /// - Parameter includePersonal: Whether to include the user's personal vault in the list.
     /// - Returns: The list of ownership options for a cipher.
     ///
-    func fetchCipherOwnershipOptions() async throws -> [CipherOwner]
+    func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner]
 
     /// Fetches the collections that are available to the user.
     ///
@@ -58,6 +59,12 @@ protocol VaultRepository: AnyObject {
     ///  - Parameter userId: An optional userId. Defaults to the active user id.
     ///
     func remove(userId: String?) async
+
+    /// Shares a cipher with an organization.
+    ///
+    /// - Parameter cipher: The cipher to share.
+    ///
+    func shareCipher(_ cipher: CipherView) async throws
 
     /// Soft delete a cipher from the user's vault.
     ///
@@ -119,7 +126,7 @@ class DefaultVaultRepository {
     /// The API service used to perform API requests for the ciphers in a user's vault.
     let cipherAPIService: CipherAPIService
 
-    /// The service used to manages syncing and updates to the user's ciphers.
+    /// The service used to manage syncing and updates to the user's ciphers.
     let cipherService: CipherService
 
     /// The client used by the application to handle auth related encryption and decryption tasks.
@@ -155,7 +162,7 @@ class DefaultVaultRepository {
     ///
     /// - Parameters:
     ///   - cipherAPIService: The API service used to perform API requests for the ciphers in a user's vault.
-    ///   - cipherService: The service used to manages syncing and updates to the user's ciphers.
+    ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
@@ -327,10 +334,7 @@ extension DefaultVaultRepository: VaultRepository {
         try await fetchSync(isManualRefresh: false)
     }
 
-    func fetchCipherOwnershipOptions() async throws -> [CipherOwner] {
-        let email = try await stateService.getActiveAccount().profile.email
-        let personalOwner = CipherOwner.personal(email: email)
-
+    func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {
         let organizations = syncService.organizations()
         let organizationOwners: [CipherOwner] = organizations?
             .filter { $0.enabled && $0.status == .confirmed }
@@ -339,7 +343,13 @@ extension DefaultVaultRepository: VaultRepository {
                 return CipherOwner.organization(id: organization.id, name: name)
             } ?? []
 
-        return [personalOwner] + organizationOwners
+        if includePersonal {
+            let email = try await stateService.getActiveAccount().profile.email
+            let personalOwner = CipherOwner.personal(email: email)
+            return [personalOwner] + organizationOwners
+        } else {
+            return organizationOwners
+        }
     }
 
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView] {
@@ -367,6 +377,13 @@ extension DefaultVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         await vaultTimeoutService.remove(userId: userId)
+    }
+
+    func shareCipher(_ cipher: CipherView) async throws {
+        let encryptedCipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
+        try await cipherService.shareWithServer(encryptedCipher)
+        // TODO: BIT-92 Insert response into database instead of fetching sync.
+        try await fetchSync(isManualRefresh: false)
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {

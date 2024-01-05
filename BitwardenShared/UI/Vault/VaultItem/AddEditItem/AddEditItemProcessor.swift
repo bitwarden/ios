@@ -115,8 +115,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
                 // TODO: BIT-365
                 print("clone")
             case .moveToOrganization:
-                // TODO: BIT-366
-                print("moveToOrganization")
+                coordinator.navigate(to: .moveToOrganization(state.cipher))
             }
         case let .nameChanged(newValue):
             state.name = newValue
@@ -160,7 +159,8 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     private func fetchCipherOptions() async {
         do {
             state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
-            state.ownershipOptions = try await services.vaultRepository.fetchCipherOwnershipOptions()
+            state.ownershipOptions = try await services.vaultRepository
+                .fetchCipherOwnershipOptions(includePersonal: true)
 
             let folders = try await services.vaultRepository.fetchFolders()
                 .map { DefaultableType<FolderView>.custom($0) }

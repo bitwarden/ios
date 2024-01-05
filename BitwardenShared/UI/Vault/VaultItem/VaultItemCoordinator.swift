@@ -68,6 +68,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
+        case let .moveToOrganization(cipher):
+            showMoveToOrganization(cipher: cipher, delegate: context as? MoveToOrganizationProcessorDelegate)
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
@@ -169,6 +171,20 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         coordinator.start()
         coordinator.navigate(to: .manualKeyEntry, context: nil)
         stackNavigator.present(navigationController)
+    }
+
+    /// Shows the move to organization screen.
+    ///
+    private func showMoveToOrganization(cipher: CipherView, delegate: MoveToOrganizationProcessorDelegate?) {
+        let processor = MoveToOrganizationProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: MoveToOrganizationState(cipher: cipher)
+        )
+        let view = MoveToOrganizationView(store: Store(processor: processor))
+        let hostingController = UIHostingController(rootView: view)
+        stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }
 
     /// Shows the generator screen for the the specified type.

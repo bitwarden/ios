@@ -19,6 +19,12 @@ protocol CipherService {
     ///
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws
 
+    /// Shares a cipher with an organization and updates the locally stored data.
+    ///
+    /// - Parameter cipher: The cipher to share.
+    ///
+    func shareWithServer(_ cipher: Cipher) async throws
+
     /// soft deletes a cipher for the current user both in the backend and in local storage..
     ///
     /// - Parameter cipher: The  cipher item to be soft deleted.
@@ -31,7 +37,7 @@ protocol CipherService {
 class DefaultCipherService: CipherService {
     // MARK: Properties
 
-    /// The data store for managing the persisted ciphers for the user.
+    /// The service used to make cipher related API requests.
     let cipherAPIService: CipherAPIService
 
     /// The data store for managing the persisted ciphers for the user.
@@ -45,7 +51,7 @@ class DefaultCipherService: CipherService {
     /// Initialize a `DefaultCipherService`.
     ///
     /// - Parameters:
-    ///   - cipherAPIService: The API service used to perform API requests for the ciphers in a user's vault.
+    ///   - cipherAPIService: The service used to make cipher related API requests.
     ///   - cipherDataStore: The data store for managing the persisted ciphers for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///
@@ -73,6 +79,13 @@ extension DefaultCipherService {
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
         try await cipherDataStore.replaceCiphers(ciphers.map(Cipher.init), userId: userId)
+    }
+
+    func shareWithServer(_ cipher: Cipher) async throws {
+        let userID = try await stateService.getActiveAccountId()
+        var response = try await cipherAPIService.shareCipher(cipher)
+        response.collectionIds = cipher.collectionIds
+        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
     }
 
     func softDeleteCipherWithServer(id: String, _ cipher: Cipher) async throws {

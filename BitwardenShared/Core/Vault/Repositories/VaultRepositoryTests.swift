@@ -8,6 +8,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     // MARK: Properties
 
     var cipherDataStore: MockCipherDataStore!
+    var cipherService: MockCipherService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var clientCiphers: MockClientCiphers!
@@ -27,6 +28,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         super.setUp()
 
         cipherDataStore = MockCipherDataStore()
+        cipherService = MockCipherService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
         clientCiphers = MockClientCiphers()
@@ -39,12 +41,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         vaultTimeoutService = MockVaultTimeoutService()
         clientVault.clientCiphers = clientCiphers
         stateService = MockStateService()
-
-        let cipherService = DefaultCipherService(
-            cipherAPIService: APIService(client: client),
-            cipherDataStore: cipherDataStore,
-            stateService: stateService
-        )
 
         subject = DefaultVaultRepository(
             cipherAPIService: APIService(client: client),
@@ -65,6 +61,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         super.tearDown()
 
         cipherDataStore = nil
+        cipherService = nil
         client = nil
         clientAuth = nil
         clientCiphers = nil
@@ -127,17 +124,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
-    /// `deleteCipher()` throws noActiveAccount errors.
-    func test_deleteCipher_noActiveAccountError_nil() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.deleteCipher("")
-        }
-    }
-
     /// `deleteCipher()` throws on id errors.
     func test_deleteCipher_idError_nil() async throws {
-        stateService.accounts = [.fixtureAccountLogin()]
-        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.deleteWithServerResult = .failure(CipherAPIServiceError.updateMissingId)
         await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
             try await subject.deleteCipher("")
         }
@@ -146,14 +135,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `deleteCipher()` deletes cipher from back end and local storage.
     func test_deleteCipher() async throws {
         client.result = .httpSuccess(testData: APITestData(data: Data()))
-        stateService.accounts = [.fixtureAccountLogin()]
-        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.deleteWithServerResult = .success(())
         try await subject.deleteCipher("123")
-        XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
-
-        XCTAssertEqual(cipherDataStore.deleteCipherId, "123")
-        XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
+        XCTAssertEqual(cipherService.deleteCipherId, "123")
     }
 
     /// Tests the ability to determine if an account has premium.
@@ -200,7 +184,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "5", name: "Org Accepted", status: .accepted),
         ]
 
-        let ownershipOptions = try await subject.fetchCipherOwnershipOptions()
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
 
         XCTAssertEqual(
             ownershipOptions,
@@ -212,11 +196,34 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations
+    /// without the personal vault.
+    func test_fetchCipherOwnershipOptions_organizationsWithoutPersonal() async throws {
+        stateService.activeAccount = .fixture()
+        syncService.organizationsToReturn = [
+            .fixture(id: "1", name: "Org1"),
+            .fixture(id: "2", name: "Org2"),
+            .fixture(enabled: false, id: "3", name: "Org Disabled"),
+            .fixture(id: "4", name: "Org Invited", status: .invited),
+            .fixture(id: "5", name: "Org Accepted", status: .accepted),
+        ]
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: false)
+
+        XCTAssertEqual(
+            ownershipOptions,
+            [
+                .organization(id: "1", name: "Org1"),
+                .organization(id: "2", name: "Org2"),
+            ]
+        )
+    }
+
     /// `fetchCipherOwnershipOptions()` returns the ownership options containing the user's personal account.
     func test_fetchCipherOwnershipOptions_personal() async throws {
         stateService.activeAccount = .fixture()
 
-        let ownershipOptions = try await subject.fetchCipherOwnershipOptions()
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
 
         XCTAssertEqual(ownershipOptions, [.personal(email: "user@bitwarden.com")])
     }
@@ -278,6 +285,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.allowSyncOnRefresh["1"] = false
         try await subject.fetchSync(isManualRefresh: true)
         XCTAssertFalse(syncService.didFetchSync)
+    }
+
+    /// `shareCipher()` has the cipher service share the cipher and updates the vault.
+    func test_shareCipher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let cipher = CipherView.fixture()
+        try await subject.shareCipher(cipher)
+
+        XCTAssertEqual(cipherService.shareWithServerCiphers, [Cipher(cipherView: cipher)])
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    /// `shareCipher()` throws an error if one occurs.
+    func test_shareCipher_error() async throws {
+        struct ShareError: Error, Equatable {}
+
+        cipherService.shareWithServerResult = .failure(ShareError())
+
+        await assertAsyncThrows(error: ShareError()) {
+            try await subject.shareCipher(.fixture())
+        }
     }
 
     /// `updateCipher()` throws on encryption errors.
@@ -402,12 +432,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.accounts = [.fixtureAccountLogin()]
         stateService.activeAccount = .fixtureAccountLogin()
         let cipherView: CipherView = .fixture(deletedDate: .now, id: "123")
+        cipherService.softDeleteWithServerResult = .success(())
         try await subject.softDeleteCipher(cipherView)
-        XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/delete")
         let cipher = try await subject.clientVault.ciphers().encrypt(cipherView: cipherView)
-        XCTAssertEqual(cipherDataStore.upsertCipherValue, cipher)
-        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
+        XCTAssertEqual(cipherService.softDeleteCipher, cipher)
+        XCTAssertEqual(cipherService.softDeleteCipherId, "123")
     }
 
     /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.

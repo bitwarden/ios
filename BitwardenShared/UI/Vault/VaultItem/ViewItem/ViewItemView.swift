@@ -24,6 +24,10 @@ struct ViewItemView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toast(store.binding(
+            get: \.toast,
+            send: ViewItemAction.toastShown
+        ))
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 VaultItemManagementMenuView(

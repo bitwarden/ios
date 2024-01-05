@@ -10,6 +10,7 @@ class MockVaultRepository: VaultRepository {
     var deletedCipher = [String]()
     var deleteCipherResult: Result<Void, Error> = .success(())
     var doesActiveAccountHavePremiumCalled = false
+    var fetchCipherOwnershipOptionsIncludePersonal: Bool? // swiftlint:disable:this identifier_name
     var fetchCipherOwnershipOptions = [CipherOwner]()
     var fetchCollectionsIncludeReadOnly: Bool?
     var fetchCollectionsResult: Result<[CollectionView], Error> = .success([])
@@ -18,6 +19,8 @@ class MockVaultRepository: VaultRepository {
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var removeAccountIds = [String?]()
+    var shareCipherResult: Result<Void, Error> = .success(())
+    var sharedCiphers = [CipherView]()
     var softDeletedCipher = [CipherView]()
     var softDeleteCipherResult: Result<Void, Error> = .success(())
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
@@ -52,8 +55,9 @@ class MockVaultRepository: VaultRepository {
         return try hasPremiumResult.get()
     }
 
-    func fetchCipherOwnershipOptions() async throws -> [CipherOwner] {
-        fetchCipherOwnershipOptions
+    func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {
+        fetchCipherOwnershipOptionsIncludePersonal = includePersonal
+        return fetchCipherOwnershipOptions
     }
 
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView] {
@@ -67,6 +71,11 @@ class MockVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
+    }
+
+    func shareCipher(_ cipher: CipherView) async throws {
+        sharedCiphers.append(cipher)
+        try shareCipherResult.get()
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {

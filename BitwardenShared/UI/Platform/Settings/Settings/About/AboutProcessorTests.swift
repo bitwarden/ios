@@ -57,6 +57,6 @@ class AboutProcessorTests: BitwardenTestCase {
         subject.receive(.versionTapped)
         let text = subject.state.copyrightText + "\n\n" + subject.state.version
         XCTAssertEqual(pasteboardService.copiedString, text)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.version))
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 }

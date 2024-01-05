@@ -32,6 +32,8 @@ class CipherServiceTests: XCTestCase {
         super.tearDown()
 
         cipherDataStore = nil
+        client = nil
+        stateService = nil
         subject = nil
     }
 
@@ -58,5 +60,33 @@ class CipherServiceTests: XCTestCase {
 
         XCTAssertEqual(cipherDataStore.replaceCiphersValue, ciphers.map(Cipher.init))
         XCTAssertEqual(cipherDataStore.replaceCiphersUserId, "1")
+    }
+
+    /// `shareCipher(_:)` shares the cipher with the organization and updates the data store.
+    func test_shareCipher() async throws {
+        client.result = .httpSuccess(testData: .cipherResponse)
+        stateService.activeAccount = .fixture()
+
+        let cipher = Cipher.fixture(collectionIds: ["1", "2"], id: "123")
+        try await subject.shareWithServer(cipher)
+
+        var cipherResponse = try CipherDetailsResponseModel(
+            response: .success(body: APITestData.cipherResponse.data)
+        )
+        cipherResponse.collectionIds = ["1", "2"]
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, Cipher(responseModel: cipherResponse))
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+    }
+
+    /// `softDeleteCipherWithServer(id:)` soft deletes the cipher item
+    /// from remote server and persisted cipher in the data store.
+    func test_softDeleteCipher() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        let cipherToDeleted = Cipher.fixture(deletedDate: .now, id: "123")
+        try await subject.softDeleteCipherWithServer(id: "123", cipherToDeleted)
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherToDeleted)
     }
 }

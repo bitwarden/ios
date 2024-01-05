@@ -35,6 +35,9 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case generator(_ type: GeneratorType, emailWebsite: String? = nil)
 
+    /// A route to the move to organization screen.
+    case moveToOrganization(CipherView)
+
     /// A route to the manual totp screen for setting up TOTP.
     ///
     case setupTotpManual

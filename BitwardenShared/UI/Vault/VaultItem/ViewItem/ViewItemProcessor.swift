@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 // MARK: - ViewItemProcessor
 
@@ -107,17 +108,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .editPressed:
             editItem()
         case let .morePressed(menuAction):
-            switch menuAction {
-            case .attachments:
-                // TODO: BIT-364
-                print("attachments")
-            case .clone:
-                // TODO: BIT-365
-                print("clone")
-            case .moveToOrganization:
-                // TODO: BIT-366
-                print("moveToOrganization")
-            }
+            handleMenuAction(menuAction)
         case .passwordVisibilityPressed:
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
@@ -133,6 +124,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
             cipherState.loginState.isPasswordVisible.toggle()
             state.loadingState = .data(cipherState)
+        case let .toastShown(newValue):
+            state.toast = newValue
         }
     }
 
@@ -200,6 +193,31 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         }
     }
 
+    /// Handles an action associated with the `VaultItemManagementMenuAction` menu.
+    ///
+    /// - Parameter action: The action that was sent from the menu.
+    ///
+    private func handleMenuAction(_ action: VaultItemManagementMenuAction) {
+        switch action {
+        case .attachments:
+            // TODO: BIT-364
+            print("attachments")
+        case .clone:
+            // TODO: BIT-365
+            print("clone")
+        case .moveToOrganization:
+            guard case let .data(cipherState) = state.loadingState,
+                  let cipherView = cipherState.configuration.existingCipherView else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                services.errorReporter.log(
+                    error: ActionError.dataNotLoaded("Cannot move cipher to organization until it's loaded.")
+                )
+                return
+            }
+            coordinator.navigate(to: .moveToOrganization(cipherView), context: self)
+        }
+    }
+
     /// Presents the master password re-prompt alert for the specified action. This method will
     /// process the action once the master password has been verified.
     ///
@@ -245,5 +263,13 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
             self?.delegate?.itemDeleted()
         })))
+    }
+}
+
+// MARK: - MoveToOrganizationProcessorDelegate
+
+extension ViewItemProcessor: MoveToOrganizationProcessorDelegate {
+    func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
+        state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
 }
