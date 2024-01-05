@@ -20,7 +20,12 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         super.setUp()
         processor = MockProcessor(state: ())
         let store = Store(processor: processor)
-        subject = VaultItemManagementMenuView(isCloneEnabled: true, store: store)
+        subject = VaultItemManagementMenuView(
+            isCloneEnabled: true,
+            isCollectionsEnabled: true,
+            isMoveToOrganizationEnabled: true,
+            store: store
+        )
     }
 
     override func tearDown() {
@@ -43,6 +48,13 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.clone)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .clone)
+    }
+
+    /// Tapping the attachments option dispatches the `.clone` action.
+    func test_collectionsOption_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.collections)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .editCollections)
     }
 
     /// Tapping the delete option performs the `.deleteItem` effect.

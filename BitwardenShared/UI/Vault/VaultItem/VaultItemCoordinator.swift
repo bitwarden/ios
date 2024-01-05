@@ -29,11 +29,6 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// The stack navigator that is managed by this coordinator.
     var stackNavigator: StackNavigator
 
-    // MARK: Private Properties
-
-    /// The coordinator currently being displayed.
-    private var childCoordinator: AnyObject?
-
     // MARK: Initialization
 
     /// Creates a new `VaultCoordinator`.
@@ -63,8 +58,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             stackNavigator.dismiss(animated: true, completion: {
                 onDismiss?.action()
             })
+        case let .editCollections(cipher):
+            showEditCollections(cipher: cipher, delegate: context as? EditCollectionsProcessorDelegate)
         case let .editItem(cipher: cipher):
-            showEditItem(for: cipher, context: context)
+            showEditItem(for: cipher)
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
@@ -95,6 +92,22 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
+    /// Present a child `VaultItemCoordinator` on top of the existing coordinator.
+    ///
+    /// Presenting a view on top of an already presented view within the same coordinator causes
+    /// problems when dismissing only the top view. So instead, present a new coordinator and
+    /// show the view to navigate to within that coordinator's navigator.
+    ///
+    /// - Parameter route: The route to navigate to in the presented coordinator.
+    ///
+    private func presentChildVaultItemCoordinator(route: VaultItemRoute) {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: route)
+        coordinator.start()
+        stackNavigator.present(navigationController)
+    }
+
     /// Shows the add item screen.
     ///
     /// - Parameter type: An optional `CipherType` to initialize this view with.
@@ -115,16 +128,30 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         }
     }
 
+    /// Shows the move to organization screen.
+    ///
+    private func showEditCollections(cipher: CipherView, delegate: EditCollectionsProcessorDelegate?) {
+        let processor = EditCollectionsProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: EditCollectionsState(cipher: cipher)
+        )
+        let view = EditCollectionsView(store: Store(processor: processor))
+        let hostingController = UIHostingController(rootView: view)
+        stackNavigator.present(UINavigationController(rootViewController: hostingController))
+    }
+
     /// Shows the edit item screen.
     ///
     /// - Parameter cipherView: A `CipherView` to initialize this view with.
     ///
-    private func showEditItem(for cipherView: CipherView, context: AnyObject?) {
+    private func showEditItem(for cipherView: CipherView) {
         Task {
             let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
                 ?? false
             guard let state = CipherItemState(existing: cipherView, hasPremium: hasPremium) else { return }
-            if context is VaultItemCoordinator {
+            if stackNavigator.isEmpty {
                 let processor = AddEditItemProcessor(
                     coordinator: asAnyCoordinator(),
                     services: services,
@@ -134,11 +161,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
                 let view = AddEditItemView(store: store)
                 stackNavigator.replace(view)
             } else {
-                let navigationController = UINavigationController()
-                let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
-                coordinator.start()
-                coordinator.navigate(to: .editItem(cipher: cipherView), context: self)
-                stackNavigator.present(navigationController)
+                presentChildVaultItemCoordinator(route: .editItem(cipher: cipherView))
             }
         }
     }

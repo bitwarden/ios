@@ -91,7 +91,10 @@ struct AddEditItemView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     VaultItemManagementMenuView(
-                        isCloneEnabled: false, store: store.child(
+                        isCloneEnabled: false,
+                        isCollectionsEnabled: store.state.cipher.organizationId != nil,
+                        isMoveToOrganizationEnabled: store.state.cipher.organizationId == nil,
+                        store: store.child(
                             state: { _ in },
                             mapAction: { .morePressed($0) },
                             mapEffect: { _ in .deletePressed }
