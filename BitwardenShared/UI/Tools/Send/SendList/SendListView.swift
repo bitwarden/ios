@@ -138,10 +138,8 @@ struct SendListView: View {
                     .buttonStyle(.toolbar)
                 }
 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    AddItemButton {
-                        store.send(.addItemPressed)
-                    }
+                addToolbarItem {
+                    store.send(.addItemPressed)
                 }
             }
             .task { await store.perform(.appeared) }
@@ -180,7 +178,7 @@ struct SendListView_Previews: PreviewProvider {
                                         SendListItem(
                                             id: "12",
                                             itemType: .group(.file, 1)
-                                        )
+                                        ),
                                     ],
                                     name: "Types"
                                 ),
@@ -189,27 +187,63 @@ struct SendListView_Previews: PreviewProvider {
                                     isCountDisplayed: true,
                                     items: [
                                         SendListItem(
-                                            sendListView: .init(
+                                            sendView: .init(
                                                 id: "21",
                                                 accessId: "21",
                                                 name: "File Send",
+                                                notes: nil,
+                                                key: "",
+                                                password: nil,
                                                 type: .file,
+                                                file: nil,
+                                                text: nil,
+                                                maxAccessCount: nil,
+                                                accessCount: 0,
                                                 disabled: false,
+                                                hideEmail: false,
                                                 revisionDate: Date(),
-                                                deletionDate: Date(),
-                                                expirationDate: Date()
+                                                deletionDate: Date().advanced(by: 100),
+                                                expirationDate: Date().advanced(by: 100)
                                             )
                                         )!,
                                         SendListItem(
-                                            sendListView: .init(
-                                                id: "21",
-                                                accessId: "21",
+                                            sendView: .init(
+                                                id: "22",
+                                                accessId: "22",
                                                 name: "Text Send",
+                                                notes: nil,
+                                                key: "",
+                                                password: nil,
                                                 type: .text,
+                                                file: nil,
+                                                text: nil,
+                                                maxAccessCount: nil,
+                                                accessCount: 0,
                                                 disabled: false,
+                                                hideEmail: false,
+                                                revisionDate: Date(),
+                                                deletionDate: Date().advanced(by: 100),
+                                                expirationDate: Date().advanced(by: 100)
+                                            )
+                                        )!,
+                                        SendListItem(
+                                            sendView: .init(
+                                                id: "23",
+                                                accessId: "23",
+                                                name: "All Statuses",
+                                                notes: nil,
+                                                key: "",
+                                                password: "password",
+                                                type: .text,
+                                                file: nil,
+                                                text: nil,
+                                                maxAccessCount: 1,
+                                                accessCount: 1,
+                                                disabled: true,
+                                                hideEmail: true,
                                                 revisionDate: Date(),
                                                 deletionDate: Date(),
-                                                expirationDate: Date()
+                                                expirationDate: Date().advanced(by: -1)
                                             )
                                         )!,
                                     ],

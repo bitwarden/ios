@@ -44,16 +44,59 @@ struct SendListItemRowView: View {
                             .padding(.vertical, 19)
 
                         switch store.state.item.itemType {
-                        case let .send(sendListView):
+                        case let .send(sendView):
                             VStack(alignment: .leading, spacing: 0) {
-                                Text(sendListView.name)
-                                    .styleGuide(.body)
-                                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                                AccessibleHStack(alignment: .leading, spacing: 8) {
+                                    Text(sendView.name)
+                                        .styleGuide(.body)
+                                        .lineLimit(1)
+                                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
 
-                                Text(sendListView.revisionDate.formatted(date: .abbreviated, time: .shortened))
+                                    HStack(spacing: 8) {
+                                        if sendView.disabled {
+                                            Asset.Images.exclamationTriangle.swiftUIImage
+                                                .resizable()
+                                                .frame(width: 16, height: 16)
+                                                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                                        }
+
+                                        if !sendView.password.isEmptyOrNil {
+                                            Asset.Images.key.swiftUIImage
+                                                .resizable()
+                                                .frame(width: 16, height: 16)
+                                                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                                        }
+
+                                        if let maxAccessCount = sendView.maxAccessCount,
+                                           sendView.accessCount >= maxAccessCount {
+                                            Asset.Images.doNot.swiftUIImage
+                                                .resizable()
+                                                .frame(width: 16, height: 16)
+                                                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                                        }
+
+                                        if let expirationDate = sendView.expirationDate, expirationDate < Date() {
+                                            Asset.Images.clock.swiftUIImage
+                                                .resizable()
+                                                .frame(width: 16, height: 16)
+                                                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                                        }
+
+                                        if sendView.deletionDate < Date() {
+                                            Asset.Images.trash.swiftUIImage
+                                                .resizable()
+                                                .frame(width: 16, height: 16)
+                                                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                                        }
+                                    }
+                                }
+
+                                Text(sendView.revisionDate.formatted(date: .abbreviated, time: .shortened))
                                     .styleGuide(.subheadline)
+                                    .lineLimit(1)
                                     .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                             }
+                            .padding(.vertical, 9)
 
                             Spacer()
 
@@ -69,7 +112,6 @@ struct SendListItemRowView: View {
                                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                         }
                     }
-                    .padding(.vertical, 9)
                 }
 
                 Menu {
@@ -92,45 +134,87 @@ struct SendListItemRowView: View {
     }
 }
 
-//#Preview {
-//    VStack {
-//        SendListItemView(
-//            action: {},
-//            item: SendListItem(id: "1", itemType: .group(.text, 42)),
-//            hasDivider: true
-//        )
-//        SendListItemView(action: {}, item: SendListItem(id: "2", itemType: .group(.file, 42)))
-//        SendListItemView(
-//            action: {},
-//            item: SendListItem(
-//                id: "3",
-//                itemType: .send(BitwardenSdk.SendListView(
-//                    id: "3",
-//                    accessId: "3",
-//                    name: "File Name",
-//                    type: .file,
-//                    disabled: false,
-//                    revisionDate: Date(),
-//                    deletionDate: Date(),
-//                    expirationDate: Date()
-//                ))
-//            )
-//        )
-//        SendListItemView(
-//            action: {},
-//            item: SendListItem(
-//                id: "4",
-//                itemType: .send(BitwardenSdk.SendListView(
-//                    id: "4",
-//                    accessId: "4",
-//                    name: "Text Name", 
-//                    type: .text,
-//                    disabled: false,
-//                    revisionDate: Date(),
-//                    deletionDate: Date(),
-//                    expirationDate: Date()
-//                ))
-//            )
-//        )
-//    }
-//}
+#Preview {
+    VStack {
+        SendListItemRowView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SendListItemRowState(
+                        item: SendListItem(id: "1", itemType: .group(.text, 42)),
+                        hasDivider: true
+                    )
+                )
+            )
+        )
+        SendListItemRowView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SendListItemRowState(
+                        item: SendListItem(id: "1", itemType: .group(.file, 42)),
+                        hasDivider: true
+                    )
+                )
+            )
+        )
+        SendListItemRowView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SendListItemRowState(
+                        item: SendListItem(
+                            id: "3",
+                            itemType: .send(.init(
+                                id: "3",
+                                accessId: "3",
+                                name: "All Statuses",
+                                notes: nil,
+                                key: "",
+                                password: "password",
+                                type: .text,
+                                file: nil,
+                                text: nil,
+                                maxAccessCount: 1,
+                                accessCount: 1,
+                                disabled: true,
+                                hideEmail: true,
+                                revisionDate: Date(),
+                                deletionDate: Date(),
+                                expirationDate: Date().advanced(by: -1)
+                            ))
+                        ),
+                        hasDivider: true
+                    )
+                )
+            )
+        )
+        SendListItemRowView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SendListItemRowState(
+                        item: SendListItem(
+                            id: "4",
+                            itemType: .send(.init(
+                                id: "4",
+                                accessId: "4",
+                                name: "No Status",
+                                notes: nil,
+                                key: "",
+                                password: nil,
+                                type: .text,
+                                file: nil,
+                                text: nil,
+                                maxAccessCount: nil,
+                                accessCount: 0,
+                                disabled: false,
+                                hideEmail: false,
+                                revisionDate: Date(),
+                                deletionDate: Date().advanced(by: 100),
+                                expirationDate: Date().advanced(by: 100)
+                            ))
+                        ),
+                        hasDivider: false
+                    )
+                )
+            )
+        )
+    }
+}

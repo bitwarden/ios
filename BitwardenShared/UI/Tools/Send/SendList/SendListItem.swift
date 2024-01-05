@@ -8,7 +8,7 @@ struct SendListItem: Equatable, Identifiable {
     /// An enumeration for the type of item being displayed by this item.
     enum ItemType: Equatable {
         /// The wrapped item is a cipher.
-        case send(BitwardenSdk.SendListView)
+        case send(BitwardenSdk.SendView)
 
         /// The wrapped item is a group of items.
         case group(SendType, Int)
@@ -28,8 +28,8 @@ extension SendListItem {
     ///
     /// - Parameter cipherListView: The `CipherListView` used to initialize the `VaultListItem`.
     ///
-    init?(sendListView: BitwardenSdk.SendListView) {
-        self.init(id: sendListView.id, itemType: .send(sendListView))
+    init?(sendView: BitwardenSdk.SendView) {
+        self.init(id: sendView.id, itemType: .send(sendView))
     }
 }
 
@@ -37,19 +37,19 @@ extension SendListItem {
     /// An image asset for this item that can be used in the UI.
     var icon: ImageAsset {
         switch itemType {
-        case let .send(sendListView):
-            switch sendListView.type {
+        case let .send(sendView):
+            switch sendView.type {
             case .file:
-                Asset.Images.doc3
-            case .text:
                 Asset.Images.doc
+            case .text:
+                Asset.Images.doc3
             }
         case let .group(group, _):
             switch group {
             case .file:
-                Asset.Images.doc3
-            case .text:
                 Asset.Images.doc
+            case .text:
+                Asset.Images.doc3
             }
         }
     }
