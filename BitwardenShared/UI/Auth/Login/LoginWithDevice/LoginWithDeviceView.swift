@@ -42,9 +42,11 @@ struct LoginWithDeviceView: View {
                 .styleGuide(.subheadline)
                 .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
 
-            Button(Localizations.viewAllLoginOptions) {}
-                .styleGuide(.subheadline)
-                .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+            Button(Localizations.viewAllLoginOptions) {
+                store.send(.dismiss)
+            }
+            .styleGuide(.subheadline)
+            .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
     }
 
