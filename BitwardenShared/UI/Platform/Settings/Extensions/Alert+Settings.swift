@@ -36,6 +36,37 @@ extension Alert {
         )
     }
 
+    /// An alert that prompts the user to enter their PIN.
+    ///
+    /// - Parameter completion: The code block that's executed when the user has entered their pin.
+    /// - Returns: An alert that prompts the user to enter their PIN.
+    ///
+    static func enterPINCode(completion: @MainActor @escaping (String) async -> Void) -> Alert {
+        Alert(
+            title: Localizations.enterPIN,
+            message: Localizations.setPINDescription,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.submit,
+                    style: .default,
+                    handler: { _, alertTextFields in
+                        guard let password = alertTextFields.first(where: { $0.id == "pin" })?.text else { return }
+                        await completion(password)
+                    }
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+            alertTextFields: [
+                AlertTextField(
+                    id: "pin",
+                    autocapitalizationType: .none,
+                    autocorrectionType: .no,
+                    keyboardType: .numberPad
+                ),
+            ]
+        )
+    }
+
     /// Confirms that the user wants to logout if their session times out.
     ///
     /// - Parameter action: The action performed when they select `Yes`.
@@ -69,37 +100,6 @@ extension Alert {
                 AlertAction(title: Localizations.yes, style: .default) { _ in
                     action()
                 },
-            ]
-        )
-    }
-
-    /// An alert that prompts the user to enter their PIN.
-    ///
-    /// - Parameter completion: The code block that's executed when the user has entered their pin.
-    /// - Returns: An alert that prompts the user to enter their PIN.
-    ///
-    static func enterPINCode(completion: @MainActor @escaping (String) async -> Void) -> Alert {
-        Alert(
-            title: Localizations.enterPIN,
-            message: Localizations.setPINDescription,
-            alertActions: [
-                AlertAction(
-                    title: Localizations.submit,
-                    style: .default,
-                    handler: { _, alertTextFields in
-                        guard let password = alertTextFields.first(where: { $0.id == "pin" })?.text else { return }
-                        await completion(password)
-                    }
-                ),
-                AlertAction(title: Localizations.cancel, style: .cancel),
-            ],
-            alertTextFields: [
-                AlertTextField(
-                    id: "pin",
-                    autocapitalizationType: .none,
-                    autocorrectionType: .no,
-                    keyboardType: .numberPad
-                ),
             ]
         )
     }
