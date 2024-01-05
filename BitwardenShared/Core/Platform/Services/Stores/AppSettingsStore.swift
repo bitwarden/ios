@@ -4,6 +4,8 @@ import OSLog
 
 // MARK: - AppSettingsStore
 
+// swiftlint:disable file_length
+
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
@@ -16,8 +18,27 @@ protocol AppSettingsStore: AnyObject {
     /// The email being remembered on the landing screen.
     var rememberedEmail: String? { get set }
 
+    /// The organization identifier being remembered on the single-sign on screen.
+    var rememberedOrgIdentifier: String? { get set }
+
     /// The app's account state.
     var state: State? { get set }
+
+    /// Whether the vault should sync on refreshing.
+    ///
+    /// - Parameter userId: The user ID associated with the sync on refresh setting.
+    ///
+    /// - Returns: Whether the vault should sync on refreshing.
+    ///
+    func allowSyncOnRefresh(userId: String) -> Bool
+
+    /// Gets the time after which the clipboard should be cleared.
+    ///
+    /// - Parameter userId: The user ID associated with the clipboard clearing time.
+    ///
+    /// - Returns: The time after which the clipboard should be cleared.
+    ///
+    func clearClipboardValue(userId: String) -> ClearClipboardValue
 
     /// Gets the encrypted private key for the user ID.
     ///
@@ -57,6 +78,24 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The username generation options for the user ID.
     ///
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
+
+    /// Whether the vault should sync on refreshing.
+    ///
+    /// - Parameters:
+    ///   - allowSyncOnRefresh: Whether the vault should sync on refreshing.
+    ///   - userId: The user ID associated with the sync on refresh setting.
+    ///
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
+
+    /// Sets the time after which the clipboard should be cleared.
+    ///
+    /// - Parameters:
+    ///   - clearClipboardValue: The time after which the clipboard should be cleared.
+    ///   - userId: The user ID associated with the clipboard clearing time.
+    ///
+    /// - Returns: The time after which the clipboard should be cleared.
+    ///
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
 
     /// Sets the encrypted private key for a user ID.
     ///
@@ -140,6 +179,24 @@ class DefaultAppSettingsStore {
 
     // MARK: Private
 
+    /// Fetches a `Bool` for the given key from `UserDefaults`.
+    ///
+    /// - Parameter key: The key used to store the value.
+    /// - Returns: The value associated with the given key.
+    ///
+    private func fetch(for key: Keys) -> Bool {
+        userDefaults.bool(forKey: key.storageKey)
+    }
+
+    /// Fetches a `Int` for the given key from `UserDefaults`.
+    ///
+    /// - Parameter key: The key used to store the value.
+    /// - Returns: The value associated with the given key.
+    ///
+    private func fetch(for key: Keys) -> Int? {
+        userDefaults.integer(forKey: key.storageKey)
+    }
+
     /// Fetches a `String` for the given key from `UserDefaults`.
     ///
     /// - Parameter key: The key used to store the value.
@@ -207,7 +264,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case allowSyncOnRefresh(userId: String)
         case appId
+        case clearClipboardValue(userId: String)
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case lastSync(userId: String)
@@ -215,6 +274,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case passwordGenerationOptions(userId: String)
         case preAuthEnvironmentUrls
         case rememberedEmail
+        case rememberedOrgIdentifier
         case state
         case usernameGenerationOptions(userId: String)
 
@@ -222,8 +282,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         var storageKey: String {
             let key: String
             switch self {
+            case let .allowSyncOnRefresh(userId):
+                key = "syncOnRefresh_\(userId)"
             case .appId:
                 key = "appId"
+            case let .clearClipboardValue(userId):
+                key = "clearClipboard_\(userId)"
             case let .encryptedUserKey(userId):
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
@@ -238,6 +302,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "preAuthEnvironmentUrls"
             case .rememberedEmail:
                 key = "rememberedEmail"
+            case .rememberedOrgIdentifier:
+                key = "rememberedOrgIdentifier"
             case .state:
                 key = "state"
             case let .usernameGenerationOptions(userId):
@@ -262,12 +328,29 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .rememberedEmail) }
     }
 
+    var rememberedOrgIdentifier: String? {
+        get { fetch(for: .rememberedOrgIdentifier) }
+        set { store(newValue, for: .rememberedOrgIdentifier) }
+    }
+
     var state: State? {
         get { fetch(for: .state) }
         set {
             activeAccountIdSubject.send(newValue?.activeUserId)
             return store(newValue, for: .state)
         }
+    }
+
+    func allowSyncOnRefresh(userId: String) -> Bool {
+        fetch(for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func clearClipboardValue(userId: String) -> ClearClipboardValue {
+        if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
+           let value = ClearClipboardValue(rawValue: rawValue) {
+            return value
+        }
+        return .never
     }
 
     func encryptedPrivateKey(userId: String) -> String? {
@@ -292,6 +375,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
+        store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
+        store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {

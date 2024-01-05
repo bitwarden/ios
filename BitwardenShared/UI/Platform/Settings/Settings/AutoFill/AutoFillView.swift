@@ -74,7 +74,9 @@ struct AutoFillView: View {
                 SettingsListItem(
                     Localizations.appExtension,
                     hasDivider: false
-                ) {}
+                ) {
+                    store.send(.appExtensionTapped)
+                }
             }
             .cornerRadius(10)
         }

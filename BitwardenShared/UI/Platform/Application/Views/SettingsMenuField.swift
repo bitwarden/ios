@@ -38,6 +38,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
                         .multilineTextAlignment(.leading)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                         .padding(.vertical, 19)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Spacer()
 
@@ -103,6 +104,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
                 options: MenuPreviewOptions.allCases,
                 selection: .constant(.bear)
             )
+
             SettingsMenuField(
                 title: "Dog",
                 options: MenuPreviewOptions.allCases,

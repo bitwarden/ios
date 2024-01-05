@@ -92,11 +92,11 @@ struct SelfHostedView: View {
         ) {
             BitwardenTextField(
                 title: Localizations.serverUrl,
-                placeholder: "ex. https://bitwarden.company.com",
                 text: store.binding(
                     get: \.serverUrl,
                     send: SelfHostedAction.serverUrlChanged
-                )
+                ),
+                placeholder: "ex. https://bitwarden.company.com"
             )
             .autocorrectionDisabled()
             .keyboardType(.URL)

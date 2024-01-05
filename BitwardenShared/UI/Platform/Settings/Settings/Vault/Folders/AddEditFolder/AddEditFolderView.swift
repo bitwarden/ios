@@ -40,7 +40,9 @@ struct AddEditFolderView: View {
             .navigationBar(title: Localizations.editFolder, titleDisplayMode: .inline)
             .toolbar {
                 moreToolbarItem {
-                    store.send(.moreTapped)
+                    AsyncButton(Localizations.delete, role: .destructive) {
+                        await store.perform(.deleteTapped)
+                    }
                 }
 
                 cancelToolbarItem {

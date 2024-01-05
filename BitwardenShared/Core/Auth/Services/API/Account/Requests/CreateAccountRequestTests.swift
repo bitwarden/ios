@@ -91,7 +91,7 @@ class CreateAccountRequestTests: BitwardenTestCase {
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
 
         XCTAssertThrowsError(try subject.validate(response)) { error in
-            XCTAssertEqual(error as? CreateAccountRequestError, .serverError(errorResponse))
+            XCTAssertEqual(error as? ServerError, .error(errorResponse: errorResponse))
         }
     }
 
@@ -122,7 +122,7 @@ class CreateAccountRequestTests: BitwardenTestCase {
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
 
         XCTAssertThrowsError(try subject.validate(response)) { error in
-            XCTAssertEqual(error as? CreateAccountRequestError, .serverError(errorResponse))
+            XCTAssertEqual(error as? ServerError, .error(errorResponse: errorResponse))
         }
     }
 

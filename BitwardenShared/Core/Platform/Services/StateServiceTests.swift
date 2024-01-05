@@ -208,6 +208,36 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(accountId, account.profile.userId)
     }
 
+    /// `allowSyncOnRefreshes()` returns the allow sync on refresh value for the active account.
+    func test_getAllowSyncOnRefresh() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.allowSyncOnRefreshes["1"] = true
+        let value = try await subject.getAllowSyncOnRefresh()
+        XCTAssertTrue(value)
+    }
+
+    /// `allowSyncOnRefreshes()` defaults to `false` if the active account doesn't have a value set.
+    func test_getAllowSyncOnRefresh_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getAllowSyncOnRefresh()
+        XCTAssertFalse(value)
+    }
+
+    /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
+    func test_getClearClipboardValue() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.clearClipboardValues["1"] = .twoMinutes
+        let value = try await subject.getClearClipboardValue()
+        XCTAssertEqual(value, .twoMinutes)
+    }
+
+    /// `getClearClipboardValue()` returns `.never` if the active account doesn't have a value set.
+    func test_getClearClipboardValue_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getClearClipboardValue()
+        XCTAssertEqual(value, .never)
+    }
+
     /// `getEnvironmentUrls()` returns the environment URLs for the active account.
     func test_getEnvironmentUrls() async throws {
         let urls = EnvironmentUrlData(base: .example)
@@ -475,6 +505,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
     }
 
+    /// `rememberedOrgIdentifier` gets and sets the value as expected.
+    func test_rememberedOrgIdentifier() {
+        // Getting the value should get the value from the app settings store.
+        appSettingsStore.rememberedOrgIdentifier = "ImALumberjack"
+        XCTAssertEqual(subject.rememberedOrgIdentifier, "ImALumberjack")
+
+        // Setting the value should update the value in the app settings store.
+        subject.rememberedOrgIdentifier = "AndImOk"
+        XCTAssertEqual(appSettingsStore.rememberedOrgIdentifier, "AndImOk")
+    }
+
     /// `setAccountEncryptionKeys(_:userId:)` sets the encryption keys for the user account.
     func test_setAccountEncryptionKeys() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -570,6 +611,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setActiveAccount(userId: "1")
         active = try await subject.getActiveAccount()
         XCTAssertEqual(active, account1)
+    }
+
+    /// `setAllowSyncOnRefresh(_:userId:)` sets the allow sync on refresh value for a user.
+    func test_setAllowSyncOnRefresh() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setAllowSyncOnRefresh(true)
+        XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
+    }
+
+    /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.
+    func test_setClearClipboardValue() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setClearClipboardValue(.thirtySeconds)
+        XCTAssertEqual(appSettingsStore.clearClipboardValues["1"], .thirtySeconds)
     }
 
     /// `setLastSyncTime(_:userId:)` sets the last sync time for a user.

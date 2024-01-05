@@ -28,6 +28,13 @@ protocol CollectionDataStore: AnyObject {
     ///
     func collectionPublisher(userId: String) -> AnyPublisher<[Collection], Error>
 
+    /// Fetches the collections that are available to the user.
+    ///
+    /// - Parameter userId: The user ID of the user associated with the collections to fetch.
+    /// - Returns: The collections that are available to the user.
+    ///
+    func fetchAllCollections(userId: String) async throws -> [Collection]
+
     /// Replaces a list of `Collection` objects for a user.
     ///
     /// - Parameters:
@@ -69,6 +76,13 @@ extension DataStore: CollectionDataStore {
         )
         .tryMap { try $0.map(Collection.init) }
         .eraseToAnyPublisher()
+    }
+
+    func fetchAllCollections(userId: String) async throws -> [Collection] {
+        try await backgroundContext.perform {
+            let fetchRequest = CollectionData.fetchByUserIdRequest(userId: userId)
+            return try self.backgroundContext.fetch(fetchRequest).map(Collection.init)
+        }
     }
 
     func replaceCollections(_ collections: [Collection], userId: String) async throws {

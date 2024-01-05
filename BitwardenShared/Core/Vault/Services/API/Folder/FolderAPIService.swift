@@ -13,6 +13,14 @@ protocol FolderAPIService {
     ///
     func addFolder(name: String) async throws -> FolderResponseModel
 
+    /// Delete a folder.
+    ///
+    /// - Parameter id: The ID of the folder to delete.
+    ///
+    /// - Returns: An `EmptyResponse`.
+    ///
+    func deleteFolder(withID id: String) async throws -> EmptyResponse
+
     /// Edit an existing folder.
     ///
     /// - Parameters:
@@ -29,6 +37,10 @@ protocol FolderAPIService {
 extension APIService: FolderAPIService {
     func addFolder(name: String) async throws -> FolderResponseModel {
         try await apiService.send(AddFolderRequest(name: name))
+    }
+
+    func deleteFolder(withID id: String) async throws -> EmptyResponse {
+        try await apiService.send(DeleteFolderRequest(id: id))
     }
 
     func editFolder(withID id: String, name: String) async throws -> FolderResponseModel {

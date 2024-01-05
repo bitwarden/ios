@@ -9,6 +9,8 @@ class MockFolderDataStore: FolderDataStore {
     var deleteFolderId: String?
     var deleteFolderUserId: String?
 
+    var fetchAllFoldersResult: Result<[Folder], Error> = .success([])
+
     var folderSubject = CurrentValueSubject<[Folder], Error>([])
 
     var replaceFoldersValue: [Folder]?
@@ -24,6 +26,10 @@ class MockFolderDataStore: FolderDataStore {
     func deleteFolder(id: String, userId: String) async throws {
         deleteFolderId = id
         deleteFolderUserId = userId
+    }
+
+    func fetchAllFolders(userId: String) async throws -> [Folder] {
+        try fetchAllFoldersResult.get()
     }
 
     func folderPublisher(userId: String) -> AnyPublisher<[Folder], Error> {

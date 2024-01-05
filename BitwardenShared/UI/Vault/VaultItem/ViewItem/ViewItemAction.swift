@@ -2,6 +2,9 @@
 
 /// Actions that can be processed by a `ViewItemProcessor`.
 enum ViewItemAction: Equatable {
+    /// A card item action
+    case cardItemAction(ViewCardItemAction)
+
     /// The check password button was pressed.
     case checkPasswordPressed
 
@@ -25,19 +28,24 @@ enum ViewItemAction: Equatable {
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
 
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// A flag indicating if this action requires the user to reenter their master password to
     /// complete. This value works hand-in-hand with the `isMasterPasswordRequired` value in
     /// `ViewItemState`.
     var requiresMasterPasswordReprompt: Bool {
         switch self {
-        case .copyPressed,
+        case .cardItemAction,
+             .copyPressed,
              .customFieldVisibilityPressed,
              .editPressed,
              .passwordVisibilityPressed:
             true
         case .checkPasswordPressed,
              .dismissPressed,
-             .morePressed:
+             .morePressed,
+             .toastShown:
             false
         }
     }

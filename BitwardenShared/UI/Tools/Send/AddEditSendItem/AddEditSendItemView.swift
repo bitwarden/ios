@@ -60,7 +60,7 @@ struct AddEditSendItemView: View {
             )
 
             if store.state.deletionDate == .custom {
-                HStack(spacing: 8) {
+                AccessibleHStack(alignment: .leading, spacing: 8) {
                     BitwardenDatePicker(
                         selection: store.binding(
                             get: \.customDeletionDate,
@@ -133,11 +133,11 @@ struct AddEditSendItemView: View {
     @ViewBuilder private var nameField: some View {
         BitwardenTextField(
             title: Localizations.name,
-            footer: Localizations.nameInfo,
             text: store.binding(
                 get: \.name,
                 send: AddEditSendItemAction.nameChanged
-            )
+            ),
+            footer: Localizations.nameInfo
         )
     }
 
@@ -179,25 +179,25 @@ struct AddEditSendItemView: View {
 
         BitwardenTextField(
             title: Localizations.newPassword,
+            text: store.binding(
+                get: \.password,
+                send: AddEditSendItemAction.passwordChanged
+            ),
             footer: Localizations.passwordInfo,
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
                 send: AddEditSendItemAction.passwordVisibileChanged
-            ),
-            text: store.binding(
-                get: \.password,
-                send: AddEditSendItemAction.passwordChanged
             )
         )
         .textFieldConfiguration(.password)
 
         BitwardenTextField(
             title: Localizations.notes,
-            footer: Localizations.notesInfo,
             text: store.binding(
                 get: \.notes,
                 send: AddEditSendItemAction.notesChanged
-            )
+            ),
+            footer: Localizations.notesInfo
         )
 
         Toggle(Localizations.hideEmail, isOn: store.binding(
@@ -244,11 +244,11 @@ struct AddEditSendItemView: View {
     @ViewBuilder private var textSendAttributes: some View {
         BitwardenTextField(
             title: Localizations.text,
-            footer: Localizations.typeTextInfo,
             text: store.binding(
                 get: \.text,
                 send: AddEditSendItemAction.textChanged
-            )
+            ),
+            footer: Localizations.typeTextInfo
         )
 
         Toggle(Localizations.hideTextByDefault, isOn: store.binding(

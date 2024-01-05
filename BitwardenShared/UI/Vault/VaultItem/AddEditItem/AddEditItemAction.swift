@@ -4,6 +4,12 @@ import BitwardenSdk
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable {
+    /// A card field changed
+    case cardFieldChanged(AddEditCardItemAction)
+
+    /// The toggle for including the item in a collection was changed.
+    case collectionToggleChanged(Bool, collectionId: String)
+
     /// The dismiss button was pressed.
     case dismissPressed
 
@@ -11,7 +17,7 @@ enum AddEditItemAction: Equatable {
     case favoriteChanged(Bool)
 
     /// The folder field was changed.
-    case folderChanged(String)
+    case folderChanged(DefaultableType<FolderView>)
 
     /// The generate password button was pressed.
     case generatePasswordPressed
@@ -41,7 +47,7 @@ enum AddEditItemAction: Equatable {
     case notesChanged(String)
 
     /// The owner field was changed.
-    case ownerChanged(String)
+    case ownerChanged(CipherOwner)
 
     /// The password field was changed.
     case passwordChanged(String)

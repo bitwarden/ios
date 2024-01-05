@@ -73,7 +73,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     ///
     private func refreshVaultGroup() async {
         do {
-            try await services.vaultRepository.fetchSync()
+            try await services.vaultRepository.fetchSync(isManualRefresh: true)
         } catch {
             // TODO: BIT-1034 Add an error alert
             print(error)

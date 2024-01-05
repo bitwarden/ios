@@ -486,6 +486,8 @@ extension BitwardenSdk.Collection {
     }
 }
 
+extension BitwardenSdk.CollectionView: @unchecked Sendable {}
+
 // MARK: - Folders (BitwardenSdk)
 
 extension BitwardenSdk.Folder {
@@ -508,5 +510,15 @@ extension BitwardenSdk.Folder {
             name: name,
             revisionDate: revisionDate
         )
+    }
+}
+
+extension BitwardenSdk.FolderView: Menuable, @unchecked Sendable {
+    static var defaultValueLocalizedName: String {
+        Localizations.folderNone
+    }
+
+    var localizedName: String {
+        name
     }
 }

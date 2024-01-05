@@ -111,6 +111,18 @@ struct AccountSecurityView: View {
                     )
                 )
 
+                if store.state.isShowingCustomTimeout {
+                    SettingsPickerField(
+                        title: Localizations.custom,
+                        customTimeoutValue: store.state.customTimeoutString,
+                        pickerValue: store.binding(
+                            get: \.customSessionTimeoutValue,
+                            send: AccountSecurityAction.setCustomSessionTimeoutValue
+                        ),
+                        customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel
+                    )
+                }
+
                 SettingsMenuField(
                     title: Localizations.sessionTimeoutAction,
                     options: SessionTimeoutAction.allCases,
@@ -159,7 +171,6 @@ struct AccountSecurityView: View {
                     Text(Localizations.unlockWithPIN)
                 }
                 .toggleStyle(.bitwarden)
-                .styleGuide(.body)
             }
         }
     }

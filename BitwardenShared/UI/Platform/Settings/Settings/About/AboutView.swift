@@ -22,13 +22,17 @@ struct AboutView: View {
         }
         .scrollView()
         .navigationBar(title: Localizations.about, titleDisplayMode: .inline)
+        .toast(store.binding(
+            get: \.toast,
+            send: AboutAction.toastShown
+        ))
     }
 
     // MARK: Private views
 
     /// The copyright notice.
     private var copyrightNotice: some View {
-        Text("© Bitwarden Inc. 2015-\(store.state.currentYear)")
+        Text(store.state.copyrightText)
             .styleGuide(.caption2)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .multilineTextAlignment(.center)
@@ -54,7 +58,7 @@ struct AboutView: View {
                     .frame(width: 22, height: 22)
             }
 
-            SettingsListItem(Localizations.version + store.state.version) {
+            SettingsListItem(store.state.version, hasDivider: false) {
                 store.send(.versionTapped)
             } trailingContent: {
                 Image(asset: Asset.Images.copy)
@@ -77,4 +81,10 @@ struct AboutView: View {
         .styleGuide(.body)
         .padding(.top, 20)
     }
+}
+
+// MARK: - Previews
+
+#Preview {
+    AboutView(store: Store(processor: StateProcessor(state: AboutState())))
 }

@@ -8,7 +8,7 @@ struct ExportVaultView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ExportVaultState, ExportVaultAction, ExportVaultEffect>
+    @ObservedObject var store: Store<ExportVaultState, ExportVaultAction, Void>
 
     // MARK: View
 
@@ -34,7 +34,7 @@ struct ExportVaultView: View {
     /// The button to export the vault.
     private var exportVaultButton: some View {
         Button(Localizations.exportVault) {
-            // TODO: BIT-449
+            store.send(.exportVaultTapped)
         }
         .buttonStyle(.tertiary())
     }
@@ -54,18 +54,18 @@ struct ExportVaultView: View {
     /// The password text field.
     private var passwordField: some View {
         BitwardenTextField(
-            accessibilityIdentifier: "MasterPasswordEntry",
             title: Localizations.masterPassword,
+            text: store.binding(
+                get: \.passwordText,
+                send: ExportVaultAction.passwordTextChanged
+            ),
             footer: Localizations.exportVaultMasterPasswordDescription,
+            accessibilityIdentifier: "MasterPasswordEntry",
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
                 send: ExportVaultAction.togglePasswordVisibility
             ),
-            passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
-            text: store.binding(
-                get: \.passwordText,
-                send: ExportVaultAction.passwordTextChanged
-            )
+            passwordVisibilityAccessibilityId: "PasswordVisibilityToggle"
         )
         .textFieldConfiguration(.password)
     }

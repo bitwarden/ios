@@ -7,7 +7,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraService: MockCameraService!
-    var coordinator: MockCoordinator<ScanCodeRoute>!
+    var coordinator: MockCoordinator<AuthenticatorKeyCaptureRoute>!
     var errorReporter: MockErrorReporter!
     var subject: ScanCodeProcessor!
 
@@ -42,7 +42,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     func test_perform_appeared_failure() async {
         cameraService.deviceHasCamera = false
         await subject.perform(.appeared)
-        XCTAssertEqual(coordinator.routes, [.setupTotpManual])
+        XCTAssertEqual(coordinator.routes, [.manualKeyEntry])
     }
 
     /// `perform()` with `.appeared` sets up the camera observation and responds to QR code scans
@@ -65,7 +65,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
         cameraService.deviceHasCamera = false
         await subject.perform(.appeared)
         XCTAssertFalse(cameraService.didStart)
-        XCTAssertEqual(coordinator.routes, [.setupTotpManual])
+        XCTAssertEqual(coordinator.routes, [.manualKeyEntry])
     }
 
     /// `perform()` with `.disappeared` stops the camera.
@@ -77,12 +77,12 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     /// `receive()` with `.dismissPressed` navigates to dismiss.
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
-    /// `receive()` with `.manualEntryPressed` navigates to dismiss.
+    /// `receive()` with `.manualEntryPressed` navigates to `.setupTotpManual`.
     func test_receive_manualEntryPressed() async {
         subject.receive(.manualEntryPressed)
-        XCTAssertEqual(coordinator.routes, [.setupTotpManual])
+        XCTAssertEqual(coordinator.routes, [.manualKeyEntry])
     }
 }
