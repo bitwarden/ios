@@ -10,6 +10,12 @@ struct VaultItemManagementMenuView: View {
     /// The flag for showing/hiding clone option
     let isCloneEnabled: Bool
 
+    /// The flag for whether to show the collections options.
+    let isCollectionsEnabled: Bool
+
+    /// The flag for whether to show the move to organization options.
+    let isMoveToOrganizationEnabled: Bool
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<Void, VaultItemManagementMenuAction, VaultItemManagementMenuEffect>
 
@@ -25,8 +31,16 @@ struct VaultItemManagementMenuView: View {
                 }
             }
 
-            Button(Localizations.moveToOrganization) {
-                store.send(.moveToOrganization)
+            if isCollectionsEnabled {
+                Button(Localizations.collections) {
+                    store.send(.editCollections)
+                }
+            }
+
+            if isMoveToOrganizationEnabled {
+                Button(Localizations.moveToOrganization) {
+                    store.send(.moveToOrganization)
+                }
             }
 
             AsyncButton(Localizations.delete, role: .destructive) {
@@ -44,7 +58,10 @@ struct VaultItemManagementMenuView: View {
 
 #Preview {
     VaultItemManagementMenuView(
-        isCloneEnabled: true, store: Store(
+        isCloneEnabled: true,
+        isCollectionsEnabled: true,
+        isMoveToOrganizationEnabled: true,
+        store: Store(
             processor: StateProcessor(
                 state: ()
             )
