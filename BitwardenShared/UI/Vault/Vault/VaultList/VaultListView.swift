@@ -255,6 +255,9 @@ struct VaultListView: View {
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: Localizations.search
                 )
+                .task(id: store.state.searchText, {
+                    await store.perform(.search(store.state.searchText))
+                })
                 .refreshable {
                     await store.perform(.refreshVault)
                 }

@@ -56,6 +56,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             await refreshProfileState()
         case .refreshVault:
             await refreshVault(isManualRefresh: true)
+        case let .search(text):
+            state.searchResults = await searchVault(for: text)
         case .streamOrganizations:
             for await organizations in services.vaultRepository.organizationsPublisher() {
                 state.organizations = organizations
@@ -100,7 +102,6 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
-            state.searchResults = searchVault(for: newValue)
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }
@@ -165,7 +166,27 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     /// - Parameter searchText: The string to use when searching the vault.
     /// - Returns: An array of `VaultListItem`s. If no results can be found, an empty array will be returned.
     ///
-    private func searchVault(for searchText: String) -> [VaultListItem] {
+    private func searchVault(for searchText: String) async -> [VaultListItem] {
+        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return []
+        }
+        print("searching:\(searchText)")
+        do {
+            var items: [VaultListItem] = []
+            for try await ciphers in try await services.vaultRepository.cipherPublisher(searchText: searchText) {
+                for cipher in ciphers {
+                    if let item = VaultListItem(
+                        cipherListView: cipher
+                    ) {
+                        items.append(item)
+                    }
+                }
+                return items
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+
         // TODO: BIT-628 Actually search the vault for the provided string.
         if "example".contains(searchText.lowercased()) {
             return [

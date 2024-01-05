@@ -22,6 +22,13 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// A publisher for a user's cipher objects.
+    ///
+    /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
+    /// - Returns: A publisher for the user's ciphers.
+    ///
+    func cipherPublisher(searchText: String) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>>
+
     /// Validates the user's active account has access to premium features.
     ///
     /// - Returns: Whether the active account has premium.
@@ -108,6 +115,9 @@ class DefaultVaultRepository {
     /// The API service used to perform API requests for the ciphers in a user's vault.
     let cipherAPIService: CipherAPIService
 
+    /// The API service used to perform API requests for the ciphers in a user's vault.
+    let cipherService: CipherService
+
     /// The client used by the application to handle auth related encryption and decryption tasks.
     let clientAuth: ClientAuthProtocol
 
@@ -141,6 +151,7 @@ class DefaultVaultRepository {
     ///
     /// - Parameters:
     ///   - cipherAPIService: The API service used to perform API requests for the ciphers in a user's vault.
+    ///   - cipherService: The  service used to perform  requests for the ciphers in a user's vault.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
@@ -153,6 +164,7 @@ class DefaultVaultRepository {
     ///
     init(
         cipherAPIService: CipherAPIService,
+        cipherService: CipherService,
         clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
         clientVault: ClientVaultService,
@@ -164,6 +176,7 @@ class DefaultVaultRepository {
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.cipherAPIService = cipherAPIService
+        self.cipherService = cipherService
         self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
         self.clientVault = clientVault
@@ -308,6 +321,20 @@ extension DefaultVaultRepository: VaultRepository {
         }
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync(isManualRefresh: false)
+    }
+
+    // swiftlint:disable:next line_length
+    func cipherPublisher(searchText: String) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>> {
+        let userId = try await stateService.getActiveAccountId()
+        let searchTerm = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let ciphers = cipherService.cipherPublisher(userId: userId).asyncTryMap { ciphers -> [CipherListView] in
+            let decryptedCiphers = try await self.clientVault.ciphers()
+                .decryptList(ciphers: ciphers)
+            return decryptedCiphers
+                .filter { $0.name.lowercased().contains(searchTerm) }
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        }.eraseToAnyPublisher().values
+        return ciphers
     }
 
     func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {

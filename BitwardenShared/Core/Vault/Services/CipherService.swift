@@ -1,10 +1,18 @@
 import BitwardenSdk
+import Combine
 
 // MARK: - CipherService
 
 /// A protocol for a `CipherService` which manages syncing and updates to the user's ciphers.
 ///
 protocol CipherService {
+    /// A publisher for a user's cipher objects.
+    ///
+    /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
+    /// - Returns: A publisher for the user's ciphers.
+    ///
+    func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error>
+
     /// Replaces the persisted list of ciphers for the user.
     ///
     /// - Parameters:
@@ -40,6 +48,10 @@ class DefaultCipherService: CipherService {
 }
 
 extension DefaultCipherService {
+    func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error> {
+        cipherDataStore.cipherPublisher(userId: userId)
+    }
+
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
         try await cipherDataStore.replaceCiphers(ciphers.map(Cipher.init), userId: userId)
     }
