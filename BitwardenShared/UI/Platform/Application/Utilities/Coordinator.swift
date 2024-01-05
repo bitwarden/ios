@@ -73,8 +73,8 @@ public extension Coordinator {
     ///     - route: The specific `Route` to navigate to.
     ///     - context: An object representing the context where the navigation occurred.
     ///
-    func navigate(to route: Route, context: AnyObject? = nil) {
-        navigate(to: route, context: context)
+    func navigate(to route: Route) {
+        navigate(to: route, context: nil)
     }
 
     /// Navigate to the screen associated with the given `Route` asynchronously without context.

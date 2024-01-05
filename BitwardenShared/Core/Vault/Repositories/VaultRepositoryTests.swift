@@ -431,11 +431,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         client.result = .httpSuccess(testData: APITestData(data: Data()))
         stateService.accounts = [.fixtureAccountLogin()]
         stateService.activeAccount = .fixtureAccountLogin()
-        let cipherView: CipherView = .fixture(deletedDate: .now, id: "123")
+        let cipherView: CipherView = .fixture(id: "123")
         cipherService.softDeleteWithServerResult = .success(())
         try await subject.softDeleteCipher(cipherView)
-        let cipher = try await subject.clientVault.ciphers().encrypt(cipherView: cipherView)
-        XCTAssertEqual(cipherService.softDeleteCipher, cipher)
+        XCTAssertNil(cipherView.deletedDate)
+        XCTAssertNotNil(cipherService.softDeleteCipher?.deletedDate)
         XCTAssertEqual(cipherService.softDeleteCipherId, "123")
     }
 

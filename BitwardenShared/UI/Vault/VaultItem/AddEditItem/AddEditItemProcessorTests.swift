@@ -201,12 +201,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is deleted and the view is dismissed.
-        let deletedCipher: CipherView = .fixture(deletedDate: .now, id: "123")
-        XCTAssertEqual(vaultRepository.softDeletedCipher.last?.id, deletedCipher.id)
+        let deletedCipher: CipherView = .fixture(id: "123")
         XCTAssertEqual(
-            try XCTUnwrap(vaultRepository.softDeletedCipher.last?.deletedDate).timeIntervalSince1970,
-            try XCTUnwrap(deletedCipher.deletedDate).timeIntervalSince1970,
-            accuracy: 1
+            vaultRepository.softDeletedCipher.last?.id,
+            deletedCipher.id
+        )
+        XCTAssertEqual(
+            vaultRepository.softDeletedCipher.last,
+            deletedCipher
         )
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = coordinator.routes.last {

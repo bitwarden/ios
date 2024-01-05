@@ -88,7 +88,7 @@ extension DefaultCipherService {
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
     }
 
-    func softDeleteCipherWithServer(id: String, _ cipher: Cipher) async throws {
+    func softDeleteCipherWithServer(id: String, _ cipher: BitwardenSdk.Cipher) async throws {
         let userID = try await stateService.getActiveAccountId()
 
         // Soft delete cipher from backend.

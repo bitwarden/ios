@@ -284,11 +284,4 @@ extension CipherItemState {
             revisionDate: creationDate
         )
     }
-
-    /// Returns a `CipherView` based on current state and adds deletion date.
-    func softDeletedCipherView() -> CipherView {
-        var softDeletedState = self
-        softDeletedState.deletedDate = .now
-        return cipher.updatedView(with: softDeletedState)
-    }
 }

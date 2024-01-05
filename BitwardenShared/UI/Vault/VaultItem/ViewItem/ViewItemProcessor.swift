@@ -250,7 +250,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         }
         let alert = Alert.deleteCipherConfirmation { [weak self] in
             guard let self else { return }
-            await deleteItem(cipherState.softDeletedCipherView())
+            await deleteItem(cipherState.cipher)
         }
         coordinator.showAlert(alert)
     }

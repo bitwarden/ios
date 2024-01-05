@@ -354,13 +354,10 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(title: Localizations.softDeleting)
-            state.deletedDate = .now
-            if let updatedCipher = state.configuration.existingCipherView?.updatedView(with: state) {
-                try await services.vaultRepository.softDeleteCipher(updatedCipher)
-                coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                    self?.delegate?.itemDeleted()
-                })))
-            }
+            try await services.vaultRepository.softDeleteCipher(state.cipher)
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemDeleted()
+            })))
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
