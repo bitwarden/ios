@@ -82,7 +82,7 @@ extension DataStore: SendDataStore {
 
     func upsertSend(_ send: Send, userId: String) async throws {
         try await backgroundContext.performAndSave {
-            _ = SendData(context: self.backgroundContext, userId: userId, send: send)
+            _ = try SendData(context: self.backgroundContext, userId: userId, send: send)
         }
     }
 }

@@ -38,13 +38,15 @@ struct MoveToOrganizationView: View {
     private var collectionsSections: some View {
         SectionView(Localizations.collections) {
             ForEach(store.state.collectionsForOwner, id: \.id) { collection in
-                Toggle(isOn: store.binding(
-                    get: { _ in store.state.collectionIds.contains(collection.id) },
-                    send: { .collectionToggleChanged($0, collectionId: collection.id) }
-                )) {
-                    Text(collection.name)
+                if let collectionId = collection.id {
+                    Toggle(isOn: store.binding(
+                        get: { _ in store.state.collectionIds.contains(collectionId) },
+                        send: { .collectionToggleChanged($0, collectionId: collectionId) }
+                    )) {
+                        Text(collection.name)
+                    }
+                    .toggleStyle(.bitwarden)
                 }
-                .toggleStyle(.bitwarden)
             }
         }
     }

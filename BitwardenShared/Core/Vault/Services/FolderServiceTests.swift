@@ -78,7 +78,7 @@ class FolderServiceTests: XCTestCase {
             revisionDate: Date(year: 2023, month: 12, day: 25)
         )
 
-        try await subject.editFolderWithServer(id: folder.id, name: folder.name)
+        try await subject.editFolderWithServer(id: XCTUnwrap(folder.id), name: folder.name)
 
         XCTAssertEqual(folderDataStore.upsertFolderUserId, Account.fixtureAccountLogin().profile.userId)
         XCTAssertEqual(folderDataStore.upsertFolderValue, folder)

@@ -5,6 +5,12 @@ import BitwardenSdk
 /// A protocol for a `CipherService` which manages syncing and updates to the user's ciphers.
 ///
 protocol CipherService {
+    /// Deletes a cipher for the current user both in the backend and in local storage..
+    ///
+    /// - Parameter id: The id of cipher item to be deleted.
+    ///
+    func deleteCipherWithServer(id: String) async throws
+
     /// Replaces the persisted list of ciphers for the user.
     ///
     /// - Parameters:
@@ -18,6 +24,12 @@ protocol CipherService {
     /// - Parameter cipher: The cipher to share.
     ///
     func shareWithServer(_ cipher: Cipher) async throws
+
+    /// soft deletes a cipher for the current user both in the backend and in local storage..
+    ///
+    /// - Parameter cipher: The  cipher item to be soft deleted.
+    ///
+    func softDeleteCipherWithServer(id: String, _ cipher: Cipher) async throws
 }
 
 // MARK: - DefaultCipherService
@@ -55,6 +67,16 @@ class DefaultCipherService: CipherService {
 }
 
 extension DefaultCipherService {
+    func deleteCipherWithServer(id: String) async throws {
+        let userID = try await stateService.getActiveAccountId()
+
+        // Delete cipher from backend.
+        _ = try await cipherAPIService.deleteCipher(withID: id)
+
+        // Delete cipher from local storage
+        try await cipherDataStore.deleteCipher(id: id, userId: userID)
+    }
+
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
         try await cipherDataStore.replaceCiphers(ciphers.map(Cipher.init), userId: userId)
     }
@@ -64,5 +86,15 @@ extension DefaultCipherService {
         var response = try await cipherAPIService.shareCipher(cipher)
         response.collectionIds = cipher.collectionIds
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
+    }
+
+    func softDeleteCipherWithServer(id: String, _ cipher: BitwardenSdk.Cipher) async throws {
+        let userID = try await stateService.getActiveAccountId()
+
+        // Soft delete cipher from backend.
+        _ = try await cipherAPIService.softDeleteCipher(withID: id)
+
+        // Soft delete cipher from local storage
+        try await cipherDataStore.upsertCipher(cipher, userId: userID)
     }
 }

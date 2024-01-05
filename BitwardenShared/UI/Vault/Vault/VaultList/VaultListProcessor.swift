@@ -57,9 +57,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .refreshVault:
             await refreshVault(isManualRefresh: true)
         case .streamOrganizations:
-            for await organizations in services.vaultRepository.organizationsPublisher() {
-                state.organizations = organizations
-            }
+            await streamOrganizations()
         case .streamVaultList:
             for await value in services.vaultRepository.vaultListPublisher(filter: state.vaultFilterType) {
                 state.loadingState = .data(value)
@@ -75,7 +73,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
-                coordinator.navigate(to: .viewItem(id: item.id))
+                coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
             case let .totp(id: id, _, _):
@@ -103,6 +101,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .searchTextChanged(newValue):
             state.searchText = newValue
             state.searchResults = searchVault(for: newValue)
+        case let .toastShown(newValue):
+            state.toast = newValue
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }
@@ -201,5 +201,25 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             state.profileSwitcherState.hasSetAccessibilityFocus = false
         }
         state.profileSwitcherState.isVisible = visible
+    }
+
+    /// Streams the user's organizations.
+    ///
+    private func streamOrganizations() async {
+        do {
+            for try await organizations in try await services.vaultRepository.organizationsPublisher() {
+                state.organizations = organizations
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+}
+
+// MARK: - CipherItemOperationDelegate
+
+extension VaultListProcessor: CipherItemOperationDelegate {
+    func itemDeleted() {
+        state.toast = Toast(text: Localizations.itemSoftDeleted)
     }
 }

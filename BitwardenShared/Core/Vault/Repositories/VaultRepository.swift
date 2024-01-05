@@ -22,6 +22,12 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Delete a cipher from the user's vault.
+    ///
+    /// - Parameter id: The cipher id that to be deleted.
+    ///
+    func deleteCipher(_ id: String) async throws
+
     /// Validates the user's active account has access to premium features.
     ///
     /// - Returns: Whether the active account has premium.
@@ -60,6 +66,12 @@ protocol VaultRepository: AnyObject {
     ///
     func shareCipher(_ cipher: CipherView) async throws
 
+    /// Soft delete a cipher from the user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is soft deleting.
+    ///
+    func softDeleteCipher(_ cipher: CipherView) async throws
+
     /// Updates a cipher in the user's vault.
     ///
     /// - Parameter cipher: The cipher that the user is updating.
@@ -87,7 +99,7 @@ protocol VaultRepository: AnyObject {
     ///
     /// - Returns: A publisher for the list of organizations the user is a member of.
     ///
-    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>>
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>>
 
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
@@ -135,6 +147,9 @@ class DefaultVaultRepository {
     /// The service used to manage syncing and updates to the user's folders.
     let folderService: FolderService
 
+    /// The service used to manage syncing and updates to the user's organizations.
+    let organizationService: OrganizationService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -157,6 +172,7 @@ class DefaultVaultRepository {
     ///   - collectionService: The service for managing the collections for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
+    ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -170,6 +186,7 @@ class DefaultVaultRepository {
         collectionService: CollectionService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
+        organizationService: OrganizationService,
         stateService: StateService,
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
@@ -182,6 +199,7 @@ class DefaultVaultRepository {
         self.collectionService = collectionService
         self.errorReporter = errorReporter
         self.folderService = folderService
+        self.organizationService = organizationService
         self.stateService = stateService
         self.syncService = syncService
         self.vaultTimeoutService = vaultTimeoutService
@@ -325,19 +343,31 @@ class DefaultVaultRepository {
             ),
         ] : []
 
-        let folderItems = folders.map { folder in
-            let cipherCount = activeCiphers.lazy.filter { $0.folderId == folder.id }.count
+        let folderItems: [VaultListItem] = folders.compactMap { folder in
+            guard let folderId = folder.id else {
+                self.errorReporter.log(
+                    error: BitwardenError.dataError("Received a folder from the API with a missing ID.")
+                )
+                return nil
+            }
+            let cipherCount = activeCiphers.lazy.filter { $0.folderId == folderId }.count
             return VaultListItem(
-                id: folder.id,
-                itemType: .group(.folder(id: folder.id, name: folder.name), cipherCount)
+                id: folderId,
+                itemType: .group(.folder(id: folderId, name: folder.name), cipherCount)
             )
         }
 
-        let collectionItems = collections.map { collection in
-            let collectionCount = activeCiphers.lazy.filter { $0.collectionIds.contains(collection.id) }.count
+        let collectionItems: [VaultListItem] = collections.compactMap { collection in
+            guard let collectionId = collection.id else {
+                self.errorReporter.log(
+                    error: BitwardenError.dataError("Received a collection from the API with a missing ID.")
+                )
+                return nil
+            }
+            let collectionCount = activeCiphers.lazy.filter { $0.collectionIds.contains(collectionId) }.count
             return VaultListItem(
-                id: collection.id,
-                itemType: .group(.collection(id: collection.id, name: collection.name), collectionCount)
+                id: collectionId,
+                itemType: .group(.collection(id: collectionId, name: collection.name), collectionCount)
             )
         }
 
@@ -390,13 +420,12 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {
-        let organizations = syncService.organizations()
-        let organizationOwners: [CipherOwner] = organizations?
+        let organizations = try await organizationService.fetchAllOrganizations()
+        let organizationOwners: [CipherOwner] = organizations
             .filter { $0.enabled && $0.status == .confirmed }
-            .compactMap { organization in
-                guard let name = organization.name else { return nil }
-                return CipherOwner.organization(id: organization.id, name: name)
-            } ?? []
+            .map { organization in
+                CipherOwner.organization(id: organization.id, name: organization.name)
+            }
 
         if includePersonal {
             let email = try await stateService.getActiveAccount().profile.email
@@ -412,6 +441,10 @@ extension DefaultVaultRepository: VaultRepository {
         return try await clientVault.collections()
             .decryptList(collections: collections)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    func deleteCipher(_ id: String) async throws {
+        try await cipherService.deleteCipherWithServer(id: id)
     }
 
     func fetchFolders() async throws -> [FolderView] {
@@ -435,6 +468,38 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.shareWithServer(encryptedCipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync(isManualRefresh: false)
+    }
+
+    func softDeleteCipher(_ cipher: CipherView) async throws {
+        guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        let softDeletedCipher = CipherView(
+            id: cipher.id,
+            organizationId: cipher.organizationId,
+            folderId: cipher.folderId,
+            collectionIds: cipher.collectionIds,
+            key: cipher.key,
+            name: cipher.name,
+            notes: cipher.notes,
+            type: cipher.type,
+            login: cipher.login,
+            identity: cipher.identity,
+            card: cipher.card,
+            secureNote: cipher.secureNote,
+            favorite: cipher.favorite,
+            reprompt: cipher.reprompt,
+            organizationUseTotp: cipher.organizationUseTotp,
+            edit: cipher.edit,
+            viewPassword: cipher.viewPassword,
+            localData: cipher.localData,
+            attachments: cipher.attachments,
+            fields: cipher.fields,
+            passwordHistory: cipher.passwordHistory,
+            creationDate: cipher.creationDate,
+            deletedDate: .now,
+            revisionDate: cipher.revisionDate
+        )
+        let encryptCipher = try await clientVault.ciphers().encrypt(cipherView: softDeletedCipher)
+        try await cipherService.softDeleteCipherWithServer(id: id, encryptCipher)
     }
 
     func updateCipher(_ updatedCipherView: CipherView) async throws {
@@ -463,13 +528,8 @@ extension DefaultVaultRepository: VaultRepository {
             .values
     }
 
-    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>> {
-        syncService.syncResponsePublisher()
-            .compactMap { response in
-                response?.profile?.organizations?.compactMap(Organization.init)
-            }
-            .eraseToAnyPublisher()
-            .values
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
+        try await organizationService.organizationsPublisher().eraseToAnyPublisher().values
     }
 
     func vaultListPublisher(filter: VaultFilterType) -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>> {

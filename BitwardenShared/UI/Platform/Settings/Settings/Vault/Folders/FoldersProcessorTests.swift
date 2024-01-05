@@ -97,11 +97,11 @@ class FoldersProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.folderTapped(id:)` navigates to the edit folder screen.
-    func test_receive_folderTapped() {
+    func test_receive_folderTapped() throws {
         let folder = FolderView.fixture()
         subject.state.folders = [folder]
 
-        subject.receive(.folderTapped(id: folder.id))
+        try subject.receive(.folderTapped(id: XCTUnwrap(folder.id)))
 
         XCTAssertEqual(coordinator.routes.last, .addEditFolder(folder: folder))
     }

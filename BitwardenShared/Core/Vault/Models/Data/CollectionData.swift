@@ -31,10 +31,10 @@ class CollectionData: NSManagedObject, ManagedUserObject, CodableModelData {
         context: NSManagedObjectContext,
         userId: String,
         collection: Collection
-    ) {
+    ) throws {
         self.init(context: context)
         id = collection.id
-        model = CollectionDetailsResponseModel(collection: collection)
+        model = try CollectionDetailsResponseModel(collection: collection)
         self.userId = userId
     }
 
@@ -46,9 +46,9 @@ class CollectionData: NSManagedObject, ManagedUserObject, CodableModelData {
     ///   - collection: The `Collection` object used to update the `CollectionData` instance.
     ///   - userId: The user ID associated with the collection.
     ///
-    func update(with collection: Collection, userId: String) {
+    func update(with collection: Collection, userId: String) throws {
         id = collection.id
-        model = CollectionDetailsResponseModel(collection: collection)
+        model = try CollectionDetailsResponseModel(collection: collection)
         self.userId = userId
     }
 }

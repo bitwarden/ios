@@ -115,8 +115,8 @@ class VaultListProcessorTests: BitwardenTestCase {
         }
 
         let organizations = [
-            Organization(id: "1", name: "Organization1"),
-            Organization(id: "2", name: "Organization2"),
+            Organization.fixture(id: "1", name: "Organization1"),
+            Organization.fixture(id: "2", name: "Organization2"),
         ]
 
         vaultRepository.organizationsSubject.value = organizations
@@ -230,6 +230,14 @@ class VaultListProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
 
+    /// `itemDeleted()` delegate method shows the expected toast.
+    func test_delegate_itemDeleted() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemDeleted()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.itemSoftDeleted)
+    }
+
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     func test_receive_itemPressed() {
         let item = VaultListItem.fixture()
@@ -278,6 +286,16 @@ class VaultListProcessorTests: BitwardenTestCase {
 
         // TODO: BIT-628 Replace assertion with mock vault assertion
         XCTAssertEqual(subject.state.searchResults.count, 1)
+    }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_toastShown() {
+        let toast = Toast(text: "toast!")
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
+
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `receive(_:)` with `.toggleProfilesViewVisibility` updates the state correctly.

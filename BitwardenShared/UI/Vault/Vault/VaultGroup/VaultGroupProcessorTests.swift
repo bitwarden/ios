@@ -64,6 +64,14 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .addItem(group: .card))
     }
 
+    /// `itemDeleted()` delegate method shows the expected toast.
+    func test_delegate_itemDeleted() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemDeleted()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.itemSoftDeleted)
+    }
+
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     func test_receive_itemPressed() {
         subject.receive(.itemPressed(.fixture(cipherListView: .fixture(id: "id"))))
@@ -88,5 +96,15 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         subject.state.searchText = ""
         subject.receive(.searchTextChanged("search"))
         XCTAssertEqual(subject.state.searchText, "search")
+    }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_toastShown() {
+        let toast = Toast(text: "toast!")
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
+
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
     }
 }

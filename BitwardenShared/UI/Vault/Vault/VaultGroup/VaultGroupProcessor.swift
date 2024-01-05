@@ -55,7 +55,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
-                coordinator.navigate(to: .viewItem(id: item.id))
+                coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
             case let .totp(id: id, _, _):
@@ -66,6 +66,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             print("more: \(item.id)")
         case let .searchTextChanged(newValue):
             state.searchText = newValue
+        case let .toastShown(newValue):
+            state.toast = newValue
         }
     }
 
@@ -80,5 +82,13 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             // TODO: BIT-1034 Add an error alert
             print(error)
         }
+    }
+}
+
+// MARK: - CipherItemOperationDelegate
+
+extension VaultGroupProcessor: CipherItemOperationDelegate {
+    func itemDeleted() {
+        state.toast = Toast(text: Localizations.itemSoftDeleted)
     }
 }

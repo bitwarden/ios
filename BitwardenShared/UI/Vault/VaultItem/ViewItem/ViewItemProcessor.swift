@@ -30,6 +30,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The `Coordinator` for this processor.
     private let coordinator: any Coordinator<VaultItemRoute>
 
+    /// The delegate that is notified when delete cipher item have occurred.
+    private weak var delegate: CipherItemOperationDelegate?
+
     /// The ID of the item being viewed.
     private let itemId: String
 
@@ -42,17 +45,20 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     ///
     /// - Parameters:
     ///   - coordiantor: The `Coordinator` for this processor.
+    ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - itemId: The id of the item that is being viewed.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of this processor.
     ///
     init(
         coordinator: any Coordinator<VaultItemRoute>,
+        delegate: CipherItemOperationDelegate?,
         itemId: String,
         services: Services,
         state: ViewItemState
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.itemId = itemId
         self.services = services
         super.init(state: state)
@@ -71,8 +77,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 state = newState
             }
         case .deletePressed:
-            // TODO: BIT-231
-            print("deletePressed")
+            await showDeleteConfirmation()
         }
     }
 
@@ -141,7 +146,24 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
               case let .existing(cipher) = cipherState.configuration else {
             return
         }
-        coordinator.navigate(to: .editItem(cipher: cipher))
+        coordinator.navigate(to: .editItem(cipher: cipher), context: self)
+    }
+
+    /// Soft deletes the item currently stored in `state`.
+    ///
+    private func deleteItem(_ cipher: CipherView) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(.init(title: Localizations.softDeleting))
+
+            try await services.vaultRepository.softDeleteCipher(cipher)
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemDeleted()
+            })))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Handles `ViewCardItemAction` events.
@@ -220,6 +242,29 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
         }
         coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Shows delete cipher confirmation alert.
+    ///
+    private func showDeleteConfirmation() async {
+        guard case let .data(cipherState) = state.loadingState else {
+            return
+        }
+        let alert = Alert.deleteCipherConfirmation { [weak self] in
+            guard let self else { return }
+            await deleteItem(cipherState.cipher)
+        }
+        coordinator.showAlert(alert)
+    }
+}
+
+// MARK: - CipherItemOperationDelegate
+
+extension ViewItemProcessor: CipherItemOperationDelegate {
+    func itemDeleted() {
+        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+            self?.delegate?.itemDeleted()
+        })))
     }
 }
 

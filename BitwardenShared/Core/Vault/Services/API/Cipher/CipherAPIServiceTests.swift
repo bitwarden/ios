@@ -124,6 +124,18 @@ class CipherAPIServiceTests: XCTestCase {
         )
     }
 
+    /// `deleteCipher()` performs the delete cipher request.
+    func test_DeleteCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+
+        _ = try await subject.deleteCipher(withID: "123")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .delete)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
+    }
+
     /// `shareCipher()` performs the share cipher request and decodes the response.
     func test_shareCipher() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)
@@ -170,5 +182,17 @@ class CipherAPIServiceTests: XCTestCase {
                 viewPassword: true
             )
         )
+    }
+
+    /// `softDeleteCipher()` performs the soft delete cipher request.
+    func test_softDeleteCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+
+        _ = try await subject.softDeleteCipher(withID: "123")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .put)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/delete")
     }
 }

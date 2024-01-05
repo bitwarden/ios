@@ -169,23 +169,30 @@ public class ServiceContainer: Services {
         let sendService = DefaultSendService(sendDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
+
         let cipherService = DefaultCipherService(
             cipherAPIService: apiService,
             cipherDataStore: dataStore,
             stateService: stateService
         )
+
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
             folderDataStore: dataStore,
             stateService: stateService
         )
+        let organizationService = DefaultOrganizationService(
+            clientCrypto: clientService.clientCrypto(),
+            errorReporter: errorReporter,
+            organizationDataStore: dataStore,
+            stateService: stateService
+        )
 
         let syncService = DefaultSyncService(
             cipherService: cipherService,
-            clientCrypto: clientService.clientCrypto(),
             collectionService: collectionService,
-            errorReporter: errorReporter,
             folderService: folderService,
+            organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
             syncAPIService: apiService
@@ -207,6 +214,7 @@ public class ServiceContainer: Services {
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             environmentService: environmentService,
+            organizationService: organizationService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
@@ -236,6 +244,7 @@ public class ServiceContainer: Services {
             collectionService: collectionService,
             errorReporter: errorReporter,
             folderService: folderService,
+            organizationService: organizationService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
