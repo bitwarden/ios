@@ -487,7 +487,15 @@ struct VaultListView_Previews: PreviewProvider {
                                     name: "Items"
                                 ),
                             ]),
-                            organizations: [Organization(id: "", name: "Org")]
+                            organizations: [
+                                Organization(
+                                    enabled: true,
+                                    id: "",
+                                    key: nil,
+                                    name: "Org",
+                                    status: .confirmed
+                                ),
+                            ]
                         )
                     )
                 )

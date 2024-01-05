@@ -16,6 +16,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var collectionService: MockCollectionService!
     var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
+    var organizationService: MockOrganizationService!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
     var syncService: MockSyncService!
@@ -35,6 +36,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         collectionService = MockCollectionService()
         errorReporter = MockErrorReporter()
         folderService = MockFolderService()
+        organizationService = MockOrganizationService()
         syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
 
@@ -51,6 +53,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             collectionService: collectionService,
             errorReporter: errorReporter,
             folderService: folderService,
+            organizationService: organizationService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
@@ -69,6 +72,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         collectionService = nil
         errorReporter = nil
         folderService = nil
+        organizationService = nil
         stateService = nil
         subject = nil
         vaultTimeoutService = nil
@@ -159,13 +163,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations.
     func test_fetchCipherOwnershipOptions_organizations() async throws {
         stateService.activeAccount = .fixture()
-        syncService.organizationsToReturn = [
+        organizationService.fetchAllOrganizationsResult = .success([
             .fixture(id: "1", name: "Org1"),
             .fixture(id: "2", name: "Org2"),
             .fixture(enabled: false, id: "3", name: "Org Disabled"),
             .fixture(id: "4", name: "Org Invited", status: .invited),
             .fixture(id: "5", name: "Org Accepted", status: .accepted),
-        ]
+        ])
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
 
@@ -183,13 +187,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// without the personal vault.
     func test_fetchCipherOwnershipOptions_organizationsWithoutPersonal() async throws {
         stateService.activeAccount = .fixture()
-        syncService.organizationsToReturn = [
+        organizationService.fetchAllOrganizationsResult = .success([
             .fixture(id: "1", name: "Org1"),
             .fixture(id: "2", name: "Org2"),
             .fixture(enabled: false, id: "3", name: "Org Disabled"),
             .fixture(id: "4", name: "Org Invited", status: .invited),
             .fixture(id: "5", name: "Org Accepted", status: .accepted),
-        ]
+        ])
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: false)
 
@@ -348,19 +352,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `organizationsPublisher()` returns a publisher for the user's organizations.
     func test_organizationsPublisher() async throws {
-        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithProfileOrganizations.data
-        ))
+        organizationService.organizationsSubject.value = [
+            .fixture(id: "ORG_1", name: "ORG_NAME"),
+            .fixture(id: "ORG_2", name: "ORG_NAME"),
+        ]
 
-        var iterator = subject.organizationsPublisher().makeAsyncIterator()
-        let organizations = await iterator.next()
+        var iterator = try await subject.organizationsPublisher().makeAsyncIterator()
+        let organizations = try await iterator.next()
 
         XCTAssertEqual(
             organizations,
             [
-                Organization(id: "ORG_1", name: "ORG_NAME"),
-                Organization(id: "ORG_2", name: "ORG_NAME"),
+                Organization.fixture(id: "ORG_1", name: "ORG_NAME"),
+                Organization.fixture(id: "ORG_2", name: "ORG_NAME"),
             ]
         )
     }

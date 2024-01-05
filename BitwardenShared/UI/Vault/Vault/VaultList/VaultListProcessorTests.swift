@@ -115,8 +115,8 @@ class VaultListProcessorTests: BitwardenTestCase {
         }
 
         let organizations = [
-            Organization(id: "1", name: "Organization1"),
-            Organization(id: "2", name: "Organization2"),
+            Organization.fixture(id: "1", name: "Organization1"),
+            Organization.fixture(id: "2", name: "Organization2"),
         ]
 
         vaultRepository.organizationsSubject.value = organizations

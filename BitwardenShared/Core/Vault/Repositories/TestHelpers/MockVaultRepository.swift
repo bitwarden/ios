@@ -21,7 +21,7 @@ class MockVaultRepository: VaultRepository {
     var sharedCiphers = [CipherView]()
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
-    var organizationsSubject = CurrentValueSubject<[Organization], Never>([])
+    var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
@@ -74,7 +74,7 @@ class MockVaultRepository: VaultRepository {
         try updateCipherResult.get()
     }
 
-    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>> {
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
         organizationsSubject.eraseToAnyPublisher().values
     }
 

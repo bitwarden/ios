@@ -87,7 +87,7 @@ protocol VaultRepository: AnyObject {
     ///
     /// - Returns: A publisher for the list of organizations the user is a member of.
     ///
-    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>>
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>>
 
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
@@ -135,6 +135,9 @@ class DefaultVaultRepository {
     /// The service used to manage syncing and updates to the user's folders.
     let folderService: FolderService
 
+    /// The service used to manage syncing and updates to the user's organizations.
+    let organizationService: OrganizationService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -157,6 +160,7 @@ class DefaultVaultRepository {
     ///   - collectionService: The service for managing the collections for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
+    ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -170,6 +174,7 @@ class DefaultVaultRepository {
         collectionService: CollectionService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
+        organizationService: OrganizationService,
         stateService: StateService,
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
@@ -182,6 +187,7 @@ class DefaultVaultRepository {
         self.collectionService = collectionService
         self.errorReporter = errorReporter
         self.folderService = folderService
+        self.organizationService = organizationService
         self.stateService = stateService
         self.syncService = syncService
         self.vaultTimeoutService = vaultTimeoutService
@@ -335,13 +341,12 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {
-        let organizations = syncService.organizations()
-        let organizationOwners: [CipherOwner] = organizations?
+        let organizations = try await organizationService.fetchAllOrganizations()
+        let organizationOwners: [CipherOwner] = organizations
             .filter { $0.enabled && $0.status == .confirmed }
-            .compactMap { organization in
-                guard let name = organization.name else { return nil }
-                return CipherOwner.organization(id: organization.id, name: name)
-            } ?? []
+            .map { organization in
+                CipherOwner.organization(id: organization.id, name: organization.name)
+            }
 
         if includePersonal {
             let email = try await stateService.getActiveAccount().profile.email
@@ -408,13 +413,8 @@ extension DefaultVaultRepository: VaultRepository {
             .values
     }
 
-    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>> {
-        syncService.syncResponsePublisher()
-            .compactMap { response in
-                response?.profile?.organizations?.compactMap(Organization.init)
-            }
-            .eraseToAnyPublisher()
-            .values
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
+        try await organizationService.organizationsPublisher().eraseToAnyPublisher().values
     }
 
     func vaultListPublisher(filter: VaultFilterType) -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>> {

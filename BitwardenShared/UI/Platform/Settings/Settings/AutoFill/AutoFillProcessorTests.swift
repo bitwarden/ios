@@ -29,7 +29,13 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Receiving `.toggleCopyTOTPToggle` updates the state.
+    /// `.receive(_:)` with `.passwordAutoFillTapped` navigates to the password autofill view.
+    func test_receive_passwordAutoFillTapped() {
+        subject.receive(.passwordAutoFillTapped)
+        XCTAssertEqual(coordinator.routes.last, .passwordAutoFill)
+    }
+
+    /// `.receive(_:)` with  `.toggleCopyTOTPToggle` updates the state.
     func test_receive_toggleCopyTOTPToggle() {
         subject.state.isCopyTOTPToggleOn = false
         subject.receive(.toggleCopyTOTPToggle(true))
