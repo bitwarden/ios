@@ -52,7 +52,8 @@ struct FoldersView: View {
         VStack(spacing: 0) {
             ForEachIndexed(store.state.folders, id: \.id) { index, folder in
                 SettingsListItem(folder.name, hasDivider: index < (store.state.folders.count - 1)) {
-                    store.send(.folderTapped(id: folder.id))
+                    guard let id = folder.id else { return }
+                    store.send(.folderTapped(id: id))
                 }
             }
         }

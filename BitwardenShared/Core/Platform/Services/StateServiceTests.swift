@@ -402,14 +402,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await dataStore.persistentContainer.viewContext.performAndSave {
             let context = self.dataStore.persistentContainer.viewContext
             _ = try CipherData(context: context, userId: "1", cipher: .fixture(id: UUID().uuidString))
-            _ = CollectionData(context: context, userId: "1", collection: .fixture())
+            _ = try CollectionData(context: context, userId: "1", collection: .fixture())
             _ = FolderData(
                 context: context,
                 userId: "1",
                 folder: Folder(id: "1", name: "FOLDER1", revisionDate: Date())
             )
             _ = OrganizationData(context: context, userId: "1", organization: .fixture())
-            _ = SendData(context: context, userId: "1", send: .fixture())
+            _ = try SendData(context: context, userId: "1", send: .fixture())
         }
 
         try await subject.logoutAccount()

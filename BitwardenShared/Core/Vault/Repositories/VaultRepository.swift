@@ -265,19 +265,31 @@ class DefaultVaultRepository {
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
-        let folderItems = folders.map { folder in
-            let cipherCount = activeCiphers.lazy.filter { $0.folderId == folder.id }.count
+        let folderItems: [VaultListItem] = folders.compactMap { folder in
+            guard let folderId = folder.id else {
+                self.errorReporter.log(
+                    error: BitwardenError.dataError("Received a folder from the API with a missing ID.")
+                )
+                return nil
+            }
+            let cipherCount = activeCiphers.lazy.filter { $0.folderId == folderId }.count
             return VaultListItem(
-                id: folder.id,
-                itemType: .group(.folder(id: folder.id, name: folder.name), cipherCount)
+                id: folderId,
+                itemType: .group(.folder(id: folderId, name: folder.name), cipherCount)
             )
         }
 
-        let collectionItems = collections.map { collection in
-            let collectionCount = activeCiphers.lazy.filter { $0.collectionIds.contains(collection.id) }.count
+        let collectionItems: [VaultListItem] = collections.compactMap { collection in
+            guard let collectionId = collection.id else {
+                self.errorReporter.log(
+                    error: BitwardenError.dataError("Received a collection from the API with a missing ID.")
+                )
+                return nil
+            }
+            let collectionCount = activeCiphers.lazy.filter { $0.collectionIds.contains(collectionId) }.count
             return VaultListItem(
-                id: collection.id,
-                itemType: .group(.collection(id: collection.id, name: collection.name), collectionCount)
+                id: collectionId,
+                itemType: .group(.collection(id: collectionId, name: collection.name), collectionCount)
             )
         }
 

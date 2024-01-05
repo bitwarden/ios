@@ -96,7 +96,7 @@ extension DataStore: CollectionDataStore {
 
     func upsertCollection(_ collection: Collection, userId: String) async throws {
         try await backgroundContext.performAndSave {
-            _ = CollectionData(context: self.backgroundContext, userId: userId, collection: collection)
+            _ = try CollectionData(context: self.backgroundContext, userId: userId, collection: collection)
         }
     }
 }
