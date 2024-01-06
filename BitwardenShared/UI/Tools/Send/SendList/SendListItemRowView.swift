@@ -114,14 +114,16 @@ struct SendListItemRowView: View {
                     }
                 }
 
-                Menu {
-                    // TODO: BIT-1266 Add Menu items
-                    Text("Coming soon, in BIT-1266")
-                } label: {
-                    Asset.Images.horizontalKabob.swiftUIImage
-                        .resizable()
-                        .frame(width: 22, height: 22)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                if case .send = store.state.item.itemType {
+                    Menu {
+                        // TODO: BIT-1266 Add Menu items
+                        Text("Coming soon, in BIT-1266")
+                    } label: {
+                        Asset.Images.horizontalKabob.swiftUIImage
+                            .resizable()
+                            .frame(width: 22, height: 22)
+                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    }
                 }
             }
             .padding(.horizontal, 16)
