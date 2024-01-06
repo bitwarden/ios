@@ -484,32 +484,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func softDeleteCipher(_ cipher: CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
-        let softDeletedCipher = CipherView(
-            id: cipher.id,
-            organizationId: cipher.organizationId,
-            folderId: cipher.folderId,
-            collectionIds: cipher.collectionIds,
-            key: cipher.key,
-            name: cipher.name,
-            notes: cipher.notes,
-            type: cipher.type,
-            login: cipher.login,
-            identity: cipher.identity,
-            card: cipher.card,
-            secureNote: cipher.secureNote,
-            favorite: cipher.favorite,
-            reprompt: cipher.reprompt,
-            organizationUseTotp: cipher.organizationUseTotp,
-            edit: cipher.edit,
-            viewPassword: cipher.viewPassword,
-            localData: cipher.localData,
-            attachments: cipher.attachments,
-            fields: cipher.fields,
-            passwordHistory: cipher.passwordHistory,
-            creationDate: cipher.creationDate,
-            deletedDate: .now,
-            revisionDate: cipher.revisionDate
-        )
+        let softDeletedCipher = cipher.update(deletedDate: .now)
         let encryptCipher = try await clientVault.ciphers().encrypt(cipherView: softDeletedCipher)
         try await cipherService.softDeleteCipherWithServer(id: id, encryptCipher)
     }

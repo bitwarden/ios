@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 extension CipherView {
     // MARK: Properties
@@ -149,6 +150,7 @@ extension CipherView {
     func update(collectionIds: [String]) -> CipherView {
         update(
             collectionIds: collectionIds,
+            deletedDate: deletedDate,
             folderId: folderId,
             organizationId: organizationId
         )
@@ -167,6 +169,21 @@ extension CipherView {
     ) -> CipherView {
         update(
             collectionIds: collectionIds,
+            deletedDate: deletedDate,
+            folderId: folderId,
+            organizationId: organizationId
+        )
+    }
+
+    /// Returns a copy of the existing cipher with an updated deleted date.
+    ///
+    /// - Parameter deletedDate: The deleted date of the cipher.
+    /// - Returns: A copy of the existing cipher, with the specified properties updated.
+    ///
+    func update(deletedDate: Date?) -> CipherView {
+        update(
+            collectionIds: collectionIds,
+            deletedDate: deletedDate,
             folderId: folderId,
             organizationId: organizationId
         )
@@ -184,6 +201,7 @@ extension CipherView {
     ///
     private func update(
         collectionIds: [String],
+        deletedDate: Date?,
         folderId: String?,
         organizationId: String?
     ) -> CipherView {
