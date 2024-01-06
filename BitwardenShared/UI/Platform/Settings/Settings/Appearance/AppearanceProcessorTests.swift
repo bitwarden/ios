@@ -37,14 +37,25 @@ class AppearanceProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// The delegate method `languageSelected` should update the language.
+    func test_languageSelected() {
+        XCTAssertEqual(subject.state.currentLanguage, .default)
+
+        subject.languageSelected(.custom(languageCode: "th"))
+
+        XCTAssertEqual(subject.state.currentLanguage, .custom(languageCode: "th"))
+    }
+
     /// `perform(_:)` with `.loadData` sets the value in the state.
     func test_perform_loadData() async {
         XCTAssertEqual(subject.state.appTheme, .default)
+        stateService.appLanguage = .custom(languageCode: "de")
         stateService.appTheme = .light
         stateService.showWebIcons = false
 
         await subject.perform(.loadData)
 
+        XCTAssertEqual(subject.state.currentLanguage, .custom(languageCode: "de"))
         XCTAssertEqual(subject.state.appTheme, .light)
         XCTAssertFalse(subject.state.isShowWebsiteIconsToggleOn)
     }
@@ -60,6 +71,15 @@ class AppearanceProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.appTheme, .light)
         waitFor(stateService.appTheme == .light)
+    }
+
+    /// `receive(_:)` with `.languageTapped` navigates to the select language view.
+    func test_receive_languageTapped() async throws {
+        subject.state.currentLanguage = .custom(languageCode: "th")
+
+        subject.receive(.languageTapped)
+
+        XCTAssertEqual(coordinator.routes.last, .selectLanguage(currentLanguage: LanguageOption("th")))
     }
 
     /// `receive(_:)` with `.toggleShowWebsiteIcons` updates the value in the state and the cache.
