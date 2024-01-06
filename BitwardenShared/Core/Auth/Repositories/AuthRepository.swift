@@ -69,6 +69,9 @@ class DefaultAuthRepository {
     /// The service used by the application to manage the environment settings.
     let environmentService: EnvironmentService
 
+    /// The service used to manage syncing and updates to the user's organizations.
+    let organizationService: OrganizationService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -84,6 +87,7 @@ class DefaultAuthRepository {
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
@@ -92,6 +96,7 @@ class DefaultAuthRepository {
         clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
         environmentService: EnvironmentService,
+        organizationService: OrganizationService,
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService
     ) {
@@ -99,6 +104,7 @@ class DefaultAuthRepository {
         self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
         self.environmentService = environmentService
+        self.organizationService = organizationService
         self.stateService = stateService
         self.vaultTimeoutService = vaultTimeoutService
     }
@@ -185,6 +191,7 @@ extension DefaultAuthRepository: AuthRepository {
             )
         )
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
+        try await organizationService.initializeOrganizationCrypto()
     }
 
     /// A function to convert an `Account` to a `ProfileSwitcherItem`

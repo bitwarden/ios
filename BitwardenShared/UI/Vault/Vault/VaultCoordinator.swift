@@ -92,7 +92,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         case .list:
             showList()
         case let .viewItem(id):
-            showVaultItem(route: .viewItem(id: id))
+            showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
         }
@@ -156,11 +156,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showVaultItem(route: VaultItemRoute) {
+    private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate? = nil) {
         let navigationController = UINavigationController()
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: route)
+        coordinator.navigate(to: route, context: delegate)
 
         stackNavigator.present(navigationController)
     }

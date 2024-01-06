@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Networking
 
 // MARK: - CipherAPIServiceError
 
@@ -29,6 +30,27 @@ protocol CipherAPIService {
     ///
     func addCipherWithCollections(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
 
+    /// Performs an API request to delete an existing cipher in the user's vault.
+    ///
+    /// - Parameter id: The cipher id that to be deleted.
+    /// - Returns: The `EmptyResponse`.
+    ///
+    func deleteCipher(withID id: String) async throws -> EmptyResponse
+
+    /// Performs an API request to share a cipher with an organization.
+    ///
+    /// - Parameter cipher: The cipher to share.
+    /// - Returns: The cipher that was shared with the organization.
+    ///
+    func shareCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
+
+    /// Performs an API request to soft delete an existing cipher in the user's vault.
+    ///
+    /// - Parameter id: The cipher id that to be soft deleted.
+    /// - Returns: The `EmptyResponse`.
+    ///
+    func softDeleteCipher(withID id: String) async throws -> EmptyResponse
+
     /// Performs an API request to update an existing cipher in the user's vault.
     ///
     /// - Parameter cipher: The cipher that the user is updating.
@@ -44,6 +66,18 @@ extension APIService: CipherAPIService {
 
     func addCipherWithCollections(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
         try await apiService.send(AddCipherWithCollectionsRequest(cipher: cipher))
+    }
+
+    func deleteCipher(withID id: String) async throws -> EmptyResponse {
+        try await apiService.send(DeleteCipherRequest(id: id))
+    }
+
+    func shareCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
+        try await apiService.send(ShareCipherRequest(cipher: cipher))
+    }
+
+    func softDeleteCipher(withID id: String) async throws -> EmptyResponse {
+        try await apiService.send(SoftDeleteCipherRequest(id: id))
     }
 
     func updateCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {

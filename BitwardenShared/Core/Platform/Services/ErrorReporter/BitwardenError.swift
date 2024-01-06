@@ -16,9 +16,26 @@ enum BitwardenError {
 
         /// An error occurred persisting the generator options.
         case generatorOptionsError = 2000
+
+        /// An error occurred with data from the API.
+        case dataError = 3000
     }
 
     // MARK: Errors
+
+    /// An error occurred relating to data from the API.
+    ///
+    /// - Parameter message: A message describing the error that occurred.
+    ///
+    static func dataError(_ message: String) -> NSError {
+        NSError(
+            domain: "Data Error",
+            code: Code.dataError.rawValue,
+            userInfo: [
+                "ErrorMessage": message,
+            ]
+        )
+    }
 
     /// An error that occurred persisting the generator options.
     ///

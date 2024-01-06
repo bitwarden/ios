@@ -28,6 +28,9 @@ enum ViewItemAction: Equatable {
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
 
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// A flag indicating if this action requires the user to reenter their master password to
     /// complete. This value works hand-in-hand with the `isMasterPasswordRequired` value in
     /// `ViewItemState`.
@@ -41,7 +44,8 @@ enum ViewItemAction: Equatable {
             true
         case .checkPasswordPressed,
              .dismissPressed,
-             .morePressed:
+             .morePressed,
+             .toastShown:
             false
         }
     }

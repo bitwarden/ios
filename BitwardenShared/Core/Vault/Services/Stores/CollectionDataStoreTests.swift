@@ -137,7 +137,7 @@ class CollectionDataStoreTests: BitwardenTestCase {
     private func insertCollections(_ collections: [Collection], userId: String) async throws {
         try await subject.backgroundContext.performAndSave {
             for collection in collections {
-                _ = CollectionData(context: self.subject.backgroundContext, userId: userId, collection: collection)
+                _ = try CollectionData(context: self.subject.backgroundContext, userId: userId, collection: collection)
             }
         }
     }

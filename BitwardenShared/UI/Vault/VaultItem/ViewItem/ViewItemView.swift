@@ -12,6 +12,18 @@ struct ViewItemView: View {
 
     // MARK: Properties
 
+    /// Whether to show the collections option in the toolbar menu.
+    var isCollectionsEnabled: Bool {
+        guard let cipher = store.state.loadingState.data?.cipher else { return false }
+        return cipher.organizationId != nil
+    }
+
+    /// Whether to show the move to organization option in the toolbar menu.
+    var isMoveToOrganizationEnabled: Bool {
+        guard let cipher = store.state.loadingState.data?.cipher else { return false }
+        return cipher.organizationId == nil
+    }
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<ViewItemState, ViewItemAction, ViewItemEffect>
 
@@ -24,10 +36,17 @@ struct ViewItemView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toast(store.binding(
+            get: \.toast,
+            send: ViewItemAction.toastShown
+        ))
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 VaultItemManagementMenuView(
-                    isCloneEnabled: true, store: store.child(
+                    isCloneEnabled: true,
+                    isCollectionsEnabled: isCollectionsEnabled,
+                    isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
+                    store: store.child(
                         state: { _ in },
                         mapAction: { .morePressed($0) },
                         mapEffect: { _ in .deletePressed }

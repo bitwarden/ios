@@ -63,3 +63,35 @@ struct MoveToOrganizationState: Equatable {
         }
     }
 }
+
+extension MoveToOrganizationState {
+    /// The updated cipher with the assigned organization and collections.
+    var updatedCipher: CipherView {
+        CipherView(
+            id: cipher.id,
+            organizationId: organizationId,
+            folderId: cipher.folderId,
+            collectionIds: collectionIds,
+            key: cipher.key,
+            name: cipher.name,
+            notes: cipher.notes,
+            type: cipher.type,
+            login: cipher.login,
+            identity: cipher.identity,
+            card: cipher.card,
+            secureNote: cipher.secureNote,
+            favorite: cipher.favorite,
+            reprompt: cipher.reprompt,
+            organizationUseTotp: cipher.organizationUseTotp,
+            edit: cipher.edit,
+            viewPassword: cipher.viewPassword,
+            localData: cipher.localData,
+            attachments: cipher.attachments,
+            fields: cipher.fields,
+            passwordHistory: cipher.passwordHistory,
+            creationDate: cipher.creationDate,
+            deletedDate: cipher.deletedDate,
+            revisionDate: cipher.revisionDate
+        )
+    }
+}

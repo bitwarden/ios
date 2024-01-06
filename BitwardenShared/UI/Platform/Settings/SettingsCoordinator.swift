@@ -84,10 +84,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showAccountSecurity()
         case let .addEditFolder(folder):
             showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
-        case .appearance:
-            showAppearance()
         case let .alert(alert):
             stackNavigator.present(alert)
+        case .appearance:
+            showAppearance()
+        case .appExtension:
+            showAppExtension()
         case .autoFill:
             showAutoFill()
         case .deleteAccount:
@@ -108,6 +110,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             delegate?.didLogout()
         case .other:
             showOtherScreen()
+        case .passwordAutoFill:
+            showPasswordAutoFill()
         case .settings:
             showSettings()
         case .vault:
@@ -179,6 +183,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.push(viewController)
     }
 
+    /// Shows the app extension screen.
+    ///
+    private func showAppExtension() {
+        let processor = AppExtensionProcessor(
+            coordinator: asAnyCoordinator(),
+            state: AppExtensionState()
+        )
+        let view = AppExtensionView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
     /// Shows the auto-fill screen.
     ///
     private func showAutoFill() {
@@ -241,6 +258,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
 
         let view = OtherSettingsView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator.push(viewController)
+    }
+
+    /// Shows the password auto-fill screen.
+    ///
+    private func showPasswordAutoFill() {
+        let view = PasswordAutoFillView()
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController)

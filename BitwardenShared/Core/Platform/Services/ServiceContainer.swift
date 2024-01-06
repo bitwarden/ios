@@ -165,23 +165,34 @@ public class ServiceContainer: Services {
         let dataStore = DataStore(errorReporter: errorReporter)
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
-        let cipherService = DefaultCipherService(cipherDataStore: dataStore, stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let sendService = DefaultSendService(sendDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
+
+        let cipherService = DefaultCipherService(
+            cipherAPIService: apiService,
+            cipherDataStore: dataStore,
+            stateService: stateService
+        )
+
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
             folderDataStore: dataStore,
             stateService: stateService
         )
+        let organizationService = DefaultOrganizationService(
+            clientCrypto: clientService.clientCrypto(),
+            errorReporter: errorReporter,
+            organizationDataStore: dataStore,
+            stateService: stateService
+        )
 
         let syncService = DefaultSyncService(
             cipherService: cipherService,
-            clientCrypto: clientService.clientCrypto(),
             collectionService: collectionService,
-            errorReporter: errorReporter,
             folderService: folderService,
+            organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
             syncAPIService: apiService
@@ -203,6 +214,7 @@ public class ServiceContainer: Services {
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             environmentService: environmentService,
+            organizationService: organizationService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
@@ -225,12 +237,14 @@ public class ServiceContainer: Services {
 
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
+            cipherService: cipherService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             clientVault: clientService.clientVault(),
             collectionService: collectionService,
             errorReporter: errorReporter,
             folderService: folderService,
+            organizationService: organizationService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService

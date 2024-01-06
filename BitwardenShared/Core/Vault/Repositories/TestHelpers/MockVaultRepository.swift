@@ -7,6 +7,8 @@ class MockVaultRepository: VaultRepository {
     var addCipherCiphers = [BitwardenSdk.CipherView]()
     var addCipherResult: Result<Void, Error> = .success(())
     var cipherDetailsSubject = CurrentValueSubject<BitwardenSdk.CipherView, Never>(.fixture())
+    var deletedCipher = [String]()
+    var deleteCipherResult: Result<Void, Error> = .success(())
     var doesActiveAccountHavePremiumCalled = false
     var fetchCipherOwnershipOptionsIncludePersonal: Bool? // swiftlint:disable:this identifier_name
     var fetchCipherOwnershipOptions = [CipherOwner]()
@@ -17,9 +19,13 @@ class MockVaultRepository: VaultRepository {
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var removeAccountIds = [String?]()
+    var shareCipherResult: Result<Void, Error> = .success(())
+    var sharedCiphers = [CipherView]()
+    var softDeletedCipher = [CipherView]()
+    var softDeleteCipherResult: Result<Void, Error> = .success(())
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
-    var organizationsSubject = CurrentValueSubject<[Organization], Never>([])
+    var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
@@ -37,6 +43,11 @@ class MockVaultRepository: VaultRepository {
 
     func cipherDetailsPublisher(id _: String) -> AsyncPublisher<AnyPublisher<BitwardenSdk.CipherView, Never>> {
         cipherDetailsSubject.eraseToAnyPublisher().values
+    }
+
+    func deleteCipher(_ id: String) async throws {
+        deletedCipher.append(id)
+        try deleteCipherResult.get()
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
@@ -62,12 +73,22 @@ class MockVaultRepository: VaultRepository {
         removeAccountIds.append(userId)
     }
 
+    func shareCipher(_ cipher: CipherView) async throws {
+        sharedCiphers.append(cipher)
+        try shareCipherResult.get()
+    }
+
+    func softDeleteCipher(_ cipher: CipherView) async throws {
+        softDeletedCipher.append(cipher)
+        try softDeleteCipherResult.get()
+    }
+
     func updateCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         updateCipherCiphers.append(cipher)
         try updateCipherResult.get()
     }
 
-    func organizationsPublisher() -> AsyncPublisher<AnyPublisher<[Organization], Never>> {
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
         organizationsSubject.eraseToAnyPublisher().values
     }
 

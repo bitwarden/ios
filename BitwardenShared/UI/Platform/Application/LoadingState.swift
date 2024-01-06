@@ -10,4 +10,10 @@ enum LoadingState<T: Equatable>: Equatable {
 
     /// The view is loading.
     case loading
+
+    /// The data to be displayed, if the case is `data`.
+    var data: T? {
+        guard case let .data(data) = self else { return nil }
+        return data
+    }
 }
