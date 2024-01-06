@@ -7,7 +7,7 @@ struct SendListItem: Equatable, Identifiable {
 
     /// An enumeration for the type of item being displayed by this item.
     enum ItemType: Equatable {
-        /// The wrapped item is a cipher.
+        /// The wrapped item is a send.
         case send(BitwardenSdk.SendView)
 
         /// The wrapped item is a group of items.
@@ -24,12 +24,13 @@ struct SendListItem: Equatable, Identifiable {
 }
 
 extension SendListItem {
-    /// Initialize a `VaultListItem` from a `CipherListView`.
+    /// Initialize a `SendListItem` from a `SendView`.
     ///
-    /// - Parameter cipherListView: The `CipherListView` used to initialize the `VaultListItem`.
+    /// - Parameter sendView: The `CipherListView` used to initialize the `SendListItem`.
     ///
     init?(sendView: BitwardenSdk.SendView) {
-        self.init(id: sendView.id, itemType: .send(sendView))
+        guard let sendViewId = sendView.id else { return nil }
+        self.init(id: sendViewId, itemType: .send(sendView))
     }
 }
 
