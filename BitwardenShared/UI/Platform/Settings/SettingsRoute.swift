@@ -67,6 +67,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the settings screen.
     case settings
 
+    /// A route to update the app's theme.
+    case updateTheme(theme: ThemeOption)
+
     /// A route to the vault settings view.
     case vault
 }

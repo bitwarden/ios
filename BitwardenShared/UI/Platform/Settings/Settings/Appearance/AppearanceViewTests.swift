@@ -38,18 +38,18 @@ class AppearanceViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .defaultDarkThemeChanged)
     }
 
-    /// Tapping the language button dispatches the `.defaultThemeChanged` action.
-    func test_defaultThemeButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.theme)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .defaultThemeChanged)
-    }
-
     /// Tapping the language button dispatches the `.languageTapped` action.
     func test_languageButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.language)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .languageTapped)
+    }
+
+    /// Tapping the language button dispatches the `.themeButtonTapped` action.
+    func test_themeButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.theme)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .themeButtonTapped)
     }
 
     /// Tests the view renders correctly.

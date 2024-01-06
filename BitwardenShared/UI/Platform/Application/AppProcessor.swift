@@ -43,6 +43,9 @@ public class AppProcessor {
     ///   - navigator: The object that will be used to navigate between routes.
     ///
     public func start(appContext: AppContext, navigator: RootNavigator) {
+        let theme = ThemeOption(services.stateService.appTheme)
+        navigator.updateTheme(to: theme)
+
         let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
         coordinator.start()
         self.coordinator = coordinator

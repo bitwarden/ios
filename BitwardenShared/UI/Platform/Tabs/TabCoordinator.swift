@@ -123,6 +123,7 @@ internal final class TabCoordinator: Coordinator, HasTabNavigator {
         settingsNavigator.navigationBar.prefersLargeTitles = true
         let settingsCoordinator = module.makeSettingsCoordinator(
             delegate: settingsDelegate,
+            rootNavigator: rootNavigator,
             stackNavigator: settingsNavigator
         )
         settingsCoordinator.start()

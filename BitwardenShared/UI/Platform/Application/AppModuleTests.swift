@@ -62,6 +62,7 @@ class AppModuleTests: BitwardenTestCase {
         let navigationController = UINavigationController()
         let coordinator = subject.makeSettingsCoordinator(
             delegate: MockSettingsCoordinatorDelegate(),
+            rootNavigator: MockRootNavigator(),
             stackNavigator: navigationController
         )
         coordinator.start()

@@ -6,6 +6,9 @@ import BitwardenShared
 class CredentialProviderViewController: ASCredentialProviderViewController {
     // MARK: Properties
 
+    /// The app's theme.
+    var theme: ThemeOption = .default
+
     /// The processor that manages application level logic.
     private var appProcessor: AppProcessor?
 

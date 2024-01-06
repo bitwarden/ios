@@ -50,6 +50,7 @@ class MockAppModule:
 
     func makeSettingsCoordinator(
         delegate: SettingsCoordinatorDelegate,
+        rootNavigator: RootNavigator,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<SettingsRoute> {
         settingsCoordinator.asAnyCoordinator()

@@ -11,6 +11,7 @@ class MockStateService: StateService {
     var activeAccount: Account?
     var accounts: [Account]?
     var allowSyncOnRefresh = [String: Bool]()
+    var appTheme: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
     var environmentUrls = [String: EnvironmentUrlData]()

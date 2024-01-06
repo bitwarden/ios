@@ -6,6 +6,9 @@ import UIKit
 /// controller.
 ///
 public class RootViewController: UIViewController {
+    /// The app's theme.
+    public var theme: ThemeOption = .default
+
     // MARK: Properties
 
     /// The child view controller currently being displayed within this root view controller.

@@ -3,6 +3,20 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertSettingsTests: BitwardenTestCase {
+    /// `appThemeOptions(action:)` constructs an `Alert` with the title, message,
+    /// and options.
+    func test_appThemeOptions() {
+        let subject = Alert.appThemeOptions { _ in }
+
+        XCTAssertEqual(subject.title, Localizations.theme)
+        XCTAssertNil(subject.message)
+        XCTAssertEqual(subject.alertActions.count, 4)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.defaultSystem)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.light)
+        XCTAssertEqual(subject.alertActions[2].title, Localizations.dark)
+        XCTAssertEqual(subject.alertActions[3].title, Localizations.cancel)
+    }
+
     /// `confirmDeleteFolder(action:)` constructs an `Alert` with the title,
     /// message, yes, and cancel buttons to confirm deleting a folder.
     func test_confirmDeleteFolder() {

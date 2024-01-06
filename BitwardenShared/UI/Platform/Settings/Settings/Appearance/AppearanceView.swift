@@ -54,9 +54,9 @@ struct AppearanceView: View {
                 Localizations.theme,
                 hasDivider: false
             ) {
-                store.send(.defaultThemeChanged)
+                store.send(.themeButtonTapped)
             } trailingContent: {
-                Text(Localizations.defaultSystem)
+                Text(store.state.appTheme.title)
             }
             .cornerRadius(10)
 

@@ -8,6 +8,9 @@ import Foundation
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
 protocol StateService: AnyObject {
+    /// The app theme, or `nil` for  the default system settings.
+    var appTheme: String? { get set }
+
     /// The organization identifier being remembered on the single-sign on screen.
     var rememberedOrgIdentifier: String? { get set }
 
@@ -348,6 +351,12 @@ enum StateServiceError: Error {
 ///
 actor DefaultStateService: StateService {
     // MARK: Properties
+
+    /// The app theme for a custom theme setting, or `nil` for the default system settings.
+    nonisolated var appTheme: String? {
+        get { appSettingsStore.appTheme }
+        set { appSettingsStore.appTheme = newValue }
+    }
 
     /// The organization identifier being remembered on the single-sign on screen.
     nonisolated var rememberedOrgIdentifier: String? {

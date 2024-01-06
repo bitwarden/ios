@@ -58,6 +58,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(state.activeUserId, "2")
     }
 
+    /// `appTheme` gets and sets the value as expected.
+    func test_appTheme() {
+        // Getting the value should get the value from the app settings store.
+        appSettingsStore.appTheme = "light"
+        XCTAssertEqual(subject.appTheme, "light")
+
+        // Setting the value should update the value in the app settings store.
+        subject.appTheme = "dark"
+        XCTAssertEqual(appSettingsStore.appTheme, "dark")
+    }
+
     /// `.deleteAccount()` deletes the active user's account, removing it from the state.
     func test_deleteAccount() async throws {
         let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
