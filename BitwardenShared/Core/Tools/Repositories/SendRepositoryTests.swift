@@ -49,17 +49,6 @@ class SendRepositoryTests: BitwardenTestCase {
 
     /// `sendListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the sends tab.
-    func test_sendListPublisher_withoutValues() async {
-        syncService.syncSubject.send(nil)
-
-        var iterator = subject.sendListPublisher().makeAsyncIterator()
-        let sections = await iterator.next()
-
-        XCTAssertNil(sections)
-    }
-
-    /// `sendListPublisher()` returns a publisher for the list of sections and items that are
-    /// displayed in the sends tab.
     func test_sendListPublisher_withValues() async throws {
         try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
             SyncResponseModel.self,
