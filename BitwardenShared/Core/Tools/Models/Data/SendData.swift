@@ -31,10 +31,10 @@ class SendData: NSManagedObject, ManagedUserObject, CodableModelData {
         context: NSManagedObjectContext,
         userId: String,
         send: Send
-    ) {
+    ) throws {
         self.init(context: context)
         id = send.id
-        model = SendResponseModel(send: send)
+        model = try SendResponseModel(send: send)
         self.userId = userId
     }
 
@@ -46,9 +46,9 @@ class SendData: NSManagedObject, ManagedUserObject, CodableModelData {
     ///   - send: The `Send` object used to update the `SendData` instance.
     ///   - userId: The user ID associated with the send.
     ///
-    func update(with send: Send, userId: String) {
+    func update(with send: Send, userId: String) throws {
         id = send.id
-        model = SendResponseModel(send: send)
+        model = try SendResponseModel(send: send)
         self.userId = userId
     }
 }

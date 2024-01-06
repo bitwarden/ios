@@ -7,6 +7,7 @@ class CipherServiceTests: XCTestCase {
     // MARK: Properties
 
     var cipherDataStore: MockCipherDataStore!
+    var cipherAPIService: CipherAPIService!
     var client: MockHTTPClient!
     var stateService: MockStateService!
     var subject: CipherService!
@@ -15,13 +16,13 @@ class CipherServiceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-
-        cipherDataStore = MockCipherDataStore()
         client = MockHTTPClient()
+        cipherAPIService = APIService(client: client)
+        cipherDataStore = MockCipherDataStore()
         stateService = MockStateService()
 
         subject = DefaultCipherService(
-            cipherAPIService: APIService(client: client),
+            cipherAPIService: cipherAPIService,
             cipherDataStore: cipherDataStore,
             stateService: stateService
         )
@@ -37,6 +38,16 @@ class CipherServiceTests: XCTestCase {
     }
 
     // MARK: Tests
+
+    /// `deleteCipherWithServer(id:)` deletes the cipher item from remote server and persisted cipher in the data store.
+    func test_deleteCipher() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        try await subject.deleteCipherWithServer(id: "TestId")
+        XCTAssertEqual(cipherDataStore.deleteCipherId, "TestId")
+        XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
+    }
 
     /// `replaceCiphers(_:userId:)` replaces the persisted ciphers in the data store.
     func test_replaceCiphers() async throws {
@@ -65,5 +76,17 @@ class CipherServiceTests: XCTestCase {
         cipherResponse.collectionIds = ["1", "2"]
         XCTAssertEqual(cipherDataStore.upsertCipherValue, Cipher(responseModel: cipherResponse))
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+    }
+
+    /// `softDeleteCipherWithServer(id:)` soft deletes the cipher item
+    /// from remote server and persisted cipher in the data store.
+    func test_softDeleteCipher() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        let cipherToDeleted = Cipher.fixture(deletedDate: .now, id: "123")
+        try await subject.softDeleteCipherWithServer(id: "123", cipherToDeleted)
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherToDeleted)
     }
 }

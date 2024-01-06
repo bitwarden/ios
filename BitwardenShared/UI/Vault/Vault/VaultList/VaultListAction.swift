@@ -22,6 +22,9 @@ enum VaultListAction: Equatable {
     /// The text in the search bar was changed.
     case searchTextChanged(String)
 
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// The selected vault filter changed.
     case vaultFilterChanged(VaultFilterType)
 }

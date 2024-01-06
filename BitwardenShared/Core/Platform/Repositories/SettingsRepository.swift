@@ -134,8 +134,7 @@ extension DefaultSettingsRepository: SettingsRepository {
     }
 
     func addFolder(name: String) async throws {
-        // Create a new folder with a dummy id in order to encrypt the folder name.
-        let folderView = FolderView(id: UUID().uuidString, name: name, revisionDate: Date.now)
+        let folderView = FolderView(id: nil, name: name, revisionDate: Date.now)
         let folder = try await clientVault.folders().encrypt(folder: folderView)
         try await folderService.addFolderWithServer(name: folder.name)
     }

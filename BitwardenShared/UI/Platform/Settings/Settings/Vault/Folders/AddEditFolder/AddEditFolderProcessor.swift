@@ -124,7 +124,8 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
             case .add:
                 try await addFolder()
             case let .edit(folder):
-                try await editFolder(withID: folder.id)
+                guard let id = folder.id else { throw DataMappingError.missingId }
+                try await editFolder(withID: id)
             }
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
@@ -139,9 +140,13 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
     /// Show the dialog to confirm deleting the folder.
     private func showDeleteConfirmationAlert() async {
         guard case let .edit(folderView) = state.mode else { return }
+        guard let folderId = folderView.id else {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            return
+        }
 
         coordinator.showAlert(.confirmDeleteFolder { [weak self] in
-            await self?.deleteFolder(withID: folderView.id)
+            await self?.deleteFolder(withID: folderId)
         })
     }
 }

@@ -91,7 +91,10 @@ struct AddEditItemView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     VaultItemManagementMenuView(
-                        isCloneEnabled: false, store: store.child(
+                        isCloneEnabled: false,
+                        isCollectionsEnabled: store.state.cipher.organizationId != nil,
+                        isMoveToOrganizationEnabled: store.state.cipher.organizationId == nil,
+                        store: store.child(
                             state: { _ in },
                             mapAction: { .morePressed($0) },
                             mapEffect: { _ in .deletePressed }
@@ -242,13 +245,15 @@ private extension AddEditItemView {
                             .styleGuide(.body)
                     } else {
                         ForEach(store.state.collectionsForOwner, id: \.id) { collection in
-                            Toggle(isOn: store.binding(
-                                get: { _ in store.state.collectionIds.contains(collection.id) },
-                                send: { .collectionToggleChanged($0, collectionId: collection.id) }
-                            )) {
-                                Text(collection.name)
+                            if let collectionId = collection.id {
+                                Toggle(isOn: store.binding(
+                                    get: { _ in store.state.collectionIds.contains(collectionId) },
+                                    send: { .collectionToggleChanged($0, collectionId: collectionId) }
+                                )) {
+                                    Text(collection.name)
+                                }
+                                .toggleStyle(.bitwarden)
                             }
-                            .toggleStyle(.bitwarden)
                         }
                     }
                 }

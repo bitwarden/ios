@@ -10,6 +10,9 @@ import BitwardenSdk
 enum DataMappingError: Error {
     /// Thrown if an object was unable to be constructed because the data was invalid.
     case invalidData
+
+    /// Thrown if a required object identifier is nil.
+    case missingId
 }
 
 // MARK: - Ciphers
@@ -452,11 +455,12 @@ extension BitwardenSdk.UriMatchType {
 // MARK: Collections
 
 extension CollectionDetailsResponseModel {
-    init(collection: Collection) {
+    init(collection: Collection) throws {
+        guard let id = collection.id else { throw DataMappingError.missingId }
         self.init(
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
-            id: collection.id,
+            id: id,
             name: collection.name,
             organizationId: collection.organizationId,
             readOnly: collection.readOnly

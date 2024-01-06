@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "password_autofill_preview.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

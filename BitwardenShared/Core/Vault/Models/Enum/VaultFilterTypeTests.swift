@@ -62,7 +62,7 @@ class VaultFilterTypeTests: BitwardenTestCase {
         XCTAssertEqual(VaultFilterType.allVaults.filterTitle, "Vaults: All")
         XCTAssertEqual(VaultFilterType.myVault.filterTitle, "Vault: My vault")
         XCTAssertEqual(
-            VaultFilterType.organization(Organization(id: "", name: "Test Organization")).filterTitle,
+            VaultFilterType.organization(.fixture(id: "", name: "Test Organization")).filterTitle,
             "Vault: Test Organization"
         )
     }
@@ -87,7 +87,7 @@ class VaultFilterTypeTests: BitwardenTestCase {
         XCTAssertEqual(VaultFilterType.allVaults.title, "All vaults")
         XCTAssertEqual(VaultFilterType.myVault.title, "My vault")
         XCTAssertEqual(
-            VaultFilterType.organization(Organization(id: "", name: "Test Organization")).title,
+            VaultFilterType.organization(.fixture(id: "", name: "Test Organization")).title,
             "Test Organization"
         )
     }
