@@ -158,7 +158,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.state.passwordState.containsUppercase = false
 
         subject.receive(.refreshGeneratedValue)
-        waitFor { subject.state.passwordState.containsLowercase }
+        waitFor { generatorRepository.passwordGeneratorRequest != nil }
 
         XCTAssertTrue(subject.state.passwordState.containsLowercase)
         XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.lowercase, true)
