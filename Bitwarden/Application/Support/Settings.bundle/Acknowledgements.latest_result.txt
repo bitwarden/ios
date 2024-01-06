@@ -14,9 +14,9 @@ name: firebase-ios-sdk, nameSpecified: Firebase, owner: firebase, version: 10.13
 
 name: GoogleAppMeasurement, nameSpecified: GoogleAppMeasurement, owner: google, version: 10.13.0, source: https://github.com/google/GoogleAppMeasurement
 
-name: GoogleDataTransport, nameSpecified: GoogleDataTransport, owner: google, version: 9.2.5, source: https://github.com/google/GoogleDataTransport
+name: GoogleDataTransport, nameSpecified: GoogleDataTransport, owner: google, version: 9.3.0, source: https://github.com/google/GoogleDataTransport
 
-name: GoogleUtilities, nameSpecified: GoogleUtilities, owner: google, version: 7.11.6, source: https://github.com/google/GoogleUtilities
+name: GoogleUtilities, nameSpecified: GoogleUtilities, owner: google, version: 7.12.1, source: https://github.com/google/GoogleUtilities
 
 name: grpc-binary, nameSpecified: gRPC, owner: google, version: 1.50.2, source: https://github.com/google/grpc-binary
 

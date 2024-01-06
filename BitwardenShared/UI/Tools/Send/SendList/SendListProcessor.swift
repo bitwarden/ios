@@ -50,13 +50,14 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         case .addItemPressed:
             coordinator.navigate(to: .addItem)
         case .infoButtonPressed:
+            // TODO: BIT-1390 Open the Sends info url
             break
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .sendListItemRow(rowAction):
             switch rowAction {
             case let .sendListItemPressed(item):
-
+                // TODO: BIT-1389 Navigate to the Edit Send screen
                 print("tapped: \(item.id)")
             }
         }

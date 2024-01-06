@@ -8,14 +8,17 @@ class SendListProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SendRoute>!
+    var sendRepository: MockSendRepository!
     var subject: SendListProcessor!
 
     override func setUp() {
         super.setUp()
 
         coordinator = MockCoordinator()
+        sendRepository = MockSendRepository()
         subject = SendListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(sendRepository: sendRepository),
             state: SendListState()
         )
     }
