@@ -85,6 +85,29 @@ struct VaultListItemRowView: View {
                         Text("\(count)")
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    case let .totp(_, loginView: loginView, _):
+                        // TODO: BIT-1341: List View
+                        VStack(alignment: .leading, spacing: 0) {
+                            if let uri = loginView.uris?.first?.uri {
+                                Text(uri)
+                                    .styleGuide(.body)
+                                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                            }
+                            if let username = loginView.username {
+                                Text(username)
+                                    .styleGuide(.subheadline)
+                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            }
+                        }
+                        Spacer()
+                        Text("123 456")
+                            .styleGuide(.bodyMonospaced, weight: .semibold, monoSpacedDigit: true)
+                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        Button {
+                            // TODO: BIT-1341: List View
+                        } label: {
+                            Asset.Images.copy.swiftUIImage
+                        }
                     }
                 }
                 .padding(.vertical, 9)

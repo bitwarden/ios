@@ -76,6 +76,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
+            case let .totp(id: id, _, _):
+                coordinator.navigate(to: .viewItem(id: id))
             }
         case .morePressed:
             // TODO: BIT-375 Show item actions
