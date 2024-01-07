@@ -65,6 +65,21 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .logout)
     }
 
+    /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
+    /// and clears the fingerprint phrase URL.
+    func test_perform_showAccountFingerprintPhraseAlert() async throws {
+        await subject.perform(.accountFingerprintPhrasePressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+
+        // Tapping learn more navigates the user to the web app.
+        try await alert.tapAction(title: Localizations.learnMore)
+        XCTAssertNotNil(subject.state.fingerprintPhraseUrl)
+
+        subject.receive(.clearFingerprintPhraseUrl)
+        XCTAssertNil(subject.state.fingerprintPhraseUrl)
+    }
+
     /// `receive(_:)` with `.twoStepLoginPressed` clears the two step login URL.
     func test_receive_clearTwoStepLoginUrl() async throws {
         subject.receive(.twoStepLoginPressed)

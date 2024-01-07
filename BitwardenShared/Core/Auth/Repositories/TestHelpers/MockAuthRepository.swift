@@ -5,6 +5,7 @@ class MockAuthRepository: AuthRepository {
     var activeAccountResult: Result<ProfileSwitcherItem, Error> = .failure(StateServiceError.noActiveAccount)
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var deleteAccountCalled = false
+    var fingerprintPhrase = "a-long-fingerprint-phrase-placeholder"
     var logoutCalled = false
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var unlockVaultPassword: String?
@@ -24,6 +25,10 @@ class MockAuthRepository: AuthRepository {
 
     func getAccount(for userId: String) async throws -> BitwardenShared.Account {
         try accountForItemResult.get()
+    }
+
+    func getFingerprintPhrase(userId: String?) async throws -> String {
+        fingerprintPhrase
     }
 
     func logout() async throws {

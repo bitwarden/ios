@@ -213,6 +213,7 @@ public class ServiceContainer: Services {
             accountAPIService: apiService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
+            clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
             organizationService: organizationService,
             stateService: stateService,
@@ -294,5 +295,9 @@ extension ServiceContainer {
 
     var clientCrypto: ClientCryptoProtocol {
         clientService.clientCrypto()
+    }
+
+    var clientPlatform: ClientPlatformProtocol {
+        clientService.clientPlatform()
     }
 }

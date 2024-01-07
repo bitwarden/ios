@@ -32,6 +32,13 @@ protocol AuthRepository: AnyObject {
     ///
     func getAccount(for userId: String) async throws -> Account
 
+    /// Gets the account's unique fingerprint phrase.
+    ///
+    /// - Parameter userId: The user Id used in generating a fingerprint phrase.
+    /// - Returns: The account fingerprint phrase.
+    ///
+    func getFingerprintPhrase(userId: String?) async throws -> String
+
     /// Logs the user out of the active account.
     ///
     func logout() async throws
@@ -66,6 +73,9 @@ class DefaultAuthRepository {
     /// The client used by the application to handle encryption and decryption setup tasks.
     let clientCrypto: ClientCryptoProtocol
 
+    /// The client used by the application to handle account fingerprint phrase generation.
+    let clientPlatform: ClientPlatformProtocol
+
     /// The service used by the application to manage the environment settings.
     let environmentService: EnvironmentService
 
@@ -86,6 +96,7 @@ class DefaultAuthRepository {
     ///   - accountAPIService: The services used by the application to make account related API requests.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
+    ///   - clientPlatform: The client used by the application to handle generating account fingerprints.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
@@ -95,6 +106,7 @@ class DefaultAuthRepository {
         accountAPIService: AccountAPIService,
         clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
+        clientPlatform: ClientPlatformProtocol,
         environmentService: EnvironmentService,
         organizationService: OrganizationService,
         stateService: StateService,
@@ -103,6 +115,7 @@ class DefaultAuthRepository {
         self.accountAPIService = accountAPIService
         self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
+        self.clientPlatform = clientPlatform
         self.environmentService = environmentService
         self.organizationService = organizationService
         self.stateService = stateService
@@ -113,6 +126,12 @@ class DefaultAuthRepository {
 // MARK: - AuthRepository
 
 extension DefaultAuthRepository: AuthRepository {
+    func getFingerprintPhrase(userId: String?) async throws -> String {
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+        let account = try await stateService.getActiveAccount()
+        return try await clientPlatform.userFingerprint(fingerprintMaterial: account.profile.userId)
+    }
+
     func deleteAccount(passwordText: String) async throws {
         let hashedPassword = try await hashPassword(passwordText: passwordText)
 

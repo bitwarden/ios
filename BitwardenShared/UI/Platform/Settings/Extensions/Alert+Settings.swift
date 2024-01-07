@@ -36,6 +36,25 @@ extension Alert {
         )
     }
 
+    /// Displays the account fingerprint phrase alert.
+    ///
+    /// - Parameters:
+    ///   - action: The action to perform when the user selects `Learn more`.
+    ///   - phrase: The user's fingerprint phrase.
+    ///
+    /// - Returns: An alert that displays the user's fingerprint phrase and prompts them to learn more about it.
+    ///
+    static func displayFingerprintPhraseAlert(_ action: @escaping () async -> Void, phrase: String) -> Alert {
+        Alert(
+            title: Localizations.fingerprintPhrase,
+            message: "\(Localizations.yourAccountsFingerprint):\n\n\(phrase)",
+            alertActions: [
+                AlertAction(title: Localizations.close, style: .cancel),
+                AlertAction(title: Localizations.learnMore, style: .default) { _ in await action() },
+            ]
+        )
+    }
+
     /// Confirms that the user wants to logout if their session times out.
     ///
     /// - Parameter action: The action performed when they select `Yes`.

@@ -7,7 +7,10 @@ import Foundation
 enum ExternalLinksConstants {
     // MARK: Properties
 
-    /// A link the Bitwarden's help page for generating username types.
+    /// A link to Bitwarden's help page for learning more about the account fingerprint phrase.
+    static let fingerprintPhrase = URL(string: "https://bitwarden.com/help/fingerprint-phrase/")!
+
+    /// A link to Bitwarden's help page for generating username types.
     static let generatorUsernameTypes = URL(string: "https://bitwarden.com/help/generator/#username-types")!
 
     /// A markdown link to Bitwarden's privacy policy.
