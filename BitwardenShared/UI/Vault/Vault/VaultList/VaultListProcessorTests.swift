@@ -246,7 +246,7 @@ class VaultListProcessorTests: BitwardenTestCase {
     func test_receive_copyTOTPCode() {
         subject.receive(.copyTOTPCode("123456"))
         XCTAssertEqual(pasteboardService.copiedString, "123456")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied("123456"))
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.verificationCode))
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.

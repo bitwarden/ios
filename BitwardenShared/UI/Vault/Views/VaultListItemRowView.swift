@@ -119,34 +119,7 @@ struct VaultListItemRowView: View {
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                     case let .totp(model):
-                        VStack(alignment: .leading, spacing: 0) {
-                            if let uri = model.loginView.uris?.first?.uri {
-                                Text(uri)
-                                    .styleGuide(.body)
-                                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                            }
-                            if let username = model.loginView.username {
-                                Text(username)
-                                    .styleGuide(.subheadline)
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                            }
-                        }
-                        Spacer()
-                        TOTPCountdownTimerView(
-                            totpCode: model.totpCode,
-                            onExpiration: {
-                                store.send(.totpCodeExpired)
-                            }
-                        )
-                        Text(model.totpCode.displayCode)
-                            .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        Button {
-                            store.send(.copyTOTPCode(model.totpCode.code))
-                        } label: {
-                            Asset.Images.copy.swiftUIImage
-                        }
-                        .accessibilityLabel(Localizations.copyTotp)
+                        totpCodeRow(model)
                     }
                 }
                 .padding(.vertical, 9)
@@ -158,5 +131,44 @@ struct VaultListItemRowView: View {
                     .padding(.leading, 22 + 16 + 16)
             }
         }
+    }
+
+    @ViewBuilder
+    private func totpCodeRow(_ model: VaultListTOTP) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if let uri = model.loginView.uris?.first?.uri {
+                Text(uri)
+                    .styleGuide(.body)
+                    .lineLimit(1)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            }
+            if let username = model.loginView.username {
+                Text(username)
+                    .styleGuide(.subheadline)
+                    .lineLimit(1)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            }
+        }
+        Spacer()
+        TOTPCountdownTimerView(
+            totpCode: model.totpCode,
+            onExpiration: {
+                Task { @MainActor in
+                    store.send(.totpCodeExpired)
+                }
+            }
+        )
+        Text(model.totpCode.displayCode)
+            .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
+            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+        Button {
+            Task { @MainActor in
+                store.send(.copyTOTPCode(model.totpCode.code))
+            }
+        } label: {
+            Asset.Images.copy.swiftUIImage
+        }
+        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+        .accessibilityLabel(Localizations.copyTotp)
     }
 }

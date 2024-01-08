@@ -43,7 +43,11 @@ class VaultListItemRowViewTests: BitwardenTestCase {
             hasDivider: false
         )
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyTotp)
-        try button.tap()
+        let task = Task {
+            try button.tap()
+        }
+        waitFor(!processor.dispatchedActions.isEmpty)
+        task.cancel()
         XCTAssertEqual(processor.dispatchedActions.last, .copyTOTPCode(totp.totpCode.code))
     }
 }
