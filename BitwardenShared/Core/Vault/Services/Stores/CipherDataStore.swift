@@ -21,6 +21,13 @@ protocol CipherDataStore: AnyObject {
     ///
     func deleteCipher(id: String, userId: String) async throws
 
+    /// Attempt to fetch a cipher with the given id.
+    ///
+    /// - Parameter id: The id of the cipher to find.
+    /// - Returns: The cipher if it was found and `nil` if not.
+    ///
+    func fetchCipher(withId id: String, userId: String) async -> Cipher?
+
     /// A publisher for a user's cipher objects.
     ///
     /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
@@ -56,6 +63,14 @@ extension DataStore: CipherDataStore {
             for result in results {
                 self.backgroundContext.delete(result)
             }
+        }
+    }
+
+    func fetchCipher(withId id: String, userId: String) async -> Cipher? {
+        await backgroundContext.perform {
+            try? self.backgroundContext.fetch(CipherData.fetchByIdRequest(id: id, userId: userId))
+                .compactMap(Cipher.init)
+                .first
         }
     }
 

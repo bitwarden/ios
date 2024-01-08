@@ -11,6 +11,8 @@ class MockVaultRepository: VaultRepository {
     var deletedCipher = [String]()
     var deleteCipherResult: Result<Void, Error> = .success(())
     var doesActiveAccountHavePremiumCalled = false
+    var fetchCipherId: String?
+    var fetchCipherResult: CipherView?
     var fetchCipherOwnershipOptionsIncludePersonal: Bool? // swiftlint:disable:this identifier_name
     var fetchCipherOwnershipOptions = [CipherOwner]()
     var fetchCollectionsIncludeReadOnly: Bool?
@@ -58,6 +60,11 @@ class MockVaultRepository: VaultRepository {
     func doesActiveAccountHavePremium() async throws -> Bool {
         doesActiveAccountHavePremiumCalled = true
         return try hasPremiumResult.get()
+    }
+
+    func fetchCipher(withId id: String) async -> CipherView? {
+        fetchCipherId = id
+        return fetchCipherResult
     }
 
     func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {

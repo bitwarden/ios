@@ -5,6 +5,10 @@ import Combine
 
 class MockCipherService: CipherService {
     var ciphersSubject = CurrentValueSubject<[Cipher], Error>([])
+
+    var fetchCipherId: String?
+    var fetchCipherResult: Cipher?
+
     var replaceCiphersCiphers: [CipherDetailsResponseModel]?
     var replaceCiphersUserId: String?
 
@@ -21,6 +25,11 @@ class MockCipherService: CipherService {
     func deleteCipherWithServer(id: String) async throws {
         deleteCipherId = id
         try deleteWithServerResult.get()
+    }
+
+    func fetchCipher(withId id: String) async -> Cipher? {
+        fetchCipherId = id
+        return fetchCipherResult
     }
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {

@@ -12,6 +12,13 @@ protocol CipherService {
     ///
     func deleteCipherWithServer(id: String) async throws
 
+    /// Attempt to fetch a cipher with the given id.
+    ///
+    /// - Parameter id: The id of the cipher to find.
+    /// - Returns: The cipher if it was found and `nil` if not.
+    ///
+    func fetchCipher(withId id: String) async -> Cipher?
+
     /// Replaces the persisted list of ciphers for the user.
     ///
     /// - Parameters:
@@ -84,6 +91,11 @@ extension DefaultCipherService {
 
         // Delete cipher from local storage
         try await cipherDataStore.deleteCipher(id: id, userId: userID)
+    }
+
+    func fetchCipher(withId id: String) async -> Cipher? {
+        guard let userID = try? await stateService.getActiveAccountId() else { return nil }
+        return await cipherDataStore.fetchCipher(withId: id, userId: userID)
     }
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
