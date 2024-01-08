@@ -17,6 +17,7 @@ enum AuthError: Error {
 // MARK: - AuthService
 
 /// A protocol for a service used that handles the auth logic.
+///
 protocol AuthService {
     /// The callback url scheme for this application.
     var callbackUrlScheme: String { get }
@@ -29,6 +30,15 @@ protocol AuthService {
     ///   auth result will have to match.
     ///
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String)
+
+    /// Creates a hash value for the user's master password.
+    ///
+    /// - Parameters:
+    ///   - password: The password text to hash.
+    ///   - purpose: The purpose of the hash.
+    ///
+    /// - Returns: A hash value of the password .
+    func hashPassword(password: String, purpose: HashPurpose) async throws -> String
 
     /// Login with the master password.
     ///
@@ -175,27 +185,34 @@ class DefaultAuthService: AuthService {
         let response = try await accountAPIService.preLogin(email: username)
 
         // Get the identity token to log in to Bitwarden.
+        let hashedPassword = try await clientAuth.hashPassword(
+            email: username,
+            password: masterPassword,
+            kdfParams: response.sdkKdf,
+            purpose: .serverAuthorization
+        )
         try await getIdentityTokenResponse(
             authenticationMethod: .password(
                 username: username,
-                password: hashPassword(
-                    username: username,
-                    password: masterPassword,
-                    kdf: response.sdkKdf,
-                    purpose: .serverAuthorization
-                )
+                password: hashedPassword
             ),
             captchaToken: captchaToken
         )
 
         // Save the master password.
-        try await stateService.setMasterPasswordHash(
-            hashPassword(
-                username: username,
-                password: masterPassword,
-                kdf: response.sdkKdf,
-                purpose: .localAuthorization
-            )
+        try await stateService.setMasterPasswordHash(hashPassword(
+            password: masterPassword,
+            purpose: .localAuthorization
+        ))
+    }
+
+    func hashPassword(password: String, purpose: HashPurpose) async throws -> String {
+        let account = try await stateService.getActiveAccount()
+        return try await clientAuth.hashPassword(
+            email: account.profile.email,
+            password: password,
+            kdfParams: account.kdf.sdkKdf,
+            purpose: purpose
         )
     }
 
@@ -210,7 +227,7 @@ class DefaultAuthService: AuthService {
         )
 
         // Return the account if the vault still needs to be unlocked and nil otherwise.
-        // TODO: - Wait for SDK to support unlocking vault for TDE accounts.
+        // TODO: BIT-1392 Wait for SDK to support unlocking vault for TDE accounts.
         return try await stateService.getActiveAccount()
     }
 
@@ -248,29 +265,5 @@ class DefaultAuthService: AuthService {
         // Save the encryption keys.
         let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
         try await stateService.setAccountEncryptionKeys(encryptionKeys)
-    }
-
-    /// Returns a hash of the provided password.
-    ///
-    /// - Parameters:
-    ///   - username: The username.
-    ///   - password: The password.
-    ///   - kdf: The KDF parameters used to generate the hash.
-    ///   - purpose: The purpose of the hash.
-    ///
-    /// - Returns: A hash of the provided password.
-    ///
-    private func hashPassword(
-        username: String,
-        password: String,
-        kdf: BitwardenSdk.Kdf,
-        purpose: HashPurpose
-    ) async throws -> String {
-        try await clientAuth.hashPassword(
-            email: username,
-            password: password,
-            kdfParams: kdf,
-            purpose: purpose
-        )
     }
 }

@@ -230,6 +230,7 @@ public class ServiceContainer: Services {
 
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
+            authService: authService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             environmentService: environmentService,

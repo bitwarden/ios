@@ -131,7 +131,7 @@ class AuthServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
-        XCTAssertEqual(clientAuth.hashPasswordEmail, "email@example.com")
+        XCTAssertEqual(clientAuth.hashPasswordEmail, "user@bitwarden.com")
         XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
         XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
 
