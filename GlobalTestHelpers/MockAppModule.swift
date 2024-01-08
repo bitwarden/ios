@@ -21,6 +21,7 @@ class MockAppModule:
     var vaultItemCoordinator = MockCoordinator<VaultItemRoute>()
 
     func makeAppCoordinator(
+        appContext: AppContext,
         navigator: RootNavigator
     ) -> AnyCoordinator<AppRoute> {
         appCoordinator.asAnyCoordinator()

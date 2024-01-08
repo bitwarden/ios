@@ -38,10 +38,12 @@ public class AppProcessor {
 
     /// Starts the application flow by navigating the user to the first flow.
     ///
-    /// - Parameter navigator: The object that will be used to navigate between routes.
+    /// - Parameters:
+    ///   - appContext: The context that the app is running within.
+    ///   - navigator: The object that will be used to navigate between routes.
     ///
-    public func start(navigator: RootNavigator) {
-        let coordinator = appModule.makeAppCoordinator(navigator: navigator)
+    public func start(appContext: AppContext, navigator: RootNavigator) {
+        let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
         coordinator.start()
         self.coordinator = coordinator
 

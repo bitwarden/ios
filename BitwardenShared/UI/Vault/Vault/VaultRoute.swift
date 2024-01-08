@@ -17,6 +17,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameter alert: The alert to display.
     case alert(_ alert: Alert)
 
+    /// A route to the autofill list screen.
+    case autofillList
+
     /// A route to dismiss the screen currently presented modally.
     case dismiss
 

@@ -29,6 +29,7 @@ extension DefaultAppModule: AuthModule {
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<AuthRoute> {
         AuthCoordinator(
+            appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             rootNavigator: rootNavigator,
             services: services,
