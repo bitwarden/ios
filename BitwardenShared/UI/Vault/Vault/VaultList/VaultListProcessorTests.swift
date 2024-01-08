@@ -197,8 +197,29 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for an identity cipher.
     func test_perform_morePressed_identity() async throws {
-        // TODO: BIT-1364
-        // TODO: BIT-1368
+        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .identity)))
+
+        // An identity option can be viewed or edited.
+        vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
+        await subject.perform(.morePressed(item: item))
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // Test the functionality of the buttons.
+
+        // View navigates to the view item view.
+        let viewAction = try XCTUnwrap(alert.alertActions[0])
+        await viewAction.handler?(viewAction, [])
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+
+        // Edit navigates to the edit view.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: .fixture(type: .identity)))
     }
 
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a secure note cipher.
