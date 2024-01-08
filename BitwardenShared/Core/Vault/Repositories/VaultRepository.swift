@@ -103,6 +103,12 @@ protocol VaultRepository: AnyObject {
     ///
     func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>>
 
+    /// A publisher for the list of a user's ciphers.
+    ///
+    /// - Returns: A publisher for the list of a user's ciphers.
+    ///
+    func cipherPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherListView], Error>>
+
     /// A publisher for the list of organizations the user is a member of.
     ///
     /// - Returns: A publisher for the list of organizations the user is a member of.
@@ -538,6 +544,16 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     // MARK: Publishers
+
+    func cipherPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherListView], Error>> {
+        try await cipherService.ciphersPublisher()
+            .asyncTryMap { ciphers in
+                try await self.clientVault.ciphers().decryptList(ciphers: ciphers)
+                    .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            }
+            .eraseToAnyPublisher()
+            .values
+    }
 
     func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>> {
         syncService.syncResponsePublisher()

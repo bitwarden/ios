@@ -1,8 +1,11 @@
 import BitwardenSdk
+import Combine
+
 @testable import BitwardenShared
 import Combine
 
 class MockCipherService: CipherService {
+    var ciphersSubject = CurrentValueSubject<[Cipher], Error>([])
     var replaceCiphersCiphers: [CipherDetailsResponseModel]?
     var replaceCiphersUserId: String?
 
@@ -43,5 +46,9 @@ class MockCipherService: CipherService {
         softDeleteCipherId = id
         softDeleteCipher = cipher
         try softDeleteWithServerResult.get()
+    }
+
+    func ciphersPublisher() async throws -> AnyPublisher<[BitwardenSdk.Cipher], Error> {
+        ciphersSubject.eraseToAnyPublisher()
     }
 }

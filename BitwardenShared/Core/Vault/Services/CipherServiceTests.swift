@@ -6,8 +6,8 @@ import XCTest
 class CipherServiceTests: XCTestCase {
     // MARK: Properties
 
-    var cipherDataStore: MockCipherDataStore!
     var cipherAPIService: CipherAPIService!
+    var cipherDataStore: MockCipherDataStore!
     var client: MockHTTPClient!
     var stateService: MockStateService!
     var subject: CipherService!
@@ -39,20 +39,17 @@ class CipherServiceTests: XCTestCase {
 
     // MARK: Tests
 
-    /// `cipherPublisher(userId:)` publishes ciphers from local data store.
-    func test_cipherPublisher_() async throws {
-        let ciphers: [Cipher] = [Cipher.fixture(id: "123")]
-        cipherDataStore.cipherSubject.value = ciphers
-        var publishedValues = [[Cipher]]()
-        let publisher = subject.cipherPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                }
-            )
-        defer { publisher.cancel() }
-        XCTAssertEqual(publishedValues.first, ciphers)
+    /// `ciphersPublisher()` returns a publisher that emits data as the data store changes.
+    func test_ciphersPublisher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        var iterator = try await subject.ciphersPublisher().values.makeAsyncIterator()
+        _ = try await iterator.next()
+
+        let cipher = Cipher.fixture()
+        cipherDataStore.cipherSubject.value = [cipher]
+        let publisherValue = try await iterator.next()
+        try XCTAssertEqual(XCTUnwrap(publisherValue), [cipher])
     }
 
     /// `deleteCipherWithServer(id:)` deletes the cipher item from remote server and persisted cipher in the data store.

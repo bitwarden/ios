@@ -38,6 +38,14 @@ protocol CipherService {
     /// - Parameter cipher: The  cipher item to be soft deleted.
     ///
     func softDeleteCipherWithServer(id: String, _ cipher: Cipher) async throws
+
+    // MARK: Publishers
+
+    /// A publisher for the list of ciphers.
+    ///
+    /// - Returns: The list of encrypted ciphers.
+    ///
+    func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error>
 }
 
 // MARK: - DefaultCipherService
@@ -108,5 +116,12 @@ extension DefaultCipherService {
 
         // Soft delete cipher from local storage
         try await cipherDataStore.upsertCipher(cipher, userId: userID)
+    }
+
+    // MARK: Publishers
+
+    func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error> {
+        let userID = try await stateService.getActiveAccountId()
+        return cipherDataStore.cipherPublisher(userId: userID)
     }
 }

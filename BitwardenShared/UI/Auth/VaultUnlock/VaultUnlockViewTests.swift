@@ -39,6 +39,14 @@ class VaultUnlockViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping the cancel button in the navigation bar dispatches the `.cancelPressed` action.
+    func test_cancelButton_tap() throws {
+        processor.state.isInAppExtension = true
+        let button = try subject.inspect().find(button: Localizations.cancel)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .cancelPressed)
+    }
+
     /// The secure field is visible when `isMasterPasswordRevealed` is `false`.
     func test_isMasterPasswordRevealed_false() throws {
         processor.state.isMasterPasswordRevealed = false
