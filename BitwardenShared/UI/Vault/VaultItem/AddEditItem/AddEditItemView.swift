@@ -47,7 +47,7 @@ struct AddEditItemView: View {
 
     private var content: some View {
         ScrollView {
-            LazyVStack(spacing: 20) {
+            VStack(spacing: 20) {
                 informationSection
                 miscellaneousSection
                 notesSection
@@ -218,6 +218,7 @@ private extension AddEditItemView {
                     get: \.notes,
                     send: AddEditItemAction.notesChanged
                 ))
+                .transparentScrolling()
                 .fixedSize(horizontal: false, vertical: true)
                 .focused($isNotesFocused)
                 .toolbar(content: {
