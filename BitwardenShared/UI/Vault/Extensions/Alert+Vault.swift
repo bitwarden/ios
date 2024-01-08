@@ -67,9 +67,14 @@ extension Alert {
             // TODO: BIT-1368
             break
         case .secureNote:
-            // TODO: BIT-1366
-            // TODO: BIT-1375
-            break
+            if let notes = cipherView.notes {
+                alertActions.append(AlertAction(title: Localizations.copyNotes, style: .default) { _, _ in
+                    action(.copy(
+                        toast: Localizations.notes,
+                        value: notes
+                    ))
+                })
+            }
         }
 
         // Return the alert.
