@@ -7,7 +7,6 @@ import XCTest
 class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var cipherDataStore: MockCipherDataStore!
     var cipherService: MockCipherService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
@@ -28,7 +27,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     override func setUp() {
         super.setUp()
 
-        cipherDataStore = MockCipherDataStore()
         cipherService = MockCipherService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
@@ -63,7 +61,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     override func tearDown() {
         super.tearDown()
 
-        cipherDataStore = nil
         cipherService = nil
         client = nil
         clientAuth = nil
@@ -126,6 +123,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         await assertAsyncThrows(error: EncryptError()) {
             try await subject.addCipher(.fixture())
         }
+    }
+
+    /// `cipherPublisher()` returns a publisher for the list of a user's ciphers.
+    func test_cipherPublisher() async throws {
+        let ciphers: [Cipher] = [
+            .fixture(name: "Bitwarden"),
+        ]
+        cipherService.ciphersSubject.value = ciphers
+
+        var iterator = try await subject.cipherPublisher().makeAsyncIterator()
+        let publishedCiphers = try await iterator.next()
+
+        XCTAssertEqual(publishedCiphers, ciphers.map(CipherListView.init))
     }
 
     /// `deleteCipher()` throws on id errors.

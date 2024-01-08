@@ -26,8 +26,14 @@ struct VaultUnlockView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options) {
-                    store.send(.morePressed)
+                if store.state.isInAppExtension {
+                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
+                        store.send(.cancelPressed)
+                    }
+                } else {
+                    ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options) {
+                        store.send(.morePressed)
+                    }
                 }
             }
             ToolbarItem(placement: .navigationBarLeading) {

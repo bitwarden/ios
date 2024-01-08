@@ -6,6 +6,9 @@ struct VaultUnlockState: Equatable {
     /// The user's email for the active account.
     let email: String
 
+    /// Whether the view is being displayed in the app extension.
+    var isInAppExtension = false
+
     /// A flag indicating if the master password should be revealed or not.
     var isMasterPasswordRevealed = false
 
