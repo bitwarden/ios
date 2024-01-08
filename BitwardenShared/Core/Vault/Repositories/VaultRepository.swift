@@ -271,10 +271,10 @@ class DefaultVaultRepository {
         let totpItems: [VaultListItem] = try await clientVault.ciphers()
             .decryptList(ciphers: active)
             .filter(filter?.cipherFilter(_:) ?? { _ in true })
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             .asyncMap(listItemTransform)
             .compactMap { $0 }
         return totpItems
+            .sorted { $0.id.localizedStandardCompare($1.id) == .orderedAscending }
     }
 
     /// Returns a list of items that are grouped together in the vault list from a sync response.

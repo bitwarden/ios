@@ -19,7 +19,7 @@ class MockVaultRepository: VaultRepository {
     var fetchSyncCalled = false
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
-    var refreshTOTPCodesCalled = false
+    var refreshTOTPCodes: [VaultListItem] = []
     var refreshTOTPCodesResult: Result<[VaultListItem], Error> = .success([])
     var removeAccountIds = [String?]()
     var shareCipherResult: Result<Void, Error> = .success(())
@@ -77,7 +77,7 @@ class MockVaultRepository: VaultRepository {
     }
 
     func refreshTOTPCodes(for items: [BitwardenShared.VaultListItem]) async throws -> [BitwardenShared.VaultListItem] {
-        refreshTOTPCodesCalled = true
+        refreshTOTPCodes = items
         return try refreshTOTPCodesResult.get()
     }
 

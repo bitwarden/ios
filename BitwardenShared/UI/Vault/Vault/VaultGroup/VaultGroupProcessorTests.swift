@@ -139,12 +139,17 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.toast)
     }
 
-    /// `receive(_:)` with `.totpCodeExpired` updates the state's TOTP codes.
-    func test_receive_totpExpired() throws {
-        let result = VaultListItem.fixtureTOTP()
-        subject.state.loadingState = .data([
-            result,
-        ])
+    /// TOTP Code expiration updates the state's TOTP codes.
+    func test_receive_appeared_totpExpired_single() throws {
+        let result = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                totpCode: .init(
+                    code: "",
+                    date: .distantPast,
+                    period: 30
+                )
+            )
+        )
         let newResult = VaultListItem.fixtureTOTP(
             totp: .fixture(
                 totpCode: .init(
@@ -157,24 +162,97 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         vaultRepository.refreshTOTPCodesResult = .success([
             newResult,
         ])
-        subject.receive(.totpCodeExpired(.fixture()))
-        waitFor(vaultRepository.refreshTOTPCodesCalled)
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        vaultRepository.vaultListGroupSubject.send([result])
+        waitFor(!vaultRepository.refreshTOTPCodes.isEmpty)
         waitFor(subject.state.loadingState.data == [newResult])
+        task.cancel()
+        XCTAssertEqual([result], vaultRepository.refreshTOTPCodes)
         let first = try XCTUnwrap(subject.state.loadingState.data?.first)
         XCTAssertEqual(first, newResult)
     }
 
+    /// TOTP Code expiration updates the state's TOTP codes.
+    func test_receive_appeared_totpExpired_multi() throws {
+        let expiredResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "123",
+                totpCode: .init(
+                    code: "",
+                    date: .distantPast,
+                    period: 30
+                )
+            )
+        )
+        let expectedUpdate = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "123",
+                totpCode: .init(
+                    code: "345678",
+                    date: Date(),
+                    period: 30
+                )
+            )
+        )
+        let newResults: [VaultListItem] = [
+            expectedUpdate,
+            .fixtureTOTP(
+                totp: .fixture(
+                    id: "456",
+                    totpCode: .init(
+                        code: "345678",
+                        date: Date(),
+                        period: 30
+                    )
+                )
+            ),
+        ]
+        vaultRepository.refreshTOTPCodesResult = .success(newResults)
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        let stableResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "789",
+                totpCode: .init(
+                    code: "",
+                    date: Date(),
+                    period: 30
+                )
+            )
+        )
+        vaultRepository.vaultListGroupSubject.send([
+            expiredResult,
+            stableResult,
+        ])
+        waitFor(!vaultRepository.refreshTOTPCodes.isEmpty)
+        waitFor(subject.state.loadingState.data == [expectedUpdate, stableResult])
+        task.cancel()
+        XCTAssertEqual([expiredResult], vaultRepository.refreshTOTPCodes)
+    }
+
     /// `receive(_:)` with `.totpCodeExpired` handles errors.
     func test_receive_totpExpired_error() throws {
-        let result = VaultListItem.fixtureTOTP()
         struct TestError: Error, Equatable {}
-        subject.state.loadingState = .data([
-            result,
-        ])
+        let result = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                totpCode: .init(
+                    code: "",
+                    date: .distantPast,
+                    period: 30
+                )
+            )
+        )
         vaultRepository.refreshTOTPCodesResult = .failure(TestError())
-        subject.receive(.totpCodeExpired(.fixture()))
-        waitFor(vaultRepository.refreshTOTPCodesCalled)
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        vaultRepository.vaultListGroupSubject.send([result])
+        waitFor(!vaultRepository.refreshTOTPCodes.isEmpty)
         waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
         let first = try XCTUnwrap(errorReporter.errors.first as? TestError)
         XCTAssertEqual(first, TestError())
     }
@@ -184,6 +262,6 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         let result = VaultListItem.fixtureTOTP()
         subject.state.loadingState = .loading
         subject.receive(.totpCodeExpired(.fixture()))
-        XCTAssertFalse(vaultRepository.refreshTOTPCodesCalled)
+        XCTAssertTrue(vaultRepository.refreshTOTPCodes.isEmpty)
     }
 }

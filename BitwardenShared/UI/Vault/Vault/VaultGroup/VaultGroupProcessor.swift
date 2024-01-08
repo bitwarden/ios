@@ -18,6 +18,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     /// The services for this processor.
     private var services: Services
 
+    private var totpExpirationManager: TOTPExpirationManager?
+
     // MARK: Initialization
 
     /// Creates a new `VaultGroupProcessor`.
@@ -35,6 +37,12 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         self.coordinator = coordinator
         self.services = services
         super.init(state: state)
+        totpExpirationManager = .init(onExpiration: { [weak self] expiredItems in
+            guard let self else { return }
+            Task {
+                await self.refreshTOTPCodes(for: expiredItems)
+            }
+        })
     }
 
     // MARK: Methods
@@ -43,6 +51,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         switch effect {
         case .appeared:
             for await value in services.vaultRepository.vaultListPublisher(group: state.group) {
+                totpExpirationManager?.configureTOTPRefreshScheduling(for: value)
                 state.loadingState = .data(value)
             }
         case .refresh:
@@ -74,7 +83,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpCodeExpired:
-            Task { await refreshTOTPCodes() }
+            break
         }
     }
 
@@ -82,11 +91,12 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
 
     /// Refreshes the vault group's TOTP Codes.
     ///
-    private func refreshTOTPCodes() async {
-        guard case let .data(items) = state.loadingState else { return }
+    private func refreshTOTPCodes(for items: [VaultListItem]) async {
+        guard case let .data(currentItems) = state.loadingState else { return }
         do {
             let refreshedItems = try await services.vaultRepository.refreshTOTPCodes(for: items)
-            state.loadingState = .data(refreshedItems)
+            let allItems = currentItems.updated(with: refreshedItems)
+            state.loadingState = .data(allItems)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -109,5 +119,91 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
 extension VaultGroupProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
         state.toast = Toast(text: Localizations.itemSoftDeleted)
+    }
+}
+
+private class TOTPExpirationManager {
+    // MARK: Properties
+
+    /// A closure to call on expiration
+    ///
+    var onExpiration: (([VaultListItem]) -> Void)?
+
+    // MARK: Private Properties
+
+    /// All items managed by the object, grouped by TOTP period.
+    ///
+    private var itemsByInterval = [UInt32: [VaultListItem]]()
+
+    private var updateTimer: Timer?
+
+    /// Initializes a new countdown timer
+    ///
+    /// - Parameters
+    ///   - onExpiration: A closure to call on timer expiration.
+    ///
+    init(
+        onExpiration: (([VaultListItem]) -> Void)?
+    ) {
+        self.onExpiration = onExpiration
+        updateTimer = Timer.scheduledTimer(
+            withTimeInterval: 0.5,
+            repeats: true,
+            block: { _ in
+                self.checkForExpirations()
+            }
+        )
+    }
+
+    deinit {
+        updateTimer?.invalidate()
+        updateTimer = nil
+    }
+
+    // MARK: Methods
+
+    /// Configures TOTP code refresh scheduling
+    ///
+    /// - Parameter items: The vault list items that may require
+    func configureTOTPRefreshScheduling(for items: [VaultListItem]) {
+        var newItemsByInterval = [UInt32: [VaultListItem]]()
+        items.forEach { item in
+            guard case let .totp(model) = item.itemType else { return }
+            var matchedItems = newItemsByInterval[model.totpCode.period] ?? []
+            matchedItems.append(item)
+            newItemsByInterval[model.totpCode.period] = matchedItems
+        }
+        itemsByInterval = newItemsByInterval
+    }
+
+    private func checkForExpirations() {
+        var expired = [VaultListItem]()
+        itemsByInterval.forEach { period, items in
+            let expiredItems: [VaultListItem] = items.filter { item in
+                guard case let .totp(model) = item.itemType else { return false }
+                return (abs(model.totpCode.date.timeIntervalSinceReferenceDate)
+                    - abs(Date().timeIntervalSinceReferenceDate)) >= Double(period)
+                    || remainingSeconds(using: Int(period))
+                    > remainingSeconds(
+                        for: model.totpCode.date,
+                        using: Int(period)
+                    )
+            }
+            expired.append(contentsOf: expiredItems)
+        }
+        guard !expired.isEmpty else { return }
+        onExpiration?(expired)
+    }
+
+    /// Calculates the seconds remaining before an update is needed.
+    ///
+    /// - Parameters:
+    ///   - date: The date used to calculate the remaining seconds.
+    ///   - period: The period of expiration.
+    ///
+    private func remainingSeconds(for date: Date = Date(), using period: Int) -> Int {
+        period - (Int(date.timeIntervalSinceReferenceDate)
+            % 60
+            % period)
     }
 }
