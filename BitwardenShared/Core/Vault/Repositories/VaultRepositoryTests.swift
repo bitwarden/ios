@@ -306,7 +306,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(name: "qwe"),
             .fixture(name: "dabcd"),
         ]
-        let expectedSearchResult = [CipherListView(cipher: cipherService.cipherSubject.value.last!)]
+        let expectedSearchResult = try [CipherListView(cipher: XCTUnwrap(cipherService.cipherSubject.value.last))]
         var iterator = try await subject
             .searchCipherPublisher(searchText: "abc", filterType: .allVaults)
             .makeAsyncIterator()
