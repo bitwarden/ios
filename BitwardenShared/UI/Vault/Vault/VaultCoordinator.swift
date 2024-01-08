@@ -83,6 +83,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showVaultItem(route: .addItem(group: group))
         case let .alert(alert):
             stackNavigator.present(alert)
+        case .autofillList:
+            stackNavigator.push(Text("Autofill List"))
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):

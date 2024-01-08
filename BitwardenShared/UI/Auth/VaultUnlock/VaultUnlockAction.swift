@@ -1,6 +1,9 @@
 /// Actions that can be processed by a `VaultUnlockProcessor`.
 ///
 enum VaultUnlockAction: Equatable {
+    /// The cancel button was pressed.
+    case cancelPressed
+
     /// The value for the master password was changed.
     case masterPasswordChanged(String)
 

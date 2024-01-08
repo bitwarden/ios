@@ -27,7 +27,7 @@ class AppModuleTests: BitwardenTestCase {
     /// `makeAppCoordinator` builds the app coordinator.
     func test_makeAppCoordinator() {
         let rootViewController = RootViewController()
-        let coordinator = subject.makeAppCoordinator(navigator: rootViewController)
+        let coordinator = subject.makeAppCoordinator(appContext: .mainApp, navigator: rootViewController)
         coordinator.navigate(to: .auth(.landing), context: nil)
         XCTAssertNotNil(rootViewController.childViewController)
     }
