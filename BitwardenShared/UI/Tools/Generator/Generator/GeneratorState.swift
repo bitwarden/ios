@@ -290,6 +290,21 @@ struct GeneratorState: Equatable {
 
     // MARK: Methods
 
+    /// Returns whether changing the text value should generate a new value.
+    ///
+    /// - Parameter keyPath: The key path to the field in which the text value was changed.
+    /// - Returns: `true` if a new value should be generated or `false` otherwise.
+    ///
+    func shouldGenerateNewValueOnTextValueChanged(keyPath: KeyPath<GeneratorState, String>) -> Bool {
+        switch keyPath {
+        case \.passwordState.wordSeparator:
+            true
+        default:
+            // For most text fields, wait until focus leaves the field before generating a new value.
+            false
+        }
+    }
+
     /// Updates the state to show a toast for the value that was copied.
     ///
     mutating func showCopiedValueToast() {

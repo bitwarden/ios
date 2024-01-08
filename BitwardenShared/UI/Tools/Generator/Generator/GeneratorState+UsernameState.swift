@@ -124,7 +124,6 @@ extension GeneratorState {
 extension GeneratorState.UsernameState {
     /// Returns whether the inputs for generating the username are valid and a new username can be
     /// generated.
-    ///
     var canGenerateUsername: Bool {
         switch usernameGeneratorType {
         case .catchAllEmail,
@@ -170,8 +169,11 @@ extension GeneratorState.UsernameState {
 
     /// Returns a `UsernameGeneratorRequest` containing the user selected settings for generating a
     /// username.
-    func usernameGeneratorRequest() throws -> UsernameGeneratorRequest {
-        switch usernameGeneratorType {
+    ///
+    func usernameGeneratorRequest() throws -> UsernameGeneratorRequest? {
+        guard canGenerateUsername else { return nil }
+
+        return switch usernameGeneratorType {
         case .catchAllEmail:
             try catchAllGeneratorRequest()
         case .forwardedEmail:

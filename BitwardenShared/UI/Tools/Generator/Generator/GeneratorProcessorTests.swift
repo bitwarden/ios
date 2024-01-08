@@ -692,6 +692,17 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
+    /// A new value should only be generated when focus leaves a text field, and not when a text
+    /// field becomes focused.
+    func test_shouldGenerateNewValue_textFieldFocusChanged() {
+        XCTAssertFalse(
+            GeneratorAction.textFieldFocusChanged(keyPath: \.passwordState.wordSeparator)
+                .shouldGenerateNewValue
+        )
+
+        XCTAssertTrue(GeneratorAction.textFieldFocusChanged(keyPath: nil).shouldGenerateNewValue)
+    }
+
     // MARK: Private
 
     /// Creates a `SliderField` with the specified key path.

@@ -740,6 +740,31 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try XCTAssertEqual(subject.usernameGeneratorRequest(), .word(capitalize: true, includeNumber: true))
     }
 
+    /// `shouldGenerateNewValueOnTextValueChanged(keyPath:)` returns whether a new value should be
+    /// generated when the key path's text value changes.
+    func testShouldGenerateNewValueOnTextValueChanged() {
+        let subject = GeneratorState()
+
+        XCTAssertTrue(subject.shouldGenerateNewValueOnTextValueChanged(keyPath: \.passwordState.wordSeparator))
+
+        let keyPaths: [KeyPath<GeneratorState, String>] = [
+            \.usernameState.addyIOAPIAccessToken,
+            \.usernameState.addyIOAPIAccessToken,
+            \.usernameState.domain,
+            \.usernameState.duckDuckGoAPIKey,
+            \.usernameState.email,
+            \.usernameState.fastmailAPIKey,
+            \.usernameState.firefoxRelayAPIAccessToken,
+            \.usernameState.simpleLoginAPIKey,
+        ]
+        for keyPath in keyPaths {
+            XCTAssertFalse(
+                subject.shouldGenerateNewValueOnTextValueChanged(keyPath: keyPath),
+                "Expected false for key path \(keyPath)"
+            )
+        }
+    }
+
     // MARK: Private
 
     /// Returns a string containing a description of the vault list items.

@@ -102,9 +102,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 state[keyPath: field.keyPath] = String(value.prefix(1))
             }
 
-            if focusedKeyPath == \.usernameState.email || focusedKeyPath == \.usernameState.domain {
-                // Don't generate a new value on every character input, wait until focus leaves the field.
-                shouldGenerateNewValue = false
+            if let focusedKeyPath {
+                shouldGenerateNewValue = state.shouldGenerateNewValueOnTextValueChanged(keyPath: focusedKeyPath)
             }
         case let .toastShown(newValue):
             state.toast = newValue
@@ -166,11 +165,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Generate a new username.
     ///
     func generateUsername() async {
-        guard state.usernameState.canGenerateUsername else { return }
-
         do {
+            guard let usernameGeneratorRequest = try state.usernameState.usernameGeneratorRequest() else {
+                return
+            }
+
             let username = try await services.generatorRepository.generateUsername(
-                settings: state.usernameState.usernameGeneratorRequest()
+                settings: usernameGeneratorRequest
             )
             try Task.checkCancellation()
             try await setGeneratedValue(username)
