@@ -299,6 +299,8 @@ extension BitwardenSdk.Cipher {
     }
 }
 
+extension BitwardenSdk.CipherListView: Identifiable {}
+
 extension BitwardenSdk.CipherType {
     init(_ cipherType: CipherType) {
         switch cipherType {

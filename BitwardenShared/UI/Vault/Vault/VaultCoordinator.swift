@@ -40,6 +40,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Private Properties
 
+    /// A delegate used to communicate with the app extension.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The module used by this coordinator to create child coordinators.
     private let module: Module
 
@@ -56,17 +59,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     /// Creates a new `VaultCoordinator`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: The delegate for this coordinator, relays user interactions with the profile switcher.
     ///   - module: The module used by this coordinator to create child coordinators.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        appExtensionDelegate: AppExtensionDelegate?,
         delegate: VaultCoordinatorDelegate,
         module: Module,
         services: Services,
         stackNavigator: StackNavigator
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
@@ -84,7 +90,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         case let .alert(alert):
             stackNavigator.present(alert)
         case .autofillList:
-            stackNavigator.push(Text("Autofill List"))
+            showAutofillList()
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):
@@ -101,6 +107,19 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     func start() {}
 
     // MARK: Private Methods
+
+    /// Shows the autofill list screen.
+    ///
+    private func showAutofillList() {
+        let processor = VaultAutofillListProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultAutofillListState()
+        )
+        let view = VaultAutofillListView(store: Store(processor: processor))
+        stackNavigator.replace(view)
+    }
 
     /// Shows the vault group screen.
     ///
