@@ -50,12 +50,30 @@ class VaultCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_addItem() throws {
         let coordinator = MockCoordinator<VaultItemRoute>()
         module.vaultItemCoordinator = coordinator
-        subject.navigate(to: .addItem())
-
+        let task = Task {
+            subject.navigate(to: .addItem())
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
-        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem())
+        XCTAssertEqual(module.vaultItemCoordinator.asyncRoutes.last, .addItem())
+    }
+
+    /// `navigate(asyncTo:)` with `.addItem` presents the add item view onto the stack navigator.
+    func test_navigateTo_addItem_async() throws {
+        let coordinator = MockCoordinator<VaultItemRoute>()
+        module.vaultItemCoordinator = coordinator
+        let task = Task {
+            await subject.navigate(asyncTo: .addItem())
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.asyncRoutes.last, .addItem())
     }
 
     /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
@@ -123,12 +141,28 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
     func test_navigateTo_viewItem() throws {
-        subject.navigate(to: .viewItem(id: "id"))
-
+        let task = Task {
+            subject.navigate(to: .viewItem(id: "id"))
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
-        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .viewItem(id: "id"))
+        XCTAssertEqual(module.vaultItemCoordinator.asyncRoutes.last, .viewItem(id: "id"))
+    }
+
+    /// `.navigate(asyncTo:)` with `.viewItem` presents the view item screen.
+    func test_navigateTo_viewItem_async() throws {
+        let task = Task {
+            await subject.navigate(asyncTo: .viewItem(id: "id"))
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.asyncRoutes.last, .viewItem(id: "id"))
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.

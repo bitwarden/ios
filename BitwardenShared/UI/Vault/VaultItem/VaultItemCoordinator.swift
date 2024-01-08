@@ -50,8 +50,12 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
-        case let .addItem(group):
-            showAddItem(for: group.flatMap(CipherType.init))
+        case .addItem,
+             .editItem,
+             .scanCode:
+            Task {
+                await navigate(asyncTo: route, context: context)
+            }
         case let .alert(alert):
             stackNavigator.present(alert)
         case let .dismiss(onDismiss):
@@ -60,10 +64,6 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             })
         case let .editCollections(cipher):
             showEditCollections(cipher: cipher, delegate: context as? EditCollectionsProcessorDelegate)
-        case let .editItem(cipher: cipher):
-            Task {
-                await showEditItem(for: cipher)
-            }
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
@@ -74,15 +74,13 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             showManualTotp(delegate: delegate)
         case let .viewItem(id):
             showViewItem(id: id, delegate: context as? CipherItemOperationDelegate)
-        case .scanCode:
-            Task {
-                await navigate(asyncTo: .scanCode, context: context)
-            }
         }
     }
 
     func navigate(asyncTo route: VaultItemRoute, context: AnyObject?) async {
         switch route {
+        case let .addItem(group: group):
+            await showAddItem(for: group.flatMap(CipherType.init))
         case .scanCode:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             await showCamera(delegate: delegate)
@@ -117,21 +115,19 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter type: An optional `CipherType` to initialize this view with.
     ///
-    private func showAddItem(for type: CipherType?) {
-        Task {
-            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
-                ?? false
-            let state = CipherItemState(addItem: type ?? .login, hasPremium: hasPremium)
-            let processor = AddEditItemProcessor(
-                coordinator: asAnyCoordinator(),
-                delegate: nil,
-                services: services,
-                state: state
-            )
-            let store = Store(processor: processor)
-            let view = AddEditItemView(store: store)
-            stackNavigator.replace(view)
-        }
+    private func showAddItem(for type: CipherType?) async {
+        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
+            ?? false
+        let state = CipherItemState(addItem: type ?? .login, hasPremium: hasPremium)
+        let processor = AddEditItemProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: nil,
+            services: services,
+            state: state
+        )
+        let store = Store(processor: processor)
+        let view = AddEditItemView(store: store)
+        stackNavigator.replace(view)
     }
 
     /// Shows the move to organization screen.

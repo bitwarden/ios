@@ -79,8 +79,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
-        case let .addItem(group):
-            showVaultItem(route: .addItem(group: group))
+        case .addItem,
+             .viewItem:
+            Task {
+                await navigate(asyncTo: route, context: context)
+            }
         case let .alert(alert):
             stackNavigator.present(alert)
         case .dismiss:
@@ -89,10 +92,19 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showGroup(group)
         case .list:
             showList()
-        case let .viewItem(id):
-            showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
+        }
+    }
+
+    func navigate(asyncTo route: VaultRoute, context: AnyObject?) async {
+        switch route {
+        case let .addItem(group: group):
+            await showVaultItem(route: .addItem(group: group))
+        case let .viewItem(id):
+            await showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
+        default:
+            navigate(to: route, context: context)
         }
     }
 
@@ -154,11 +166,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate? = nil) {
+    private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate? = nil) async {
         let navigationController = UINavigationController()
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: route, context: delegate)
+        await coordinator.navigate(asyncTo: route, context: delegate)
 
         stackNavigator.present(navigationController)
     }
