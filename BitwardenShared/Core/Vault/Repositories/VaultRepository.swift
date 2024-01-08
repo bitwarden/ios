@@ -22,12 +22,13 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
-    /// A publisher for a user's cipher objects.
+    /// A publisher for a user's cipher objects based on the specified search text and filter type.
     ///
-    /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
+    /// - Parameters:
+    ///     - searchText:  The search text to filter the cipher list.
+    ///     - filterType: The vault filter type to apply to the cipher list.
     /// - Returns: A publisher for the user's ciphers.
-    ///
-    func cipherPublisher(searchText: String, filterType: VaultFilterType) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>>
+    func searchCipherPublisher(searchText: String, filterType: VaultFilterType) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>> // swiftlint:disable:this line_length
 
     /// Delete a cipher from the user's vault.
     ///
@@ -427,7 +428,7 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     // swiftlint:disable:next line_length
-    func cipherPublisher(searchText: String, filterType: VaultFilterType) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>> {
+    func searchCipherPublisher(searchText: String, filterType: VaultFilterType) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>> {
         let userId = try await stateService.getActiveAccountId()
         let searchTerm = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let ciphers = cipherService.cipherPublisher(userId: userId).asyncTryMap { ciphers -> [CipherListView] in

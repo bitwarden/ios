@@ -1,6 +1,6 @@
-import XCTest
-
+import BitwardenSdk
 @testable import BitwardenShared
+import XCTest
 
 // MARK: - VaultListProcessorTests
 
@@ -106,6 +106,19 @@ class VaultListProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual([profile2], subject.state.profileSwitcherState.alternateAccounts)
         XCTAssertEqual(profile1, subject.state.profileSwitcherState.activeAccountProfile)
+    }
+
+    /// `perform(.search)` with a keyword should update search results in state.
+    func test_perform_search() async {
+        let searchResult: [CipherListView] = [.fixture(name: "example")]
+        vaultRepository.searchCipherSubject.value = searchResult
+        await subject.perform(.search("example"))
+
+        XCTAssertEqual(subject.state.searchResults.count, 1)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))]
+        )
     }
 
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
@@ -279,13 +292,14 @@ class VaultListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.searchResults.count, 0)
     }
 
-    /// `receive(_:)` with `.searchTextChanged` with a matching search term updates the state correctly.
-    func test_receive_searchTextChanged_withResult() {
-        subject.state.searchText = ""
-        subject.receive(.searchTextChanged("example"))
+    /// `receive(_:)` with `.searchVaultFilterChanged` updates the state correctly.
+    func test_receive_searchVaultFilterChanged() {
+        let organization = Organization.fixture()
 
-        // TODO: BIT-628 Replace assertion with mock vault assertion
-        XCTAssertEqual(subject.state.searchResults.count, 1)
+        subject.state.searchVaultFilterType = .myVault
+        subject.receive(.searchVaultFilterChanged(.organization(organization)))
+
+        XCTAssertEqual(subject.state.searchVaultFilterType, .organization(organization))
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.

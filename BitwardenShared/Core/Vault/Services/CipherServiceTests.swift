@@ -39,6 +39,22 @@ class CipherServiceTests: XCTestCase {
 
     // MARK: Tests
 
+    /// `cipherPublisher(userId:)` publishes ciphers from local data store.
+    func test_cipherPublisher_() async throws {
+        let ciphers: [Cipher] = [Cipher.fixture(id: "123")]
+        cipherDataStore.cipherSubject.value = ciphers
+        var publishedValues = [[Cipher]]()
+        let publisher = subject.cipherPublisher(userId: "1")
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { values in
+                    publishedValues.append(values)
+                }
+            )
+        defer { publisher.cancel() }
+        XCTAssertEqual(publishedValues.first, ciphers)
+    }
+
     /// `deleteCipherWithServer(id:)` deletes the cipher item from remote server and persisted cipher in the data store.
     func test_deleteCipher() async throws {
         stateService.accounts = [.fixtureAccountLogin()]

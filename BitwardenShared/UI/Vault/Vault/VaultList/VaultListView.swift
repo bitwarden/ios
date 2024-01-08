@@ -82,6 +82,8 @@ private struct VaultMainView: View {
         if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
             ScrollView {
                 LazyVStack(spacing: 0) {
+                    searchVaultFilterRow()
+
                     ForEach(store.state.searchResults) { item in
                         Button {
                             store.send(.itemPressed(item: item))
@@ -98,18 +100,22 @@ private struct VaultMainView: View {
         } else {
             GeometryReader { reader in
                 ScrollView {
-                    VStack(spacing: 35) {
-                        Image(decorative: Asset.Images.magnifyingGlass)
-                            .resizable()
-                            .frame(width: 74, height: 74)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    VStack(spacing: 0) {
+                        searchVaultFilterRow()
 
-                        Text(Localizations.thereAreNoItemsThatMatchTheSearch)
-                            .multilineTextAlignment(.center)
-                            .styleGuide(.callout)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        VStack(spacing: 35) {
+                            Image(decorative: Asset.Images.magnifyingGlass)
+                                .resizable()
+                                .frame(width: 74, height: 74)
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                            Text(Localizations.thereAreNoItemsThatMatchTheSearch)
+                                .multilineTextAlignment(.center)
+                                .styleGuide(.callout)
+                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
                     }
-                    .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
                 }
             }
         }
@@ -127,6 +133,45 @@ private struct VaultMainView: View {
     }
 
     // MARK: Private Methods
+
+    /// Displays the vault filter row if the user is a member of any
+    @ViewBuilder
+    private func searchVaultFilterRow() -> some View {
+        if !store.state.vaultFilterOptions.isEmpty {
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Text(store.state.searchVaultFilterType.filterTitle)
+
+                    Spacer()
+
+                    Menu {
+                        Picker(selection: store.binding(
+                            get: \.searchVaultFilterType,
+                            send: VaultListAction.searchVaultFilterChanged
+                        )) {
+                            ForEach(store.state.vaultFilterOptions) { filter in
+                                Text(filter.title)
+                                    .tag(filter)
+                            }
+                        } label: {
+                            EmptyView()
+                        }
+                    } label: {
+                        Asset.Images.horizontalKabob.swiftUIImage
+                            .frame(width: 44, height: 44, alignment: .trailing)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel(Localizations.filterByVault)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                }
+                .padding(.horizontal, 16)
+                .frame(minHeight: 60)
+                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+
+                Divider()
+            }
+        }
+    }
 
     /// A view that displays the main vault interface, including sections for groups and
     /// vault items.
@@ -260,6 +305,9 @@ struct VaultListView: View {
                     prompt: Localizations.search
                 )
                 .task(id: store.state.searchText) {
+                    await store.perform(.search(store.state.searchText))
+                }
+                .task(id: store.state.searchVaultFilterType) {
                     await store.perform(.search(store.state.searchText))
                 }
                 .refreshable {

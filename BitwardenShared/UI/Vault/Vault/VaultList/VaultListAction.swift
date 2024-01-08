@@ -27,4 +27,7 @@ enum VaultListAction: Equatable {
 
     /// The selected vault filter changed.
     case vaultFilterChanged(VaultFilterType)
+
+    /// The selected vault filter for search changed.
+    case searchVaultFilterChanged(VaultFilterType)
 }

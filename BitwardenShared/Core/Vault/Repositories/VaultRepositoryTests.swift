@@ -291,6 +291,53 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(syncService.didFetchSync)
     }
 
+    /// `searchCipherPublisher(searchText:, filterType:)` throws an `.noActiveAccount` error.
+    func test_searchCipherPublisher_accountError() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.searchCipherPublisher(searchText: "abc", filterType: .allVaults)
+        }
+    }
+
+    /// `searchCipherPublisher(searchText:, filterType:)` only returns ciphers based on search text and VaultFilterType.
+    func test_searchCipherPublisher_searchText() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.cipherSubject.value = [
+            .fixture(name: "bcd"),
+            .fixture(name: "qwe"),
+            .fixture(name: "dabcd"),
+        ]
+        let expectedSearchResult = [CipherListView(cipher: cipherService.cipherSubject.value.last!)]
+        var iterator = try await subject
+            .searchCipherPublisher(searchText: "abc", filterType: .allVaults)
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(cipherService.cipherPublisherUserId, Account.fixtureAccountLogin().profile.userId)
+        XCTAssertEqual(
+            ciphers,
+            expectedSearchResult
+        )
+    }
+
+    /// `searchCipherPublisher(searchText:, filterType:)` only returns ciphers based on search text and VaultFilterType.
+    func test_searchCipherPublisher_vaultType() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.cipherSubject.value = [
+            .fixture(name: "bcd", organizationId: "testOrg"),
+            .fixture(name: "bcdew"),
+            .fixture(name: "dabcd"),
+        ]
+        let expectedSearchResult = try [CipherListView(cipher: XCTUnwrap(cipherService.cipherSubject.value.first))]
+        var iterator = try await subject
+            .searchCipherPublisher(searchText: "bcd", filterType: .organization(.fixture(id: "testOrg")))
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(cipherService.cipherPublisherUserId, Account.fixtureAccountLogin().profile.userId)
+        XCTAssertEqual(
+            ciphers,
+            expectedSearchResult
+        )
+    }
+
     /// `shareCipher()` has the cipher service share the cipher and updates the vault.
     func test_shareCipher() async throws {
         stateService.activeAccount = .fixtureAccountLogin()

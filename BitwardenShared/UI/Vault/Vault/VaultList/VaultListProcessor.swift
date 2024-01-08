@@ -102,6 +102,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
+        case let .searchVaultFilterChanged(newValue):
+            state.searchVaultFilterType = newValue
         case let .toastShown(newValue):
             state.toast = newValue
         case let .vaultFilterChanged(newValue):
@@ -172,10 +174,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return []
         }
-        print("searching:\(searchText)")
         do {
             var items: [VaultListItem] = []
-            for try await ciphers in try await services.vaultRepository.cipherPublisher(searchText: searchText, filterType: .allVaults) {
+            // swiftlint:disable:next line_length
+            for try await ciphers in try await services.vaultRepository.searchCipherPublisher(searchText: searchText, filterType: state.searchVaultFilterType) {
                 for cipher in ciphers {
                     if let item = VaultListItem(
                         cipherListView: cipher
