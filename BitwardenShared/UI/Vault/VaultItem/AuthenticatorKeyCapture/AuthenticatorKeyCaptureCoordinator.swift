@@ -96,13 +96,13 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
                 with: authKey
             )
         case .manualKeyEntry:
-            if stackNavigator.isEmpty {
+            if stackNavigator.isEmpty || delegate == nil {
                 showManualTotp()
             } else {
                 delegate?.showManualEntry(asAnyCoordinator())
             }
         case .scanCode:
-            if stackNavigator.isEmpty {
+            if stackNavigator.isEmpty || delegate == nil {
                 Task {
                     await showScanCode()
                 }
