@@ -11,7 +11,7 @@ enum ViewItemEffect: Equatable {
     /// The edit button was pressed.
     case editPressed
 
-    /// A flag indicating if this action requires the user to reenter their master password to
+    /// A flag indicating if this action requires the user to re-enter their master password to
     /// complete. This value works hand-in-hand with the `isMasterPasswordRequired` value in
     /// `ViewItemState`.
     var requiresMasterPasswordReprompt: Bool {
