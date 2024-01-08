@@ -8,6 +8,7 @@ class VaultGroupProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<VaultRoute>!
+    var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var subject: VaultGroupProcessor!
     var vaultRepository: MockVaultRepository!
@@ -17,11 +18,13 @@ class VaultGroupProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 vaultRepository: vaultRepository
             ),
@@ -32,6 +35,7 @@ class VaultGroupProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         coordinator = nil
+        errorReporter = nil
         pasteboardService = nil
         subject = nil
         vaultRepository = nil
@@ -91,6 +95,20 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id"))
     }
 
+    /// `receive(_:)` with `.itemPressed` navigates to the `.group` route.
+    func test_receive_itemPressed_group() {
+        let groupItem = VaultListItem.fixtureGroup(group: .identity)
+        subject.receive(.itemPressed(groupItem))
+        XCTAssertEqual(coordinator.routes.last, .group(.identity))
+    }
+
+    /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
+    func test_receive_itemPressed_totp() {
+        let totpItem = VaultListItem.fixtureTOTP()
+        subject.receive(.itemPressed(totpItem))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id))
+    }
+
     /// `receive(_:)` with `.morePressed` navigates to the more menu.
     func test_receive_morePressed() {
         subject.receive(.morePressed(.fixture()))
@@ -144,5 +162,28 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         waitFor(subject.state.loadingState.data == [newResult])
         let first = try XCTUnwrap(subject.state.loadingState.data?.first)
         XCTAssertEqual(first, newResult)
+    }
+
+    /// `receive(_:)` with `.totpCodeExpired` handles errors.
+    func test_receive_totpExpired_error() throws {
+        let result = VaultListItem.fixtureTOTP()
+        struct TestError: Error, Equatable {}
+        subject.state.loadingState = .data([
+            result,
+        ])
+        vaultRepository.refreshTOTPCodesResult = .failure(TestError())
+        subject.receive(.totpCodeExpired(.fixture()))
+        waitFor(vaultRepository.refreshTOTPCodesCalled)
+        waitFor(!errorReporter.errors.isEmpty)
+        let first = try XCTUnwrap(errorReporter.errors.first as? TestError)
+        XCTAssertEqual(first, TestError())
+    }
+
+    /// `receive(_:)` with `.totpCodeExpired` does nothing in a loading state.
+    func test_receive_totpExpired_loading() throws {
+        let result = VaultListItem.fixtureTOTP()
+        subject.state.loadingState = .loading
+        subject.receive(.totpCodeExpired(.fixture()))
+        XCTAssertFalse(vaultRepository.refreshTOTPCodesCalled)
     }
 }

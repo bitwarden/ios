@@ -10,6 +10,20 @@ extension VaultListItem {
         VaultListItem(cipherListView: cipherListView)!
     }
 
+    static func fixtureGroup(
+        id: String = "123",
+        group: VaultListGroup = .card,
+        count: Int = 1
+    ) -> VaultListItem {
+        VaultListItem(
+            id: id,
+            itemType: .group(
+                group,
+                count
+            )
+        )
+    }
+
     static func fixtureTOTP(
         totp: VaultListTOTP = .fixture()
     ) -> VaultListItem {
