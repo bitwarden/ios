@@ -46,23 +46,25 @@ struct AddEditItemView: View {
     }
 
     private var content: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                informationSection
-                miscellaneousSection
-                notesSection
-                customSection
-                ownershipSection
-                saveButton
+        ScrollViewReader { scrollViewProxy in
+            ScrollView {
+                VStack(spacing: 20) {
+                    informationSection
+                    miscellaneousSection
+                    notesSection(scrollviewProxy: scrollViewProxy)
+                    customSection
+                    ownershipSection
+                    saveButton
+                }
+                .padding(16)
             }
-            .padding(16)
+            .animation(.default, value: store.state.collectionsForOwner)
+            .background(
+                Asset.Colors.backgroundSecondary.swiftUIColor
+                    .ignoresSafeArea()
+            )
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .animation(.default, value: store.state.collectionsForOwner)
-        .background(
-            Asset.Colors.backgroundSecondary.swiftUIColor
-                .ignoresSafeArea()
-        )
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder private var cardItems: some View {
@@ -211,30 +213,6 @@ private extension AddEditItemView {
         }
     }
 
-    var notesSection: some View {
-        SectionView(Localizations.notes) {
-            BitwardenField(title: nil, footer: nil) {
-                TextEditor(text: store.binding(
-                    get: \.notes,
-                    send: AddEditItemAction.notesChanged
-                ))
-                .transparentScrolling()
-                .fixedSize(horizontal: false, vertical: true)
-                .focused($isNotesFocused)
-                .toolbar(content: {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        if isNotesFocused == true {
-                            Button(Localizations.hide) {
-                                isNotesFocused = false
-                            }
-                        }
-                    }
-                })
-            }
-            .accessibilityLabel(Localizations.notes)
-        }
-    }
-
     @ViewBuilder var ownershipSection: some View {
         if store.state.configuration.isAdding, let owner = store.state.owner {
             SectionView(Localizations.ownership) {
@@ -276,6 +254,38 @@ private extension AddEditItemView {
             await store.perform(.savePressed)
         }
         .buttonStyle(.primary())
+    }
+
+    // MARK: Private methods
+
+    /// The notes section.
+    @ViewBuilder
+    func notesSection(scrollviewProxy: ScrollViewProxy) -> some View {
+        SectionView(Localizations.notes) {
+            BitwardenField(title: nil, footer: nil) {
+                TextEditor(text: store.binding(
+                    get: \.notes,
+                    send: AddEditItemAction.notesChanged
+                ))
+                .id(Localizations.notes)
+                .transparentScrolling()
+                .fixedSize(horizontal: false, vertical: true)
+                .focused($isNotesFocused)
+                .onChange(of: store.state.notes, perform: { _ in
+                    scrollviewProxy.scrollTo(Localizations.notes, anchor: .bottom)
+                })
+                .toolbar(content: {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        if isNotesFocused == true {
+                            Button(Localizations.hide) {
+                                isNotesFocused = false
+                            }
+                        }
+                    }
+                })
+            }
+            .accessibilityLabel(Localizations.notes)
+        }
     }
 }
 
