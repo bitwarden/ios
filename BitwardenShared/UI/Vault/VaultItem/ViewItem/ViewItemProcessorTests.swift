@@ -9,6 +9,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     // MARK: Propteries
 
     var coordinator: MockCoordinator<VaultItemRoute>!
+    var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var subject: ViewItemProcessor!
@@ -19,6 +20,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator<VaultItemRoute>()
+        delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
@@ -29,6 +31,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
         subject = ViewItemProcessor(
             coordinator: coordinator,
+            delegate: delegate,
             itemId: "id",
             services: services,
             state: ViewItemState()
@@ -286,6 +289,72 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
+    /// generic error alert if soft deleting fails.
+    func test_perform_deletePressed_genericError() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(id: "123"),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        struct TestError: Error, Equatable {}
+        vaultRepository.softDeleteCipherResult = .failure(TestError())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        var alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the generic error alert is displayed.
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert,
+            .networkResponseError(TestError())
+        )
+        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
+    /// toast if soft deleting succeeds.
+    func test_perform_deletePressed_success() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(id: "123"),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        vaultRepository.softDeleteCipherResult = .success(())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        XCTAssertNil(errorReporter.errors.first)
+        // Ensure the cipher is deleted and the view is dismissed.
+        XCTAssertEqual(vaultRepository.softDeletedCipher.last?.id, "123")
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
     /// `receive` with `.editPressed` has no change when the state is loading.

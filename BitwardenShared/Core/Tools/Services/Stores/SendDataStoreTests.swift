@@ -126,7 +126,7 @@ class SendDataStoreTests: BitwardenTestCase {
     private func insertSends(_ sends: [Send], userId: String) async throws {
         try await subject.backgroundContext.performAndSave {
             for send in sends {
-                _ = SendData(context: self.subject.backgroundContext, userId: userId, send: send)
+                _ = try SendData(context: self.subject.backgroundContext, userId: userId, send: send)
             }
         }
     }

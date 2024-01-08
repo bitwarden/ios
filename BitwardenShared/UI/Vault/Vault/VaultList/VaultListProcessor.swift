@@ -75,9 +75,11 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
-                coordinator.navigate(to: .viewItem(id: item.id))
+                coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
+            case let .totp(id: id, _, _):
+                coordinator.navigate(to: .viewItem(id: id))
             }
         case .morePressed:
             // TODO: BIT-375 Show item actions
@@ -100,6 +102,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
+        case let .toastShown(newValue):
+            state.toast = newValue
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }
@@ -230,5 +234,13 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+}
+
+// MARK: - CipherItemOperationDelegate
+
+extension VaultListProcessor: CipherItemOperationDelegate {
+    func itemDeleted() {
+        state.toast = Toast(text: Localizations.itemSoftDeleted)
     }
 }

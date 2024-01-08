@@ -20,6 +20,9 @@ struct VaultListState: Equatable {
     /// The text that the user is currently searching for.
     var searchText: String = ""
 
+    /// A toast message to show in the view.
+    var toast: Toast?
+
     /// The vault filter used to display a single or all vaults for the user.
     var vaultFilterType: VaultFilterType = .allVaults
 

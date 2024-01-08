@@ -10,7 +10,7 @@ extension Attachment {
             size: attachmentView.size,
             sizeName: attachmentView.sizeName,
             fileName: attachmentView.fileName,
-            key: attachmentView.key.flatMap { String(data: $0, encoding: .utf8) }
+            key: attachmentView.key
         )
     }
 }
@@ -23,7 +23,7 @@ extension AttachmentView {
             size: attachment.size,
             sizeName: attachment.sizeName,
             fileName: attachment.fileName,
-            key: attachment.key?.data(using: .utf8)
+            key: attachment.key
         )
     }
 }

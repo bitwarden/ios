@@ -12,6 +12,14 @@ struct VaultListItem: Equatable, Identifiable {
 
         /// The wrapped item is a group of items.
         case group(VaultListGroup, Int)
+
+        /// A TOTP Code Item.
+        /// - Parameters:
+        ///   - id: The id of the cipher.
+        ///   - loginView: The `LoginView` for the item.
+        ///   - totpKey: The TOTP key to generate a code.
+        ///
+        case totp(id: String, loginView: BitwardenSdk.LoginView, totpKey: TOTPKey)
     }
 
     // MARK: Properties
@@ -63,9 +71,13 @@ extension VaultListItem {
                 return Asset.Images.globe
             case .secureNote:
                 return Asset.Images.doc
+            case .totp:
+                return Asset.Images.clock
             case .trash:
                 return Asset.Images.trash
             }
+        case .totp:
+            return Asset.Images.clock
         }
     }
 }

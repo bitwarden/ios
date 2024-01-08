@@ -14,4 +14,7 @@ struct VaultGroupState: Equatable {
 
     /// The text in the search bar.
     var searchText: String = ""
+
+    /// A toast message to show in the view.
+    var toast: Toast?
 }

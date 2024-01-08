@@ -39,6 +39,10 @@ private struct VaultMainView: View {
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultListAction.toastShown
+        ))
         .animation(.default, value: isSearching)
     }
 
