@@ -1,15 +1,15 @@
 import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
-typealias Services = HasAccountAPIService
-    & HasAPIService
+typealias Services = HasAPIService
+    & HasAccountAPIService
     & HasAppIdService
     & HasAppSettingsStore
     & HasAuthAPIService
     & HasAuthRepository
     & HasBiometricsService
-    & HasCaptchaService
     & HasCameraService
+    & HasCaptchaService
     & HasClientAuth
     & HasDeviceAPIService
     & HasEnvironmentService

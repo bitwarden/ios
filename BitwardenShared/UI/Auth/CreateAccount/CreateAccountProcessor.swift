@@ -38,8 +38,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     // MARK: Types
 
     typealias Services = HasAccountAPIService
-        & HasClientAuth
         & HasCaptchaService
+        & HasClientAuth
 
     // MARK: Private Properties
 
