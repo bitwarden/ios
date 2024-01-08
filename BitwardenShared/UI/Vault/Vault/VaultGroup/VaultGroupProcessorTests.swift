@@ -75,8 +75,65 @@ class VaultGroupProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a card cipher.
     func test_perform_morePressed_card() async throws {
-        // TODO: BIT-1365
-        // TODO: BIT-1374
+        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .card)))
+
+        // If the card item has no number or code, only the view and add buttons should display.
+        vaultRepository.fetchCipherResult = .success(.cardFixture())
+        await subject.perform(.morePressed(item))
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // If the item is in the trash, the edit option should not display.
+        subject.state.group = .trash
+        await subject.perform(.morePressed(item))
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+
+        // A card with data should show the copy actions.
+        let cardWithData = CipherView.cardFixture(card: .fixture(
+            code: "123",
+            number: "123456789"
+        ))
+        vaultRepository.fetchCipherResult = .success(cardWithData)
+        subject.state.group = .card
+        await subject.perform(.morePressed(item))
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 5)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.copyNumber)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.copySecurityCode)
+        XCTAssertEqual(alert.alertActions[4].title, Localizations.cancel)
+
+        // Test the functionality of the buttons.
+
+        // View navigates to the view item view.
+        let viewAction = try XCTUnwrap(alert.alertActions[0])
+        await viewAction.handler?(viewAction, [])
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+
+        // Edit navigates to the edit view.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: cardWithData))
+
+        // Copy number copies the card's number.
+        let copyNumberAction = try XCTUnwrap(alert.alertActions[2])
+        await copyNumberAction.handler?(copyNumberAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "123456789")
+
+        // Copy security code copies the card's security code.
+        let copyCodeAction = try XCTUnwrap(alert.alertActions[3])
+        await copyCodeAction.handler?(copyCodeAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "123")
     }
 
     /// `perform(_:)` with `.morePressed` handles errors correctly.
