@@ -2,7 +2,6 @@ import BitwardenSdk
 import Combine
 
 @testable import BitwardenShared
-import Combine
 
 class MockCipherService: CipherService {
     var ciphersSubject = CurrentValueSubject<[Cipher], Error>([])
