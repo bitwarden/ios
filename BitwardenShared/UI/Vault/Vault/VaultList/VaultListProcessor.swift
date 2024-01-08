@@ -175,7 +175,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         print("searching:\(searchText)")
         do {
             var items: [VaultListItem] = []
-            for try await ciphers in try await services.vaultRepository.cipherPublisher(searchText: searchText) {
+            for try await ciphers in try await services.vaultRepository.cipherPublisher(searchText: searchText, filterType: .allVaults) {
                 for cipher in ciphers {
                     if let item = VaultListItem(
                         cipherListView: cipher
