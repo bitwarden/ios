@@ -154,6 +154,9 @@ class DefaultVaultRepository {
     /// The service for managing the collections for the user.
     let collectionService: CollectionService
 
+    /// The service used by the application to manage the environment settings.
+    let environmentService: EnvironmentService
+
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
@@ -183,6 +186,7 @@ class DefaultVaultRepository {
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - collectionService: The service for managing the collections for the user.
+    ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
@@ -197,6 +201,7 @@ class DefaultVaultRepository {
         clientCrypto: ClientCryptoProtocol,
         clientVault: ClientVaultService,
         collectionService: CollectionService,
+        environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
         organizationService: OrganizationService,
@@ -210,6 +215,7 @@ class DefaultVaultRepository {
         self.clientCrypto = clientCrypto
         self.clientVault = clientVault
         self.collectionService = collectionService
+        self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.folderService = folderService
         self.organizationService = organizationService
@@ -250,10 +256,7 @@ class DefaultVaultRepository {
                 return nil
             }
             let code = try await clientVault.generateTOTPCode(for: key, date: Date())
-            let iconsBaseURL = try await stateService.getActiveAccount()
-                .settings
-                .environmentUrls?
-                .icons
+            let iconsBaseURL = environmentService.iconsURL
             let listModel = VaultListTOTP(
                 iconBaseURL: iconsBaseURL,
                 id: id,

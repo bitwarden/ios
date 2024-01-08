@@ -84,7 +84,7 @@ extension VaultListItem {
 struct VaultListTOTP: Equatable {
     /// The base url used to fetch icons
     ///
-    let iconBaseURL: URL?
+    let iconBaseURL: URL
 
     /// The id of the associated Cipher.
     ///

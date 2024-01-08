@@ -19,7 +19,7 @@ extension VaultListItem {
 
 extension VaultListTOTP {
     static func fixture(
-        iconBaseURL: URL? = nil,
+        iconBaseURL: URL = URL(string: "https://icons.bitwarden.net")!,
         id: String = "123",
         loginView: BitwardenSdk.LoginView = .fixture(totp: .base32Key),
         totpCode: TOTPCode = .init(code: "123456", date: Date(), period: 30)

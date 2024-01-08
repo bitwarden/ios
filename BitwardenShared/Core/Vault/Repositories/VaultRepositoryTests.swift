@@ -14,6 +14,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var clientCrypto: MockClientCrypto!
     var clientVault: MockClientVaultService!
     var collectionService: MockCollectionService!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
     var organizationService: MockOrganizationService!
@@ -34,6 +35,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientCrypto = MockClientCrypto()
         clientVault = MockClientVaultService()
         collectionService = MockCollectionService()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         folderService = MockFolderService()
         organizationService = MockOrganizationService()
@@ -49,6 +51,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             clientCrypto: clientCrypto,
             clientVault: clientVault,
             collectionService: collectionService,
+            environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
             organizationService: organizationService,
@@ -68,6 +71,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientCrypto = nil
         clientVault = nil
         collectionService = nil
+        environmentService = nil
         errorReporter = nil
         folderService = nil
         organizationService = nil
@@ -306,7 +310,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let newCode = "999232"
         clientVault.totpCode = newCode
         let totpModel = VaultListTOTP(
-            iconBaseURL: nil,
+            iconBaseURL: URL(string: "https://icons.bitwarden.net")!,
             id: "123",
             loginView: .fixture(),
             totpCode: .init(
@@ -336,7 +340,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let newCode = "999232"
         clientVault.totpCode = newCode
         let totpModel = VaultListTOTP(
-            iconBaseURL: nil,
+            iconBaseURL: URL(string: "https://icons.bitwarden.net")!,
             id: "123",
             loginView: .fixture(totp: .base32Key),
             totpCode: .init(

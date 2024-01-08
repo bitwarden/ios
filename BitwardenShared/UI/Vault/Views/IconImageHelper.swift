@@ -12,10 +12,10 @@ class IconImageHelper {
     ///
     /// - Parameters:
     ///   - loginView: The `LoginView` containing the URIs to process.
-    ///   - baseIconUrl: An optional base URL to use when constructing icon image URLs. If nil,
-    ///                  a default URL is used.
+    ///   - baseIconUrl: A base URL to use when constructing icon image URLs.
+    ///
     /// - Returns: A URL to an icon image if one can be constructed; otherwise, nil.
-    static func getIconImage(for loginView: BitwardenSdk.LoginView, from baseIconUrl: URL?) -> URL? {
+    static func getIconImage(for loginView: BitwardenSdk.LoginView, from baseIconUrl: URL) -> URL? {
         guard let uris = loginView.uris else {
             return nil
         }
@@ -36,10 +36,10 @@ class IconImageHelper {
     ///
     /// - Parameters:
     ///   - uri: The URI string to process.
-    ///   - iconsBaseURL: An optional base URL for constructing the icon image URL.
-    ///                   If nil, a default base URL is used.
+    ///   - iconsBaseURL: A base URL for constructing the icon image URL.
+    ///
     /// - Returns: A URL to an icon image if the URI is a valid website; otherwise, nil.
-    private static func getIconUrl(from uri: String, iconsBaseURL: URL?) -> URL? {
+    private static func getIconUrl(from uri: String, iconsBaseURL: URL) -> URL? {
         var hostnameUri = uri
 
         guard hostnameUri.contains(".") else {
@@ -51,10 +51,9 @@ class IconImageHelper {
         }
 
         let isWebsite = hostnameUri.starts(with: "http")
-        if isWebsite {
-            let hostname = getHostname(from: hostnameUri)
-            let baseURLString = iconsBaseURL?.absoluteString
-                ?? "https://icons.bitwarden.net"
+        if isWebsite,
+           let hostname = getHostname(from: hostnameUri) {
+            let baseURLString = iconsBaseURL.absoluteString
             return URL(string: "\(baseURLString)/\(hostname)/icon.png")
         }
 
@@ -64,10 +63,10 @@ class IconImageHelper {
     /// Extracts the hostname from a given URI string.
     ///
     /// - Parameter uriString: The URI string to extract the hostname from.
-    /// - Returns: The hostname if it can be extracted; otherwise, an empty string.
-    private static func getHostname(from uriString: String) -> String {
+    /// - Returns: The hostname if it can be extracted; otherwise, nil.
+    private static func getHostname(from uriString: String) -> String? {
         guard let url = URL(string: uriString), let host = url.host else {
-            return ""
+            return nil
         }
         return host
     }
