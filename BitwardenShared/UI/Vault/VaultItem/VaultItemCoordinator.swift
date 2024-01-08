@@ -171,6 +171,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// Shows the totp camera setup screen.
     ///
     private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
+        guard services.cameraService.deviceSupportsCamera() else {
+            showManualTotp(delegate: delegate)
+            return
+        }
         let navigationController = UINavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,

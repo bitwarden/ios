@@ -387,6 +387,10 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     /// Kicks off the TOTP setup flow.
     ///
     private func setupTotp() async {
+        guard services.cameraService.deviceSupportsCamera() else {
+            coordinator.navigate(to: .setupTotpManual, context: self)
+            return
+        }
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
             await coordinator.navigate(asyncTo: .scanCode, context: self)
