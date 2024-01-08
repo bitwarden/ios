@@ -8,6 +8,7 @@ class VaultGroupProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<VaultRoute>!
+    var pasteboardService: MockPasteboardService!
     var subject: VaultGroupProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -16,10 +17,14 @@ class VaultGroupProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(vaultRepository: vaultRepository),
+            services: ServiceContainer.withMocks(
+                pasteboardService: pasteboardService,
+                vaultRepository: vaultRepository
+            ),
             state: VaultGroupState()
         )
     }
@@ -27,6 +32,7 @@ class VaultGroupProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         coordinator = nil
+        pasteboardService = nil
         subject = nil
         vaultRepository = nil
     }
@@ -70,6 +76,13 @@ class VaultGroupProcessorTests: BitwardenTestCase {
 
         subject.itemDeleted()
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemSoftDeleted)
+    }
+
+    /// `receive` with `.copyTOTPCode` copies the value with the pasteboard service.
+    func test_receive_copyTOTPCode() {
+        subject.receive(.copyTOTPCode("123456"))
+        XCTAssertEqual(pasteboardService.copiedString, "123456")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.verificationCode))
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.

@@ -56,7 +56,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             coordinator.navigate(to: .addItem(group: state.group))
         case let .copyTOTPCode(code):
             services.pasteboardService.copy(code)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(code))
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:

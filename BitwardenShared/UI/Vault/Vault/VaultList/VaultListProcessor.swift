@@ -71,9 +71,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .addItemPressed:
             setProfileSwitcher(visible: false)
             coordinator.navigate(to: .addItem())
-        case let .copyTOTPCode(code):
-            services.pasteboardService.copy(code)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+        case .copyTOTPCode:
+            break
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
@@ -108,7 +107,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpCodeExpired:
-            Task { await refreshVault(isManualRefresh: true) }
+            break
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }

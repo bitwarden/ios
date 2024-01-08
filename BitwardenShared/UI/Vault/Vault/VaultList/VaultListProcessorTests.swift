@@ -242,11 +242,11 @@ class VaultListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemSoftDeleted)
     }
 
-    /// `receive` with `.copyTOTPCode` copies the value with the pasteboard service.
+    /// `receive` with `.copyTOTPCode` does nothing.
     func test_receive_copyTOTPCode() {
         subject.receive(.copyTOTPCode("123456"))
-        XCTAssertEqual(pasteboardService.copiedString, "123456")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.verificationCode))
+        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
@@ -315,14 +315,6 @@ class VaultListProcessorTests: BitwardenTestCase {
         subject.receive(.profileSwitcherAction(.requestedProfileSwitcher(visible: true)))
 
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
-    }
-
-    /// `receive(_:)` with `.toastShown` updates the state's toast value.
-    func test_receive_totpExpired() {
-        subject.receive(.totpCodeExpired(.fixture()))
-
-        waitFor(vaultRepository.fetchSyncCalled)
-        XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
     /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.
