@@ -222,7 +222,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_editItem_existingCipher_nonPremium() throws {
         vaultRepository.hasPremiumResult = .success(false)
         let task = Task {
-            subject.navigate(to: .editItem(cipher: .loginFixture()), context: subject)
+            await subject.navigate(asyncTo: .editItem(cipher: .loginFixture()), context: subject)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -238,7 +238,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         struct TestError: Error {}
         vaultRepository.hasPremiumResult = .failure(TestError())
         let task = Task {
-            subject.navigate(to: .editItem(cipher: .loginFixture()), context: subject)
+            await subject.navigate(asyncTo: .editItem(cipher: .loginFixture()), context: subject)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -403,12 +403,28 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     /// A flag to capture a `didCancel` call.
     var didCancel: Bool = false
 
+    /// A flag to capture a `showCameraScan` call.
+    var didRequestCamera: Bool = false
+
+    /// A flag to capture a `showManualEntry` call.
+    var didRequestManual: Bool = false
+
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
         with value: String
     ) {
         capturedCoordinator = captureCoordinator
         capturedScan = value
+    }
+
+    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        didRequestCamera = true
+        capturedCoordinator = captureCoordinator
+    }
+
+    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        didRequestManual = true
+        capturedCoordinator = captureCoordinator
     }
 
     func didCancelScan() {

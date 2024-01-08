@@ -435,6 +435,21 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
             coordinator.navigate(to: .alert(.totpScanFailureAlert()))
         }
     }
+
+    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        guard services.cameraService.deviceSupportsCamera() else { return }
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.coordinator.navigate(to: .scanCode, context: self)
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+
+    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.coordinator.navigate(to: .setupTotpManual, context: self)
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
 }
 
 // MARK: - MoveToOrganizationProcessorDelegate

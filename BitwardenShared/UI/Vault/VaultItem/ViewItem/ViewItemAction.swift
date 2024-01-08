@@ -19,9 +19,6 @@ enum ViewItemAction: Equatable {
     /// The dismiss button was pressed.
     case dismissPressed
 
-    /// The edit button was pressed.
-    case editPressed
-
     /// The more button was pressed.
     case morePressed(VaultItemManagementMenuAction)
 
@@ -39,7 +36,6 @@ enum ViewItemAction: Equatable {
         case .cardItemAction,
              .copyPressed,
              .customFieldVisibilityPressed,
-             .editPressed,
              .passwordVisibilityPressed:
             true
         case .checkPasswordPressed,

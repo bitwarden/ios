@@ -67,6 +67,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     // MARK: Methods
 
     override func perform(_ effect: ViewItemEffect) async {
+        guard !state.isMasterPasswordRequired || !effect.requiresMasterPasswordReprompt else {
+            await presentMasterPasswordRepromptAlert(for: effect)
+            return
+        }
         switch effect {
         case .appeared:
             for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
@@ -78,6 +82,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
         case .deletePressed:
             await showDeleteConfirmation()
+        case .editPressed:
+            await editItem()
         }
     }
 
@@ -105,8 +111,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             state.loadingState = .data(cipherState)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
-        case .editPressed:
-            editItem()
         case let .morePressed(menuAction):
             handleMenuAction(menuAction)
         case .passwordVisibilityPressed:
@@ -141,12 +145,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     /// Triggers the edit state for the item currently stored in `state`.
     ///
-    private func editItem() {
+    private func editItem() async {
         guard case let .data(cipherState) = state.loadingState,
               case let .existing(cipher) = cipherState.configuration else {
             return
         }
-        coordinator.navigate(to: .editItem(cipher: cipher), context: self)
+
+        await coordinator.navigate(asyncTo: .editItem(cipher: cipher), context: self)
     }
 
     /// Soft deletes the item currently stored in `state`.
@@ -237,6 +242,30 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 }
                 state.hasVerifiedMasterPassword = true
                 receive(action)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+        coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Presents the master password re-prompt alert for the specified effect. This method will
+    /// process the effect once the master password has been verified.
+    ///
+    /// - Parameter effect: The effect to process once the password has been verified.
+    ///
+    private func presentMasterPasswordRepromptAlert(for effect: ViewItemEffect) async {
+        let alert = Alert.masterPasswordPrompt { [weak self] password in
+            guard let self else { return }
+
+            do {
+                let isValid = try await services.vaultRepository.validatePassword(password)
+                guard isValid else {
+                    coordinator.navigate(to: .alert(Alert.defaultAlert(title: Localizations.invalidMasterPassword)))
+                    return
+                }
+                state.hasVerifiedMasterPassword = true
+                await perform(effect)
             } catch {
                 services.errorReporter.log(error: error)
             }

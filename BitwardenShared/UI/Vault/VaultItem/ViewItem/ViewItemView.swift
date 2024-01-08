@@ -94,8 +94,8 @@ struct ViewItemView: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(Localizations.edit) {
-                    store.send(.editPressed)
+                AsyncButton(Localizations.edit) {
+                    await store.perform(.editPressed)
                 }
             }
         }

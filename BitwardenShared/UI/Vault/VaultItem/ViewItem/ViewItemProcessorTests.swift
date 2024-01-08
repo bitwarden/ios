@@ -357,14 +357,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
-    /// `receive` with `.editPressed` has no change when the state is loading.
-    func test_receive_editPressed_loading() {
-        subject.receive(.editPressed)
+    /// `perform` with `.editPressed` has no change when the state is loading.
+    func test_perform_editPressed_loading() async {
+        await subject.perform(.editPressed)
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `receive` with `.editPressed`with data navigates to the edit item route.
-    func test_receive_editPressed_data() {
+    /// `perform` with `.editPressed`with data navigates to the edit item route.
+    func test_perform_editPressed_data() {
         let cipherView = CipherView.fixture(
             id: "123",
             login: BitwardenSdk.LoginView(
@@ -380,8 +380,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
         let loginState = CipherItemState(existing: cipherView, hasPremium: true)!
         subject.state.loadingState = .data(loginState)
-        subject.receive(.editPressed)
-        XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
+        let task = Task {
+            await subject.perform(.editPressed)
+        }
+        waitFor(!coordinator.asyncRoutes.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(coordinator.asyncRoutes, [.editItem(cipher: cipherView)])
     }
 
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit

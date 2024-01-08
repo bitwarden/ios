@@ -7,4 +7,20 @@ enum ViewItemEffect: Equatable {
 
     /// The delete option was pressed.
     case deletePressed
+
+    /// The edit button was pressed.
+    case editPressed
+
+    /// A flag indicating if this action requires the user to reenter their master password to
+    /// complete. This value works hand-in-hand with the `isMasterPasswordRequired` value in
+    /// `ViewItemState`.
+    var requiresMasterPasswordReprompt: Bool {
+        switch self {
+        case .editPressed:
+            true
+        case .appeared,
+             .deletePressed:
+            false
+        }
+    }
 }

@@ -11,13 +11,25 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     /// Called when the scan flow has been completed.
     ///
     /// - Parameters:
-    ///   - coordinator: The coodrinator sending the action.
+    ///   - coordinator: The coordinator sending the action.
     ///   - value: The code value that was captured.
     ///
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
         with value: String
     )
+
+    /// Called when the scan flow requests the scan code screen.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The coordinator sending the action.
+    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>)
+
+    /// Called when the scan flow requests the manual entry screen.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The coordinator sending the action.
+    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>)
 }
 
 // MARK: - AuthenticatorKeyCaptureCoordinator
@@ -84,10 +96,18 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
                 with: authKey
             )
         case .manualKeyEntry:
-            showManualTotp()
+            if stackNavigator.isEmpty {
+                showManualTotp()
+            } else {
+                delegate?.showManualEntry(asAnyCoordinator())
+            }
         case .scanCode:
-            Task {
-                await showScanCode()
+            if stackNavigator.isEmpty {
+                Task {
+                    await showScanCode()
+                }
+            } else {
+                delegate?.showCameraScan(asAnyCoordinator())
             }
         }
     }
@@ -100,7 +120,11 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
             navigate(to: route, context: context)
             return
         }
-        await showScanCode()
+        if stackNavigator.isEmpty {
+            await showScanCode()
+        } else {
+            delegate?.showCameraScan(asAnyCoordinator())
+        }
     }
 
     func start() {}
