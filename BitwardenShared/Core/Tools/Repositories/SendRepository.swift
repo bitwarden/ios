@@ -11,11 +11,9 @@ protocol SendRepository: AnyObject {
 
     func fetchSync() async throws
 
-    /// A publisher for the details of a cipher in the vault.
+    /// A publisher for all the sends in the user's account.
     ///
-    /// - Parameter id: The cipher identifier to be notified when the cipher is updated.
-    /// - Returns: A publisher for the details of a cipher which will be notified as the details of
-    ///     the cipher change.
+    /// - Returns: A publisher for the list of sends in the user's account.
     ///
     func sendListPublisher() -> AsyncPublisher<AnyPublisher<[SendListSection], Never>>
 }
@@ -45,6 +43,24 @@ class DefaultSendRepository: SendRepository {
     ) {
         self.clientVault = clientVault
         self.syncService = syncService
+    }
+
+    // MARK: API Methods
+
+    func fetchSync() async throws {
+        try await syncService.fetchSync()
+    }
+
+    // MARK: Publishers
+
+    func sendListPublisher() -> AsyncPublisher<AnyPublisher<[SendListSection], Never>> {
+        syncService.syncResponsePublisher()
+            .asyncCompactMap { response in
+                guard let response else { return nil }
+                return try? await self.sendListSections(from: response)
+            }
+            .eraseToAnyPublisher()
+            .values
     }
 
     // MARK: Private Methods
@@ -88,23 +104,5 @@ class DefaultSendRepository: SendRepository {
                 name: Localizations.allSends
             ),
         ]
-    }
-
-    // MARK: API Methods
-
-    func fetchSync() async throws {
-        try await syncService.fetchSync()
-    }
-
-    // MARK: Publishers
-
-    func sendListPublisher() -> AsyncPublisher<AnyPublisher<[SendListSection], Never>> {
-        syncService.syncResponsePublisher()
-            .asyncCompactMap { response in
-                guard let response else { return nil }
-                return try? await self.sendListSections(from: response)
-            }
-            .eraseToAnyPublisher()
-            .values
     }
 }

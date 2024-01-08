@@ -3,6 +3,9 @@ import SwiftUI
 
 // MARK: - MainSendListView
 
+/// The main content of the `SendListView`. Broken out into it's own view so that the
+/// `isSearching` environment variable will work correctly.
+///
 private struct MainSendListView: View {
     // MARK: Properties
 
@@ -42,6 +45,7 @@ private struct MainSendListView: View {
         }
     }
 
+    /// The list for this view, displayed when there is content to display.
     @ViewBuilder private var list: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 20) {
@@ -58,7 +62,7 @@ private struct MainSendListView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
     }
 
-    /// Creates a section that appears in the vault.
+    /// Creates a section that appears in the sends list.
     ///
     /// - Parameters:
     ///   - title: The title of the section.
