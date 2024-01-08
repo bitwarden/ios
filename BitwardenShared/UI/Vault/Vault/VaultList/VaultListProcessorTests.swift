@@ -121,6 +121,16 @@ class VaultListProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(.search)` with a empty keyword should get empty search result.
+    func test_perform_search_emptyString() async {
+        await subject.perform(.search("   "))
+        XCTAssertEqual(subject.state.searchResults.count, 0)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            []
+        )
+    }
+
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
     func test_perform_streamOrganizations() {
         let task = Task {

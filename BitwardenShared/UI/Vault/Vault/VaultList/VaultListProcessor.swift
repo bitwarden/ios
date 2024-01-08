@@ -190,31 +190,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         } catch {
             services.errorReporter.log(error: error)
         }
-
-        // TODO: BIT-628 Actually search the vault for the provided string.
-        if "example".contains(searchText.lowercased()) {
-            return [
-                VaultListItem(cipherListView: .init(
-                    id: "1",
-                    organizationId: nil,
-                    folderId: nil,
-                    collectionIds: [],
-                    name: "Example",
-                    subTitle: "email@example.com",
-                    type: .login,
-                    favorite: true,
-                    reprompt: .none,
-                    edit: false,
-                    viewPassword: true,
-                    attachments: 0,
-                    creationDate: Date(),
-                    deletedDate: nil,
-                    revisionDate: Date()
-                ))!,
-            ]
-        } else {
-            return []
-        }
+        return []
     }
 
     /// Sets the visibility of the profiles view and updates accessbility focus

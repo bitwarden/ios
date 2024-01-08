@@ -14,7 +14,7 @@ enum VaultListEffect {
     /// Refresh the vault list's data.
     case refreshVault
 
-    /// search
+    /// Searches based on the keyword.
     case search(String)
 
     /// Stream the list of organizations for the user.
