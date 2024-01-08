@@ -120,7 +120,10 @@ extension View {
 
     /// Applies a modifier to enable transparent scrolling in the scrollable view,
     /// Hides the background for scrollable views within the view.
-    /// (needed to add this because text editor's background is using system background color and setting `.background()`not changing anything)
+    ///
+    /// This can be used to clear the background of a `TextEditor` to ensure it takes on the
+    /// background color of the element behind it rather than defaulting to the system background
+    /// color (black in dark mode).
     ///
     /// - Returns: A modified view that enables transparent scrolling.
     ///
