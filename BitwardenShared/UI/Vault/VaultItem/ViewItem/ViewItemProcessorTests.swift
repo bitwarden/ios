@@ -389,6 +389,33 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.asyncRoutes, [.editItem(cipher: cipherView)])
     }
 
+    /// `perform` with `.editPressed`with master password reprompt triggers an alert.
+    func test_perform_editPressed_masterPasswordReprompt() {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
+            name: "name",
+            reprompt: .password,
+            revisionDate: Date()
+        )
+        let loginState = CipherItemState(existing: cipherView, hasPremium: true)!
+        subject.state.loadingState = .data(loginState)
+        let task = Task {
+            await subject.perform(.editPressed)
+        }
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(try coordinator.unwrapLastRouteAsAlert(), .masterPasswordPrompt(completion: { _ in }))
+    }
+
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
     /// collections view.
     func test_receive_morePressed_editCollections() throws {
