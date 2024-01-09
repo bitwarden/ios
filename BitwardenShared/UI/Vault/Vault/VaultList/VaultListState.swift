@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - VaultListState
 
 /// An object that defines the current state of a `VaultListView`.
@@ -25,6 +27,9 @@ struct VaultListState: Equatable {
 
     /// A toast message to show in the view.
     var toast: Toast?
+
+    /// The url to open in the device's web browser.
+    var url: URL?
 
     /// The vault filter used to display a single or all vaults for the user.
     var vaultFilterType: VaultFilterType = .allVaults

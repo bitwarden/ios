@@ -57,6 +57,12 @@ protocol CipherAPIService {
     /// - Returns: The cipher that was updated in the user's vault.
     ///
     func updateCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
+
+    /// Performs an API request to update the collections that a cipher is included in.
+    ///
+    /// - Parameter: cipher: The cipher to update.
+    ///
+    func updateCipherCollections(_ cipher: Cipher) async throws
 }
 
 extension APIService: CipherAPIService {
@@ -83,5 +89,9 @@ extension APIService: CipherAPIService {
     func updateCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
         let updateRequest = try UpdateCipherRequest(cipher: cipher)
         return try await apiService.send(updateRequest)
+    }
+
+    func updateCipherCollections(_ cipher: Cipher) async throws {
+        _ = try await apiService.send(UpdateCipherCollectionsRequest(cipher: cipher))
     }
 }
