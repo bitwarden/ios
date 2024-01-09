@@ -268,6 +268,14 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
     }
 }
 
+// MARK: - EditCollectionsProcessorDelegate
+
+extension ViewItemProcessor: EditCollectionsProcessorDelegate {
+    func didUpdateCipher() {
+        state.toast = Toast(text: Localizations.itemUpdated)
+    }
+}
+
 // MARK: - MoveToOrganizationProcessorDelegate
 
 extension ViewItemProcessor: MoveToOrganizationProcessorDelegate {

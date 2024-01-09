@@ -118,4 +118,16 @@ class CipherServiceTests: XCTestCase {
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
         XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherToDeleted)
     }
+
+    /// `updateCipherCollectionsWithServer(_:)` updates the cipher's collections and updates the data store.
+    func test_updateCipherCollections() async throws {
+        client.result = .success(.success())
+        stateService.activeAccount = .fixture()
+
+        let cipher = Cipher.fixture(collectionIds: ["1", "2"], id: "123")
+        try await subject.updateCipherCollectionsWithServer(cipher)
+
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, cipher)
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+    }
 }
