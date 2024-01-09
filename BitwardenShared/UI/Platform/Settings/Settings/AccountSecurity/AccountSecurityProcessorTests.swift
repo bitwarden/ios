@@ -71,9 +71,17 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
     /// and clears the fingerprint phrase URL.
     func test_perform_showAccountFingerprintPhraseAlert() async throws {
+        stateService.activeAccount = .fixture()
         await subject.perform(.accountFingerprintPhrasePressed)
 
+        let fingerprint = try authRepository.fingerprintPhraseResult.get()
         let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.fingerprintPhrase)
+        XCTAssertEqual(alert.message, "\(Localizations.yourAccountsFingerprint):\n\n\(fingerprint)")
+        XCTAssertEqual(alert.preferredStyle, .alert)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.close)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.learnMore)
 
         // Tapping learn more navigates the user to the web app.
         try await alert.tapAction(title: Localizations.learnMore)

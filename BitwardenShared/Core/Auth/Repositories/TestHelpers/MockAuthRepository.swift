@@ -5,7 +5,7 @@ class MockAuthRepository: AuthRepository {
     var activeAccountResult: Result<ProfileSwitcherItem, Error> = .failure(StateServiceError.noActiveAccount)
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var deleteAccountCalled = false
-    var fingerprintPhraseResult: Result<String, Error> = .failure(StateServiceError.noAccounts)
+    var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
     var logoutCalled = false
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var unlockVaultPassword: String?
