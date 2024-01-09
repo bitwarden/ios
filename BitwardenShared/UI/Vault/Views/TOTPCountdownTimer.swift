@@ -70,9 +70,10 @@ class TOTPCountdownTimer: ObservableObject {
     ///
     private func updateCountdown() {
         displayTime = "\(secondsRemaining)"
+        let elapsedTimeSinceCalculation = calculationDate.timeIntervalSinceNow * -1.0
+        let isOlderThanInterval = elapsedTimeSinceCalculation >= Double(period)
         if secondsRemaining > remainingSeconds(for: calculationDate)
-            || (abs(calculationDate.timeIntervalSinceReferenceDate)
-                - abs(Date().timeIntervalSinceReferenceDate)) >= Double(period) {
+            || elapsedTimeSinceCalculation >= Double(period) {
             onExpiration?()
             timer?.invalidate()
             timer = nil
@@ -84,8 +85,6 @@ class TOTPCountdownTimer: ObservableObject {
     /// - Parameter date: The date used to calculate the remaining seconds.
     ///
     private func remainingSeconds(for date: Date = Date()) -> Int {
-        period - (Int(date.timeIntervalSinceReferenceDate)
-            % 60
-            % period)
+        period - (Int(date.timeIntervalSinceReferenceDate) % period)
     }
 }

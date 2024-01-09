@@ -46,6 +46,11 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         })
     }
 
+    deinit {
+        totpExpirationManager?.cleanup()
+        totpExpirationManager = nil
+    }
+
     // MARK: Methods
 
     override func perform(_ effect: VaultGroupEffect) async {
@@ -95,6 +100,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         do {
             let refreshedItems = try await services.vaultRepository.refreshTOTPCodes(for: items)
             let allItems = currentItems.updated(with: refreshedItems)
+            totpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
             state.loadingState = .data(allItems)
         } catch {
             services.errorReporter.log(error: error)
@@ -134,21 +140,21 @@ private class TOTPExpirationManager {
 
     /// All items managed by the object, grouped by TOTP period.
     ///
-    private var itemsByInterval = [UInt32: [VaultListItem]]()
+    private(set) var itemsByInterval = [UInt32: [VaultListItem]]()
 
     private var updateTimer: Timer?
 
     /// Initializes a new countdown timer
     ///
     /// - Parameters
-    ///   - onExpiration: A closure to call on timer expiration.
+    ///   - onExpiration: A closure to call on code expiration for a list of vault items.
     ///
     init(
         onExpiration: (([VaultListItem]) -> Void)?
     ) {
         self.onExpiration = onExpiration
         updateTimer = Timer.scheduledTimer(
-            withTimeInterval: 0.5,
+            withTimeInterval: 0.25,
             repeats: true,
             block: { _ in
                 self.checkForExpirations()
@@ -156,16 +162,17 @@ private class TOTPExpirationManager {
         )
     }
 
+    /// Clear out any timers tracking TOTP code expiration
     deinit {
-        updateTimer?.invalidate()
-        updateTimer = nil
+        cleanup()
     }
 
     // MARK: Methods
 
     /// Configures TOTP code refresh scheduling
     ///
-    /// - Parameter items: The vault list items that may require
+    /// - Parameter items: The vault list items that may require code expiration tracking.
+    ///
     func configureTOTPRefreshScheduling(for items: [VaultListItem]) {
         var newItemsByInterval = [UInt32: [VaultListItem]]()
         items.forEach { item in
@@ -175,21 +182,29 @@ private class TOTPExpirationManager {
         itemsByInterval = newItemsByInterval
     }
 
+    /// A function to remove any outstanding timers
+    ///
+    func cleanup() {
+        updateTimer?.invalidate()
+        updateTimer = nil
+    }
+
     private func checkForExpirations() {
         var expired = [VaultListItem]()
+        var notExpired = [UInt32: [VaultListItem]]()
         itemsByInterval.forEach { period, items in
-            let expiredItems: [VaultListItem] = items.filter { item in
+            let sortedItems: [Bool: [VaultListItem]] = Dictionary(grouping: items, by: { item in
                 guard case let .totp(_, model) = item.itemType else { return false }
-                return (abs(model.totpCode.date.timeIntervalSinceReferenceDate)
-                    - abs(Date().timeIntervalSinceReferenceDate)) >= Double(period)
-                    || remainingSeconds(using: Int(period))
-                    > remainingSeconds(
-                        for: model.totpCode.date,
-                        using: Int(period)
-                    )
-            }
-            expired.append(contentsOf: expiredItems)
+                let elapsedCodeTime = model.totpCode.date.timeIntervalSinceNow * -1.0
+                let isOlderThanInterval = elapsedCodeTime >= Double(period)
+                let hasPastIntervalRefreshMark = remainingSeconds(using: Int(period))
+                    >= remainingSeconds(for: model.totpCode.date, using: Int(period))
+                return isOlderThanInterval || hasPastIntervalRefreshMark
+            })
+            expired.append(contentsOf: sortedItems[true] ?? [])
+            notExpired[period] = sortedItems[false]
         }
+        itemsByInterval = notExpired
         guard !expired.isEmpty else { return }
         onExpiration?(expired)
     }
@@ -201,8 +216,6 @@ private class TOTPExpirationManager {
     ///   - period: The period of expiration.
     ///
     private func remainingSeconds(for date: Date = Date(), using period: Int) -> Int {
-        period - (Int(date.timeIntervalSinceReferenceDate)
-            % 60
-            % period)
+        period - (Int(date.timeIntervalSinceReferenceDate) % period)
     }
 }

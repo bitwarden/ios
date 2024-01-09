@@ -485,15 +485,16 @@ extension DefaultVaultRepository: VaultRepository {
 
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
         try await items.asyncMap { item in
-            guard case var .totp(name, model) = item.itemType,
+            guard case let .totp(name, model) = item.itemType,
                   let key = model.loginView.totp else {
                 return item
             }
             let code = try await clientVault.generateTOTPCode(for: key, date: Date())
-            model.totpCode = code
+            var updatedModel = model
+            updatedModel.totpCode = code
             return .init(
                 id: item.id,
-                itemType: .totp(name: name, totpModel: model)
+                itemType: .totp(name: name, totpModel: updatedModel)
             )
         }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }

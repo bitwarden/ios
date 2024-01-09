@@ -145,7 +145,7 @@ class VaultGroupProcessorTests: BitwardenTestCase {
             totp: .fixture(
                 totpCode: .init(
                     code: "",
-                    date: .distantPast,
+                    date: .init(year: 2023, month: 12, day: 31),
                     period: 30
                 )
             )
@@ -181,7 +181,7 @@ class VaultGroupProcessorTests: BitwardenTestCase {
                 id: "123",
                 totpCode: .init(
                     code: "",
-                    date: .distantPast,
+                    date: .init(year: 2023, month: 12, day: 31),
                     period: 30
                 )
             )
@@ -218,7 +218,7 @@ class VaultGroupProcessorTests: BitwardenTestCase {
                 id: "789",
                 totpCode: .init(
                     code: "",
-                    date: Date(),
+                    date: .now(secondsRoundedUpTo: 30),
                     period: 30
                 )
             )
@@ -255,5 +255,13 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         task.cancel()
         let first = try XCTUnwrap(errorReporter.errors.first as? TestError)
         XCTAssertEqual(first, TestError())
+    }
+}
+
+private extension Date {
+    ///
+    static func now(secondsRoundedUpTo period: Int) -> Date {
+        let remaining = period - Int(Date.timeIntervalSinceReferenceDate) % period
+        return Date(timeIntervalSinceNow: Double(remaining))
     }
 }

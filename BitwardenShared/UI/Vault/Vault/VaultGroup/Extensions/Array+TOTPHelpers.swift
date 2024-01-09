@@ -29,6 +29,6 @@ extension [VaultListItem] {
             }
         }
         return result.values
-            .sorted { $0.id.localizedStandardCompare($1.id) == .orderedAscending }
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 }
