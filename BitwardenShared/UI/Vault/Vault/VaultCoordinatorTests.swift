@@ -107,11 +107,12 @@ class VaultCoordinatorTests: BitwardenTestCase {
     /// `.navigate(to:)` with `.editItem` presents the edit item screen.
     func test_navigateTo_editItem() throws {
         subject.navigate(to: .editItem(cipher: .fixture()))
+        waitFor(!module.vaultItemCoordinator.asyncRoutes.isEmpty)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
-        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .editItem(cipher: .fixture()))
+        XCTAssertEqual(module.vaultItemCoordinator.asyncRoutes.last, .editItem(cipher: .fixture()))
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack

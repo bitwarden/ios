@@ -87,6 +87,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         case .addAccount:
             delegate?.didTapAddAccount()
         case .addItem,
+             .editItem,
              .viewItem:
             Task {
                 await navigate(asyncTo: route, context: context)
@@ -95,8 +96,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             stackNavigator.present(alert)
         case .autofillList:
             showAutofillList()
-        case let .editItem(cipher: cipher):
-            showVaultItem(route: .editItem(cipher: cipher))
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):
@@ -112,6 +111,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case let .addItem(group: group):
             await showVaultItem(route: .addItem(group: group))
+        case let .editItem(cipher: cipher):
+            await showVaultItem(route: .editItem(cipher: cipher))
         case let .viewItem(id):
             await showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         default:
