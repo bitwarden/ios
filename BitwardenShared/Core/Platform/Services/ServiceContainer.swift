@@ -262,6 +262,7 @@ public class ServiceContainer: Services {
             clientCrypto: clientService.clientCrypto(),
             clientVault: clientService.clientVault(),
             collectionService: collectionService,
+            environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
             organizationService: organizationService,

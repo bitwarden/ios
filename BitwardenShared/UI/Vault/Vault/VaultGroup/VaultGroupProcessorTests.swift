@@ -1,11 +1,13 @@
 import BitwardenSdk
 import XCTest
 
+// swiftlint:disable file_length
+
 @testable import BitwardenShared
 
 // MARK: - VaultGroupProcessorTests
 
-class VaultGroupProcessorTests: BitwardenTestCase {
+class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var coordinator: MockCoordinator<VaultRoute>!
@@ -296,6 +298,13 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.url)
     }
 
+    /// `receive` with `.copyTOTPCode` copies the value with the pasteboard service.
+    func test_receive_copyTOTPCode() {
+        subject.receive(.copyTOTPCode("123456"))
+        XCTAssertEqual(pasteboardService.copiedString, "123456")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.verificationCode))
+    }
+
     /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
     func test_receive_itemPressed_cipher() {
         subject.receive(.itemPressed(.fixture(cipherListView: .fixture(id: "id"))))
@@ -306,6 +315,13 @@ class VaultGroupProcessorTests: BitwardenTestCase {
     func test_receive_itemPressed_group() {
         subject.receive(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
         XCTAssertEqual(coordinator.routes.last, .group(.card))
+    }
+
+    /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
+    func test_receive_itemPressed_totp() {
+        let totpItem = VaultListItem.fixtureTOTP()
+        subject.receive(.itemPressed(totpItem))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id))
     }
 
     /// `receive(_:)` with `.searchTextChanged` and no value sets the state correctly.
@@ -330,5 +346,134 @@ class VaultGroupProcessorTests: BitwardenTestCase {
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    /// TOTP Code expiration updates the state's TOTP codes.
+    func test_receive_appeared_totpExpired_single() throws {
+        let result = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                totpCode: .init(
+                    code: "",
+                    date: .init(year: 2023, month: 12, day: 31),
+                    period: 30
+                )
+            )
+        )
+        let newResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                totpCode: .init(
+                    code: "345678",
+                    date: Date(),
+                    period: 30
+                )
+            )
+        )
+        vaultRepository.refreshTOTPCodesResult = .success([
+            newResult,
+        ])
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        vaultRepository.vaultListGroupSubject.send([result])
+        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
+        waitFor(subject.state.loadingState.data == [newResult])
+        task.cancel()
+        XCTAssertEqual([result], vaultRepository.refreshedTOTPCodes)
+        let first = try XCTUnwrap(subject.state.loadingState.data?.first)
+        XCTAssertEqual(first, newResult)
+    }
+
+    /// TOTP Code expiration updates the state's TOTP codes.
+    func test_receive_appeared_totpExpired_multi() throws { // swiftlint:disable:this function_body_length
+        let expiredResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "123",
+                totpCode: .init(
+                    code: "",
+                    date: .init(year: 2023, month: 12, day: 31),
+                    period: 30
+                )
+            )
+        )
+        let expectedUpdate = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "123",
+                totpCode: .init(
+                    code: "345678",
+                    date: Date(),
+                    period: 30
+                )
+            )
+        )
+        let newResults: [VaultListItem] = [
+            expectedUpdate,
+            .fixtureTOTP(
+                totp: .fixture(
+                    id: "456",
+                    totpCode: .init(
+                        code: "345678",
+                        date: Date(),
+                        period: 30
+                    )
+                )
+            ),
+        ]
+        vaultRepository.refreshTOTPCodesResult = .success(newResults)
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        let stableResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "789",
+                totpCode: .init(
+                    code: "",
+                    date: .now(secondsRoundedUpTo: 30),
+                    period: 30
+                )
+            )
+        )
+        vaultRepository.vaultListGroupSubject.send([
+            expiredResult,
+            stableResult,
+        ])
+        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
+        waitFor(subject.state.loadingState.data == [expectedUpdate, stableResult])
+        task.cancel()
+        XCTAssertEqual([expiredResult], vaultRepository.refreshedTOTPCodes)
+    }
+
+    /// `receive(_:)` with `.totpCodeExpired` handles errors.
+    func test_receive_totpExpired_error() throws {
+        struct TestError: Error, Equatable {}
+        let result = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                totpCode: .init(
+                    code: "",
+                    date: .distantPast,
+                    period: 30
+                )
+            )
+        )
+        vaultRepository.refreshTOTPCodesResult = .failure(TestError())
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        vaultRepository.vaultListGroupSubject.send([result])
+        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+        let first = try XCTUnwrap(errorReporter.errors.first as? TestError)
+        XCTAssertEqual(first, TestError())
+    }
+}
+
+private extension Date {
+    /// Pads a given date for the TOTP Expiration Timer to help prevent triggering an early expiration.
+    ///
+    /// - Parameter period: The period of a TOTP Code.
+    ///
+    static func now(secondsRoundedUpTo period: Int) -> Date {
+        let remaining = period - Int(Date.timeIntervalSinceReferenceDate) % period
+        return Date(timeIntervalSinceNow: Double(remaining) - 0.1)
     }
 }

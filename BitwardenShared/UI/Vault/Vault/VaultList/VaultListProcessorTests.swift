@@ -432,6 +432,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.url)
     }
 
+    /// `receive` with `.copyTOTPCode` does nothing.
+    func test_receive_copyTOTPCode() {
+        subject.receive(.copyTOTPCode("123456"))
+        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(subject.state.toast)
+    }
+
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route for a cipher.
     func test_receive_itemPressed_cipher() {
         let item = VaultListItem.fixture()

@@ -8,6 +8,6 @@ enum VaultAutofillListAction: Equatable {
     /// The cancel button was tapped.
     case cancelTapped
 
-    /// A cipher in the list was tapped
-    case cipherTapped(CipherListView)
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
 }

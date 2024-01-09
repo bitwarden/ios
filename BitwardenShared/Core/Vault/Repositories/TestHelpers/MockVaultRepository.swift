@@ -22,6 +22,8 @@ class MockVaultRepository: VaultRepository {
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
+    var refreshedTOTPCodes: [VaultListItem] = []
+    var refreshTOTPCodesResult: Result<[VaultListItem], Error> = .success([])
     var removeAccountIds = [String?]()
     var shareCipherResult: Result<Void, Error> = .success(())
     var sharedCiphers = [CipherView]()
@@ -85,6 +87,11 @@ class MockVaultRepository: VaultRepository {
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
         organizationsSubject.eraseToAnyPublisher().values
+    }
+
+    func refreshTOTPCodes(for items: [BitwardenShared.VaultListItem]) async throws -> [BitwardenShared.VaultListItem] {
+        refreshedTOTPCodes = items
+        return try refreshTOTPCodesResult.get()
     }
 
     func remove(userId: String?) async {
