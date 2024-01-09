@@ -58,8 +58,10 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         switch effect {
         case .appeared:
             for await value in services.vaultRepository.vaultListPublisher(group: state.group) {
-                totpExpirationManager?.configureTOTPRefreshScheduling(for: value)
-                state.loadingState = .data(value)
+                let sortedValues = value
+                    .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+                totpExpirationManager?.configureTOTPRefreshScheduling(for: sortedValues)
+                state.loadingState = .data(sortedValues)
             }
         case let .morePressed(item):
             await showMoreOptionsAlert(for: item)

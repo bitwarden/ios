@@ -36,8 +36,8 @@ extension VaultListItem {
     /// The name of the cipher for TOTP item types, otherwise ""
     ///     Used to sort the TOTP code items after a refresh.
     var name: String {
-        guard case let .totp(name, _) = itemType else { return "" }
-        return name
+        guard case let .totp(name, model) = itemType else { return "" }
+        return name + (model.loginView.username ?? "\(model.id)")
     }
 }
 
