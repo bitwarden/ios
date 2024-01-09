@@ -82,7 +82,7 @@ private struct VaultMainView: View {
         if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    searchVaultFilterRow()
+                    searchVaultFilterRow
 
                     ForEach(store.state.searchResults) { item in
                         Button {
@@ -101,7 +101,7 @@ private struct VaultMainView: View {
             GeometryReader { reader in
                 ScrollView {
                     VStack(spacing: 0) {
-                        searchVaultFilterRow()
+                        searchVaultFilterRow
 
                         VStack(spacing: 35) {
                             Image(decorative: Asset.Images.magnifyingGlass)
@@ -121,22 +121,8 @@ private struct VaultMainView: View {
         }
     }
 
-    /// A view that displays either the my vault or empty vault interface.
-    @ViewBuilder private var vault: some View {
-        LoadingView(state: store.state.loadingState) { sections in
-            if sections.isEmpty {
-                emptyVault
-            } else {
-                vaultContents(with: sections)
-            }
-        }
-    }
-
-    // MARK: Private Methods
-
-    /// Displays the vault filter row if the user is a member of any
-    @ViewBuilder
-    private func searchVaultFilterRow() -> some View {
+    /// Displays the vault filter for search row if the user is a member of any org
+    @ViewBuilder private var searchVaultFilterRow: some View {
         if !store.state.vaultFilterOptions.isEmpty {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
@@ -172,6 +158,19 @@ private struct VaultMainView: View {
             }
         }
     }
+
+    /// A view that displays either the my vault or empty vault interface.
+    @ViewBuilder private var vault: some View {
+        LoadingView(state: store.state.loadingState) { sections in
+            if sections.isEmpty {
+                emptyVault
+            } else {
+                vaultContents(with: sections)
+            }
+        }
+    }
+
+    // MARK: Private Methods
 
     /// A view that displays the main vault interface, including sections for groups and
     /// vault items.
