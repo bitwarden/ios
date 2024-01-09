@@ -9,6 +9,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appLocale: String?
     var appTheme: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var disableAutoTotpCopyByUserId = [String: Bool]()
     var disableWebIcons: Bool = false
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
@@ -34,6 +35,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func disableAutoTotpCopy(userId: String) -> Bool {
+        disableAutoTotpCopyByUserId[userId] ?? false
     }
 
     func encryptedPrivateKey(userId: String) -> String? {
@@ -66,6 +71,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
+        disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {

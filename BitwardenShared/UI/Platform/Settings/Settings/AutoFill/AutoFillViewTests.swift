@@ -6,7 +6,7 @@ import XCTest
 class AutoFillViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<AutoFillState, AutoFillAction, Void>!
+    var processor: MockProcessor<AutoFillState, AutoFillAction, AutoFillEffect>!
     var subject: AutoFillView!
 
     // MARK: Setup & Teardown

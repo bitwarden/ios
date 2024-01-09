@@ -51,10 +51,13 @@ class AutofillHelper {
     func handleCipherForAutofill(cipherView: CipherView, showToast: @escaping (String) -> Void) async {
         if cipherView.reprompt == .password {
             presentMasterPasswordRepromptAlert {
-                self.handleCipherForAutofillAfterRepromptIfRequired(cipherView: cipherView, showToast: showToast)
+                await self.handleCipherForAutofillAfterRepromptIfRequired(
+                    cipherView: cipherView,
+                    showToast: showToast
+                )
             }
         } else {
-            handleCipherForAutofillAfterRepromptIfRequired(cipherView: cipherView, showToast: showToast)
+            await handleCipherForAutofillAfterRepromptIfRequired(cipherView: cipherView, showToast: showToast)
         }
     }
 
@@ -90,14 +93,22 @@ class AutofillHelper {
     private func handleCipherForAutofillAfterRepromptIfRequired(
         cipherView: CipherView,
         showToast: @escaping (String) -> Void
-    ) {
+    ) async {
         guard let username = cipherView.login?.username, !username.isEmpty,
               let password = cipherView.login?.password, !password.isEmpty else {
             handleMissingValueForAutofill(cipherView: cipherView, showToast: showToast)
             return
         }
 
-        // TODO: BIT-1096 Copy TOTP
+        do {
+            let disableAutoTotpCopy = try await services.vaultRepository.getDisableAutoTotpCopy()
+            if !disableAutoTotpCopy, let totp = cipherView.login?.totp {
+                let response = try await services.vaultRepository.generateTOTP(for: totp)
+                services.pasteboardService.copy(response.code)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
 
         appExtensionDelegate?.completeAutofillRequest(username: username, password: password)
     }
@@ -137,9 +148,14 @@ class AutofillHelper {
 
         if let totp = login.totp, !totp.isEmpty {
             alert.add(AlertAction(title: Localizations.copyTotp, style: .default) { _ in
-                // TODO: BIT-1096 Generate and copy TOTP
-                self.services.pasteboardService.copy(totp)
-                showToast(Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+                do {
+                    let response = try await self.services.vaultRepository.generateTOTP(for: totp)
+                    self.services.pasteboardService.copy(response.code)
+                    showToast(Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+                } catch {
+                    self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                    self.services.errorReporter.log(error: error)
+                }
             })
         }
 
@@ -154,7 +170,7 @@ class AutofillHelper {
     /// - Parameter completion: A completion handler that is called when the user's master password
     ///     has been confirmed.
     ///
-    private func presentMasterPasswordRepromptAlert(completion: @escaping () -> Void) {
+    private func presentMasterPasswordRepromptAlert(completion: @escaping () async -> Void) {
         let alert = Alert.masterPasswordPrompt { [weak self] password in
             guard let self else { return }
 
@@ -164,7 +180,7 @@ class AutofillHelper {
                     coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
                     return
                 }
-                completion()
+                await completion()
             } catch {
                 services.errorReporter.log(error: error)
             }

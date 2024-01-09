@@ -120,6 +120,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
     }
 
+    /// `disableAutoTotpCopy(userId:)` returns `false` if there isn't a previously stored value.
+    func test_disableAutoTotpCopy_isInitiallyNil() {
+        XCTAssertFalse(subject.disableAutoTotpCopy(userId: "-1"))
+    }
+
+    /// `disableAutoTotpCopy(userId:)` can be used to get the disable auto-copy TOTP value for a user.
+    func test_disableAutoTotpCopy_withValue() {
+        subject.setDisableAutoTotpCopy(true, userId: "1")
+        subject.setDisableAutoTotpCopy(false, userId: "2")
+
+        XCTAssertTrue(subject.disableAutoTotpCopy(userId: "1"))
+        XCTAssertFalse(subject.disableAutoTotpCopy(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:disableAutoTotpCopy_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:disableAutoTotpCopy_2"))
+    }
+
     /// `disableWebIcons` returns `false` if there isn't a previously stored value.
     func test_disableWebIcons_isInitiallyFalse() {
         XCTAssertFalse(subject.disableWebIcons)

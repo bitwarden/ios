@@ -62,6 +62,33 @@ class AutofillHelperTests: BitwardenTestCase {
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.password, "PASSWORD")
     }
 
+    /// `handleCipherForAutofill(cipherListView:)` copies the TOTP code for the login.
+    func test_handleCipherForAutofill_copiesTOTP() async {
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
+        ))
+        vaultRepository.getDisableAutoTotpCopyResult = .success(false)
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertEqual(pasteboardService.copiedString, "123321")
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` doesn't copy the TOTP code for the login if the
+    /// disable auto-copy TOTP setting is set.
+    func test_handleCipherForAutofill_disableTOTPCopy() async {
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
+        ))
+        vaultRepository.getDisableAutoTotpCopyResult = .success(true)
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertNil(pasteboardService.copiedString)
+    }
+
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if fetching the cipher results in an error.
     func test_handleCipherForAutofill_fetchCipherError() async {
         let cipher = CipherListView.fixture()
@@ -126,6 +153,53 @@ class AutofillHelperTests: BitwardenTestCase {
     }
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing an
+    /// username with options to copy the password and TOTP.
+    func test_handleCipherForAutofill_missingValueCopyTotp() async throws {
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
+            name: "Bitwarden Login"
+        ))
+
+        let cipher = CipherListView.fixture(id: "1")
+        var showToastValue: String?
+        await subject.handleCipherForAutofill(cipherListView: cipher) { showToastValue = $0 }
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden Login")
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.copyPassword)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.copyTotp)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        try await alert.tapAction(title: Localizations.copyPassword)
+        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.password))
+
+        try await alert.tapAction(title: Localizations.copyTotp)
+        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` logs an error if generating the TOTP fails from
+    /// the missing value alert.
+    func test_handleCipherForAutofill_missingValueCopyTotpError() async throws {
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
+            name: "Bitwarden Login"
+        ))
+        struct GenerateTotpError: Error, Equatable {}
+        vaultRepository.generateTOTPResult = .failure(GenerateTotpError())
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.copyTotp)
+        XCTAssertEqual(errorReporter.errors.last as? GenerateTotpError, GenerateTotpError())
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing an
     /// username and password.
     func test_handleCipherForAutofill_missingUsernameAndPassword() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
@@ -181,5 +255,21 @@ class AutofillHelperTests: BitwardenTestCase {
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` logs an error if generating the TOTP fails.
+    func test_handleCipherForAutofill_generateTOTPError() async {
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
+        ))
+        struct GenerateTotpError: Error, Equatable {}
+        vaultRepository.generateTOTPResult = .failure(GenerateTotpError())
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.username, "user@bitwarden.com")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.password, "PASSWORD")
+        XCTAssertEqual(errorReporter.errors.last as? GenerateTotpError, GenerateTotpError())
     }
 }

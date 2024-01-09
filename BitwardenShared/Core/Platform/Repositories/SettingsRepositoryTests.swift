@@ -100,6 +100,18 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(value)
     }
 
+    /// `getDisableAutoTotpCopy()` returns the disable auto-copy TOTP value.
+    func test_getDisableAutoTotpCopy() async throws {
+        stateService.activeAccount = .fixture()
+
+        let initialValue = try await subject.getDisableAutoTotpCopy()
+        XCTAssertFalse(initialValue)
+
+        stateService.disableAutoTotpCopyByUserId["1"] = true
+        let value = try await subject.getDisableAutoTotpCopy()
+        XCTAssertTrue(value)
+    }
+
     /// `fetchSync()` throws an error if syncing fails.
     func test_fetchSync_error() async throws {
         struct SyncError: Error, Equatable {}
@@ -209,5 +221,14 @@ class SettingsRepositoryTests: BitwardenTestCase {
         try await subject.updateAllowSyncOnRefresh(true)
         value = try await stateService.getAllowSyncOnRefresh()
         XCTAssertTrue(value)
+    }
+
+    /// `updateDisableAutoTotpCopy(_:)` updates the state service's disable auto-copy TOTP value.
+    func test_updateDisableAutoTotpCopy() async throws {
+        stateService.activeAccount = .fixture()
+
+        try await subject.updateDisableAutoTotpCopy(true)
+
+        try XCTAssertTrue(XCTUnwrap(stateService.disableAutoTotpCopyByUserId["1"]))
     }
 }

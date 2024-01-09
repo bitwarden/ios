@@ -20,7 +20,9 @@ class MockVaultRepository: VaultRepository {
     var fetchFoldersResult: Result<[FolderView], Error> = .success([])
     var fetchSyncCalled = false
     var fetchSyncResult: Result<Void, Error> = .success(())
+    var generateTOTPResult: Result<TOTPCode, Error> = .success(TOTPCode(code: "123321", date: .now, period: 30))
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
+    var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
     var refreshedTOTPCodes: [VaultListItem] = []
@@ -86,6 +88,14 @@ class MockVaultRepository: VaultRepository {
     func fetchSync(isManualRefresh _: Bool) async throws {
         fetchSyncCalled = true
         try fetchSyncResult.get()
+    }
+
+    func generateTOTP(for key: String) async throws -> TOTPCode {
+        try generateTOTPResult.get()
+    }
+
+    func getDisableAutoTotpCopy() async throws -> Bool {
+        try getDisableAutoTotpCopyResult.get()
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
