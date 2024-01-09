@@ -84,8 +84,8 @@ class DefaultSendRepository: SendRepository {
             .count
 
         let types = [
-            SendListItem(id: "Types.File", itemType: .group(.file, fileSendsCount)),
             SendListItem(id: "Types.Text", itemType: .group(.text, textSendsCount)),
+            SendListItem(id: "Types.File", itemType: .group(.file, fileSendsCount)),
         ]
 
         let allItems = sends.compactMap(SendListItem.init)

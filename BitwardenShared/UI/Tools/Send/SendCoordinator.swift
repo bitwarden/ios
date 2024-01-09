@@ -11,16 +11,19 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Properties
 
-    var services: Services
+    /// The services used by this processor.
+    let services: Services
 
     /// The stack navigator that is managed by this coordinator.
-    var stackNavigator: StackNavigator
+    let stackNavigator: StackNavigator
 
     // MARK: Initialization
 
     /// Creates a new `SendCoordinator`.
     ///
-    /// - Parameters stackNavigator: The stack navigator that is managed by this coordinator.
+    /// - Parameters:
+    ///   - services: The services used by this processor.
+    ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
         services: Services,

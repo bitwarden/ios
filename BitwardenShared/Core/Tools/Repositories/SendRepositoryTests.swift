@@ -61,8 +61,8 @@ class SendRepositoryTests: BitwardenTestCase {
         try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
             """
             Section: Types
-              - Group: File (1)
               - Group: Text (1)
+              - Group: File (1)
             Section: All Sends
               - Send: encrypted name
               - Send: encrypted name

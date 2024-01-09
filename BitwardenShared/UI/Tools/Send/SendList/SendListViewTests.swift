@@ -43,6 +43,13 @@ class SendListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
+    /// Tapping the info button dispatches the `.infoButtonPressed` action.
+    func test_infoButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.aboutSend)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .infoButtonPressed)
+    }
+
     // MARK: Snapshots
 
     /// The view renders correctly when there are no items.
