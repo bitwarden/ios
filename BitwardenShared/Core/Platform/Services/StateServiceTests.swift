@@ -505,6 +505,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
     }
 
+    func test_pinKeyEncryptedUserKey() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        appSettingsStore.pinKeyEncryptedUserKey["1"] = "123"
+        let pin = try await subject.pinKeyEncryptedUserKey(userId: "1")
+        XCTAssertEqual(pin, "123")
+    }
+
     /// `rememberedOrgIdentifier` gets and sets the value as expected.
     func test_rememberedOrgIdentifier() {
         // Getting the value should get the value from the app settings store.
@@ -679,6 +686,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["1"], options1)
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["2"], options2)
+    }
+
+    func test_setPinKeyEncryptedUserKey() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setPinKeyEncryptedUserKey("123", userId: "1")
+        XCTAssertEqual(appSettingsStore.pinKeyEncryptedUserKey["1"], "123")
     }
 
     /// `setPreAuthEnvironmentUrls` saves the pre-auth URLs.

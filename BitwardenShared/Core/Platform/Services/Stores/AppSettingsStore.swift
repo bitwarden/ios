@@ -72,6 +72,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions?
 
+    /// The user's pin key encrypted user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
+    /// - Returns: The pin key encrypted user key.
+    ///
+    func pinKeyEncryptedUserKey(userId: String) -> String?
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -136,6 +143,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
+
+    /// Sets the pin key encrypted user key.
+    ///
+    /// - Parameters:
+    ///   - key: A PIN protected user key from the user's PIN.
+    ///   - userId: The user ID.
+    ///
+    func setPinKeyEncryptedUserKey(key: String?, userId: String)
 
     /// Sets the username generation options for a user ID.
     ///
@@ -272,6 +287,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case lastSync(userId: String)
         case masterPasswordHash(userId: String)
         case passwordGenerationOptions(userId: String)
+        case pinKeyEncryptedUserKey(userId: String)
         case preAuthEnvironmentUrls
         case rememberedEmail
         case rememberedOrgIdentifier
@@ -298,6 +314,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "keyHash_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
+            case let .pinKeyEncryptedUserKey(userId):
+                key = "pinKeyEncryptedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
             case .rememberedEmail:
@@ -373,6 +391,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
 
+    func pinKeyEncryptedUserKey(userId: String) -> String? {
+        fetch(for: .pinKeyEncryptedUserKey(userId: userId))
+    }
+
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
     }
@@ -403,6 +425,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         store(options, for: .passwordGenerationOptions(userId: userId))
+    }
+
+    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
+        store(key, for: .pinKeyEncryptedUserKey(userId: userId))
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {

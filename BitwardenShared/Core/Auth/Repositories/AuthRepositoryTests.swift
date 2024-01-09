@@ -395,4 +395,38 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
     }
+
+    /// `.setPinKeyEncryptedUserKey(pin:)` sets the pin key encrypted user key.
+    func test_setPinKeyEncryptedUserKey() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        try await subject.setPinKeyEncryptedUserKey(pin: "123")
+        XCTAssertEqual(stateService.pinKeyEncryptedUserKey["1"], "123")
+    }
+
+    /// `unlockWithPIN(_:)` unlocks the vault with the user's PIN.
+    func test_unlockWithPIN() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+        stateService.pinKeyEncryptedUserKey[account.profile.userId] = "456"
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockWithPIN("123")
+        }
+
+        XCTAssertEqual(
+            clientCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                method: .pin(pin: "123", pinProtectedUserKey: "456")
+            )
+        )
+        XCTAssertEqual(vaultTimeoutService.timeoutStore, ["1": false])
+    }
 }

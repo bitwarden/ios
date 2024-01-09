@@ -108,6 +108,13 @@ protocol StateService: AnyObject {
     ///
     func logoutAccount(userId: String?) async throws
 
+    /// The user's pin key encrypted user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
+    /// - Returns: The pin key encrypted user key.
+    ///
+    func pinKeyEncryptedUserKey(userId: String?) async throws -> String?
+
     /// Sets the account encryption keys for an account.
     ///
     /// - Parameters:
@@ -161,6 +168,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws
+
+    /// Sets the pin key encrypted user key.
+    ///
+    /// - Parameters:
+    ///   - key: A PIN protected user key from the user's PIN.
+    ///   - userId: The user ID.
+    ///
+    func setPinKeyEncryptedUserKey(_ key: String?, userId: String?) async throws
 
     /// Sets the environment URLs used prior to user authentication.
     ///
@@ -489,6 +504,11 @@ actor DefaultStateService: StateService {
         try await dataStore.deleteDataForUser(userId: userId)
     }
 
+    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.pinKeyEncryptedUserKey(userId: userId)
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
@@ -528,6 +548,11 @@ actor DefaultStateService: StateService {
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPasswordGenerationOptions(options, userId: userId)
+    }
+
+    func setPinKeyEncryptedUserKey(_ key: String?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPinKeyEncryptedUserKey(key: key, userId: userId)
     }
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {

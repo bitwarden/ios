@@ -5,6 +5,7 @@ import XCTest
 class AccountSecurityProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appSettingsStore: MockAppSettingsStore!
     var coordinator: MockCoordinator<SettingsRoute>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
@@ -17,6 +18,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        appSettingsStore = MockAppSettingsStore()
         coordinator = MockCoordinator<SettingsRoute>()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
@@ -38,6 +40,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        appSettingsStore = nil
         coordinator = nil
         errorReporter = nil
         settingsRepository = nil
@@ -221,7 +224,29 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         }
 
         try await alert.tapAction(title: Localizations.submit)
+
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+
+        try await alert.tapAction(title: Localizations.yes)
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` turns the toggle off and sets the `PinKeyEncryptedUserKey` to nil.
+    func test_receive_toggleUnlockWithPINCode_off() {
+        let account: Account = .fixture()
+        stateService.activeAccount = account
+        stateService.pinKeyEncryptedUserKey[account.profile.userId] = "123"
+
+        subject.state.isUnlockWithPINCodeOn = true
+        let task = Task {
+            subject.receive(.toggleUnlockWithPINCode(false))
+        }
+        waitFor(!subject.state.isUnlockWithPINCodeOn)
+        task.cancel()
+        let pin = stateService.pinKeyEncryptedUserKey[account.profile.userId] ?? nil
+        XCTAssertNil(pin)
     }
 
     /// `receive(_:)` with `.toggleUnlockWithTouchID` updates the state.

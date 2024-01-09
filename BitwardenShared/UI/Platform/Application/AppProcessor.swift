@@ -57,7 +57,13 @@ public class AppProcessor {
         }
 
         if let activeAccount = services.appSettingsStore.state?.activeAccount {
-            coordinator.navigate(to: .auth(.vaultUnlock(activeAccount)))
+            if let loginWithPIN = services.appSettingsStore.pinKeyEncryptedUserKey(
+                userId: activeAccount.profile.userId
+            ) {
+                coordinator.navigate(to: .auth(.loginWithPIN))
+            } else {
+                coordinator.navigate(to: .auth(.vaultUnlock(activeAccount)))
+            }
         } else {
             coordinator.navigate(to: .auth(.landing))
         }

@@ -42,6 +42,9 @@ public enum AuthRoute: Equatable {
     /// A route to the login with device screen.
     case loginWithDevice
 
+    /// A route to the login with PIN screen.
+    case loginWithPIN
+
     /// A route to the master password hint screen for the provided username.
     ///
     /// - Parameter username: The username to display on the password hint screen.

@@ -12,7 +12,8 @@ final class AccountSecurityProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasBiometricsService
+    typealias Services = HasAuthRepository
+        & HasBiometricsService
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
@@ -52,6 +53,16 @@ final class AccountSecurityProcessor: StateProcessor<
 
     override func perform(_ effect: AccountSecurityEffect) async {
         switch effect {
+        case .appeared:
+            Task {
+                do {
+                    let userId = try await services.stateService.getActiveAccountId()
+                    let key = try await services.stateService.pinKeyEncryptedUserKey(userId: userId)
+                    if try await services.stateService.pinKeyEncryptedUserKey(userId: userId) != nil {
+                        state.isUnlockWithPINCodeOn = true
+                    }
+                } catch {}
+            }
         case .lockVault:
             do {
                 let account = try await services.stateService.getActiveAccount()
@@ -138,12 +149,27 @@ final class AccountSecurityProcessor: StateProcessor<
     /// - Parameter isOn: Whether or not the toggle value is true or false.
     ///
     private func toggleUnlockWithPIN(_ isOn: Bool) {
-        if !state.isUnlockWithPINCodeOn {
-            coordinator.navigate(to: .alert(.enterPINCode(completion: { _ in
-                self.state.isUnlockWithPINCodeOn = isOn
+        if isOn {
+            coordinator.navigate(to: .alert(.enterPINCode(completion: { pin in
+                self.coordinator.navigate(to: .alert(.unlockWithPINCodeAlert {
+                    do {
+                        try await self.services.authRepository.setPinKeyEncryptedUserKey(pin: pin)
+                        self.state.isUnlockWithPINCodeOn = true
+                    } catch {
+                        self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+                    }
+                }))
             })))
         } else {
-            state.isUnlockWithPINCodeOn = isOn
+            Task {
+                do {
+                    let userId = try await services.stateService.getActiveAccountId()
+                    try await self.services.stateService.setPinKeyEncryptedUserKey(nil, userId: userId)
+                    state.isUnlockWithPINCodeOn = isOn
+                } catch {
+                    self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+                }
+            }
         }
     }
 }

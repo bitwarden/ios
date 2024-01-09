@@ -104,6 +104,8 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
             showLoginOptions()
         case .loginWithDevice:
             showLoginWithDevice()
+        case .loginWithPIN:
+            showLoginWithPin()
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
         case .selfHosted:
@@ -262,6 +264,19 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
         stackNavigator.present(navigationController)
+    }
+
+    /// Shows the login with PIN screen.
+    private func showLoginWithPin() {
+        let processor = LoginWithPINProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: LoginWithPINState()
+        )
+        let store = Store(processor: processor)
+        let view = LoginWithPINView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator.push(viewController)
     }
 
     /// Shows the master password hint screen for the provided username.

@@ -29,7 +29,7 @@ protocol VaultTimeoutService: AnyObject {
     ///
     func lockVault(userId: String?) async
 
-    /// Unlocks the user's vault
+    /// Unlocks the user's vault.
     ///
     /// - Parameter userId: The userId of the account to unlock.
     ///     Defaults to the active account if nil

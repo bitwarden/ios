@@ -5,7 +5,7 @@ import BitwardenSdk
 class MockClientCrypto: ClientCryptoProtocol {
     var derivePinKeyPin: String?
     var derivePinKeyResult: Result<DerivePinKeyResponse, Error> = .success(
-        DerivePinKeyResponse(pinProtectedUserKey: "", encryptedPin: "")
+        DerivePinKeyResponse(pinProtectedUserKey: "123", encryptedPin: "123")
     )
 
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")

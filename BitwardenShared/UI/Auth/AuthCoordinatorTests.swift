@@ -150,6 +150,15 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<LoginWithDeviceView>)
     }
 
+    /// `navigate(to:)` with `.loginWithPIN` pushes the login with pin view onto the stack navigator.
+    func test_navigate_loginWithPIN() throws {
+        subject.navigate(to: .loginWithPIN)
+        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+        let viewController = try XCTUnwrap(
+            stackNavigator.actions.last?.view as? UIHostingController<LoginWithPINView>
+        )
+    }
+
     /// `navigate(to:)` with `.masterPasswordHint` presents the master password hint view.
     func test_navigate_masterPasswordHint() throws {
         subject.navigate(to: .masterPasswordHint(username: "email@example.com"))

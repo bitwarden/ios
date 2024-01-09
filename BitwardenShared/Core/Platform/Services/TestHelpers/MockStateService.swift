@@ -18,6 +18,7 @@ class MockStateService: StateService {
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pinKeyEncryptedUserKey = [String: String?]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedOrgIdentifier: String?
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
@@ -112,6 +113,11 @@ class MockStateService: StateService {
         accountsLoggedOut.append(userId)
     }
 
+    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return pinKeyEncryptedUserKey[userId] ?? nil
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         accountEncryptionKeys[userId] = encryptionKeys
@@ -154,6 +160,11 @@ class MockStateService: StateService {
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPinKeyEncryptedUserKey(_ key: String?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        pinKeyEncryptedUserKey[userId] = key
     }
 
     func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {

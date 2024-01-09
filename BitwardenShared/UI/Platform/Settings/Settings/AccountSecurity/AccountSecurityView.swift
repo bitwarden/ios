@@ -32,6 +32,9 @@ struct AccountSecurityView: View {
             openURL(url)
             store.send(.clearTwoStepLoginUrl)
         }
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     // MARK: Private views
