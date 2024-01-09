@@ -299,9 +299,21 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY"
         ))
+
+        await assertAsyncDoesNotThrow {
+            _ = try await subject.getFingerprintPhrase(userId: account.profile.userId)
+        }
+
         let phrase = try await subject.getFingerprintPhrase(userId: account.profile.userId)
         XCTAssertEqual(clientPlatform.fingerprintMaterialString, account.profile.userId)
-        XCTAssertEqual(try clientPlatform.fingerprintResult.get(), "a-fingerprint-phrase-string-placeholder")
+        XCTAssertEqual(try clientPlatform.fingerprintResult.get(), phrase)
+    }
+
+    /// `getFingerprintPhrase(userId:)` throws an error if there is no active account.
+    func test_getFingerprintPhrase_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getFingerprintPhrase(userId: "")
+        }
     }
 
     /// `setActiveAccount(userId: )` loads the environment URLs for the active account.

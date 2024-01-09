@@ -105,16 +105,15 @@ final class AccountSecurityProcessor: StateProcessor<
         do {
             let userId = try await services.stateService.getActiveAccountId()
             let phrase = try await services.authRepository.getFingerprintPhrase(userId: userId)
-            state.fingerprintPhrase = phrase
+
+            coordinator.navigate(to: .alert(
+                .displayFingerprintPhraseAlert({
+                    self.state.fingerprintPhraseUrl = ExternalLinksConstants.fingerprintPhrase
+                }, phrase: phrase))
+            )
         } catch {
             coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
         }
-
-        coordinator.navigate(to: .alert(
-            .displayFingerprintPhraseAlert({
-                self.state.fingerprintPhraseUrl = ExternalLinksConstants.fingerprintPhrase
-            }, phrase: state.fingerprintPhrase))
-        )
     }
 
     /// Saves the user's session timeout action.

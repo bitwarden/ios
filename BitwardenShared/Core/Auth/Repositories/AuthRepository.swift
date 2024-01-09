@@ -127,7 +127,6 @@ class DefaultAuthRepository {
 
 extension DefaultAuthRepository: AuthRepository {
     func getFingerprintPhrase(userId: String?) async throws -> String {
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
         let account = try await stateService.getActiveAccount()
         return try await clientPlatform.userFingerprint(fingerprintMaterial: account.profile.userId)
     }

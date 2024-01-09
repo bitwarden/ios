@@ -5,7 +5,7 @@ class MockAuthRepository: AuthRepository {
     var activeAccountResult: Result<ProfileSwitcherItem, Error> = .failure(StateServiceError.noActiveAccount)
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var deleteAccountCalled = false
-    var fingerprintPhrase = "a-long-fingerprint-phrase-placeholder"
+    var fingerprintPhraseResult: Result<String, Error> = .failure(StateServiceError.noAccounts)
     var logoutCalled = false
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var unlockVaultPassword: String?
@@ -28,7 +28,7 @@ class MockAuthRepository: AuthRepository {
     }
 
     func getFingerprintPhrase(userId: String?) async throws -> String {
-        fingerprintPhrase
+        try fingerprintPhraseResult.get()
     }
 
     func logout() async throws {

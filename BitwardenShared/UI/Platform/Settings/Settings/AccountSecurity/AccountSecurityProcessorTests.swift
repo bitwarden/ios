@@ -5,6 +5,7 @@ import XCTest
 class AccountSecurityProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<SettingsRoute>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
@@ -17,6 +18,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        authRepository = MockAuthRepository()
         coordinator = MockCoordinator<SettingsRoute>()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
@@ -38,6 +40,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        authRepository = nil
         coordinator = nil
         errorReporter = nil
         settingsRepository = nil
@@ -78,6 +81,23 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         subject.receive(.clearFingerprintPhraseUrl)
         XCTAssertNil(subject.state.fingerprintPhraseUrl)
+    }
+
+    /// `perform(_:)` with `.accountFingerprintPhrasePressed` shows an alert if an error occurs.
+    func test_perform_showAccountFingerprintPhraseAlert_error() async throws {
+        struct FingerprintPhraseError: Error {}
+
+        authRepository.fingerprintPhraseResult = .failure(FingerprintPhraseError())
+        await subject.perform(.accountFingerprintPhrasePressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred
+            )
+        )
     }
 
     /// `receive(_:)` with `.twoStepLoginPressed` clears the two step login URL.
