@@ -438,15 +438,40 @@ extension DefaultVaultRepository: VaultRepository {
         filterType: VaultFilterType
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
         let userId = try await stateService.getActiveAccountId()
-        let searchTerm = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .folding(options: .diacriticInsensitive, locale: .current)
         let ciphers = cipherService.cipherPublisher(userId: userId).asyncTryMap { ciphers -> [VaultListItem] in
-            let decryptedCiphers = try await self.clientVault.ciphers()
-                .decryptList(ciphers: ciphers)
-            return decryptedCiphers
-                .filter(filterType.cipherFilter)
-                .filter { $0.name.lowercased().contains(searchTerm) }
-                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-                .compactMap { VaultListItem(cipherListView: $0) }
+            // Since original search was doing search on name, id, subTitle, uri etc
+            // and uris are in CipherListView, subTitle is in CipherView
+            // we are zipping two list of `CipherView` and `CipherListView` and filtering
+            let clientVault = self.clientVault.ciphers()
+            let decryptedCipherViews = try await ciphers.asyncMap { try await clientVault.decrypt(cipher: $0) }
+            let decryptedCipherListViews = try await clientVault.decryptList(ciphers: ciphers)
+            let zippedCiphers = decryptedCipherViews.compactMap { cipherView in
+                decryptedCipherListViews.first { $0.id == cipherView.id }
+                    .map { (cipherView: cipherView, cipherListView: $0) }
+            }
+            var matchedCiphers: [CipherListView] = []
+            var lowPriorityMatchedCiphers: [CipherListView] = []
+            zippedCiphers
+                .filter { filterType.cipherFilter($0.cipherListView) }
+                .forEach { cipherView, cipherListView in
+                    if cipherListView.name.lowercased()
+                        .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+                        matchedCiphers.append(cipherListView)
+                    } else if query.count >= 8, cipherListView.id?.starts(with: query) == true {
+                        lowPriorityMatchedCiphers.append(cipherListView)
+                    } else if cipherListView.subTitle.lowercased()
+                        .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                        lowPriorityMatchedCiphers.append(cipherListView)
+                    } else if cipherView.login?.uris?.filter({ $0.uri?.contains(query) == true }).count ?? 0 > 0 {
+                        lowPriorityMatchedCiphers.append(cipherListView)
+                    }
+                }
+            let result = matchedCiphers
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } + lowPriorityMatchedCiphers
+            return result.compactMap { VaultListItem(cipherListView: $0) }
         }.eraseToAnyPublisher().values
         return ciphers
     }
