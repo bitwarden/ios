@@ -13,6 +13,9 @@ enum Constants {
     /// The client type corresponding to the app.
     static let clientType: ClientType = "mobile"
 
+    /// The default generated username if there isn't enough information to generate a username.
+    static let defaultGeneratedUsername = "-"
+
     /// The URL for the web vault if the user account doesn't have one specified.
     static let defaultWebVaultHost = "bitwarden.com"
 

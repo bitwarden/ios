@@ -165,6 +165,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Generate a new username.
     ///
     func generateUsername() async {
+        state.generatedValue = Constants.defaultGeneratedUsername
         do {
             guard let usernameGeneratorRequest = try state.usernameState.usernameGeneratorRequest() else {
                 return
