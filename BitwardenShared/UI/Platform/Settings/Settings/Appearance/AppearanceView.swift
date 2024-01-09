@@ -18,8 +18,6 @@ struct AppearanceView: View {
 
             theme
 
-            defaultDarkTheme
-
             webSiteIconsToggle
         }
         .scrollView()
@@ -61,25 +59,6 @@ struct AppearanceView: View {
             .cornerRadius(10)
 
             Text(Localizations.themeDescription)
-                .styleGuide(.subheadline)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-        }
-    }
-
-    /// The default dark mode color theme picker view
-    private var defaultDarkTheme: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SettingsListItem(
-                Localizations.defaultDarkTheme,
-                hasDivider: false
-            ) {
-                store.send(.defaultDarkThemeChanged)
-            } trailingContent: {
-                Text(Localizations.dark)
-            }
-            .cornerRadius(10)
-
-            Text(Localizations.defaultDarkThemeDescriptionLong)
                 .styleGuide(.subheadline)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
         }

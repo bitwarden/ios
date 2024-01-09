@@ -46,8 +46,6 @@ final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceActio
 
     override func receive(_ action: AppearanceAction) {
         switch action {
-        case .defaultDarkThemeChanged:
-            print("languageTapped")
         case .languageTapped:
             print("languageTapped")
         case .themeButtonTapped:
