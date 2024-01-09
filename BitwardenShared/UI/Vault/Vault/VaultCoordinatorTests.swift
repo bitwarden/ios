@@ -151,11 +151,8 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
     func test_navigateTo_viewItem() throws {
-        let task = Task {
-            subject.navigate(to: .viewItem(id: "id"))
-        }
+        subject.navigate(to: .viewItem(id: "id"))
         waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
@@ -163,12 +160,9 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `.navigate(asyncTo:)` with `.viewItem` presents the view item screen.
-    func test_navigateTo_viewItem_async() throws {
-        let task = Task {
-            await subject.navigate(asyncTo: .viewItem(id: "id"))
-        }
+    func test_navigateTo_viewItem_async() async throws {
+        await subject.navigate(asyncTo: .viewItem(id: "id"))
         waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)

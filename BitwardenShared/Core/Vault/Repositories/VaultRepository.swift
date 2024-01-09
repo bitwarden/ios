@@ -342,7 +342,7 @@ class DefaultVaultRepository {
             filter: filter
         ).count
 
-        var totpItems = (oneTimePasswordCount > 0) ? [
+        let totpItems = (oneTimePasswordCount > 0) ? [
             VaultListItem(
                 id: "Types.VerificationCodes",
                 itemType: .group(.totp, oneTimePasswordCount)
