@@ -142,6 +142,8 @@ private class TOTPExpirationManager {
     ///
     private(set) var itemsByInterval = [UInt32: [VaultListItem]]()
 
+    /// A timer that triggers `checkForExpirations` to manage code expirations.
+    ///
     private var updateTimer: Timer?
 
     /// Initializes a new countdown timer
