@@ -22,6 +22,14 @@ class AddEditSendItemViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping the cancel button sends the `.dismissPressed` action.
+    func test_cancelButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.cancel)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
+    }
+
+    /// Updating the deletion date menu sends the `.deletionDateChanged` action.
     func test_deletionDateMenu_updated() throws {
         processor.state.isOptionsExpanded = true
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.deletionDate)
@@ -29,6 +37,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .deletionDateChanged(.thirtyDays))
     }
 
+    /// Updating the expiration date menu sends the `.expirationDateChanged` action.
     func test_expirationDateMenu_updated() throws {
         processor.state.isOptionsExpanded = true
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.expirationDate)
@@ -36,6 +45,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .expirationDateChanged(.thirtyDays))
     }
 
+    /// Updating the maximum access count stepper sends the `.maximumAccessCountChanged` action.
     func test_maximumAccessCountStepper_updated() throws {
         processor.state.isOptionsExpanded = true
         processor.state.maximumAccessCount = 42
@@ -48,12 +58,14 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountChanged(41))
     }
 
+    /// Updating the name textfield sends the `.nameChanged` action.
     func test_nameTextField_updated() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.name)
         try textField.inputBinding().wrappedValue = "Name"
         XCTAssertEqual(processor.dispatchedActions.last, .nameChanged("Name"))
     }
 
+    /// Updating the new password textfield sends the `.passwordChanged` action.
     func test_newPasswordTextField_updated() throws {
         processor.state.isOptionsExpanded = true
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.newPassword)
@@ -61,6 +73,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .passwordChanged("password"))
     }
 
+    /// Updating the notes textfield sends the `.notesChanged` action.
     func test_notesTextField_updated() throws {
         processor.state.isOptionsExpanded = true
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.notes)
@@ -68,24 +81,28 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("Notes"))
     }
 
+    /// Tapping the options button sends the `.optionsPressed` action.
     func test_optionsButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.options)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .optionsPressed)
     }
 
+    /// Tapping the save button performs the `.savePressed` effect.
     func test_saveButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .savePressed)
     }
 
+    /// Updating the text textfield sends the `.textChanged` action.
     func test_textTextField_updated() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.text)
         try textField.inputBinding().wrappedValue = "Text"
         XCTAssertEqual(processor.dispatchedActions.last, .textChanged("Text"))
     }
 
+    /// Updating the type picker sends the `.typeChanged` action.
     func test_typePicker_updated() throws {
         let picker = try subject.inspect().find(picker: Localizations.type)
         try picker.select(value: SendType.file)

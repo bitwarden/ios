@@ -37,6 +37,8 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
 
     override func receive(_ action: AddEditSendItemAction) {
         switch action {
+        case .chooseFilePressed:
+            print("choose file")
         case let .customDeletionDateChanged(newValue):
             state.customDeletionDate = newValue
         case let .customExpirationDateChanged(newValue):

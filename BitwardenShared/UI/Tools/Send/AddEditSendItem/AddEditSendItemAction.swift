@@ -5,6 +5,9 @@ import Foundation
 /// Actions that can be processed by a `AddEditSendItemProcessor`.
 ///
 enum AddEditSendItemAction: Equatable {
+    /// The choose file button was pressed.
+    case chooseFilePressed
+
     /// The custom deletion date was changed.
     case customDeletionDateChanged(Date)
 
