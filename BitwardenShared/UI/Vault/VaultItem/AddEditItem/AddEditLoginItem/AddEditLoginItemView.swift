@@ -174,7 +174,10 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                             processor: StateProcessor(
                                 state: LoginItemState(
                                     isTOTPAvailable: true,
-                                    totpKey: .init(authenticatorKey: key)
+                                    totpState: .init(
+                                        .init(authenticatorKey: key)!,
+                                        time: .currentTime
+                                    )
                                 )
                             )
                         )

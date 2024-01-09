@@ -139,9 +139,16 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         case let .toastShown(newValue):
             state.toast = newValue
         case let .totpKeyChanged(newValue):
-            state.loginState.totpKey = (newValue != nil)
-                ? TOTPCodeConfig(authenticatorKey: newValue!)
-                : nil
+            if let newValue,
+               let newKey = TOTPCodeConfig(authenticatorKey: newValue) {
+                state.loginState.totpState = LoginTOTP(
+                    config: newKey,
+                    totpModel: nil,
+                    totpTime: TOTPTime(provider: services.vaultRepository.timeProvider)
+                )
+            } else {
+                state.loginState.totpState = nil
+            }
         case let .typeChanged(newValue):
             state.type = newValue
         case let .uriChanged(newValue, index: index):
@@ -425,7 +432,11 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
 
     func parseAuthenticatorKey(_ key: String) {
         do {
-            state.loginState.totpKey = try services.totpService.getTOTPConfiguration(key: key)
+            let key = try services.totpService.getTOTPConfiguration(key: key)
+            state.loginState.totpState = .init(
+                config: key,
+                totpTime: TOTPTime(provider: services.vaultRepository.timeProvider)
+            )
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         } catch {
             coordinator.navigate(to: .alert(.totpScanFailureAlert()))

@@ -69,19 +69,27 @@ struct ViewLoginItemView: View {
                     .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
-        } else if store.state.totpKey != nil {
-            // TODO: BIT-760 - Implement OTP Logic & Calculation
+        } else if let totpModel = store.state.totpCode {
             BitwardenField(
                 title: Localizations.verificationCodeTotp,
                 content: {
-                    Text("123 456")
+                    Text(totpModel.displayCode)
                         .styleGuide(.bodyMonospaced)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 },
                 accessoryContent: {
+                    TOTPCountdownTimerView(
+                        timeProvider: store.state.time.provider,
+                        totpCode: totpModel,
+                        onExpiration: {
+                            Task {
+                                await store.perform(.totpCodeExpired)
+                            }
+                        }
+                    )
                     Button {
-                        // TODO: BIT-760 - Implement OTP Logic & Calculation
+                        store.send(.copyPressed(value: totpModel.code))
                     } label: {
                         Asset.Images.copy.swiftUIImage
                             .resizable()

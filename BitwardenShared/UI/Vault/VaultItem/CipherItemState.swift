@@ -189,7 +189,7 @@ struct CipherItemState: Equatable {
         )
     }
 
-    init?(existing cipherView: CipherView, hasPremium: Bool) {
+    init?(existing cipherView: CipherView, hasPremium: Bool, totpTime: TOTPTime) {
         guard cipherView.id != nil else { return nil }
         self.init(
             accountHasPremium: hasPremium,
@@ -200,7 +200,7 @@ struct CipherItemState: Equatable {
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
-            loginState: cipherView.loginItemState(showTOTP: hasPremium),
+            loginState: cipherView.loginItemState(showTOTP: hasPremium, totpTime: totpTime),
             name: cipherView.name,
             notes: cipherView.notes ?? "",
             type: .init(type: cipherView.type),

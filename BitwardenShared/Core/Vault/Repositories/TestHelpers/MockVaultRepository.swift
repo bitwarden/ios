@@ -1,9 +1,12 @@
 import BitwardenSdk
 import Combine
+import Foundation
 
 @testable import BitwardenShared
 
 class MockVaultRepository: VaultRepository {
+    // MARK: Properties
+
     var addCipherCiphers = [BitwardenSdk.CipherView]()
     var addCipherResult: Result<Void, Error> = .success(())
     var ciphersSubject = CurrentValueSubject<[CipherListView], Error>([])
@@ -22,13 +25,18 @@ class MockVaultRepository: VaultRepository {
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
-    var refreshedTOTPCodes: [VaultListItem] = []
     var refreshTOTPCodesResult: Result<[VaultListItem], Error> = .success([])
+    var refreshedTOTPCodes: [VaultListItem] = []
+    var refreshTOTPCodeResult: Result<LoginTOTP, Error> = .success(
+        LoginTOTP(config: .init(authenticatorKey: .base32Key)!, totpTime: .currentTime)
+    )
+    var refreshedTOTPKeyConfig: TOTPCodeConfig?
     var removeAccountIds = [String?]()
     var shareCipherResult: Result<Void, Error> = .success(())
     var sharedCiphers = [CipherView]()
     var softDeletedCipher = [CipherView]()
     var softDeleteCipherResult: Result<Void, Error> = .success(())
+    var mockTimeProvider = MockTimeProvider()
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
     var updateCipherCollectionsCiphers = [CipherView]()
@@ -38,6 +46,18 @@ class MockVaultRepository: VaultRepository {
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
     var vaultListGroupSubject = CurrentValueSubject<[VaultListItem], Never>([])
     var vaultListFilter: VaultFilterType?
+
+    // MARK: Computed Properties
+
+    var refreshedTOTPKey: String? {
+        refreshedTOTPKeyConfig?.authenticatorKey
+    }
+
+    var timeProvider: any TimeProvider {
+        mockTimeProvider
+    }
+
+    // MARK: Methods
 
     func addCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         addCipherCiphers.append(cipher)
@@ -89,6 +109,11 @@ class MockVaultRepository: VaultRepository {
         organizationsSubject.eraseToAnyPublisher().values
     }
 
+    func refreshTOTPCode(for key: BitwardenShared.TOTPCodeConfig) async throws -> BitwardenShared.LoginTOTP {
+        refreshedTOTPKeyConfig = key
+        return try refreshTOTPCodeResult.get()
+    }
+
     func refreshTOTPCodes(for items: [BitwardenShared.VaultListItem]) async throws -> [BitwardenShared.VaultListItem] {
         refreshedTOTPCodes = items
         return try refreshTOTPCodesResult.get()
@@ -134,5 +159,27 @@ class MockVaultRepository: VaultRepository {
         group _: BitwardenShared.VaultListGroup
     ) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
         vaultListGroupSubject.eraseToAnyPublisher().values
+    }
+}
+
+// MARK: - MockTimeProvider
+
+struct MockTimeProvider {
+    var mockTime: Date?
+}
+
+extension MockTimeProvider: Equatable {
+    static func == (lhs: MockTimeProvider, rhs: MockTimeProvider) -> Bool {
+        true
+    }
+}
+
+extension MockTimeProvider: TimeProvider {
+    var presentTime: Date {
+        mockTime ?? .now
+    }
+
+    func timeSince(_ date: Date) -> TimeInterval {
+        presentTime.timeIntervalSince(date)
     }
 }

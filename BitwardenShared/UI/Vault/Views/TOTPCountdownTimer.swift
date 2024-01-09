@@ -29,6 +29,10 @@ class TOTPCountdownTimer: ObservableObject {
     ///
     private let calculationDate: Date
 
+    /// A model to provide time to calculate the countdown.
+    ///
+    private var timeProvider: any TimeProvider
+
     /// The period used to calculate the countdown.
     ///
     private let period: Int
@@ -46,15 +50,19 @@ class TOTPCountdownTimer: ObservableObject {
     /// Initializes a new countdown timer
     ///
     /// - Parameters
+    ///   - timeProvider: A protocol providing the present time as a `Date`.
+    ///         Used to calculate time remaining for a present TOTP code.
     ///   - totpCode: The code used to calculate the time remaining.
     ///   - onExpiration: A closure to call on timer expiration.
     ///
     init(
-        totpCode: TOTPCode,
+        timeProvider: any TimeProvider,
+        totpCode: TOTPCodeState,
         onExpiration: (() -> Void)?
     ) {
         period = Int(totpCode.period)
-        calculationDate = totpCode.date
+        calculationDate = totpCode.codeGenerationDate
+        self.timeProvider = timeProvider
         self.onExpiration = onExpiration
         displayTime = "\(secondsRemaining)"
         timer = Timer.scheduledTimer(
@@ -70,7 +78,7 @@ class TOTPCountdownTimer: ObservableObject {
     ///
     private func updateCountdown() {
         displayTime = "\(secondsRemaining)"
-        let elapsedTimeSinceCalculation = calculationDate.timeIntervalSinceNow * -1.0
+        let elapsedTimeSinceCalculation = timeProvider.timeSince(calculationDate)
         let isOlderThanInterval = elapsedTimeSinceCalculation >= Double(period)
         if secondsRemaining > remainingSeconds(for: calculationDate) || isOlderThanInterval {
             onExpiration?()
@@ -83,7 +91,23 @@ class TOTPCountdownTimer: ObservableObject {
     ///
     /// - Parameter date: The date used to calculate the remaining seconds.
     ///
-    private func remainingSeconds(for date: Date = Date()) -> Int {
-        period - (Int(date.timeIntervalSinceReferenceDate) % period)
+    private func remainingSeconds(for date: Date? = nil) -> Int {
+        let remainderCalculationDate = date ?? timeProvider.presentTime
+        return period - (Int(remainderCalculationDate.timeIntervalSinceReferenceDate) % period)
+    }
+}
+
+protocol TimeProvider: Sendable, Equatable {
+    var presentTime: Date { get }
+    func timeSince(_ date: Date) -> TimeInterval
+}
+
+struct CurrentTime: TimeProvider {
+    var presentTime: Date {
+        .now
+    }
+
+    func timeSince(_ date: Date) -> TimeInterval {
+        presentTime.timeIntervalSince(date)
     }
 }

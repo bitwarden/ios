@@ -106,6 +106,16 @@ struct ViewItemView: View {
 
 #if DEBUG
 struct ViewItemView_Previews: PreviewProvider {
+    struct PreviewTimeProvider: TimeProvider {
+        var presentTime: Date {
+            .init(timeIntervalSinceReferenceDate: 1_695_000_011)
+        }
+
+        func timeSince(_ date: Date) -> TimeInterval {
+            presentTime.timeIntervalSince(date)
+        }
+    }
+
     static var cipher = CipherView(
         id: "123",
         organizationId: nil,
@@ -141,7 +151,11 @@ struct ViewItemView_Previews: PreviewProvider {
     )
 
     static var cardState: CipherItemState {
-        var state = CipherItemState(existing: cipher, hasPremium: true)!
+        var state = CipherItemState(
+            existing: cipher,
+            hasPremium: true,
+            totpTime: .currentTime
+        )!
         state.type = CipherType.card
         state.isMasterPasswordRePromptOn = true
         state.name = "Points ALL Day"
@@ -159,7 +173,13 @@ struct ViewItemView_Previews: PreviewProvider {
     }
 
     static var loginState: CipherItemState {
-        var state = CipherItemState(existing: cipher, hasPremium: true)!
+        var state = CipherItemState(
+            existing: cipher,
+            hasPremium: true,
+            totpTime: .init(
+                provider: PreviewTimeProvider()
+            )
+        )!
         state.customFields = [
             CustomFieldState(
                 linkedIdType: nil,
@@ -177,6 +197,15 @@ struct ViewItemView_Previews: PreviewProvider {
             UriState(matchType: .custom(.startsWith), uri: "https://www.example.com"),
             UriState(matchType: .custom(.startsWith), uri: "https://www.example.com/account/login"),
         ]
+        state.loginState.totpState = .init(
+            config: .init(authenticatorKey: "JBSWY3DPEHPK3PXP")!,
+            totpModel: .init(
+                code: "032823",
+                codeGenerationDate: .init(timeIntervalSinceReferenceDate: 1_695_000_000),
+                period: 30
+            ),
+            totpTime: TOTPTime(provider: PreviewTimeProvider())
+        )
         state.loginState.username = "email@example.com"
         return state
     }

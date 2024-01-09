@@ -17,7 +17,8 @@ class ViewItemStateTests: BitwardenTestCase {
                         id: "id",
                         reprompt: .password
                     ),
-                    hasPremium: true
+                    hasPremium: true,
+                    totpTime: .currentTime
                 )!
             ),
             hasVerifiedMasterPassword: false
@@ -35,7 +36,8 @@ class ViewItemStateTests: BitwardenTestCase {
                         id: "id",
                         reprompt: .password
                     ),
-                    hasPremium: true
+                    hasPremium: true,
+                    totpTime: .currentTime
                 )!
             ),
             hasVerifiedMasterPassword: true
@@ -53,7 +55,8 @@ class ViewItemStateTests: BitwardenTestCase {
                         id: "id",
                         reprompt: .none
                     ),
-                    hasPremium: true
+                    hasPremium: true,
+                    totpTime: .currentTime
                 )!
             ),
             hasVerifiedMasterPassword: false
@@ -71,7 +74,8 @@ class ViewItemStateTests: BitwardenTestCase {
                         id: "id",
                         reprompt: .none
                     ),
-                    hasPremium: true
+                    hasPremium: true,
+                    totpTime: .currentTime
                 )!
             ),
             hasVerifiedMasterPassword: true

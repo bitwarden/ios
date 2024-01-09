@@ -72,12 +72,30 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
                     ?? false
-                guard var newState = ViewItemState(cipherView: value, hasPremium: hasPremium) else { continue }
+                var totpState = LoginTOTP(
+                    .init(authenticatorKey: value.login?.totp ?? ""),
+                    time: TOTPTime(provider: services.vaultRepository.timeProvider)
+                )
+                if let key = totpState?.config {
+                    totpState = try? await services.vaultRepository.refreshTOTPCode(for: key)
+                }
+                guard var newState = ViewItemState(
+                    cipherView: value,
+                    hasPremium: hasPremium,
+                    totpTime: TOTPTime(provider: services.vaultRepository.timeProvider)
+                ) else { continue }
+                if case var .data(itemState) = newState.loadingState {
+                    itemState.loginState.totpState = totpState
+                    newState.loadingState = .data(itemState)
+                }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
             }
         case .deletePressed:
             await showDeleteConfirmation()
+        case .totpCodeExpired:
+            guard state.hasPremiumFeatures else { return }
+            await updateTOTPCode()
         }
     }
 
@@ -255,6 +273,31 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             await deleteItem(cipherState.cipher)
         }
         coordinator.showAlert(alert)
+    }
+
+    /// Updates the TOTP Code for the view
+    ///
+    private func updateTOTPCode() async {
+        guard case let .data(cipherItemState) = state.loadingState,
+              let calculationKey = cipherItemState.loginState.totpKey else { return }
+        do {
+            let newLoginTOTP = try await services.vaultRepository.refreshTOTPCode(for: calculationKey)
+            guard case let .data(cipherItemState) = state.loadingState else { return }
+            var updatedState = cipherItemState
+            guard let currentKey = cipherItemState.loginState.totpKey else {
+                updatedState.loginState.totpState = nil
+                state.loadingState = .data(updatedState)
+                return
+            }
+            if currentKey == newLoginTOTP.config {
+                updatedState.loginState.totpState = newLoginTOTP
+                state.loadingState = .data(updatedState)
+            } else {
+                await updateTOTPCode()
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 }
 

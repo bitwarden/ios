@@ -5,6 +5,12 @@ import Foundation
 /// A protocol for a `VaultRepository` which manages access to the data needed by the UI layer.
 ///
 protocol VaultRepository: AnyObject {
+    // MARK: Parameters
+
+    /// Provides the present time for TOTP Code Calculation
+    ///
+    var timeProvider: any TimeProvider { get }
+
     // MARK: API Methods
 
     /// Performs an API request to sync the user's vault data. The publishers in the repository can
@@ -60,6 +66,13 @@ protocol VaultRepository: AnyObject {
     /// - Returns: The folders that are available to the user.
     ///
     func fetchFolders() async throws -> [FolderView]
+
+    /// Regenerates the TOTP code for a given key.
+    ///
+    /// - Parameter items: The key for a TOTP code.
+    /// - Returns: An updated LoginTOTP.
+    ///
+    func refreshTOTPCode(for key: TOTPCodeConfig) async throws -> LoginTOTP
 
     /// Regenerates the TOTP codes for a list of Vault Items.
     ///
@@ -274,7 +287,8 @@ class DefaultVaultRepository {
                 iconBaseURL: iconsBaseURL,
                 id: id,
                 loginView: login,
-                totpCode: code
+                totpCode: code,
+                totpTime: TOTPTime(provider: timeProvider)
             )
             return VaultListItem(
                 id: id,
@@ -434,6 +448,12 @@ class DefaultVaultRepository {
 }
 
 extension DefaultVaultRepository: VaultRepository {
+    // MARK: Parameters
+
+    var timeProvider: any TimeProvider {
+        CurrentTime()
+    }
+
     // MARK: API Methods
 
     func fetchSync(isManualRefresh: Bool) async throws {
@@ -499,6 +519,18 @@ extension DefaultVaultRepository: VaultRepository {
     func doesActiveAccountHavePremium() async throws -> Bool {
         let account = try await stateService.getActiveAccount()
         return account.profile.hasPremiumPersonally ?? false
+    }
+
+    func refreshTOTPCode(for key: TOTPCodeConfig) async throws -> LoginTOTP {
+        let codeState = try await clientVault.generateTOTPCode(
+            for: key.authenticatorKey,
+            date: Date()
+        )
+        return LoginTOTP(
+            config: key,
+            totpModel: codeState,
+            totpTime: TOTPTime(provider: timeProvider)
+        )
     }
 
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {

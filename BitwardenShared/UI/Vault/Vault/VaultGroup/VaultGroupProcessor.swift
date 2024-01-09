@@ -39,12 +39,15 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         self.coordinator = coordinator
         self.services = services
         super.init(state: state)
-        totpExpirationManager = .init(onExpiration: { [weak self] expiredItems in
-            guard let self else { return }
-            Task {
-                await self.refreshTOTPCodes(for: expiredItems)
+        totpExpirationManager = .init(
+            timeProvider: services.vaultRepository.timeProvider,
+            onExpiration: { [weak self] expiredItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(for: expiredItems)
+                }
             }
-        })
+        )
     }
 
     deinit {
@@ -186,6 +189,10 @@ private class TOTPExpirationManager {
     ///
     private(set) var itemsByInterval = [UInt32: [VaultListItem]]()
 
+    /// A model to provide time to calculate the countdown.
+    ///
+    private var timeProvider: any TimeProvider
+
     /// A timer that triggers `checkForExpirations` to manage code expirations.
     ///
     private var updateTimer: Timer?
@@ -193,11 +200,15 @@ private class TOTPExpirationManager {
     /// Initializes a new countdown timer
     ///
     /// - Parameters
+    ///   - timeProvider: A protocol providing the present time as a `Date`.
+    ///         Used to calculate time remaining for a present TOTP code.
     ///   - onExpiration: A closure to call on code expiration for a list of vault items.
     ///
     init(
+        timeProvider: any TimeProvider,
         onExpiration: (([VaultListItem]) -> Void)?
     ) {
+        self.timeProvider = timeProvider
         self.onExpiration = onExpiration
         updateTimer = Timer.scheduledTimer(
             withTimeInterval: 0.25,
@@ -241,10 +252,10 @@ private class TOTPExpirationManager {
         itemsByInterval.forEach { period, items in
             let sortedItems: [Bool: [VaultListItem]] = Dictionary(grouping: items, by: { item in
                 guard case let .totp(_, model) = item.itemType else { return false }
-                let elapsedCodeTime = model.totpCode.date.timeIntervalSinceNow * -1.0
-                let isOlderThanInterval = elapsedCodeTime >= Double(period)
+                let elapsedTimeSinceCalculation = timeProvider.timeSince(model.totpCode.codeGenerationDate)
+                let isOlderThanInterval = elapsedTimeSinceCalculation >= Double(period)
                 let hasPastIntervalRefreshMark = remainingSeconds(using: Int(period))
-                    >= remainingSeconds(for: model.totpCode.date, using: Int(period))
+                    >= remainingSeconds(for: model.totpCode.codeGenerationDate, using: Int(period))
                 return isOlderThanInterval || hasPastIntervalRefreshMark
             })
             expired.append(contentsOf: sortedItems[true] ?? [])

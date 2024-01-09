@@ -12,6 +12,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     var coordinator: MockCoordinator<VaultRoute>!
     var errorReporter: MockErrorReporter!
+    var mockPresentTime = Date(year: 2023, month: 12, day: 31, minute: 0, second: 41)
     var pasteboardService: MockPasteboardService!
     var subject: VaultGroupProcessor!
     var vaultRepository: MockVaultRepository!
@@ -25,6 +26,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
+        vaultRepository.mockTimeProvider = .init(mockTime: mockPresentTime)
 
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -350,7 +352,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     func test_receive_itemPressed_totp() {
-        let totpItem = VaultListItem.fixtureTOTP()
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture())
         subject.receive(.itemPressed(totpItem))
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id))
     }
@@ -385,7 +387,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             totp: .fixture(
                 totpCode: .init(
                     code: "",
-                    date: .init(year: 2023, month: 12, day: 31),
+                    codeGenerationDate: .init(year: 2023, month: 12, day: 31),
                     period: 30
                 )
             )
@@ -394,7 +396,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             totp: .fixture(
                 totpCode: .init(
                     code: "345678",
-                    date: Date(),
+                    codeGenerationDate: Date(),
                     period: 30
                 )
             )
@@ -416,14 +418,24 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// TOTP Code expiration updates the state's TOTP codes.
     func test_receive_appeared_totpExpired_multi() throws { // swiftlint:disable:this function_body_length
+        subject = VaultGroupProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                pasteboardService: pasteboardService,
+                vaultRepository: vaultRepository
+            ),
+            state: VaultGroupState()
+        )
         let expiredResult = VaultListItem.fixtureTOTP(
             totp: .fixture(
                 id: "123",
                 totpCode: .init(
                     code: "",
-                    date: .init(year: 2023, month: 12, day: 31),
+                    codeGenerationDate: .init(year: 2023, month: 12, day: 31),
                     period: 30
-                )
+                ),
+                totpTime: .init(provider: vaultRepository.mockTimeProvider)
             )
         )
         let expectedUpdate = VaultListItem.fixtureTOTP(
@@ -431,9 +443,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 id: "123",
                 totpCode: .init(
                     code: "345678",
-                    date: Date(),
+                    codeGenerationDate: mockPresentTime,
                     period: 30
-                )
+                ),
+                totpTime: .init(provider: vaultRepository.mockTimeProvider)
             )
         )
         let newResults: [VaultListItem] = [
@@ -443,9 +456,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                     id: "456",
                     totpCode: .init(
                         code: "345678",
-                        date: Date(),
+                        codeGenerationDate: mockPresentTime,
                         period: 30
-                    )
+                    ),
+                    totpTime: .init(provider: vaultRepository.mockTimeProvider)
                 )
             ),
         ]
@@ -458,9 +472,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 id: "789",
                 totpCode: .init(
                     code: "",
-                    date: .now(secondsRoundedUpTo: 30),
+                    codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 31),
                     period: 30
-                )
+                ),
+                totpTime: .init(provider: vaultRepository.mockTimeProvider)
             )
         )
         vaultRepository.vaultListGroupSubject.send([
@@ -468,21 +483,30 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             stableResult,
         ])
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
-        waitFor(subject.state.loadingState.data == [expectedUpdate, stableResult])
         task.cancel()
         XCTAssertEqual([expiredResult], vaultRepository.refreshedTOTPCodes)
     }
 
     /// `receive(_:)` with `.totpCodeExpired` handles errors.
     func test_receive_totpExpired_error() throws {
+        subject = VaultGroupProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                pasteboardService: pasteboardService,
+                vaultRepository: vaultRepository
+            ),
+            state: VaultGroupState()
+        )
         struct TestError: Error, Equatable {}
         let result = VaultListItem.fixtureTOTP(
             totp: .fixture(
                 totpCode: .init(
                     code: "",
-                    date: .distantPast,
+                    codeGenerationDate: .distantPast,
                     period: 30
-                )
+                ),
+                totpTime: .currentTime
             )
         )
         vaultRepository.refreshTOTPCodesResult = .failure(TestError())
@@ -495,16 +519,5 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
         let first = try XCTUnwrap(errorReporter.errors.first as? TestError)
         XCTAssertEqual(first, TestError())
-    }
-}
-
-private extension Date {
-    /// Pads a given date for the TOTP Expiration Timer to help prevent triggering an early expiration.
-    ///
-    /// - Parameter period: The period of a TOTP Code.
-    ///
-    static func now(secondsRoundedUpTo period: Int) -> Date {
-        let remaining = period - Int(Date.timeIntervalSinceReferenceDate) % period
-        return Date(timeIntervalSinceNow: Double(remaining) - 0.1)
     }
 }

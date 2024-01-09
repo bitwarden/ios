@@ -10,6 +10,7 @@ import XCTest
 class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var mockPresentTime = Date(year: 2023, month: 12, day: 31, minute: 0, second: 41)
     var processor: MockProcessor<ViewItemState, ViewItemAction, ViewItemEffect>!
     var subject: ViewItemView!
 
@@ -41,7 +42,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 name: "Name",
                 revisionDate: Date()
             ),
-            hasPremium: true
+            hasPremium: true,
+            totpTime: .currentTime
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.checkPassword)
@@ -59,7 +61,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 name: "Name",
                 revisionDate: Date()
             ),
-            hasPremium: true
+            hasPremium: true,
+            totpTime: .currentTime
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -75,7 +78,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 login: .fixture(password: "password"),
                 revisionDate: Date()
             ),
-            hasPremium: true
+            hasPremium: true,
+            totpTime: .currentTime
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -95,7 +99,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 name: "Name",
                 revisionDate: Date()
             ),
-            hasPremium: true
+            hasPremium: true,
+            totpTime: .currentTime
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -124,7 +129,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 name: "identity example",
                 type: .identity
             ),
-            hasPremium: true
+            hasPremium: true,
+            totpTime: .currentTime
         )!
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
@@ -162,7 +168,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             existing: .fixture(
                 id: "fake-id"
             ),
-            hasPremium: hasPremium
+            hasPremium: hasPremium,
+            totpTime: .currentTime
         )!
         cipherState.accountHasPremium = hasPremium
         cipherState.folderId = "1"
@@ -175,6 +182,15 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.loginState.password = "Password1234!"
         cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.loginState.username = "email@example.com"
+        cipherState.loginState.totpState = .init(
+            config: .init(authenticatorKey: .base32Key)!,
+            totpModel: .init(
+                code: "032823",
+                codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 33),
+                period: 30
+            ),
+            totpTime: TOTPTime(provider: MockTimeProvider(mockTime: mockPresentTime))
+        )
         cipherState.loginState.uris = [
             UriState(
                 matchType: .custom(.startsWith),
@@ -185,7 +201,6 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 uri: "https://www.example.com/account/login"
             ),
         ]
-        cipherState.loginState.totpKey = .init(authenticatorKey: .base32Key)
 
         cipherState.customFields = [
             CustomFieldState(
@@ -238,12 +253,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     func test_snapshot_identity_withAllValues() {
         processor.state.loadingState = .data(identityState())
-        assertSnapshot(of: subject, as: .tallPortrait2)
+        assertSnapshot(of: subject, as: .portrait(heightMultiple: 1.5))
     }
 
     func test_snapshot_identity_withAllValues_largeText() {
         processor.state.loadingState = .data(identityState())
-        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 4))
     }
 
     func test_snapshot_login_disabledViewPassword() {
@@ -271,51 +286,59 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_snapshot_login_withAllValues_noPremium_largeText() {
         let loginState = loginState(hasPremium: false)
         processor.state.loadingState = .data(loginState)
-        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 5))
     }
 
     func test_snapshot_login_withAllValues_largeText() {
         processor.state.loadingState = .data(loginState())
-        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 6))
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 5))
     }
 
     /// Snapshots the previews for card types.
     func test_snapshot_previews_card() {
-        assertSnapshots(
+        assertSnapshot(
             matching: ViewItemView_Previews.cardPreview,
-            as: [
-                .defaultPortrait,
-            ]
+            as: .defaultPortrait
+        )
+    }
+
+    /// Snapshots the previews for card types.
+    func test_snapshot_previews_card_dark() {
+        assertSnapshot(
+            matching: ViewItemView_Previews.cardPreview,
+            as: .defaultPortraitDark
+        )
+    }
+
+    /// Snapshots the previews for card types.
+    func test_snapshot_previews_card_largeText() {
+        assertSnapshot(
+            matching: ViewItemView_Previews.cardPreview,
+            as: .tallPortraitAX5(heightMultiple: 3)
         )
     }
 
     /// Snapshots the previews for login types.#imageLiteral(resourceName: "test_snapshot_previews_card_largeText.1.png")
     func test_snapshot_previews_login() {
-        assertSnapshots(
+        assertSnapshot(
             matching: ViewItemView_Previews.loginPreview,
-            as: [
-                .tallPortrait,
-            ]
+            as: .tallPortrait
         )
     }
 
     /// Snapshots the previews for login types.
     func test_snapshot_previews_login_dark() {
-        assertSnapshots(
+        assertSnapshot(
             matching: ViewItemView_Previews.loginPreview,
-            as: [
-                .portraitDark(heightMultiple: 2),
-            ]
+            as: .portraitDark(heightMultiple: 2)
         )
     }
 
     /// Snapshots the previews for login types.
     func test_snapshot_previews_login_largeText() {
-        assertSnapshots(
+        assertSnapshot(
             matching: ViewItemView_Previews.loginPreview,
-            as: [
-                .tallPortraitAX5(heightMultiple: 5),
-            ]
+            as: .tallPortraitAX5(heightMultiple: 4)
         )
     }
 }

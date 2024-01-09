@@ -151,7 +151,11 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         Task {
             let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
                 ?? false
-            guard let state = CipherItemState(existing: cipherView, hasPremium: hasPremium) else { return }
+            guard let state = CipherItemState(
+                existing: cipherView,
+                hasPremium: hasPremium,
+                totpTime: TOTPTime(provider: services.vaultRepository.timeProvider)
+            ) else { return }
             if stackNavigator.isEmpty {
                 let processor = AddEditItemProcessor(
                     coordinator: asAnyCoordinator(),

@@ -2,12 +2,12 @@ import SwiftUI
 
 // MARK: - TOTPCountdownTimerView
 
-/// A circular countdown timer view that marks the time remaining for a TOTPCode.
+/// A circular countdown timer view that marks the time remaining for a TOTPCodeState.
 ///
 struct TOTPCountdownTimerView: View {
     /// The TOTPCode used to generate the countdown
     ///
-    let totpCode: TOTPCode
+    let totpCode: TOTPCodeState
 
     /// The `TOTPCountdownTimer`responsible for updating the view state.
     ///
@@ -30,14 +30,24 @@ struct TOTPCountdownTimerView: View {
         }
     }
 
-    /// Initializes the view for a TOTPCode and a timer expiration handler.
+    /// Initializes the view for a TOTPCodeState and a timer expiration handler.
     ///
     /// - Parameters:
+    ///   - timeProvider: A protocol providing the present time as a `Date`.
+    ///         Used to calculate time remaining for a present TOTP code.
     ///   - totpCode: The code that the timer represents.
     ///   - onExpiration: A closure called when the code expires.
     ///
-    init(totpCode: TOTPCode, onExpiration: (() -> Void)?) {
+    init(
+        timeProvider: any TimeProvider,
+        totpCode: TOTPCodeState,
+        onExpiration: (() -> Void)?
+    ) {
         self.totpCode = totpCode
-        timer = .init(totpCode: totpCode, onExpiration: onExpiration)
+        timer = .init(
+            timeProvider: timeProvider,
+            totpCode: totpCode,
+            onExpiration: onExpiration
+        )
     }
 }

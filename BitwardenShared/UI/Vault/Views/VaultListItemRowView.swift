@@ -149,6 +149,7 @@ struct VaultListItemRowView: View {
         }
         Spacer()
         TOTPCountdownTimerView(
+            timeProvider: model.totpTime.provider,
             totpCode: model.totpCode,
             onExpiration: nil
         )

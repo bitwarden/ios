@@ -24,8 +24,8 @@ class MockClientVaultService: ClientVaultService {
         clientFolders
     }
 
-    func generateTOTPCode(for key: String, date: Date?) async throws -> BitwardenShared.TOTPCode {
-        TOTPCode(code: totpCode, date: date ?? Date(), period: totpPeriod)
+    func generateTOTPCode(for key: String, date: Date?) async throws -> BitwardenShared.TOTPCodeState {
+        TOTPCodeState(code: totpCode, codeGenerationDate: date ?? Date(), period: totpPeriod)
     }
 
     func passwordHistory() -> ClientPasswordHistoryProtocol {
