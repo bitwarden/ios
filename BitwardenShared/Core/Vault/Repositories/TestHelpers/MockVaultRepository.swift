@@ -11,6 +11,8 @@ class MockVaultRepository: VaultRepository {
     var deletedCipher = [String]()
     var deleteCipherResult: Result<Void, Error> = .success(())
     var doesActiveAccountHavePremiumCalled = false
+    var fetchCipherId: String?
+    var fetchCipherResult: Result<CipherView?, Error> = .success(nil)
     var fetchCipherOwnershipOptionsIncludePersonal: Bool? // swiftlint:disable:this identifier_name
     var fetchCipherOwnershipOptions = [CipherOwner]()
     var fetchCollectionsIncludeReadOnly: Bool?
@@ -19,6 +21,7 @@ class MockVaultRepository: VaultRepository {
     var fetchSyncCalled = false
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
+    var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
     var removeAccountIds = [String?]()
     var shareCipherResult: Result<Void, Error> = .success(())
     var sharedCiphers = [CipherView]()
@@ -26,16 +29,13 @@ class MockVaultRepository: VaultRepository {
     var softDeleteCipherResult: Result<Void, Error> = .success(())
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
-    var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
+    var updateCipherCollectionsCiphers = [CipherView]()
+    var updateCipherCollectionsResult: Result<Void, Error> = .success(())
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
     var vaultListGroupSubject = CurrentValueSubject<[VaultListItem], Never>([])
     var vaultListFilter: VaultFilterType?
-
-    func fetchSync(isManualRefresh _: Bool) async throws {
-        fetchSyncCalled = true
-    }
 
     func addCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         addCipherCiphers.append(cipher)
@@ -60,6 +60,11 @@ class MockVaultRepository: VaultRepository {
         return try hasPremiumResult.get()
     }
 
+    func fetchCipher(withId id: String) async throws -> CipherView? {
+        fetchCipherId = id
+        return try fetchCipherResult.get()
+    }
+
     func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {
         fetchCipherOwnershipOptionsIncludePersonal = includePersonal
         return fetchCipherOwnershipOptions
@@ -72,6 +77,14 @@ class MockVaultRepository: VaultRepository {
 
     func fetchFolders() async throws -> [FolderView] {
         try fetchFoldersResult.get()
+    }
+
+    func fetchSync(isManualRefresh _: Bool) async throws {
+        fetchSyncCalled = true
+    }
+
+    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
+        organizationsSubject.eraseToAnyPublisher().values
     }
 
     func remove(userId: String?) async {
@@ -93,8 +106,9 @@ class MockVaultRepository: VaultRepository {
         try updateCipherResult.get()
     }
 
-    func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
-        organizationsSubject.eraseToAnyPublisher().values
+    func updateCipherCollections(_ cipher: CipherView) async throws {
+        updateCipherCollectionsCiphers.append(cipher)
+        try updateCipherCollectionsResult.get()
     }
 
     func validatePassword(_ password: String) async throws -> Bool {

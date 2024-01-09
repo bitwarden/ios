@@ -31,6 +31,14 @@ class VaultGroupViewTests: BitwardenTestCase {
     /// Tapping the add an item button dispatches the `.addItemPressed` action.
     func test_addAnItemButton_tap() throws {
         processor.state.loadingState = .data([])
+        let button = try subject.inspect().find(button: Localizations.addAnItem)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+    }
+
+    /// Tapping the add an item toolbar button dispatches the `.addItemPressed` action.
+    func test_addAnItemToolbarButton_tap() throws {
+        processor.state.loadingState = .data([])
         let button = try subject.inspect().find(button: Localizations.add)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
@@ -46,12 +54,12 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     /// Tapping the more button on a vault item dispatches the `.morePressed` action.
-    func test_vaultItemMoreButton_tap() throws {
+    func test_vaultItemMoreButton_tap() async throws {
         let item = VaultListItem.fixture()
         processor.state.loadingState = .data([item])
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.more)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .morePressed(item))
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.more)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .morePressed(item))
     }
 
     // MARK: Snapshots
