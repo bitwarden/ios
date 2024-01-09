@@ -38,11 +38,6 @@ class MockCipherDataStore: CipherDataStore {
         cipherSubject.eraseToAnyPublisher()
     }
 
-    func fetchCipher(withId id: String, userId: String) async -> Cipher? {
-        fetchCipherId = id
-        return fetchCipherResult
-    }
-
     func replaceCiphers(_ ciphers: [Cipher], userId: String) async throws {
         replaceCiphersValue = ciphers
         replaceCiphersUserId = userId
