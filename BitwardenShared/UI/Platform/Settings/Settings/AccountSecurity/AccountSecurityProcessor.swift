@@ -154,7 +154,7 @@ final class AccountSecurityProcessor: StateProcessor<
                 self.coordinator.navigate(to: .alert(.unlockWithPINCodeAlert {
                     do {
                         try await self.services.authRepository.setPinKeyEncryptedUserKey(pin: pin)
-                        self.state.isUnlockWithPINCodeOn = true
+                        self.state.isUnlockWithPINCodeOn = isOn
                     } catch {
                         self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
                     }
