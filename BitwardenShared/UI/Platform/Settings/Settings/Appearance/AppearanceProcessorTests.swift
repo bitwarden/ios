@@ -37,14 +37,16 @@ class AppearanceProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.loadData` sets the app's theme.
+    /// `perform(_:)` with `.loadData` sets the value in the state.
     func test_perform_loadData() async {
         XCTAssertEqual(subject.state.appTheme, .default)
         stateService.appTheme = .light
+        stateService.showWebIcons = false
 
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.appTheme, .light)
+        XCTAssertFalse(subject.state.isShowWebsiteIconsToggleOn)
     }
 
     /// `receive(_:)` with `.appThemeChanged` updates the theme.
@@ -60,12 +62,13 @@ class AppearanceProcessorTests: BitwardenTestCase {
         waitFor(stateService.appTheme == .light)
     }
 
-    /// `receive(_:)` with `.toggleShowWebsiteIcons` updates the state's value.
+    /// `receive(_:)` with `.toggleShowWebsiteIcons` updates the value in the state and the cache.
     func test_receive_toggleShowWebsiteIcons() {
         XCTAssertFalse(subject.state.isShowWebsiteIconsToggleOn)
 
         subject.receive(.toggleShowWebsiteIcons(true))
 
         XCTAssertTrue(subject.state.isShowWebsiteIconsToggleOn)
+        waitFor(stateService.showWebIcons == true)
     }
 }

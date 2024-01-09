@@ -20,6 +20,8 @@ class MockStateService: StateService {
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var showWebIcons = true
+    var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var rememberedOrgIdentifier: String?
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
@@ -108,6 +110,10 @@ class MockStateService: StateService {
         preAuthEnvironmentUrls
     }
 
+    func getShowWebIcons() async -> Bool {
+        showWebIcons
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return usernameGenerationOptions[userId]
@@ -170,6 +176,10 @@ class MockStateService: StateService {
         preAuthEnvironmentUrls = urls
     }
 
+    func setShowWebIcons(_ showWebIcons: Bool) async {
+        self.showWebIcons = showWebIcons
+    }
+
     func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
@@ -189,5 +199,9 @@ class MockStateService: StateService {
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
         lastSyncTimeSubject.eraseToAnyPublisher()
+    }
+
+    func showWebIconsPublisher() async throws -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+        showWebIconsSubject.eraseToAnyPublisher().values
     }
 }
