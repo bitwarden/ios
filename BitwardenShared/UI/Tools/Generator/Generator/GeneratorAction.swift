@@ -65,12 +65,14 @@ extension GeneratorAction {
              .refreshGeneratedValue,
              .sliderValueChanged,
              .stepperValueChanged,
-             .textFieldFocusChanged,
              .textValueChanged,
              .toggleValueChanged,
              .usernameForwardedEmailServiceChanged,
              .usernameGeneratorTypeChanged:
             return true
+        case let .textFieldFocusChanged(keyPath):
+            // Only generate a new value when focus leaves the field (keyPath == nil).
+            return keyPath == nil
         case .copyGeneratedValue,
              .dismissPressed,
              .selectButtonPressed,
