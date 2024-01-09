@@ -9,6 +9,7 @@ class VaultListProcessorTests: BitwardenTestCase {
 
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultRoute>!
+    var errorReporter: MockErrorReporter!
     var subject: VaultListProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -21,9 +22,11 @@ class VaultListProcessorTests: BitwardenTestCase {
         super.setUp()
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
+            errorReporter: errorReporter,
             vaultRepository: vaultRepository
         )
         subject = VaultListProcessor(
@@ -119,6 +122,20 @@ class VaultListProcessorTests: BitwardenTestCase {
             subject.state.searchResults,
             try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))]
         )
+    }
+
+    /// `perform(.search)` throws error and error is logged.
+    func test_perform_search_error() async {
+        struct DecryptError: Error, Equatable {}
+        vaultRepository.searchCipherSubject.send(completion: .failure(DecryptError()))
+        await subject.perform(.search("example"))
+
+        XCTAssertEqual(subject.state.searchResults.count, 0)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            []
+        )
+        XCTAssertEqual(errorReporter.errors.last as? DecryptError, DecryptError())
     }
 
     /// `perform(.search)` with a empty keyword should get empty search result.

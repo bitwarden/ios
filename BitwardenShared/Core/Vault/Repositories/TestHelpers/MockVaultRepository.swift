@@ -98,8 +98,10 @@ class MockVaultRepository: VaultRepository {
         organizationsSubject.eraseToAnyPublisher().values
     }
 
-    // swiftlint:disable:next line_length
-    func searchCipherPublisher(searchText: String, filterType: VaultFilterType) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>> {
+    func searchCipherPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>> {
         searchCipherSubject.eraseToAnyPublisher().values
     }
 

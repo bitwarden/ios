@@ -433,8 +433,10 @@ extension DefaultVaultRepository: VaultRepository {
         try await fetchSync(isManualRefresh: false)
     }
 
-    // swiftlint:disable:next line_length
-    func searchCipherPublisher(searchText: String, filterType: VaultFilterType) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>> {
+    func searchCipherPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>> {
         let userId = try await stateService.getActiveAccountId()
         let searchTerm = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let ciphers = cipherService.cipherPublisher(userId: userId).asyncTryMap { ciphers -> [CipherListView] in

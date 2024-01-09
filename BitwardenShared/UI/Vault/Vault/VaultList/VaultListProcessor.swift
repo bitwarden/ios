@@ -171,21 +171,16 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     /// - Returns: An array of `VaultListItem`s. If no results can be found, an empty array will be returned.
     ///
     private func searchVault(for searchText: String) async -> [VaultListItem] {
-        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return []
         }
         do {
-            var items: [VaultListItem] = []
-            // swiftlint:disable:next line_length
-            for try await ciphers in try await services.vaultRepository.searchCipherPublisher(searchText: searchText, filterType: state.searchVaultFilterType) {
-                for cipher in ciphers {
-                    if let item = VaultListItem(
-                        cipherListView: cipher
-                    ) {
-                        items.append(item)
-                    }
-                }
-                return items
+            let result = try await services.vaultRepository.searchCipherPublisher(
+                searchText: searchText,
+                filterType: state.searchVaultFilterType
+            )
+            for try await ciphers in result {
+                return ciphers.compactMap { VaultListItem(cipherListView: $0) }
             }
         } catch {
             services.errorReporter.log(error: error)
