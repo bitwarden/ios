@@ -417,7 +417,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { !subject.state.generatedValue.isEmpty }
+        waitFor { subject.state.generatedValue == "USERNAME" }
 
         XCTAssertEqual(
             generatorRepository.usernameGeneratorRequest,
@@ -482,7 +482,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(generatorRepository.usernamePlusAddressEmail)
 
         subject.receive(.textFieldFocusChanged(keyPath: nil))
-        waitFor { !subject.state.generatedValue.isEmpty }
+        waitFor { subject.state.generatedValue == "USERNAME" }
         XCTAssertEqual(
             generatorRepository.usernameGeneratorRequest,
             UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com")
