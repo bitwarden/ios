@@ -224,8 +224,56 @@ class VaultGroupProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a secure note cipher.
     func test_perform_morePressed_secureNote() async throws {
-        // TODO: BIT-1366
-        // TODO: BIT-1375
+        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .secureNote)))
+
+        // If the secure note has no value, only the view and add buttons should display.
+        vaultRepository.fetchCipherResult = .success(.fixture(type: .secureNote))
+        await subject.perform(.morePressed(item))
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // If the item is in the trash, the edit option should not display.
+        subject.state.group = .trash
+        await subject.perform(.morePressed(item))
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+
+        // A note with data should show the copy action.
+        let noteWithData = CipherView.fixture(notes: "Test Note", type: .secureNote)
+        vaultRepository.fetchCipherResult = .success(noteWithData)
+        subject.state.group = .secureNote
+        await subject.perform(.morePressed(item))
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.copyNotes)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
+
+        // Test the functionality of the buttons.
+
+        // View navigates to the view item view.
+        let viewAction = try XCTUnwrap(alert.alertActions[0])
+        await viewAction.handler?(viewAction, [])
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+
+        // Edit navigates to the edit view.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: noteWithData))
+
+        // Copy copies the items notes.
+        let copyNoteAction = try XCTUnwrap(alert.alertActions[2])
+        await copyNoteAction.handler?(copyNoteAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "Test Note")
     }
 
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
