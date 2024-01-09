@@ -75,6 +75,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 extension CredentialProviderViewController: AppExtensionDelegate {
     var isInAppExtension: Bool { true }
 
+    func completeAutofillRequest(username: String, password: String) {
+        let passwordCredential = ASPasswordCredential(user: username, password: password)
+        extensionContext.completeRequest(withSelectedCredential: passwordCredential)
+    }
+
     func didCancel() {
         cancel()
     }
