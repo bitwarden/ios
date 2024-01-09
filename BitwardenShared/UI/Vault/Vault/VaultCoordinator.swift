@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SwiftUI
 
 // MARK: - VaultCoordinatorDelegate
@@ -94,6 +95,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             stackNavigator.present(alert)
         case .autofillList:
             showAutofillList()
+        case let .editItem(cipher: cipher):
+            showVaultItem(route: .editItem(cipher: cipher))
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):

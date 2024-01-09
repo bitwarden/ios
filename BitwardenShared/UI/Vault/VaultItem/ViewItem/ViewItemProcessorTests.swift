@@ -61,6 +61,15 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
     }
 
+    /// `didUpdateCipher()` displays a toast after the cipher is updated.
+    func test_didUpdateCipher() {
+        subject.didUpdateCipher()
+
+        waitFor { subject.state.toast != nil }
+
+        XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
+    }
+
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     func test_perform_appeared() {
         let cipherItem = CipherView.fixture(

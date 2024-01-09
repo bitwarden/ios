@@ -104,6 +104,16 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.alerts.last, alert)
     }
 
+    /// `.navigate(to:)` with `.editItem` presents the edit item screen.
+    func test_navigateTo_editItem() throws {
+        subject.navigate(to: .editItem(cipher: .fixture()))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .editItem(cipher: .fixture()))
+    }
+
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
     /// navigator.
     func test_navigate_dismiss() throws {

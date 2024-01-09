@@ -7,11 +7,11 @@ struct SendFileModel: Codable, Equatable {
     let fileName: String
 
     /// The send file identifier.
-    let id: String
+    let id: String?
 
     /// The size of the file.
-    let size: String
+    let size: String?
 
     /// The human-readable string of the file size.
-    let sizeName: String
+    let sizeName: String?
 }

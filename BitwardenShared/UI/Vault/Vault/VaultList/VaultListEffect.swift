@@ -1,9 +1,12 @@
 // MARK: - VaultListEffect
 
 /// Effects that can be processed by a `VaultListProcessor`.
-enum VaultListEffect {
+enum VaultListEffect: Equatable {
     /// The vault list appeared on screen.
     case appeared
+
+    /// The more button was pressed on an item in the vault.
+    case morePressed(item: VaultListItem)
 
     /// A Profile Switcher Effect.
     case profileSwitcher(ProfileSwitcherEffect)

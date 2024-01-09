@@ -34,6 +34,13 @@ protocol VaultRepository: AnyObject {
     ///
     func doesActiveAccountHavePremium() async throws -> Bool
 
+    /// Attempt to fetch a cipher with the given id.
+    ///
+    /// - Parameter id: The id of the cipher to find.
+    /// - Returns: The cipher if it was found and `nil` if not.
+    ///
+    func fetchCipher(withId id: String) async throws -> CipherView?
+
     /// Fetches the ownership options that the user can select from for a cipher.
     ///
     /// - Parameter includePersonal: Whether to include the user's personal vault in the list.
@@ -106,6 +113,12 @@ protocol VaultRepository: AnyObject {
     /// - Returns: A publisher for the list of organizations the user is a member of.
     ///
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>>
+
+    /// Updates the list of collections for a cipher in the user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is updating.
+    ///
+    func updateCipherCollections(_ cipher: CipherView) async throws
 
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
@@ -425,6 +438,11 @@ extension DefaultVaultRepository: VaultRepository {
         try await fetchSync(isManualRefresh: false)
     }
 
+    func fetchCipher(withId id: String) async throws -> CipherView? {
+        guard let cipher = try await cipherService.fetchCipher(withId: id) else { return nil }
+        return try? await clientVault.ciphers().decrypt(cipher: cipher)
+    }
+
     func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {
         let organizations = try await organizationService.fetchAllOrganizations()
         let organizationOwners: [CipherOwner] = organizations
@@ -478,32 +496,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func softDeleteCipher(_ cipher: CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
-        let softDeletedCipher = CipherView(
-            id: cipher.id,
-            organizationId: cipher.organizationId,
-            folderId: cipher.folderId,
-            collectionIds: cipher.collectionIds,
-            key: cipher.key,
-            name: cipher.name,
-            notes: cipher.notes,
-            type: cipher.type,
-            login: cipher.login,
-            identity: cipher.identity,
-            card: cipher.card,
-            secureNote: cipher.secureNote,
-            favorite: cipher.favorite,
-            reprompt: cipher.reprompt,
-            organizationUseTotp: cipher.organizationUseTotp,
-            edit: cipher.edit,
-            viewPassword: cipher.viewPassword,
-            localData: cipher.localData,
-            attachments: cipher.attachments,
-            fields: cipher.fields,
-            passwordHistory: cipher.passwordHistory,
-            creationDate: cipher.creationDate,
-            deletedDate: .now,
-            revisionDate: cipher.revisionDate
-        )
+        let softDeletedCipher = cipher.update(deletedDate: .now)
         let encryptCipher = try await clientVault.ciphers().encrypt(cipherView: softDeletedCipher)
         try await cipherService.softDeleteCipherWithServer(id: id, encryptCipher)
     }
@@ -511,6 +504,13 @@ extension DefaultVaultRepository: VaultRepository {
     func updateCipher(_ updatedCipherView: CipherView) async throws {
         let updatedCipher = try await clientVault.ciphers().encrypt(cipherView: updatedCipherView)
         _ = try await cipherAPIService.updateCipher(updatedCipher)
+        // TODO: BIT-92 Insert response into database instead of fetching sync.
+        try await fetchSync(isManualRefresh: false)
+    }
+
+    func updateCipherCollections(_ cipher: CipherView) async throws {
+        let encryptedCipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
+        try await cipherService.updateCipherCollectionsWithServer(encryptedCipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync(isManualRefresh: false)
     }

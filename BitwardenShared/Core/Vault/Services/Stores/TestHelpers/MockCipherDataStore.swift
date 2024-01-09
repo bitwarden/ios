@@ -9,6 +9,9 @@ class MockCipherDataStore: CipherDataStore {
     var deleteCipherId: String?
     var deleteCipherUserId: String?
 
+    var fetchCipherId: String?
+    var fetchCipherResult: Cipher?
+
     var cipherSubject = CurrentValueSubject<[Cipher], Error>([])
 
     var replaceCiphersValue: [Cipher]?
@@ -26,7 +29,12 @@ class MockCipherDataStore: CipherDataStore {
         deleteCipherUserId = userId
     }
 
-    func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error> {
+    func fetchCipher(withId id: String, userId _: String) async -> Cipher? {
+        fetchCipherId = id
+        return fetchCipherResult
+    }
+
+    func cipherPublisher(userId _: String) -> AnyPublisher<[Cipher], Error> {
         cipherSubject.eraseToAnyPublisher()
     }
 

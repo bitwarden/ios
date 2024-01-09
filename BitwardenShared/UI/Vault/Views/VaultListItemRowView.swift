@@ -17,7 +17,7 @@ struct VaultListItemRowState {
 // MARK: - VaultListItemRowAction
 
 /// Actions that can be sent from a `VaultListItemRowView`.
-enum VaultListItemRowAction {
+enum VaultListItemRowEffect {
     /// The more button was pressed.
     case morePressed
 }
@@ -29,7 +29,7 @@ struct VaultListItemRowView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    var store: Store<VaultListItemRowState, VaultListItemRowAction, Void>
+    var store: Store<VaultListItemRowState, Void, VaultListItemRowEffect>
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -69,8 +69,8 @@ struct VaultListItemRowView: View {
 
                         Spacer()
 
-                        Button {
-                            store.send(.morePressed)
+                        AsyncButton {
+                            await store.perform(.morePressed)
                         } label: {
                             Asset.Images.horizontalKabob.swiftUIImage
                         }
