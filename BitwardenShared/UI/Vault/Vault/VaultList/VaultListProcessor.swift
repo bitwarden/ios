@@ -180,7 +180,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
                 filterType: state.searchVaultFilterType
             )
             for try await ciphers in result {
-                return ciphers.compactMap { VaultListItem(cipherListView: $0) }
+                return ciphers
             }
         } catch {
             services.errorReporter.log(error: error)

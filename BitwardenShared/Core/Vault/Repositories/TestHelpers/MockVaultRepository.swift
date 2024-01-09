@@ -27,7 +27,7 @@ class MockVaultRepository: VaultRepository {
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
-    var searchCipherSubject = CurrentValueSubject<[CipherListView], Error>([])
+    var searchCipherSubject = CurrentValueSubject<[VaultListItem], Error>([])
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
@@ -101,7 +101,7 @@ class MockVaultRepository: VaultRepository {
     func searchCipherPublisher(
         searchText: String,
         filterType: VaultFilterType
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenSdk.CipherListView], Error>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
         searchCipherSubject.eraseToAnyPublisher().values
     }
 
