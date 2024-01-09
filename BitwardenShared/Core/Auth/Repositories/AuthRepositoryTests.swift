@@ -300,10 +300,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedUserKey: "USER_KEY"
         ))
 
-        await assertAsyncDoesNotThrow {
-            _ = try await subject.getFingerprintPhrase(userId: account.profile.userId)
-        }
-
         let phrase = try await subject.getFingerprintPhrase(userId: account.profile.userId)
         XCTAssertEqual(clientPlatform.fingerprintMaterialString, account.profile.userId)
         XCTAssertEqual(try clientPlatform.fingerprintResult.get(), phrase)
