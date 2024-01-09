@@ -34,7 +34,7 @@ struct UpdateCipherCollectionsRequest: Request {
 
     // MARK: Initialization
 
-    /// Initialize an `ShareCipherRequest` for a `Cipher`.
+    /// Initialize a `ShareCipherRequest` for a `Cipher`.
     ///
     /// - Parameter cipher: The `Cipher` to share with an organization.
     ///
