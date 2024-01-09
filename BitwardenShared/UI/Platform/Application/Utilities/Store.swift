@@ -49,11 +49,14 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     public init<ParentState, ParentAction, ParentEffect>(
         parentStore: Store<ParentState, ParentAction, ParentEffect>,
         state parentToChildState: @escaping (ParentState) -> State,
-        mapAction: @escaping (Action) -> ParentAction,
+        mapAction: ((Action) -> ParentAction)?,
         mapEffect: ((Effect) -> ParentEffect)?
     ) {
         state = parentToChildState(parentStore.state)
-        receive = { parentStore.send(mapAction($0)) }
+        receive = { action in
+            guard let mapAction else { return }
+            parentStore.send(mapAction(action))
+        }
         perform = { effect in
             guard let mapEffect else { return }
             await parentStore.perform(mapEffect(effect))
@@ -93,7 +96,7 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     ///
     open func child<ChildState, ChildAction, ChildEffect>(
         state: @escaping (State) -> ChildState,
-        mapAction: @escaping (ChildAction) -> Action,
+        mapAction: ((ChildAction) -> Action)?,
         mapEffect: ((ChildEffect) -> Effect)?
     ) -> Store<ChildState, ChildAction, ChildEffect> {
         Store<ChildState, ChildAction, ChildEffect>(
