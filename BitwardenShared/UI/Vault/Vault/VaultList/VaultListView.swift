@@ -101,23 +101,7 @@ private struct VaultMainView: View {
             GeometryReader { reader in
                 ScrollView {
                     VStack(spacing: 0) {
-                        SearchVaultFilterRowView(
-                            store: store.child(
-                                state: { state in
-                                    SearchVaultFilterRowState(
-                                        organizations: state.organizations,
-                                        searchVaultFilterType: state.searchVaultFilterType
-                                    )
-                                },
-                                mapAction: { action in
-                                    switch action {
-                                    case let .searchVaultFilterChanged(type):
-                                        return .searchVaultFilterChanged(type)
-                                    }
-                                },
-                                mapEffect: nil
-                            )
-                        )
+                        searchVaultFilterRow
 
                         VStack(spacing: 35) {
                             Image(decorative: Asset.Images.magnifyingGlass)
@@ -135,6 +119,27 @@ private struct VaultMainView: View {
                 }
             }
         }
+    }
+
+    /// Displays the vault filter for search row if the user is a member of any org
+    private var searchVaultFilterRow: some View {
+        SearchVaultFilterRowView(
+            store: store.child(
+                state: { state in
+                    SearchVaultFilterRowState(
+                        organizations: state.organizations,
+                        searchVaultFilterType: state.searchVaultFilterType
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .searchVaultFilterChanged(type):
+                        return .searchVaultFilterChanged(type)
+                    }
+                },
+                mapEffect: nil
+            )
+        )
     }
 
     /// A view that displays either the my vault or empty vault interface.
