@@ -5,10 +5,15 @@
 public protocol AppModule: AnyObject {
     /// Initializes a coordinator for navigating between `Route`s.
     ///
-    /// - Parameter navigator: The object that will be used to navigate between routes.
+    /// - Parameters:
+    ///   - appContext: The context that the app is running within.
+    ///   - navigator: The object that will be used to navigate between routes.
     /// - Returns: A coordinator that can navigate to `AppRoute`s.
     ///
-    func makeAppCoordinator(navigator: RootNavigator) -> AnyCoordinator<AppRoute>
+    func makeAppCoordinator(
+        appContext: AppContext,
+        navigator: RootNavigator
+    ) -> AnyCoordinator<AppRoute>
 }
 
 // MARK: - DefaultAppModule
@@ -18,6 +23,9 @@ public protocol AppModule: AnyObject {
 public class DefaultAppModule {
     // MARK: Properties
 
+    /// A delegate used to communicate with the app extension.
+    private(set) weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The services used by the app.
     let services: Services
 
@@ -25,16 +33,26 @@ public class DefaultAppModule {
 
     /// Creates a new `DefaultAppModule`.
     ///
-    /// - Parameter services: The services used by the app.
+    /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
+    ///   - services: The services used by the app.
     ///
-    public init(services: ServiceContainer) {
+    public init(
+        appExtensionDelegate: AppExtensionDelegate? = nil,
+        services: ServiceContainer
+    ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.services = services
     }
 }
 
 extension DefaultAppModule: AppModule {
-    public func makeAppCoordinator(navigator: RootNavigator) -> AnyCoordinator<AppRoute> {
+    public func makeAppCoordinator(
+        appContext: AppContext,
+        navigator: RootNavigator
+    ) -> AnyCoordinator<AppRoute> {
         AppCoordinator(
+            appContext: appContext,
             module: self,
             rootNavigator: navigator
         ).asAnyCoordinator()

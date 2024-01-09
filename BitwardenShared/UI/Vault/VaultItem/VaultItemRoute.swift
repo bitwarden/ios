@@ -23,6 +23,9 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case dismiss(_ action: DismissAction? = nil)
 
+    /// A route to edit the collections of a cipher.
+    case editCollections(CipherView)
+
     /// A route to edit an item
     ///
     case editItem(cipher: CipherView)
@@ -34,6 +37,9 @@ enum VaultItemRoute: Equatable, Hashable {
     ///   - emailWebsite: An optional website host used to generate usernames.
     ///
     case generator(_ type: GeneratorType, emailWebsite: String? = nil)
+
+    /// A route to the move to organization screen.
+    case moveToOrganization(CipherView)
 
     /// A route to the manual totp screen for setting up TOTP.
     ///

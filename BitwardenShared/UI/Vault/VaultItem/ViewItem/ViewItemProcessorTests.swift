@@ -9,6 +9,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     // MARK: Propteries
 
     var coordinator: MockCoordinator<VaultItemRoute>!
+    var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var subject: ViewItemProcessor!
@@ -19,6 +20,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator<VaultItemRoute>()
+        delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
@@ -29,6 +31,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
         subject = ViewItemProcessor(
             coordinator: coordinator,
+            delegate: delegate,
             itemId: "id",
             services: services,
             state: ViewItemState()
@@ -45,6 +48,27 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     // MARK: Tests
+
+    /// `didMoveCipher(_:to:)` displays a toast after the cipher is moved to the organization.
+    func test_didMoveCipher() {
+        subject.didMoveCipher(.fixture(name: "Bitwarden Password"), to: .organization(id: "1", name: "Organization"))
+
+        waitFor { subject.state.toast != nil }
+
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.movedItemToOrg("Bitwarden Password", "Organization")
+        )
+    }
+
+    /// `didUpdateCipher()` displays a toast after the cipher is updated.
+    func test_didUpdateCipher() {
+        subject.didUpdateCipher()
+
+        waitFor { subject.state.toast != nil }
+
+        XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
+    }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     func test_perform_appeared() {
@@ -240,7 +264,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state = state
 
         subject.receive(.customFieldVisibilityPressed(customField2))
-        let newLoadingState = try XCTUnwrap(subject.state.loadingState.wrappedData)
+        let newLoadingState = try XCTUnwrap(subject.state.loadingState.data)
         guard let loadingState = newLoadingState.viewState else {
             XCTFail("ViewItemState has incorrect value: \(newLoadingState)")
             return
@@ -276,6 +300,72 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
+    /// generic error alert if soft deleting fails.
+    func test_perform_deletePressed_genericError() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(id: "123"),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        struct TestError: Error, Equatable {}
+        vaultRepository.softDeleteCipherResult = .failure(TestError())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        var alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the generic error alert is displayed.
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert,
+            .networkResponseError(TestError())
+        )
+        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
+    /// toast if soft deleting succeeds.
+    func test_perform_deletePressed_success() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(id: "123"),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        vaultRepository.softDeleteCipherResult = .success(())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        XCTAssertNil(errorReporter.errors.first)
+        // Ensure the cipher is deleted and the view is dismissed.
+        XCTAssertEqual(vaultRepository.softDeletedCipher.last?.id, "123")
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemDeletedCalled)
+    }
+
     /// `receive` with `.editPressed` has no change when the state is loading.
     func test_receive_editPressed_loading() {
         subject.receive(.editPressed)
@@ -301,6 +391,30 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(loginState)
         subject.receive(.editPressed)
         XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
+    }
+
+    /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
+    /// collections view.
+    func test_receive_morePressed_editCollections() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
+
+        subject.receive(.morePressed(.editCollections))
+
+        XCTAssertEqual(coordinator.routes.last, .editCollections(cipher))
+        XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
+    }
+
+    /// `receive(_:)` with `.morePressed(.moveToOrganization)` navigates the user to the move to
+    /// organization view.
+    func test_receive_morePressed_moveToOrganization() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false)))
+
+        subject.receive(.morePressed(.moveToOrganization))
+
+        XCTAssertEqual(coordinator.routes.last, .moveToOrganization(cipher))
+        XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
     }
 
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
@@ -379,6 +493,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.passwordVisibilityPressed)
 
         XCTAssertEqual(try coordinator.unwrapLastRouteAsAlert(), .masterPasswordPrompt(completion: { _ in }))
+    }
+
+    /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
+    func test_receive_toastShown_withValue() {
+        let toast = Toast(text: "123")
+        subject.receive(.toastShown(toast))
+
+        XCTAssertEqual(subject.state.toast, toast)
     }
 
     /// Tapping the "Submit" button in the master password reprompt alert validates the entered

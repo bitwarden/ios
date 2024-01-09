@@ -402,13 +402,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await dataStore.persistentContainer.viewContext.performAndSave {
             let context = self.dataStore.persistentContainer.viewContext
             _ = try CipherData(context: context, userId: "1", cipher: .fixture(id: UUID().uuidString))
-            _ = CollectionData(context: context, userId: "1", collection: .fixture())
+            _ = try CollectionData(context: context, userId: "1", collection: .fixture())
             _ = FolderData(
                 context: context,
                 userId: "1",
                 folder: Folder(id: "1", name: "FOLDER1", revisionDate: Date())
             )
-            _ = SendData(context: context, userId: "1", send: .fixture())
+            _ = OrganizationData(context: context, userId: "1", organization: .fixture())
+            _ = try SendData(context: context, userId: "1", send: .fixture())
         }
 
         try await subject.logoutAccount()
@@ -421,6 +422,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: CollectionData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: FolderData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: OrganizationData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: SendData.fetchByUserIdRequest(userId: "1")), 0)
     }

@@ -6,8 +6,13 @@ import SwiftUI
 struct VaultGroupView: View {
     // MARK: Properties
 
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
+
+    // MARK: View
 
     var body: some View {
         LoadingView(
@@ -39,9 +44,18 @@ struct VaultGroupView: View {
         .task {
             await store.perform(.appeared)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultGroupAction.toastShown
+        ))
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
     }
 
-    // MARK: Private Properties
+    // MARK: Private Views
 
     /// A view that displays an empty state for this vault group.
     @ViewBuilder private var emptyView: some View {
@@ -97,11 +111,12 @@ struct VaultGroupView: View {
                                 },
                                 mapAction: { action in
                                     switch action {
-                                    case .morePressed:
-                                        return .morePressed(item)
+                                    case let .copyTOTPCode(code):
+                                        return .copyTOTPCode(code)
                                     }
                                 },
-                                mapEffect: nil
+                                mapEffect: { _ in .morePressed(item)
+                                }
                             ))
                         }
                     }
@@ -116,83 +131,80 @@ struct VaultGroupView: View {
 
 // MARK: Previews
 
-#if DEBUG
-struct VaultItemListView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            VaultGroupView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultGroupState(
-                            loadingState: .loading
-                        )
+#Preview("Loading") {
+    NavigationView {
+        VaultGroupView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultGroupState(
+                        loadingState: .loading
                     )
                 )
             )
-        }
-        .previewDisplayName("Loading")
-
-        NavigationView {
-            VaultGroupView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultGroupState(
-                            loadingState: .data([])
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Empty")
-
-        NavigationView {
-            VaultGroupView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultGroupState(
-                            group: .login,
-                            loadingState: .data([
-                                .init(cipherListView: .init(
-                                    id: UUID().uuidString,
-                                    organizationId: nil,
-                                    folderId: nil,
-                                    collectionIds: [],
-                                    name: "Example",
-                                    subTitle: "email@example.com",
-                                    type: .login,
-                                    favorite: true,
-                                    reprompt: .none,
-                                    edit: false,
-                                    viewPassword: true,
-                                    attachments: 0,
-                                    creationDate: Date(),
-                                    deletedDate: nil,
-                                    revisionDate: Date()
-                                ))!,
-                                .init(cipherListView: .init(
-                                    id: UUID().uuidString,
-                                    organizationId: nil,
-                                    folderId: nil,
-                                    collectionIds: [],
-                                    name: "Example 2",
-                                    subTitle: "email2@example.com",
-                                    type: .login,
-                                    favorite: true,
-                                    reprompt: .none,
-                                    edit: false,
-                                    viewPassword: true,
-                                    attachments: 0,
-                                    creationDate: Date(),
-                                    deletedDate: nil,
-                                    revisionDate: Date()
-                                ))!,
-                            ])
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Logins")
+        )
     }
 }
-#endif
+
+#Preview("Empty") {
+    NavigationView {
+        VaultGroupView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultGroupState(
+                        loadingState: .data([])
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("Logins") {
+    NavigationView {
+        VaultGroupView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultGroupState(
+                        group: .login,
+                        loadingState: .data([
+                            .init(cipherListView: .init(
+                                id: UUID().uuidString,
+                                organizationId: nil,
+                                folderId: nil,
+                                collectionIds: [],
+                                name: "Example",
+                                subTitle: "email@example.com",
+                                type: .login,
+                                favorite: true,
+                                reprompt: .none,
+                                edit: false,
+                                viewPassword: true,
+                                attachments: 0,
+                                creationDate: Date(),
+                                deletedDate: nil,
+                                revisionDate: Date()
+                            ))!,
+                            .init(cipherListView: .init(
+                                id: UUID().uuidString,
+                                organizationId: nil,
+                                folderId: nil,
+                                collectionIds: [],
+                                name: "Example 2",
+                                subTitle: "email2@example.com",
+                                type: .login,
+                                favorite: true,
+                                reprompt: .none,
+                                edit: false,
+                                viewPassword: true,
+                                attachments: 0,
+                                creationDate: Date(),
+                                deletedDate: nil,
+                                revisionDate: Date()
+                            ))!,
+                        ])
+                    )
+                )
+            )
+        )
+    }
+}

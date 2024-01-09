@@ -17,7 +17,7 @@ protocol AuthCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the authentication flow.
 ///
-final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
+final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Services = HasAccountAPIService
@@ -25,6 +25,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
         & HasAppSettingsStore
         & HasAuthAPIService
         & HasAuthRepository
+        & HasAuthService
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
@@ -36,7 +37,13 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Properties
 
-    /// The delegate for this coordinator. Used to signal when auth has been completed.
+    /// A delegate used to communicate with the app extension. This should be passed to any
+    /// processors that need to communicate with the app extension.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
+
+    /// The delegate for this coordinator. Used to signal when auth has been completed. This should
+    /// be used by the coordinator to communicate to its parent coordinator when auth completes and
+    /// the auth flow should be dismissed.
     private weak var delegate: (any AuthCoordinatorDelegate)?
 
     /// The root navigator used to display this coordinator's interface.
@@ -53,17 +60,20 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// Creates a new `AuthCoordinator`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: The delegate for this coordinator. Used to signal when auth has been completed.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        appExtensionDelegate: AppExtensionDelegate?,
         delegate: AuthCoordinatorDelegate,
         rootNavigator: RootNavigator,
         services: Services,
         stackNavigator: StackNavigator
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.delegate = delegate
         self.rootNavigator = rootNavigator
         self.services = services
@@ -110,10 +120,17 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
             showMasterPasswordHint(for: username)
         case .selfHosted:
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate)
+        case let .singleSignOn(callbackUrlScheme, state, url):
+            showSingleSignOn(
+                callbackUrlScheme: callbackUrlScheme,
+                delegate: context as? SingleSignOnFlowDelegate,
+                state: state,
+                url: url
+            )
         case let .switchAccount(userId: userId):
             selectAccount(for: userId)
-        case let .vaultUnlock(account):
-            showVaultUnlock(account: account)
+        case let .vaultUnlock(account, animated):
+            showVaultUnlock(account: account, animated: animated)
         }
     }
 
@@ -286,6 +303,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
     private func showMasterPasswordHint(for username: String) {
         let processor = PasswordHintProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: PasswordHintState(emailAddress: username)
         )
         let store = Store(processor: processor)
@@ -307,18 +325,64 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
         stackNavigator.present(navController)
     }
 
+    /// Shows the single sign on screen.
+    ///
+    /// - Parameters:
+    ///   - callbackUrlScheme: The callback url scheme for this application.
+    ///   - delegate: A `SingleSignOnFlowDelegate` object that is notified when the single sign on flow succeeds or
+    ///     fails.
+    ///   - state: The password that the response has to match.
+    ///   - url: The URL for the single sign on web auth session.
+    ///
+    private func showSingleSignOn(
+        callbackUrlScheme: String,
+        delegate: SingleSignOnFlowDelegate?,
+        state: String,
+        url: URL
+    ) {
+        let session = ASWebAuthenticationSession(
+            url: url,
+            callbackURLScheme: callbackUrlScheme
+        ) { url, error in
+            if let error {
+                delegate?.singleSignOnErrored(error: error)
+                return
+            }
+            guard let url,
+                  let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+                  let stateItem = components.queryItems?.first(where: { $0.name == "state" }),
+                  stateItem.value == state,
+                  let codeItem = components.queryItems?.first(where: { $0.name == "code" }),
+                  let code = codeItem.value
+            else {
+                delegate?.singleSignOnErrored(error: AuthError.unableToDecodeSSOResponse)
+                return
+            }
+            delegate?.singleSignOnCompleted(code: code)
+        }
+
+        // prefersEphemeralWebBrowserSession should be false to allow access to the hCaptcha accessibility
+        // cookie set in the default browser: https://www.hcaptcha.com/accessibility
+        session.prefersEphemeralWebBrowserSession = false
+        session.presentationContextProvider = self
+        session.start()
+    }
+
     /// Shows the vault unlock view.
     ///
-    /// - Parameter account: The active account.
+    /// - Parameters:
+    ///   - account: The active account.
+    ///   - animated: Whether to animate the transition.
     ///
-    private func showVaultUnlock(account: Account) {
+    private func showVaultUnlock(account: Account, animated: Bool = true) {
         let processor = VaultUnlockProcessor(
+            appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultUnlockState(account: account)
         )
         let view = VaultUnlockView(store: Store(processor: processor))
-        stackNavigator.replace(view)
+        stackNavigator.replace(view, animated: animated)
     }
 }
 

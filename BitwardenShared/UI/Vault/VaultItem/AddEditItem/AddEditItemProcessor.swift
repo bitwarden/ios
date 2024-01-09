@@ -1,6 +1,15 @@
 import BitwardenSdk
 import Foundation
 
+// MARK: - CipherItemOperationDelegate
+
+/// An object that is notified when specific circumstances in the add/edit/delete item view have occurred.
+///
+protocol CipherItemOperationDelegate: AnyObject {
+    /// Called when the cipher item has been successfully deleted.
+    func itemDeleted()
+}
+
 // MARK: - AddEditItemProcessor
 
 /// The processor used to manage state and handle actions for the add item screen.
@@ -19,6 +28,9 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultItemRoute>
 
+    /// The delegate that is notified when delete cipher item have occurred.
+    private weak var delegate: CipherItemOperationDelegate?
+
     /// The services required by this processor.
     private let services: Services
 
@@ -28,15 +40,18 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
+    ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - services: The services required by this processor.
     ///   - state: The initial state for the processor.
     ///
     init(
         coordinator: AnyCoordinator<VaultItemRoute>,
+        delegate: CipherItemOperationDelegate?,
         services: Services,
         state: AddEditItemState
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.services = services
         super.init(state: state)
     }
@@ -58,8 +73,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         case .setupTotpPressed:
             await setupTotp()
         case .deletePressed:
-            // TODO: BIT-222
-            print("delete pressed")
+            await showDeleteConfirmation()
         }
     }
 
@@ -100,9 +114,10 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             case .clone:
                 // TODO: BIT-365
                 print("clone")
+            case .editCollections:
+                coordinator.navigate(to: .editCollections(state.cipher), context: self)
             case .moveToOrganization:
-                // TODO: BIT-366
-                print("moveToOrganization")
+                coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
             }
         case let .nameChanged(newValue):
             state.name = newValue
@@ -146,7 +161,8 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     private func fetchCipherOptions() async {
         do {
             state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
-            state.ownershipOptions = try await services.vaultRepository.fetchCipherOwnershipOptions()
+            state.ownershipOptions = try await services.vaultRepository
+                .fetchCipherOwnershipOptions(includePersonal: true)
 
             let folders = try await services.vaultRepository.fetchFolders()
                 .map { DefaultableType<FolderView>.custom($0) }
@@ -334,6 +350,32 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         coordinator.navigate(to: .dismiss())
     }
 
+    /// Soft Deletes the item currently stored in `state`.
+    ///
+    private func deleteItem() async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.softDeleting)
+            try await services.vaultRepository.softDeleteCipher(state.cipher)
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemDeleted()
+            })))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Shows delete cipher confirmation alert.
+    ///
+    private func showDeleteConfirmation() async {
+        let alert = Alert.deleteCipherConfirmation { [weak self] in
+            guard let self else { return }
+            await deleteItem()
+        }
+        coordinator.showAlert(alert)
+    }
+
     /// Updates the item currently in `state`.
     ///
     private func updateItem(cipherView: CipherView) async throws {
@@ -390,3 +432,19 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         }
     }
 }
+
+// MARK: - EditCollectionsProcessorDelegate
+
+extension AddEditItemProcessor: EditCollectionsProcessorDelegate {
+    func didUpdateCipher() {
+        state.toast = Toast(text: Localizations.itemUpdated)
+    }
+}
+
+// MARK: - MoveToOrganizationProcessorDelegate
+
+extension AddEditItemProcessor: MoveToOrganizationProcessorDelegate {
+    func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
+        state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
+    }
+} // swiftlint:disable:this file_length

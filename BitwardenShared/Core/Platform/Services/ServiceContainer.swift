@@ -27,6 +27,9 @@ public class ServiceContainer: Services {
     /// The repository used by the application to manage auth data for the UI layer.
     let authRepository: AuthRepository
 
+    /// The service used by the application to handle authentication tasks.
+    let authService: AuthService
+
     /// The service used to obtain the available authentication policies and access controls for the user's device.
     let biometricsService: BiometricsService
 
@@ -84,8 +87,10 @@ public class ServiceContainer: Services {
     ///
     /// - Parameters:
     ///   - apiService: The service used by the application to make API requests.
+    ///   - appIdService: The service used by the application to manage the app's ID.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
+    ///   - authService: The service used by the application to handle authentication tasks.
     ///   - biometricsService: The service used to obtain the available authentication policies
     ///     and access controls for the user's device.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
@@ -107,8 +112,10 @@ public class ServiceContainer: Services {
     ///
     init(
         apiService: APIService,
+        appIdService: AppIdService,
         appSettingsStore: AppSettingsStore,
         authRepository: AuthRepository,
+        authService: AuthService,
         biometricsService: BiometricsService,
         captchaService: CaptchaService,
         cameraService: CameraService,
@@ -128,8 +135,10 @@ public class ServiceContainer: Services {
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.apiService = apiService
+        self.appIdService = appIdService
         self.appSettingsStore = appSettingsStore
         self.authRepository = authRepository
+        self.authService = authService
         self.biometricsService = biometricsService
         self.captchaService = captchaService
         self.cameraService = cameraService
@@ -147,8 +156,6 @@ public class ServiceContainer: Services {
         self.twoStepLoginService = twoStepLoginService
         self.vaultRepository = vaultRepository
         self.vaultTimeoutService = vaultTimeoutService
-
-        appIdService = AppIdService(appSettingStore: appSettingsStore)
     }
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
@@ -159,29 +166,41 @@ public class ServiceContainer: Services {
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
+        let appIdService = AppIdService(appSettingStore: appSettingsStore)
 
         let biometricsService = DefaultBiometricsService()
         let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
-        let cipherService = DefaultCipherService(cipherDataStore: dataStore, stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let sendService = DefaultSendService(sendDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
+
+        let cipherService = DefaultCipherService(
+            cipherAPIService: apiService,
+            cipherDataStore: dataStore,
+            stateService: stateService
+        )
+
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
             folderDataStore: dataStore,
             stateService: stateService
         )
+        let organizationService = DefaultOrganizationService(
+            clientCrypto: clientService.clientCrypto(),
+            errorReporter: errorReporter,
+            organizationDataStore: dataStore,
+            stateService: stateService
+        )
 
         let syncService = DefaultSyncService(
             cipherService: cipherService,
-            clientCrypto: clientService.clientCrypto(),
             collectionService: collectionService,
-            errorReporter: errorReporter,
             folderService: folderService,
+            organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
             syncAPIService: apiService
@@ -198,11 +217,24 @@ public class ServiceContainer: Services {
             stateService: stateService
         )
 
+        let authService = DefaultAuthService(
+            accountAPIService: apiService,
+            appIdService: appIdService,
+            authAPIService: apiService,
+            clientAuth: clientService.clientAuth(),
+            clientGenerators: clientService.clientGenerator(),
+            environmentService: environmentService,
+            stateService: stateService,
+            systemDevice: UIDevice.current
+        )
+
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
+            authService: authService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             environmentService: environmentService,
+            organizationService: organizationService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
@@ -225,12 +257,15 @@ public class ServiceContainer: Services {
 
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
+            cipherService: cipherService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             clientVault: clientService.clientVault(),
             collectionService: collectionService,
+            environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
+            organizationService: organizationService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
@@ -238,8 +273,10 @@ public class ServiceContainer: Services {
 
         self.init(
             apiService: apiService,
+            appIdService: appIdService,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
+            authService: authService,
             biometricsService: biometricsService,
             captchaService: DefaultCaptchaService(environmentService: environmentService),
             cameraService: DefaultCameraService(),

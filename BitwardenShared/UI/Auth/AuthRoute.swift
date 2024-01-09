@@ -53,6 +53,15 @@ public enum AuthRoute: Equatable {
     /// A route to the self-hosted settings view.
     case selfHosted
 
+    /// A route to the single sign on WebAuth screen.
+    ///
+    /// - Parameters:
+    ///   - callbackUrlScheme: The callback url scheme for this application.
+    ///   - state: The string that the result will have to match.
+    ///   - url: The url to present to the web auth session.
+    ///
+    case singleSignOn(callbackUrlScheme: String, state: String, url: URL)
+
     /// A route to switch accounts.
     ///
     /// - Parameter userId: The user Id of the selected account.
@@ -60,5 +69,10 @@ public enum AuthRoute: Equatable {
     case switchAccount(userId: String)
 
     /// A route to the unlock vault screen.
-    case vaultUnlock(Account)
+    ///
+    /// - Parameters:
+    ///   - account: The account to unlock the vault for.
+    ///   - animated: Whether to animate the transition to the view.
+    ///
+    case vaultUnlock(Account, animated: Bool = true)
 }

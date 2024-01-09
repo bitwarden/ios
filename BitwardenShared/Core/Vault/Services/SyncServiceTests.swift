@@ -9,10 +9,9 @@ class SyncServiceTests: BitwardenTestCase {
 
     var cipherService: MockCipherService!
     var client: MockHTTPClient!
-    var clientCrypto: MockClientCrypto!
     var collectionService: MockCollectionService!
-    var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
+    var organizationService: MockOrganizationService!
     var sendService: MockSendService!
     var stateService: MockStateService!
     var subject: SyncService!
@@ -24,19 +23,17 @@ class SyncServiceTests: BitwardenTestCase {
 
         cipherService = MockCipherService()
         client = MockHTTPClient()
-        clientCrypto = MockClientCrypto()
         collectionService = MockCollectionService()
-        errorReporter = MockErrorReporter()
         folderService = MockFolderService()
+        organizationService = MockOrganizationService()
         sendService = MockSendService()
         stateService = MockStateService()
 
         subject = DefaultSyncService(
             cipherService: cipherService,
-            clientCrypto: clientCrypto,
             collectionService: collectionService,
-            errorReporter: errorReporter,
             folderService: folderService,
+            organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
             syncAPIService: APIService(client: client)
@@ -48,10 +45,9 @@ class SyncServiceTests: BitwardenTestCase {
 
         cipherService = nil
         client = nil
-        clientCrypto = nil
         collectionService = nil
-        errorReporter = nil
         folderService = nil
+        organizationService = nil
         sendService = nil
         stateService = nil
         subject = nil
@@ -113,6 +109,7 @@ class SyncServiceTests: BitwardenTestCase {
                     id: "3792af7a-4441-11ee-be56-0242ac120002",
                     login: .fixture(
                         password: "encrypted password",
+                        totp: "totp",
                         uris: [
                             CipherLoginUriModel(match: nil, uri: "encrypted uri"),
                         ],
@@ -216,6 +213,20 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(folderService.replaceFoldersUserId, "1")
     }
 
+    /// `fetchSync()` replaces the list of the user's organizations.
+    func test_fetchSync_organizations() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync()
+
+        XCTAssertTrue(organizationService.initializeOrganizationCryptoWithOrgsCalled)
+        XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?.count, 2)
+        XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?[0].id, "ORG_1")
+        XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?[1].id, "ORG_2")
+        XCTAssertEqual(organizationService.replaceOrganizationsUserId, "1")
+    }
+
     /// `fetchSync()` throws an error if the request fails.
     func test_fetchSync_error() async throws {
         client.result = .httpFailure()
@@ -224,48 +235,5 @@ class SyncServiceTests: BitwardenTestCase {
         await assertAsyncThrows {
             try await subject.fetchSync()
         }
-    }
-
-    /// `fetchSync()` initializes the SDK for decrypting organization ciphers.
-    func test_fetchSync_initializeOrgCrypto() async throws {
-        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
-        stateService.activeAccount = .fixture()
-
-        try await subject.fetchSync()
-
-        XCTAssertEqual(
-            clientCrypto.initializeOrgCryptoRequest,
-            InitOrgCryptoRequest(organizationKeys: [
-                "ORG_2": "ORG_2_KEY",
-                "ORG_1": "ORG_1_KEY",
-            ])
-        )
-    }
-
-    /// `fetchSync()` logs an error to the error reporter if initializing organization crypto fails.
-    func test_fetchSync_initializeOrgCrypto_error() async throws {
-        struct InitializeOrgCryptoError: Error {}
-
-        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
-        clientCrypto.initializeOrgCryptoResult = .failure(InitializeOrgCryptoError())
-        stateService.activeAccount = .fixture()
-
-        try await subject.fetchSync()
-
-        XCTAssertTrue(errorReporter.errors.last is InitializeOrgCryptoError)
-    }
-
-    /// `fetchSync()` initializes the SDK for decrypting organization ciphers with an empty
-    /// dictionary if the user isn't a part of any organizations.
-    func test_fetchSync_initializesOrgCrypto_noOrganizations() async throws {
-        client.result = .httpSuccess(testData: .syncWithProfile)
-        stateService.activeAccount = .fixture()
-
-        try await subject.fetchSync()
-
-        XCTAssertEqual(
-            clientCrypto.initializeOrgCryptoRequest,
-            InitOrgCryptoRequest(organizationKeys: [:])
-        )
     }
 }

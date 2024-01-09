@@ -11,7 +11,7 @@ struct ViewItemState: Equatable {
     /// appropriate internal state.
     var loadingState: LoadingState<CipherItemState> = .loading
 
-    /// A flag indicating if the user has premium fatures.
+    /// A flag indicating if the user has premium features.
     var hasPremiumFeatures = false
 
     /// A flag indicating if the master password has been verified yet.
@@ -27,6 +27,9 @@ struct ViewItemState: Equatable {
             false
         }
     }
+
+    /// A toast message to show in the view.
+    var toast: Toast?
 }
 
 extension ViewItemState {

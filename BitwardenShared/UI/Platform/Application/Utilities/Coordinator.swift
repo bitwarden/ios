@@ -71,6 +71,7 @@ public extension Coordinator {
     ///
     /// - Parameters:
     ///     - route: The specific `Route` to navigate to.
+    ///     - context: An object representing the context where the navigation occurred.
     ///
     func navigate(to route: Route) {
         navigate(to: route, context: nil)

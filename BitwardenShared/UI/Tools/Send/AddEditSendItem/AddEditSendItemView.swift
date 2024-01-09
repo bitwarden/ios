@@ -60,7 +60,7 @@ struct AddEditSendItemView: View {
             )
 
             if store.state.deletionDate == .custom {
-                HStack(spacing: 8) {
+                AccessibleHStack(alignment: .leading, spacing: 8) {
                     BitwardenDatePicker(
                         selection: store.binding(
                             get: \.customDeletionDate,
@@ -98,7 +98,7 @@ struct AddEditSendItemView: View {
             )
 
             if store.state.expirationDate == .custom {
-                HStack(spacing: 8) {
+                AccessibleHStack(alignment: .leading, spacing: 8) {
                     BitwardenDatePicker(
                         selection: store.binding(
                             get: \.customExpirationDate,

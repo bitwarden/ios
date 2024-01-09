@@ -109,6 +109,16 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(view.store.state.type, .card)
     }
 
+    /// `navigate(to:)` with `.editCollections()` triggers the edit collections flow.
+    func test_navigateTo_editCollections() throws {
+        subject.navigate(to: .editCollections(.fixture()))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.topViewController is UIHostingController<EditCollectionsView>)
+    }
+
     /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
     func test_navigate_alert() {
         let alert = BitwardenShared.Alert(
@@ -175,8 +185,24 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         task.cancel()
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is AddEditItemView)
+    }
+
+    /// `navigate(to:)` with `.editItem()` with a non empty stack presents a new vault item coordinator.
+    func test_navigateTo_editItem_presentsCoordinator() throws {
+        stackNavigator.isEmpty = false
+
+        let task = Task {
+            subject.navigate(to: .editItem(cipher: .loginFixture()), context: nil)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertEqual(module.vaultItemCoordinator.routes, [.editItem(cipher: .loginFixture())])
     }
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
@@ -268,6 +294,16 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.navigate(to: .generator(.username), context: nil)
 
         XCTAssertNil(stackNavigator.actions.last)
+    }
+
+    /// `navigate(to:)` with `.moveToOrganization()` triggers the move to organization flow.
+    func test_navigateTo_moveToOrganization() throws {
+        subject.navigate(to: .moveToOrganization(.fixture()))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.topViewController is UIHostingController<MoveToOrganizationView>)
     }
 
     /// `navigate(to:)` with `.setupTotpCamera` with context without conformance fails to present.
@@ -378,4 +414,4 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     func didCancelScan() {
         didCancel = true
     }
-}
+} // swiftlint:disable:this file_length

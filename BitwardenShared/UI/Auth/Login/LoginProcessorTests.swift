@@ -5,41 +5,37 @@ import XCTest
 
 // MARK: - LoginProcessorTests
 
-class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class LoginProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
     var authRepository: MockAuthRepository!
+    var authService: MockAuthService!
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
-    var clientAuth: MockClientAuth!
     var coordinator: MockCoordinator<AuthRoute>!
-    var stateService: MockStateService!
     var subject: LoginProcessor!
-    var systemDevice: MockSystemDevice!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
+
         appSettingsStore = MockAppSettingsStore()
         authRepository = MockAuthRepository()
+        authService = MockAuthService()
         captchaService = MockCaptchaService()
         client = MockHTTPClient()
-        clientAuth = MockClientAuth()
         coordinator = MockCoordinator()
-        stateService = MockStateService()
-        systemDevice = MockSystemDevice()
+
         subject = LoginProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingsStore,
                 authRepository: authRepository,
+                authService: authService,
                 captchaService: captchaService,
-                clientService: MockClientService(clientAuth: clientAuth),
-                httpClient: client,
-                stateService: stateService,
-                systemDevice: systemDevice
+                httpClient: client
             ),
             state: LoginState()
         )
@@ -47,71 +43,26 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     override func tearDown() {
         super.tearDown()
+
         appSettingsStore = nil
+        authRepository = nil
+        authService = nil
         captchaService = nil
         client = nil
-        clientAuth = nil
         coordinator = nil
-        stateService = nil
         subject = nil
-        systemDevice = nil
     }
 
     // MARK: Tests
 
     /// `captchaCompleted()` makes the login requests again, this time with a captcha token.
     func test_captchaCompleted() {
-        appSettingsStore.appId = "App id"
-        systemDevice.modelIdentifier = "Model id"
-        clientAuth.hashPasswordResult = .success("hashed password")
-        client.results = [
-            .httpSuccess(testData: .preLoginSuccess),
-            .httpSuccess(testData: .identityTokenSuccess),
-        ]
-        subject.state.username = "email@example.com"
-        subject.state.masterPassword = "Password1234!"
-        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
-
         subject.captchaCompleted(token: "token")
-
-        let preLoginRequest = PreLoginRequestModel(
-            email: "email@example.com"
-        )
-        let tokenRequest = IdentityTokenRequestModel(
-            authenticationMethod: .password(
-                username: "email@example.com",
-                password: "hashed password"
-            ),
-            captchaToken: "token",
-            deviceInfo: DeviceInfo(
-                identifier: "App id",
-                name: "Model id"
-            )
-        )
-
         waitFor(!coordinator.routes.isEmpty)
 
-        XCTAssertEqual(client.requests.count, 2)
-        XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
-        XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
-
-        XCTAssertEqual(clientAuth.hashPasswordEmail, "email@example.com")
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
-        XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertEqual(authService.loginWithMasterPasswordCaptchaToken, "token")
 
         XCTAssertEqual(coordinator.routes.last, .complete)
-
-        XCTAssertEqual(authRepository.unlockVaultPassword, "Password1234!")
-        XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys,
-            [
-                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    encryptedPrivateKey: "PRIVATE_KEY",
-                    encryptedUserKey: "KEY"
-                ),
-            ]
-        )
     }
 
     /// `perform(_:)` with `.appeared` and an error occurs does not update the login with button visibility.
@@ -169,114 +120,38 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password.
     func test_perform_loginWithMasterPasswordPressed_success() async throws {
-        appSettingsStore.appId = "App id"
-        systemDevice.modelIdentifier = "Model id"
-        clientAuth.hashPasswordResult = .success("hashed password")
-        client.results = [
-            .httpSuccess(testData: .preLoginSuccess),
-            .httpSuccess(testData: .identityTokenSuccess),
-        ]
         subject.state.username = "email@example.com"
         subject.state.masterPassword = "Password1234!"
-        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
 
         await subject.perform(.loginWithMasterPasswordPressed)
 
-        let preLoginRequest = PreLoginRequestModel(
-            email: "email@example.com"
-        )
-        let tokenRequest = IdentityTokenRequestModel(
-            authenticationMethod: .password(
-                username: "email@example.com",
-                password: "hashed password"
-            ),
-            captchaToken: nil,
-            deviceInfo: DeviceInfo(
-                identifier: "App id",
-                name: "Model id"
-            )
-        )
-
-        XCTAssertEqual(client.requests.count, 2)
-        XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
-        XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
-
-        XCTAssertEqual(clientAuth.hashPasswordEmail, "email@example.com")
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
-        XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Password1234!")
+        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
 
         XCTAssertEqual(coordinator.routes.last, .complete)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
 
         XCTAssertEqual(authRepository.unlockVaultPassword, "Password1234!")
-        XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys,
-            [
-                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
-                    encryptedPrivateKey: "PRIVATE_KEY",
-                    encryptedUserKey: "KEY"
-                ),
-            ]
-        )
-        XCTAssertEqual(
-            stateService.masterPasswordHashes,
-            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
-        )
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha error occurs navigates to the `.captcha`
     /// route.
     func test_perform_loginWithMasterPasswordPressed_captchaError() async {
-        client.results = [
-            .httpSuccess(testData: .preLoginSuccess),
-            .httpFailure(IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "token")),
-        ]
+        authService
+            .loginWithMasterPasswordResult = .failure(IdentityTokenRequestError
+                .captchaRequired(hCaptchaSiteCode: "token"))
         captchaService.generateCaptchaUrlValue = .example
-        subject.state.username = "email@example.com"
-        subject.state.masterPassword = "Password1234!"
+
         await subject.perform(.loginWithMasterPasswordPressed)
 
-        XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(captchaService.callbackUrlSchemeGets, 1)
         XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
+
         XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
-    }
-
-    /// `perform(_:)` with `.loginWithMasterPasswordPressed` and an error with the pre-login request displays an error
-    /// alert.
-    func test_perform_loginWithMasterPasswordPressed_preLoginError() async {
-        client.results = [
-            .httpFailure(BitwardenTestError.example),
-        ]
-        subject.state.username = "email@example.com"
-        subject.state.masterPassword = "Password1234!"
-        await subject.perform(.loginWithMasterPasswordPressed)
-
-        XCTAssertEqual(client.requests.count, 1)
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
-        // TODO: BIT-709 Add an assertion for the error alert.
-    }
-
-    /// `perform(_:)` with `.loginWithMasterPasswordPressed` and an error with the identity token request displays an
-    /// error alert.
-    func test_perform_loginWithMasterPasswordPressed_identityTokenError() async {
-        client.results = [
-            .httpSuccess(testData: .preLoginSuccess),
-            .httpFailure(BitwardenTestError.example),
-        ]
-        subject.state.username = "email@example.com"
-        subject.state.masterPassword = "Password1234!"
-        await subject.perform(.loginWithMasterPasswordPressed)
-
-        XCTAssertEqual(client.requests.count, 2)
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
-        // TODO: BIT-709 Add an assertion for the error alert.
     }
 
     /// `receive(_:)` with `.enterpriseSingleSignOnPressed` navigates to the enterprise single sign-on screen.

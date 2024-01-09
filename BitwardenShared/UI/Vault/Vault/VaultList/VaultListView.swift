@@ -12,6 +12,9 @@ private struct VaultMainView: View {
     /// A flag indicating if the search bar is focused.
     @Environment(\.isSearching) private var isSearching
 
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultListState, VaultListAction, VaultListEffect>
 
@@ -36,10 +39,27 @@ private struct VaultMainView: View {
                 .hidden(!isSearching)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultListAction.toastShown
+        ))
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultListAction.toastShown
+        ))
         .animation(.default, value: isSearching)
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultListAction.toastShown
+        ))
     }
 
     // MARK: Private Properties
@@ -196,11 +216,11 @@ private struct VaultMainView: View {
             },
             mapAction: { action in
                 switch action {
-                case .morePressed:
-                    return .morePressed(item: item)
+                case let .copyTOTPCode(code):
+                    return .copyTOTPCode(code)
                 }
             },
-            mapEffect: nil
+            mapEffect: { _ in .morePressed(item: item) }
         ))
     }
 
@@ -487,7 +507,15 @@ struct VaultListView_Previews: PreviewProvider {
                                     name: "Items"
                                 ),
                             ]),
-                            organizations: [Organization(id: "", name: "Org")]
+                            organizations: [
+                                Organization(
+                                    enabled: true,
+                                    id: "",
+                                    key: nil,
+                                    name: "Org",
+                                    status: .confirmed
+                                ),
+                            ]
                         )
                     )
                 )

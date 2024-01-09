@@ -12,6 +12,9 @@ protocol EnvironmentService {
     /// The URL for the events API.
     var eventsURL: URL { get }
 
+    /// The URL for the icons API.
+    var iconsURL: URL { get }
+
     /// The URL for the identity API.
     var identityURL: URL { get }
 
@@ -47,7 +50,7 @@ class DefaultEnvironmentService: EnvironmentService {
     /// The app's current environment URLs.
     private var environmentUrls: EnvironmentUrls
 
-    // MARK: Initializaton
+    // MARK: Initialization
 
     /// Initialize a `DefaultEnvironmentService`.
     ///
@@ -81,6 +84,10 @@ class DefaultEnvironmentService: EnvironmentService {
 extension DefaultEnvironmentService {
     var apiURL: URL {
         environmentUrls.apiURL
+    }
+
+    var iconsURL: URL {
+        environmentUrls.iconsURL
     }
 
     var identityURL: URL {

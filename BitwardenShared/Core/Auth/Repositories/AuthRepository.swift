@@ -71,6 +71,9 @@ class DefaultAuthRepository {
     /// The services used by the application to make account related API requests.
     let accountAPIService: AccountAPIService
 
+    /// The service used that handles some of the auth logic.
+    let authService: AuthService
+
     /// The client used by the application to handle auth related encryption and decryption tasks.
     let clientAuth: ClientAuthProtocol
 
@@ -79,6 +82,9 @@ class DefaultAuthRepository {
 
     /// The service used by the application to manage the environment settings.
     let environmentService: EnvironmentService
+
+    /// The service used to manage syncing and updates to the user's organizations.
+    let organizationService: OrganizationService
 
     /// The service used by the application to manage account state.
     let stateService: StateService
@@ -92,24 +98,30 @@ class DefaultAuthRepository {
     ///
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
+    ///   - authService: The service used that handles some of the auth logic.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
         accountAPIService: AccountAPIService,
+        authService: AuthService,
         clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
         environmentService: EnvironmentService,
+        organizationService: OrganizationService,
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.accountAPIService = accountAPIService
+        self.authService = authService
         self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
         self.environmentService = environmentService
+        self.organizationService = organizationService
         self.stateService = stateService
         self.vaultTimeoutService = vaultTimeoutService
     }
@@ -119,7 +131,7 @@ class DefaultAuthRepository {
 
 extension DefaultAuthRepository: AuthRepository {
     func deleteAccount(passwordText: String) async throws {
-        let hashedPassword = try await hashPassword(passwordText: passwordText)
+        let hashedPassword = try await authService.hashPassword(password: passwordText, purpose: .serverAuthorization)
 
         _ = try await accountAPIService.deleteAccount(
             body: DeleteAccountRequestModel(masterPasswordHash: hashedPassword)
@@ -149,25 +161,6 @@ extension DefaultAuthRepository: AuthRepository {
             throw StateServiceError.noAccounts
         }
         return match
-    }
-
-    /// Creates a hash value for the user's master password.
-    ///
-    /// - Parameter passwordText: The user's entered password.
-    /// - Returns: A hash value of the password text.
-    ///
-    private func hashPassword(passwordText: String) async throws -> String {
-        let account = try await stateService.getActiveAccount()
-        let email = account.profile.email
-        let kdf: Kdf = account.kdf.sdkKdf
-
-        let hashedPassword = try await clientAuth.hashPassword(
-            email: email,
-            password: passwordText,
-            kdfParams: kdf,
-            purpose: .serverAuthorization
-        )
-        return hashedPassword
     }
 
     func logout() async throws {
@@ -202,6 +195,10 @@ extension DefaultAuthRepository: AuthRepository {
             )
         )
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
+        try await organizationService.initializeOrganizationCrypto()
+
+        let hashedPassword = try await authService.hashPassword(password: password, purpose: .localAuthorization)
+        try await stateService.setMasterPasswordHash(hashedPassword)
     }
 
     func unlockWithPIN(_ pin: String) async throws {

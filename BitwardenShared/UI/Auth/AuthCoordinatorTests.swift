@@ -25,6 +25,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         stackNavigator = MockStackNavigator()
         vaultTimeoutService = MockVaultTimeoutService()
         subject = AuthCoordinator(
+            appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: authDelegate,
             rootNavigator: rootNavigator,
             services: ServiceContainer.withMocks(
@@ -243,6 +244,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     func test_rootNavigator_resetWeakReference() {
         var rootNavigator: MockRootNavigator? = MockRootNavigator()
         subject = AuthCoordinator(
+            appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: authDelegate,
             rootNavigator: rootNavigator!,
             services: ServiceContainer.withMocks(),

@@ -7,14 +7,17 @@ import XCTest
 class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var cipherService: MockCipherService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var clientCiphers: MockClientCiphers!
     var clientCrypto: MockClientCrypto!
     var clientVault: MockClientVaultService!
     var collectionService: MockCollectionService!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
+    var organizationService: MockOrganizationService!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
     var syncService: MockSyncService!
@@ -25,29 +28,33 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     override func setUp() {
         super.setUp()
 
+        cipherService = MockCipherService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
         clientCiphers = MockClientCiphers()
         clientCrypto = MockClientCrypto()
         clientVault = MockClientVaultService()
         collectionService = MockCollectionService()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         folderService = MockFolderService()
+        organizationService = MockOrganizationService()
         syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
-
         clientVault.clientCiphers = clientCiphers
-
         stateService = MockStateService()
 
         subject = DefaultVaultRepository(
             cipherAPIService: APIService(client: client),
+            cipherService: cipherService,
             clientAuth: clientAuth,
             clientCrypto: clientCrypto,
             clientVault: clientVault,
             collectionService: collectionService,
+            environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
+            organizationService: organizationService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
@@ -57,14 +64,17 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     override func tearDown() {
         super.tearDown()
 
+        cipherService = nil
         client = nil
         clientAuth = nil
         clientCiphers = nil
         clientCrypto = nil
         clientVault = nil
         collectionService = nil
+        environmentService = nil
         errorReporter = nil
         folderService = nil
+        organizationService = nil
         stateService = nil
         subject = nil
         vaultTimeoutService = nil
@@ -119,6 +129,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `cipherPublisher()` returns a publisher for the list of a user's ciphers.
+    func test_cipherPublisher() async throws {
+        let ciphers: [Cipher] = [
+            .fixture(name: "Bitwarden"),
+        ]
+        cipherService.ciphersSubject.value = ciphers
+
+        var iterator = try await subject.cipherPublisher().makeAsyncIterator()
+        let publishedCiphers = try await iterator.next()
+
+        XCTAssertEqual(publishedCiphers, ciphers.map(CipherListView.init))
+    }
+
+    /// `deleteCipher()` throws on id errors.
+    func test_deleteCipher_idError_nil() async throws {
+        cipherService.deleteWithServerResult = .failure(CipherAPIServiceError.updateMissingId)
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.deleteCipher("")
+        }
+    }
+
+    /// `deleteCipher()` deletes cipher from back end and local storage.
+    func test_deleteCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        cipherService.deleteWithServerResult = .success(())
+        try await subject.deleteCipher("123")
+        XCTAssertEqual(cipherService.deleteCipherId, "123")
+    }
+
     /// Tests the ability to determine if an account has premium.
     func test_doesActiveAccountHavePremium_error() async {
         stateService.activeAccount = nil
@@ -152,18 +191,34 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(hasPremium)
     }
 
+    /// `fetchCipher(withId:)` returns the cipher if it exists and `nil` otherwise.
+    func test_fetchCipher() async throws {
+        var cipher = try await subject.fetchCipher(withId: "1")
+
+        XCTAssertEqual(cipherService.fetchCipherId, "1")
+        XCTAssertNil(cipher)
+
+        let testCipher = Cipher.fixture(id: "2")
+        cipherService.fetchCipherResult = .success(testCipher)
+
+        cipher = try await subject.fetchCipher(withId: "2")
+
+        XCTAssertEqual(cipherService.fetchCipherId, "2")
+        XCTAssertEqual(cipher, CipherView(cipher: testCipher))
+    }
+
     /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations.
     func test_fetchCipherOwnershipOptions_organizations() async throws {
         stateService.activeAccount = .fixture()
-        syncService.organizationsToReturn = [
+        organizationService.fetchAllOrganizationsResult = .success([
             .fixture(id: "1", name: "Org1"),
             .fixture(id: "2", name: "Org2"),
             .fixture(enabled: false, id: "3", name: "Org Disabled"),
             .fixture(id: "4", name: "Org Invited", status: .invited),
             .fixture(id: "5", name: "Org Accepted", status: .accepted),
-        ]
+        ])
 
-        let ownershipOptions = try await subject.fetchCipherOwnershipOptions()
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
 
         XCTAssertEqual(
             ownershipOptions,
@@ -175,11 +230,34 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations
+    /// without the personal vault.
+    func test_fetchCipherOwnershipOptions_organizationsWithoutPersonal() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "1", name: "Org1"),
+            .fixture(id: "2", name: "Org2"),
+            .fixture(enabled: false, id: "3", name: "Org Disabled"),
+            .fixture(id: "4", name: "Org Invited", status: .invited),
+            .fixture(id: "5", name: "Org Accepted", status: .accepted),
+        ])
+
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: false)
+
+        XCTAssertEqual(
+            ownershipOptions,
+            [
+                .organization(id: "1", name: "Org1"),
+                .organization(id: "2", name: "Org2"),
+            ]
+        )
+    }
+
     /// `fetchCipherOwnershipOptions()` returns the ownership options containing the user's personal account.
     func test_fetchCipherOwnershipOptions_personal() async throws {
         stateService.activeAccount = .fixture()
 
-        let ownershipOptions = try await subject.fetchCipherOwnershipOptions()
+        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
 
         XCTAssertEqual(ownershipOptions, [.personal(email: "user@bitwarden.com")])
     }
@@ -243,6 +321,113 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(syncService.didFetchSync)
     }
 
+    /// `refreshTOTPCodes(:)` should not update non-totp items
+    func test_refreshTOTPCodes_invalid_noKey() async throws {
+        let newCode = "999232"
+        clientVault.totpCode = newCode
+        let totpModel = VaultListTOTP(
+            iconBaseURL: URL(string: "https://icons.bitwarden.net")!,
+            id: "123",
+            loginView: .fixture(),
+            totpCode: .init(
+                code: "123456",
+                date: Date(),
+                period: 30
+            )
+        )
+        let item: VaultListItem = .fixtureTOTP(totp: totpModel)
+        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItem = try XCTUnwrap(newItems.first)
+        XCTAssertEqual(newItem, item)
+    }
+
+    /// `refreshTOTPCodes(:)` should not update non-totp items
+    func test_refreshTOTPCodes_invalid_nonTOTP() async throws {
+        let newCode = "999232"
+        clientVault.totpCode = newCode
+        let item: VaultListItem = .fixture()
+        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItem = try XCTUnwrap(newItems.first)
+        XCTAssertEqual(newItem, item)
+    }
+
+    /// `refreshTOTPCodes(:)` should update correctly
+    func test_refreshTOTPCodes_valid() async throws {
+        let newCode = "999232"
+        clientVault.totpCode = newCode
+        let totpModel = VaultListTOTP(
+            iconBaseURL: URL(string: "https://icons.bitwarden.net")!,
+            id: "123",
+            loginView: .fixture(totp: .base32Key),
+            totpCode: .init(
+                code: "123456",
+                date: Date(),
+                period: 30
+            )
+        )
+        let item: VaultListItem = .fixtureTOTP(totp: totpModel)
+        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItem = try XCTUnwrap(newItems.first)
+        switch newItem.itemType {
+        case let .totp(_, model):
+            XCTAssertEqual(model.id, totpModel.id)
+            XCTAssertEqual(model.iconBaseURL, totpModel.iconBaseURL)
+            XCTAssertEqual(model.loginView, totpModel.loginView)
+            XCTAssertNotEqual(model.totpCode.code, totpModel.totpCode.code)
+            XCTAssertNotEqual(model.totpCode.date, totpModel.totpCode.date)
+            XCTAssertEqual(model.totpCode.period, totpModel.totpCode.period)
+            XCTAssertEqual(model.totpCode.code, newCode)
+        default:
+            XCTFail("Invalid return type")
+        }
+    }
+
+    /// `shareCipher()` has the cipher service share the cipher and updates the vault.
+    func test_shareCipher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let cipher = CipherView.fixture()
+        try await subject.shareCipher(cipher)
+
+        XCTAssertEqual(cipherService.shareWithServerCiphers, [Cipher(cipherView: cipher)])
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    /// `updateCipherCollections()` throws an error if one occurs.
+    func test_updateCipherCollections_error() async throws {
+        struct UpdateError: Error, Equatable {}
+
+        cipherService.updateCipherCollectionsWithServerResult = .failure(UpdateError())
+
+        await assertAsyncThrows(error: UpdateError()) {
+            try await subject.updateCipherCollections(.fixture())
+        }
+    }
+
+    /// `updateCipherCollections()` has the cipher service update the cipher's collections and updates the vault.
+    func test_updateCipherCollections() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let cipher = CipherView.fixture()
+        try await subject.updateCipherCollections(cipher)
+
+        XCTAssertEqual(cipherService.updateCipherCollectionsWithServerCiphers, [Cipher(cipherView: cipher)])
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    /// `shareCipher()` throws an error if one occurs.
+    func test_shareCipher_error() async throws {
+        struct ShareError: Error, Equatable {}
+
+        cipherService.shareWithServerResult = .failure(ShareError())
+
+        await assertAsyncThrows(error: ShareError()) {
+            try await subject.shareCipher(.fixture())
+        }
+    }
+
     /// `updateCipher()` throws on encryption errors.
     func test_updateCipher_encryptError() async throws {
         struct EncryptError: Error, Equatable {}
@@ -298,19 +483,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `organizationsPublisher()` returns a publisher for the user's organizations.
     func test_organizationsPublisher() async throws {
-        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithProfileOrganizations.data
-        ))
+        organizationService.organizationsSubject.value = [
+            .fixture(id: "ORG_1", name: "ORG_NAME"),
+            .fixture(id: "ORG_2", name: "ORG_NAME"),
+        ]
 
-        var iterator = subject.organizationsPublisher().makeAsyncIterator()
-        let organizations = await iterator.next()
+        var iterator = try await subject.organizationsPublisher().makeAsyncIterator()
+        let organizations = try await iterator.next()
 
         XCTAssertEqual(
             organizations,
             [
-                Organization(id: "ORG_1", name: "ORG_NAME"),
-                Organization(id: "ORG_2", name: "ORG_NAME"),
+                Organization.fixture(id: "ORG_1", name: "ORG_NAME"),
+                Organization.fixture(id: "ORG_2", name: "ORG_NAME"),
             ]
         )
     }
@@ -350,6 +535,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `softDeleteCipher()` throws on id errors.
+    func test_softDeleteCipher_idError_nil() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.softDeleteCipher(.fixture())
+        }
+    }
+
+    /// `softDeleteCipher()` deletes cipher from back end and local storage.
+    func test_softDeleteCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        let cipherView: CipherView = .fixture(id: "123")
+        cipherService.softDeleteWithServerResult = .success(())
+        try await subject.softDeleteCipher(cipherView)
+        XCTAssertNil(cipherView.deletedDate)
+        XCTAssertNotNil(cipherService.softDeleteCipher?.deletedDate)
+        XCTAssertEqual(cipherService.softDeleteCipherId, "123")
+    }
+
     /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.
     func test_validatePassword() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
@@ -386,6 +593,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault.
     func test_vaultListPublisher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
         try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
             SyncResponseModel.self,
             from: APITestData.syncWithCiphers.data
@@ -396,6 +604,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
             """
+            Section: TOTP
+              - Group: Verification codes (1)
             Section: Favorites
               - Cipher: Apple
             Section: Types
@@ -579,6 +789,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 result.append(indent + "- Cipher: \(cipher.name)")
             case let .group(group, count):
                 result.append(indent + "- Group: \(group.name) (\(count))")
+            case let .totp(name, model):
+                result.append(indent + "- TOTP: \(model.id) \(name) \(model.totpCode.displayCode)")
             }
             if item != items.last {
                 result.append("\n")

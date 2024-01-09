@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SwiftUI
 
 // MARK: - VaultCoordinatorDelegate
@@ -40,6 +41,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Private Properties
 
+    /// A delegate used to communicate with the app extension.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The module used by this coordinator to create child coordinators.
     private let module: Module
 
@@ -56,17 +60,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     /// Creates a new `VaultCoordinator`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: The delegate for this coordinator, relays user interactions with the profile switcher.
     ///   - module: The module used by this coordinator to create child coordinators.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        appExtensionDelegate: AppExtensionDelegate?,
         delegate: VaultCoordinatorDelegate,
         module: Module,
         services: Services,
         stackNavigator: StackNavigator
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
@@ -83,6 +90,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showVaultItem(route: .addItem(group: group))
         case let .alert(alert):
             stackNavigator.present(alert)
+        case .autofillList:
+            showAutofillList()
+        case let .editItem(cipher: cipher):
+            showVaultItem(route: .editItem(cipher: cipher))
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):
@@ -90,7 +101,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         case .list:
             showList()
         case let .viewItem(id):
-            showVaultItem(route: .viewItem(id: id))
+            showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
         }
@@ -99,6 +110,19 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     func start() {}
 
     // MARK: Private Methods
+
+    /// Shows the autofill list screen.
+    ///
+    private func showAutofillList() {
+        let processor = VaultAutofillListProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultAutofillListState()
+        )
+        let view = VaultAutofillListView(store: Store(processor: processor))
+        stackNavigator.replace(view)
+    }
 
     /// Shows the vault group screen.
     ///
@@ -154,11 +178,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showVaultItem(route: VaultItemRoute) {
+    private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate? = nil) {
         let navigationController = UINavigationController()
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: route)
+        coordinator.navigate(to: route, context: delegate)
 
         stackNavigator.present(navigationController)
     }

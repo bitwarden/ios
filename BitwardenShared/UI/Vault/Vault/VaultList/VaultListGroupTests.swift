@@ -15,6 +15,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.identity.name, "Identity")
         XCTAssertEqual(VaultListGroup.login.name, "Login")
         XCTAssertEqual(VaultListGroup.secureNote.name, "Secure note")
+        XCTAssertEqual(VaultListGroup.totp.name, Localizations.verificationCodes)
         XCTAssertEqual(VaultListGroup.trash.name, "Trash")
     }
 
@@ -26,6 +27,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.identity.navigationTitle, Localizations.identities)
         XCTAssertEqual(VaultListGroup.login.navigationTitle, Localizations.logins)
         XCTAssertEqual(VaultListGroup.secureNote.navigationTitle, Localizations.secureNotes)
+        XCTAssertEqual(VaultListGroup.totp.navigationTitle, Localizations.verificationCodes)
         XCTAssertEqual(VaultListGroup.trash.navigationTitle, Localizations.trash)
     }
 }
