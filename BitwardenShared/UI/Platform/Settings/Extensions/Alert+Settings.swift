@@ -3,26 +3,6 @@
 extension Alert {
     // MARK: Methods
 
-    /// Show the app theme options.
-    ///
-    /// - Parameter action: The action to perform when an app theme option is selected.
-    /// - Returns: An alert displaying all the app theme options.
-    ///
-    static func appThemeOptions(action: @MainActor @escaping (_ themeOption: ThemeOption) -> Void) -> Alert {
-        // Create an action button for each available theme setting.
-        let alertActions = ThemeOption.allCases.map { themeOption in
-            AlertAction(title: themeOption.title, style: .default, handler: { _ in await action(themeOption) })
-        }
-
-        // Construct and return the alert.
-        return Alert(
-            title: Localizations.theme,
-            message: nil,
-            preferredStyle: .actionSheet,
-            alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
-        )
-    }
-
     /// Confirm deleting the folder.
     static func confirmDeleteFolder(action: @MainActor @escaping () async -> Void) -> Alert {
         Alert(

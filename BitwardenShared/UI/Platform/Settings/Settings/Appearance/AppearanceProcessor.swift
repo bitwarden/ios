@@ -4,7 +4,7 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the `AppearanceView`.
 ///
-final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceAction, Void> {
+final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceAction, AppearanceEffect> {
     // MARK: Types
 
     typealias Services = HasStateService
@@ -34,36 +34,29 @@ final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceActio
         self.coordinator = coordinator
         self.services = services
 
-        // Display the currently selected theme option.
-        let themeOption = ThemeOption(self.services.stateService.appTheme)
-        var state = state
-        state.appTheme = themeOption
-
         super.init(state: state)
     }
 
     // MARK: Methods
 
-    override func receive(_ action: AppearanceAction) {
-        switch action {
-        case .languageTapped:
-            print("languageTapped")
-        case .themeButtonTapped:
-            showThemeOptionsAlert()
-        case let .toggleShowWebsiteIcons(isOn):
-            state.isShowWebsiteIconsToggleOn = isOn
+    override func perform(_ effect: AppearanceEffect) async {
+        switch effect {
+        case .loadData:
+            state.appTheme = await services.stateService.getAppTheme()
         }
     }
 
-    // MARK: Private Methods
-
-    /// Show the alert for selecting a theme and save the user's selection.
-    private func showThemeOptionsAlert() {
-        coordinator.showAlert(.appThemeOptions { [weak self] themeOption in
-            // Save the value of the new theme option.
-            self?.services.stateService.appTheme = themeOption.value
-            self?.coordinator.navigate(to: .updateTheme(theme: themeOption))
-            self?.state.appTheme = themeOption
-        })
+    override func receive(_ action: AppearanceAction) {
+        switch action {
+        case let .appThemeChanged(appTheme):
+            state.appTheme = appTheme
+            Task {
+                await services.stateService.setAppTheme(appTheme)
+            }
+        case .languageTapped:
+            print("languageTapped")
+        case let .toggleShowWebsiteIcons(isOn):
+            state.isShowWebsiteIconsToggleOn = isOn
+        }
     }
 }

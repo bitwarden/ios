@@ -37,19 +37,27 @@ class AppearanceProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `receive(_:)` with `.themeButtonTapped` shows the alert and updates the theme.
-    func test_receive_themeButtonTapped() async throws {
-        subject.receive(.themeButtonTapped)
+    /// `perform(_:)` with `.loadData` sets the app's theme.
+    func test_perform_loadData() async {
+        XCTAssertEqual(subject.state.appTheme, .default)
+        stateService.appTheme = .light
 
-        XCTAssertEqual(coordinator.alertShown.last, .appThemeOptions { _ in })
+        await subject.perform(.loadData)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        let darkButton = alert.alertActions[2]
-        await darkButton.handler?(darkButton, [])
+        XCTAssertEqual(subject.state.appTheme, .light)
+    }
 
-        XCTAssertEqual(stateService.appTheme, ThemeOption.dark.value)
-        XCTAssertEqual(coordinator.routes.last, .updateTheme(theme: .dark))
+    /// `receive(_:)` with `.appThemeChanged` updates the theme.
+    func test_receive_appThemeChanged() {
+        subject.receive(.appThemeChanged(.dark))
+
         XCTAssertEqual(subject.state.appTheme, .dark)
+        waitFor(stateService.appTheme == .dark)
+
+        subject.receive(.appThemeChanged(.light))
+
+        XCTAssertEqual(subject.state.appTheme, .light)
+        waitFor(stateService.appTheme == .light)
     }
 
     /// `receive(_:)` with `.toggleShowWebsiteIcons` updates the state's value.

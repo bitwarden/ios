@@ -7,7 +7,6 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var delegate: MockSettingsCoordinatorDelegate!
-    var rootNavigator: MockRootNavigator!
     var stackNavigator: MockStackNavigator!
     var subject: SettingsCoordinator!
 
@@ -17,12 +16,10 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         super.setUp()
 
         delegate = MockSettingsCoordinatorDelegate()
-        rootNavigator = MockRootNavigator()
         stackNavigator = MockStackNavigator()
 
         subject = SettingsCoordinator(
             delegate: delegate,
-            rootNavigator: rootNavigator,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
@@ -32,7 +29,6 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         super.tearDown()
 
         delegate = nil
-        rootNavigator = nil
         stackNavigator = nil
         subject = nil
     }
@@ -188,13 +184,6 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
         XCTAssertTrue(action.view is SettingsView)
-    }
-
-    /// `navigate(to:)` with `.updateTheme` updates the theme of the root navigator.
-    func test_navigateTo_updateTheme() throws {
-        subject.navigate(to: .updateTheme(theme: .dark))
-
-        XCTAssertEqual(rootNavigator.theme, .dark)
     }
 
     /// `navigate(to:)` with `.vault` pushes the vault settings view onto the stack navigator.

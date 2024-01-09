@@ -24,11 +24,25 @@ struct BitwardenTextFieldType: BaseViewType {
     ]
 }
 
+/// A generic type wrapper around ` BitwardenMenuFieldType` to allow `ViewInspector` to find instances of
+/// ` BitwardenMenuFieldType` without needing to know the details of it's implementation.
+///
 struct BitwardenMenuFieldType: BaseViewType {
     static var typePrefix: String = "BitwardenMenuField"
 
     static var namespacedPrefixes: [String] = [
         "BitwardenShared.BitwardenMenuField",
+    ]
+}
+
+/// A generic type wrapper around `SettingsMenuField` to allow `ViewInspector` to find instances of
+/// `SettingsMenuField` without needing to know the details of it's implementation.
+///
+struct SettingsMenuFieldType: BaseViewType {
+    static var typePrefix: String = "SettingsMenuField"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.SettingsMenuField",
     ]
 }
 
@@ -47,7 +61,7 @@ extension InspectableView {
     ///
     func find(
         asyncButton title: String,
-        locale: Locale = .testsDefault
+        locale _: Locale = .testsDefault
     ) throws -> InspectableView<AsyncButtonType> {
         try find(AsyncButtonType.self, containing: title)
     }
@@ -175,6 +189,21 @@ extension InspectableView {
         try find(ViewType.SecureField.self, containing: label)
     }
 
+    /// Attempts to locate a settings menu field with the provided title.
+    ///
+    /// - Parameters:
+    ///   - title: The title to use while searching for a menu field.
+    ///   - locale: The locale for text extraction.
+    /// - Returns: A `SettingsMenuField`, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        settingsMenuField title: String,
+        locale: Locale = .testsDefault
+    ) throws -> InspectableView<SettingsMenuFieldType> {
+        try find(SettingsMenuFieldType.self, containing: title, locale: locale)
+    }
+
     /// Attempts to locate a slider with the provided accessibility label.
     ///
     /// - Parameter accessibilityLabel: The accessibility label to use while searching for a slider.
@@ -241,6 +270,15 @@ extension InspectableView where View == BitwardenTextFieldType {
 }
 
 extension InspectableView where View == BitwardenMenuFieldType {
+    /// Selects a new value in the menu field.
+    ///
+    func select(newValue: any Hashable) throws {
+        let picker = try find(ViewType.Picker.self)
+        try picker.select(value: newValue)
+    }
+}
+
+extension InspectableView where View == SettingsMenuFieldType {
     /// Selects a new value in the menu field.
     ///
     func select(newValue: any Hashable) throws {

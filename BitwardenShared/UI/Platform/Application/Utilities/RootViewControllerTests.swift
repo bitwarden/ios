@@ -50,13 +50,13 @@ class RootViewControllerTests: BitwardenTestCase {
 
     /// `preferredStatusBarStyle` returns the preferred status bar style for the given theme.
     func test_preferredStatusBarStyle() {
-        subject.theme = .dark
+        subject.appTheme = .dark
         XCTAssertEqual(subject.preferredStatusBarStyle, .lightContent)
 
-        subject.theme = .default
+        subject.appTheme = .default
         XCTAssertEqual(subject.preferredStatusBarStyle, .default)
 
-        subject.theme = .light
+        subject.appTheme = .light
         XCTAssertEqual(subject.preferredStatusBarStyle, .darkContent)
     }
 

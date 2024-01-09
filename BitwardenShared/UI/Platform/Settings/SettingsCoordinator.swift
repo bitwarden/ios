@@ -49,9 +49,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// The delegate for this coordinator, used to notify when the user logs out.
     private weak var delegate: SettingsCoordinatorDelegate?
 
-    /// The root navigator used to update the app's theme.
-    private weak var rootNavigator: (any RootNavigator)?
-
     /// The services used by this coordinator.
     let services: Services
 
@@ -66,16 +63,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     ///   - delegate: The delegate for this coordinator, used to notify when the user logs out.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
-    ///   - rootNavigator: The root navigator used to update the app's theme.
     ///
     init(
         delegate: SettingsCoordinatorDelegate,
-        rootNavigator: RootNavigator,
         services: Services,
         stackNavigator: StackNavigator
     ) {
         self.delegate = delegate
-        self.rootNavigator = rootNavigator
         self.services = services
         self.stackNavigator = stackNavigator
     }
@@ -120,8 +114,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showPasswordAutoFill()
         case .settings:
             showSettings()
-        case let .updateTheme(theme: theme):
-            updateTheme(to: theme)
         case .vault:
             showVault()
         }
@@ -303,11 +295,5 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController, navigationTitle: Localizations.vault)
-    }
-
-    /// Update the app's color theme.
-    ///
-    private func updateTheme(to theme: ThemeOption) {
-        rootNavigator?.updateTheme(to: theme)
     }
 }

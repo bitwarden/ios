@@ -59,14 +59,29 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `appTheme` gets and sets the value as expected.
-    func test_appTheme() {
+    func test_appTheme() async {
         // Getting the value should get the value from the app settings store.
         appSettingsStore.appTheme = "light"
-        XCTAssertEqual(subject.appTheme, "light")
+        let theme = await subject.getAppTheme()
+        XCTAssertEqual(theme, .light)
 
         // Setting the value should update the value in the app settings store.
-        subject.appTheme = "dark"
+        await subject.setAppTheme(.dark)
         XCTAssertEqual(appSettingsStore.appTheme, "dark")
+    }
+
+    /// `appThemePublisher()` returns a publisher for the app's theme.
+    func test_appThemePublisher() async {
+        var publishedValues = [AppTheme]()
+        let publisher = await subject.appThemePublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        await subject.setAppTheme(.dark)
+
+        XCTAssertEqual(publishedValues, [.default, .dark])
     }
 
     /// `.deleteAccount()` deletes the active user's account, removing it from the state.
@@ -599,7 +614,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    /// `setActiveAccount(userId: )` returns without aciton if there are no accounts
+    /// `setActiveAccount(userId: )` returns without action if there are no accounts
     func test_setActiveAccount_noAccounts() async throws {
         let storeState = await subject.appSettingsStore.state
         XCTAssertNil(storeState)

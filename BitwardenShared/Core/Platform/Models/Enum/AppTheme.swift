@@ -1,10 +1,10 @@
 import UIKit
 
-// MARK: - ThemeOption
+// MARK: - AppTheme
 
 /// An enum listing the display theme options.
 ///
-public enum ThemeOption: String {
+public enum AppTheme: String, Menuable {
     /// Use the dark theme.
     case dark
 
@@ -17,9 +17,24 @@ public enum ThemeOption: String {
     // MARK: Type Properties
 
     /// The ordered list of options to display in the menu.
-    static let allCases: [ThemeOption] = [.default, .light, .dark]
+    static let allCases: [AppTheme] = [.default, .light, .dark]
 
     // MARK: Properties
+
+    /// Specify the text for the default option.
+    static var defaultValueLocalizedName: String { Localizations.defaultSystem }
+
+    /// The name of the type to display in the dropdown menu.
+    var localizedName: String {
+        switch self {
+        case .dark:
+            Localizations.dark
+        case .default:
+            Localizations.defaultSystem
+        case .light:
+            Localizations.light
+        }
+    }
 
     /// The color theme to set the status bar to.
     var statusBarStyle: UIStatusBarStyle {
@@ -30,18 +45,6 @@ public enum ThemeOption: String {
             .default
         case .light:
             .darkContent
-        }
-    }
-
-    /// The name of the type to display in the alert.
-    var title: String {
-        switch self {
-        case .dark:
-            Localizations.dark
-        case .default:
-            Localizations.defaultSystem
-        case .light:
-            Localizations.light
         }
     }
 

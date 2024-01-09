@@ -35,7 +35,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let appWindow = UIWindow(windowScene: windowScene)
         let rootViewController = RootViewController()
-        appProcessor.start(appContext: .mainApp, navigator: rootViewController)
+        appProcessor.start(
+            appContext: .mainApp,
+            navigator: rootViewController,
+            window: appWindow
+        )
 
         appWindow.rootViewController = rootViewController
         appWindow.makeKeyAndVisible()

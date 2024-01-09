@@ -7,7 +7,7 @@ import UIKit
 ///
 public class RootViewController: UIViewController {
     /// The app's theme.
-    public var theme: ThemeOption = .default
+    public var appTheme: AppTheme = .default
 
     // MARK: Properties
 

@@ -8,7 +8,7 @@ import XCTest
 class AppearanceViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<AppearanceState, AppearanceAction, Void>!
+    var processor: MockProcessor<AppearanceState, AppearanceAction, AppearanceEffect>!
     var subject: AppearanceView!
 
     // MARK: Setup & Teardown
@@ -31,18 +31,19 @@ class AppearanceViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Updating the value of the app theme sends the  `.appThemeChanged()` action.
+    func test_appThemeChanged_updateValue() throws {
+        processor.state.appTheme = .light
+        let menuField = try subject.inspect().find(settingsMenuField: Localizations.theme)
+        try menuField.select(newValue: AppTheme.dark)
+        XCTAssertEqual(processor.dispatchedActions.last, .appThemeChanged(.dark))
+    }
+
     /// Tapping the language button dispatches the `.languageTapped` action.
     func test_languageButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.language)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .languageTapped)
-    }
-
-    /// Tapping the language button dispatches the `.themeButtonTapped` action.
-    func test_themeButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.theme)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .themeButtonTapped)
     }
 
     // MARK: Snapshots
