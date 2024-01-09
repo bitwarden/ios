@@ -101,7 +101,23 @@ private struct VaultMainView: View {
             GeometryReader { reader in
                 ScrollView {
                     VStack(spacing: 0) {
-                        searchVaultFilterRow
+                        SearchVaultFilterRowView(
+                            store: store.child(
+                                state: { state in
+                                    SearchVaultFilterRowState(
+                                        organizations: state.organizations,
+                                        searchVaultFilterType: state.searchVaultFilterType
+                                    )
+                                },
+                                mapAction: { action in
+                                    switch action {
+                                    case let .searchVaultFilterChanged(type):
+                                        return .searchVaultFilterChanged(type)
+                                    }
+                                },
+                                mapEffect: nil
+                            )
+                        )
 
                         VStack(spacing: 35) {
                             Image(decorative: Asset.Images.magnifyingGlass)
@@ -117,44 +133,6 @@ private struct VaultMainView: View {
                         .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
                     }
                 }
-            }
-        }
-    }
-
-    /// Displays the vault filter for search row if the user is a member of any org
-    @ViewBuilder private var searchVaultFilterRow: some View {
-        if !store.state.vaultFilterOptions.isEmpty {
-            VStack(spacing: 0) {
-                HStack(spacing: 0) {
-                    Text(store.state.searchVaultFilterType.filterTitle)
-
-                    Spacer()
-
-                    Menu {
-                        Picker(selection: store.binding(
-                            get: \.searchVaultFilterType,
-                            send: VaultListAction.searchVaultFilterChanged
-                        )) {
-                            ForEach(store.state.vaultFilterOptions) { filter in
-                                Text(filter.title)
-                                    .tag(filter)
-                            }
-                        } label: {
-                            EmptyView()
-                        }
-                    } label: {
-                        Asset.Images.horizontalKabob.swiftUIImage
-                            .frame(width: 44, height: 44, alignment: .trailing)
-                            .contentShape(Rectangle())
-                    }
-                    .accessibilityLabel(Localizations.filterByVault)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                }
-                .padding(.horizontal, 16)
-                .frame(minHeight: 60)
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-
-                Divider()
             }
         }
     }
