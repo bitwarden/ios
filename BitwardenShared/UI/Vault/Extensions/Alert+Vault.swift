@@ -76,8 +76,7 @@ extension Alert {
                     })
             }
         case .identity:
-            // TODO: BIT-1364
-            // TODO: BIT-1368
+            // No-op: no extra options beyond view and edit.
             break
         case .secureNote:
             if let notes = cipherView.notes {
