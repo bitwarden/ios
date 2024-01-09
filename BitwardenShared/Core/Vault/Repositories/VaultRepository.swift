@@ -95,6 +95,12 @@ protocol VaultRepository: AnyObject {
     ///
     func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>>
 
+    /// A publisher for the list of a user's ciphers.
+    ///
+    /// - Returns: A publisher for the list of a user's ciphers.
+    ///
+    func cipherPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherListView], Error>>
+
     /// A publisher for the list of organizations the user is a member of.
     ///
     /// - Returns: A publisher for the list of organizations the user is a member of.
@@ -207,6 +213,52 @@ class DefaultVaultRepository {
 
     // MARK: Private
 
+    /// Returns a list of TOTP type items from a SyncResponseModel.
+    ///
+    /// - Parameters
+    ///   - response: The SyncResponseModel providing the list of TOTP keys.
+    ///   - filter: The filter applied to the response.
+    /// - Returns: A list of totpKey type items in the vault list.
+    ///
+    private func totpListItems(
+        from response: SyncResponseModel,
+        filter: VaultFilterType?
+    ) async throws -> [VaultListItem] {
+        let responseCiphers = response.ciphers.map(Cipher.init)
+        let active = responseCiphers.filter { cipher in
+            cipher.deletedDate == nil
+                && cipher.type == .login
+                && cipher.login?.totp != nil
+        }
+        let listItemTransform: (CipherListView) async throws -> VaultListItem? = { [weak self] cipherListView in
+            guard let self,
+                  let id = cipherListView.id,
+                  let cipher = active.first(where: { $0.id == id }) else {
+                return nil
+            }
+            let decoded = try await clientVault.ciphers()
+                .decrypt(cipher: cipher)
+            guard let login = decoded.login,
+                  let key = login.totp,
+                  let totpKey = TOTPKey(key) else { return nil }
+            return VaultListItem(
+                id: id,
+                itemType: .totp(
+                    id: id,
+                    loginView: login,
+                    totpKey: totpKey
+                )
+            )
+        }
+        let totpItems: [VaultListItem] = try await clientVault.ciphers()
+            .decryptList(ciphers: active)
+            .filter(filter?.cipherFilter(_:) ?? { _ in true })
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            .asyncMap(listItemTransform)
+            .compactMap { $0 }
+        return totpItems
+    }
+
     /// Returns a list of items that are grouped together in the vault list from a sync response.
     ///
     /// - Parameters:
@@ -218,8 +270,9 @@ class DefaultVaultRepository {
         group: VaultListGroup,
         from response: SyncResponseModel
     ) async throws -> [VaultListItem] {
+        let responseCiphers = response.ciphers.map(Cipher.init)
         let ciphers = try await clientVault.ciphers()
-            .decryptList(ciphers: response.ciphers.map(Cipher.init))
+            .decryptList(ciphers: responseCiphers)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
@@ -238,6 +291,11 @@ class DefaultVaultRepository {
             return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case let .folder(id, _):
             return activeCiphers.filter { $0.folderId == id }.compactMap(VaultListItem.init)
+        case .totp:
+            return try await totpListItems(
+                from: response,
+                filter: nil
+            )
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
         }
@@ -252,8 +310,10 @@ class DefaultVaultRepository {
         from response: SyncResponseModel,
         filter: VaultFilterType
     ) async throws -> [VaultListSection] {
+        let responseCiphers: [Cipher] = response.ciphers.map(Cipher.init)
+
         let ciphers = try await clientVault.ciphers()
-            .decryptList(ciphers: response.ciphers.map(Cipher.init))
+            .decryptList(ciphers: responseCiphers)
             .filter(filter.cipherFilter)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
@@ -276,6 +336,18 @@ class DefaultVaultRepository {
 
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
+
+        let oneTimePasswordCount: Int = try await totpListItems(
+            from: response,
+            filter: filter
+        ).count
+
+        var totpItems = (oneTimePasswordCount > 0) ? [
+            VaultListItem(
+                id: "Types.VerificationCodes",
+                itemType: .group(.totp, oneTimePasswordCount)
+            ),
+        ] : []
 
         let folderItems: [VaultListItem] = folders.compactMap { folder in
             guard let folderId = folder.id else {
@@ -318,6 +390,7 @@ class DefaultVaultRepository {
         ]
 
         return [
+            VaultListSection(id: "TOTP", items: totpItems, name: Localizations.totp),
             VaultListSection(id: "Favorites", items: ciphersFavorites, name: Localizations.favorites),
             VaultListSection(id: "Types", items: types, name: Localizations.types),
             VaultListSection(id: "Folders", items: folderItems, name: Localizations.folders),
@@ -448,6 +521,16 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     // MARK: Publishers
+
+    func cipherPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherListView], Error>> {
+        try await cipherService.ciphersPublisher()
+            .asyncTryMap { ciphers in
+                try await self.clientVault.ciphers().decryptList(ciphers: ciphers)
+                    .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            }
+            .eraseToAnyPublisher()
+            .values
+    }
 
     func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>> {
         syncService.syncResponsePublisher()

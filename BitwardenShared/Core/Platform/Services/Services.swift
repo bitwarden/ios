@@ -1,15 +1,16 @@
 import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
-typealias Services = HasAccountAPIService
-    & HasAPIService
+typealias Services = HasAPIService
+    & HasAccountAPIService
     & HasAppIdService
     & HasAppSettingsStore
     & HasAuthAPIService
     & HasAuthRepository
+    & HasAuthService
     & HasBiometricsService
-    & HasCaptchaService
     & HasCameraService
+    & HasCaptchaService
     & HasClientAuth
     & HasDeviceAPIService
     & HasEnvironmentService
@@ -67,9 +68,17 @@ protocol HasAuthRepository {
     var authRepository: AuthRepository { get }
 }
 
+/// Protocol for an object that provides an `AuthService`.
+///
+protocol HasAuthService {
+    /// The service used by the application to handle authentication tasks.
+    var authService: AuthService { get }
+}
+
 /// Protocol for obtaining the device's biometric authentication type.
 ///
 protocol HasBiometricsService {
+    /// The service used to obtain the available authentication policies and access controls for the user's device.
     var biometricsService: BiometricsService { get }
 }
 
@@ -149,6 +158,7 @@ protocol HasStateService {
 }
 
 /// Protocol for an object that provides a `SystemDevice`.
+///
 protocol HasSystemDevice {
     /// The object used by the application to retrieve information about this device.
     var systemDevice: SystemDevice { get }
@@ -164,6 +174,7 @@ protocol HasTOTPService {
 /// Protocol for an object that provides a `TwoStepLoginService`.
 ///
 protocol HasTwoStepLoginService {
+    /// The service used by the application to generate a two step login URL.
     var twoStepLoginService: TwoStepLoginService { get }
 }
 

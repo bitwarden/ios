@@ -49,7 +49,7 @@ class AppProcessorTests: BitwardenTestCase {
 
         let rootNavigator = MockRootNavigator()
 
-        subject.start(navigator: rootNavigator)
+        subject.start(appContext: .mainApp, navigator: rootNavigator)
 
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(appModule.appCoordinator.routes, [.auth(.vaultUnlock(.fixture()))])
@@ -60,7 +60,7 @@ class AppProcessorTests: BitwardenTestCase {
     func test_start_noActiveAccount() {
         let rootNavigator = MockRootNavigator()
 
-        subject.start(navigator: rootNavigator)
+        subject.start(appContext: .mainApp, navigator: rootNavigator)
 
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(appModule.appCoordinator.routes, [.auth(.landing)])
@@ -71,7 +71,7 @@ class AppProcessorTests: BitwardenTestCase {
     func test_start_shouldClearData() {
         let rootNavigator = MockRootNavigator()
 
-        subject.start(navigator: rootNavigator)
+        subject.start(appContext: .mainApp, navigator: rootNavigator)
 
         vaultTimeoutService.shouldClearSubject.send(true)
 
@@ -84,7 +84,7 @@ class AppProcessorTests: BitwardenTestCase {
     func test_start_shouldNotClearData() {
         let rootNavigator = MockRootNavigator()
 
-        subject.start(navigator: rootNavigator)
+        subject.start(appContext: .mainApp, navigator: rootNavigator)
 
         vaultTimeoutService.shouldClearSubject.send(false)
 

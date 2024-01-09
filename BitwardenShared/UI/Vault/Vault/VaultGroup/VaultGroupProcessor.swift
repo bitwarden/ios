@@ -58,6 +58,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
+            case let .totp(id: id, _, _):
+                coordinator.navigate(to: .viewItem(id: id))
             }
         case let .morePressed(item):
             // TODO: BIT-375 Show the more menu
