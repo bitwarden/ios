@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: - VaultGroupProcessor
@@ -60,6 +61,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                 totpExpirationManager?.configureTOTPRefreshScheduling(for: value)
                 state.loadingState = .data(value)
             }
+        case let .morePressed(item):
+            await showMoreOptionsAlert(for: item)
         case .refresh:
             await refreshVaultGroup()
         }
@@ -69,6 +72,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         switch action {
         case .addItemPressed:
             coordinator.navigate(to: .addItem(group: state.group))
+        case .clearURL:
+            state.url = nil
         case let .copyTOTPCode(code):
             services.pasteboardService.copy(code)
             state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
@@ -81,9 +86,6 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
-        case let .morePressed(item):
-            // TODO: BIT-375 Show the more menu
-            print("more: \(item.id)")
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .toastShown(newValue):
@@ -115,6 +117,46 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         } catch {
             // TODO: BIT-1034 Add an error alert
             print(error)
+        }
+    }
+
+    /// Show the more options alert for the selected item.
+    ///
+    /// - Parameter item: The selected item to show the options for.
+    ///
+    private func showMoreOptionsAlert(for item: VaultListItem) async {
+        // Load the content of the cipher item to determine which values to show in the menu.
+        do {
+            guard let cipherView = try await services.vaultRepository.fetchCipher(withId: item.id)
+            else { return }
+
+            coordinator.showAlert(.moreOptions(
+                cipherView: cipherView,
+                id: item.id,
+                showEdit: state.group != .trash,
+                action: handleMoreOptionsAction
+            ))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Handle the result of the selected option on the More Options alert..
+    ///
+    /// - Parameter action: The selected action.
+    ///
+    private func handleMoreOptionsAction(_ action: MoreOptionsAction) {
+        switch action {
+        case let .copy(toast: toast, value: value):
+            services.pasteboardService.copy(value)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+        case let .edit(cipherView: cipherView):
+            coordinator.navigate(to: .editItem(cipher: cipherView))
+        case let .launch(url: url):
+            state.url = url.sanitized
+        case let .view(id: id):
+            coordinator.navigate(to: .viewItem(id: id))
         }
     }
 }

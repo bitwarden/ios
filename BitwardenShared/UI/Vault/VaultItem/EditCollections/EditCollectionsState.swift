@@ -47,3 +47,10 @@ struct EditCollectionsState: Equatable {
         }
     }
 }
+
+extension EditCollectionsState {
+    /// The updated cipher with the selected collections.
+    var updatedCipher: CipherView {
+        cipher.update(collectionIds: collectionIds)
+    }
+}

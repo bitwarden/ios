@@ -92,5 +92,29 @@ class EditCollectionsProcessor: StateProcessor<
 
     /// Saves the updated list of collections to the cipher.
     ///
-    private func save() async {}
+    private func save() async {
+        guard !state.collectionIds.isEmpty else {
+            coordinator.showAlert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.selectOneCollection
+                )
+            )
+            return
+        }
+
+        do {
+            coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.saving))
+            defer { coordinator.hideLoadingOverlay() }
+
+            try await services.vaultRepository.updateCipherCollections(state.updatedCipher)
+
+            coordinator.navigate(to: .dismiss(DismissAction {
+                self.delegate?.didUpdateCipher()
+            }))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
 }

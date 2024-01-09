@@ -72,8 +72,7 @@ class TOTPCountdownTimer: ObservableObject {
         displayTime = "\(secondsRemaining)"
         let elapsedTimeSinceCalculation = calculationDate.timeIntervalSinceNow * -1.0
         let isOlderThanInterval = elapsedTimeSinceCalculation >= Double(period)
-        if secondsRemaining > remainingSeconds(for: calculationDate)
-            || elapsedTimeSinceCalculation >= Double(period) {
+        if secondsRemaining > remainingSeconds(for: calculationDate) || isOlderThanInterval {
             onExpiration?()
             timer?.invalidate()
             timer = nil

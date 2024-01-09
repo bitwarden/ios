@@ -21,7 +21,9 @@ enum VaultListItemRowAction: Equatable {
     /// The copy TOTP Code button was pressed.
     ///
     case copyTOTPCode(_ code: String)
+}
 
+enum VaultListItemRowEffect {
     /// The more button was pressed.
     ///
     case morePressed
@@ -34,7 +36,7 @@ struct VaultListItemRowView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    var store: Store<VaultListItemRowState, VaultListItemRowAction, Void>
+    var store: Store<VaultListItemRowState, VaultListItemRowAction, VaultListItemRowEffect>
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -98,8 +100,8 @@ struct VaultListItemRowView: View {
 
                         Spacer()
 
-                        Button {
-                            store.send(.morePressed)
+                        AsyncButton {
+                            await store.perform(.morePressed)
                         } label: {
                             Asset.Images.horizontalKabob.swiftUIImage
                         }

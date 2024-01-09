@@ -12,6 +12,9 @@ private struct VaultMainView: View {
     /// A flag indicating if the search bar is focused.
     @Environment(\.isSearching) private var isSearching
 
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultListState, VaultListAction, VaultListEffect>
 
@@ -36,6 +39,15 @@ private struct VaultMainView: View {
                 .hidden(!isSearching)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultListAction.toastShown
+        ))
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
         }
@@ -206,11 +218,9 @@ private struct VaultMainView: View {
                 switch action {
                 case let .copyTOTPCode(code):
                     return .copyTOTPCode(code)
-                case .morePressed:
-                    return .morePressed(item: item)
                 }
             },
-            mapEffect: nil
+            mapEffect: { _ in .morePressed(item: item) }
         ))
     }
 

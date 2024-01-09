@@ -191,6 +191,22 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(hasPremium)
     }
 
+    /// `fetchCipher(withId:)` returns the cipher if it exists and `nil` otherwise.
+    func test_fetchCipher() async throws {
+        var cipher = try await subject.fetchCipher(withId: "1")
+
+        XCTAssertEqual(cipherService.fetchCipherId, "1")
+        XCTAssertNil(cipher)
+
+        let testCipher = Cipher.fixture(id: "2")
+        cipherService.fetchCipherResult = .success(testCipher)
+
+        cipher = try await subject.fetchCipher(withId: "2")
+
+        XCTAssertEqual(cipherService.fetchCipherId, "2")
+        XCTAssertEqual(cipher, CipherView(cipher: testCipher))
+    }
+
     /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations.
     func test_fetchCipherOwnershipOptions_organizations() async throws {
         stateService.activeAccount = .fixture()
@@ -374,6 +390,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.shareCipher(cipher)
 
         XCTAssertEqual(cipherService.shareWithServerCiphers, [Cipher(cipherView: cipher)])
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    /// `updateCipherCollections()` throws an error if one occurs.
+    func test_updateCipherCollections_error() async throws {
+        struct UpdateError: Error, Equatable {}
+
+        cipherService.updateCipherCollectionsWithServerResult = .failure(UpdateError())
+
+        await assertAsyncThrows(error: UpdateError()) {
+            try await subject.updateCipherCollections(.fixture())
+        }
+    }
+
+    /// `updateCipherCollections()` has the cipher service update the cipher's collections and updates the vault.
+    func test_updateCipherCollections() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let cipher = CipherView.fixture()
+        try await subject.updateCipherCollections(cipher)
+
+        XCTAssertEqual(cipherService.updateCipherCollectionsWithServerCiphers, [Cipher(cipherView: cipher)])
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
         XCTAssertTrue(syncService.didFetchSync)
     }

@@ -115,7 +115,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
                 // TODO: BIT-365
                 print("clone")
             case .editCollections:
-                coordinator.navigate(to: .editCollections(state.cipher))
+                coordinator.navigate(to: .editCollections(state.cipher), context: self)
             case .moveToOrganization:
                 coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
             }
@@ -430,6 +430,14 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         } catch {
             coordinator.navigate(to: .alert(.totpScanFailureAlert()))
         }
+    }
+}
+
+// MARK: - EditCollectionsProcessorDelegate
+
+extension AddEditItemProcessor: EditCollectionsProcessorDelegate {
+    func didUpdateCipher() {
+        state.toast = Toast(text: Localizations.itemUpdated)
     }
 }
 

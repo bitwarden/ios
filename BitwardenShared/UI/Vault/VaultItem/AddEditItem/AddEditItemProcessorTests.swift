@@ -144,6 +144,15 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `didUpdateCipher()` displays a toast after the cipher is updated.
+    func test_didUpdateCipher() {
+        subject.didUpdateCipher()
+
+        waitFor { subject.state.toast != nil }
+
+        XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
+    }
+
     /// `perform(_:)` with `.checkPasswordPressed` checks the password.
     func test_perform_checkPasswordPressed() async {
         await subject.perform(.checkPasswordPressed)
@@ -700,6 +709,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.morePressed(.editCollections))
 
         XCTAssertEqual(coordinator.routes.last, .editCollections(cipher))
+        XCTAssertTrue(coordinator.contexts.last as? AddEditItemProcessor === subject)
     }
 
     /// `receive(_:)` with `.morePressed(.moveToOrganization)` navigates the user to the move to
