@@ -64,6 +64,19 @@ class AuthAPIServiceTests: BitwardenTestCase {
         }
     }
 
+    /// `preValidateSingleSignOn(organizationIdentifier:)` successfully decodes the pre-validate
+    ///  single sign on response.
+    func test_preValidateSingleSignOn() async throws {
+        client.result = .httpSuccess(testData: .preValidateSingleSignOn)
+
+        let response = try await subject.preValidateSingleSignOn(organizationIdentifier: "TeamLivefront")
+
+        XCTAssertEqual(
+            response,
+            PreValidateSingleSignOnResponse(token: "BWUserPrefix_longincomprehensiblegibberishhere")
+        )
+    }
+
     /// `refreshIdentityToken()` successfully decodes the identity token refresh response.
     func test_refreshIdentityToken() async throws {
         client.result = .httpSuccess(testData: .identityTokenRefresh)

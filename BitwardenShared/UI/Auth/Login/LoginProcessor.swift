@@ -25,15 +25,11 @@ protocol CaptchaFlowDelegate: AnyObject {
 class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     // MARK: Types
 
-    typealias Services = HasAccountAPIService
-        & HasAppIdService
-        & HasAuthAPIService
+    typealias Services = HasAppIdService
         & HasAuthRepository
+        & HasAuthService
         & HasCaptchaService
-        & HasClientAuth
         & HasDeviceAPIService
-        & HasStateService
-        & HasSystemDevice
 
     // MARK: Private Properties
 
@@ -99,22 +95,6 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
     // MARK: Private Methods
 
-    /// Returns a hash of the provided password.
-    ///
-    /// - Parameters:
-    ///   - kdf: The KDF parameters used to generate the hash.
-    ///   - purpose: The purpose of the hash.
-    /// - Returns: A hash of the provided password.
-    ///
-    private func hashPassword(kdf: BitwardenSdk.Kdf, purpose: HashPurpose) async throws -> String {
-        try await services.clientAuth.hashPassword(
-            email: state.username,
-            password: state.masterPassword,
-            kdfParams: kdf,
-            purpose: purpose
-        )
-    }
-
     /// Generates the items needed and authenticates with the captcha flow.
     ///
     /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
@@ -149,36 +129,17 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         }
 
         do {
-            let response = try await services.accountAPIService.preLogin(email: state.username)
-
-            let appID = await services.appIdService.getOrCreateAppId()
-            let identityTokenRequest = try await IdentityTokenRequestModel(
-                authenticationMethod: .password(
-                    username: state.username,
-                    password: hashPassword(kdf: response.sdkKdf, purpose: .serverAuthorization)
-                ),
-                captchaToken: captchaToken,
-                deviceInfo: DeviceInfo(
-                    identifier: appID,
-                    name: services.systemDevice.modelIdentifier
-                )
-            )
-            let identityToken = try await services.authAPIService.getIdentityToken(identityTokenRequest)
-            let urls = await services.stateService.getPreAuthEnvironmentUrls()
-
-            let account = try Account(identityTokenResponseModel: identityToken, environmentUrls: urls)
-            await services.stateService.addAccount(account)
-            let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityToken)
-            try await services.stateService.setAccountEncryptionKeys(encryptionKeys)
-            try await services.stateService.setMasterPasswordHash(
-                hashPassword(
-                    kdf: response.sdkKdf,
-                    purpose: .localAuthorization
-                )
+            // Login.
+            try await services.authService.loginWithMasterPassword(
+                state.masterPassword,
+                username: state.username,
+                captchaToken: captchaToken
             )
 
+            // Unlock the vault.
             try await services.authRepository.unlockVault(password: state.masterPassword)
 
+            // Complete the login flow.
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .complete)
         } catch {
