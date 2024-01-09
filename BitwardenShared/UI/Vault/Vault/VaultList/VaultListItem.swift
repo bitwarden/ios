@@ -16,9 +16,11 @@ struct VaultListItem: Equatable, Identifiable {
 
         /// A TOTP Code Item.
         ///
-        /// - Parameter totp: The TOTP model for a cipher.
+        /// - Parameters
+        ///   - name: The name of the Cipher, used for sorting.
+        ///   - totpModel: The TOTP model for a cipher.
         ///
-        case totp(_ totp: VaultListTOTP)
+        case totp(name: String, totpModel: VaultListTOTP)
     }
 
     // MARK: Properties
@@ -28,6 +30,15 @@ struct VaultListItem: Equatable, Identifiable {
 
     /// The type of item being displayed by this item.
     let itemType: ItemType
+}
+
+extension VaultListItem {
+    /// The name of the cipher for TOTP item types, otherwise ""
+    ///     Used to sort the TOTP code items after a refresh.
+    var name: String {
+        guard case let .totp(name, _) = itemType else { return "" }
+        return name
+    }
 }
 
 extension VaultListItem {

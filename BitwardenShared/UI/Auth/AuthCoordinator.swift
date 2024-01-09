@@ -17,7 +17,7 @@ protocol AuthCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the authentication flow.
 ///
-final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator {
+final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Services = HasAccountAPIService

@@ -208,8 +208,6 @@ private struct VaultMainView: View {
                     return .copyTOTPCode(code)
                 case .morePressed:
                     return .morePressed(item: item)
-                case .totpCodeExpired:
-                    return .totpCodeExpired(item)
                 }
             },
             mapEffect: nil

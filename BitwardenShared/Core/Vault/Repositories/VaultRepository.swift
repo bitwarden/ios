@@ -265,16 +265,16 @@ class DefaultVaultRepository {
             )
             return VaultListItem(
                 id: id,
-                itemType: .totp(listModel)
+                itemType: .totp(name: decoded.name, totpModel: listModel)
             )
         }
         let totpItems: [VaultListItem] = try await clientVault.ciphers()
             .decryptList(ciphers: active)
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             .filter(filter?.cipherFilter(_:) ?? { _ in true })
             .asyncMap(listItemTransform)
             .compactMap { $0 }
         return totpItems
-            .sorted { $0.id.localizedStandardCompare($1.id) == .orderedAscending }
     }
 
     /// Returns a list of items that are grouped together in the vault list from a sync response.
@@ -485,7 +485,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
         try await items.asyncMap { item in
-            guard case var .totp(model) = item.itemType,
+            guard case var .totp(name, model) = item.itemType,
                   let key = model.loginView.totp else {
                 return item
             }
@@ -493,9 +493,10 @@ extension DefaultVaultRepository: VaultRepository {
             model.totpCode = code
             return .init(
                 id: item.id,
-                itemType: .totp(model)
+                itemType: .totp(name: name, totpModel: model)
             )
         }
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
     func remove(userId: String?) async {

@@ -18,6 +18,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     /// The services for this processor.
     private var services: Services
 
+    /// An object to manage TOTP code expirations and batch refresh calls.
     private var totpExpirationManager: TOTPExpirationManager?
 
     // MARK: Initialization
@@ -72,7 +73,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
-            case let .totp(model):
+            case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
         case let .morePressed(item):
@@ -82,8 +83,6 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             state.searchText = newValue
         case let .toastShown(newValue):
             state.toast = newValue
-        case .totpCodeExpired:
-            break
         }
     }
 
@@ -122,6 +121,8 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
     }
 }
 
+/// A class to manage TOTP code expirations for the VaultGroupProcessor and batch refresh calls.
+///
 private class TOTPExpirationManager {
     // MARK: Properties
 
@@ -168,10 +169,8 @@ private class TOTPExpirationManager {
     func configureTOTPRefreshScheduling(for items: [VaultListItem]) {
         var newItemsByInterval = [UInt32: [VaultListItem]]()
         items.forEach { item in
-            guard case let .totp(model) = item.itemType else { return }
-            var matchedItems = newItemsByInterval[model.totpCode.period] ?? []
-            matchedItems.append(item)
-            newItemsByInterval[model.totpCode.period] = matchedItems
+            guard case let .totp(_, model) = item.itemType else { return }
+            newItemsByInterval[model.totpCode.period, default: []].append(item)
         }
         itemsByInterval = newItemsByInterval
     }
@@ -180,7 +179,7 @@ private class TOTPExpirationManager {
         var expired = [VaultListItem]()
         itemsByInterval.forEach { period, items in
             let expiredItems: [VaultListItem] = items.filter { item in
-                guard case let .totp(model) = item.itemType else { return false }
+                guard case let .totp(_, model) = item.itemType else { return false }
                 return (abs(model.totpCode.date.timeIntervalSinceReferenceDate)
                     - abs(Date().timeIntervalSinceReferenceDate)) >= Double(period)
                     || remainingSeconds(using: Int(period))

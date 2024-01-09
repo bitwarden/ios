@@ -25,10 +25,6 @@ enum VaultListItemRowAction: Equatable {
     /// The more button was pressed.
     ///
     case morePressed
-
-    /// The TOTP Code expired.
-    ///
-    case totpCodeExpired
 }
 
 // MARK: - VaultListItemRowView
@@ -43,7 +39,7 @@ struct VaultListItemRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 16) {
-                if case let .totp(model) = store.state.item.itemType {
+                if case let .totp(_, model) = store.state.item.itemType {
                     AsyncImage(
                         url: IconImageHelper.getIconImage(
                             for: model.loginView,
@@ -118,7 +114,7 @@ struct VaultListItemRowView: View {
                         Text("\(count)")
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    case let .totp(model):
+                    case let .totp(_, model):
                         totpCodeRow(model)
                     }
                 }
@@ -152,11 +148,7 @@ struct VaultListItemRowView: View {
         Spacer()
         TOTPCountdownTimerView(
             totpCode: model.totpCode,
-            onExpiration: {
-                Task { @MainActor in
-                    store.send(.totpCodeExpired)
-                }
-            }
+            onExpiration: nil
         )
         Text(model.totpCode.displayCode)
             .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)

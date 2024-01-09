@@ -28,10 +28,4 @@ enum VaultGroupAction: Equatable {
 
     /// The toast was shown or hidden.
     case toastShown(Toast?)
-
-    /// A TOTP Code expired
-    ///
-    ///  - Parameter item: The VaultListItem with an expired code.
-    ///
-    case totpCodeExpired(_ item: VaultListItem)
 }

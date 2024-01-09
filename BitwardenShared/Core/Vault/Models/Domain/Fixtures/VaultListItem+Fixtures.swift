@@ -25,9 +25,10 @@ extension VaultListItem {
     }
 
     static func fixtureTOTP(
+        name: String = "Name",
         totp: VaultListTOTP = .fixture()
     ) -> VaultListItem {
-        VaultListItem(id: totp.id, itemType: .totp(totp))
+        VaultListItem(id: totp.id, itemType: .totp(name: name, totpModel: totp))
     }
 }
 

@@ -353,7 +353,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let newItems = try await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
         switch newItem.itemType {
-        case let .totp(model):
+        case let .totp(_, model):
             XCTAssertEqual(model.id, totpModel.id)
             XCTAssertEqual(model.iconBaseURL, totpModel.iconBaseURL)
             XCTAssertEqual(model.loginView, totpModel.loginView)
@@ -750,8 +750,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 result.append(indent + "- Cipher: \(cipher.name)")
             case let .group(group, count):
                 result.append(indent + "- Group: \(group.name) (\(count))")
-            case let .totp(model):
-                result.append(indent + "- TOTP: \(model.id) \(model.totpCode.displayCode)")
+            case let .totp(name, model):
+                result.append(indent + "- TOTP: \(model.id) \(name) \(model.totpCode.displayCode)")
             }
             if item != items.last {
                 result.append("\n")

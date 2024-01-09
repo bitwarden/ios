@@ -79,7 +79,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
-            case let .totp(model):
+            case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
         case .morePressed:
@@ -107,6 +107,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpCodeExpired:
+            // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue

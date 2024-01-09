@@ -105,8 +105,6 @@ struct VaultGroupView: View {
                                         return .copyTOTPCode(code)
                                     case .morePressed:
                                         return .morePressed(item)
-                                    case .totpCodeExpired:
-                                        return .totpCodeExpired(item)
                                     }
                                 },
                                 mapEffect: nil

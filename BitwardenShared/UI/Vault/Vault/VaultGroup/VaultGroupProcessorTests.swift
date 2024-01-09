@@ -175,7 +175,7 @@ class VaultGroupProcessorTests: BitwardenTestCase {
     }
 
     /// TOTP Code expiration updates the state's TOTP codes.
-    func test_receive_appeared_totpExpired_multi() throws {
+    func test_receive_appeared_totpExpired_multi() throws { // swiftlint:disable:this function_body_length
         let expiredResult = VaultListItem.fixtureTOTP(
             totp: .fixture(
                 id: "123",
@@ -255,13 +255,5 @@ class VaultGroupProcessorTests: BitwardenTestCase {
         task.cancel()
         let first = try XCTUnwrap(errorReporter.errors.first as? TestError)
         XCTAssertEqual(first, TestError())
-    }
-
-    /// `receive(_:)` with `.totpCodeExpired` does nothing in a loading state.
-    func test_receive_totpExpired_loading() throws {
-        let result = VaultListItem.fixtureTOTP()
-        subject.state.loadingState = .loading
-        subject.receive(.totpCodeExpired(.fixture()))
-        XCTAssertTrue(vaultRepository.refreshTOTPCodes.isEmpty)
     }
 }
