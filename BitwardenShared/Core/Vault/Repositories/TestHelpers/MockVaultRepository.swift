@@ -12,7 +12,7 @@ class MockVaultRepository: VaultRepository {
     var deleteCipherResult: Result<Void, Error> = .success(())
     var doesActiveAccountHavePremiumCalled = false
     var fetchCipherId: String?
-    var fetchCipherResult: CipherView?
+    var fetchCipherResult: Result<CipherView?, Error> = .success(nil)
     var fetchCipherOwnershipOptionsIncludePersonal: Bool? // swiftlint:disable:this identifier_name
     var fetchCipherOwnershipOptions = [CipherOwner]()
     var fetchCollectionsIncludeReadOnly: Bool?
@@ -34,10 +34,6 @@ class MockVaultRepository: VaultRepository {
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
     var vaultListGroupSubject = CurrentValueSubject<[VaultListItem], Never>([])
     var vaultListFilter: VaultFilterType?
-
-    func fetchSync(isManualRefresh _: Bool) async throws {
-        fetchSyncCalled = true
-    }
 
     func addCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         addCipherCiphers.append(cipher)
@@ -62,9 +58,9 @@ class MockVaultRepository: VaultRepository {
         return try hasPremiumResult.get()
     }
 
-    func fetchCipher(withId id: String) async -> CipherView? {
+    func fetchCipher(withId id: String) async throws -> CipherView? {
         fetchCipherId = id
-        return fetchCipherResult
+        return try fetchCipherResult.get()
     }
 
     func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {
@@ -79,6 +75,10 @@ class MockVaultRepository: VaultRepository {
 
     func fetchFolders() async throws -> [FolderView] {
         try fetchFoldersResult.get()
+    }
+
+    func fetchSync(isManualRefresh _: Bool) async throws {
+        fetchSyncCalled = true
     }
 
     func remove(userId: String?) async {

@@ -29,7 +29,12 @@ class MockCipherDataStore: CipherDataStore {
         deleteCipherUserId = userId
     }
 
-    func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error> {
+    func fetchCipher(withId id: String, userId _: String) async -> Cipher? {
+        fetchCipherId = id
+        return fetchCipherResult
+    }
+
+    func cipherPublisher(userId _: String) -> AnyPublisher<[Cipher], Error> {
         cipherSubject.eraseToAnyPublisher()
     }
 

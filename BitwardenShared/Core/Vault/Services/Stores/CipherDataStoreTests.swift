@@ -31,6 +31,25 @@ class CipherDataStoreTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `cipherPublisher(userId:)` returns a publisher for a user's cipher objects.
+    func test_cipherPublisher() async throws {
+        var publishedValues = [[Cipher]]()
+        let publisher = subject.cipherPublisher(userId: "1")
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { values in
+                    publishedValues.append(values)
+                }
+            )
+        defer { publisher.cancel() }
+
+        try await subject.replaceCiphers(ciphers, userId: "1")
+
+        waitFor { publishedValues.count == 2 }
+        XCTAssertTrue(publishedValues[0].isEmpty)
+        XCTAssertEqual(publishedValues[1], ciphers)
+    }
+
     /// `deleteAllCiphers(user:)` removes all objects for the user.
     func test_deleteAllCiphers() async throws {
         try await insertCiphers(ciphers, userId: "1")
@@ -54,23 +73,15 @@ class CipherDataStoreTests: BitwardenTestCase {
         )
     }
 
-    /// `cipherPublisher(userId:)` returns a publisher for a user's cipher objects.
-    func test_cipherPublisher() async throws {
-        var publishedValues = [[Cipher]]()
-        let publisher = subject.cipherPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                }
-            )
-        defer { publisher.cancel() }
+    /// `fetchCipher(withId:)` returns the specified cipher if it exists and `nil` otherwise.
+    func test_fetchCipher() async throws {
+        try await insertCiphers(ciphers, userId: "1")
 
-        try await subject.replaceCiphers(ciphers, userId: "1")
+        let cipher1 = try await subject.fetchCipher(withId: "1", userId: "1")
+        XCTAssertEqual(cipher1, ciphers.first)
 
-        waitFor { publishedValues.count == 2 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], ciphers)
+        let cipher42 = try await subject.fetchCipher(withId: "42", userId: "1")
+        XCTAssertNil(cipher42)
     }
 
     /// `replaceCiphers(_:userId)` replaces the list of ciphers for the user.

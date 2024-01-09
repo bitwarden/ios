@@ -39,7 +39,7 @@ protocol VaultRepository: AnyObject {
     /// - Parameter id: The id of the cipher to find.
     /// - Returns: The cipher if it was found and `nil` if not.
     ///
-    func fetchCipher(withId id: String) async -> CipherView?
+    func fetchCipher(withId id: String) async throws -> CipherView?
 
     /// Fetches the ownership options that the user can select from for a cipher.
     ///
@@ -432,8 +432,8 @@ extension DefaultVaultRepository: VaultRepository {
         try await fetchSync(isManualRefresh: false)
     }
 
-    func fetchCipher(withId id: String) async -> CipherView? {
-        guard let cipher = await cipherService.fetchCipher(withId: id) else { return nil }
+    func fetchCipher(withId id: String) async throws -> CipherView? {
+        guard let cipher = try await cipherService.fetchCipher(withId: id) else { return nil }
         return try? await clientVault.ciphers().decrypt(cipher: cipher)
     }
 

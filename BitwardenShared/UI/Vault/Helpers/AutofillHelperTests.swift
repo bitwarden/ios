@@ -51,9 +51,9 @@ class AutofillHelperTests: BitwardenTestCase {
     /// `handleCipherForAutofill(cipherListView:)` notifies the delegate of the username and
     /// password to autofill.
     func test_handleCipherForAutofill() async {
-        vaultRepository.fetchCipherResult = .fixture(
+        vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com")
-        )
+        ))
 
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
@@ -81,10 +81,10 @@ class AutofillHelperTests: BitwardenTestCase {
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing a password.
     func test_handleCipherForAutofill_missingPassword() async throws {
-        vaultRepository.fetchCipherResult = .fixture(
+        vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: nil, username: "user@bitwarden.com"),
             name: "Bitwarden Login"
-        )
+        ))
 
         let cipher = CipherListView.fixture(id: "1")
         var showToastValue: String?
@@ -104,10 +104,10 @@ class AutofillHelperTests: BitwardenTestCase {
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing an username.
     func test_handleCipherForAutofill_missingUsername() async throws {
-        vaultRepository.fetchCipherResult = .fixture(
+        vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: nil),
             name: "Bitwarden Login"
-        )
+        ))
 
         let cipher = CipherListView.fixture(id: "1")
         var showToastValue: String?
@@ -128,9 +128,9 @@ class AutofillHelperTests: BitwardenTestCase {
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing an
     /// username and password.
     func test_handleCipherForAutofill_missingUsernameAndPassword() async throws {
-        vaultRepository.fetchCipherResult = .fixture(
+        vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: nil, username: nil)
-        )
+        ))
 
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
@@ -142,11 +142,11 @@ class AutofillHelperTests: BitwardenTestCase {
     /// `handleCipherForAutofill(cipherListView:)` displays an alert if the cipher requires a master
     /// password reprompt.
     func test_handleCipherForAutofill_passwordReprompt() async throws {
-        vaultRepository.fetchCipherResult = .fixture(
+        vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
             name: "Bitwarden Login",
             reprompt: .password
-        )
+        ))
 
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
@@ -165,11 +165,11 @@ class AutofillHelperTests: BitwardenTestCase {
     /// `handleCipherForAutofill(cipherListView:)` displays an alert if the password reprompt
     /// validation fails.
     func test_handleCipherForAutofill_passwordReprompt_invalidPassword() async throws {
-        vaultRepository.fetchCipherResult = .fixture(
+        vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
             name: "Bitwarden Login",
             reprompt: .password
-        )
+        ))
         vaultRepository.validatePasswordResult = .success(false)
 
         let cipher = CipherListView.fixture(id: "1")

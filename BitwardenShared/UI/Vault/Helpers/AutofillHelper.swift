@@ -70,7 +70,7 @@ class AutofillHelper {
             return
         }
 
-        guard let cipherView = await services.vaultRepository.fetchCipher(withId: cipherId) else {
+        guard let cipherView = try? await services.vaultRepository.fetchCipher(withId: cipherId) else {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return
         }

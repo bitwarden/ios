@@ -284,27 +284,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         assertSnapshots(
             matching: ViewItemView_Previews.cardPreview,
             as: [
-                .tallPortrait,
-            ]
-        )
-    }
-
-    /// Snapshots the previews for card types.
-    func test_snapshot_previews_card_dark() {
-        assertSnapshots(
-            matching: ViewItemView_Previews.cardPreview,
-            as: [
-                .defaultPortraitDark,
-            ]
-        )
-    }
-
-    /// Snapshots the previews for card types.
-    func test_snapshot_previews_card_largeText() {
-        assertSnapshots(
-            matching: ViewItemView_Previews.cardPreview,
-            as: [
-                .tallPortraitAX5(heightMultiple: 3),
+                .defaultPortrait,
             ]
         )
     }

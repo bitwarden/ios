@@ -7,7 +7,7 @@ class MockCipherService: CipherService {
     var ciphersSubject = CurrentValueSubject<[Cipher], Error>([])
 
     var fetchCipherId: String?
-    var fetchCipherResult: Cipher?
+    var fetchCipherResult: Result<Cipher?, Error> = .success(nil)
 
     var replaceCiphersCiphers: [CipherDetailsResponseModel]?
     var replaceCiphersUserId: String?
@@ -27,9 +27,9 @@ class MockCipherService: CipherService {
         try deleteWithServerResult.get()
     }
 
-    func fetchCipher(withId id: String) async -> Cipher? {
+    func fetchCipher(withId id: String) async throws -> Cipher? {
         fetchCipherId = id
-        return fetchCipherResult
+        return try fetchCipherResult.get()
     }
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {

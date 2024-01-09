@@ -47,7 +47,7 @@ class DefaultEnvironmentService: EnvironmentService {
     /// The app's current environment URLs.
     private var environmentUrls: EnvironmentUrls
 
-    // MARK: Initializaton
+    // MARK: Initialization
 
     /// Initialize a `DefaultEnvironmentService`.
     ///

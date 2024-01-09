@@ -17,7 +17,7 @@ protocol CipherService {
     /// - Parameter id: The id of the cipher to find.
     /// - Returns: The cipher if it was found and `nil` if not.
     ///
-    func fetchCipher(withId id: String) async -> Cipher?
+    func fetchCipher(withId id: String) async throws -> Cipher?
 
     /// Replaces the persisted list of ciphers for the user.
     ///
@@ -93,9 +93,9 @@ extension DefaultCipherService {
         try await cipherDataStore.deleteCipher(id: id, userId: userID)
     }
 
-    func fetchCipher(withId id: String) async -> Cipher? {
-        guard let userID = try? await stateService.getActiveAccountId() else { return nil }
-        return await cipherDataStore.fetchCipher(withId: id, userId: userID)
+    func fetchCipher(withId id: String) async throws -> Cipher? {
+        let userId = try await stateService.getActiveAccountId()
+        return try await cipherDataStore.fetchCipher(withId: id, userId: userId)
     }
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {

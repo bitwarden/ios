@@ -23,10 +23,12 @@ protocol CipherDataStore: AnyObject {
 
     /// Attempt to fetch a cipher with the given id.
     ///
-    /// - Parameter id: The id of the cipher to find.
+    /// - Parameters:
+    ///   - id: The id of the cipher to find.
+    ///   - userId: The user ID of the user associated with the ciphers.
     /// - Returns: The cipher if it was found and `nil` if not.
     ///
-    func fetchCipher(withId id: String, userId: String) async -> Cipher?
+    func fetchCipher(withId id: String, userId: String) async throws -> Cipher?
 
     /// A publisher for a user's cipher objects.
     ///
@@ -66,9 +68,9 @@ extension DataStore: CipherDataStore {
         }
     }
 
-    func fetchCipher(withId id: String, userId: String) async -> Cipher? {
-        await backgroundContext.perform {
-            try? self.backgroundContext.fetch(CipherData.fetchByIdRequest(id: id, userId: userId))
+    func fetchCipher(withId id: String, userId: String) async throws -> Cipher? {
+        try await backgroundContext.perform {
+            try self.backgroundContext.fetch(CipherData.fetchByIdRequest(id: id, userId: userId))
                 .compactMap(Cipher.init)
                 .first
         }
