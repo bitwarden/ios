@@ -231,22 +231,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// - Parameter action: The action to process once the password has been verified.
     ///
     private func presentMasterPasswordRepromptAlert(for action: ViewItemAction) {
-        let alert = Alert.masterPasswordPrompt { [weak self] password in
+        presentMasterPasswordRepromptAlert(onValidation: { [weak self] in
             guard let self else { return }
-
-            do {
-                let isValid = try await services.vaultRepository.validatePassword(password)
-                guard isValid else {
-                    coordinator.navigate(to: .alert(Alert.defaultAlert(title: Localizations.invalidMasterPassword)))
-                    return
-                }
-                state.hasVerifiedMasterPassword = true
-                receive(action)
-            } catch {
-                services.errorReporter.log(error: error)
-            }
-        }
-        coordinator.navigate(to: .alert(alert))
+            receive(action)
+        })
     }
 
     /// Presents the master password re-prompt alert for the specified effect. This method will
@@ -255,6 +243,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// - Parameter effect: The effect to process once the password has been verified.
     ///
     private func presentMasterPasswordRepromptAlert(for effect: ViewItemEffect) async {
+        presentMasterPasswordRepromptAlert(onValidation: { [weak self] in
+            guard let self else { return }
+            await perform(effect)
+        })
+    }
+
+    private func presentMasterPasswordRepromptAlert(onValidation: @MainActor @escaping () async -> Void) {
         let alert = Alert.masterPasswordPrompt { [weak self] password in
             guard let self else { return }
 
@@ -265,7 +260,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                     return
                 }
                 state.hasVerifiedMasterPassword = true
-                await perform(effect)
+                await onValidation()
             } catch {
                 services.errorReporter.log(error: error)
             }

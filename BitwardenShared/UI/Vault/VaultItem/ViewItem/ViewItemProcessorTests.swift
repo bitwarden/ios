@@ -416,6 +416,44 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(try coordinator.unwrapLastRouteAsAlert(), .masterPasswordPrompt(completion: { _ in }))
     }
 
+    /// `perform` with `.editPressed`with master password reprompt triggers an alert.
+    func test_perform_editPressed_masterPasswordReprompt_passwordEntry() throws {
+        let cipherView = CipherView.fixture(
+            id: "456",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil
+            ),
+            name: "name",
+            reprompt: .password,
+            revisionDate: Date()
+        )
+        let loginState = CipherItemState(existing: cipherView, hasPremium: true)!
+        subject.state.loadingState = .data(loginState)
+        let task = Task {
+            await subject.perform(.editPressed)
+        }
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertNotNil(alert.alertTextFields.first)
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        let submitTask = Task {
+            await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
+        }
+        waitFor(!coordinator.asyncRoutes.isEmpty)
+        submitTask.cancel()
+
+        XCTAssertEqual(vaultRepository.validatePasswordPasswords, ["password1234"])
+        XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
+        XCTAssertEqual(coordinator.asyncRoutes, [.editItem(cipher: cipherView)])
+    }
+
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
     /// collections view.
     func test_receive_morePressed_editCollections() throws {
