@@ -468,9 +468,12 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 }
 
 private extension Date {
+    /// Pads a given date for the TOTP Expiration Timer to help prevent triggering an early expiration.
+    ///
+    /// - Parameter period: The period of a TOTP Code.
     ///
     static func now(secondsRoundedUpTo period: Int) -> Date {
         let remaining = period - Int(Date.timeIntervalSinceReferenceDate) % period
-        return Date(timeIntervalSinceNow: Double(remaining))
+        return Date(timeIntervalSinceNow: Double(remaining) - 0.1)
     }
 }
