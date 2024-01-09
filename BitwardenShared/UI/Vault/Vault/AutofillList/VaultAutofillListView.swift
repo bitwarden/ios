@@ -18,6 +18,10 @@ struct VaultAutofillListView: View {
             .navigationBar(title: Localizations.items, titleDisplayMode: .inline)
             .scrollView()
             .task { await store.perform(.streamAutofillItems) }
+            .toast(store.binding(
+                get: \.toast,
+                send: VaultAutofillListAction.toastShown
+            ))
             .toolbar {
                 cancelToolbarItem {
                     store.send(.cancelTapped)
@@ -39,8 +43,8 @@ struct VaultAutofillListView: View {
         } else {
             LazyVStack(spacing: 0) {
                 ForEach(store.state.ciphersForAutofill) { cipher in
-                    Button {
-                        store.send(.cipherTapped(cipher))
+                    AsyncButton {
+                        await store.perform(.cipherTapped(cipher))
                     } label: {
                         cipherRowView(cipher, hasDivider: cipher != store.state.ciphersForAutofill.last)
                     }

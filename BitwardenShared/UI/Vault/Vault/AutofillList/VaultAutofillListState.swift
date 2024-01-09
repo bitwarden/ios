@@ -9,4 +9,7 @@ struct VaultAutofillListState: Equatable {
 
     /// The list of matching ciphers that can be used for autofill.
     var ciphersForAutofill: [CipherListView] = []
+
+    /// A toast message to show in the view.
+    var toast: Toast?
 }

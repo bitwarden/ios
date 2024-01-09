@@ -59,6 +59,7 @@ public class Alert {
     ///
     /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
+    @discardableResult
     func add(_ action: AlertAction) -> Self {
         alertActions.append(action)
         return self
@@ -70,6 +71,7 @@ public class Alert {
     ///
     /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
+    @discardableResult
     func add(_ textField: AlertTextField) -> Self {
         alertTextFields.append(textField)
         return self
@@ -83,6 +85,7 @@ public class Alert {
     ///
     /// - Returns: `self` to allow `add(_:)` methods to be chained.
     ///
+    @discardableResult
     func addPreferred(_ action: AlertAction) -> Self {
         alertActions.append(action)
         preferredAction = action
