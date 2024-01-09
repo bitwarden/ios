@@ -35,9 +35,22 @@ extension Alert {
         // Add any additional actions for the type of cipher selected.
         switch cipherView.type {
         case .card:
-            // TODO: BIT-1365
-            // TODO: BIT-1374
-            break
+            if let number = cipherView.card?.number {
+                alertActions.append(AlertAction(title: Localizations.copyNumber, style: .default) { _, _ in
+                    action(.copy(
+                        toast: Localizations.number,
+                        value: number
+                    ))
+                })
+            }
+            if let code = cipherView.card?.code {
+                alertActions.append(AlertAction(title: Localizations.copySecurityCode, style: .default) { _, _ in
+                    action(.copy(
+                        toast: Localizations.securityCode,
+                        value: code
+                    ))
+                })
+            }
         case .login:
             if let username = cipherView.login?.username {
                 alertActions.append(AlertAction(title: Localizations.copyUsername, style: .default) { _, _ in
