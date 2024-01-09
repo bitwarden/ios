@@ -62,6 +62,22 @@ class CipherServiceTests: XCTestCase {
         XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
     }
 
+    /// `fetchCipher(withId:)` returns the cipher if it exists and nil otherwise.
+    func test_fetchCipher() async throws {
+        stateService.activeAccount = .fixture()
+
+        var cipher = try await subject.fetchCipher(withId: "1")
+        XCTAssertNil(cipher)
+        XCTAssertEqual(cipherDataStore.fetchCipherId, "1")
+
+        let testCipher = Cipher.fixture(id: "2")
+        cipherDataStore.fetchCipherResult = testCipher
+
+        cipher = try await subject.fetchCipher(withId: "2")
+        XCTAssertEqual(cipher, testCipher)
+        XCTAssertEqual(cipherDataStore.fetchCipherId, "2")
+    }
+
     /// `replaceCiphers(_:userId:)` replaces the persisted ciphers in the data store.
     func test_replaceCiphers() async throws {
         let ciphers: [CipherDetailsResponseModel] = [

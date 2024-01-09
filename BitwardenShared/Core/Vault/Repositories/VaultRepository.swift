@@ -34,6 +34,13 @@ protocol VaultRepository: AnyObject {
     ///
     func doesActiveAccountHavePremium() async throws -> Bool
 
+    /// Attempt to fetch a cipher with the given id.
+    ///
+    /// - Parameter id: The id of the cipher to find.
+    /// - Returns: The cipher if it was found and `nil` if not.
+    ///
+    func fetchCipher(withId id: String) async throws -> CipherView?
+
     /// Fetches the ownership options that the user can select from for a cipher.
     ///
     /// - Parameter includePersonal: Whether to include the user's personal vault in the list.
@@ -423,6 +430,11 @@ extension DefaultVaultRepository: VaultRepository {
         }
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync(isManualRefresh: false)
+    }
+
+    func fetchCipher(withId id: String) async throws -> CipherView? {
+        guard let cipher = try await cipherService.fetchCipher(withId: id) else { return nil }
+        return try? await clientVault.ciphers().decrypt(cipher: cipher)
     }
 
     func fetchCipherOwnershipOptions(includePersonal: Bool) async throws -> [CipherOwner] {

@@ -187,6 +187,22 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(hasPremium)
     }
 
+    /// `fetchCipher(withId:)` returns the cipher if it exists and `nil` otherwise.
+    func test_fetchCipher() async throws {
+        var cipher = try await subject.fetchCipher(withId: "1")
+
+        XCTAssertEqual(cipherService.fetchCipherId, "1")
+        XCTAssertNil(cipher)
+
+        let testCipher = Cipher.fixture(id: "2")
+        cipherService.fetchCipherResult = .success(testCipher)
+
+        cipher = try await subject.fetchCipher(withId: "2")
+
+        XCTAssertEqual(cipherService.fetchCipherId, "2")
+        XCTAssertEqual(cipher, CipherView(cipher: testCipher))
+    }
+
     /// `fetchCipherOwnershipOptions()` returns the ownership options containing organizations.
     func test_fetchCipherOwnershipOptions_organizations() async throws {
         stateService.activeAccount = .fixture()
