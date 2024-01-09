@@ -76,14 +76,16 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             coordinator.navigate(to: .addItem())
         case .clearURL:
             state.url = nil
+        case .copyTOTPCode:
+            break
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
-            case let .totp(id: id, _, _):
-                coordinator.navigate(to: .viewItem(id: id))
+            case let .totp(_, model):
+                coordinator.navigate(to: .viewItem(id: model.id))
             }
         case let .profileSwitcherAction(profileAction):
             switch profileAction {
@@ -106,6 +108,9 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             state.searchResults = searchVault(for: newValue)
         case let .toastShown(newValue):
             state.toast = newValue
+        case .totpCodeExpired:
+            // No-op: TOTP codes aren't shown on the list view and can't be copied.
+            break
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }

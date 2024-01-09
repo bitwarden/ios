@@ -109,7 +109,12 @@ struct VaultGroupView: View {
                                         hasDivider: items.last != item
                                     )
                                 },
-                                mapAction: nil,
+                                mapAction: { action in
+                                    switch action {
+                                    case let .copyTOTPCode(code):
+                                        return .copyTOTPCode(code)
+                                    }
+                                },
                                 mapEffect: { _ in .morePressed(item)
                                 }
                             ))

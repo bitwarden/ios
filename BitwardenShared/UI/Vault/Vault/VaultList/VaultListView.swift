@@ -56,6 +56,10 @@ private struct VaultMainView: View {
             send: VaultListAction.toastShown
         ))
         .animation(.default, value: isSearching)
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultListAction.toastShown
+        ))
     }
 
     // MARK: Private Properties
@@ -210,7 +214,12 @@ private struct VaultMainView: View {
                     hasDivider: !isLastInSection
                 )
             },
-            mapAction: nil,
+            mapAction: { action in
+                switch action {
+                case let .copyTOTPCode(code):
+                    return .copyTOTPCode(code)
+                }
+            },
             mapEffect: { _ in .morePressed(item: item) }
         ))
     }

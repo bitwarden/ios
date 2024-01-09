@@ -10,6 +10,10 @@ enum VaultListAction: Equatable {
     /// The url has been opened so clear the value in the state.
     case clearURL
 
+    /// The copy TOTP Code button was pressed.
+    ///
+    case copyTOTPCode(_ code: String)
+
     /// An item in the vault was pressed.
     case itemPressed(item: VaultListItem)
 
@@ -24,6 +28,12 @@ enum VaultListAction: Equatable {
 
     /// The toast was shown or hidden.
     case toastShown(Toast?)
+
+    /// A TOTP Code expired
+    ///
+    ///  - Parameter item: The VaultListItem with an expired code.
+    ///
+    case totpCodeExpired(_ item: VaultListItem)
 
     /// The selected vault filter changed.
     case vaultFilterChanged(VaultFilterType)

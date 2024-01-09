@@ -17,8 +17,15 @@ struct VaultListItemRowState {
 // MARK: - VaultListItemRowAction
 
 /// Actions that can be sent from a `VaultListItemRowView`.
+enum VaultListItemRowAction: Equatable {
+    /// The copy TOTP Code button was pressed.
+    ///
+    case copyTOTPCode(_ code: String)
+}
+
 enum VaultListItemRowEffect {
     /// The more button was pressed.
+    ///
     case morePressed
 }
 
@@ -29,18 +36,42 @@ struct VaultListItemRowView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    var store: Store<VaultListItemRowState, Void, VaultListItemRowEffect>
+    var store: Store<VaultListItemRowState, VaultListItemRowAction, VaultListItemRowEffect>
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 16) {
-                Image(decorative: store.state.item.icon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 22, height: 22)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .padding(.vertical, 19)
-
+                if case let .totp(_, model) = store.state.item.itemType {
+                    AsyncImage(
+                        url: IconImageHelper.getIconImage(
+                            for: model.loginView,
+                            from: model.iconBaseURL
+                        ),
+                        content: { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                .padding(.vertical, 19)
+                        },
+                        placeholder: {
+                            Image(decorative: store.state.item.icon)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                .padding(.vertical, 19)
+                        }
+                    )
+                } else {
+                    Image(decorative: store.state.item.icon)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .padding(.vertical, 19)
+                }
                 HStack {
                     switch store.state.item.itemType {
                     case let .cipher(cipherItem):
@@ -85,29 +116,8 @@ struct VaultListItemRowView: View {
                         Text("\(count)")
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    case let .totp(_, loginView: loginView, _):
-                        // TODO: BIT-1341: List View
-                        VStack(alignment: .leading, spacing: 0) {
-                            if let uri = loginView.uris?.first?.uri {
-                                Text(uri)
-                                    .styleGuide(.body)
-                                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                            }
-                            if let username = loginView.username {
-                                Text(username)
-                                    .styleGuide(.subheadline)
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                            }
-                        }
-                        Spacer()
-                        Text("123 456")
-                            .styleGuide(.bodyMonospaced, weight: .semibold, monoSpacedDigit: true)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        Button {
-                            // TODO: BIT-1341: List View
-                        } label: {
-                            Asset.Images.copy.swiftUIImage
-                        }
+                    case let .totp(_, model):
+                        totpCodeRow(model)
                     }
                 }
                 .padding(.vertical, 9)
@@ -119,5 +129,40 @@ struct VaultListItemRowView: View {
                     .padding(.leading, 22 + 16 + 16)
             }
         }
+    }
+
+    @ViewBuilder
+    private func totpCodeRow(_ model: VaultListTOTP) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if let uri = model.loginView.uris?.first?.uri {
+                Text(uri)
+                    .styleGuide(.body)
+                    .lineLimit(1)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            }
+            if let username = model.loginView.username {
+                Text(username)
+                    .styleGuide(.subheadline)
+                    .lineLimit(1)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            }
+        }
+        Spacer()
+        TOTPCountdownTimerView(
+            totpCode: model.totpCode,
+            onExpiration: nil
+        )
+        Text(model.totpCode.displayCode)
+            .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
+            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+        Button {
+            Task { @MainActor in
+                store.send(.copyTOTPCode(model.totpCode.code))
+            }
+        } label: {
+            Asset.Images.copy.swiftUIImage
+        }
+        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+        .accessibilityLabel(Localizations.copyTotp)
     }
 }

@@ -7,7 +7,7 @@ import XCTest
 class VaultListItemRowViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<VaultListItemRowState, Void, VaultListItemRowEffect>!
+    var processor: MockProcessor<VaultListItemRowState, VaultListItemRowAction, VaultListItemRowEffect>!
     var subject: VaultListItemRowView!
 
     // MARK: Setup & Teardown
@@ -32,5 +32,22 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.more)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .morePressed)
+    }
+
+    func test_totp_copyButton_tap() throws {
+        let totp = VaultListTOTP.fixture()
+        processor.state = VaultListItemRowState(
+            item: .fixtureTOTP(
+                totp: totp
+            ),
+            hasDivider: false
+        )
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyTotp)
+        let task = Task {
+            try button.tap()
+        }
+        waitFor(!processor.dispatchedActions.isEmpty)
+        task.cancel()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyTOTPCode(totp.totpCode.code))
     }
 }
