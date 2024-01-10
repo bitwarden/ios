@@ -553,12 +553,17 @@ extension DefaultVaultRepository: VaultRepository {
             // and uris are in CipherListView, subTitle is in CipherView
             // we are zipping two list of `CipherView` and `CipherListView` and filtering
             let clientVault = self.clientVault.ciphers()
-            let decryptedCipherViews = try await ciphers.asyncMap { try await clientVault.decrypt(cipher: $0) }
-            let decryptedCipherListViews = try await clientVault.decryptList(ciphers: ciphers)
-            let zippedCiphers = decryptedCipherViews.compactMap { cipherView in
-                decryptedCipherListViews.first { $0.id == cipherView.id }
-                    .map { (cipherView: cipherView, cipherListView: $0) }
+
+            var zippedCiphers: [(cipherView: CipherView, cipherListView: CipherListView)] = []
+
+            // loop through the ciphers and decrypt, feed the list of tuples with `CipherView` and `CipherListView`
+            for cipher in ciphers {
+                let cipherView = try await clientVault.decrypt(cipher: cipher)
+                if let cipherListView = try await clientVault.decryptList(ciphers: [cipher]).first {
+                    zippedCiphers.append((cipherView: cipherView, cipherListView: cipherListView))
+                }
             }
+
             var matchedCiphers: [CipherListView] = []
             var lowPriorityMatchedCiphers: [CipherListView] = []
             zippedCiphers
