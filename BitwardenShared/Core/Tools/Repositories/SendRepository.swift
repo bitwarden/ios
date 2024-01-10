@@ -7,9 +7,17 @@ import Foundation
 /// A protocol for a `SendRepository` which manages access to the data needed by the UI layer.
 ///
 protocol SendRepository: AnyObject {
-    // MARK: Publishers
+    // MARK: Methods
+
+    /// Adds a new Send to the repository.
+    ///
+    /// - Parameter sendView: The send to add to the repository.
+    ///
+    func addSend(_ sendView: SendView) async throws
 
     func fetchSync() async throws
+
+    // MARK: Publishers
 
     /// A publisher for all the sends in the user's account.
     ///
@@ -26,7 +34,10 @@ class DefaultSendRepository: SendRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
-    /// The service used to handle syncing vault data with the API.
+    /// The API service used to perform API requests for the ciphers in a user's vault.
+    let sendAPIService: SendAPIService
+
+    /// The service used to handle syncing send data with the API.
     let syncService: SyncService
 
     // MARK: Initialization
@@ -39,10 +50,23 @@ class DefaultSendRepository: SendRepository {
     ///
     init(
         clientVault: ClientVaultService,
+        sendAPIService: SendAPIService,
         syncService: SyncService
     ) {
         self.clientVault = clientVault
+        self.sendAPIService = sendAPIService
         self.syncService = syncService
+    }
+
+    // MARK: Data Methods
+
+    func addSend(_ sendView: SendView) async throws {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+
+        _ = try await sendAPIService.addSend(send)
+
+        // TODO: BIT-92 Insert response into database instead of fetching sync.
+        try await fetchSync()
     }
 
     // MARK: API Methods

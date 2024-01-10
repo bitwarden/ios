@@ -39,4 +39,29 @@ enum SendDeletionDateType: CaseIterable, Menuable {
         case .custom: Localizations.custom
         }
     }
+
+    // MARK: Methods
+
+    /// Calculates the date representation of this value.
+    ///
+    /// - Parameter customValue: This value will be used when this value is `.custom`.
+    ///
+    func calculateDate(customValue: Date) -> Date? {
+        switch self {
+        case .oneHour:
+            Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+        case .oneDay:
+            Calendar.current.date(byAdding: .day, value: 1, to: Date())
+        case .twoDays:
+            Calendar.current.date(byAdding: .day, value: 2, to: Date())
+        case .threeDays:
+            Calendar.current.date(byAdding: .day, value: 3, to: Date())
+        case .sevenDays:
+            Calendar.current.date(byAdding: .day, value: 7, to: Date())
+        case .thirtyDays:
+            Calendar.current.date(byAdding: .day, value: 30, to: Date())
+        case .custom:
+            customValue
+        }
+    }
 }

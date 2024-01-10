@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - SendExpirationDateType
 
 /// An object that repsents the options available when setting the expiration period for a Send Item.
@@ -39,6 +41,33 @@ enum SendExpirationDateType: CaseIterable, Menuable {
         case .sevenDays: Localizations.sevenDays
         case .thirtyDays: Localizations.thirtyDays
         case .custom: Localizations.custom
+        }
+    }
+
+    // MARK: Methods
+    
+    /// Calculates the date representation of this value.
+    ///
+    /// - Parameter customValue: This value will be used when this value is `.custom`.
+    ///
+    func calculateDate(customValue: Date) -> Date? {
+        switch self {
+        case .never:
+            nil
+        case .oneHour:
+            Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+        case .oneDay:
+            Calendar.current.date(byAdding: .day, value: 1, to: Date())
+        case .twoDays:
+            Calendar.current.date(byAdding: .day, value: 2, to: Date())
+        case .threeDays:
+            Calendar.current.date(byAdding: .day, value: 3, to: Date())
+        case .sevenDays:
+            Calendar.current.date(byAdding: .day, value: 7, to: Date())
+        case .thirtyDays:
+            Calendar.current.date(byAdding: .day, value: 30, to: Date())
+        case .custom:
+            customValue
         }
     }
 }

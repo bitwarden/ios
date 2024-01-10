@@ -1,8 +1,9 @@
 import Foundation
+import Networking
 
 /// API response model for a send.
 ///
-struct SendResponseModel: Codable, Equatable {
+struct SendResponseModel: Codable, Equatable, JSONResponse {
     // MARK: Properties
 
     /// The number of times the send has been accessed.

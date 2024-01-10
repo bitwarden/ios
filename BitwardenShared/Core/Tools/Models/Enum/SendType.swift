@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 // MARK: - SendType
 
 /// An enum describing the type of data in a send.
@@ -19,6 +21,16 @@ enum SendType: Int, CaseIterable, Codable, Equatable, Menuable {
         switch self {
         case .text: Localizations.text
         case .file: Localizations.file
+        }
+    }
+}
+
+extension SendType {
+    /// Returns the SDK representation of this value.
+    var sdkType: BitwardenSdk.SendType {
+        switch self {
+        case .file: .file
+        case .text: .text
         }
     }
 }

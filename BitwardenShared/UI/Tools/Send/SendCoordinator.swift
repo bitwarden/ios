@@ -58,6 +58,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         let state = AddEditSendItemState()
         let processor = AddEditSendItemProcessor(
             coordinator: self,
+            services: services,
             state: state
         )
         let view = AddEditSendItemView(store: Store(processor: processor))

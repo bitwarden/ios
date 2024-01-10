@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: - AddEditSendItemState
@@ -52,4 +53,49 @@ struct AddEditSendItemState: Equatable {
 
     /// The type of this item.
     var type: SendType = .text
+}
+
+extension AddEditSendItemState {
+    /// Returns a `SendView` based on the properties of the `AddEditSendItemState`.
+    ///
+    func newSendView() -> SendView {
+        SendView(
+            id: nil,
+            accessId: nil,
+            name: name,
+            notes: notes.nilIfEmpty,
+            key: nil,
+            password: password.nilIfEmpty,
+            type: type.sdkType,
+            file: type == .file ? newFileView() : nil,
+            text: type == .text ? newTextView() : nil,
+            maxAccessCount: maximumAccessCount == 0 ? nil : UInt32(maximumAccessCount),
+            accessCount: 0,
+            disabled: isDeactivateThisSendOn,
+            hideEmail: isHideMyEmailOn,
+            revisionDate: Date(),
+            deletionDate: deletionDate.calculateDate(customValue: customDeletionDate) ?? Date(),
+            expirationDate: expirationDate.calculateDate(customValue: customExpirationDate)
+        )
+    }
+
+    /// Returns a `SendTextView` based on the properties of the `AddEditSendItemState`.
+    ///
+    private func newTextView() -> SendTextView {
+        SendTextView(
+            text: text,
+            hidden: isHideTextByDefaultOn
+        )
+    }
+
+    /// Returns a `SendFileView` based on the properties of the `AddEditSendItemState`.
+    ///
+    private func newFileView() -> SendFileView {
+        SendFileView(
+            id: nil,
+            fileName: "",
+            size: nil,
+            sizeName: nil
+        )
+    }
 }
