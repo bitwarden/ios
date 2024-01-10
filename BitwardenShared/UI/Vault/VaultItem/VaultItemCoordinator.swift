@@ -50,8 +50,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
-        case let .addItem(group):
-            showAddItem(for: group.flatMap(CipherType.init), delegate: context as? CipherItemOperationDelegate)
+        case let .addItem(allowTypeSelection, group, uri):
+            showAddItem(for: group.flatMap(CipherType.init), allowTypeSelection: allowTypeSelection, uri: uri, delegate: context as? CipherItemOperationDelegate)
         case let .alert(alert):
             stackNavigator.present(alert)
         case let .dismiss(onDismiss):
@@ -110,13 +110,22 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the add item screen.
     ///
-    /// - Parameter type: An optional `CipherType` to initialize this view with.
+    /// - Parameters:
+    ///   - type: An optional `CipherType` to initialize this view with.
+    ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
+    ///   - uri: A URI string used to populate the add item screen.
+    ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances in the add/edit/delete item view have occurred.
     ///
-    private func showAddItem(for type: CipherType?, delegate: CipherItemOperationDelegate?) {
+    private func showAddItem(for type: CipherType?, allowTypeSelection: Bool, uri: String?, delegate: CipherItemOperationDelegate?) {
         Task {
             let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
                 ?? false
-            let state = CipherItemState(addItem: type ?? .login, hasPremium: hasPremium)
+            let state = CipherItemState(
+                addItem: type ?? .login,
+                allowTypeSelection: allowTypeSelection,
+                hasPremium: hasPremium,
+                uri: uri
+            )
             let processor = AddEditItemProcessor(
                 coordinator: asAnyCoordinator(),
                 delegate: delegate,

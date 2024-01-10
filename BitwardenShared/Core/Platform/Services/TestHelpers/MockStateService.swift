@@ -11,6 +11,7 @@ class MockStateService: StateService {
     var activeAccount: Account?
     var accounts: [Account]?
     var allowSyncOnRefresh = [String: Bool]()
+    var appTheme: AppTheme?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
     var environmentUrls = [String: EnvironmentUrlData]()
@@ -23,6 +24,7 @@ class MockStateService: StateService {
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
+    lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
 
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
@@ -70,6 +72,10 @@ class MockStateService: StateService {
 
     func getActiveAccountId() async throws -> String {
         try getActiveAccount().profile.userId
+    }
+
+    func getAppTheme() async -> AppTheme {
+        appTheme ?? .default
     }
 
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
@@ -130,6 +136,10 @@ class MockStateService: StateService {
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
     }
 
+    func setAppTheme(_ appTheme: AppTheme) async {
+        self.appTheme = appTheme
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         try clearClipboardResult.get()
         let userId = try userId ?? getActiveAccount().profile.userId
@@ -170,9 +180,11 @@ class MockStateService: StateService {
     }
 
     func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>> {
-        activeIdSubject
-            .eraseToAnyPublisher()
-            .values
+        activeIdSubject.eraseToAnyPublisher().values
+    }
+
+    func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
+        appThemeSubject.eraseToAnyPublisher()
     }
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {

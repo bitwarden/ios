@@ -115,8 +115,8 @@ class MockClientPasswordHistory: ClientPasswordHistoryProtocol {
 // MARK: - MockClientSends
 
 class MockClientSends: ClientSendsProtocol {
-    func decrypt(send _: Send) async throws -> SendView {
-        fatalError("Not implemented yet")
+    func decrypt(send: Send) async throws -> SendView {
+        SendView(send: send)
     }
 
     func decryptBuffer(send _: Send, buffer _: Data) async throws -> Data {
