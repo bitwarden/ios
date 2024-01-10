@@ -23,7 +23,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(authRepository: authRepository),
-            state: VaultUnlockState(account: .fixture())
+            state: VaultUnlockState(account: .fixture(), unlockMethod: .password)
         )
     }
 

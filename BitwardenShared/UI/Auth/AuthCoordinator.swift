@@ -114,8 +114,6 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             showLoginOptions()
         case .loginWithDevice:
             showLoginWithDevice()
-        case .loginWithPIN:
-            showLoginWithPin()
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
         case .selfHosted:
@@ -283,19 +281,6 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         stackNavigator.present(navigationController)
     }
 
-    /// Shows the login with PIN screen.
-    private func showLoginWithPin() {
-        let processor = LoginWithPINProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: LoginWithPINState()
-        )
-        let store = Store(processor: processor)
-        let view = LoginWithPINView(store: store)
-        let viewController = UIHostingController(rootView: view)
-        stackNavigator.push(viewController)
-    }
-
     /// Shows the master password hint screen for the provided username.
     ///
     /// - Parameter username: The username to get the password hint for.
@@ -375,11 +360,16 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     ///   - animated: Whether to animate the transition.
     ///
     private func showVaultUnlock(account: Account, animated: Bool = true) {
+        var unlockMethod: VaultUnlockState.UnlockMethod = .password
+        if services.appSettingsStore.pinProtectedUserKey(userId: account.profile.userId) != nil {
+            unlockMethod = .pin
+        }
+
         let processor = VaultUnlockProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultUnlockState(account: account)
+            state: VaultUnlockState(account: account, unlockMethod: unlockMethod)
         )
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator.replace(view, animated: animated)

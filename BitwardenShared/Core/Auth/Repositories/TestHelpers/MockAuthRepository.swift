@@ -6,8 +6,7 @@ class MockAuthRepository: AuthRepository {
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var deleteAccountCalled = false
     var logoutCalled = false
-    var pinKeyEncryptedUserKey = "123"
-    var pinKeyEncryptedUserKeyResult: Result<String, Error> = .success("123")
+    var pinProtectedUserKey = "123"
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var unlockWithPINCalled = false
     var unlockVaultPassword: String?
@@ -27,7 +26,7 @@ class MockAuthRepository: AuthRepository {
         try activeAccountResult.get()
     }
 
-    func getAccount(for userId: String) async throws -> BitwardenShared.Account {
+    func getAccount(for userId: String) async throws -> Account {
         try accountForItemResult.get()
     }
 
@@ -39,16 +38,16 @@ class MockAuthRepository: AuthRepository {
         try setActiveAccountResult.get()
     }
 
-    func setPinKeyEncryptedUserKey(pin: String) async throws {
-        pinKeyEncryptedUserKey = pin
+    func setPin(_ pin: String) async throws {
+        pinProtectedUserKey = pin
     }
 
-    func unlockWithPIN(_ pin: String) async throws {
+    func unlockVaultWithPIN(pin: String) async throws {
         unlockVaultPIN = pin
         try unlockWithPINResult.get()
     }
 
-    func unlockVault(password: String) async throws {
+    func unlockVaultWithPassword(password: String) async throws {
         unlockVaultPassword = password
         try unlockVaultResult.get()
     }

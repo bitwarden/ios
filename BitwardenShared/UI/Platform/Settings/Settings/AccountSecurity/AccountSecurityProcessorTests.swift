@@ -233,11 +233,11 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }
 
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` turns the toggle off and sets the `PinKeyEncryptedUserKey` to nil.
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` turns the toggle off and sets the `pinProtectedUserKey` to nil.
     func test_receive_toggleUnlockWithPINCode_off() {
         let account: Account = .fixture()
         stateService.activeAccount = account
-        stateService.pinKeyEncryptedUserKey[account.profile.userId] = "123"
+        stateService.pinProtectedUserKey[account.profile.userId] = "123"
 
         subject.state.isUnlockWithPINCodeOn = true
         let task = Task {
@@ -245,7 +245,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         }
         waitFor(!subject.state.isUnlockWithPINCodeOn)
         task.cancel()
-        let pin = stateService.pinKeyEncryptedUserKey[account.profile.userId] ?? nil
+        let pin = stateService.pinProtectedUserKey[account.profile.userId] ?? nil
         XCTAssertNil(pin)
     }
 

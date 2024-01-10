@@ -184,7 +184,7 @@ struct AddEditSendItemView: View {
                 send: AddEditSendItemAction.passwordChanged
             ),
             footer: Localizations.passwordInfo,
-            isPasswordVisible: store.binding(
+            isTextFieldTextVisible: store.binding(
                 get: \.isPasswordVisible,
                 send: AddEditSendItemAction.passwordVisibileChanged
             )

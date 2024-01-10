@@ -348,7 +348,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
 
         await assertAsyncDoesNotThrow {
-            try await subject.unlockVault(password: "password")
+            try await subject.unlockVaultWithPassword(password: "password")
         }
 
         XCTAssertEqual(
@@ -369,7 +369,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.
     func test_unlockVault_error() async {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.unlockVault(password: "")
+            try await subject.unlockVaultWithPassword(password: "")
         }
     }
 
@@ -407,12 +407,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
     }
 
-    /// `.setPinKeyEncryptedUserKey(pin:)` sets the pin key encrypted user key.
-    func test_setPinKeyEncryptedUserKey() async throws {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        try await subject.setPinKeyEncryptedUserKey(pin: "123")
-        XCTAssertEqual(stateService.pinKeyEncryptedUserKey["1"], "123")
+    /// `.setPin(_:)` sets the pin protected user key.
+    func test_setPinProtectedUserKey() async throws {
+        stateService.activeAccount = Account.fixture()
+        clientCrypto.derivePinKeyResult = .success(DerivePinKeyResponse(pinProtectedUserKey: "12", encryptedPin: "34"))
+        try await subject.setPin("99")
+        XCTAssertEqual(stateService.pinProtectedUserKey["1"], "12")
     }
 
     /// `unlockWithPIN(_:)` unlocks the vault with the user's PIN.
@@ -423,10 +423,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
         ]
-        stateService.pinKeyEncryptedUserKey[account.profile.userId] = "456"
+        stateService.pinProtectedUserKey[account.profile.userId] = "456"
 
         await assertAsyncDoesNotThrow {
-            try await subject.unlockWithPIN("123")
+            try await subject.unlockVaultWithPIN(pin: "123")
         }
 
         XCTAssertEqual(

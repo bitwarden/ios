@@ -128,7 +128,7 @@ struct FormTextFieldView<State>: View {
         BitwardenTextField(
             title: field.title,
             text: Binding(get: { field.value }, set: action),
-            isPasswordVisible: field.isPasswordVisible.map { isPasswordVisible in
+            isTextFieldTextVisible: field.isPasswordVisible.map { isPasswordVisible in
                 Binding(get: { isPasswordVisible }, set: isPasswordVisibleChangedAction ?? { _ in })
             }
         )

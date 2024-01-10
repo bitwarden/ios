@@ -54,24 +54,9 @@ final class AccountSecurityProcessor: StateProcessor<
     override func perform(_ effect: AccountSecurityEffect) async {
         switch effect {
         case .appeared:
-            Task {
-                do {
-                    let userId = try await services.stateService.getActiveAccountId()
-                    let key = try await services.stateService.pinKeyEncryptedUserKey(userId: userId)
-                    if try await services.stateService.pinKeyEncryptedUserKey(userId: userId) != nil {
-                        state.isUnlockWithPINCodeOn = true
-                    }
-                } catch {}
-            }
+            await appeared()
         case .lockVault:
-            do {
-                let account = try await services.stateService.getActiveAccount()
-                await services.settingsRepository.lockVault(userId: account.profile.userId)
-                coordinator.navigate(to: .lockVault(account: account))
-            } catch {
-                coordinator.navigate(to: .logout)
-                services.errorReporter.log(error: error)
-            }
+            await lockVault()
         }
     }
 
@@ -103,6 +88,32 @@ final class AccountSecurityProcessor: StateProcessor<
     }
 
     // MARK: Private
+
+    /// The block of code to execute when the view appears.
+    ///
+    private func appeared() async {
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            if try await services.stateService.pinProtectedUserKey(userId: userId) != nil {
+                state.isUnlockWithPINCodeOn = true
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Locks the user's vault.
+    ///
+    private func lockVault() async {
+        do {
+            let account = try await services.stateService.getActiveAccount()
+            await services.settingsRepository.lockVault(userId: account.profile.userId)
+            coordinator.navigate(to: .lockVault(account: account))
+        } catch {
+            coordinator.navigate(to: .logout)
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Saves the user's session timeout action.
     ///
@@ -153,7 +164,7 @@ final class AccountSecurityProcessor: StateProcessor<
             coordinator.navigate(to: .alert(.enterPINCode(completion: { pin in
                 self.coordinator.navigate(to: .alert(.unlockWithPINCodeAlert {
                     do {
-                        try await self.services.authRepository.setPinKeyEncryptedUserKey(pin: pin)
+                        try await self.services.authRepository.setPin(pin)
                         self.state.isUnlockWithPINCodeOn = isOn
                     } catch {
                         self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
@@ -164,7 +175,7 @@ final class AccountSecurityProcessor: StateProcessor<
             Task {
                 do {
                     let userId = try await services.stateService.getActiveAccountId()
-                    try await self.services.stateService.setPinKeyEncryptedUserKey(nil, userId: userId)
+                    try await self.services.stateService.setPinProtectedUserKey(nil, userId: userId)
                     state.isUnlockWithPINCodeOn = isOn
                 } catch {
                     self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))

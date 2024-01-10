@@ -80,6 +80,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                 ]
             )
             coordinator.navigate(to: .alert(alert))
+        case let .pinChanged(pin):
+            state.pin = pin
         case let .profileSwitcherAction(profileAction):
             switch profileAction {
             case let .accountPressed(account):
@@ -96,6 +98,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             }
         case let .revealMasterPasswordFieldPressed(isMasterPasswordRevealed):
             state.isMasterPasswordRevealed = isMasterPasswordRevealed
+        case let .revealPinFieldPressed(isPinRevealed):
+            state.isPinRevealed = isPinRevealed
         }
     }
 
@@ -119,17 +123,24 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     ///
     private func unlockVault() async {
         do {
-            try EmptyInputValidator(fieldName: Localizations.masterPassword)
-                .validate(input: state.masterPassword)
+            switch state.unlockMethod {
+            case .password:
+                try EmptyInputValidator(fieldName: Localizations.masterPassword)
+                    .validate(input: state.masterPassword)
+                try await services.authRepository.unlockVaultWithPassword(password: state.masterPassword)
+            case .pin:
+                try EmptyInputValidator(fieldName: Localizations.pin)
+                    .validate(input: state.pin)
+                try await services.authRepository.unlockVaultWithPIN(pin: state.pin)
+            }
 
-            try await services.authRepository.unlockVault(password: state.masterPassword)
             coordinator.navigate(to: .complete)
         } catch let error as InputValidationError {
             coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))
         } catch {
             let alert = Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.invalidMasterPassword
+                message: state.unlockMethod == .pin ? Localizations.invalidPIN : Localizations.invalidMasterPassword
             )
             coordinator.navigate(to: .alert(alert))
             Logger.processor.error("Error unlocking vault: \(error)")

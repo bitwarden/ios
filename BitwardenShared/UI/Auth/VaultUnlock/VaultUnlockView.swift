@@ -10,9 +10,17 @@ struct VaultUnlockView: View {
     @ObservedObject var store: Store<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect>
 
     /// The text to display in the footer of the master password text field.
-    var footerText: String {
+    var passwordFooterText: String {
         """
         \(Localizations.vaultLockedMasterPassword)
+        \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
+        """
+    }
+
+    /// The text to display in the footer of the PIN text field.
+    var pinFooterText: String {
+        """
+        \(Localizations.vaultLockedPIN)
         \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
         """
     }
@@ -49,19 +57,7 @@ struct VaultUnlockView: View {
     @ViewBuilder var scrollView: some View {
         ScrollView {
             VStack(spacing: 24) {
-                BitwardenTextField(
-                    title: Localizations.masterPassword,
-                    text: store.binding(
-                        get: \.masterPassword,
-                        send: VaultUnlockAction.masterPasswordChanged
-                    ),
-                    footer: footerText,
-                    isPasswordVisible: store.binding(
-                        get: \.isMasterPasswordRevealed,
-                        send: VaultUnlockAction.revealMasterPasswordFieldPressed
-                    )
-                )
-                .textFieldConfiguration(.password)
+                textField
 
                 Button {
                     Task { await store.perform(.unlockVault) }
@@ -106,6 +102,39 @@ struct VaultUnlockView: View {
             )
         )
     }
+
+    @ViewBuilder private var textField: some View {
+        switch store.state.unlockMethod {
+        case .password:
+            BitwardenTextField(
+                title: Localizations.masterPassword,
+                text: store.binding(
+                    get: \.masterPassword,
+                    send: VaultUnlockAction.masterPasswordChanged
+                ),
+                footer: passwordFooterText,
+                isTextFieldTextVisible: store.binding(
+                    get: \.isMasterPasswordRevealed,
+                    send: VaultUnlockAction.revealMasterPasswordFieldPressed
+                )
+            )
+            .textFieldConfiguration(.password)
+        case .pin:
+            BitwardenTextField(
+                title: Localizations.pin,
+                text: store.binding(
+                    get: \.pin,
+                    send: VaultUnlockAction.pinChanged
+                ),
+                footer: pinFooterText,
+                isTextFieldTextVisible: store.binding(
+                    get: \.isPinRevealed,
+                    send: VaultUnlockAction.revealPinFieldPressed
+                )
+            )
+            .textFieldConfiguration(.password)
+        }
+    }
 }
 
 // MARK: - Previews
@@ -124,6 +153,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                 activeAccountId: nil,
                                 isVisible: false
                             ),
+                            unlockMethod: .password,
                             webVaultHost: "vault.bitwarden.com"
                         )
                     )
@@ -148,6 +178,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                 activeAccountId: "123",
                                 isVisible: false
                             ),
+                            unlockMethod: .pin,
                             webVaultHost: "vault.bitwarden.com"
                         )
                     )
@@ -173,6 +204,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                 activeAccountId: "123",
                                 isVisible: true
                             ),
+                            unlockMethod: .password,
                             webVaultHost: "vault.bitwarden.com"
                         )
                     )

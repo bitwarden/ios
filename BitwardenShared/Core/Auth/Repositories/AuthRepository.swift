@@ -43,22 +43,21 @@ protocol AuthRepository: AnyObject {
     ///
     func setActiveAccount(userId: String) async throws -> Account
 
-    /// Sets the pin key encrypted user key.
+    /// Sets the pin protected user key.
     ///
-    /// - Parameters:
-    ///   - key: A PIN protected user key from the user's PIN.
+    /// - Parameter pin: The user's PIN.
     ///
-    func setPinKeyEncryptedUserKey(pin: String) async throws
+    func setPin(_ pin: String) async throws
 
     /// Attempts to unlock the user's vault with their master password.
     ///
     /// - Parameter password: The user's master password to unlock the vault.
     ///
-    func unlockVault(password: String) async throws
+    func unlockVaultWithPassword(password: String) async throws
 
     /// Unlocks the vault using the PIN.
     ///
-    func unlockWithPIN(_ pin: String) async throws
+    func unlockVaultWithPIN(pin: String) async throws
 }
 
 // MARK: - DefaultAuthRepository
@@ -174,15 +173,16 @@ extension DefaultAuthRepository: AuthRepository {
         return try await stateService.getActiveAccount()
     }
 
-    func setPinKeyEncryptedUserKey(pin: String) async throws {
+    func setPin(_ pin: String) async throws {
         let key = try await clientCrypto.derivePinKey(pin: pin)
         let userId = try await stateService.getActiveAccount().profile.userId
-        try await stateService.setPinKeyEncryptedUserKey(key.pinProtectedUserKey, userId: userId)
+        try await stateService.setPinProtectedUserKey(key.pinProtectedUserKey, userId: userId)
     }
 
-    func unlockVault(password: String) async throws {
+    func unlockVaultWithPassword(password: String) async throws {
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
         let account = try await stateService.getActiveAccount()
+
         try await clientCrypto.initializeUserCrypto(
             req: InitUserCryptoRequest(
                 kdfParams: account.kdf.sdkKdf,
@@ -201,10 +201,11 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setMasterPasswordHash(hashedPassword)
     }
 
-    func unlockWithPIN(_ pin: String) async throws {
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+    func unlockVaultWithPIN(pin: String) async throws {
         let account = try await stateService.getActiveAccount()
-        guard let pinProtectedUserKey = try await stateService.pinKeyEncryptedUserKey(
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+
+        guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey(
             userId: account.profile.userId
         ) else { return }
 
@@ -220,14 +221,17 @@ extension DefaultAuthRepository: AuthRepository {
             )
         )
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
+        try await organizationService.initializeOrganizationCrypto()
     }
+
+    // MARK: Private
 
     /// A function to convert an `Account` to a `ProfileSwitcherItem`
     ///
     ///   - Parameter account: The account to convert.
     ///   - Returns: The `ProfileSwitcherItem` representing the account.
     ///
-    func profileItem(from account: Account) async -> ProfileSwitcherItem {
+    private func profileItem(from account: Account) async -> ProfileSwitcherItem {
         var profile = ProfileSwitcherItem(
             email: account.profile.email,
             userId: account.profile.userId,

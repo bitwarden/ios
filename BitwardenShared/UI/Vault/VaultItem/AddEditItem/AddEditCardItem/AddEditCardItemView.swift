@@ -25,7 +25,7 @@ struct AddEditCardItemView: View {
                 text: store.binding(
                     get: \.cardNumber,
                     send: AddEditCardItemAction.cardNumberChanged
-                ), isPasswordVisible: store.binding(
+                ), isTextFieldTextVisible: store.binding(
                     get: \.isNumberVisible,
                     send: AddEditCardItemAction.toggleNumberVisibilityChanged
                 )
@@ -63,7 +63,7 @@ struct AddEditCardItemView: View {
                 text: store.binding(
                     get: \.cardSecurityCode,
                     send: AddEditCardItemAction.cardSecurityCodeChanged
-                ), isPasswordVisible: store.binding(
+                ), isTextFieldTextVisible: store.binding(
                     get: \.isCodeVisible,
                     send: AddEditCardItemAction.toggleCodeVisibilityChanged
                 )

@@ -13,6 +13,10 @@ enum VaultUnlockAction: Equatable {
     /// A forwarded profile switcher action.
     case profileSwitcherAction(ProfileSwitcherAction)
 
+    case pinChanged(String)
+
     /// The reveal master password field button was pressed.
     case revealMasterPasswordFieldPressed(Bool)
+
+    case revealPinFieldPressed(Bool)
 }
