@@ -9,6 +9,7 @@ import XCTest
 class CreateAccountProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
@@ -19,6 +20,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        authRepository = MockAuthRepository()
         captchaService = MockCaptchaService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
@@ -26,6 +28,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         subject = CreateAccountProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                authRepository: authRepository,
                 captchaService: captchaService,
                 clientService: MockClientService(clientAuth: clientAuth),
                 httpClient: client
@@ -36,6 +39,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        authRepository = nil
         captchaService = nil
         clientAuth = nil
         client = nil
@@ -578,26 +582,24 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.passwordTextChanged(_:)` updates the password strength score based on
     /// the entered password.
     func test_receive_passwordTextChanged_updatesPasswordStrength() {
+        subject.state.emailText = "user@bitwarden.com"
         subject.receive(.passwordTextChanged(""))
         XCTAssertNil(subject.state.passwordStrengthScore)
+        XCTAssertNil(authRepository.passwordStrengthPassword)
 
+        authRepository.passwordStrengthResult = 0
         subject.receive(.passwordTextChanged("T"))
+        waitFor(subject.state.passwordStrengthScore == 0)
         XCTAssertEqual(subject.state.passwordStrengthScore, 0)
+        XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertEqual(authRepository.passwordStrengthPassword, "T")
 
-        subject.receive(.passwordTextChanged("Test"))
-        XCTAssertEqual(subject.state.passwordStrengthScore, 1)
-
-        subject.receive(.passwordTextChanged("TestPass"))
-        XCTAssertEqual(subject.state.passwordStrengthScore, 2)
-
-        subject.receive(.passwordTextChanged("TestPasswo"))
-        XCTAssertEqual(subject.state.passwordStrengthScore, 3)
-
-        subject.receive(.passwordTextChanged("TestPassword123"))
-        XCTAssertEqual(subject.state.passwordStrengthScore, 4)
-
+        authRepository.passwordStrengthResult = 4
         subject.receive(.passwordTextChanged("TestPassword1234567890!@#"))
+        waitFor(subject.state.passwordStrengthScore == 4)
         XCTAssertEqual(subject.state.passwordStrengthScore, 4)
+        XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertEqual(authRepository.passwordStrengthPassword, "TestPassword1234567890!@#")
     }
 
     /// `receive(_:)` with `.retypePasswordTextChanged(_:)` updates the state to reflect the change.

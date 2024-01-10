@@ -6,6 +6,9 @@ class MockAuthRepository: AuthRepository {
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var deleteAccountCalled = false
     var logoutCalled = false
+    var passwordStrengthEmail: String?
+    var passwordStrengthPassword: String?
+    var passwordStrengthResult: UInt8 = 0
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var unlockVaultPassword: String?
     var unlockVaultResult: Result<Void, Error> = .success(())
@@ -24,6 +27,12 @@ class MockAuthRepository: AuthRepository {
 
     func getAccount(for userId: String) async throws -> BitwardenShared.Account {
         try accountForItemResult.get()
+    }
+
+    func passwordStrength(email: String, password: String) async -> UInt8 {
+        passwordStrengthEmail = email
+        passwordStrengthPassword = password
+        return passwordStrengthResult
     }
 
     func logout() async throws {

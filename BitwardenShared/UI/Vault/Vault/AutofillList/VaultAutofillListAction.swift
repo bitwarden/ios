@@ -5,6 +5,9 @@ import BitwardenSdk
 /// Actions that can be processed by a `VaultAutofillListProcessor`.
 ///
 enum VaultAutofillListAction: Equatable {
+    /// The add button was tapped.
+    case addTapped
+
     /// The cancel button was tapped.
     case cancelTapped
 

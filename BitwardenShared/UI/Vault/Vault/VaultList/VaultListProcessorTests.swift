@@ -14,6 +14,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var coordinator: MockCoordinator<VaultRoute>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+
     var subject: VaultListProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -28,7 +29,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authRepository = MockAuthRepository()
         errorReporter = MockErrorReporter()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
@@ -324,6 +327,43 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(profile1, subject.state.profileSwitcherState.activeAccountProfile)
     }
 
+    /// `perform(.search)` with a keyword should update search results in state.
+    func test_perform_search() async {
+        let searchResult: [CipherListView] = [.fixture(name: "example")]
+        vaultRepository.searchCipherSubject.value = searchResult.compactMap { VaultListItem(cipherListView: $0) }
+        await subject.perform(.search("example"))
+
+        XCTAssertEqual(subject.state.searchResults.count, 1)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))]
+        )
+    }
+
+    /// `perform(.search)` throws error and error is logged.
+    func test_perform_search_error() async {
+        struct DecryptError: Error, Equatable {}
+        vaultRepository.searchCipherSubject.send(completion: .failure(DecryptError()))
+        await subject.perform(.search("example"))
+
+        XCTAssertEqual(subject.state.searchResults.count, 0)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            []
+        )
+        XCTAssertEqual(errorReporter.errors.last as? DecryptError, DecryptError())
+    }
+
+    /// `perform(.search)` with a empty keyword should get empty search result.
+    func test_perform_search_emptyString() async {
+        await subject.perform(.search("   "))
+        XCTAssertEqual(subject.state.searchResults.count, 0)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            []
+        )
+    }
+
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
     func test_perform_streamOrganizations() {
         let task = Task {
@@ -515,13 +555,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.searchResults.count, 0)
     }
 
-    /// `receive(_:)` with `.searchTextChanged` with a matching search term updates the state correctly.
-    func test_receive_searchTextChanged_withResult() {
-        subject.state.searchText = ""
-        subject.receive(.searchTextChanged("example"))
+    /// `receive(_:)` with `.searchVaultFilterChanged` updates the state correctly.
+    func test_receive_searchVaultFilterChanged() {
+        let organization = Organization.fixture()
 
-        // TODO: BIT-628 Replace assertion with mock vault assertion
-        XCTAssertEqual(subject.state.searchResults.count, 1)
+        subject.state.searchVaultFilterType = .myVault
+        subject.receive(.searchVaultFilterChanged(.organization(organization)))
+
+        XCTAssertEqual(subject.state.searchVaultFilterType, .organization(organization))
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.

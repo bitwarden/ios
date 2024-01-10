@@ -7,9 +7,12 @@ import SwiftUI
 enum VaultItemRoute: Equatable, Hashable {
     /// A route to the add item screen.
     ///
-    /// - Parameter group: An optional `VaultListGroup` that the user wants to add an item for.
+    /// - Parameters:
+    ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
+    ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
+    ///   - uri: A URI string used to populate the add item screen.
     ///
-    case addItem(group: VaultListGroup? = nil)
+    case addItem(allowTypeSelection: Bool = true, group: VaultListGroup? = nil, uri: String? = nil)
 
     /// A route to display the specified alert.
     ///

@@ -36,6 +36,15 @@ protocol AuthRepository: AnyObject {
     ///
     func logout() async throws
 
+    /// Calculates the password strength of a password.
+    ///
+    /// - Parameters:
+    ///   - email: The user's email.
+    ///   - password: The user's password.
+    /// - Returns: The password strength of the password.
+    ///
+    func passwordStrength(email: String, password: String) async -> UInt8
+
     /// Sets the active account by User Id.
     ///
     /// - Parameter userId: The user Id to be set as active.
@@ -155,6 +164,10 @@ extension DefaultAuthRepository: AuthRepository {
     func logout() async throws {
         await vaultTimeoutService.remove(userId: nil)
         try await stateService.logoutAccount()
+    }
+
+    func passwordStrength(email: String, password: String) async -> UInt8 {
+        await clientAuth.passwordStrength(password: password, email: email, additionalInputs: [])
     }
 
     func setActiveAccount(userId: String) async throws -> Account {

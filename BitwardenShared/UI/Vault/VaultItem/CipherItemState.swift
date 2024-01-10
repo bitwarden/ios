@@ -34,6 +34,9 @@ struct CipherItemState: Equatable {
     /// A flag indicating if this account has premium features.
     var accountHasPremium: Bool
 
+    /// Whether the user should be able to select the type of item to add.
+    var allowTypeSelection: Bool
+
     /// The card item state.
     var cardItemState: CardItemState
 
@@ -139,6 +142,7 @@ struct CipherItemState: Equatable {
 
     private init(
         accountHasPremium: Bool,
+        allowTypeSelection: Bool,
         cardState: CardItemState,
         configuration: Configuration,
         customFields: [CustomFieldState],
@@ -153,6 +157,7 @@ struct CipherItemState: Equatable {
         updatedDate: Date
     ) {
         self.accountHasPremium = accountHasPremium
+        self.allowTypeSelection = allowTypeSelection
         cardItemState = cardState
         collectionIds = []
         collections = []
@@ -171,9 +176,15 @@ struct CipherItemState: Equatable {
         self.configuration = configuration
     }
 
-    init(addItem type: CipherType = .login, hasPremium: Bool) {
+    init(
+        addItem type: CipherType = .login,
+        allowTypeSelection: Bool = true,
+        hasPremium: Bool,
+        uri: String? = nil
+    ) {
         self.init(
             accountHasPremium: hasPremium,
+            allowTypeSelection: allowTypeSelection,
             cardState: .init(),
             configuration: .add,
             customFields: [],
@@ -181,8 +192,11 @@ struct CipherItemState: Equatable {
             identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
-            loginState: .init(isTOTPAvailable: hasPremium),
-            name: "",
+            loginState: .init(
+                isTOTPAvailable: hasPremium,
+                uris: [UriState(uri: uri ?? "")]
+            ),
+            name: uri.flatMap(URL.init)?.host ?? "",
             notes: "",
             type: type,
             updatedDate: .now
@@ -211,6 +225,7 @@ struct CipherItemState: Equatable {
         guard cipherView.id != nil else { return nil }
         self.init(
             accountHasPremium: hasPremium,
+            allowTypeSelection: false,
             cardState: cipherView.cardItemState(),
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
