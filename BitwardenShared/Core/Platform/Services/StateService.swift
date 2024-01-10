@@ -233,7 +233,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: A publisher for whether or not to show the web icons.
     ///
-    func showWebIconsPublisher() async throws -> AsyncPublisher<AnyPublisher<Bool, Never>>
+    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>>
 }
 
 extension StateService {
@@ -636,7 +636,7 @@ actor DefaultStateService: StateService {
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
     }
 
-    func showWebIconsPublisher() async throws -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
         showWebIconsSubject.eraseToAnyPublisher().values
     }
 

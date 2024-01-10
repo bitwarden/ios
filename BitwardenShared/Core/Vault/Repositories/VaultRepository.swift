@@ -280,9 +280,7 @@ class DefaultVaultRepository {
                 return nil
             }
             let code = try await clientVault.generateTOTPCode(for: key, date: Date())
-            let iconsBaseURL = environmentService.iconsURL
             let listModel = VaultListTOTP(
-                iconBaseURL: iconsBaseURL,
                 id: id,
                 loginView: login,
                 totpCode: code
@@ -313,9 +311,11 @@ class DefaultVaultRepository {
         from response: SyncResponseModel
     ) async throws -> [VaultListItem] {
         let responseCiphers = response.ciphers.map(Cipher.init)
-        let ciphers = try await clientVault.ciphers()
-            .decryptList(ciphers: responseCiphers)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        let ciphers = try await responseCiphers.asyncMap { cipher in
+            try await self.clientVault.ciphers().decrypt(cipher: cipher)
+        }
+        .filter(filter.cipherFilter)
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
         let deletedCiphers = ciphers.filter { $0.deletedDate != nil }
@@ -354,10 +354,11 @@ class DefaultVaultRepository {
     ) async throws -> [VaultListSection] {
         let responseCiphers: [Cipher] = response.ciphers.map(Cipher.init)
 
-        let ciphers = try await clientVault.ciphers()
-            .decryptList(ciphers: responseCiphers)
-            .filter(filter.cipherFilter)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        let ciphers = try await responseCiphers.asyncMap { cipher in
+            try await self.clientVault.ciphers().decrypt(cipher: cipher)
+        }
+        .filter(filter.cipherFilter)
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let folders = try await clientVault.folders()
             .decryptList(folders: response.folders.map(Folder.init))

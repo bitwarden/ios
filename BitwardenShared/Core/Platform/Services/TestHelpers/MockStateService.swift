@@ -201,7 +201,7 @@ class MockStateService: StateService {
         lastSyncTimeSubject.eraseToAnyPublisher()
     }
 
-    func showWebIconsPublisher() async throws -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
         showWebIconsSubject.eraseToAnyPublisher().values
     }
 }

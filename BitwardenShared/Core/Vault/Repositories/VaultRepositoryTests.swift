@@ -326,7 +326,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let newCode = "999232"
         clientVault.totpCode = newCode
         let totpModel = VaultListTOTP(
-            iconBaseURL: URL(string: "https://icons.bitwarden.net")!,
             id: "123",
             loginView: .fixture(),
             totpCode: .init(
@@ -356,7 +355,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let newCode = "999232"
         clientVault.totpCode = newCode
         let totpModel = VaultListTOTP(
-            iconBaseURL: URL(string: "https://icons.bitwarden.net")!,
             id: "123",
             loginView: .fixture(totp: .base32Key),
             totpCode: .init(
@@ -371,7 +369,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         switch newItem.itemType {
         case let .totp(_, model):
             XCTAssertEqual(model.id, totpModel.id)
-            XCTAssertEqual(model.iconBaseURL, totpModel.iconBaseURL)
             XCTAssertEqual(model.loginView, totpModel.loginView)
             XCTAssertNotEqual(model.totpCode.code, totpModel.totpCode.code)
             XCTAssertNotEqual(model.totpCode.date, totpModel.totpCode.date)
@@ -664,7 +661,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.accounts = [.fixtureAccountLogin()]
         stateService.activeAccount = .fixtureAccountLogin()
         await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
-            try await subject.softDeleteCipher(.fixture())
+            try await subject.softDeleteCipher(.fixture(id: nil))
         }
     }
 

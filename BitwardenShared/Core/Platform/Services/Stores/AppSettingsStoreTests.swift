@@ -4,8 +4,6 @@ import XCTest
 
 // MARK: - AppSettingsStoreTests
 
-// swiftlint:disable file_length
-
 class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
