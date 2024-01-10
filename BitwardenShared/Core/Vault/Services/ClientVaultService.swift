@@ -49,7 +49,11 @@ extension ClientVault: ClientVaultService {
     func generateTOTPCode(for key: String, date: Date? = nil) async throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
         let response = try await generateTotp(key: key, time: calculationDate)
-        return TOTPCodeModel(code: response.code, codeGenerationDate: calculationDate, period: response.period)
+        return TOTPCodeModel(
+            code: response.code,
+            codeGenerationDate: calculationDate,
+            period: response.period
+        )
     }
 
     func passwordHistory() -> ClientPasswordHistoryProtocol {

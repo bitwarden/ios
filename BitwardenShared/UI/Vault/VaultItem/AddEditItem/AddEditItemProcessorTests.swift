@@ -173,7 +173,10 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// Tapping the copy button on the auth key row dispatches the `.copyPassword` action.
     func test_perform_copyTotp() async throws {
-        subject.state.loginState.totpState = LoginTOTPState(.init(authenticatorKey: "JBSWY3DPEHPK3PXP"), time: .currentTime)
+        subject.state.loginState.totpState = LoginTOTPState(
+            .init(authenticatorKey: "JBSWY3DPEHPK3PXP"),
+            time: .currentTime
+        )
 
         await subject.perform(.copyTotpPressed)
         XCTAssertEqual(
