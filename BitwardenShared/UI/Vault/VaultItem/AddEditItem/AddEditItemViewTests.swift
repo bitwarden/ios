@@ -135,8 +135,10 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Updating the notes text field dispatches the `.notesChanged()` action.
     func test_notesTextField_updateValue() throws {
-        let textField = try subject.inspect().find(ViewType.TextEditor.self)
-        try textField.setInput("text")
+        let textField = try subject.inspect().find(
+            bitwardenTextFieldWithAccessibilityLabel: Localizations.notes
+        )
+        try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("text"))
     }
 

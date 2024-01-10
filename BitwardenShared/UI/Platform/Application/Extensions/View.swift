@@ -117,24 +117,4 @@ extension View {
     func scrollView() -> some View {
         modifier(ScrollViewModifier())
     }
-
-    /// Applies a modifier to enable transparent scrolling in the scrollable view,
-    /// Hides the background for scrollable views within the view.
-    ///
-    /// This can be used to clear the background of a `TextEditor` to ensure it takes on the
-    /// background color of the element behind it rather than defaulting to the system background
-    /// color (black in dark mode).
-    ///
-    /// - Returns: A modified view that enables transparent scrolling.
-    ///
-    func transparentScrolling() -> some View {
-        if #available(iOS 16.0, *) {
-            return scrollContentBackground(.hidden)
-        } else {
-            return onAppear {
-                // Set the background color of the UITextView to clear for transparent.
-                UITextView.appearance().backgroundColor = .clear
-            }
-        }
-    }
 }
