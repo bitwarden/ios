@@ -220,6 +220,18 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         // TODO: BIT-1130 Assertion for check password service call
     }
 
+    /// `receive(_:)` with `.morePressed(.clone)` navigates the user to the move to
+    /// clone item view.
+    func test_receive_morePressed_clone() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false)))
+
+        subject.receive(.morePressed(.clone))
+
+        XCTAssertEqual(coordinator.routes.last, .cloneItem(cipher: cipher))
+        XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
+    }
+
     /// `receive` with `.copyPressed` copies the value with the pasteboard service.
     func test_receive_copyPressed() {
         subject.receive(.copyPressed(value: "value"))

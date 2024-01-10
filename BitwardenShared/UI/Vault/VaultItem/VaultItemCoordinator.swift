@@ -54,6 +54,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             showAddItem(for: group.flatMap(CipherType.init))
         case let .alert(alert):
             stackNavigator.present(alert)
+        case let .cloneItem(cipher):
+            showCloneItem(for: cipher)
         case let .dismiss(onDismiss):
             stackNavigator.dismiss(animated: true, completion: {
                 onDismiss?.action()
@@ -126,6 +128,32 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             let store = Store(processor: processor)
             let view = AddEditItemView(store: store)
             stackNavigator.replace(view)
+        }
+    }
+
+    /// Shows the clone item screen.
+    ///
+    /// - Parameter cipherView: A `CipherView` to initialize this view with.
+    ///
+    private func showCloneItem(for cipherView: CipherView) {
+        Task {
+            let hasPremium = await (
+                try? services.vaultRepository.doesActiveAccountHavePremium()
+            ) ?? false
+            let state = CipherItemState(cloneItem: cipherView, hasPremium: hasPremium)
+            if stackNavigator.isEmpty {
+                let processor = AddEditItemProcessor(
+                    coordinator: asAnyCoordinator(),
+                    delegate: nil,
+                    services: services,
+                    state: state
+                )
+                let store = Store(processor: processor)
+                let view = AddEditItemView(store: store)
+                stackNavigator.replace(view)
+            } else {
+                presentChildVaultItemCoordinator(route: .cloneItem(cipher: cipherView))
+            }
         }
     }
 

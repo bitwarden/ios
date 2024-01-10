@@ -109,6 +109,21 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(view.store.state.type, .card)
     }
 
+    /// `navigate(to:)` with `.cloneItem()`  triggers the show clone item flow.
+    func test_navigateTo_cloneItem_nonPremium() throws {
+        vaultRepository.hasPremiumResult = .success(false)
+        let task = Task {
+            subject.navigate(to: .cloneItem(cipher: .loginFixture()), context: subject)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertFalse(view.store.state.loginState.isTOTPAvailable)
+    }
+
     /// `navigate(to:)` with `.editCollections()` triggers the edit collections flow.
     func test_navigateTo_editCollections() throws {
         subject.navigate(to: .editCollections(.fixture()))

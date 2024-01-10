@@ -17,6 +17,12 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case alert(_ alert: Alert)
 
+    /// A route to the clone item screen.
+    ///
+    /// - Parameter cipher: A  `CipherView` to be cloned
+    ///
+    case cloneItem(cipher: CipherView)
+
     /// A route to dismiss the screen currently presented modally.
     ///
     /// - Parameter action: The action to perform on dismiss.
