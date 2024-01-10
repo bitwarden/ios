@@ -87,6 +87,17 @@ protocol VaultRepository: AnyObject {
     ///
     func remove(userId: String?) async
 
+    /// A publisher for a user's cipher objects based on the specified search text and filter type.
+    ///
+    /// - Parameters:
+    ///     - searchText:  The search text to filter the cipher list.
+    ///     - filterType: The vault filter type to apply to the cipher list.
+    /// - Returns: A publisher for the user's ciphers.
+    func searchCipherPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>>
+
     /// Shares a cipher with an organization.
     ///
     /// - Parameter cipher: The cipher to share.
@@ -571,6 +582,55 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.shareWithServer(encryptedCipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync(isManualRefresh: false)
+    }
+
+    func searchCipherPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
+        let userId = try await stateService.getActiveAccountId()
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .folding(options: .diacriticInsensitive, locale: .current)
+        let ciphers = cipherService.cipherPublisher(userId: userId).asyncTryMap { ciphers -> [VaultListItem] in
+            // Since original search was doing search on name, id, subTitle, uri etc
+            // and uris are in CipherListView, subTitle is in CipherView
+            // we are zipping two list of `CipherView` and `CipherListView` and filtering
+            let clientVault = self.clientVault.ciphers()
+
+            var zippedCiphers: [(cipherView: CipherView, cipherListView: CipherListView)] = []
+
+            // loop through the ciphers and decrypt, feed the list of tuples with `CipherView` and `CipherListView`
+            for cipher in ciphers {
+                let cipherView = try await clientVault.decrypt(cipher: cipher)
+                if let cipherListView = try await clientVault.decryptList(ciphers: [cipher]).first {
+                    zippedCiphers.append((cipherView: cipherView, cipherListView: cipherListView))
+                }
+            }
+
+            var matchedCiphers: [CipherListView] = []
+            var lowPriorityMatchedCiphers: [CipherListView] = []
+            zippedCiphers
+                .filter { $0.cipherListView.deletedDate == nil }
+                .filter { filterType.cipherFilter($0.cipherListView) }
+                .forEach { cipherView, cipherListView in
+                    if cipherListView.name.lowercased()
+                        .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+                        matchedCiphers.append(cipherListView)
+                    } else if query.count >= 8, cipherListView.id?.starts(with: query) == true {
+                        lowPriorityMatchedCiphers.append(cipherListView)
+                    } else if cipherListView.subTitle.lowercased()
+                        .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                        lowPriorityMatchedCiphers.append(cipherListView)
+                    } else if cipherView.login?.uris?.contains(where: { $0.uri?.contains(query) == true }) == true {
+                        lowPriorityMatchedCiphers.append(cipherListView)
+                    }
+                }
+            let result = matchedCiphers
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } + lowPriorityMatchedCiphers
+            return result.compactMap { VaultListItem(cipherListView: $0) }
+        }.eraseToAnyPublisher().values
+        return ciphers
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {

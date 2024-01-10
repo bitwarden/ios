@@ -86,8 +86,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
-        case let .addItem(group):
-            showVaultItem(route: .addItem(group: group))
+        case let .addItem(allowTypeSelection, group, uri):
+            showVaultItem(route: .addItem(allowTypeSelection: allowTypeSelection, group: group, uri: uri))
         case let .alert(alert):
             stackNavigator.present(alert)
         case .autofillList:

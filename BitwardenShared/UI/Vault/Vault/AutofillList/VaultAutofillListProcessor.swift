@@ -69,6 +69,14 @@ class VaultAutofillListProcessor: StateProcessor<
 
     override func receive(_ action: VaultAutofillListAction) {
         switch action {
+        case .addTapped:
+            coordinator.navigate(
+                to: .addItem(
+                    allowTypeSelection: false,
+                    group: .login,
+                    uri: appExtensionDelegate?.uri
+                )
+            )
         case .cancelTapped:
             appExtensionDelegate?.didCancel()
         case let .toastShown(newValue):

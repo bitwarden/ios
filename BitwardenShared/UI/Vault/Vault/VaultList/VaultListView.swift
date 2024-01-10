@@ -98,6 +98,8 @@ private struct VaultMainView: View {
         if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
             ScrollView {
                 LazyVStack(spacing: 0) {
+                    searchVaultFilterRow
+
                     ForEach(store.state.searchResults) { item in
                         Button {
                             store.send(.itemPressed(item: item))
@@ -114,21 +116,46 @@ private struct VaultMainView: View {
         } else {
             GeometryReader { reader in
                 ScrollView {
-                    VStack(spacing: 35) {
-                        Image(decorative: Asset.Images.magnifyingGlass)
-                            .resizable()
-                            .frame(width: 74, height: 74)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    VStack(spacing: 0) {
+                        searchVaultFilterRow
 
-                        Text(Localizations.thereAreNoItemsThatMatchTheSearch)
-                            .multilineTextAlignment(.center)
-                            .styleGuide(.callout)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        VStack(spacing: 35) {
+                            Image(decorative: Asset.Images.magnifyingGlass)
+                                .resizable()
+                                .frame(width: 74, height: 74)
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                            Text(Localizations.thereAreNoItemsThatMatchTheSearch)
+                                .multilineTextAlignment(.center)
+                                .styleGuide(.callout)
+                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
                     }
-                    .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
                 }
             }
         }
+    }
+
+    /// Displays the vault filter for search row if the user is a member of any org
+    private var searchVaultFilterRow: some View {
+        SearchVaultFilterRowView(
+            hasDivider: true, store: store.child(
+                state: { state in
+                    SearchVaultFilterRowState(
+                        organizations: state.organizations,
+                        searchVaultFilterType: state.searchVaultFilterType
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .searchVaultFilterChanged(type):
+                        return .searchVaultFilterChanged(type)
+                    }
+                },
+                mapEffect: nil
+            )
+        )
     }
 
     /// A view that displays either the my vault or empty vault interface.
@@ -166,37 +193,24 @@ private struct VaultMainView: View {
     /// Displays the vault filter row if the user is a member of any
     @ViewBuilder
     private func vaultFilterRow() -> some View {
-        if !store.state.vaultFilterOptions.isEmpty {
-            HStack(spacing: 0) {
-                Text(store.state.vaultFilterType.filterTitle)
-
-                Spacer()
-
-                Menu {
-                    Picker(selection: store.binding(
-                        get: \.vaultFilterType,
-                        send: VaultListAction.vaultFilterChanged
-                    )) {
-                        ForEach(store.state.vaultFilterOptions) { filter in
-                            Text(filter.title)
-                                .tag(filter)
-                        }
-                    } label: {
-                        EmptyView()
+        SearchVaultFilterRowView(
+            hasDivider: false, store: store.child(
+                state: { state in
+                    SearchVaultFilterRowState(
+                        organizations: state.organizations,
+                        searchVaultFilterType: state.vaultFilterType
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .searchVaultFilterChanged(type):
+                        return .vaultFilterChanged(type)
                     }
-                } label: {
-                    Asset.Images.horizontalKabob.swiftUIImage
-                        .frame(width: 44, height: 44, alignment: .trailing)
-                        .contentShape(Rectangle())
-                }
-                .accessibilityLabel(Localizations.filterByVault)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-            }
-            .frame(minHeight: 60)
-            .padding(.horizontal, 16)
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
+                },
+                mapEffect: nil
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// Creates a row in the list for the provided item.
@@ -275,6 +289,12 @@ struct VaultListView: View {
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: Localizations.search
                 )
+                .task(id: store.state.searchText) {
+                    await store.perform(.search(store.state.searchText))
+                }
+                .task(id: store.state.searchVaultFilterType) {
+                    await store.perform(.search(store.state.searchText))
+                }
                 .refreshable {
                     await store.perform(.refreshVault)
                 }

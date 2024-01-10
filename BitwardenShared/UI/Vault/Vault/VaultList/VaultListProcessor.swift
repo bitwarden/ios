@@ -60,6 +60,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             await refreshProfileState()
         case .refreshVault:
             await refreshVault(isManualRefresh: true)
+        case let .search(text):
+            state.searchResults = await searchVault(for: text)
         case .streamOrganizations:
             await streamOrganizations()
         case .streamVaultList:
@@ -105,7 +107,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
-            state.searchResults = searchVault(for: newValue)
+        case let .searchVaultFilterChanged(newValue):
+            state.searchVaultFilterType = newValue
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpCodeExpired:
@@ -175,31 +178,22 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     /// - Parameter searchText: The string to use when searching the vault.
     /// - Returns: An array of `VaultListItem`s. If no results can be found, an empty array will be returned.
     ///
-    private func searchVault(for searchText: String) -> [VaultListItem] {
-        // TODO: BIT-628 Actually search the vault for the provided string.
-        if "example".contains(searchText.lowercased()) {
-            return [
-                VaultListItem(cipherListView: .init(
-                    id: "1",
-                    organizationId: nil,
-                    folderId: nil,
-                    collectionIds: [],
-                    name: "Example",
-                    subTitle: "email@example.com",
-                    type: .login,
-                    favorite: true,
-                    reprompt: .none,
-                    edit: false,
-                    viewPassword: true,
-                    attachments: 0,
-                    creationDate: Date(),
-                    deletedDate: nil,
-                    revisionDate: Date()
-                ))!,
-            ]
-        } else {
+    private func searchVault(for searchText: String) async -> [VaultListItem] {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return []
         }
+        do {
+            let result = try await services.vaultRepository.searchCipherPublisher(
+                searchText: searchText,
+                filterType: state.searchVaultFilterType
+            )
+            for try await ciphers in result {
+                return ciphers
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+        return []
     }
 
     /// Sets the visibility of the profiles view and updates accessibility focus

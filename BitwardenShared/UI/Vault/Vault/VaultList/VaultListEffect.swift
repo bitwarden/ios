@@ -17,6 +17,9 @@ enum VaultListEffect: Equatable {
     /// Refresh the vault list's data.
     case refreshVault
 
+    /// Searches based on the keyword.
+    case search(String)
+
     /// Stream the list of organizations for the user.
     case streamOrganizations
 
