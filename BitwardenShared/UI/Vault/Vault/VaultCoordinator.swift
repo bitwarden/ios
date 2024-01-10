@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SwiftUI
 
 // MARK: - VaultCoordinatorDelegate
@@ -40,6 +41,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Private Properties
 
+    /// A delegate used to communicate with the app extension.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The module used by this coordinator to create child coordinators.
     private let module: Module
 
@@ -56,17 +60,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     /// Creates a new `VaultCoordinator`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: The delegate for this coordinator, relays user interactions with the profile switcher.
     ///   - module: The module used by this coordinator to create child coordinators.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        appExtensionDelegate: AppExtensionDelegate?,
         delegate: VaultCoordinatorDelegate,
         module: Module,
         services: Services,
         stackNavigator: StackNavigator
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
@@ -83,6 +90,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showVaultItem(route: .addItem(group: group))
         case let .alert(alert):
             stackNavigator.present(alert)
+        case .autofillList:
+            showAutofillList()
+        case let .editItem(cipher: cipher):
+            showVaultItem(route: .editItem(cipher: cipher))
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):
@@ -100,6 +111,19 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
+    /// Shows the autofill list screen.
+    ///
+    private func showAutofillList() {
+        let processor = VaultAutofillListProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultAutofillListState()
+        )
+        let view = VaultAutofillListView(store: Store(processor: processor))
+        stackNavigator.replace(view)
+    }
+
     /// Shows the vault group screen.
     ///
     private func showGroup(_ group: VaultListGroup) {
@@ -112,25 +136,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         let view = VaultGroupView(store: store)
         let viewController = UIHostingController(rootView: view)
 
-        // Preset some navigation item values so that the navigation bar does not flash oddly once
-        // the view's push animation has completed. This happens because `UIHostingController` does
-        // not resolve its `navigationItem` properties until the view has been displayed on screen.
-        // In this case, that doesn't happen until the push animation has completed, which results
-        // in both the title and the search bar flashing into view after the push animation
-        // completes. This occurs on all iOS versions (tested on iOS 17).
-        //
-        // The values set here are temporary, and are overwritten once the hosting controller has
-        // resolved its root view's navigation bar modifiers.
-        viewController.navigationItem.largeTitleDisplayMode = .never
-        viewController.navigationItem.title = group.navigationTitle
-        let searchController = UISearchController()
-        if #available(iOS 16.0, *) {
-            viewController.navigationItem.preferredSearchBarPlacement = .stacked
-        }
-        viewController.navigationItem.searchController = searchController
-        viewController.navigationItem.hidesSearchBarWhenScrolling = false
-
-        stackNavigator.push(viewController)
+        stackNavigator.push(
+            viewController,
+            navigationTitle: group.navigationTitle,
+            hasSearchBar: true
+        )
     }
 
     /// Shows the vault list screen.

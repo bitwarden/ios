@@ -48,6 +48,18 @@ class RootViewControllerTests: BitwardenTestCase {
         XCTAssertTrue(subject.view.subviews.isEmpty)
     }
 
+    /// `preferredStatusBarStyle` returns the preferred status bar style for the given theme.
+    func test_preferredStatusBarStyle() {
+        subject.appTheme = .dark
+        XCTAssertEqual(subject.preferredStatusBarStyle, .lightContent)
+
+        subject.appTheme = .default
+        XCTAssertEqual(subject.preferredStatusBarStyle, .default)
+
+        subject.appTheme = .light
+        XCTAssertEqual(subject.preferredStatusBarStyle, .darkContent)
+    }
+
     /// `rootViewController` returns itself, instead of the current `childViewController`.
     func test_rootViewController() {
         let viewController = UIViewController()

@@ -30,11 +30,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
     // MARK: Methods
 
-    override func perform(_ effect: LoginWithDeviceEffect) async {
-        switch effect {
-        default: break
-        }
-    }
+    override func perform(_ effect: LoginWithDeviceEffect) async {}
 
     override func receive(_ action: LoginWithDeviceAction) {
         switch action {

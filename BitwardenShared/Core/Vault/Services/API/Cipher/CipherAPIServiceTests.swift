@@ -1,4 +1,5 @@
 import InlineSnapshotTesting
+import Networking
 import XCTest
 
 @testable import BitwardenShared
@@ -58,7 +59,7 @@ class CipherAPIServiceTests: XCTestCase {
                     autofillOnPageLoad: nil,
                     password: "encrypted password",
                     passwordRevisionDate: nil,
-                    totp: nil,
+                    totp: "totp",
                     uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
                     username: "encrypted username"
                 ),
@@ -106,7 +107,7 @@ class CipherAPIServiceTests: XCTestCase {
                     autofillOnPageLoad: nil,
                     password: "encrypted password",
                     passwordRevisionDate: nil,
-                    totp: nil,
+                    totp: "totp",
                     uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
                     username: "encrypted username"
                 ),
@@ -166,7 +167,7 @@ class CipherAPIServiceTests: XCTestCase {
                     autofillOnPageLoad: nil,
                     password: "encrypted password",
                     passwordRevisionDate: nil,
-                    totp: nil,
+                    totp: "totp",
                     uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
                     username: "encrypted username"
                 ),
@@ -194,5 +195,17 @@ class CipherAPIServiceTests: XCTestCase {
         XCTAssertNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .put)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/delete")
+    }
+
+    /// `updateCipherCollections()` performs the update cipher collections request.
+    func test_updateCipherCollections() async throws {
+        client.result = .success(.success(body: Data()))
+
+        try await subject.updateCipherCollections(.fixture(collectionIds: ["1", "2", "3"], id: "1"))
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .put)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/1/collections")
     }
 }

@@ -19,6 +19,7 @@ class AppCoordinatorTests: BitwardenTestCase {
         module = MockAppModule()
         rootNavigator = MockRootNavigator()
         subject = AppCoordinator(
+            appContext: .mainApp,
             module: module,
             rootNavigator: rootNavigator
         )
@@ -38,6 +39,21 @@ class AppCoordinatorTests: BitwardenTestCase {
         subject.didCompleteAuth()
         XCTAssertTrue(module.tabCoordinator.isStarted)
         XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list)])
+    }
+
+    /// `didCompleteAuth()` starts the vault coordinator coordinator in the app extension and
+    /// navigates to the proper vault route.
+    func test_didCompleteAuth_appExtension() {
+        subject = AppCoordinator(
+            appContext: .appExtension,
+            module: module,
+            rootNavigator: rootNavigator
+        )
+
+        subject.didCompleteAuth()
+
+        XCTAssertTrue(module.vaultCoordinator.isStarted)
+        XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
     }
 
     /// `didDeleteAccount(otherAccounts:)` navigates to the landing screen

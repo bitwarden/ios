@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SwiftUI
 
 // MARK: - VaultListProcessor
@@ -9,6 +10,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasPasteboardService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -44,6 +46,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         switch effect {
         case .appeared:
             await refreshVault(isManualRefresh: false)
+        case let .morePressed(item):
+            await showMoreOptionsAlert(for: item)
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -70,16 +74,19 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .addItemPressed:
             setProfileSwitcher(visible: false)
             coordinator.navigate(to: .addItem())
+        case .clearURL:
+            state.url = nil
+        case .copyTOTPCode:
+            break
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group))
+            case let .totp(_, model):
+                coordinator.navigate(to: .viewItem(id: model.id))
             }
-        case .morePressed:
-            // TODO: BIT-375 Show item actions
-            break
         case let .profileSwitcherAction(profileAction):
             switch profileAction {
             case let .accountPressed(account):
@@ -101,6 +108,9 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             state.searchResults = searchVault(for: newValue)
         case let .toastShown(newValue):
             state.toast = newValue
+        case .totpCodeExpired:
+            // No-op: TOTP codes aren't shown on the list view and can't be copied.
+            break
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }
@@ -192,7 +202,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         }
     }
 
-    /// Sets the visibility of the profiles view and updates accessbility focus
+    /// Sets the visibility of the profiles view and updates accessibility focus
     /// - Parameter visible: the intended visibility of the view
     private func setProfileSwitcher(visible: Bool) {
         if !visible {
@@ -212,6 +222,46 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             services.errorReporter.log(error: error)
         }
     }
+
+    /// Show the more options alert for the selected item.
+    ///
+    /// - Parameter item: The selected item to show the options for.
+    ///
+    private func showMoreOptionsAlert(for item: VaultListItem) async {
+        // Load the content of the cipher item to determine which values to show in the menu.
+        do {
+            guard let cipherView = try await services.vaultRepository.fetchCipher(withId: item.id)
+            else { return }
+
+            coordinator.showAlert(.moreOptions(
+                cipherView: cipherView,
+                id: item.id,
+                showEdit: true,
+                action: handleMoreOptionsAction
+            ))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Handle the result of the selected option on the More Options alert..
+    ///
+    /// - Parameter action: The selected action.
+    ///
+    private func handleMoreOptionsAction(_ action: MoreOptionsAction) {
+        switch action {
+        case let .copy(toast: toast, value: value):
+            services.pasteboardService.copy(value)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+        case let .edit(cipherView: cipherView):
+            coordinator.navigate(to: .editItem(cipher: cipherView))
+        case let .launch(url: url):
+            state.url = url.sanitized
+        case let .view(id: id):
+            coordinator.navigate(to: .viewItem(id: id))
+        }
+    }
 }
 
 // MARK: - CipherItemOperationDelegate
@@ -220,4 +270,21 @@ extension VaultListProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
         state.toast = Toast(text: Localizations.itemSoftDeleted)
     }
+}
+
+// MARK: - MoreOptionsAction
+
+/// The actions available from the More Options alert.
+enum MoreOptionsAction {
+    /// Copy the `value` and show a toast with the `toast` string.
+    case copy(toast: String, value: String)
+
+    /// Navigate to the view to edit the `cipherView`.
+    case edit(cipherView: CipherView)
+
+    /// Launch the `url` in the device's browser.
+    case launch(url: URL)
+
+    /// Navigate to view the item with the given `id`.
+    case view(id: String)
 }

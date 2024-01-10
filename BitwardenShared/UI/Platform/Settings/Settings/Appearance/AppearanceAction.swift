@@ -3,11 +3,8 @@
 /// Actions handled by the `AppearanceProcessor`.
 ///
 enum AppearanceAction: Equatable {
-    /// The default dark mode theme was changed.
-    case defaultDarkThemeChanged
-
     /// The default color theme was changed.
-    case defaultThemeChanged
+    case appThemeChanged(AppTheme)
 
     /// The language option was tapped.
     case languageTapped

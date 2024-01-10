@@ -7,6 +7,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     // MARK: Properties
 
     var accountAPIService: APIService!
+    var authService: MockAuthService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var clientCrypto: MockClientCrypto!
@@ -75,6 +76,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
         accountAPIService = APIService(client: client)
+        authService = MockAuthService()
         clientCrypto = MockClientCrypto()
         clientPlatform = MockClientPlatform()
         environmentService = MockEnvironmentService()
@@ -84,6 +86,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         subject = DefaultAuthRepository(
             accountAPIService: accountAPIService,
+            authService: authService,
             clientAuth: clientAuth,
             clientCrypto: clientCrypto,
             clientPlatform: clientPlatform,
@@ -98,6 +101,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.tearDown()
 
         accountAPIService = nil
+        authService = nil
         client = nil
         clientAuth = nil
         clientCrypto = nil
@@ -384,6 +388,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(vaultTimeoutService.timeoutStore, ["1": false])
         XCTAssertTrue(organizationService.initializeOrganizationCryptoCalled)
+        XCTAssertEqual(authService.hashPasswordPassword, "password")
+        XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
     }
 
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.

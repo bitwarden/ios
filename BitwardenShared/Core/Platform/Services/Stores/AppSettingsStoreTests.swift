@@ -4,6 +4,8 @@ import XCTest
 
 // MARK: - AppSettingsStoreTests
 
+// swiftlint:disable file_length
+
 class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -70,6 +72,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.allowSyncOnRefresh(userId: "2"))
         XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_1"))
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_w"))
+    }
+
+    /// `appTheme` returns `nil` if there isn't a previously stored value.
+    func test_appTheme_isInitiallyNil() {
+        XCTAssertNil(subject.appTheme)
+    }
+
+    /// `appTheme` can be used to get and set the persisted value in user defaults.
+    func test_appTheme_withValue() {
+        subject.appTheme = "light"
+        XCTAssertEqual(subject.appTheme, "light")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:theme"), "light")
+
+        subject.appTheme = nil
+        XCTAssertNil(subject.appTheme)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
     }
 
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.

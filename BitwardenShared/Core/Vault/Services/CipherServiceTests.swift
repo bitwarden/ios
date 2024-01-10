@@ -6,8 +6,8 @@ import XCTest
 class CipherServiceTests: XCTestCase {
     // MARK: Properties
 
-    var cipherDataStore: MockCipherDataStore!
     var cipherAPIService: CipherAPIService!
+    var cipherDataStore: MockCipherDataStore!
     var client: MockHTTPClient!
     var stateService: MockStateService!
     var subject: CipherService!
@@ -39,6 +39,19 @@ class CipherServiceTests: XCTestCase {
 
     // MARK: Tests
 
+    /// `ciphersPublisher()` returns a publisher that emits data as the data store changes.
+    func test_ciphersPublisher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        var iterator = try await subject.ciphersPublisher().values.makeAsyncIterator()
+        _ = try await iterator.next()
+
+        let cipher = Cipher.fixture()
+        cipherDataStore.cipherSubject.value = [cipher]
+        let publisherValue = try await iterator.next()
+        try XCTAssertEqual(XCTUnwrap(publisherValue), [cipher])
+    }
+
     /// `deleteCipherWithServer(id:)` deletes the cipher item from remote server and persisted cipher in the data store.
     func test_deleteCipher() async throws {
         stateService.accounts = [.fixtureAccountLogin()]
@@ -47,6 +60,22 @@ class CipherServiceTests: XCTestCase {
         try await subject.deleteCipherWithServer(id: "TestId")
         XCTAssertEqual(cipherDataStore.deleteCipherId, "TestId")
         XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
+    }
+
+    /// `fetchCipher(withId:)` returns the cipher if it exists and nil otherwise.
+    func test_fetchCipher() async throws {
+        stateService.activeAccount = .fixture()
+
+        var cipher = try await subject.fetchCipher(withId: "1")
+        XCTAssertNil(cipher)
+        XCTAssertEqual(cipherDataStore.fetchCipherId, "1")
+
+        let testCipher = Cipher.fixture(id: "2")
+        cipherDataStore.fetchCipherResult = testCipher
+
+        cipher = try await subject.fetchCipher(withId: "2")
+        XCTAssertEqual(cipher, testCipher)
+        XCTAssertEqual(cipherDataStore.fetchCipherId, "2")
     }
 
     /// `replaceCiphers(_:userId:)` replaces the persisted ciphers in the data store.
@@ -88,5 +117,17 @@ class CipherServiceTests: XCTestCase {
         try await subject.softDeleteCipherWithServer(id: "123", cipherToDeleted)
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
         XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherToDeleted)
+    }
+
+    /// `updateCipherCollectionsWithServer(_:)` updates the cipher's collections and updates the data store.
+    func test_updateCipherCollections() async throws {
+        client.result = .success(.success())
+        stateService.activeAccount = .fixture()
+
+        let cipher = Cipher.fixture(collectionIds: ["1", "2"], id: "123")
+        try await subject.updateCipherCollectionsWithServer(cipher)
+
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, cipher)
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
     }
 }

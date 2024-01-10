@@ -334,3 +334,46 @@ extension SecureNoteView {
         self.init(type: secureNote.type)
     }
 }
+
+extension SendFileView {
+    init(sendFile: SendFile) {
+        self.init(
+            id: sendFile.id,
+            fileName: sendFile.fileName,
+            size: sendFile.size,
+            sizeName: sendFile.sizeName
+        )
+    }
+}
+
+extension SendTextView {
+    init(sendText: SendText) {
+        self.init(
+            text: sendText.text,
+            hidden: sendText.hidden
+        )
+    }
+}
+
+extension SendView {
+    init(send: Send) {
+        self.init(
+            id: send.id,
+            accessId: send.accessId,
+            name: send.name,
+            notes: send.notes,
+            key: send.key,
+            password: send.password,
+            type: send.type,
+            file: send.file.map(SendFileView.init),
+            text: send.text.map(SendTextView.init),
+            maxAccessCount: send.maxAccessCount,
+            accessCount: send.accessCount,
+            disabled: send.disabled,
+            hideEmail: send.hideEmail,
+            revisionDate: send.revisionDate,
+            deletionDate: send.deletionDate,
+            expirationDate: send.expirationDate
+        )
+    }
+}

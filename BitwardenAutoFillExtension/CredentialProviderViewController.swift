@@ -1,13 +1,22 @@
 import AuthenticationServices
+import BitwardenShared
 
+/// An `ASCredentialProviderViewController` that implements credential autofill.
+///
 class CredentialProviderViewController: ASCredentialProviderViewController {
-    // Automatically generated ASCredentialProviderViewController subclass. We should alter this for our use.
+    // MARK: Properties
 
-//    Prepare your UI to list available credentials for the user to choose from. The items in
-//    'serviceIdentifiers' describe the service the user is logging in to, so your extension can
-//    prioritize the most relevant credentials in the list.
+    /// The app's theme.
+    var appTheme: AppTheme = .default
 
-    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {}
+    /// The processor that manages application level logic.
+    private var appProcessor: AppProcessor?
+
+    // MARK: ASCredentialProviderViewController
+
+    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        initializeApp()
+    }
 
 //     Implement this method if your extension supports showing credentials in the QuickType bar.
 //     When the user selects a credential from your app, this method will be called with the
@@ -38,7 +47,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 //    override func prepareInterfaceToProvideCredential(for credentialIdentity: ASPasswordCredentialIdentity) {
 //    }
 
-    func cancel(_ sender: AnyObject?) {
+    // MARK: Private
+
+    /// Cancels the extension request and dismisses the extension's view controller.
+    ///
+    private func cancel() {
         extensionContext.cancelRequest(
             withError: NSError(
                 domain: ASExtensionErrorDomain,
@@ -47,11 +60,50 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         )
     }
 
-    func passwordSelected(_ sender: AnyObject?) {
-        let passwordCredential = ASPasswordCredential(user: "j_appleseed", password: "apple1234")
-        extensionContext.completeRequest(
-            withSelectedCredential: passwordCredential,
-            completionHandler: nil
-        )
+    /// Sets up and initializes the app and UI.
+    ///
+    private func initializeApp() {
+        let errorReporter = OSLogErrorReporter()
+        let services = ServiceContainer(errorReporter: errorReporter)
+        let appModule = DefaultAppModule(appExtensionDelegate: self, services: services)
+        let appProcessor = AppProcessor(appModule: appModule, services: services)
+        self.appProcessor = appProcessor
+
+        appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
+    }
+}
+
+// MARK: - AppExtensionDelegate
+
+extension CredentialProviderViewController: AppExtensionDelegate {
+    var isInAppExtension: Bool { true }
+
+    func completeAutofillRequest(username: String, password: String) {
+        let passwordCredential = ASPasswordCredential(user: username, password: password)
+        extensionContext.completeRequest(withSelectedCredential: passwordCredential)
+    }
+
+    func didCancel() {
+        cancel()
+    }
+}
+
+// MARK: - RootNavigator
+
+extension CredentialProviderViewController: RootNavigator {
+    var rootViewController: UIViewController? { self }
+
+    func show(child: Navigator) {
+        if let fromViewController = children.first {
+            fromViewController.willMove(toParent: nil)
+            fromViewController.view.removeFromSuperview()
+            fromViewController.removeFromParent()
+        }
+
+        if let toViewController = child.rootViewController {
+            addChild(toViewController)
+            view.addConstrained(subview: toViewController.view)
+            toViewController.didMove(toParent: self)
+        }
     }
 }

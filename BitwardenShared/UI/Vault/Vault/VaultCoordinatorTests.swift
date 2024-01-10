@@ -22,6 +22,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
         subject = VaultCoordinator(
+            appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: delegate,
             module: module,
             services: ServiceContainer.withMocks(),
@@ -38,6 +39,15 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `navigate(to:)` with `.autofillList` replaces the stack navigator's stack with the autofill list.
+    func test_navigateTo_autofillList() throws {
+        subject.navigate(to: .autofillList)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is VaultAutofillListView)
+    }
 
     /// `navigate(to:)` with `. addAccount ` informs the delegate that the user wants to add an account.
     func test_navigateTo_addAccount() throws {
@@ -74,6 +84,16 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
         subject.navigate(to: .alert(alert))
         XCTAssertEqual(stackNavigator.alerts.last, alert)
+    }
+
+    /// `.navigate(to:)` with `.editItem` presents the edit item screen.
+    func test_navigateTo_editItem() throws {
+        subject.navigate(to: .editItem(cipher: .fixture()))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .editItem(cipher: .fixture()))
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack

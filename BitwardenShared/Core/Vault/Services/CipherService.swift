@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Combine
 
 // MARK: - CipherService
 
@@ -10,6 +11,13 @@ protocol CipherService {
     /// - Parameter id: The id of cipher item to be deleted.
     ///
     func deleteCipherWithServer(id: String) async throws
+
+    /// Attempt to fetch a cipher with the given id.
+    ///
+    /// - Parameter id: The id of the cipher to find.
+    /// - Returns: The cipher if it was found and `nil` if not.
+    ///
+    func fetchCipher(withId id: String) async throws -> Cipher?
 
     /// Replaces the persisted list of ciphers for the user.
     ///
@@ -30,6 +38,20 @@ protocol CipherService {
     /// - Parameter cipher: The  cipher item to be soft deleted.
     ///
     func softDeleteCipherWithServer(id: String, _ cipher: Cipher) async throws
+
+    /// Updates the cipher's collections and updates the locally stored data.
+    ///
+    /// - Parameter cipher: The cipher to update.
+    ///
+    func updateCipherCollectionsWithServer(_ cipher: Cipher) async throws
+
+    // MARK: Publishers
+
+    /// A publisher for the list of ciphers.
+    ///
+    /// - Returns: The list of encrypted ciphers.
+    ///
+    func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error>
 }
 
 // MARK: - DefaultCipherService
@@ -77,15 +99,20 @@ extension DefaultCipherService {
         try await cipherDataStore.deleteCipher(id: id, userId: userID)
     }
 
+    func fetchCipher(withId id: String) async throws -> Cipher? {
+        let userId = try await stateService.getActiveAccountId()
+        return try await cipherDataStore.fetchCipher(withId: id, userId: userId)
+    }
+
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
         try await cipherDataStore.replaceCiphers(ciphers.map(Cipher.init), userId: userId)
     }
 
     func shareWithServer(_ cipher: Cipher) async throws {
-        let userID = try await stateService.getActiveAccountId()
+        let userId = try await stateService.getActiveAccountId()
         var response = try await cipherAPIService.shareCipher(cipher)
         response.collectionIds = cipher.collectionIds
-        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
+        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)
     }
 
     func softDeleteCipherWithServer(id: String, _ cipher: BitwardenSdk.Cipher) async throws {
@@ -96,5 +123,18 @@ extension DefaultCipherService {
 
         // Soft delete cipher from local storage
         try await cipherDataStore.upsertCipher(cipher, userId: userID)
+    }
+
+    func updateCipherCollectionsWithServer(_ cipher: Cipher) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        try await cipherAPIService.updateCipherCollections(cipher)
+        try await cipherDataStore.upsertCipher(cipher, userId: userId)
+    }
+
+    // MARK: Publishers
+
+    func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error> {
+        let userID = try await stateService.getActiveAccountId()
+        return cipherDataStore.cipherPublisher(userId: userID)
     }
 }
