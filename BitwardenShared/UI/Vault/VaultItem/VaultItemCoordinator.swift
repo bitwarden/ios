@@ -147,9 +147,11 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the clone item screen.
     ///
-    /// - Parameter cipherView: A `CipherView` to initialize this view with.
+    /// - Parameters:
+    ///   - cipherView: A `CipherView` to initialize this view with.
+    ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances in the add/edit/delete item view have occurred.
     ///
-    private func showCloneItem(for cipherView: CipherView) {
+    private func showCloneItem(for cipherView: CipherView, delegate: CipherItemOperationDelegate?) {
         Task {
             let hasPremium = await (
                 try? services.vaultRepository.doesActiveAccountHavePremium()
@@ -158,7 +160,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             if stackNavigator.isEmpty {
                 let processor = AddEditItemProcessor(
                     coordinator: asAnyCoordinator(),
-                    delegate: nil,
+                    delegate: delegate,
                     services: services,
                     state: state
                 )
@@ -166,7 +168,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
                 let view = AddEditItemView(store: store)
                 stackNavigator.replace(view)
             } else {
-                presentChildVaultItemCoordinator(route: .cloneItem(cipher: cipherView))
+                presentChildVaultItemCoordinator(route: .cloneItem(cipher: cipherView), context: delegate)
             }
         }
     }

@@ -206,6 +206,7 @@ struct CipherItemState: Equatable {
     init(cloneItem cipherView: CipherView, hasPremium: Bool) {
         self.init(
             accountHasPremium: hasPremium,
+            allowTypeSelection: false,
             cardState: cipherView.cardItemState(),
             configuration: .add,
             customFields: cipherView.customFields,
