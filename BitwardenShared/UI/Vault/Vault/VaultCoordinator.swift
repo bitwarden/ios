@@ -30,7 +30,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasAuthRepository
         & HasCameraService
+        & HasEnvironmentService
         & HasErrorReporter
+        & HasStateService
         & HasVaultRepository
         & VaultItemCoordinator.Services
 
@@ -130,7 +132,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         let processor = VaultGroupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultGroupState(group: group)
+            state: VaultGroupState(
+                group: group,
+                iconBaseURL: services.environmentService.iconsURL
+            )
         )
         let store = Store(processor: processor)
         let view = VaultGroupView(store: store)
@@ -152,7 +157,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             let processor = VaultListProcessor(
                 coordinator: asAnyCoordinator(),
                 services: services,
-                state: VaultListState()
+                state: VaultListState(
+                    iconBaseURL: services.environmentService.iconsURL
+                )
             )
             let store = Store(processor: processor)
             let view = VaultListView(store: store)

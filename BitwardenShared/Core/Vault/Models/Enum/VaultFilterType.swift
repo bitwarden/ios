@@ -40,13 +40,13 @@ enum VaultFilterType: Equatable, Hashable {
 }
 
 extension VaultFilterType {
-    /// A filter to determine if a `CipherListView` should be included in the vault list with the
+    /// A filter to determine if a `CipherView` should be included in the vault list with the
     /// current filter.
     ///
-    /// - Parameter cipher: The `CipherListView` to determine if it should be in the vault list.
+    /// - Parameter cipher: The `CipherView` to determine if it should be in the vault list.
     /// - Returns: Whether the cipher should be displayed in the vault list.
     ///
-    func cipherFilter(_ cipher: CipherListView) -> Bool {
+    func cipherFilter(_ cipher: CipherView) -> Bool {
         switch self {
         case .allVaults:
             true

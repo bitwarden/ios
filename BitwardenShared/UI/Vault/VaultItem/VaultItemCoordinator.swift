@@ -119,9 +119,15 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     ///   - type: An optional `CipherType` to initialize this view with.
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - uri: A URI string used to populate the add item screen.
-    ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances in the add/edit/delete item view have occurred.
+    ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
+    ///     in the add/edit/delete item view have occurred.
     ///
-    private func showAddItem(for type: CipherType?, allowTypeSelection: Bool, uri: String?, delegate: CipherItemOperationDelegate?) {
+    private func showAddItem(
+        for type: CipherType?,
+        allowTypeSelection: Bool,
+        uri: String?,
+        delegate: CipherItemOperationDelegate?
+    ) {
         Task {
             let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
                 ?? false

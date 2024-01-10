@@ -43,6 +43,7 @@ final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceActio
         switch effect {
         case .loadData:
             state.appTheme = await services.stateService.getAppTheme()
+            state.isShowWebsiteIconsToggleOn = await services.stateService.getShowWebIcons()
         }
     }
 
@@ -57,6 +58,9 @@ final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceActio
             print("languageTapped")
         case let .toggleShowWebsiteIcons(isOn):
             state.isShowWebsiteIconsToggleOn = isOn
+            Task {
+                await services.stateService.setShowWebIcons(isOn)
+            }
         }
     }
 }
