@@ -7,6 +7,7 @@ typealias Services = HasAPIService
     & HasAppSettingsStore
     & HasAuthAPIService
     & HasAuthRepository
+    & HasAuthService
     & HasBiometricsService
     & HasCameraService
     & HasCaptchaService
@@ -16,6 +17,7 @@ typealias Services = HasAPIService
     & HasErrorReporter
     & HasGeneratorRepository
     & HasPasteboardService
+    & HasSendRepository
     & HasSettingsRepository
     & HasStateService
     & HasSystemDevice
@@ -66,9 +68,17 @@ protocol HasAuthRepository {
     var authRepository: AuthRepository { get }
 }
 
+/// Protocol for an object that provides an `AuthService`.
+///
+protocol HasAuthService {
+    /// The service used by the application to handle authentication tasks.
+    var authService: AuthService { get }
+}
+
 /// Protocol for obtaining the device's biometric authentication type.
 ///
 protocol HasBiometricsService {
+    /// The service used to obtain the available authentication policies and access controls for the user's device.
     var biometricsService: BiometricsService { get }
 }
 
@@ -126,6 +136,13 @@ protocol HasPasteboardService {
     var pasteboardService: PasteboardService { get }
 }
 
+/// Protocol for an object that provides a `SendRepository`.
+///
+protocol HasSendRepository {
+    /// The repository used by the application to manage send data for the UI layer.
+    var sendRepository: SendRepository { get }
+}
+
 /// Protocol for an object that provides a `SettingsRepository`.
 ///
 protocol HasSettingsRepository {
@@ -141,6 +158,7 @@ protocol HasStateService {
 }
 
 /// Protocol for an object that provides a `SystemDevice`.
+///
 protocol HasSystemDevice {
     /// The object used by the application to retrieve information about this device.
     var systemDevice: SystemDevice { get }
@@ -156,6 +174,7 @@ protocol HasTOTPService {
 /// Protocol for an object that provides a `TwoStepLoginService`.
 ///
 protocol HasTwoStepLoginService {
+    /// The service used by the application to generate a two step login URL.
     var twoStepLoginService: TwoStepLoginService { get }
 }
 

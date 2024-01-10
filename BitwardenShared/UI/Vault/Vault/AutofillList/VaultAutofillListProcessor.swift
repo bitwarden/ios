@@ -10,12 +10,16 @@ class VaultAutofillListProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasErrorReporter
+        & HasPasteboardService
         & HasVaultRepository
 
     // MARK: Private Properties
 
     /// A delegate used to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
+
+    /// A helper that handles autofill for a selected cipher.
+    private let autofillHelper: AutofillHelper
 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultRoute>
@@ -40,6 +44,11 @@ class VaultAutofillListProcessor: StateProcessor<
         state: VaultAutofillListState
     ) {
         self.appExtensionDelegate = appExtensionDelegate
+        autofillHelper = AutofillHelper(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator,
+            services: services
+        )
         self.coordinator = coordinator
         self.services = services
         super.init(state: state)
@@ -49,6 +58,10 @@ class VaultAutofillListProcessor: StateProcessor<
 
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
+        case let .cipherTapped(cipher):
+            await autofillHelper.handleCipherForAutofill(cipherListView: cipher) { [weak self] toastText in
+                self?.state.toast = Toast(text: toastText)
+            }
         case .streamAutofillItems:
             await streamAutofillItems()
         }
@@ -58,8 +71,8 @@ class VaultAutofillListProcessor: StateProcessor<
         switch action {
         case .cancelTapped:
             appExtensionDelegate?.didCancel()
-        case .cipherTapped:
-            break
+        case let .toastShown(newValue):
+            state.toast = newValue
         }
     }
 

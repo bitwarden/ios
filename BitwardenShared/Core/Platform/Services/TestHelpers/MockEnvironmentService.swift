@@ -9,6 +9,7 @@ class MockEnvironmentService: EnvironmentService {
 
     var apiURL = URL(string: "https://example.com/api")!
     var eventsURL = URL(string: "https://example.com/events")!
+    var iconsURL = URL(string: "https://example.com/icons")!
     var identityURL = URL(string: "https://example.com/identity")!
     var webVaultURL = URL(string: "https://example.com")!
 

@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: Alert+Networking
@@ -41,6 +42,11 @@ extension Alert {
             return defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: errorResponse.singleMessage()
+            )
+        case let BitwardenSdk.BitwardenError.E(message):
+            return defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: message
             )
         case let error as URLError where error.code == .notConnectedToInternet:
             return internetConnectionError(tryAgain)

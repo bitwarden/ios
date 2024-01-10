@@ -71,6 +71,56 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
     }
 
+    /// `perform(_:)` with `.save` saves the updated cipher.
+    func test_perform_save() async {
+        subject.state.collectionIds = ["1"]
+
+        await subject.perform(.save)
+
+        XCTAssertEqual(vaultRepository.updateCipherCollectionsCiphers, [subject.state.updatedCipher])
+        let updatedCipher = vaultRepository.updateCipherCollectionsCiphers[0]
+        XCTAssertEqual(updatedCipher.collectionIds, ["1"])
+
+        guard case let .dismiss(dismissAction) = coordinator.routes.last else {
+            return XCTFail("Expected a `.dismiss` route.")
+        }
+        dismissAction?.action()
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.saving)])
+        XCTAssertTrue(delegate.didUpdateCipherCalled)
+    }
+
+    /// `perform(_:)` with `.save` shows an alert if an error occurs updating the cipher.
+    func test_perform_save_error() async {
+        subject.state.collectionIds = ["1"]
+
+        struct UpdateCipherError: Error, Equatable {}
+        vaultRepository.updateCipherCollectionsResult = .failure(UpdateCipherError())
+
+        await subject.perform(.save)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred
+            )
+        )
+        XCTAssertEqual(errorReporter.errors.last as? UpdateCipherError, UpdateCipherError())
+    }
+
+    /// `perform(_:)` with `.save` shows an alert if no collections have been selected.
+    func test_perform_moveCipher_errorNoCollections() async {
+        await subject.perform(.save)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.selectOneCollection
+            )
+        )
+    }
+
     /// `receive(_:)` with `.collectionToggleChanged` updates the selected collection IDs for the cipher.
     func test_receive_collectionToggleChanged() {
         subject.state.collections = [

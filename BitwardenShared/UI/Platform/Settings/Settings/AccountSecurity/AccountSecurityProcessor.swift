@@ -139,7 +139,7 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func toggleUnlockWithPIN(_ isOn: Bool) {
         if !state.isUnlockWithPINCodeOn {
-            coordinator.navigate(to: .alert(.unlockWithPIN(completion: { _ in
+            coordinator.navigate(to: .alert(.enterPINCode(completion: { _ in
                 self.state.isUnlockWithPINCodeOn = isOn
             })))
         } else {

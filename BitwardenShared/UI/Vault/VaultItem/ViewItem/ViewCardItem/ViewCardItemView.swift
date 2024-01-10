@@ -70,17 +70,21 @@ struct ViewCardItemView: View {
     }
 
     @ViewBuilder private var expirationItems: some View {
-        if case .custom = store.state.expirationMonth {
+        let expirationString: String = {
+            var strings = [String]()
+            if case let .custom(month) = store.state.expirationMonth {
+                strings.append("\(month.rawValue)")
+            }
+            if !store.state.expirationYear.isEmpty {
+                strings.append(store.state.expirationYear)
+            }
+            return strings
+                .joined(separator: "/")
+        }()
+        if !expirationString.isEmpty {
             BitwardenTextValueField(
-                title: Localizations.expirationMonth,
-                value: store.state.expirationMonth.localizedName
-            )
-        }
-
-        if !store.state.expirationYear.isEmpty {
-            BitwardenTextValueField(
-                title: Localizations.expirationYear,
-                value: store.state.expirationYear
+                title: Localizations.expiration,
+                value: expirationString
             )
         }
     }
@@ -118,6 +122,18 @@ struct ViewCardItemView: View {
 #if DEBUG
 struct ViewCardItemView_Previews: PreviewProvider {
     static var previews: some View {
+        emptyPreview
+
+        fullPreview
+
+        hiddenCodePreview
+
+        noExpiration
+
+        yearOnlyExpiration
+    }
+
+    @ViewBuilder static var emptyPreview: some View {
         NavigationView {
             ScrollView {
                 ViewCardItemView(
@@ -133,32 +149,9 @@ struct ViewCardItemView_Previews: PreviewProvider {
             .navigationBar(title: "Empty View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Empty View State")
+    }
 
-        NavigationView {
-            ScrollView {
-                ViewCardItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: {
-                                var state = CardItemState()
-                                state.brand = .custom(.visa)
-                                state.cardNumber = "4400123456789"
-                                state.cardSecurityCode = "123"
-                                state.cardholderName = "Bitwarden User"
-                                state.expirationMonth = .custom(.aug)
-                                state.expirationYear = "1989"
-                                return state
-                            }() as (any ViewCardItemState)
-                        )
-                    )
-                )
-                .padding(16)
-            }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-            .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
-        }
-        .previewDisplayName("Hidden View State")
-
+    @ViewBuilder static var fullPreview: some View {
         NavigationView {
             ScrollView {
                 ViewCardItemView(
@@ -185,6 +178,87 @@ struct ViewCardItemView_Previews: PreviewProvider {
             .navigationBar(title: "Visible View State", titleDisplayMode: .inline)
         }
         .previewDisplayName("Visible Add Edit State")
+    }
+
+    @ViewBuilder static var hiddenCodePreview: some View {
+        NavigationView {
+            ScrollView {
+                ViewCardItemView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: {
+                                var state = CardItemState()
+                                state.brand = .custom(.visa)
+                                state.cardNumber = "4400123456789"
+                                state.cardSecurityCode = "123"
+                                state.cardholderName = "Bitwarden User"
+                                state.expirationMonth = .custom(.aug)
+                                state.expirationYear = "1989"
+                                return state
+                            }() as (any ViewCardItemState)
+                        )
+                    )
+                )
+                .padding(16)
+            }
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
+        }
+        .previewDisplayName("Hidden View State")
+    }
+
+    @ViewBuilder static var noExpiration: some View {
+        NavigationView {
+            ScrollView {
+                ViewCardItemView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: {
+                                var state = CardItemState()
+                                state.brand = .custom(.visa)
+                                state.cardNumber = "4400123456789"
+                                state.cardSecurityCode = "123"
+                                state.cardholderName = "Bitwarden User"
+                                state.expirationMonth = .default
+                                state.expirationYear = ""
+                                return state
+                            }() as (any ViewCardItemState)
+                        )
+                    )
+                )
+                .padding(16)
+            }
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
+        }
+        .previewDisplayName("No Expiration")
+    }
+
+    @ViewBuilder static var yearOnlyExpiration: some View {
+        NavigationView {
+            ScrollView {
+                ViewCardItemView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: {
+                                var state = CardItemState()
+                                state.brand = .custom(.visa)
+                                state.cardNumber = "4400123456789"
+                                state.cardSecurityCode = "123"
+                                state.cardholderName = "Bitwarden User"
+                                state.expirationMonth = .default
+                                state.expirationYear = "1989"
+                                return state
+                            }() as (any ViewCardItemState)
+                        )
+                    )
+                )
+                .padding(16)
+            }
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
+        }
+        .previewDisplayName("Year But Not Month")
     }
 }
 #endif

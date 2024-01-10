@@ -39,11 +39,12 @@ protocol GeneratorRepository: AnyObject {
     ///
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String
 
-    /// Generates a plus-addressed email based on the username generation options.
+    /// Generates a username based on the username settings.
     ///
-    /// - Returns: The generated plus-addressed email.
+    /// - Parameter settings: The settings used to generate the username.
+    /// - Returns: The generated username.
     ///
-    func generateUsernamePlusAddressedEmail(email: String) async throws -> String
+    func generateUsername(settings: UsernameGeneratorRequest) async throws -> String
 
     /// Gets the password generation options for the active account.
     ///
@@ -83,9 +84,6 @@ class DefaultGeneratorRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVaultService: ClientVaultService
 
-    /// The service used to handle cryptographic operations.
-    let cryptoService: CryptoService
-
     /// The data store that handles performing data requests for the generator.
     let dataStore: GeneratorDataStore
 
@@ -100,20 +98,17 @@ class DefaultGeneratorRepository {
     ///   - clientGenerators: The client used for generating passwords and passphrases.
     ///   - clientVaultService: The client used by the application to handle vault encryption and
     ///     decryption tasks.
-    ///   - cryptoService: The service used to handle cryptographic operations.
     ///   - dataStore: The data store that handles performing data requests for the generator.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
         clientGenerators: ClientGeneratorsProtocol,
         clientVaultService: ClientVaultService,
-        cryptoService: CryptoService = DefaultCryptoService(randomNumberGenerator: SecureRandomNumberGenerator()),
         dataStore: GeneratorDataStore,
         stateService: StateService
     ) {
         self.clientGenerators = clientGenerators
         self.clientVaultService = clientVaultService
-        self.cryptoService = cryptoService
         self.dataStore = dataStore
         self.stateService = stateService
     }
@@ -182,23 +177,8 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         try await clientGenerators.password(settings: settings)
     }
 
-    func generateUsernamePlusAddressedEmail(email: String) async throws -> String {
-        guard email.trimmingCharacters(in: .whitespacesAndNewlines).count >= 3 else {
-            return Constants.defaultGeneratedUsername
-        }
-
-        guard let atIndex = email.firstIndex(of: "@"),
-              // Ensure '@' symbol isn't the first or last character.
-              atIndex > email.startIndex,
-              atIndex < email.index(before: email.endIndex) else {
-            return email
-        }
-
-        let randomString = try cryptoService.randomString(length: 8)
-
-        var email = email
-        email.insert(contentsOf: "+\(randomString)", at: atIndex)
-        return email
+    func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
+        try await clientGenerators.username(settings: settings)
     }
 
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {
