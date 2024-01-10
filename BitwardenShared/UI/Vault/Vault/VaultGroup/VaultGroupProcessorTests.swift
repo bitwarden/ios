@@ -12,7 +12,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     var coordinator: MockCoordinator<VaultRoute>!
     var errorReporter: MockErrorReporter!
-    var mockPresentTime = Date(year: 2023, month: 12, day: 31, minute: 0, second: 41)
+    var mockPresentTime = Date(year: 2023, month: 12, day: 31, minute: 0, second: 33)
     var pasteboardService: MockPasteboardService!
     var subject: VaultGroupProcessor!
     var vaultRepository: MockVaultRepository!
