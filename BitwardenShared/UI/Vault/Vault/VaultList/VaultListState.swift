@@ -22,6 +22,9 @@ struct VaultListState: Equatable {
     /// The text that the user is currently searching for.
     var searchText: String = ""
 
+    /// The search vault filter used to display a single or all vaults for the user.
+    var searchVaultFilterType: VaultFilterType = .allVaults
+
     /// A toast message to show in the view.
     var toast: Toast?
 
@@ -45,14 +48,5 @@ struct VaultListState: Equatable {
     /// The user's initials.
     var userInitials: String {
         profileSwitcherState.activeAccountInitials
-    }
-
-    /// The list of vault filter options that can be used to filter the vault, if the user is a
-    /// member of any organizations.
-    var vaultFilterOptions: [VaultFilterType] {
-        guard !organizations.isEmpty else { return [] }
-        return [.allVaults, .myVault] + organizations
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-            .map(VaultFilterType.organization)
     }
 }

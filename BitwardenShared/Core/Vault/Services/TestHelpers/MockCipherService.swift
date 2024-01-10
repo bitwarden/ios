@@ -12,18 +12,26 @@ class MockCipherService: CipherService {
     var replaceCiphersCiphers: [CipherDetailsResponseModel]?
     var replaceCiphersUserId: String?
 
+    var cipherPublisherUserId: String?
+    var cipherSubject = CurrentValueSubject<[Cipher], Error>([])
+
     var deleteCipherId: String?
     var deleteWithServerResult: Result<Void, Error> = .success(())
-
-    var shareWithServerCiphers = [Cipher]()
-    var shareWithServerResult: Result<Void, Error> = .success(())
 
     var softDeleteCipherId: String?
     var softDeleteCipher: Cipher?
     var softDeleteWithServerResult: Result<Void, Error> = .success(())
 
+    var shareWithServerCiphers = [Cipher]()
+    var shareWithServerResult: Result<Void, Error> = .success(())
+
     var updateCipherCollectionsWithServerCiphers = [Cipher]()
     var updateCipherCollectionsWithServerResult: Result<Void, Error> = .success(())
+
+    func cipherPublisher(userId: String) -> AnyPublisher<[BitwardenSdk.Cipher], Error> {
+        cipherPublisherUserId = userId
+        return cipherSubject.eraseToAnyPublisher()
+    }
 
     func deleteCipherWithServer(id: String) async throws {
         deleteCipherId = id
