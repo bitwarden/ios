@@ -72,11 +72,11 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
                     ?? false
-                var totpState = LoginTOTP(
+                var totpState = LoginTOTPState(
                     .init(authenticatorKey: value.login?.totp ?? ""),
                     time: TOTPTime(provider: services.vaultRepository.timeProvider)
                 )
-                if let key = totpState?.config {
+                if let key = totpState?.authKeyModel {
                     totpState = try? await services.vaultRepository.refreshTOTPCode(for: key)
                 }
                 guard var newState = ViewItemState(
@@ -289,7 +289,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 state.loadingState = .data(updatedState)
                 return
             }
-            if currentKey == newLoginTOTP.config {
+            if currentKey == newLoginTOTP.authKeyModel {
                 updatedState.loginState.totpState = newLoginTOTP
                 state.loadingState = .data(updatedState)
             } else {

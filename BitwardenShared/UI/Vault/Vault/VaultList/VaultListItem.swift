@@ -107,7 +107,7 @@ struct VaultListTOTP: Equatable {
 
     /// The current TOTP code for the cipher.
     ///
-    var totpCode: TOTPCodeState
+    var totpCode: TOTPCodeModel
 
     /// The current TOTP time for the code.
     ///

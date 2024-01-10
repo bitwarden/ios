@@ -4,14 +4,6 @@ struct TOTPTime {
     /// A time provider for marking the present time.
     ///
     var provider: any TimeProvider
-
-    /// Initializes the model
-    ///
-    /// - Parameter provider: The TimeProvider for the model.
-    ///
-    init(provider: any TimeProvider) {
-        self.provider = provider
-    }
 }
 
 extension TOTPTime: Equatable {

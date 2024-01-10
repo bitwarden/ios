@@ -7,7 +7,7 @@ import SwiftUI
 struct TOTPCountdownTimerView: View {
     /// The TOTPCode used to generate the countdown
     ///
-    let totpCode: TOTPCodeState
+    let totpCode: TOTPCodeModel
 
     /// The `TOTPCountdownTimer`responsible for updating the view state.
     ///
@@ -30,7 +30,7 @@ struct TOTPCountdownTimerView: View {
         }
     }
 
-    /// Initializes the view for a TOTPCodeState and a timer expiration handler.
+    /// Initializes the view for a TOTPCodeModel and a timer expiration handler.
     ///
     /// - Parameters:
     ///   - timeProvider: A protocol providing the present time as a `Date`.
@@ -40,7 +40,7 @@ struct TOTPCountdownTimerView: View {
     ///
     init(
         timeProvider: any TimeProvider,
-        totpCode: TOTPCodeState,
+        totpCode: TOTPCodeModel,
         onExpiration: (() -> Void)?
     ) {
         self.totpCode = totpCode

@@ -23,7 +23,7 @@ struct LoginItemState: Equatable {
     var passwordUpdatedDate: Date?
 
     /// The TOTP key/code state.
-    var totpState: LoginTOTP?
+    var totpState: LoginTOTPState?
 
     /// The uris associated with this item. Used with autofill.
     var uris: [UriState] = [UriState()]
@@ -33,7 +33,7 @@ struct LoginItemState: Equatable {
 
     /// The TOTP Key.
     var authenticatorKey: String? {
-        totpState?.config.authenticatorKey
+        totpState?.authKeyModel.rawAuthenticatorKey
     }
 
     var time: TOTPTime {
@@ -41,12 +41,12 @@ struct LoginItemState: Equatable {
             ?? .currentTime
     }
 
-    var totpCode: TOTPCodeState? {
-        totpState?.totpModel
+    var totpCode: TOTPCodeModel? {
+        totpState?.codeModel
     }
 
-    var totpKey: TOTPCodeConfig? {
-        totpState?.config
+    var totpKey: TOTPKeyModel? {
+        totpState?.authKeyModel
     }
 
     /// BitwardenSDK loginView representation of loginItemState.
@@ -62,46 +62,48 @@ struct LoginItemState: Equatable {
     }
 }
 
-struct LoginTOTP: Equatable {
-    /// The `TOTPCodeConfig` used to populate the view.
+/// A model defining the state of a TOTP key/code pair along with a TimeProvider to calculate expiration.
+///
+struct LoginTOTPState: Equatable {
+    /// The auth key model used to generate TOTP codes.
     ///
-    let config: TOTPCodeConfig
+    let authKeyModel: TOTPKeyModel
 
     /// The current TOTP code for the Login Item.
     ///
-    var totpModel: TOTPCodeState?
+    var codeModel: TOTPCodeModel?
 
     /// The model used to provide time for a TOTP code expiration check.
     ///
     let totpTime: TOTPTime
 
-    /// Initializes a LoginTOTP model.
+    /// Initializes a LoginTOTPState model.
     ///
     /// - Parameters:
-    ///   - config: The TOTP key model.
-    ///   - totpModel: The TOTP code model. Defaults to `nil`.
+    ///   - authKeyModel: The TOTP key model.
+    ///   - codeModel: The TOTP code model. Defaults to `nil`.
     ///   - totpTime: The TimeProvider used to calculate code expiration.
     ///
     init(
-        config: TOTPCodeConfig,
-        totpModel: TOTPCodeState? = nil,
+        authKeyModel: TOTPKeyModel,
+        codeModel: TOTPCodeModel? = nil,
         totpTime: TOTPTime
     ) {
-        self.config = config
-        self.totpModel = totpModel
+        self.authKeyModel = authKeyModel
+        self.codeModel = codeModel
         self.totpTime = totpTime
     }
 
-    /// Optionally Initializes a LoginTOTP model without a current code.
+    /// Optionally Initializes a LoginTOTPState model without a current code.
     ///
     /// - Parameters:
-    ///   - config: The optional TOTP key model.
+    ///   - authKeyModel: The optional TOTP key model.
     ///   - totpTime: The TimeProvider used to calculate code expiration.
     ///
-    init?(_ config: TOTPCodeConfig?, time: TOTPTime) {
-        guard let config else { return nil }
-        self.config = config
-        totpModel = nil
+    init?(_ authKeyModel: TOTPKeyModel?, time: TOTPTime) {
+        guard let authKeyModel else { return nil }
+        self.authKeyModel = authKeyModel
+        codeModel = nil
         totpTime = time
     }
 }
@@ -140,7 +142,7 @@ protocol ViewLoginItemState: Sendable {
     var time: TOTPTime { get }
 
     /// The TOTP code model
-    var totpCode: TOTPCodeState? { get }
+    var totpCode: TOTPCodeModel? { get }
 
     /// The uris associated with this item. Used with autofill.
     var uris: [UriState] { get }

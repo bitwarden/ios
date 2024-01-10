@@ -27,10 +27,13 @@ class MockVaultRepository: VaultRepository {
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
     var refreshTOTPCodesResult: Result<[VaultListItem], Error> = .success([])
     var refreshedTOTPCodes: [VaultListItem] = []
-    var refreshTOTPCodeResult: Result<LoginTOTP, Error> = .success(
-        LoginTOTP(config: .init(authenticatorKey: .base32Key)!, totpTime: .currentTime)
+    var refreshTOTPCodeResult: Result<LoginTOTPState, Error> = .success(
+        LoginTOTPState(
+            authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+            totpTime: .currentTime
+        )
     )
-    var refreshedTOTPKeyConfig: TOTPCodeConfig?
+    var refreshedTOTPKeyConfig: TOTPKeyModel?
     var removeAccountIds = [String?]()
     var shareCipherResult: Result<Void, Error> = .success(())
     var sharedCiphers = [CipherView]()
@@ -50,7 +53,7 @@ class MockVaultRepository: VaultRepository {
     // MARK: Computed Properties
 
     var refreshedTOTPKey: String? {
-        refreshedTOTPKeyConfig?.authenticatorKey
+        refreshedTOTPKeyConfig?.rawAuthenticatorKey
     }
 
     var timeProvider: any TimeProvider {
@@ -109,7 +112,7 @@ class MockVaultRepository: VaultRepository {
         organizationsSubject.eraseToAnyPublisher().values
     }
 
-    func refreshTOTPCode(for key: BitwardenShared.TOTPCodeConfig) async throws -> BitwardenShared.LoginTOTP {
+    func refreshTOTPCode(for key: BitwardenShared.TOTPKeyModel) async throws -> BitwardenShared.LoginTOTPState {
         refreshedTOTPKeyConfig = key
         return try refreshTOTPCodeResult.get()
     }

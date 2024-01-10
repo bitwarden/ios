@@ -101,8 +101,8 @@ extension CipherView {
             isTOTPAvailable: showTOTP,
             password: login?.password ?? "",
             passwordUpdatedDate: login?.passwordRevisionDate,
-            totpState: LoginTOTP(
-                TOTPCodeConfig(
+            totpState: LoginTOTPState(
+                TOTPKeyModel(
                     authenticatorKey: login?.totp ?? ""
                 ),
                 time: totpTime

@@ -183,8 +183,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.loginState.username = "email@example.com"
         cipherState.loginState.totpState = .init(
-            config: .init(authenticatorKey: .base32Key)!,
-            totpModel: .init(
+            authKeyModel: .init(authenticatorKey: .base32Key)!,
+            codeModel: .init(
                 code: "032823",
                 codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 33),
                 period: 30

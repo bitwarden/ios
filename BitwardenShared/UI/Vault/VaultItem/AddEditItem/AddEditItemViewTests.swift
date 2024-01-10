@@ -49,7 +49,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tapping the copy totp button performs the `.copyTotp` effect.
     func test_copyTotpButton_tap() async throws {
-        processor.state.loginState.totpState = LoginTOTP(
+        processor.state.loginState.totpState = LoginTOTPState(
             .init(
                 authenticatorKey: "JBSWY3DPEHPK3PXP"
             ),
@@ -207,7 +207,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
     func test_setupTotpButton_withKey_tap() async throws {
-        processor.state.loginState.totpState = LoginTOTP(
+        processor.state.loginState.totpState = LoginTOTPState(
             .init(authenticatorKey: "JBSWY3DPEHPK3PXP"),
             time: .currentTime
         )

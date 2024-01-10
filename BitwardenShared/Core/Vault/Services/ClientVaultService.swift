@@ -24,7 +24,7 @@ protocol ClientVaultService: AnyObject {
     ///    - date: The date used to generate the code
     ///  - Returns: A TOTPCodeState model.
     ///
-    func generateTOTPCode(for key: String, date: Date?) async throws -> TOTPCodeState
+    func generateTOTPCode(for key: String, date: Date?) async throws -> TOTPCodeModel
 
     /// Returns an object that handles encryption and decryption for password history.
     ///
@@ -46,10 +46,10 @@ extension ClientVault: ClientVaultService {
         folders() as ClientFolders
     }
 
-    func generateTOTPCode(for key: String, date: Date? = nil) async throws -> TOTPCodeState {
+    func generateTOTPCode(for key: String, date: Date? = nil) async throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
         let response = try await generateTotp(key: key, time: calculationDate)
-        return TOTPCodeState(code: response.code, codeGenerationDate: calculationDate, period: response.period)
+        return TOTPCodeModel(code: response.code, codeGenerationDate: calculationDate, period: response.period)
     }
 
     func passwordHistory() -> ClientPasswordHistoryProtocol {

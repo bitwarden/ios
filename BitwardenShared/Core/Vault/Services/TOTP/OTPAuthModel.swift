@@ -38,7 +38,8 @@ struct OTPAuthModel: Equatable {
         guard let urlComponents = URLComponents(string: otpAuthKey.lowercased()),
               urlComponents.scheme == "otpauth",
               let queryItems = urlComponents.queryItems,
-              let secret = queryItems.first(where: { $0.name == "secret" })?.value else {
+              let secret = queryItems.first(where: { $0.name == "secret" })?.value,
+              secret.uppercased().isBase32 else {
             return nil
         }
 

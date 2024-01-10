@@ -118,7 +118,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_didCompleteCapture_success() throws {
         subject.state.loginState.totpState = nil
         let key = String.base32Key
-        let keyConfig = try XCTUnwrap(TOTPCodeConfig(authenticatorKey: key))
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
         totpService.getTOTPConfigResult = .success(keyConfig)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: key)
@@ -173,7 +173,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// Tapping the copy button on the auth key row dispatches the `.copyPassword` action.
     func test_perform_copyTotp() async throws {
-        subject.state.loginState.totpState = LoginTOTP(.init(authenticatorKey: "JBSWY3DPEHPK3PXP"), time: .currentTime)
+        subject.state.loginState.totpState = LoginTOTPState(.init(authenticatorKey: "JBSWY3DPEHPK3PXP"), time: .currentTime)
 
         await subject.perform(.copyTotpPressed)
         XCTAssertEqual(
@@ -532,7 +532,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
     func test_receive_clearTOTPKey() {
-        subject.state.loginState.totpState = LoginTOTP(
+        subject.state.loginState.totpState = LoginTOTPState(
             .init(authenticatorKey: .base32Key)!,
             time: .currentTime
         )

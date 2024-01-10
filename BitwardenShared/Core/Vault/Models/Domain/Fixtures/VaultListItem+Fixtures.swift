@@ -37,7 +37,7 @@ extension VaultListTOTP {
         iconBaseURL: URL = URL(string: "https://icons.bitwarden.net")!,
         id: String = "123",
         loginView: BitwardenSdk.LoginView = .fixture(totp: .base32Key),
-        totpCode: TOTPCodeState = .init(code: "123456", codeGenerationDate: Date(), period: 30),
+        totpCode: TOTPCodeModel = .init(code: "123456", codeGenerationDate: Date(), period: 30),
         totpTime: TOTPTime = .currentTime
     ) -> VaultListTOTP {
         VaultListTOTP(

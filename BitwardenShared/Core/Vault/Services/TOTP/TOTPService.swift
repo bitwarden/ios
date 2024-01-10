@@ -6,8 +6,8 @@ protocol TOTPService {
     ///
     /// - Parameter key: A string representing the TOTP key.
     /// - Throws: `TOTPServiceError.invalidKeyFormat` if the key format is invalid.
-    /// - Returns: A `TOTPCodeConfig` containing the configuration details.
-    func getTOTPConfiguration(key: String) throws -> TOTPCodeConfig
+    /// - Returns: A `TOTPKeyModel` containing the configuration details.
+    func getTOTPConfiguration(key: String) throws -> TOTPKeyModel
 }
 
 /// Default implementation of the `TOTPService`.
@@ -16,9 +16,9 @@ struct DefaultTOTPService: TOTPService {
     ///
     /// - Parameter key: A string representing the TOTP key.
     /// - Throws: `TOTPServiceError.invalidKeyFormat` if the key format is invalid.
-    /// - Returns: A `TOTPCodeConfig` containing the configuration details.
-    func getTOTPConfiguration(key: String) throws -> TOTPCodeConfig {
-        guard let config = TOTPCodeConfig(authenticatorKey: key) else {
+    /// - Returns: A `TOTPKeyModel` containing the configuration details.
+    func getTOTPConfiguration(key: String) throws -> TOTPKeyModel {
+        guard let config = TOTPKeyModel(authenticatorKey: key) else {
             throw TOTPServiceError.invalidKeyFormat
         }
         return config

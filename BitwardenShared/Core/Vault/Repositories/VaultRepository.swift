@@ -70,9 +70,9 @@ protocol VaultRepository: AnyObject {
     /// Regenerates the TOTP code for a given key.
     ///
     /// - Parameter items: The key for a TOTP code.
-    /// - Returns: An updated LoginTOTP.
+    /// - Returns: An updated LoginTOTPState.
     ///
-    func refreshTOTPCode(for key: TOTPCodeConfig) async throws -> LoginTOTP
+    func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState
 
     /// Regenerates the TOTP codes for a list of Vault Items.
     ///
@@ -521,14 +521,14 @@ extension DefaultVaultRepository: VaultRepository {
         return account.profile.hasPremiumPersonally ?? false
     }
 
-    func refreshTOTPCode(for key: TOTPCodeConfig) async throws -> LoginTOTP {
+    func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {
         let codeState = try await clientVault.generateTOTPCode(
-            for: key.authenticatorKey,
+            for: key.rawAuthenticatorKey,
             date: Date()
         )
-        return LoginTOTP(
-            config: key,
-            totpModel: codeState,
+        return LoginTOTPState(
+            authKeyModel: key,
+            codeModel: codeState,
             totpTime: TOTPTime(provider: timeProvider)
         )
     }

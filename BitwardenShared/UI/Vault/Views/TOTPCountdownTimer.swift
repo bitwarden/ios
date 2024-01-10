@@ -57,7 +57,7 @@ class TOTPCountdownTimer: ObservableObject {
     ///
     init(
         timeProvider: any TimeProvider,
-        totpCode: TOTPCodeState,
+        totpCode: TOTPCodeModel,
         onExpiration: (() -> Void)?
     ) {
         period = Int(totpCode.period)
