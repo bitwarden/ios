@@ -410,6 +410,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `searchCipherPublisher(searchText:, filterType:)` returns search matching cipher name excludes items from trash.
+    func test_searchCipherPublisher_searchText_excludesTrashedItems() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.cipherSubject.value = [
+            .fixture(id: "1", name: "dabcd"),
+            .fixture(id: "2", name: "qwe"),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(id: "4", name: "Café"),
+        ]
+        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.cipherSubject.value.last))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
+        var iterator = try await subject
+            .searchCipherPublisher(searchText: "cafe", filterType: .allVaults)
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(cipherService.cipherPublisherUserId, Account.fixtureAccountLogin().profile.userId)
+        XCTAssertEqual(
+            ciphers,
+            expectedSearchResult
+        )
+    }
+
     /// `searchCipherPublisher(searchText:, filterType:)` returns search matching cipher id.
     func test_searchCipherPublisher_searchText_id() async throws {
         stateService.activeAccount = .fixtureAccountLogin()

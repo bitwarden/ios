@@ -567,6 +567,7 @@ extension DefaultVaultRepository: VaultRepository {
             var matchedCiphers: [CipherListView] = []
             var lowPriorityMatchedCiphers: [CipherListView] = []
             zippedCiphers
+                .filter { $0.cipherListView.deletedDate == nil }
                 .filter { filterType.cipherFilter($0.cipherListView) }
                 .forEach { cipherView, cipherListView in
                     if cipherListView.name.lowercased()
