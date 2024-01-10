@@ -21,8 +21,8 @@ enum TOTPExpirationCalculator {
         let codeGenerationDate = codeModel.codeGenerationDate
         let elapsedTimeSinceCalculation = timeProvider.timeSince(codeGenerationDate)
         let isOlderThanInterval = elapsedTimeSinceCalculation >= Double(period)
-        let hasPastIntervalRefreshMark = remainingSeconds(using: Int(period))
-            >= remainingSeconds(for: codeGenerationDate, using: Int(period))
+        let hasPastIntervalRefreshMark = timeRemaining(using: Double(period))
+            >= timeRemaining(for: codeGenerationDate, using: Double(period))
         return isOlderThanInterval || hasPastIntervalRefreshMark
     }
 
@@ -51,8 +51,22 @@ enum TOTPExpirationCalculator {
     /// - Parameters:
     ///   - date: The date used to calculate the remaining seconds.
     ///   - period: The period of expiration.
+    /// - Returns: The number of seconds remaining, expressed as an integer.
     ///
     static func remainingSeconds(for date: Date = Date(), using period: Int) -> Int {
-        period - (Int(date.timeIntervalSinceReferenceDate) % period)
+        Int(timeRemaining(for: date, using: Double(period)))
+    }
+
+    /// Calculates the time interval remaining before an update is needed
+    ///
+    /// - Parameters:
+    ///   - date: The date used to calculate the remaining seconds.
+    ///   - period: The period of expiration.
+    /// - Returns: The time remaining, expressed as a TimeInterval.
+    ///
+    static func timeRemaining(for date: Date = Date(), using period: TimeInterval) -> TimeInterval {
+        let interval = date.timeIntervalSinceReferenceDate
+        let remainder = interval.truncatingRemainder(dividingBy: period)
+        return Double(period) - remainder
     }
 }

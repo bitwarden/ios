@@ -77,6 +77,19 @@ class TOTPCountdownTimer: ObservableObject {
         )
     }
 
+    /// Invalidate and remove the timer on deinit.
+    ///
+    deinit {
+        cleanup()
+    }
+
+    /// Invalidates and removes the timer for expiration management.
+    ///
+    func cleanup() {
+        timer?.invalidate()
+        timer = nil
+    }
+
     /// Updates the countdown timer value.
     ///
     private func updateCountdown() {
