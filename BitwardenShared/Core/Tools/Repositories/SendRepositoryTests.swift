@@ -9,6 +9,7 @@ class SendRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
     var clientVaultService: MockClientVaultService!
+    var stateService: MockStateService!
     var syncService: MockSyncService!
     var subject: DefaultSendRepository!
 
@@ -17,9 +18,11 @@ class SendRepositoryTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         clientVaultService = MockClientVaultService()
+        stateService = MockStateService()
         syncService = MockSyncService()
         subject = DefaultSendRepository(
             clientVault: clientVaultService,
+            stateService: stateService,
             syncService: syncService
         )
     }
@@ -33,16 +36,32 @@ class SendRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    func test_fetchSync_success() async throws {
+    func test_fetchSync_manualRefreshAllowed_success() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .success(())
-        try await subject.fetchSync()
+
+        try await subject.fetchSync(isManualRefresh: true)
+
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    func test_fetchSync_manualRefreshNotAllowed_success() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.allowSyncOnRefresh = [:]
+        syncService.fetchSyncResult = .success(())
+
+        try await subject.fetchSync(isManualRefresh: true)
+
+        XCTAssertFalse(syncService.didFetchSync)
+    }
+
     func test_fetchSync_failure() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows {
-            try await subject.fetchSync()
+            try await subject.fetchSync(isManualRefresh: true)
         }
         XCTAssertTrue(syncService.didFetchSync)
     }
