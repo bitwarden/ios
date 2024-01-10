@@ -1,3 +1,4 @@
+import AuthenticationServices
 import Foundation
 
 // MARK: - SingleSignOnFlowDelegate
@@ -83,6 +84,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     /// Generically handle an error on the view.
     private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) {
         coordinator.hideLoadingOverlay()
+        if case ASWebAuthenticationSessionError.canceledLogin = error { return }
         coordinator.showAlert(.networkResponseError(error, tryAgain))
         services.errorReporter.log(error: error)
     }
