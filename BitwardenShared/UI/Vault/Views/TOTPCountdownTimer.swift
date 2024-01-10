@@ -91,18 +91,3 @@ class TOTPCountdownTimer: ObservableObject {
         }
     }
 }
-
-protocol TimeProvider: Sendable, Equatable {
-    var presentTime: Date { get }
-    func timeSince(_ date: Date) -> TimeInterval
-}
-
-struct CurrentTime: TimeProvider {
-    var presentTime: Date {
-        .now
-    }
-
-    func timeSince(_ date: Date) -> TimeInterval {
-        presentTime.timeIntervalSince(date)
-    }
-}
