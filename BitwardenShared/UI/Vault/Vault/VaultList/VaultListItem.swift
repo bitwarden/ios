@@ -107,29 +107,35 @@ extension VaultListItem {
     var subtitle: String? {
         switch itemType {
         case let .cipher(cipherView):
-            switch cipherView.type {
-            case .card:
-                var output = [cipherView.card?.brand]
-                if let cardNumber = cipherView.card?.number,
-                   cardNumber.count > 4 {
-                    // Show last 5 characters for amex, last 4 for all others.
-                    let lastDigitsCount = (cardNumber.count > 5 && cardNumber.contains("^3[47]")) ? 5 : 4
-                    let displayNumber = "*" + cardNumber.suffix(lastDigitsCount)
-                    output.append(displayNumber)
-                }
-                return output.compactMap { $0 }.joined(separator: ", ")
-            case .identity:
-                return [cipherView.identity?.firstName, cipherView.identity?.lastName]
-                    .compactMap { $0 }
-                    .joined(separator: " ")
-            case .login:
-                return cipherView.login?.username
-            case .secureNote:
-                return nil
-            }
+            cipherView.subtitle
         case .group:
-            return nil
+            nil
         case .totp:
+            nil
+        }
+    }
+}
+
+extension CipherView {
+    var subtitle: String? {
+        switch type {
+        case .card:
+            var output = [card?.brand]
+            if let cardNumber = card?.number,
+               cardNumber.count > 4 {
+                // Show last 5 characters for amex, last 4 for all others.
+                let lastDigitsCount = (cardNumber.count > 5 && cardNumber.contains("^3[47]")) ? 5 : 4
+                let displayNumber = "*" + cardNumber.suffix(lastDigitsCount)
+                output.append(displayNumber)
+            }
+            return output.compactMap { $0 }.joined(separator: ", ")
+        case .identity:
+            return [identity?.firstName, identity?.lastName]
+                .compactMap { $0 }
+                .joined(separator: " ")
+        case .login:
+            return login?.username
+        case .secureNote:
             return nil
         }
     }
