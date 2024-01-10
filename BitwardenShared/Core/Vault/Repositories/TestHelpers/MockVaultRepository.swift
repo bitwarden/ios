@@ -26,6 +26,7 @@ class MockVaultRepository: VaultRepository {
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
     var refreshTOTPCodesResult: Result<[VaultListItem], Error> = .success([])
+    var refreshedTOTPTime: Date?
     var refreshedTOTPCodes: [VaultListItem] = []
     var refreshTOTPCodeResult: Result<LoginTOTPState, Error> = .success(
         LoginTOTPState(
@@ -118,6 +119,7 @@ class MockVaultRepository: VaultRepository {
     }
 
     func refreshTOTPCodes(for items: [BitwardenShared.VaultListItem]) async throws -> [BitwardenShared.VaultListItem] {
+        refreshedTOTPTime = timeProvider.presentTime
         refreshedTOTPCodes = items
         return try refreshTOTPCodesResult.get()
     }

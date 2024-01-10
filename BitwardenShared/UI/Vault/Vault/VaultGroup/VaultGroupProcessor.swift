@@ -250,29 +250,15 @@ private class TOTPExpirationManager {
         var expired = [VaultListItem]()
         var notExpired = [UInt32: [VaultListItem]]()
         itemsByInterval.forEach { period, items in
-            let sortedItems: [Bool: [VaultListItem]] = Dictionary(grouping: items, by: { item in
-                guard case let .totp(_, model) = item.itemType else { return false }
-                let elapsedTimeSinceCalculation = timeProvider.timeSince(model.totpCode.codeGenerationDate)
-                let isOlderThanInterval = elapsedTimeSinceCalculation >= Double(period)
-                let hasPastIntervalRefreshMark = remainingSeconds(using: Int(period))
-                    >= remainingSeconds(for: model.totpCode.codeGenerationDate, using: Int(period))
-                return isOlderThanInterval || hasPastIntervalRefreshMark
-            })
+            let sortedItems: [Bool: [VaultListItem]] = TOTPExpirationCalculator.listItemsByExpiration(
+                items,
+                timeProvider: timeProvider
+            )
             expired.append(contentsOf: sortedItems[true] ?? [])
             notExpired[period] = sortedItems[false]
         }
         itemsByInterval = notExpired
         guard !expired.isEmpty else { return }
         onExpiration?(expired)
-    }
-
-    /// Calculates the seconds remaining before an update is needed.
-    ///
-    /// - Parameters:
-    ///   - date: The date used to calculate the remaining seconds.
-    ///   - period: The period of expiration.
-    ///
-    private func remainingSeconds(for date: Date = Date(), using period: Int) -> Int {
-        period - (Int(date.timeIntervalSinceReferenceDate) % period)
     }
 }

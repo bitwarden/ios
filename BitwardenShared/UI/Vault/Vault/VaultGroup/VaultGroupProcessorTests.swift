@@ -484,6 +484,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         task.cancel()
+        XCTAssertEqual(mockPresentTime, vaultRepository.refreshedTOTPTime)
         XCTAssertEqual([expiredResult], vaultRepository.refreshedTOTPCodes)
     }
 

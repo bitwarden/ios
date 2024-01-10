@@ -27,25 +27,29 @@ class TOTPCountdownTimer: ObservableObject {
 
     /// The date when the code was first generated.
     ///
-    private let calculationDate: Date
+    private let totpCodeMode: TOTPCodeModel
 
     /// A model to provide time to calculate the countdown.
     ///
     private var timeProvider: any TimeProvider
 
+    /// The timer responsible for updating the countdown.
+    ///
+    private var timer: Timer?
+
+    // MARK: Private Derived Properties
+
     /// The period used to calculate the countdown.
     ///
-    private let period: Int
+    private var period: Int {
+        Int(totpCodeMode.period)
+    }
 
     /// The countdown remainder calculated relative to the current time.
     ///
     private var secondsRemaining: Int {
-        remainingSeconds()
+        TOTPExpirationCalculator.remainingSeconds(for: timeProvider.presentTime, using: period)
     }
-
-    /// The timer responsible for updating the countdown.
-    ///
-    private var timer: Timer?
 
     /// Initializes a new countdown timer
     ///
@@ -60,8 +64,7 @@ class TOTPCountdownTimer: ObservableObject {
         totpCode: TOTPCodeModel,
         onExpiration: (() -> Void)?
     ) {
-        period = Int(totpCode.period)
-        calculationDate = totpCode.codeGenerationDate
+        totpCodeMode = totpCode
         self.timeProvider = timeProvider
         self.onExpiration = onExpiration
         displayTime = "\(secondsRemaining)"
@@ -78,22 +81,14 @@ class TOTPCountdownTimer: ObservableObject {
     ///
     private func updateCountdown() {
         displayTime = "\(secondsRemaining)"
-        let elapsedTimeSinceCalculation = timeProvider.timeSince(calculationDate)
-        let isOlderThanInterval = elapsedTimeSinceCalculation >= Double(period)
-        if secondsRemaining > remainingSeconds(for: calculationDate) || isOlderThanInterval {
+        if TOTPExpirationCalculator.hasCodeExpired(
+            totpCodeMode,
+            timeProvider: timeProvider
+        ) {
             onExpiration?()
             timer?.invalidate()
             timer = nil
         }
-    }
-
-    /// Calculates the seconds remaining before an update is needed.
-    ///
-    /// - Parameter date: The date used to calculate the remaining seconds.
-    ///
-    private func remainingSeconds(for date: Date? = nil) -> Int {
-        let remainderCalculationDate = date ?? timeProvider.presentTime
-        return period - (Int(remainderCalculationDate.timeIntervalSinceReferenceDate) % period)
     }
 }
 

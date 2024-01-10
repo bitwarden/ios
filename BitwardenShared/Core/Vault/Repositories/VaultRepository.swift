@@ -69,7 +69,7 @@ protocol VaultRepository: AnyObject {
 
     /// Regenerates the TOTP code for a given key.
     ///
-    /// - Parameter items: The key for a TOTP code.
+    /// - Parameter key: The key for a TOTP code.
     /// - Returns: An updated LoginTOTPState.
     ///
     func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState
@@ -281,18 +281,26 @@ class DefaultVaultRepository {
                   let key = login.totp else {
                 return nil
             }
-            let code = try await clientVault.generateTOTPCode(for: key, date: Date())
+            let code = try await clientVault.generateTOTPCode(
+                for: key,
+                date: Date()
+            )
             let iconsBaseURL = environmentService.iconsURL
             let listModel = VaultListTOTP(
                 iconBaseURL: iconsBaseURL,
                 id: id,
                 loginView: login,
                 totpCode: code,
-                totpTime: TOTPTime(provider: timeProvider)
+                totpTime: TOTPTime(
+                    provider: timeProvider
+                )
             )
             return VaultListItem(
                 id: id,
-                itemType: .totp(name: decoded.name, totpModel: listModel)
+                itemType: .totp(
+                    name: decoded.name,
+                    totpModel: listModel
+                )
             )
         }
         let totpItems: [VaultListItem] = try await clientVault.ciphers()
@@ -357,7 +365,8 @@ class DefaultVaultRepository {
     ) async throws -> [VaultListSection] {
         let responseCiphers: [Cipher] = response.ciphers.map(Cipher.init)
 
-        let ciphers = try await clientVault.ciphers()
+        let ciphers = try await clientVault
+            .ciphers()
             .decryptList(ciphers: responseCiphers)
             .filter(filter.cipherFilter)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -390,7 +399,10 @@ class DefaultVaultRepository {
         let totpItems = (oneTimePasswordCount > 0) ? [
             VaultListItem(
                 id: "Types.VerificationCodes",
-                itemType: .group(.totp, oneTimePasswordCount)
+                itemType: .group(
+                    .totp,
+                    oneTimePasswordCount
+                )
             ),
         ] : []
 
