@@ -59,6 +59,7 @@ struct ProfileSwitcherView: View {
             mapAction: { _ in .addAccountPressed },
             mapEffect: nil
         ))
+        .accessibilityIdentifier("AddAccountButton")
     }
 
     /// A background view with accessibility enabled
