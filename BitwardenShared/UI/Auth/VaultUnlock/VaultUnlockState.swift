@@ -1,6 +1,20 @@
+// MARK: - VaultUnlockState
+
 /// An object that defines the current state of a `VaultUnlockView`.
 ///
 struct VaultUnlockState: Equatable {
+    // MARK: - UnlockMethod
+
+    /// The user information used to unlock the vault.
+    ///
+    enum UnlockMethod {
+        /// Unlocking using the password.
+        case password
+
+        /// Unlocking using the PIN.
+        case pin
+    }
+
     // MARK: Properties
 
     /// The user's email for the active account.
@@ -23,15 +37,11 @@ struct VaultUnlockState: Equatable {
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState
 
-    let unlockMethod: UnlockMethod
+    /// The user information used to unlock the vault.
+    var unlockMethod: UnlockMethod
 
     /// The hostname of the web vault URL.
     let webVaultHost: String
-
-    enum UnlockMethod {
-        case password
-        case pin
-    }
 }
 
 extension VaultUnlockState {

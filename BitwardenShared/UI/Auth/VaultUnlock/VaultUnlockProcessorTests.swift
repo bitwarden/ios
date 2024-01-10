@@ -208,7 +208,8 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockVault` shows an alert if the master password is empty.
-    func test_perform_unlockVault_InputValidationError() async throws {
+    func test_perform_unlockVault_InputValidationError_noPassword() async throws {
+        subject.state.unlockMethod = .password
         await subject.perform(.unlockVault)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
@@ -216,6 +217,20 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             alert,
             Alert.inputValidationAlert(error: InputValidationError(
                 message: Localizations.validationFieldRequired(Localizations.masterPassword)
+            ))
+        )
+    }
+
+    /// `perform(_:)` with `.unlockVault` shows an alert if the PIN is empty.
+    func test_perform_unlockVault_InputValidationError_noPIN() async throws {
+        subject.state.unlockMethod = .pin
+        await subject.perform(.unlockVault)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(
+            alert,
+            Alert.inputValidationAlert(error: InputValidationError(
+                message: Localizations.validationFieldRequired(Localizations.pin)
             ))
         )
     }

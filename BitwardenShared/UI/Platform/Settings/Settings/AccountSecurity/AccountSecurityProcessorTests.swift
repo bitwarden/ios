@@ -49,6 +49,17 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.appeared` toggles unlock with PIN depending on the user's saved settings.
+    func test_appeared() async {
+        let account: Account = .fixtureAccountLogin()
+        stateService.activeAccount = account
+        stateService.pinProtectedUserKey[account.profile.userId] = "123"
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+    }
+
     /// `perform(_:)` with `.lockVault` locks the user's vault.
     func test_perform_lockVault() async {
         let account: Account = .fixtureAccountLogin()

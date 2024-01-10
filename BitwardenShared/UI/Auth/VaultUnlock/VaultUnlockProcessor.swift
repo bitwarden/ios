@@ -133,7 +133,6 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                     .validate(input: state.pin)
                 try await services.authRepository.unlockVaultWithPIN(pin: state.pin)
             }
-
             coordinator.navigate(to: .complete)
         } catch let error as InputValidationError {
             coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))

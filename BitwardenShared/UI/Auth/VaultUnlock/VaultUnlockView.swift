@@ -103,6 +103,7 @@ struct VaultUnlockView: View {
         )
     }
 
+    /// The text field for the pin or password.
     @ViewBuilder private var textField: some View {
         switch store.state.unlockMethod {
         case .password:

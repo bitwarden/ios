@@ -57,6 +57,8 @@ protocol AuthRepository: AnyObject {
 
     /// Unlocks the vault using the PIN.
     ///
+    /// - Parameter pin: The user's PIN.
+    ///
     func unlockVaultWithPIN(pin: String) async throws
 }
 
