@@ -80,7 +80,10 @@ protocol VaultRepository: AnyObject {
     ///     - searchText:  The search text to filter the cipher list.
     ///     - filterType: The vault filter type to apply to the cipher list.
     /// - Returns: A publisher for the user's ciphers.
-    func searchCipherPublisher(searchText: String, filterType: VaultFilterType) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> // swiftlint:disable:this line_length
+    func searchCipherPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>>
 
     /// Shares a cipher with an organization.
     ///
@@ -569,7 +572,7 @@ extension DefaultVaultRepository: VaultRepository {
                     } else if cipherListView.subTitle.lowercased()
                         .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
                         lowPriorityMatchedCiphers.append(cipherListView)
-                    } else if cipherView.login?.uris?.filter({ $0.uri?.contains(query) == true }).count ?? 0 > 0 {
+                    } else if cipherView.login?.uris?.contains(where: { $0.uri?.contains(query) == true }) == true {
                         lowPriorityMatchedCiphers.append(cipherListView)
                     }
                 }

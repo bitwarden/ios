@@ -7,6 +7,9 @@ import SwiftUI
 struct SearchVaultFilterRowView: View {
     // MARK: Properties
 
+    /// Whether the row should have a bottom divider.
+    let hasDivider: Bool
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<SearchVaultFilterRowState, SearchVaultFilterRowAction, Void>
 
@@ -42,7 +45,9 @@ struct SearchVaultFilterRowView: View {
                 .frame(minHeight: 60)
                 .background(Asset.Colors.backgroundPrimary.swiftUIColor)
 
-                Divider()
+                if hasDivider {
+                    Divider()
+                }
             }
         }
     }

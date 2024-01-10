@@ -140,7 +140,7 @@ private struct VaultMainView: View {
     /// Displays the vault filter for search row if the user is a member of any org
     private var searchVaultFilterRow: some View {
         SearchVaultFilterRowView(
-            store: store.child(
+            hasDivider: true, store: store.child(
                 state: { state in
                     SearchVaultFilterRowState(
                         organizations: state.organizations,
@@ -193,37 +193,24 @@ private struct VaultMainView: View {
     /// Displays the vault filter row if the user is a member of any
     @ViewBuilder
     private func vaultFilterRow() -> some View {
-        if !store.state.vaultFilterOptions.isEmpty {
-            HStack(spacing: 0) {
-                Text(store.state.vaultFilterType.filterTitle)
-
-                Spacer()
-
-                Menu {
-                    Picker(selection: store.binding(
-                        get: \.vaultFilterType,
-                        send: VaultListAction.vaultFilterChanged
-                    )) {
-                        ForEach(store.state.vaultFilterOptions) { filter in
-                            Text(filter.title)
-                                .tag(filter)
-                        }
-                    } label: {
-                        EmptyView()
+        SearchVaultFilterRowView(
+            hasDivider: false, store: store.child(
+                state: { state in
+                    SearchVaultFilterRowState(
+                        organizations: state.organizations,
+                        searchVaultFilterType: state.vaultFilterType
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .searchVaultFilterChanged(type):
+                        return .vaultFilterChanged(type)
                     }
-                } label: {
-                    Asset.Images.horizontalKabob.swiftUIImage
-                        .frame(width: 44, height: 44, alignment: .trailing)
-                        .contentShape(Rectangle())
-                }
-                .accessibilityLabel(Localizations.filterByVault)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-            }
-            .frame(minHeight: 60)
-            .padding(.horizontal, 16)
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
+                },
+                mapEffect: nil
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// Creates a row in the list for the provided item.
