@@ -19,9 +19,7 @@ class TOTPCountdownTimer: ObservableObject {
     /// The countdown remainder calculated relative to the current time.
     ///     Expressed as a decimal value between 0 and 1.
     ///
-    var remainingFraction: CGFloat {
-        CGFloat(secondsRemaining) / CGFloat(period)
-    }
+    lazy var remainingFraction: CGFloat = durationFractionRemaining
 
     // MARK: Private Properties
 
@@ -38,6 +36,16 @@ class TOTPCountdownTimer: ObservableObject {
     private var timer: Timer?
 
     // MARK: Private Derived Properties
+
+    /// The fraction of duration remaining.
+    ///
+    private var durationFractionRemaining: CGFloat {
+        let value = TOTPExpirationCalculator.timeRemaining(
+            for: timeProvider.presentTime,
+            using: TimeInterval(period)
+        ) / TimeInterval(period)
+        return min(max(0.0, value), 1.0)
+    }
 
     /// The period used to calculate the countdown.
     ///
@@ -56,11 +64,13 @@ class TOTPCountdownTimer: ObservableObject {
     /// - Parameters
     ///   - timeProvider: A protocol providing the present time as a `Date`.
     ///         Used to calculate time remaining for a present TOTP code.
+    ///   - timerInterval: The interval for the timer to check for expirations.
     ///   - totpCode: The code used to calculate the time remaining.
     ///   - onExpiration: A closure to call on timer expiration.
     ///
     init(
         timeProvider: any TimeProvider,
+        timerInterval: TimeInterval,
         totpCode: TOTPCodeModel,
         onExpiration: (() -> Void)?
     ) {
@@ -69,7 +79,7 @@ class TOTPCountdownTimer: ObservableObject {
         self.onExpiration = onExpiration
         displayTime = "\(secondsRemaining)"
         timer = Timer.scheduledTimer(
-            withTimeInterval: 0.5,
+            withTimeInterval: timerInterval,
             repeats: true,
             block: { _ in
                 self.updateCountdown()
@@ -94,6 +104,9 @@ class TOTPCountdownTimer: ObservableObject {
     ///
     private func updateCountdown() {
         displayTime = "\(secondsRemaining)"
+        withAnimation {
+            remainingFraction = CGFloat(durationFractionRemaining)
+        }
         if TOTPExpirationCalculator.hasCodeExpired(
             totpCodeMode,
             timeProvider: timeProvider

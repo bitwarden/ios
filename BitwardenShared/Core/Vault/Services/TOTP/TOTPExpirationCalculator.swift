@@ -54,7 +54,7 @@ enum TOTPExpirationCalculator {
     /// - Returns: The number of seconds remaining, expressed as an integer.
     ///
     static func remainingSeconds(for date: Date = Date(), using period: Int) -> Int {
-        Int(timeRemaining(for: date, using: Double(period)))
+        Int(ceil(timeRemaining(for: date, using: Double(period))))
     }
 
     /// Calculates the time interval remaining before an update is needed

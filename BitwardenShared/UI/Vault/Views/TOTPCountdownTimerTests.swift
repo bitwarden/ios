@@ -13,6 +13,7 @@ final class TOTPCountdownTimerTests: BitwardenTestCase {
         super.setUp()
         subject = TOTPCountdownTimer(
             timeProvider: CurrentTime(),
+            timerInterval: 0.5,
             totpCode: .init(
                 code: "123456",
                 codeGenerationDate: .distantPast,
@@ -31,6 +32,7 @@ final class TOTPCountdownTimerTests: BitwardenTestCase {
         var didExpire = false
         subject = TOTPCountdownTimer(
             timeProvider: CurrentTime(),
+            timerInterval: 0.1,
             totpCode: .init(
                 code: "123456",
                 codeGenerationDate: .distantPast,

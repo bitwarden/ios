@@ -5,6 +5,14 @@ import SwiftUI
 /// A circular countdown timer view that marks the time remaining for a TOTPCodeState.
 ///
 struct TOTPCountdownTimerView: View {
+    // MARK: Static Properties
+
+    /// The interval at which the view should check for expirations and update the time remaining.
+    ///
+    static let timerInterval: TimeInterval = 0.1
+
+    // MARK: Properties
+
     /// The TOTPCode used to generate the countdown
     ///
     let totpCode: TOTPCodeModel
@@ -27,6 +35,12 @@ struct TOTPCountdownTimerView: View {
             CircularProgressShape(progress: timer.remainingFraction, clockwise: true)
                 .stroke(lineWidth: 3)
                 .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .animation(
+                    .smooth(
+                        duration: TOTPCountdownTimerView.timerInterval
+                    ),
+                    value: timer.remainingFraction
+                )
         }
     }
 
@@ -46,6 +60,7 @@ struct TOTPCountdownTimerView: View {
         self.totpCode = totpCode
         timer = .init(
             timeProvider: timeProvider,
+            timerInterval: TOTPCountdownTimerView.timerInterval,
             totpCode: totpCode,
             onExpiration: onExpiration
         )
