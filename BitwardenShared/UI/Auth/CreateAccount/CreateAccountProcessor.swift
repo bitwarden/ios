@@ -38,6 +38,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     // MARK: Types
 
     typealias Services = HasAccountAPIService
+        & HasAuthRepository
         & HasCaptchaService
         & HasClientAuth
 
@@ -240,17 +241,16 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     /// Updates state's password strength score based on the user's entered password.
     ///
     private func updatePasswordStrength() {
-        // TODO: BIT-694 Use the SDK to calculate password strength
-        let score: UInt8?
-        switch state.passwordText.count {
-        case 1 ..< 4: score = 0
-        case 4 ..< 7: score = 1
-        case 7 ..< 9: score = 2
-        case 9 ..< 12: score = 3
-        case 12 ... Int.max: score = 4
-        default: score = nil
+        guard !state.passwordText.isEmpty else {
+            state.passwordStrengthScore = nil
+            return
         }
-        state.passwordStrengthScore = score
+        Task {
+            state.passwordStrengthScore = await services.authRepository.passwordStrength(
+                email: state.emailText,
+                password: state.passwordText
+            )
+        }
     }
 }
 
