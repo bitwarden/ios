@@ -8,14 +8,8 @@ import SwiftUI
 struct AddEditItemView: View {
     // MARK: Private Properties
 
-    /// The flag to manage focus state of notes field.
-    @FocusState private var isNotesFocused: Bool
-
     /// An object used to open urls in this view.
     @Environment(\.openURL) private var openURL
-
-    /// The old value the notes before the change.
-    @SwiftUI.State private var notesOldValue: String = ""
 
     // MARK: Properties
 
@@ -49,25 +43,23 @@ struct AddEditItemView: View {
     }
 
     private var content: some View {
-        ScrollViewReader { scrollViewProxy in
-            ScrollView {
-                VStack(spacing: 20) {
-                    informationSection
-                    miscellaneousSection
-                    notesSection(scrollviewProxy: scrollViewProxy)
-                    customSection
-                    ownershipSection
-                    saveButton
-                }
-                .padding(16)
+        ScrollView {
+            VStack(spacing: 20) {
+                informationSection
+                miscellaneousSection
+                notesSection
+                customSection
+                ownershipSection
+                saveButton
             }
-            .animation(.default, value: store.state.collectionsForOwner)
-            .background(
-                Asset.Colors.backgroundSecondary.swiftUIColor
-                    .ignoresSafeArea()
-            )
-            .navigationBarTitleDisplayMode(.inline)
+            .padding(16)
         }
+        .animation(.default, value: store.state.collectionsForOwner)
+        .background(
+            Asset.Colors.backgroundSecondary.swiftUIColor
+                .ignoresSafeArea()
+        )
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder private var cardItems: some View {
@@ -216,6 +208,18 @@ private extension AddEditItemView {
         }
     }
 
+    var notesSection: some View {
+        SectionView(Localizations.notes) {
+            BitwardenTextField(
+                text: store.binding(
+                    get: \.notes,
+                    send: AddEditItemAction.notesChanged
+                )
+            )
+            .accessibilityLabel(Localizations.notes)
+        }
+    }
+
     @ViewBuilder var ownershipSection: some View {
         if store.state.configuration.isAdding, let owner = store.state.owner {
             SectionView(Localizations.ownership) {
@@ -257,75 +261,6 @@ private extension AddEditItemView {
             await store.perform(.savePressed)
         }
         .buttonStyle(.primary())
-    }
-
-    // MARK: Private methods
-
-    /// Determines the vertical anchor based on the difference between two strings.
-    ///
-    /// - Parameters:
-    ///   - oldValue: The original string.
-    ///   - newValue: The new string to compare with the original string.
-    /// - Returns: A `UnitPoint` value representing the vertical alignment based on the difference
-    /// between the two strings.
-    private func determineVerticalAnchor(oldValue: String, newValue: String) -> UnitPoint {
-        let length = min(oldValue.count, newValue.count)
-
-        for index in 0 ..< length where oldValue[oldValue.index(
-            oldValue.startIndex,
-            offsetBy: index
-        )] != newValue[newValue.index(
-            newValue.startIndex,
-            offsetBy: index
-        )] {
-            let percentage = Double(index) / Double(length) * 100.0
-            if percentage < 33.0 {
-                return .top
-            } else if percentage >= 33.0, percentage < 66.0 {
-                return .center
-            } else {
-                return .bottom
-            }
-        }
-        return .bottom
-    }
-
-    /// The notes section.
-    @ViewBuilder
-    func notesSection(scrollviewProxy: ScrollViewProxy) -> some View {
-        SectionView(Localizations.notes) {
-            BitwardenField(title: nil, footer: nil) {
-                TextEditor(text: store.binding(
-                    get: \.notes,
-                    send: AddEditItemAction.notesChanged
-                ))
-                .id(Localizations.notes)
-                .transparentScrolling()
-                .fixedSize(horizontal: false, vertical: true)
-                .focused($isNotesFocused)
-                .onChange(of: store.state.notes,
-                          perform: { newValue in
-                              scrollviewProxy.scrollTo(
-                                  Localizations.notes,
-                                  anchor: determineVerticalAnchor(
-                                      oldValue: notesOldValue,
-                                      newValue: newValue
-                                  )
-                              )
-                              notesOldValue = newValue
-                          })
-                .toolbar(content: {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        if isNotesFocused == true {
-                            Button(Localizations.hide) {
-                                isNotesFocused = false
-                            }
-                        }
-                    }
-                })
-            }
-            .accessibilityLabel(Localizations.notes)
-        }
     }
 }
 
