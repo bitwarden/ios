@@ -29,9 +29,13 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to edit the collections of a cipher.
     case editCollections(CipherView)
 
-    /// A route to edit an item
+    /// A route to edit an item.
     ///
-    case editItem(cipher: CipherView)
+    /// - Parameters:
+    ///  - cipher: The `CipherView` to edit
+    ///  - hasPremium: Whether the user has premium.
+    ///
+    case editItem(_ cipher: CipherView, _ hasPremium: Bool)
 
     /// A route to the username/password generator screen.
     ///
@@ -48,7 +52,7 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case setupTotpManual
 
-    /// A route to the scan code screen. Deftaults to `.setupTotpManual` if camera is unavailable.
+    /// A route to the scan code screen. Defaults to `.setupTotpManual` if camera is unavailable.
     ///
     case scanCode
 

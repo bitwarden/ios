@@ -65,8 +65,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             })
         case let .editCollections(cipher):
             showEditCollections(cipher: cipher, delegate: context as? EditCollectionsProcessorDelegate)
-        case let .editItem(cipher: cipher):
-            showEditItem(for: cipher, delegate: context as? CipherItemOperationDelegate)
+        case let .editItem(cipher, hasPremium):
+            showEditItem(for: cipher, hasPremium: hasPremium, delegate: context as? CipherItemOperationDelegate)
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
@@ -164,27 +164,27 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     }
 
     /// Shows the edit item screen.
+    /// .
+    /// - Parameters:
+    ///   - cipherView: The `CipherView` to edit.
+    ///   - hasPremium: Whether the user has premium.
+    ///   - delegate: The delegate for the view.
     ///
-    /// - Parameter cipherView: A `CipherView` to initialize this view with.
-    ///
-    private func showEditItem(for cipherView: CipherView, delegate: CipherItemOperationDelegate?) {
-        Task {
-            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
-                ?? false
+    private func showEditItem(for cipherView: CipherView, hasPremium: Bool, delegate: CipherItemOperationDelegate?) {
+        if stackNavigator.isEmpty {
             guard let state = CipherItemState(existing: cipherView, hasPremium: hasPremium) else { return }
-            if stackNavigator.isEmpty {
-                let processor = AddEditItemProcessor(
-                    coordinator: asAnyCoordinator(),
-                    delegate: delegate,
-                    services: services,
-                    state: state
-                )
-                let store = Store(processor: processor)
-                let view = AddEditItemView(store: store)
-                stackNavigator.replace(view)
-            } else {
-                presentChildVaultItemCoordinator(route: .editItem(cipher: cipherView), context: delegate)
-            }
+
+            let processor = AddEditItemProcessor(
+                coordinator: asAnyCoordinator(),
+                delegate: delegate,
+                services: services,
+                state: state
+            )
+            let store = Store(processor: processor)
+            let view = AddEditItemView(store: store)
+            stackNavigator.replace(view)
+        } else {
+            presentChildVaultItemCoordinator(route: .editItem(cipherView, hasPremium), context: delegate)
         }
     }
 
@@ -254,7 +254,9 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the view item screen.
     ///
-    /// - Parameter id: The id of the item to show.
+    /// - Parameters:
+    ///   - id: The id of the item to show.
+    ///   - delegate: The delegate.
     ///
     private func showViewItem(id: String, delegate: CipherItemOperationDelegate?) {
         let processor = ViewItemProcessor(

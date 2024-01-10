@@ -94,8 +94,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             stackNavigator.present(alert)
         case .autofillList:
             showAutofillList()
-        case let .editItem(cipher: cipher):
-            showVaultItem(route: .editItem(cipher: cipher))
+        case let .editItem(cipher):
+            Task {
+                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                showVaultItem(route: .editItem(cipher, hasPremium ?? false))
+            }
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):
