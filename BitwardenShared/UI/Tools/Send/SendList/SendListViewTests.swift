@@ -10,7 +10,7 @@ import XCTest
 class SendListViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<SendListState, SendListAction, Void>!
+    var processor: MockProcessor<SendListState, SendListAction, SendListEffect>!
     var subject: SendListView!
 
     override func setUp() {
@@ -43,10 +43,48 @@ class SendListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
+    /// Tapping the info button dispatches the `.infoButtonPressed` action.
+    func test_infoButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.aboutSend)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .infoButtonPressed)
+    }
+
     // MARK: Snapshots
 
     /// The view renders correctly when there are no items.
-    func test_snapshot_empty() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+    func test_snapshot_empty_light() {
+        processor.state = .empty
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// The view renders in dark mode correctly when there are no items.
+    func test_snapshot_empty_dark() {
+        processor.state = .empty
+        assertSnapshot(of: subject, as: .defaultPortraitDark)
+    }
+
+    /// The view renders in large accessibility sizes correctly when there are no items.
+    func test_snapshot_empty_ax5() {
+        processor.state = .empty
+        assertSnapshot(of: subject, as: .defaultPortraitAX5)
+    }
+
+    /// The view renders in light mode correctly when there are sends.
+    func test_snapshot_values_light() {
+        processor.state = .content
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// The view renders in dark mode correctly when there are sends.
+    func test_snapshot_values_dark() {
+        processor.state = .content
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// The view renders in large accessibility sizes correctly when there are sends.
+    func test_snapshot_values_ax5() {
+        processor.state = .content
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

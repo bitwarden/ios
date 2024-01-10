@@ -54,6 +54,9 @@ public class ServiceContainer: Services {
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
 
+    /// The repository used by the application to manage send data for the UI layer.
+    let sendRepository: SendRepository
+
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
 
@@ -100,6 +103,7 @@ public class ServiceContainer: Services {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
+    ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
@@ -124,6 +128,7 @@ public class ServiceContainer: Services {
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
         pasteboardService: PasteboardService,
+        sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
         syncService: SyncService,
@@ -147,6 +152,7 @@ public class ServiceContainer: Services {
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
         self.pasteboardService = pasteboardService
+        self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
         self.syncService = syncService
@@ -246,6 +252,11 @@ public class ServiceContainer: Services {
             stateService: stateService
         )
 
+        let sendRepository = DefaultSendRepository(
+            clientVault: clientService.clientVault(),
+            syncService: syncService
+        )
+
         let settingsRepository = DefaultSettingsRepository(
             clientVault: clientService.clientVault(),
             folderService: folderService,
@@ -285,6 +296,7 @@ public class ServiceContainer: Services {
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
             pasteboardService: pasteboardService,
+            sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,
             syncService: syncService,
