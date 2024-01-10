@@ -21,6 +21,7 @@ class SearchVaultFilterRowViewTests: BitwardenTestCase {
         processor = MockProcessor(state: SearchVaultFilterRowState(organizations: [.fixture(name: "org1")]))
         let store = Store(processor: processor)
         subject = SearchVaultFilterRowView(
+            hasDivider: true,
             store: store
         )
     }
