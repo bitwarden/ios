@@ -11,4 +11,7 @@ enum SendListAction: Equatable {
 
     /// The text in the search bar was changed.
     case searchTextChanged(String)
+
+    /// A wrapped `SendListItemRowAction`.
+    case sendListItemRow(SendListItemRowAction)
 }

@@ -59,6 +59,12 @@ protocol StateService: AnyObject {
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
 
+    /// Get the app theme.
+    ///
+    /// - Returns: The app theme.
+    ///
+    func getAppTheme() async -> AppTheme
+
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -130,6 +136,12 @@ protocol StateService: AnyObject {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
 
+    /// Sets the app theme.
+    ///
+    /// - Parameter appTheme: The new app theme.
+    ///
+    func setAppTheme(_ appTheme: AppTheme) async
+
     /// Sets the clear clipboard value for an account.
     ///
     /// - Parameters:
@@ -192,6 +204,12 @@ protocol StateService: AnyObject {
     /// - Returns: The userId `String` of the active account
     ///
     func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>>
+
+    /// A publisher for the app theme.
+    ///
+    /// - Returns: A publisher for the app theme.
+    ///
+    func appThemePublisher() async -> AnyPublisher<AppTheme, Never>
 
     /// A publisher for the last sync time for the active account.
     ///
@@ -355,14 +373,19 @@ actor DefaultStateService: StateService {
         set { appSettingsStore.rememberedOrgIdentifier = newValue }
     }
 
+    // MARK: Private Properties
+
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
 
+    /// A subject containing the app theme..
+    private var appThemeSubject: CurrentValueSubject<AppTheme, Never>
+
     /// The data store that handles performing data requests.
-    let dataStore: DataStore
+    private let dataStore: DataStore
 
     /// A subject containing the last sync time mapped to user ID.
-    var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
+    private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     // MARK: Initialization
 
@@ -375,6 +398,7 @@ actor DefaultStateService: StateService {
     init(appSettingsStore: AppSettingsStore, dataStore: DataStore) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
+        appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
     }
 
     // MARK: Methods
@@ -438,6 +462,10 @@ actor DefaultStateService: StateService {
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
+    }
+
+    func getAppTheme() async -> AppTheme {
+        AppTheme(appSettingsStore.appTheme)
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -509,6 +537,11 @@ actor DefaultStateService: StateService {
         appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
     }
 
+    func setAppTheme(_ appTheme: AppTheme) async {
+        appSettingsStore.appTheme = appTheme.value
+        appThemeSubject.send(appTheme)
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
@@ -557,6 +590,10 @@ actor DefaultStateService: StateService {
 
     func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
         appSettingsStore.activeAccountIdPublisher()
+    }
+
+    func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
+        appThemeSubject.eraseToAnyPublisher()
     }
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {

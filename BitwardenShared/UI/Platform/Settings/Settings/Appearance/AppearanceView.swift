@@ -8,7 +8,7 @@ struct AppearanceView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<AppearanceState, AppearanceAction, Void>
+    @ObservedObject var store: Store<AppearanceState, AppearanceAction, AppearanceEffect>
 
     // MARK: View
 
@@ -18,12 +18,13 @@ struct AppearanceView: View {
 
             theme
 
-            defaultDarkTheme
-
             webSiteIconsToggle
         }
         .scrollView()
         .navigationBar(title: Localizations.appearance, titleDisplayMode: .inline)
+        .task {
+            await store.perform(.loadData)
+        }
     }
 
     // MARK: Private views
@@ -50,36 +51,18 @@ struct AppearanceView: View {
     /// The application's color theme picker view
     private var theme: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SettingsListItem(
-                Localizations.theme,
-                hasDivider: false
-            ) {
-                store.send(.defaultThemeChanged)
-            } trailingContent: {
-                Text(Localizations.defaultSystem)
-            }
+            SettingsMenuField(
+                title: Localizations.theme,
+                options: AppTheme.allCases,
+                hasDivider: false,
+                selection: store.binding(
+                    get: \.appTheme,
+                    send: AppearanceAction.appThemeChanged
+                )
+            )
             .cornerRadius(10)
 
             Text(Localizations.themeDescription)
-                .styleGuide(.subheadline)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-        }
-    }
-
-    /// The default dark mode color theme picker view
-    private var defaultDarkTheme: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SettingsListItem(
-                Localizations.defaultDarkTheme,
-                hasDivider: false
-            ) {
-                store.send(.defaultDarkThemeChanged)
-            } trailingContent: {
-                Text(Localizations.dark)
-            }
-            .cornerRadius(10)
-
-            Text(Localizations.defaultDarkThemeDescriptionLong)
                 .styleGuide(.subheadline)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
         }

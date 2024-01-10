@@ -5,18 +5,31 @@ import SwiftUI
 /// A coordinator that manages navigation in the send tab.
 ///
 final class SendCoordinator: Coordinator, HasStackNavigator {
-    // MARK: - Private Properties
+    // MARK: Types
+
+    typealias Services = HasSendRepository
+
+    // MARK: Properties
+
+    /// The services used by this processor.
+    let services: Services
 
     /// The stack navigator that is managed by this coordinator.
-    var stackNavigator: StackNavigator
+    let stackNavigator: StackNavigator
 
     // MARK: Initialization
 
     /// Creates a new `SendCoordinator`.
     ///
-    /// - Parameters stackNavigator: The stack navigator that is managed by this coordinator.
+    /// - Parameters:
+    ///   - services: The services used by this processor.
+    ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
-    init(stackNavigator: StackNavigator) {
+    init(
+        services: Services,
+        stackNavigator: StackNavigator
+    ) {
+        self.services = services
         self.stackNavigator = stackNavigator
     }
 
@@ -58,6 +71,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     private func showList() {
         let processor = SendListProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: SendListState()
         )
         let store = Store(processor: processor)

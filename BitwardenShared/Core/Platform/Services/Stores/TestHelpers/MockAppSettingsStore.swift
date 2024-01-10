@@ -6,6 +6,7 @@ import Foundation
 class MockAppSettingsStore: AppSettingsStore {
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
+    var appTheme: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()

@@ -12,6 +12,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's unique identifier.
     var appId: String? { get set }
 
+    /// The app's theme.
+    var appTheme: String? { get set }
+
     /// The environment URLs used prior to user authentication.
     var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
 
@@ -266,6 +269,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     enum Keys {
         case allowSyncOnRefresh(userId: String)
         case appId
+        case appTheme
         case clearClipboardValue(userId: String)
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
@@ -286,6 +290,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "syncOnRefresh_\(userId)"
             case .appId:
                 key = "appId"
+            case .appTheme:
+                key = "theme"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case let .encryptedUserKey(userId):
@@ -316,6 +322,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appId: String? {
         get { fetch(for: .appId) }
         set { store(newValue, for: .appId) }
+    }
+
+    var appTheme: String? {
+        get { fetch(for: .appTheme) }
+        set { store(newValue, for: .appTheme) }
     }
 
     var preAuthEnvironmentUrls: EnvironmentUrlData? {
