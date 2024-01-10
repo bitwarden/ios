@@ -44,7 +44,7 @@ struct AddEditItemView: View {
 
     private var content: some View {
         ScrollView {
-            LazyVStack(spacing: 20) {
+            VStack(spacing: 20) {
                 informationSection
                 miscellaneousSection
                 notesSection
