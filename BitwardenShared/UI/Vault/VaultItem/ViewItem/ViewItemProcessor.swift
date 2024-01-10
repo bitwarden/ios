@@ -279,12 +279,12 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     ///
     private func updateTOTPCode() async {
         guard case let .data(cipherItemState) = state.loadingState,
-              let calculationKey = cipherItemState.loginState.totpKey else { return }
+              let calculationKey = cipherItemState.loginState.totpState?.authKeyModel else { return }
         do {
             let newLoginTOTP = try await services.vaultRepository.refreshTOTPCode(for: calculationKey)
             guard case let .data(cipherItemState) = state.loadingState else { return }
             var updatedState = cipherItemState
-            guard let currentKey = cipherItemState.loginState.totpKey else {
+            guard let currentKey = cipherItemState.loginState.totpState?.authKeyModel else {
                 updatedState.loginState.totpState = nil
                 state.loadingState = .data(updatedState)
                 return

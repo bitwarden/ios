@@ -36,19 +36,6 @@ struct LoginItemState: Equatable {
         totpState?.authKeyModel.rawAuthenticatorKey
     }
 
-    var time: TOTPTime {
-        totpState?.totpTime
-            ?? .currentTime
-    }
-
-    var totpCode: TOTPCodeModel? {
-        totpState?.codeModel
-    }
-
-    var totpKey: TOTPKeyModel? {
-        totpState?.authKeyModel
-    }
-
     /// BitwardenSDK loginView representation of loginItemState.
     var loginView: BitwardenSdk.LoginView {
         BitwardenSdk.LoginView(
@@ -69,4 +56,13 @@ extension LoginItemState {
     }
 }
 
-extension LoginItemState: ViewLoginItemState {}
+extension LoginItemState: ViewLoginItemState {
+    var time: TOTPTime {
+        totpState?.totpTime
+            ?? .currentTime
+    }
+
+    var totpCode: TOTPCodeModel? {
+        totpState?.codeModel
+    }
+}
