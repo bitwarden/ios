@@ -51,7 +51,12 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
         case let .addItem(allowTypeSelection, group, uri):
-            showAddItem(for: group.flatMap(CipherType.init), allowTypeSelection: allowTypeSelection, uri: uri, delegate: context as? CipherItemOperationDelegate)
+            showAddItem(
+                for: group.flatMap(CipherType.init),
+                allowTypeSelection: allowTypeSelection,
+                uri: uri,
+                delegate: context as? CipherItemOperationDelegate
+            )
         case let .alert(alert):
             stackNavigator.present(alert)
         case let .dismiss(onDismiss):
