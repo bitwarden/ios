@@ -8,7 +8,7 @@ import XCTest
 class AppearanceViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<AppearanceState, AppearanceAction, Void>!
+    var processor: MockProcessor<AppearanceState, AppearanceAction, AppearanceEffect>!
     var subject: AppearanceView!
 
     // MARK: Setup & Teardown
@@ -31,18 +31,12 @@ class AppearanceViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the language button dispatches the `.defaultDarkTheme` action.
-    func test_defaultDarkThemeButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.defaultDarkTheme)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .defaultDarkThemeChanged)
-    }
-
-    /// Tapping the language button dispatches the `.defaultThemeChanged` action.
-    func test_defaultThemeButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.theme)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .defaultThemeChanged)
+    /// Updating the value of the app theme sends the  `.appThemeChanged()` action.
+    func test_appThemeChanged_updateValue() throws {
+        processor.state.appTheme = .light
+        let menuField = try subject.inspect().find(settingsMenuField: Localizations.theme)
+        try menuField.select(newValue: AppTheme.dark)
+        XCTAssertEqual(processor.dispatchedActions.last, .appThemeChanged(.dark))
     }
 
     /// Tapping the language button dispatches the `.languageTapped` action.
@@ -51,6 +45,8 @@ class AppearanceViewTests: BitwardenTestCase {
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .languageTapped)
     }
+
+    // MARK: Snapshots
 
     /// Tests the view renders correctly.
     func test_viewRender() {

@@ -6,6 +6,9 @@ import BitwardenShared
 class CredentialProviderViewController: ASCredentialProviderViewController {
     // MARK: Properties
 
+    /// The app's theme.
+    var appTheme: AppTheme = .default
+
     /// The processor that manages application level logic.
     private var appProcessor: AppProcessor?
 
@@ -66,7 +69,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         let appProcessor = AppProcessor(appModule: appModule, services: services)
         self.appProcessor = appProcessor
 
-        appProcessor.start(appContext: .appExtension, navigator: self)
+        appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
     }
 }
 
