@@ -132,6 +132,7 @@ struct SendListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
+            .refreshable { await store.perform(.refresh) }
             .navigationBar(title: Localizations.send, titleDisplayMode: .large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

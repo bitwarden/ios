@@ -42,6 +42,13 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             for await sections in services.sendRepository.sendListPublisher() {
                 state.sections = sections
             }
+        case .refresh:
+            do {
+                try await services.sendRepository.fetchSync(isManualRefresh: true)
+            } catch {
+                // TODO: BIT-1034 Add an error alert
+                print("error: \(error)")
+            }
         }
     }
 
