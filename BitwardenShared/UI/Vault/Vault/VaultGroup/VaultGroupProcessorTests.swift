@@ -199,7 +199,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Edit navigates to the edit view.
         let editAction = try XCTUnwrap(alert.alertActions[1])
         await editAction.handler?(editAction, [])
-        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: cardWithData))
+        XCTAssertEqual(coordinator.routes.last, .editItem(cardWithData))
 
         // Copy number copies the card's number.
         let copyNumberAction = try XCTUnwrap(alert.alertActions[2])
@@ -264,7 +264,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Edit navigates to the edit view.
         let editAction = try XCTUnwrap(alert.alertActions[1])
         await editAction.handler?(editAction, [])
-        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: loginWithData))
+        XCTAssertEqual(coordinator.routes.last, .editItem(loginWithData))
 
         // Copy username copies the username.
         let copyUsernameAction = try XCTUnwrap(alert.alertActions[2])
@@ -316,7 +316,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Edit navigates to the edit view.
         let editAction = try XCTUnwrap(alert.alertActions[1])
         await editAction.handler?(editAction, [])
-        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: .fixture(type: .identity)))
+        XCTAssertEqual(coordinator.routes.last, .editItem(.fixture(type: .identity)))
     }
 
     /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for a secure note cipher.
@@ -365,7 +365,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Edit navigates to the edit view.
         let editAction = try XCTUnwrap(alert.alertActions[1])
         await editAction.handler?(editAction, [])
-        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: noteWithData))
+        XCTAssertEqual(coordinator.routes.last, .editItem(noteWithData))
 
         // Copy copies the items notes.
         let copyNoteAction = try XCTUnwrap(alert.alertActions[2])

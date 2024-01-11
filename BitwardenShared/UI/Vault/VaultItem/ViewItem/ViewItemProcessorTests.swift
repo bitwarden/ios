@@ -389,8 +389,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
         let loginState = CipherItemState(existing: cipherView, hasPremium: true)!
         subject.state.loadingState = .data(loginState)
+
         subject.receive(.editPressed)
-        XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
     }
 
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
