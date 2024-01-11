@@ -70,7 +70,7 @@ extension AddEditSendItemState {
             file: type == .file ? newFileView() : nil,
             text: type == .text ? newTextView() : nil,
             maxAccessCount: maximumAccessCount == 0 ? nil : UInt32(maximumAccessCount),
-            accessCount: 0,
+            accessCount: 0, // Defaulting to `0`, since the API ignores the values we set here.
             disabled: isDeactivateThisSendOn,
             hideEmail: isHideMyEmailOn,
             revisionDate: Date(),

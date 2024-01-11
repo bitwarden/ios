@@ -104,7 +104,9 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .dismiss)
         } catch {
-            print(error)
+            coordinator.showAlert(.networkResponseError(error) { [weak self] in
+                await self?.saveSendItem()
+            })
         }
     }
 }

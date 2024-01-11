@@ -45,27 +45,29 @@ enum SendExpirationDateType: CaseIterable, Menuable {
     }
 
     // MARK: Methods
-    
+
     /// Calculates the date representation of this value.
     ///
-    /// - Parameter customValue: This value will be used when this value is `.custom`.
+    /// - Parameters:
+    ///   - originDate: The date that this calculation should be based on. Defaults to `Date()`.
+    ///   - customValue: This value will be used when this value is `.custom`.
     ///
-    func calculateDate(customValue: Date) -> Date? {
+    func calculateDate(from originDate: Date = Date(), customValue: Date) -> Date? {
         switch self {
         case .never:
             nil
         case .oneHour:
-            Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+            Calendar.current.date(byAdding: .hour, value: 1, to: originDate)
         case .oneDay:
-            Calendar.current.date(byAdding: .day, value: 1, to: Date())
+            Calendar.current.date(byAdding: .day, value: 1, to: originDate)
         case .twoDays:
-            Calendar.current.date(byAdding: .day, value: 2, to: Date())
+            Calendar.current.date(byAdding: .day, value: 2, to: originDate)
         case .threeDays:
-            Calendar.current.date(byAdding: .day, value: 3, to: Date())
+            Calendar.current.date(byAdding: .day, value: 3, to: originDate)
         case .sevenDays:
-            Calendar.current.date(byAdding: .day, value: 7, to: Date())
+            Calendar.current.date(byAdding: .day, value: 7, to: originDate)
         case .thirtyDays:
-            Calendar.current.date(byAdding: .day, value: 30, to: Date())
+            Calendar.current.date(byAdding: .day, value: 30, to: originDate)
         case .custom:
             customValue
         }

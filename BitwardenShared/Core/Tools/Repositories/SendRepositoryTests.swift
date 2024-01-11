@@ -1,3 +1,4 @@
+import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
 
@@ -8,7 +9,9 @@ import XCTest
 class SendRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
+    var client: MockHTTPClient!
     var clientVaultService: MockClientVaultService!
+    var clientSends: MockClientSends!
     var syncService: MockSyncService!
     var subject: DefaultSendRepository!
 
@@ -16,16 +19,22 @@ class SendRepositoryTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        client = MockHTTPClient()
+        clientSends = MockClientSends()
         clientVaultService = MockClientVaultService()
+        clientVaultService.clientSends = clientSends
         syncService = MockSyncService()
         subject = DefaultSendRepository(
             clientVault: clientVaultService,
+            sendAPIService: APIService(client: client),
             syncService: syncService
         )
     }
 
     override func tearDown() {
         super.tearDown()
+        client = nil
+        clientSends = nil
         clientVaultService = nil
         syncService = nil
         subject = nil
@@ -33,12 +42,42 @@ class SendRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    func test_addSend_success() async throws {
+        client.results = [
+            .httpSuccess(testData: APITestData.sendResponse),
+        ]
+
+        let sendView = SendView.fixture()
+        try await subject.addSend(sendView)
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    func test_addSend_failure() async throws {
+        client.results = [
+            .httpFailure(BitwardenTestError.example),
+        ]
+
+        let sendView = SendView.fixture()
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.addSend(sendView)
+        }
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertFalse(syncService.didFetchSync)
+    }
+
+    /// `fetchSync()` with a successful response updates the publisher.
     func test_fetchSync_success() async throws {
         syncService.fetchSyncResult = .success(())
         try await subject.fetchSync()
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    /// `fetchSync()` with a failure response throws the error.
     func test_fetchSync_failure() async throws {
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows {
