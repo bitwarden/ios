@@ -8,6 +8,14 @@ protocol AuthAPIService {
     ///
     func getIdentityToken(_ request: IdentityTokenRequestModel) async throws -> IdentityTokenResponseModel
 
+    /// Query the API to determine if the user's email is able to use single sign on and if the organization
+    /// identifier is already known.
+    ///
+    /// - Parameter email: The user's email address.
+    /// - Returns: A `SingleSignOnDetailsResponse`.
+    ///
+    func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse
+
     /// Queries the API to pre-validate single-sign on for the requested organization identifier.
     ///
     /// - Parameter organizationIdentifier: The organization identifier.
@@ -27,6 +35,10 @@ protocol AuthAPIService {
 extension APIService: AuthAPIService {
     func getIdentityToken(_ request: IdentityTokenRequestModel) async throws -> IdentityTokenResponseModel {
         try await identityService.send(IdentityTokenRequest(requestModel: request))
+    }
+
+    func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse {
+        try await apiUnauthenticatedService.send(SingleSignOnDetailsRequest(email: email))
     }
 
     func preValidateSingleSignOn(organizationIdentifier: String) async throws -> PreValidateSingleSignOnResponse {

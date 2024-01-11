@@ -64,6 +64,12 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the password auto-fill screen.
     case passwordAutoFill
 
+    /// A route to view the select language view.
+    ///
+    /// - Parameter currentLanguage: The currently selected language option.
+    ///
+    case selectLanguage(currentLanguage: LanguageOption)
+
     /// A route to the settings screen.
     case settings
 

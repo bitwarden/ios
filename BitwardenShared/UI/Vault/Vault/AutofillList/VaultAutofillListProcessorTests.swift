@@ -81,8 +81,15 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
     }
 
+    /// `receive(_:)` with `.addTapped` navigates to the add item view.
+    func test_receive_addTapped() {
+        subject.receive(.addTapped)
+
+        XCTAssertEqual(coordinator.routes.last, .addItem(allowTypeSelection: false, group: .login))
+    }
+
     /// `receive(_:)` with `.cancelTapped` notifies the delegate to cancel the extension.
-    func test_receive_dismissPressed() {
+    func test_receive_cancelTapped() {
         subject.receive(.cancelTapped)
 
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)

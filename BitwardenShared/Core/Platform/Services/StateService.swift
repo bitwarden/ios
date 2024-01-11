@@ -8,6 +8,9 @@ import Foundation
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
 protocol StateService: AnyObject {
+    /// The language option currently selected for the app.
+    var appLanguage: LanguageOption { get set }
+
     /// The organization identifier being remembered on the single-sign on screen.
     var rememberedOrgIdentifier: String? { get set }
 
@@ -100,6 +103,12 @@ protocol StateService: AnyObject {
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
 
+    /// Get whether to show the website icons.
+    ///
+    /// - Returns: Whether to show the website icons.
+    ///
+    func getShowWebIcons() async -> Bool
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -180,6 +189,12 @@ protocol StateService: AnyObject {
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
 
+    /// Set whether to show the website icons.
+    ///
+    /// - Parameter showWebIcons: Whether to show the website icons.
+    ///
+    func setShowWebIcons(_ showWebIcons: Bool) async
+
     /// Sets a new access and refresh token for an account.
     ///
     /// - Parameters:
@@ -216,6 +231,12 @@ protocol StateService: AnyObject {
     /// - Returns: A publisher for the last sync time.
     ///
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never>
+
+    /// A publisher for whether or not to show the web icons.
+    ///
+    /// - Returns: A publisher for whether or not to show the web icons.
+    ///
+    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>>
 }
 
 extension StateService {
@@ -367,6 +388,12 @@ enum StateServiceError: Error {
 actor DefaultStateService: StateService {
     // MARK: Properties
 
+    /// The language option currently selected for the app.
+    nonisolated var appLanguage: LanguageOption {
+        get { LanguageOption(appSettingsStore.appLocale) }
+        set { appSettingsStore.appLocale = newValue.value }
+    }
+
     /// The organization identifier being remembered on the single-sign on screen.
     nonisolated var rememberedOrgIdentifier: String? {
         get { appSettingsStore.rememberedOrgIdentifier }
@@ -387,6 +414,9 @@ actor DefaultStateService: StateService {
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
+    /// A subject containing whether to show the website icons.
+    var showWebIconsSubject: CurrentValueSubject<Bool, Never>
+
     // MARK: Initialization
 
     /// Initialize a `DefaultStateService`.
@@ -398,7 +428,9 @@ actor DefaultStateService: StateService {
     init(appSettingsStore: AppSettingsStore, dataStore: DataStore) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
+
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
+        showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
     }
 
     // MARK: Methods
@@ -492,6 +524,10 @@ actor DefaultStateService: StateService {
         appSettingsStore.preAuthEnvironmentUrls
     }
 
+    func getShowWebIcons() async -> Bool {
+        !appSettingsStore.disableWebIcons
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.usernameGenerationOptions(userId: userId)
@@ -567,6 +603,11 @@ actor DefaultStateService: StateService {
         appSettingsStore.preAuthEnvironmentUrls = urls
     }
 
+    func setShowWebIcons(_ showWebIcons: Bool) async {
+        appSettingsStore.disableWebIcons = !showWebIcons
+        showWebIconsSubject.send(showWebIcons)
+    }
+
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {
         guard var state = appSettingsStore.state,
               let userId = userId ?? state.activeUserId
@@ -602,6 +643,10 @@ actor DefaultStateService: StateService {
             lastSyncTimeByUserIdSubject.value[userId] = appSettingsStore.lastSyncTime(userId: userId)
         }
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
+    }
+
+    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+        showWebIconsSubject.eraseToAnyPublisher().values
     }
 
     // MARK: Private

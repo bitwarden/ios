@@ -6,6 +6,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authService: MockAuthService!
+    var client: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute>!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
@@ -17,12 +18,14 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         super.setUp()
 
         authService = MockAuthService()
+        client = MockHTTPClient()
         coordinator = MockCoordinator<AuthRoute>()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         let services = ServiceContainer.withMocks(
             authService: authService,
             errorReporter: errorReporter,
+            httpClient: client,
             stateService: stateService
         )
 
@@ -37,6 +40,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         authService = nil
+        client = nil
         coordinator = nil
         errorReporter = nil
         stateService = nil
@@ -44,6 +48,36 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.loadSingleSignOnDetails` records an error if the API call failed.
+    func test_perform_loadSingleSignOnDetails_error() async throws {
+        client.result = .failure(BitwardenTestError.example)
+        stateService.rememberedOrgIdentifier = "TeamLivefront"
+
+        await subject.perform(.loadSingleSignOnDetails)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loading))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+
+        XCTAssertEqual(subject.state.identifierText, "TeamLivefront")
+    }
+
+    /// `perform(_:)` with `.loadSingleSignOnDetails` starts the login process if the API call
+    /// returns a valid organization identifier.
+    func test_perform_loadSingleSignOnDetails_success() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetails)
+
+        await subject.perform(.loadSingleSignOnDetails)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown.first, LoadingOverlayState(title: Localizations.loading))
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+        )
+    }
 
     /// `perform(_:)` with `.loginPressed` displays an alert if organization identifier field is invalid.
     func test_perform_loginPressed_invalidIdentifier() async throws {

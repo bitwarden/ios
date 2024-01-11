@@ -50,6 +50,12 @@ class SendListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.sections[0].items, [sendListItem])
     }
 
+    func test_perform_refresh() async {
+        await subject.perform(.refresh)
+
+        XCTAssertTrue(sendRepository.fetchSyncCalled)
+    }
+
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
     func test_receive_addItemPressed() {
         subject.receive(.addItemPressed)

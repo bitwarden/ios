@@ -8,4 +8,7 @@ struct AppearanceState {
 
     /// Whether or not the show website icons toggle is on.
     var isShowWebsiteIconsToggleOn: Bool = false
+
+    /// The current language selection.
+    var currentLanguage: LanguageOption = .default
 }

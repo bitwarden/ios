@@ -4,4 +4,7 @@
 enum SendListEffect {
     /// The send list appeared on screen.
     case appeared
+
+    /// The send list is being refreshed.
+    case refresh
 }
