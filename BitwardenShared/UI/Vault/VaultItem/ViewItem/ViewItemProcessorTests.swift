@@ -166,7 +166,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
-    /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
+    /// `perform` with `.checkPasswordPressed` shows an alert if the password has been exposed.
     func test_perform_checkPasswordPressed_exposedPassword() async throws {
         let cipher = CipherView.loginFixture(login: .fixture(password: "password1234"))
         subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
@@ -185,7 +185,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )))
     }
 
-    /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
+    /// `perform` with `.checkPasswordPressed` shows an alert notifying the user that
+    /// their password has not been found in a data breach.
     func test_perform_checkPasswordPressed_safePassword() async throws {
         let cipher = CipherView.loginFixture(login: .fixture(password: "iqpeor,kmn!JO8932jldfasd"))
         subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
