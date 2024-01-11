@@ -151,8 +151,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     ///
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) {
         switch action {
-        case let .copy(toast: toast, value: value, requiresMasterPasswordReprompt: reprompt):
-            if reprompt {
+        case let .copy(toast, value, requiresMasterPasswordReprompt):
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     self.services.pasteboardService.copy(value)
                     self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
@@ -161,11 +161,11 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                 services.pasteboardService.copy(value)
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
             }
-        case let .edit(cipherView: cipherView):
-            coordinator.navigate(to: .editItem(cipher: cipherView))
-        case let .launch(url: url):
+        case let .edit(cipherView):
+            coordinator.navigate(to: .editItem(cipherView), context: self)
+        case let .launch(url):
             state.url = url.sanitized
-        case let .view(id: id):
+        case let .view(id):
             coordinator.navigate(to: .viewItem(id: id))
         }
     }
