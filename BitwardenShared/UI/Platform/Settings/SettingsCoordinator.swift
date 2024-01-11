@@ -112,6 +112,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showOtherScreen()
         case .passwordAutoFill:
             showPasswordAutoFill()
+        case let .selectLanguage(currentLanguage: currentLanguage):
+            showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
             showSettings()
         case .vault:
@@ -274,6 +276,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController, navigationTitle: Localizations.passwordAutofill)
+    }
+
+    /// Shows the select language screen.
+    ///
+    private func showSelectLanguage(currentLanguage: LanguageOption, delegate: SelectLanguageDelegate?) {
+        let processor = SelectLanguageProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: SelectLanguageState(currentLanguage: currentLanguage)
+        )
+        let view = SelectLanguageView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
     }
 
     /// Shows the settings screen.

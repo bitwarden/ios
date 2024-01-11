@@ -326,7 +326,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let newCode = "999232"
         clientVault.totpCode = newCode
         let totpModel = VaultListTOTP(
-            iconBaseURL: URL(string: "https://icons.bitwarden.net")!,
             id: "123",
             loginView: .fixture(),
             totpCode: .init(
@@ -356,7 +355,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let newCode = "999232"
         clientVault.totpCode = newCode
         let totpModel = VaultListTOTP(
-            iconBaseURL: URL(string: "https://icons.bitwarden.net")!,
             id: "123",
             loginView: .fixture(totp: .base32Key),
             totpCode: .init(
@@ -371,7 +369,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         switch newItem.itemType {
         case let .totp(_, model):
             XCTAssertEqual(model.id, totpModel.id)
-            XCTAssertEqual(model.iconBaseURL, totpModel.iconBaseURL)
             XCTAssertEqual(model.loginView, totpModel.loginView)
             XCTAssertNotEqual(model.totpCode.code, totpModel.totpCode.code)
             XCTAssertNotEqual(model.totpCode.date, totpModel.totpCode.date)
@@ -397,8 +394,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "2", name: "qwe"),
             .fixture(id: "3", name: "Café"),
         ]
-        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.cipherSubject.value.last))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.cipherSubject.value.last))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
         var iterator = try await subject
             .searchCipherPublisher(searchText: "cafe", filterType: .allVaults)
             .makeAsyncIterator()
@@ -419,8 +416,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
             .fixture(id: "4", name: "Café"),
         ]
-        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.cipherSubject.value.last))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.cipherSubject.value.last))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
         var iterator = try await subject
             .searchCipherPublisher(searchText: "cafe", filterType: .allVaults)
             .makeAsyncIterator()
@@ -440,8 +437,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "31232131245435234", name: "qwe"),
             .fixture(id: "434343434", name: "Café"),
         ]
-        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.cipherSubject.value[1]))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.cipherSubject.value[1]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
         var iterator = try await subject
             .searchCipherPublisher(searchText: "312321312", filterType: .allVaults)
             .makeAsyncIterator()
@@ -472,8 +469,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "Café"
             ),
         ]
-        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.cipherSubject.value.last))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.cipherSubject.value.last))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
         var iterator = try await subject
             .searchCipherPublisher(searchText: "domain", filterType: .allVaults)
             .makeAsyncIterator()
@@ -493,8 +490,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "2", name: "bcdew"),
             .fixture(id: "3", name: "dabcd"),
         ]
-        let cipherListView = try CipherListView(cipher: XCTUnwrap(cipherService.cipherSubject.value.first))
-        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherListView: cipherListView))]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.cipherSubject.value.first))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
         var iterator = try await subject
             .searchCipherPublisher(searchText: "bcd", filterType: .organization(.fixture(id: "testOrg")))
             .makeAsyncIterator()
@@ -664,7 +661,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.accounts = [.fixtureAccountLogin()]
         stateService.activeAccount = .fixtureAccountLogin()
         await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
-            try await subject.softDeleteCipher(.fixture())
+            try await subject.softDeleteCipher(.fixture(id: nil))
         }
     }
 

@@ -26,6 +26,9 @@ struct SingleSignOnView: View {
                 store.send(.dismiss)
             }
         }
+        .task {
+            await store.perform(.loadSingleSignOnDetails)
+        }
     }
 
     // MARK: Private Views

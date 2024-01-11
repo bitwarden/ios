@@ -22,7 +22,10 @@ public enum AuthRoute: Equatable {
     case dismiss
 
     /// A route to the enterprise single sign-on screen.
-    case enterpriseSingleSignOn
+    ///
+    /// - Parameter email: The user's email.
+    ///
+    case enterpriseSingleSignOn(email: String)
 
     /// A route to the landing screen.
     case landing

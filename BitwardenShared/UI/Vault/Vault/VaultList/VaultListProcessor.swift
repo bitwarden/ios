@@ -11,6 +11,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     typealias Services = HasAuthRepository
         & HasErrorReporter
         & HasPasteboardService
+        & HasStateService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -46,8 +47,6 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         switch effect {
         case .appeared:
             await refreshVault(isManualRefresh: false)
-        case let .morePressed(item):
-            await showMoreOptionsAlert(for: item)
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -64,6 +63,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             state.searchResults = await searchVault(for: text)
         case .streamOrganizations:
             await streamOrganizations()
+        case .streamShowWebIcons:
+            for await value in await services.stateService.showWebIconsPublisher() {
+                state.showWebIcons = value
+            }
         case .streamVaultList:
             for await value in services.vaultRepository.vaultListPublisher(filter: state.vaultFilterType) {
                 state.loadingState = .data(value)
@@ -102,6 +105,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             case let .scrollOffsetChanged(newOffset):
                 state.profileSwitcherState.scrollOffset = newOffset
             }
+        case let .morePressed(item):
+            showMoreOptionsAlert(for: item)
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else { return }
             state.profileSwitcherState.isVisible = !isSearching
@@ -168,8 +173,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         do {
             try await services.vaultRepository.fetchSync(isManualRefresh: isManualRefresh)
         } catch {
-            // TODO: BIT-1034 Add an error alert
-            print(error)
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -221,22 +226,16 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     ///
     /// - Parameter item: The selected item to show the options for.
     ///
-    private func showMoreOptionsAlert(for item: VaultListItem) async {
-        // Load the content of the cipher item to determine which values to show in the menu.
-        do {
-            guard let cipherView = try await services.vaultRepository.fetchCipher(withId: item.id)
-            else { return }
+    private func showMoreOptionsAlert(for item: VaultListItem) {
+        // Only ciphers have more options.
+        guard case let .cipher(cipherView) = item.itemType else { return }
 
-            coordinator.showAlert(.moreOptions(
-                cipherView: cipherView,
-                id: item.id,
-                showEdit: true,
-                action: handleMoreOptionsAction
-            ))
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
-        }
+        coordinator.showAlert(.moreOptions(
+            cipherView: cipherView,
+            id: item.id,
+            showEdit: true,
+            action: handleMoreOptionsAction
+        ))
     }
 
     /// Handle the result of the selected option on the More Options alert..
