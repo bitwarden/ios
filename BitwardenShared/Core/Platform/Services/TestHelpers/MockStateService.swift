@@ -23,9 +23,10 @@ class MockStateService: StateService {
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var rememberedOrgIdentifier: String?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
-    var rememberedOrgIdentifier: String?
+    var timeoutAction = [String: SessionTimeoutAction]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var vaultTimeout = [String: Double?]()
 

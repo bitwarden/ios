@@ -17,8 +17,8 @@ typealias Services = HasAPIService
     & HasEnvironmentService
     & HasErrorReporter
     & HasGeneratorRepository
-    & HasPasteboardService
     & HasNotificationCenterService
+    & HasPasteboardService
     & HasSendRepository
     & HasSettingsRepository
     & HasStateService

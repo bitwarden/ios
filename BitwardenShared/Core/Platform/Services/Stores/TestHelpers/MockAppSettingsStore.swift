@@ -21,7 +21,6 @@ class MockAppSettingsStore: AppSettingsStore {
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
     var timeoutAction = [String: SessionTimeoutAction]()
-    var rememberedOrgIdentifier: String?
     var vaultTimeout = [String: Double?]()
     var state: State? {
         didSet {
@@ -63,10 +62,6 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         passwordGenerationOptions[userId]
-    }
-
-    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
-        allowSyncOnRefreshes[userId] = allowSyncOnRefresh
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {

@@ -54,11 +54,11 @@ public class ServiceContainer: Services {
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
-    /// The service used by the application for sharing data with other apps.
-    let pasteboardService: PasteboardService
-
     /// The service used by the application to access the system's notification center.
     let notificationCenterService: NotificationCenterService
+
+    /// The service used by the application for sharing data with other apps.
+    let pasteboardService: PasteboardService
 
     /// The repository used by the application to manage send data for the UI layer.
     let sendRepository: SendRepository
@@ -136,8 +136,8 @@ public class ServiceContainer: Services {
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
-        pasteboardService: PasteboardService,
         notificationCenterService: NotificationCenterService,
+        pasteboardService: PasteboardService,
         sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
@@ -162,8 +162,8 @@ public class ServiceContainer: Services {
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
-        self.pasteboardService = pasteboardService       
         self.notificationCenterService = notificationCenterService
+        self.pasteboardService = pasteboardService
         self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
@@ -314,8 +314,8 @@ public class ServiceContainer: Services {
             environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
-            pasteboardService: pasteboardService,
             notificationCenterService: notificationCenterService,
+            pasteboardService: pasteboardService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,

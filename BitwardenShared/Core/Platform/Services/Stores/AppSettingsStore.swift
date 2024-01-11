@@ -96,14 +96,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
 
-    /// Whether the vault should sync on refreshing.
-    ///
-    /// - Parameters:
-    ///   - allowSyncOnRefresh: Whether the vault should sync on refreshing.
-    ///   - userId: The user ID associated with the sync on refresh setting.
-    ///
-    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
-
     /// Sets the time after which the clipboard should be cleared.
     ///
     /// - Parameters:
@@ -470,10 +462,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         fetch(for: .passwordGenerationOptions(userId: userId))
-    }
-
-    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
-        store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {

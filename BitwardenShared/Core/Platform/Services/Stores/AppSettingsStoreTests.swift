@@ -455,7 +455,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(subject.state)
         XCTAssertNil(userDefaults.data(forKey: "bwPreferencesStorage:state"))
     }
-    
+
     /// `.timeoutAction(userId:)` returns the correct timeout action.
     func test_timeoutAction() throws {
         subject.setTimeoutAction(key: .logout, userId: "1")
@@ -476,4 +476,4 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.vaultTimeout(userId: "1"), 60)
         XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:vaultTimeout_1"), 60)
     }
-} // swiftlint:disable:this file_length
+}
