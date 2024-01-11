@@ -30,7 +30,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasAuthRepository
         & HasCameraService
+        & HasEnvironmentService
         & HasErrorReporter
+        & HasStateService
         & HasVaultRepository
         & VaultItemCoordinator.Services
 
@@ -109,10 +111,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(asyncTo route: VaultRoute, context: AnyObject?) async {
         switch route {
-        case let .addItem(group: group):
-            await showVaultItem(route: .addItem(group: group))
+        case let .addItem(allowTypeSelection, group, uri):
+            await showVaultItem(
+                route: .addItem(
+                    allowTypeSelection: allowTypeSelection,
+                    group: group,
+                    uri: uri
+                ),
+                delegate: context as? CipherItemOperationDelegate
+            )
         case let .editItem(cipher: cipher):
-            await showVaultItem(route: .editItem(cipher: cipher))
+            await showVaultItem(
+                route: .editItem(cipher: cipher),
+                delegate: context as? CipherItemOperationDelegate
+            )
         case let .viewItem(id):
             await showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         default:
@@ -143,7 +155,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         let processor = VaultGroupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultGroupState(group: group)
+            state: VaultGroupState(
+                group: group,
+                iconBaseURL: services.environmentService.iconsURL
+            )
         )
         let store = Store(processor: processor)
         let view = VaultGroupView(store: store)
@@ -165,7 +180,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             let processor = VaultListProcessor(
                 coordinator: asAnyCoordinator(),
                 services: services,
-                state: VaultListState()
+                state: VaultListState(
+                    iconBaseURL: services.environmentService.iconsURL
+                )
             )
             let store = Store(processor: processor)
             let view = VaultListView(store: store)

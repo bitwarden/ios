@@ -9,7 +9,7 @@ struct VaultListItem: Equatable, Identifiable {
     /// An enumeration for the type of item being displayed by this item.
     enum ItemType: Equatable {
         /// The wrapped item is a cipher.
-        case cipher(CipherListView)
+        case cipher(CipherView)
 
         /// The wrapped item is a group of items.
         case group(VaultListGroup, Int)
@@ -42,13 +42,13 @@ extension VaultListItem {
 }
 
 extension VaultListItem {
-    /// Initialize a `VaultListItem` from a `CipherListView`.
+    /// Initialize a `VaultListItem` from a `CipherView`.
     ///
-    /// - Parameter cipherListView: The `CipherListView` used to initialize the `VaultListItem`.
+    /// - Parameter cipherView: The `CipherView` used to initialize the `VaultListItem`.
     ///
-    init?(cipherListView: CipherListView) {
-        guard let id = cipherListView.id else { return nil }
-        self.init(id: id, itemType: .cipher(cipherListView))
+    init?(cipherView: CipherView) {
+        guard let id = cipherView.id else { return nil }
+        self.init(id: id, itemType: .cipher(cipherView))
     }
 }
 
@@ -59,44 +59,89 @@ extension VaultListItem {
         case let .cipher(cipherItem):
             switch cipherItem.type {
             case .card:
-                return Asset.Images.creditCard
+                Asset.Images.creditCard
             case .identity:
-                return Asset.Images.id
+                Asset.Images.id
             case .login:
-                return Asset.Images.globe
+                Asset.Images.globe
             case .secureNote:
-                return Asset.Images.doc
+                Asset.Images.doc
             }
         case let .group(group, _):
             switch group {
             case .card:
-                return Asset.Images.creditCard
+                Asset.Images.creditCard
             case .collection:
-                return Asset.Images.collections
+                Asset.Images.collections
             case .folder:
-                return Asset.Images.folderClosed
+                Asset.Images.folderClosed
             case .identity:
-                return Asset.Images.id
+                Asset.Images.id
             case .login:
-                return Asset.Images.globe
+                Asset.Images.globe
             case .secureNote:
-                return Asset.Images.doc
+                Asset.Images.doc
             case .totp:
-                return Asset.Images.clock
+                Asset.Images.clock
             case .trash:
-                return Asset.Images.trash
+                Asset.Images.trash
             }
         case .totp:
-            return Asset.Images.clock
+            Asset.Images.clock
+        }
+    }
+
+    /// The login view containing the uri's to download the special decorative icon, if applicable.
+    var loginView: BitwardenSdk.LoginView? {
+        switch itemType {
+        case let .cipher(cipherView):
+            cipherView.login
+        case .group:
+            nil
+        case let .totp(_, totpModel):
+            totpModel.loginView
+        }
+    }
+
+    /// The subtitle to show in the row.
+    var subtitle: String? {
+        switch itemType {
+        case let .cipher(cipherView):
+            cipherView.subtitle
+        case .group:
+            nil
+        case .totp:
+            nil
+        }
+    }
+}
+
+extension CipherView {
+    var subtitle: String? {
+        switch type {
+        case .card:
+            var output = [card?.brand]
+            if let cardNumber = card?.number,
+               cardNumber.count > 4 {
+                // Show last 5 characters for amex, last 4 for all others.
+                let lastDigitsCount = (cardNumber.count > 5 && cardNumber.contains("^3[47]")) ? 5 : 4
+                let displayNumber = "*" + cardNumber.suffix(lastDigitsCount)
+                output.append(displayNumber)
+            }
+            return output.compactMap { $0 }.joined(separator: ", ")
+        case .identity:
+            return [identity?.firstName, identity?.lastName]
+                .compactMap { $0 }
+                .joined(separator: " ")
+        case .login:
+            return login?.username
+        case .secureNote:
+            return nil
         }
     }
 }
 
 struct VaultListTOTP: Equatable {
-    /// The base url used to fetch icons
-    ///
-    let iconBaseURL: URL
-
     /// The id of the associated Cipher.
     ///
     let id: String

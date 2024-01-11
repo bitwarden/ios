@@ -79,13 +79,21 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(asyncTo route: VaultItemRoute, context: AnyObject?) async {
         switch route {
-        case let .addItem(group: group):
-            await showAddItem(for: group.flatMap(CipherType.init))
+        case let .addItem(allowTypeSelection, group, uri):
+            await showAddItem(
+                for: group.flatMap(CipherType.init),
+                allowTypeSelection: allowTypeSelection,
+                uri: uri,
+                delegate: context as? CipherItemOperationDelegate
+            )
         case .scanCode:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             await showCamera(delegate: delegate)
         case let .editItem(cipher: cipherView):
-            await showEditItem(for: cipherView)
+            await showEditItem(
+                for: cipherView,
+                delegate: context as? CipherItemOperationDelegate
+            )
         default:
             navigate(to: route, context: context)
         }
@@ -103,25 +111,40 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter route: The route to navigate to in the presented coordinator.
     ///
-    private func presentChildVaultItemCoordinator(route: VaultItemRoute) {
+    private func presentChildVaultItemCoordinator(route: VaultItemRoute, context: AnyObject?) {
         let navigationController = UINavigationController()
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
-        coordinator.navigate(to: route)
+        coordinator.navigate(to: route, context: context)
         coordinator.start()
         stackNavigator.present(navigationController)
     }
 
     /// Shows the add item screen.
     ///
-    /// - Parameter type: An optional `CipherType` to initialize this view with.
+    /// - Parameters:
+    ///   - type: An optional `CipherType` to initialize this view with.
+    ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
+    ///   - uri: A URI string used to populate the add item screen.
+    ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
+    ///     in the add/edit/delete item view have occurred.
     ///
-    private func showAddItem(for type: CipherType?) async {
+    private func showAddItem(
+        for type: CipherType?,
+        allowTypeSelection: Bool,
+        uri: String?,
+        delegate: CipherItemOperationDelegate?
+    ) async {
         let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
             ?? false
-        let state = CipherItemState(addItem: type ?? .login, hasPremium: hasPremium)
+        let state = CipherItemState(
+            addItem: type ?? .login,
+            allowTypeSelection: allowTypeSelection,
+            hasPremium: hasPremium,
+            uri: uri
+        )
         let processor = AddEditItemProcessor(
             coordinator: asAnyCoordinator(),
-            delegate: nil,
+            delegate: delegate,
             services: services,
             state: state
         )
@@ -146,16 +169,19 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the edit item screen.
     ///
-    /// - Parameter cipherView: A `CipherView` to initialize this view with.
+    /// - Parameters:
+    ///   - cipherView: A `CipherView` to initialize this view with.
+    ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
+    ///     in the add/edit/delete item view have occurred.
     ///
-    private func showEditItem(for cipherView: CipherView) async {
+    private func showEditItem(for cipherView: CipherView, delegate: CipherItemOperationDelegate?) async {
         let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
             ?? false
         guard let state = CipherItemState(existing: cipherView, hasPremium: hasPremium) else { return }
         if stackNavigator.isEmpty {
             let processor = AddEditItemProcessor(
                 coordinator: asAnyCoordinator(),
-                delegate: nil,
+                delegate: delegate,
                 services: services,
                 state: state
             )
@@ -163,7 +189,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             let view = AddEditItemView(store: store)
             stackNavigator.replace(view)
         } else {
-            presentChildVaultItemCoordinator(route: .editItem(cipher: cipherView))
+            presentChildVaultItemCoordinator(route: .editItem(cipher: cipherView), context: delegate)
         }
     }
 

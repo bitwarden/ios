@@ -9,7 +9,12 @@ import Foundation
 protocol SendRepository: AnyObject {
     // MARK: Publishers
 
-    func fetchSync() async throws
+    /// Performs an API request to sync the user's send data. The publishers in the repository can
+    /// be used to subscribe to the send data, which are updated as a result of the request.
+    ///
+    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
+    ///
+    func fetchSync(isManualRefresh: Bool) async throws
 
     /// A publisher for all the sends in the user's account.
     ///
@@ -26,6 +31,9 @@ class DefaultSendRepository: SendRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
+    /// The service used by the application to manage account state.
+    let stateService: StateService
+
     /// The service used to handle syncing vault data with the API.
     let syncService: SyncService
 
@@ -35,20 +43,26 @@ class DefaultSendRepository: SendRepository {
     ///
     /// - Parameters:
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
         clientVault: ClientVaultService,
+        stateService: StateService,
         syncService: SyncService
     ) {
         self.clientVault = clientVault
+        self.stateService = stateService
         self.syncService = syncService
     }
 
     // MARK: API Methods
 
-    func fetchSync() async throws {
-        try await syncService.fetchSync()
+    func fetchSync(isManualRefresh: Bool) async throws {
+        let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
+        if !isManualRefresh || allowSyncOnRefresh {
+            try await syncService.fetchSync()
+        }
     }
 
     // MARK: Publishers

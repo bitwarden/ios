@@ -4,8 +4,6 @@ import XCTest
 
 // MARK: - AppSettingsStoreTests
 
-// swiftlint:disable file_length
-
 class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -104,6 +102,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.clearClipboardValue(userId: "2"), .never)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_1"), 10)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
+    }
+
+    /// `disableWebIcons` returns `false` if there isn't a previously stored value.
+    func test_disableWebIcons_isInitiallyFalse() {
+        XCTAssertFalse(subject.disableWebIcons)
+    }
+
+    /// `disableWebIcons` can be used to get and set the persisted value in user defaults.
+    func test_disableWebIcons_withValue() {
+        subject.disableWebIcons = true
+        XCTAssertTrue(subject.disableWebIcons)
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:disableFavicon"))
+
+        subject.disableWebIcons = false
+        XCTAssertFalse(subject.disableWebIcons)
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:disableFavicon"))
     }
 
     /// `encryptedPrivateKey(userId:)` returns `nil` if there isn't a previously stored value.
@@ -414,4 +428,4 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(subject.state)
         XCTAssertNil(userDefaults.data(forKey: "bwPreferencesStorage:state"))
     }
-}
+} // swiftlint:disable:this file_length

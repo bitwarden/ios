@@ -23,6 +23,10 @@ struct VaultAutofillListView: View {
                 send: VaultAutofillListAction.toastShown
             ))
             .toolbar {
+                addToolbarItem {
+                    store.send(.addTapped)
+                }
+
                 cancelToolbarItem {
                     store.send(.cancelTapped)
                 }
@@ -34,12 +38,16 @@ struct VaultAutofillListView: View {
     /// The content displayed in the view.
     @ViewBuilder private var content: some View {
         if store.state.ciphersForAutofill.isEmpty {
-            Text(Localizations.noItemsTap)
-                .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .multilineTextAlignment(.center)
-                .padding(16)
-                .frame(maxWidth: .infinity)
+            Button {
+                store.send(.addTapped)
+            } label: {
+                Text(Localizations.noItemsTap)
+                    .styleGuide(.body)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .multilineTextAlignment(.center)
+                    .padding(16)
+                    .frame(maxWidth: .infinity)
+            }
         } else {
             LazyVStack(spacing: 0) {
                 ForEach(store.state.ciphersForAutofill) { cipher in
