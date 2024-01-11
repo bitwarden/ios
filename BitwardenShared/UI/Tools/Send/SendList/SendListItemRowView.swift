@@ -135,7 +135,7 @@ struct SendListItemRowView: View {
                             .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                     }
 
-                    if !sendView.password.isEmptyOrNil {
+                    if sendView.hasPassword {
                         Asset.Images.key.swiftUIImage
                             .resizable()
                             .frame(width: 16, height: 16)
@@ -211,7 +211,8 @@ struct SendListItemRowView: View {
                                 name: "All Statuses",
                                 notes: nil,
                                 key: "",
-                                password: "password",
+                                newPassword: nil,
+                                hasPassword: true,
                                 type: .text,
                                 file: nil,
                                 text: nil,
@@ -241,7 +242,8 @@ struct SendListItemRowView: View {
                                 name: "No Status",
                                 notes: nil,
                                 key: "",
-                                password: nil,
+                                newPassword: nil,
+                                hasPassword: false,
                                 type: .text,
                                 file: nil,
                                 text: nil,
