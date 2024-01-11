@@ -8,6 +8,7 @@ import XCTest
 class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Propteries
 
+    var client: MockHTTPClient!
     var coordinator: MockCoordinator<VaultItemRoute>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
@@ -19,6 +20,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     override func setUp() {
         super.setUp()
+        client = MockHTTPClient()
         coordinator = MockCoordinator<VaultItemRoute>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
@@ -26,6 +28,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             errorReporter: errorReporter,
+            httpClient: client,
             pasteboardService: pasteboardService,
             vaultRepository: vaultRepository
         )
@@ -40,6 +43,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     override func tearDown() {
         super.tearDown()
+        client = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -162,6 +166,44 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
+    func test_perform_checkPasswordPressed_exposedPassword() async throws {
+        let cipher = CipherView.loginFixture(login: .fixture(password: "password1234"))
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
+        client.result = .httpSuccess(testData: .hibpLeakedPasswords)
+
+        await subject.perform(.checkPasswordPressed)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
+        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+            title: Localizations.passwordExposed(1957),
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )))
+    }
+
+    /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
+    func test_perform_checkPasswordPressed_safePassword() async throws {
+        let cipher = CipherView.loginFixture(login: .fixture(password: "iqpeor,kmn!JO8932jldfasd"))
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
+        client.result = .httpSuccess(testData: .hibpLeakedPasswords)
+
+        await subject.perform(.checkPasswordPressed)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/c3ed8"))
+        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+            title: Localizations.passwordSafe,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )))
+    }
+
     /// `receive` with `.cardItemAction` while loading logs an error.
     func test_receive_cardItemAction_impossible_loading() throws {
         subject.state.loadingState = .loading
@@ -212,12 +254,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         cipherState.cardItemState.isNumberVisible = true
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
-    }
-
-    /// `receive` with `.checkPasswordPressed` checks the password with the HIBP service.
-    func test_receive_checkPasswordPressed() {
-        subject.receive(.checkPasswordPressed)
-        // TODO: BIT-1130 Assertion for check password service call
     }
 
     /// `receive` with `.copyPressed` copies the value with the pasteboard service.

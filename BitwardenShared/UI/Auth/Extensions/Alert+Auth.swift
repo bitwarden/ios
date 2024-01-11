@@ -58,4 +58,34 @@ extension Alert {
             ]
         )
     }
+
+    /// An alert notifying the user that their password has been found in data breaches the provided amount of times.
+    ///
+    /// - Parameter count: The number of times the password has been found in a data breach.
+    /// - Returns: An alert notifying the user that their password has been found in data breaches
+    /// the provided amount of times.
+    ///
+    static func passwordExposedAlert(count: Int) -> Alert {
+        Alert(
+            title: Localizations.passwordExposed(count),
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
+    /// An alert notifying the user that their password hasn't been found in data breaches.
+    ///
+    /// - Returns: An alert notifying the user that their password hasn't been found in data breaches.
+    ///
+    static func passwordSafeAlert() -> Alert {
+        Alert(
+            title: Localizations.passwordSafe,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
 }

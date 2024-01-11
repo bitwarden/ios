@@ -32,7 +32,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     // MARK: Tests
 
     /// Tapping the check password button dispatches the `.checkPasswordPressed` action.
-    func test_checkPasswordButton_tap() throws {
+    func test_checkPasswordButton_tap() async throws {
         let loginState = CipherItemState(
             existing: .loginFixture(
                 login: .fixture(
@@ -44,9 +44,9 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             hasPremium: true
         )!
         processor.state.loadingState = .data(loginState)
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.checkPassword)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .checkPasswordPressed)
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.checkPassword)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .checkPasswordPressed)
     }
 
     /// Tapping the copy usename button dispatches the `.copyPressed` action with the username.

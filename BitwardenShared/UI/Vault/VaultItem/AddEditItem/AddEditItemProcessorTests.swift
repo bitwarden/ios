@@ -12,6 +12,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraService: MockCameraService!
+    var client: MockHTTPClient!
     var coordinator: MockCoordinator<VaultItemRoute>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
@@ -26,6 +27,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         super.setUp()
 
         cameraService = MockCameraService()
+        client = MockHTTPClient()
         coordinator = MockCoordinator<VaultItemRoute>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
@@ -38,6 +40,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
                 errorReporter: errorReporter,
+                httpClient: client,
                 pasteboardService: pasteboardService,
                 totpService: totpService,
                 vaultRepository: vaultRepository
@@ -48,6 +51,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        cameraService = nil
+        client = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -153,22 +158,40 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
     }
 
-    /// `perform(_:)` with `.checkPasswordPressed` checks the password.
-    func test_perform_checkPasswordPressed() async {
+    /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
+    func test_perform_checkPasswordPressed_exposedPassword() async throws {
+        subject.state.loginState.password = "password1234"
+        client.result = .httpSuccess(testData: .hibpLeakedPasswords)
+
         await subject.perform(.checkPasswordPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .alert(
-            Alert(
-                title: Localizations.passwordExposed(9_659_365),
-                message: nil,
-                alertActions: [
-                    AlertAction(
-                        title: Localizations.ok,
-                        style: .default
-                    ),
-                ]
-            )
-        ))
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
+        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+            title: Localizations.passwordExposed(1957),
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )))
+    }
+
+    /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
+    func test_perform_checkPasswordPressed_safePassword() async throws {
+        subject.state.loginState.password = "iqpeor,kmn!JO8932jldfasd"
+        client.result = .httpSuccess(testData: .hibpLeakedPasswords)
+
+        await subject.perform(.checkPasswordPressed)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/c3ed8"))
+        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+            title: Localizations.passwordSafe,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )))
     }
 
     /// Tapping the copy button on the auth key row dispatches the `.copyPassword` action.

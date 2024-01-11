@@ -13,6 +13,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
+        & HasAPIService
         & HasTOTPService
         & HasVaultRepository
 
