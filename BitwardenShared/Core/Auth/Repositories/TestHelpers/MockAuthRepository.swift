@@ -25,7 +25,7 @@ class MockAuthRepository: AuthRepository {
         try activeAccountResult.get()
     }
 
-    func getAccount(for userId: String) async throws -> BitwardenShared.Account {
+    func getAccount(for userId: String) async throws -> Account {
         try accountForItemResult.get()
     }
 

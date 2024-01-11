@@ -42,6 +42,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The service that used by the application to access the current date and time.
+    let dateProvider: DateProvider
+
     /// The service used by the application to manage the environment settings.
     let environmentService: EnvironmentService
 
@@ -53,6 +56,9 @@ public class ServiceContainer: Services {
 
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
+
+    /// The service used by the application to access the system's notification center.
+    let notificationCenterService: NotificationCenterService
 
     /// The repository used by the application to manage send data for the UI layer.
     let sendRepository: SendRepository
@@ -99,9 +105,11 @@ public class ServiceContainer: Services {
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - dateProvider: The service that used by the application to access the current date and time.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
+    ///   - notificaitonCenterService: The service used by the application to access the system's notification center.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
@@ -124,10 +132,12 @@ public class ServiceContainer: Services {
         captchaService: CaptchaService,
         cameraService: CameraService,
         clientService: ClientService,
+        dateProvider: DateProvider,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
         pasteboardService: PasteboardService,
+        notificationCenterService: NotificationCenterService,
         sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
@@ -148,10 +158,12 @@ public class ServiceContainer: Services {
         self.captchaService = captchaService
         self.cameraService = cameraService
         self.clientService = clientService
+        self.dateProvider = dateProvider
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
-        self.pasteboardService = pasteboardService
+        self.pasteboardService = pasteboardService       
+        self.notificationCenterService = notificationCenterService
         self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
@@ -176,13 +188,19 @@ public class ServiceContainer: Services {
 
         let biometricsService = DefaultBiometricsService()
         let clientService = DefaultClientService()
+        let dateProvider = DefaultDateProvider()
         let dataStore = DataStore(errorReporter: errorReporter)
-        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+        let stateService = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dateProvider: dateProvider,
+            dataStore: dataStore
+        )
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let sendService = DefaultSendService(sendDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
+        let notificationCenterService = DefaultNotificationCenterService()
 
         let cipherService = DefaultCipherService(
             cipherAPIService: apiService,
@@ -215,8 +233,7 @@ public class ServiceContainer: Services {
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-
-        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
+        let vaultTimeoutService = DefaultVaultTimeoutService(dateProvider: dateProvider, stateService: stateService)
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
@@ -293,10 +310,12 @@ public class ServiceContainer: Services {
             captchaService: DefaultCaptchaService(environmentService: environmentService),
             cameraService: DefaultCameraService(),
             clientService: clientService,
+            dateProvider: dateProvider,
             environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
             pasteboardService: pasteboardService,
+            notificationCenterService: notificationCenterService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,

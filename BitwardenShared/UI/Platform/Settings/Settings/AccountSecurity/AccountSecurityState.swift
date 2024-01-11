@@ -2,38 +2,38 @@ import Foundation
 
 // MARK: - SessionTimeoutValue
 
-/// The session timeout value.
+/// An enumeration of session timeout values to choose from.
 ///
-public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
+public enum SessionTimeoutValue: Double, CaseIterable, Codable, Equatable, Menuable {
     /// Timeout immediately.
-    case immediately
+    case immediately = 0
 
     /// Timeout after 1 minute.
-    case oneMinute
+    case oneMinute = 60
 
     /// Timeout after 5 minutes.
-    case fiveMinutes
+    case fiveMinutes = 300
 
     /// Timeout after 15 minutes.
-    case fifteenMinutes
+    case fifteenMinutes = 900
 
     /// Timeout after 30 minutes.
-    case thirtyMinutes
+    case thirtyMinutes = 1800
 
     /// Timeout after 1 hour.
-    case oneHour
+    case oneHour = 3600
 
     /// Timeout after 4 hours.
-    case fourHours
+    case fourHours = 14400
 
     /// Timeout on app restart.
-    case onAppRestart
+    case onAppRestart = -1
 
     /// Never timeout the session.
-    case never
+    case never = -2
 
     /// A custom timeout value.
-    case custom
+    case custom = -100
 
     /// All of the cases to show in the menu.
     public static let allCases: [Self] = [
@@ -49,6 +49,7 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
         .custom,
     ]
 
+    /// The localized string representation of a `SessionTimeoutValue`.
     var localizedName: String {
         switch self {
         case .immediately:
@@ -79,7 +80,7 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
 
 /// The action to perform on session timeout.
 ///
-public enum SessionTimeoutAction: CaseIterable, Equatable, Menuable {
+public enum SessionTimeoutAction: CaseIterable, Codable, Equatable, Menuable {
     /// Lock the vault.
     case lock
 
@@ -109,15 +110,15 @@ struct AccountSecurityState: Equatable {
 
     /// The accessibility label used for the custom timeout value.
     var customTimeoutAccessibilityLabel: String {
-        customSessionTimeoutValue.timeInHoursMinutes(shouldSpellOut: true)
+        customTimeoutValue.timeInHoursMinutes(shouldSpellOut: true)
     }
 
-    /// The custom session timeout value, initially set to 1 minute.
-    var customSessionTimeoutValue: TimeInterval = 60
+    /// The custom session timeout value, initially set to 60 seconds.
+    var customTimeoutValue: TimeInterval = 60
 
     /// The string representation of the custom session timeout value.
     var customTimeoutString: String {
-        customSessionTimeoutValue.timeInHoursMinutes()
+        customTimeoutValue.timeInHoursMinutes()
     }
 
     /// Whether the approve login requests toggle is on.
@@ -145,4 +146,14 @@ struct AccountSecurityState: Equatable {
 
     /// The URL for two step login external link.
     var twoStepLoginUrl: URL?
+
+    /// A dictionary mapping session timeout values and their numerical representations.
+    /// e.g. `[0: .immediately]`
+    var vaultTimeoutValues: [Double: SessionTimeoutValue] {
+        var map: [Double: SessionTimeoutValue] = [:]
+        for object in SessionTimeoutValue.allCases {
+            map.updateValue(object, forKey: object.rawValue)
+        }
+        return map
+    }
 }

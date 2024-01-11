@@ -4,6 +4,8 @@ import XCTest
 
 // MARK: - AppSettingsStoreTests
 
+// swiftlint:disable file_length
+
 class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -206,6 +208,15 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
             "2:USER_KEY_NEW"
         )
+    }
+
+    /// `lastActiveTime(userId:)` can be used to get the last active time for a user.
+    func test_lastActiveTime() {
+        let date1 = Date(year: 2023, month: 12, day: 1)
+        subject.setLastActiveTime(date1, userId: "1")
+
+        XCTAssertEqual(subject.lastActiveTime(userId: "1"), date1)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastActiveTime_1"), 723_081_600.0)
     }
 
     /// `lastSyncTime(userId:)` returns `nil` if there isn't a previously stored value.
@@ -443,5 +454,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state = nil
         XCTAssertNil(subject.state)
         XCTAssertNil(userDefaults.data(forKey: "bwPreferencesStorage:state"))
+    }
+    
+    /// `.timeoutAction(userId:)` returns the correct timeout action.
+    func test_timeoutAction() throws {
+        subject.setTimeoutAction(key: .logout, userId: "1")
+        XCTAssertEqual(subject.timeoutAction(userId: "1"), .logout)
+        XCTAssertEqual(
+            try JSONDecoder().decode(
+                SessionTimeoutAction.self,
+                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:timeoutAction_1")).utf8)
+            ),
+            .logout
+        )
+    }
+
+    /// `.vaultTimeout(userId:)` returns the correct vault timeout value.
+    func test_vaultTimeout() throws {
+        subject.setVaultTimeout(key: 60, userId: "1")
+
+        XCTAssertEqual(subject.vaultTimeout(userId: "1"), 60)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:vaultTimeout_1"), 60)
     }
 } // swiftlint:disable:this file_length

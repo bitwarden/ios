@@ -132,7 +132,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         coordinator.navigate(to: .addAccount)
     }
 
-    /// Handles a tap of an account in the profile switcher
+    /// Handles a tap of an account in the profile switcher.
+    ///
     /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
     ///
     private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
@@ -201,8 +202,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         return []
     }
 
-    /// Sets the visibility of the profiles view and updates accessibility focus
-    /// - Parameter visible: the intended visibility of the view
+    /// Sets the visibility of the profiles view and updates accessbility focus.
+    ///
+    /// - Parameter visible: the intended visibility of the view.
+    ///
     private func setProfileSwitcher(visible: Bool) {
         if !visible {
             state.profileSwitcherState.hasSetAccessibilityFocus = false

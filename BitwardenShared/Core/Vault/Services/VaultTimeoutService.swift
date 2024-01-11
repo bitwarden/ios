@@ -1,4 +1,5 @@
 import Combine
+import Foundation
 
 // MARK: - VaultTimeoutServiceError
 
@@ -29,16 +30,36 @@ protocol VaultTimeoutService: AnyObject {
     ///
     func lockVault(userId: String?) async
 
+    /// Removes an account id.
+    ///
+    /// - Parameter userId: The user's ID.
+    ///
+    func remove(userId: String?) async
+
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameters:
+    ///   - date: The date of the last active time.
+    ///   - userId: The user ID associated with the last active time within the app.
+    ///
+    func setLastActiveTime(userId: String) async throws
+
+    /// Sets the session timeout date upon the app being backgrounded.
+    ///
+    func setVaultTimeout(value: Double?, userId: String?) async throws
+
+    /// Whether a session timeout should occur.
+    ///
+    /// - Returns: Whether a session timeout should occur.
+    ///
+    func shouldSessionTimeout(userId: String) async throws -> Bool
+
     /// Unlocks the user's vault
     ///
     /// - Parameter userId: The userId of the account to unlock.
     ///     Defaults to the active account if nil
     ///
     func unlockVault(userId: String?) async
-
-    /// Removes an account id.
-    ///
-    func remove(userId: String?) async
 
     // MARK: Publishers
 
@@ -58,7 +79,10 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// A subject containing the active account id.
     var activeAccountIdSubject = CurrentValueSubject<String?, Never>(nil)
 
-    /// The service used by this Default Service.
+    /// The service used to access the current date and time.
+    private var dateProvider: DateProvider
+
+    /// The state service used by this Default Service.
     private var stateService: StateService
 
     /// The store of locked status for known accounts
@@ -82,9 +106,12 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     /// Creates a new `DefaultVaultTimeoutService`.
     ///
-    /// - Parameter stateService: The StateService used by DefaultVaultTimeoutService.
+    /// - Parameters:
+    ///  - dateProvider: The service used to access the current date and time.
+    ///  - stateService: The StateService used by DefaultVaultTimeoutService.
     ///
-    init(stateService: StateService) {
+    init(dateProvider: DateProvider, stateService: StateService) {
+        self.dateProvider = dateProvider
         self.stateService = stateService
         Task {
             lastKnownActiveAccountId = try? await stateService.getActiveAccountId()
@@ -100,11 +127,23 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         }
     }
 
+    // MARK: Methods
+
     func isLocked(userId: String) throws -> Bool {
         guard let isLocked = timeoutStore[userId] else {
             throw VaultTimeoutServiceError.noAccountFound
         }
         return isLocked
+    }
+
+    func lockVault(userId: String?) async {
+        guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
+        timeoutStore[id] = true
+    }
+
+    func remove(userId: String?) async {
+        guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
+        timeoutStore = timeoutStore.filter { $0.key != id }
     }
 
     func shouldClearDecryptedDataPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
@@ -113,9 +152,33 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             .values
     }
 
-    func lockVault(userId: String?) async {
-        guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        timeoutStore[id] = true
+    private func shouldClearData(activeAccountId: String?) -> Bool {
+        guard let activeAccountId,
+              let isLocked = timeoutStore[activeAccountId] else {
+            return true
+        }
+        return isLocked
+    }
+
+    func setLastActiveTime(userId: String) async throws {
+        try await stateService.setLastActiveTime(userId: userId)
+    }
+
+    func setVaultTimeout(value: Double?, userId: String?) async throws {
+        try await stateService.setVaultTimeout(value: value, userId: userId)
+    }
+
+    func shouldSessionTimeout(userId: String) async throws -> Bool {
+        guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId) else { return false }
+        guard let vaultTimeout = try await stateService.getVaultTimeout(userId: userId) else { return false }
+
+        if vaultTimeout == -1 { return true }
+        if vaultTimeout == -2 { return false }
+
+        if dateProvider.now.timeIntervalSince(lastActiveTime) >= TimeInterval(vaultTimeout * 60) {
+            return true
+        }
+        return false
     }
 
     func unlockVault(userId: String?) async {
@@ -123,18 +186,5 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         var updatedStore = timeoutStore.mapValues { _ in true }
         updatedStore[id] = false
         timeoutStore = updatedStore
-    }
-
-    func remove(userId: String?) async {
-        guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        timeoutStore = timeoutStore.filter { $0.key != id }
-    }
-
-    private func shouldClearData(activeAccountId: String?) -> Bool {
-        guard let activeAccountId,
-              let isLocked = timeoutStore[activeAccountId] else {
-            return true
-        }
-        return isLocked
     }
 }

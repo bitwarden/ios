@@ -386,7 +386,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
             coordinator.routes.last,
             .login(
                 username: "email@example.com",
-                region: BitwardenShared.RegionType.unitedStates,
+                region: RegionType.unitedStates,
                 isLoginWithDeviceVisible: false
             )
         )
@@ -453,7 +453,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
             coordinator.routes.last,
             .login(
                 username: "email@example.com",
-                region: BitwardenShared.RegionType.unitedStates,
+                region: RegionType.unitedStates,
                 isLoginWithDeviceVisible: false
             )
         )

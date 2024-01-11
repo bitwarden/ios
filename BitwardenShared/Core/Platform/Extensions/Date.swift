@@ -1,6 +1,8 @@
 import Foundation
 
 extension Date {
+    // MARK: Methods
+
     /// Returns a date that is set to midnight on the day that is seven days in the future.
     ///
     static func midnightOneWeekFromToday() -> Date? {

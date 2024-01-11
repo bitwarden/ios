@@ -9,15 +9,20 @@ class MockAppSettingsStore: AppSettingsStore {
     var appLocale: String?
     var appTheme: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var dateProvider = MockDateProvider()
     var disableWebIcons: Bool = false
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
+    var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
+    var timeoutAction = [String: SessionTimeoutAction]()
+    var rememberedOrgIdentifier: String?
+    var vaultTimeout = [String: Double?]()
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)
@@ -44,6 +49,10 @@ class MockAppSettingsStore: AppSettingsStore {
         encryptedUserKeys[userId]
     }
 
+    func lastActiveTime(userId: String) -> Date? {
+        lastActiveTime[userId]
+    }
+
     func lastSyncTime(userId: String) -> Date? {
         lastSyncTimeByUserId[userId]
     }
@@ -56,8 +65,8 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId]
     }
 
-    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
-        usernameGenerationOptions[userId]
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
+        allowSyncOnRefreshes[userId] = allowSyncOnRefresh
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
@@ -84,6 +93,10 @@ class MockAppSettingsStore: AppSettingsStore {
         encryptedUserKeys[userId] = key
     }
 
+    func setLastActiveTime(_ date: Date?, userId: String) {
+        lastActiveTime[userId] = dateProvider.now
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String) {
         lastSyncTimeByUserId[userId] = date
     }
@@ -100,12 +113,32 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId] = options
     }
 
+    func setVaultTimeout(key: Double?, userId: String) {
+        vaultTimeout[userId] = key
+    }
+
+    func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
+        timeoutAction[userId] = key
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         guard let options else {
             usernameGenerationOptions.removeValue(forKey: userId)
             return
         }
         usernameGenerationOptions[userId] = options
+    }
+
+    func timeoutAction(userId: String) -> SessionTimeoutAction? {
+        timeoutAction[userId]
+    }
+
+    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
+        usernameGenerationOptions[userId]
+    }
+
+    func vaultTimeout(userId: String) -> Double? {
+        vaultTimeout[userId] ?? 0
     }
 
     func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {

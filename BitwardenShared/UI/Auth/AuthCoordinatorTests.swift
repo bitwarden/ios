@@ -50,7 +50,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
     func test_navigate_alert() {
-        let alert = BitwardenShared.Alert(
+        let alert = Alert(
             title: "title",
             message: "message",
             preferredStyle: .alert,

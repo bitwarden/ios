@@ -38,8 +38,9 @@ protocol StateService: AnyObject {
     func getAccounts() async throws -> [Account]
 
     /// Gets the account id or the active account id for a possible id.
-    /// - Parameter userId: The possible user Id of an account
-    /// - Returns: The user account id or the active id
+    ///
+    /// - Parameter userId: The possible user Id of an account.
+    /// - Returns: The user account id or the active id.
     ///
     func getAccountIdOrActiveId(userId: String?) async throws -> String
 
@@ -83,6 +84,13 @@ protocol StateService: AnyObject {
     ///
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
 
+    /// Gets the user's last active time within the app.
+    /// This value is set when the app is backgrounded.
+    ///
+    /// - Parameter userId: The user ID associated with the last active time within the app.
+    ///
+    func getLastActiveTime(userId: String?) async throws -> Date?
+
     /// Gets the master password hash for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the master password hash.
@@ -109,12 +117,26 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
+    /// Gets the session timeout action.
+    ///
+    /// - Parameter userId: The user ID for the account.
+    /// - Returns: The action to perform when a session timeout occurs.
+    ///
+    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction?
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
     /// - Returns: The username generation options for the user ID.
     ///
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions?
+
+    /// Gets the session timeout date.
+    ///
+    /// - Parameter userId: The user ID for the account.
+    /// - Returns: The session timeout date.
+    ///
+    func getVaultTimeout(userId: String?) async throws -> Double?
 
     /// Logs the user out of an account.
     ///
@@ -159,6 +181,14 @@ protocol StateService: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
 
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameters:
+    ///   - date: The date of the last active time.
+    ///   - userId: The user ID associated with the last active time within the app.
+    ///
+    func setLastActiveTime(userId: String?) async throws
+
     /// Sets the time of the last sync for a user ID.
     ///
     /// - Parameters:
@@ -195,6 +225,14 @@ protocol StateService: AnyObject {
     ///
     func setShowWebIcons(_ showWebIcons: Bool) async
 
+    /// Sets the session timeout action.
+    ///
+    /// - Parameters:
+    ///   - action: The action to take when the user's session times out.
+    ///   - userId: The user ID associated with the timeout action.
+    ///
+    func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws
+
     /// Sets a new access and refresh token for an account.
     ///
     /// - Parameters:
@@ -211,6 +249,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws
+
+    /// Sets the session timeout date.
+    ///
+    /// - Parameters:
+    ///   - value: How many minutes in the future the timeout should occur.
+    ///   - userId: The user ID associated with the timeout value.
+    ///
+    func setVaultTimeout(value: Double?, userId: String?) async throws
 
     // MARK: Publishers
 
@@ -411,6 +457,9 @@ actor DefaultStateService: StateService {
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
 
+    /// The service that accesses the current date and time.
+    let dateProvider: DateProvider
+
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
@@ -422,11 +471,17 @@ actor DefaultStateService: StateService {
     /// Initialize a `DefaultStateService`.
     ///
     /// - Parameters:
-    ///   - appSettingsStore: The service that persists app settings.
-    ///   - dataStore: The data store that handles performing data requests.
+    ///  - appSettingsStore: The service that persists app settings.
+    ///  - dateProvider: The service that accesses the current date and time.
+    ///  - dataStore: The data store that handles performing data requests.
     ///
-    init(appSettingsStore: AppSettingsStore, dataStore: DataStore) {
+    init(
+        appSettingsStore: AppSettingsStore,
+        dateProvider: DateProvider,
+        dataStore: DataStore
+    ) {
         self.appSettingsStore = appSettingsStore
+        self.dateProvider = dateProvider
         self.dataStore = dataStore
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
@@ -510,6 +565,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
     }
 
+    func getLastActiveTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.lastActiveTime(userId: userId)
+    }
+
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.masterPasswordHash(userId: userId)
@@ -528,9 +588,19 @@ actor DefaultStateService: StateService {
         !appSettingsStore.disableWebIcons
     }
 
+    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.timeoutAction(userId: userId)
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.usernameGenerationOptions(userId: userId)
+    }
+
+    func getVaultTimeout(userId: String?) async throws -> Double? {
+        let userId = try userId ?? getActiveAccountId()
+        return appSettingsStore.vaultTimeout(userId: userId)
     }
 
     func logoutAccount(userId: String?) async throws {
@@ -583,6 +653,11 @@ actor DefaultStateService: StateService {
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
     }
 
+    func setLastActiveTime(userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setLastActiveTime(dateProvider.now, userId: userId)
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastSyncTime(date, userId: userId)
@@ -608,6 +683,11 @@ actor DefaultStateService: StateService {
         showWebIconsSubject.send(showWebIcons)
     }
 
+    func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setTimeoutAction(key: action, userId: userId)
+    }
+
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {
         guard var state = appSettingsStore.state,
               let userId = userId ?? state.activeUserId
@@ -625,6 +705,11 @@ actor DefaultStateService: StateService {
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
+    }
+
+    func setVaultTimeout(value: Double?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setVaultTimeout(key: value, userId: userId)
     }
 
     // MARK: Publishers

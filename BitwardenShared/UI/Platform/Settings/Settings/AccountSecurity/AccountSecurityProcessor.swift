@@ -13,10 +13,12 @@ final class AccountSecurityProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasBiometricsService
+        & HasDateProvider
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
         & HasTwoStepLoginService
+        & HasVaultTimeoutService
 
     // MARK: Private Properties
 
@@ -52,6 +54,8 @@ final class AccountSecurityProcessor: StateProcessor<
 
     override func perform(_ effect: AccountSecurityEffect) async {
         switch effect {
+        case .appeared:
+            await appeared()
         case .lockVault:
             do {
                 let account = try await services.stateService.getActiveAccount()
@@ -68,16 +72,17 @@ final class AccountSecurityProcessor: StateProcessor<
         switch action {
         case .clearTwoStepLoginUrl:
             state.twoStepLoginUrl = nil
+        case let .customTimeoutValueChanged(newValue):
+            state.customTimeoutValue = newValue
+            setVaultTimeout(value: newValue)
         case .deleteAccountPressed:
             coordinator.navigate(to: .deleteAccount)
         case .logout:
             showLogoutConfirmation()
-        case let .sessionTimeoutActionChanged(action):
-            saveTimeoutActionSetting(action)
+        case let .sessionTimeoutActionChanged(newValue):
+            setTimeoutAction(newValue)
         case let .sessionTimeoutValueChanged(newValue):
             state.sessionTimeoutValue = newValue
-        case let .setCustomSessionTimeoutValue(newValue):
-            state.customSessionTimeoutValue = newValue
         case let .toggleApproveLoginRequestsToggle(isOn):
             state.isApproveLoginRequestsToggleOn = isOn
         case let .toggleUnlockWithFaceID(isOn):
@@ -93,20 +98,93 @@ final class AccountSecurityProcessor: StateProcessor<
 
     // MARK: Private
 
-    /// Saves the user's session timeout action.
+    /// The view has appeared.
     ///
-    /// - Parameter action: The action to perform on session timeout.
+    private func appeared() async {
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            let timeoutAction = try await services.stateService.getTimeoutAction(userId: userId)
+            let timeout = try await services.stateService.getVaultTimeout(userId: userId)
+
+            if timeoutAction == nil, timeout == nil {
+                try await services.stateService.setVaultTimeout(value: 0, userId: userId)
+                try await services.stateService.setTimeoutAction(action: .lock, userId: userId)
+            }
+
+            state.sessionTimeoutAction = try await services.stateService.getTimeoutAction(userId: userId) ?? .lock
+
+            guard let vaultTimeout = try await services.stateService.getVaultTimeout(userId: userId) else {
+                state.sessionTimeoutValue = .never
+                return
+            }
+
+            if vaultTimeout == -1 {
+                state.sessionTimeoutValue = .onAppRestart
+            } else {
+                var rawTimeoutValues: [Double] = []
+                for value in SessionTimeoutValue.allCases {
+                    rawTimeoutValues.append(value.rawValue)
+                }
+                if !rawTimeoutValues.contains(vaultTimeout) {
+                    state.sessionTimeoutValue = .custom
+                    state.customTimeoutValue = vaultTimeout
+                } else {
+                    for (_, value) in state.vaultTimeoutValues where vaultTimeout == value.rawValue {
+                        state.sessionTimeoutValue = value
+                    }
+                }
+            }
+        } catch {
+            coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Sets the session timeout action.
     ///
-    private func saveTimeoutActionSetting(_ action: SessionTimeoutAction) {
+    /// - Parameter action: The action that occurs upon a session timeout.
+    ///
+    private func setTimeoutAction(_ action: SessionTimeoutAction) {
         guard action != state.sessionTimeoutAction else { return }
         if action == .logout {
             coordinator.navigate(to: .alert(.logoutOnTimeoutAlert {
-                // TODO: BIT-1125 Persist the setting
-                self.state.sessionTimeoutAction = action
+                do {
+                    let userId = try await self.services.stateService.getActiveAccountId()
+                    try await self.services.stateService.setTimeoutAction(action: action, userId: userId)
+                } catch {
+                    self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+                    self.services.errorReporter.log(error: error)
+                }
             }))
         } else {
-            // TODO: BIT-1125 Persist the setting
-            state.sessionTimeoutAction = action
+            Task {
+                let userId = try await services.stateService.getActiveAccountId()
+                try await services.stateService.setTimeoutAction(action: action, userId: userId)
+            }
+        }
+
+        state.sessionTimeoutAction = action
+    }
+
+    /// Sets the vault timeout value.
+    ///
+    /// - Parameter value: The vault timeout value.
+    ///
+    private func setVaultTimeout(value: Double) {
+        Task {
+            do {
+                let userId = try await self.services.stateService.getActiveAccountId()
+                if value == -100 {
+                    try await services.vaultTimeoutService.setVaultTimeout(value: 60, userId: userId)
+                } else if value == -2 {
+                    try await services.vaultTimeoutService.setVaultTimeout(value: nil, userId: userId)
+                } else {
+                    try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: userId)
+                }
+            } catch {
+                self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+                self.services.errorReporter.log(error: error)
+            }
         }
     }
 

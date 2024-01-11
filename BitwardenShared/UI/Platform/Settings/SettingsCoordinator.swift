@@ -36,6 +36,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasAuthRepository
         & HasBiometricsService
         & HasClientAuth
+        & HasDateProvider
         & HasErrorReporter
         & HasPasteboardService
         & HasSettingsRepository

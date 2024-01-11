@@ -7,6 +7,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     // MARK: Properties
 
     var cancellables: Set<AnyCancellable>!
+    var dateProvider: MockDateProvider!
     var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
 
@@ -16,17 +17,21 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         super.setUp()
 
         cancellables = []
+        dateProvider = MockDateProvider()
         stateService = MockStateService()
-        subject = DefaultVaultTimeoutService(stateService: stateService)
+        subject = DefaultVaultTimeoutService(dateProvider: dateProvider, stateService: stateService)
     }
 
     override func tearDown() {
         super.tearDown()
 
         cancellables = nil
+        dateProvider = nil
         subject = nil
         stateService = nil
     }
+
+    // MARK: Tests
 
     /// Setting the timeoutStore should trigger the `shouldClearDecryptedDataPublisher` with the new values.
     func test_changeLockStore_locked_new() {
@@ -207,6 +212,100 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         )
     }
 
+    /// `remove(userId:)` should remove an unlocked account.
+    func test_remove_unlocked() async {
+        let account = Account.fixtureAccountLogin()
+        stateService.accounts = [account]
+        subject.timeoutStore = [
+            account.profile.userId: false,
+        ]
+        await subject.remove(userId: account.profile.userId)
+        XCTAssertTrue(subject.timeoutStore.isEmpty)
+    }
+
+    /// `remove(userId:)` should remove a locked account.
+    func test_remove_locked() async {
+        let account = Account.fixtureAccountLogin()
+        stateService.accounts = [account]
+        subject.timeoutStore = [
+            account.profile.userId: true,
+        ]
+        await subject.remove(userId: account.profile.userId)
+        XCTAssertTrue(subject.timeoutStore.isEmpty)
+    }
+
+    /// `remove(userId:)`preserves state when no account matches.
+    func test_remove_notFound() async {
+        let account = Account.fixtureAccountLogin()
+        stateService.accounts = [account]
+        subject.timeoutStore = [
+            account.profile.userId: false,
+        ]
+        await subject.remove(userId: "123")
+        XCTAssertEqual(
+            [
+                account.profile.userId: false,
+            ],
+            subject.timeoutStore
+        )
+    }
+
+    /// `.setLastActiveTime(userId:)` sets the user's last active time.
+    func test_setLastActiveTime() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        try await subject.setLastActiveTime(userId: account.profile.userId)
+        XCTAssertEqual(stateService.lastActiveTime[account.profile.userId], dateProvider.now)
+    }
+
+    /// `.setVaultTimeout(value:userId:)` sets the user's vault timeout value.
+    func test_setVaultTimeout() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        try await subject.setVaultTimeout(value: 120, userId: account.profile.userId)
+        XCTAssertEqual(stateService.vaultTimeout[account.profile.userId], 120)
+    }
+
+    /// `.shouldSessionTimeout()` returns false if the user should not be timed out.
+    func test_shouldSessionTimeout_false() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.lastActiveTime[account.profile.userId] = dateProvider.now
+        stateService.vaultTimeout[account.profile.userId] = 120
+        let shouldTimeout = try await subject.shouldSessionTimeout(userId: account.profile.userId)
+        XCTAssertFalse(shouldTimeout)
+    }
+
+    /// `.shouldSessionTimeout()` returns false if the user's vault timeout value is negative.
+    func test_shouldSessionTimeout_never() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.lastActiveTime[account.profile.userId] = dateProvider.now
+        stateService.vaultTimeout[account.profile.userId] = -2
+        let shouldTimeout = try await subject.shouldSessionTimeout(userId: account.profile.userId)
+        XCTAssertFalse(shouldTimeout)
+    }
+
+    /// `.shouldSessionTimeout()` returns true if the user should be timed out on app restart.
+    func test_shouldSessionTimeout_true_onAppRestart() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.lastActiveTime[account.profile.userId] = dateProvider.now
+        stateService.vaultTimeout[account.profile.userId] = -1
+        let shouldTimeout = try await subject.shouldSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+    }
+
+    /// `.shouldSessionTimeout()` returns true if the user should be timed out.
+    func test_shouldSessionTimeout_true() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.lastActiveTime[account.profile.userId] = .distantPast
+        stateService.vaultTimeout[account.profile.userId] = 1
+        let shouldTimeout = try await subject.shouldSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+    }
+
     /// `unlockVault(userId: nil)` should unock the active account.
     func test_unlock_nil_active() async {
         let account = Account.fixtureAccountLogin()
@@ -297,44 +396,6 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
                 account.profile.userId: false,
                 alternate.profile.userId: true,
                 secondAlternate.profile.userId: true,
-            ],
-            subject.timeoutStore
-        )
-    }
-
-    /// `remove(userId:)` should remove an unlocked account.
-    func test_remove_unlocked() async {
-        let account = Account.fixtureAccountLogin()
-        stateService.accounts = [account]
-        subject.timeoutStore = [
-            account.profile.userId: false,
-        ]
-        await subject.remove(userId: account.profile.userId)
-        XCTAssertTrue(subject.timeoutStore.isEmpty)
-    }
-
-    /// `remove(userId:)` should remove a locked account.
-    func test_remove_locked() async {
-        let account = Account.fixtureAccountLogin()
-        stateService.accounts = [account]
-        subject.timeoutStore = [
-            account.profile.userId: true,
-        ]
-        await subject.remove(userId: account.profile.userId)
-        XCTAssertTrue(subject.timeoutStore.isEmpty)
-    }
-
-    /// `remove(userId:)`preserves state when no account matches.
-    func test_remove_notFound() async {
-        let account = Account.fixtureAccountLogin()
-        stateService.accounts = [account]
-        subject.timeoutStore = [
-            account.profile.userId: false,
-        ]
-        await subject.remove(userId: "123")
-        XCTAssertEqual(
-            [
-                account.profile.userId: false,
             ],
             subject.timeoutStore
         )

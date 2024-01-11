@@ -32,6 +32,9 @@ struct AccountSecurityView: View {
             openURL(url)
             store.send(.clearTwoStepLoginUrl)
         }
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     // MARK: Private views
@@ -116,8 +119,8 @@ struct AccountSecurityView: View {
                         title: Localizations.custom,
                         customTimeoutValue: store.state.customTimeoutString,
                         pickerValue: store.binding(
-                            get: \.customSessionTimeoutValue,
-                            send: AccountSecurityAction.setCustomSessionTimeoutValue
+                            get: \.customTimeoutValue,
+                            send: AccountSecurityAction.customTimeoutValueChanged
                         ),
                         customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel
                     )

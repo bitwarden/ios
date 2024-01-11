@@ -15,7 +15,9 @@ class MockStateService: StateService {
     var appTheme: AppTheme?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var dateProvider = MockDateProvider()
     var environmentUrls = [String: EnvironmentUrlData]()
+    var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var masterPasswordHashes = [String: String]()
@@ -25,11 +27,12 @@ class MockStateService: StateService {
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var rememberedOrgIdentifier: String?
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
+    var vaultTimeout = [String: Double?]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
 
-    func addAccount(_ account: BitwardenShared.Account) async {
+    func addAccount(_ account: Account) async {
         accountsAdded.append(account)
         activeAccount = account
     }
@@ -49,7 +52,7 @@ class MockStateService: StateService {
         return encryptionKeys
     }
 
-    func getAccounts() async throws -> [BitwardenShared.Account] {
+    func getAccounts() async throws -> [Account] {
         guard let accounts else { throw StateServiceError.noAccounts }
         return accounts
     }
@@ -97,6 +100,11 @@ class MockStateService: StateService {
         return environmentUrls[userId]
     }
 
+    func getLastActiveTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return lastActiveTime[userId]
+    }
+
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return masterPasswordHashes[userId]
@@ -115,9 +123,19 @@ class MockStateService: StateService {
         showWebIcons
     }
 
+    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return timeoutAction[userId] ?? .lock
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return usernameGenerationOptions[userId]
+    }
+
+    func getVaultTimeout(userId: String?) async throws -> Double? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return vaultTimeout[userId] ?? 0
     }
 
     func logoutAccount(userId: String?) async throws {
@@ -158,6 +176,11 @@ class MockStateService: StateService {
         self.environmentUrls[userId] = environmentUrls
     }
 
+    func setLastActiveTime(userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        lastActiveTime[userId] = dateProvider.now
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         lastSyncTimeByUserId[userId] = date
@@ -181,6 +204,11 @@ class MockStateService: StateService {
         self.showWebIcons = showWebIcons
     }
 
+    func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        timeoutAction[userId] = action
+    }
+
     func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
@@ -188,6 +216,11 @@ class MockStateService: StateService {
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         usernameGenerationOptions[userId] = options
+    }
+
+    func setVaultTimeout(value: Double?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        vaultTimeout[userId] = value
     }
 
     func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>> {

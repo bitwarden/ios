@@ -61,6 +61,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedUserKey(userId: String) -> String?
 
+    /// The user's last active time within the app.
+    /// This value is set when the app is backgrounded.
+    ///
+    /// - Parameter userId: The user ID associated with the last active time within the app.
+    ///
+    func lastActiveTime(userId: String) -> Date?
+
     /// Gets the time of the last sync for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the last sync time.
@@ -81,12 +88,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions?
 
-    /// Gets the username generation options for a user ID.
+    /// Whether the vault should sync on refreshing.
     ///
-    /// - Parameter userId: The user ID associated with the username generation options.
-    /// - Returns: The username generation options for the user ID.
+    /// - Parameters:
+    ///   - allowSyncOnRefresh: Whether the vault should sync on refreshing.
+    ///   - userId: The user ID associated with the sync on refresh setting.
     ///
-    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
 
     /// Whether the vault should sync on refreshing.
     ///
@@ -122,6 +130,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setEncryptedUserKey(key: String?, userId: String)
 
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameters:
+    ///   - date: The date of the last active time.
+    ///   - userId: The user ID associated with the last active time within the app.
+    ///
+    func setLastActiveTime(_ date: Date?, userId: String)
+
     /// Sets the time of the last sync for the user ID.
     ///
     /// - Parameters:
@@ -146,6 +162,22 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
 
+    /// Sets the user's timeout action.
+    ///
+    /// - Parameters:
+    ///   - key: The action taken when a session has timed out.
+    ///   - userId: The user ID associated with the session timeout action.
+    ///
+    func setTimeoutAction(key: SessionTimeoutAction, userId: String)
+
+    /// Sets the user's session timeout date.
+    ///
+    /// - Parameters:
+    ///   - key: The session timeout date.
+    ///   - userId: The user ID associated with the session timeout date.
+    ///
+    func setVaultTimeout(key: Double?, userId: String)
+
     /// Sets the username generation options for a user ID.
     ///
     /// - Parameters:
@@ -153,6 +185,27 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
+
+    /// Returns the action taken upon a session timeout.
+    ///
+    /// - Parameter userId: The user ID associated with the session timeout action.
+    /// - Returns: The  user's session timeout action.
+    ///
+    func timeoutAction(userId: String) -> SessionTimeoutAction?
+
+    /// Returns the session timeout date.
+    ///
+    /// - Parameter userId: The user ID associated with the session timeout date.
+    /// - Returns: The user's session timeout date.
+    ///
+    func vaultTimeout(userId: String) -> Double?
+
+    /// Gets the username generation options for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the username generation options.
+    /// - Returns: The username generation options for the user ID.
+    ///
+    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
 
     // MARK: Publishers
 
@@ -173,7 +226,7 @@ class DefaultAppSettingsStore {
     /// The `UserDefaults` instance to persist settings.
     let userDefaults: UserDefaults
 
-    /// A subject containing a `String?` for the userId of the active account..
+    /// A subject containing a `String?` for the userId of the active account.
     lazy var activeAccountIdSubject = CurrentValueSubject<String?, Never>(state?.activeUserId)
 
     // MARK: Initialization
@@ -281,6 +334,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case disableWebIcons
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
+        case lastActiveTime(userId: String)
         case lastSync(userId: String)
         case masterPasswordHash(userId: String)
         case passwordGenerationOptions(userId: String)
@@ -288,7 +342,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case rememberedEmail
         case rememberedOrgIdentifier
         case state
+        case timeoutAction(userId: String)
         case usernameGenerationOptions(userId: String)
+        case vaultTimeout(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -310,6 +366,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
                 key = "encPrivateKey_\(userId)"
+            case let .lastActiveTime(userId):
+                key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
             case let .masterPasswordHash(userId):
@@ -324,8 +382,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedOrgIdentifier"
             case .state:
                 key = "state"
+            case let .timeoutAction(userId):
+                key = "timeoutAction_\(userId)"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
+            case let .vaultTimeout(userId):
+                key = "vaultTimeout_\(userId)"
             }
             return "bwPreferencesStorage:\(key)"
         }
@@ -394,6 +456,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .encryptedUserKey(userId: userId))
     }
 
+    func lastActiveTime(userId: String) -> Date? {
+        fetch(for: .lastActiveTime(userId: userId))
+    }
+
     func lastSyncTime(userId: String) -> Date? {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -406,8 +472,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
 
-    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
-        fetch(for: .usernameGenerationOptions(userId: userId))
+    func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
+        store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
@@ -426,6 +492,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .encryptedUserKey(userId: userId))
     }
 
+    func setLastActiveTime(_ date: Date?, userId: String) {
+        store(date, for: .lastActiveTime(userId: userId))
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
     }
@@ -438,8 +508,28 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(options, for: .passwordGenerationOptions(userId: userId))
     }
 
+    func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
+        store(key, for: .timeoutAction(userId: userId))
+    }
+
+    func setVaultTimeout(key: Double?, userId: String) {
+        store(key, for: .vaultTimeout(userId: userId))
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         store(options, for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func timeoutAction(userId: String) -> SessionTimeoutAction? {
+        fetch(for: .timeoutAction(userId: userId))
+    }
+
+    func vaultTimeout(userId: String) -> Double? {
+        fetch(for: .vaultTimeout(userId: userId))
+    }
+
+    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
+        fetch(for: .usernameGenerationOptions(userId: userId))
     }
 
     func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
