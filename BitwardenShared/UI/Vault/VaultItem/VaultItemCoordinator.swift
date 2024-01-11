@@ -50,10 +50,11 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
-        case let .addItem(allowTypeSelection, group, uri):
+        case let .addItem(allowTypeSelection, group, hasPremium, uri):
             showAddItem(
                 for: group.flatMap(CipherType.init),
                 allowTypeSelection: allowTypeSelection,
+                hasPremium: hasPremium,
                 uri: uri,
                 delegate: context as? CipherItemOperationDelegate
             )
@@ -118,6 +119,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// - Parameters:
     ///   - type: An optional `CipherType` to initialize this view with.
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
+    ///   - hasPremium: Whether the user has premium,
     ///   - uri: A URI string used to populate the add item screen.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
@@ -125,28 +127,25 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     private func showAddItem(
         for type: CipherType?,
         allowTypeSelection: Bool,
+        hasPremium: Bool,
         uri: String?,
         delegate: CipherItemOperationDelegate?
     ) {
-        Task {
-            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
-                ?? false
-            let state = CipherItemState(
-                addItem: type ?? .login,
-                allowTypeSelection: allowTypeSelection,
-                hasPremium: hasPremium,
-                uri: uri
-            )
-            let processor = AddEditItemProcessor(
-                coordinator: asAnyCoordinator(),
-                delegate: delegate,
-                services: services,
-                state: state
-            )
-            let store = Store(processor: processor)
-            let view = AddEditItemView(store: store)
-            stackNavigator.replace(view)
-        }
+        let state = CipherItemState(
+            addItem: type ?? .login,
+            allowTypeSelection: allowTypeSelection,
+            hasPremium: hasPremium,
+            uri: uri
+        )
+        let processor = AddEditItemProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: state
+        )
+        let store = Store(processor: processor)
+        let view = AddEditItemView(store: store)
+        stackNavigator.replace(view)
     }
 
     /// Shows the move to organization screen.
