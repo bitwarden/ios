@@ -229,7 +229,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.morePressed(.clone))
 
         XCTAssertEqual(coordinator.routes.last, .cloneItem(cipher: cipher))
-        XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
+        XCTAssertIdentical(coordinator.contexts.last as? ViewItemProcessor, subject)
     }
 
     /// `receive` with `.copyPressed` copies the value with the pasteboard service.
