@@ -222,19 +222,23 @@ private struct VaultMainView: View {
     @ViewBuilder
     private func vaultItemRow(for item: VaultListItem, isLastInSection: Bool = false) -> some View {
         VaultListItemRowView(store: store.child(
-            state: { _ in
+            state: { state in
                 VaultListItemRowState(
+                    iconBaseURL: state.iconBaseURL,
                     item: item,
-                    hasDivider: !isLastInSection
+                    hasDivider: !isLastInSection,
+                    showWebIcons: state.showWebIcons
                 )
             },
             mapAction: { action in
                 switch action {
                 case let .copyTOTPCode(code):
                     return .copyTOTPCode(code)
+                case .morePressed:
+                    return .morePressed(item)
                 }
             },
-            mapEffect: { _ in .morePressed(item: item) }
+            mapEffect: nil
         ))
     }
 
@@ -329,6 +333,9 @@ struct VaultListView: View {
         .task {
             await store.perform(.streamOrganizations)
         }
+        .task {
+            await store.perform(.streamShowWebIcons)
+        }
         .task(id: store.state.vaultFilterType) {
             await store.perform(.streamVaultList)
         }
@@ -416,36 +423,61 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "1",
                                     items: [
-                                        .init(cipherListView: .init(
+                                        .init(cipherView: .init(
                                             id: UUID().uuidString,
                                             organizationId: nil,
                                             folderId: nil,
                                             collectionIds: [],
+                                            key: nil,
                                             name: "Example",
-                                            subTitle: "email@example.com",
+                                            notes: nil,
                                             type: .login,
+                                            login: .init(
+                                                username: "email@example.com",
+                                                password: nil,
+                                                passwordRevisionDate: nil,
+                                                uris: nil,
+                                                totp: nil,
+                                                autofillOnPageLoad: nil
+                                            ),
+                                            identity: nil,
+                                            card: nil,
+                                            secureNote: nil,
                                             favorite: true,
                                             reprompt: .none,
+                                            organizationUseTotp: false,
                                             edit: false,
                                             viewPassword: true,
-                                            attachments: 0,
+                                            localData: nil,
+                                            attachments: nil,
+                                            fields: nil,
+                                            passwordHistory: nil,
                                             creationDate: Date(),
                                             deletedDate: nil,
                                             revisionDate: Date()
                                         ))!,
-                                        .init(cipherListView: .init(
+                                        .init(cipherView: .init(
                                             id: UUID().uuidString,
                                             organizationId: nil,
                                             folderId: nil,
                                             collectionIds: [],
+                                            key: nil,
                                             name: "Example 2",
-                                            subTitle: "",
+                                            notes: nil,
                                             type: .secureNote,
+                                            login: nil,
+                                            identity: nil,
+                                            card: nil,
+                                            secureNote: nil,
                                             favorite: true,
                                             reprompt: .none,
+                                            organizationUseTotp: false,
                                             edit: false,
                                             viewPassword: true,
-                                            attachments: 0,
+                                            localData: nil,
+                                            attachments: nil,
+                                            fields: nil,
+                                            passwordHistory: nil,
                                             creationDate: Date(),
                                             deletedDate: nil,
                                             revisionDate: Date()
@@ -506,19 +538,35 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "CollectionItems",
                                     items: [
-                                        .init(cipherListView: .init(
+                                        .init(cipherView: .init(
                                             id: UUID().uuidString,
                                             organizationId: "1",
                                             folderId: nil,
                                             collectionIds: [],
+                                            key: nil,
                                             name: "Example",
-                                            subTitle: "email@example.com",
+                                            notes: nil,
                                             type: .login,
+                                            login: .init(
+                                                username: "email@example.com",
+                                                password: nil,
+                                                passwordRevisionDate: nil,
+                                                uris: nil,
+                                                totp: nil,
+                                                autofillOnPageLoad: nil
+                                            ),
+                                            identity: nil,
+                                            card: nil,
+                                            secureNote: nil,
                                             favorite: true,
                                             reprompt: .none,
+                                            organizationUseTotp: false,
                                             edit: false,
                                             viewPassword: true,
-                                            attachments: 0,
+                                            localData: nil,
+                                            attachments: nil,
+                                            fields: nil,
+                                            passwordHistory: nil,
                                             creationDate: Date(),
                                             deletedDate: nil,
                                             revisionDate: Date()
@@ -554,19 +602,35 @@ struct VaultListView_Previews: PreviewProvider {
                                 isVisible: false
                             ),
                             searchResults: [
-                                .init(cipherListView: .init(
+                                .init(cipherView: .init(
                                     id: UUID().uuidString,
                                     organizationId: nil,
                                     folderId: nil,
                                     collectionIds: [],
+                                    key: nil,
                                     name: "Example",
-                                    subTitle: "email@example.com",
+                                    notes: nil,
                                     type: .login,
+                                    login: .init(
+                                        username: "email@example.com",
+                                        password: nil,
+                                        passwordRevisionDate: nil,
+                                        uris: nil,
+                                        totp: nil,
+                                        autofillOnPageLoad: nil
+                                    ),
+                                    identity: nil,
+                                    card: nil,
+                                    secureNote: nil,
                                     favorite: true,
                                     reprompt: .none,
+                                    organizationUseTotp: false,
                                     edit: false,
                                     viewPassword: true,
-                                    attachments: 0,
+                                    localData: nil,
+                                    attachments: nil,
+                                    fields: nil,
+                                    passwordHistory: nil,
                                     creationDate: Date(),
                                     deletedDate: nil,
                                     revisionDate: Date()
@@ -586,53 +650,101 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             searchResults: [
-                                .init(cipherListView: .init(
+                                .init(cipherView: .init(
                                     id: UUID().uuidString,
                                     organizationId: nil,
                                     folderId: nil,
                                     collectionIds: [],
+                                    key: nil,
                                     name: "Example",
-                                    subTitle: "email@example.com",
+                                    notes: nil,
                                     type: .login,
+                                    login: .init(
+                                        username: "email@example.com",
+                                        password: nil,
+                                        passwordRevisionDate: nil,
+                                        uris: nil,
+                                        totp: nil,
+                                        autofillOnPageLoad: nil
+                                    ),
+                                    identity: nil,
+                                    card: nil,
+                                    secureNote: nil,
                                     favorite: true,
                                     reprompt: .none,
+                                    organizationUseTotp: false,
                                     edit: false,
                                     viewPassword: true,
-                                    attachments: 0,
+                                    localData: nil,
+                                    attachments: nil,
+                                    fields: nil,
+                                    passwordHistory: nil,
                                     creationDate: Date(),
                                     deletedDate: nil,
                                     revisionDate: Date()
                                 ))!,
-                                .init(cipherListView: .init(
+                                .init(cipherView: .init(
                                     id: UUID().uuidString,
                                     organizationId: nil,
                                     folderId: nil,
                                     collectionIds: [],
+                                    key: nil,
                                     name: "Example 2",
-                                    subTitle: "email2@example.com",
+                                    notes: nil,
                                     type: .login,
+                                    login: .init(
+                                        username: "email2@example.com",
+                                        password: nil,
+                                        passwordRevisionDate: nil,
+                                        uris: nil,
+                                        totp: nil,
+                                        autofillOnPageLoad: nil
+                                    ),
+                                    identity: nil,
+                                    card: nil,
+                                    secureNote: nil,
                                     favorite: true,
                                     reprompt: .none,
+                                    organizationUseTotp: false,
                                     edit: false,
                                     viewPassword: true,
-                                    attachments: 0,
+                                    localData: nil,
+                                    attachments: nil,
+                                    fields: nil,
+                                    passwordHistory: nil,
                                     creationDate: Date(),
                                     deletedDate: nil,
                                     revisionDate: Date()
                                 ))!,
-                                .init(cipherListView: .init(
+                                .init(cipherView: .init(
                                     id: UUID().uuidString,
                                     organizationId: nil,
                                     folderId: nil,
                                     collectionIds: [],
+                                    key: nil,
                                     name: "Example 3",
-                                    subTitle: "email3@example.com",
+                                    notes: nil,
                                     type: .login,
+                                    login: .init(
+                                        username: "email3@example.com",
+                                        password: nil,
+                                        passwordRevisionDate: nil,
+                                        uris: nil,
+                                        totp: nil,
+                                        autofillOnPageLoad: nil
+                                    ),
+                                    identity: nil,
+                                    card: nil,
+                                    secureNote: nil,
                                     favorite: true,
                                     reprompt: .none,
+                                    organizationUseTotp: false,
                                     edit: false,
                                     viewPassword: true,
-                                    attachments: 0,
+                                    localData: nil,
+                                    attachments: nil,
+                                    fields: nil,
+                                    passwordHistory: nil,
                                     creationDate: Date(),
                                     deletedDate: nil,
                                     revisionDate: Date()

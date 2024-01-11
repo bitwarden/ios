@@ -1,34 +1,6 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - VaultListItemRowState
-
-/// An object representing the visual state of a `VaultListItemRowView`.
-struct VaultListItemRowState {
-    // MARK: Properties
-
-    /// The item displayed in this row.
-    var item: VaultListItem
-
-    /// A flag indicating if this row should display a divider on the bottom edge.
-    var hasDivider: Bool
-}
-
-// MARK: - VaultListItemRowAction
-
-/// Actions that can be sent from a `VaultListItemRowView`.
-enum VaultListItemRowAction: Equatable {
-    /// The copy TOTP Code button was pressed.
-    ///
-    case copyTOTPCode(_ code: String)
-}
-
-enum VaultListItemRowEffect {
-    /// The more button was pressed.
-    ///
-    case morePressed
-}
-
 // MARK: - VaultListItemRowView
 
 /// A view that displays information about a `VaultListItem` as a row in a list.
@@ -36,42 +8,21 @@ struct VaultListItemRowView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    var store: Store<VaultListItemRowState, VaultListItemRowAction, VaultListItemRowEffect>
+    var store: Store<VaultListItemRowState, VaultListItemRowAction, Void>
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 16) {
-                if case let .totp(_, model) = store.state.item.itemType {
-                    AsyncImage(
-                        url: IconImageHelper.getIconImage(
-                            for: model.loginView,
-                            from: model.iconBaseURL
-                        ),
-                        content: { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 22, height: 22)
-                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                                .padding(.vertical, 19)
-                        },
-                        placeholder: {
-                            Image(decorative: store.state.item.icon)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 22, height: 22)
-                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                                .padding(.vertical, 19)
-                        }
-                    )
-                } else {
-                    Image(decorative: store.state.item.icon)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 22, height: 22)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .padding(.vertical, 19)
-                }
+                decorativeImage(
+                    store.state.item,
+                    iconBaseURL: store.state.iconBaseURL,
+                    showWebIcons: store.state.showWebIcons
+                )
+                .frame(width: 22, height: 22)
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .padding(.vertical, 19)
+                .accessibilityHidden(true)
+
                 HStack {
                     switch store.state.item.itemType {
                     case let .cipher(cipherItem):
@@ -89,7 +40,7 @@ struct VaultListItemRowView: View {
                                 }
                             }
 
-                            if let subTitle = cipherItem.subTitle.nilIfEmpty {
+                            if let subTitle = store.state.item.subtitle {
                                 Text(subTitle)
                                     .styleGuide(.subheadline)
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
@@ -100,8 +51,8 @@ struct VaultListItemRowView: View {
 
                         Spacer()
 
-                        AsyncButton {
-                            await store.perform(.morePressed)
+                        Button {
+                            store.send(.morePressed)
                         } label: {
                             Asset.Images.horizontalKabob.swiftUIImage
                         }
@@ -131,6 +82,45 @@ struct VaultListItemRowView: View {
         }
     }
 
+    // MARK: - Private Views
+
+    /// The decorative image for the row.
+    ///
+    /// - Parameters:
+    ///   - item: The item in the row.
+    ///   - iconBaseURL: The base url used to download decorative images.
+    ///   - showWebIcons: Whether to download the web icons.
+    ///
+    @ViewBuilder
+    private func decorativeImage(_ item: VaultListItem, iconBaseURL: URL?, showWebIcons: Bool) -> some View {
+        if showWebIcons, let loginView = item.loginView, let iconBaseURL {
+            AsyncImage(
+                url: IconImageHelper.getIconImage(
+                    for: loginView,
+                    from: iconBaseURL
+                ),
+                content: { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                },
+                placeholder: {
+                    placeholderDecorativeImage(item.icon)
+                }
+            )
+        } else {
+            placeholderDecorativeImage(item.icon)
+        }
+    }
+
+    /// The placeholder image for the decorative image.
+    private func placeholderDecorativeImage(_ icon: ImageAsset) -> some View {
+        Image(decorative: icon)
+            .resizable()
+            .scaledToFit()
+    }
+
+    /// The row showing the totp code.
     @ViewBuilder
     private func totpCodeRow(_ model: VaultListTOTP) -> some View {
         VStack(alignment: .leading, spacing: 0) {

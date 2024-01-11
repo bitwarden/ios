@@ -107,7 +107,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     func test_perform_appeared_invalidFixture() {
-        let cipherItem = CipherView.fixture()
+        let cipherItem = CipherView.fixture(id: nil)
         vaultRepository.cipherDetailsSubject.send(cipherItem)
 
         let task = Task {

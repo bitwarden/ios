@@ -30,4 +30,9 @@ class VaultListStateTests: BitwardenTestCase {
         ]
         XCTAssertEqual(subject.navigationTitle, Localizations.vaults)
     }
+
+    /// `userInitials` returns the user initials.
+    func test_userInitials() {
+        XCTAssertEqual(subject.userInitials, "..")
+    }
 }

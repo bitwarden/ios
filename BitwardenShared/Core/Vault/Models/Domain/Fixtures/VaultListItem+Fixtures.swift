@@ -5,11 +5,9 @@ import Foundation
 
 extension VaultListItem {
     static func fixture(
-        cipherListView: CipherListView = .fixture()
+        cipherView: CipherView = .fixture()
     ) -> VaultListItem {
-        VaultListItem(
-            cipherListView: cipherListView
-        )!
+        VaultListItem(cipherView: cipherView)!
     }
 
     static func fixtureGroup(
@@ -42,7 +40,6 @@ extension VaultListItem {
 
 extension VaultListTOTP {
     static func fixture(
-        iconBaseURL: URL = URL(string: "https://icons.bitwarden.net")!,
         id: String = "123",
         loginView: BitwardenSdk.LoginView = .fixture(
             totp: .base32Key
@@ -55,7 +52,6 @@ extension VaultListTOTP {
         totpTime: TOTPTime = .currentTime
     ) -> VaultListTOTP {
         VaultListTOTP(
-            iconBaseURL: iconBaseURL,
             id: id,
             loginView: loginView,
             totpCode: totpCode,

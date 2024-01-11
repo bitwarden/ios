@@ -22,6 +22,7 @@ class MockVaultRepository: VaultRepository {
     var fetchCollectionsResult: Result<[CollectionView], Error> = .success([])
     var fetchFoldersResult: Result<[FolderView], Error> = .success([])
     var fetchSyncCalled = false
+    var fetchSyncResult: Result<Void, Error> = .success(())
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
@@ -108,6 +109,7 @@ class MockVaultRepository: VaultRepository {
 
     func fetchSync(isManualRefresh _: Bool) async throws {
         fetchSyncCalled = true
+        try fetchSyncResult.get()
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {

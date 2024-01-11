@@ -14,6 +14,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     var errorReporter: MockErrorReporter!
     var mockPresentTime = Date(year: 2023, month: 12, day: 31, minute: 0, second: 33)
     var pasteboardService: MockPasteboardService!
+    var stateService: MockStateService!
     var subject: VaultGroupProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -25,6 +26,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+        stateService = MockStateService()
         vaultRepository = MockVaultRepository()
         vaultRepository.mockTimeProvider = .init(mockTime: mockPresentTime)
 
@@ -33,6 +35,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
+                stateService: stateService,
                 vaultRepository: vaultRepository
             ),
             state: VaultGroupState()
@@ -45,6 +48,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        stateService = nil
         subject = nil
         vaultRepository = nil
     }
@@ -77,13 +81,83 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
-    /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a card cipher.
-    func test_perform_morePressed_card() async throws {
-        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .card)))
+    /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
+    func test_perform_refreshed() async {
+        await subject.perform(.refresh)
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.refreshed` records an error if applicable.
+    func test_perform_refreshed_error() async {
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.refresh)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
+    /// web icons parameter from the state service.
+    func test_perform_streamShowWebIcons() {
+        let task = Task {
+            await subject.perform(.streamShowWebIcons)
+        }
+
+        stateService.showWebIconsSubject.send(false)
+        waitFor(subject.state.showWebIcons == false)
+
+        task.cancel()
+    }
+
+    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with the correct group.
+    func test_receive_addItemPressed() {
+        subject.state.group = .card
+        subject.receive(.addItemPressed)
+        XCTAssertEqual(coordinator.routes.last, .addItem(group: .card))
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the url in the state.
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
+    }
+
+    /// `receive` with `.copyTOTPCode` copies the value with the pasteboard service.
+    func test_receive_copyTOTPCode() {
+        subject.receive(.copyTOTPCode("123456"))
+        XCTAssertEqual(pasteboardService.copiedString, "123456")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.verificationCode))
+    }
+
+    /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
+    func test_receive_itemPressed_cipher() {
+        subject.receive(.itemPressed(.fixture(cipherView: .fixture(id: "id"))))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id"))
+    }
+
+    /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
+    func test_receive_itemPressed_group() {
+        subject.receive(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
+        XCTAssertEqual(coordinator.routes.last, .group(.card))
+    }
+
+    /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
+    func test_receive_itemPressed_totp() {
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture())
+        subject.receive(.itemPressed(totpItem))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id))
+    }
+
+    /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for a card cipher.
+    func test_receive_morePressed_card() async throws {
+        var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .card)))
 
         // If the card item has no number or code, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.cardFixture())
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 3)
@@ -93,7 +167,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         // If the item is in the trash, the edit option should not display.
         subject.state.group = .trash
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 2)
@@ -105,9 +179,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             code: "123",
             number: "123456789"
         ))
-        vaultRepository.fetchCipherResult = .success(cardWithData)
+        item = try XCTUnwrap(VaultListItem(cipherView: cardWithData))
         subject.state.group = .card
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 5)
@@ -140,23 +214,13 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(pasteboardService.copiedString, "123")
     }
 
-    /// `perform(_:)` with `.morePressed` handles errors correctly.
-    func test_perform_morePressed_error() async throws {
-        vaultRepository.fetchCipherResult = .failure(BitwardenTestError.example)
-
-        await subject.perform(.morePressed(.fixture()))
-
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
-    func test_perform_morePressed_login() async throws {
-        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .login)))
+    /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
+    func test_receive_morePressed_login() async throws {
+        var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .login)))
 
         // If the login item has no username, password, or url, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.loginFixture())
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 3)
@@ -166,7 +230,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         // If the item is in the trash, the edit option should not display.
         subject.state.group = .trash
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 2)
@@ -179,9 +243,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             uris: [.init(uri: URL.example.relativeString, match: nil)],
             username: "username"
         ))
-        vaultRepository.fetchCipherResult = .success(loginWithData)
+        item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
         subject.state.group = .login
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 6)
@@ -220,14 +284,14 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(subject.state.url, .example)
     }
 
-    /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for an identity cipher.
-    func test_perform_morePressed_identity() async throws {
-        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .identity)))
+    /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for an identity cipher.
+    func test_receive_morePressed_identity() async throws {
+        let item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .identity)))
 
         // If the item is in the trash, the edit option should not display.
         vaultRepository.fetchCipherResult = .success(.fixture())
         subject.state.group = .trash
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 2)
@@ -236,7 +300,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         // An identity option can be viewed or edited.
         subject.state.group = .identity
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 3)
@@ -254,16 +318,16 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Edit navigates to the edit view.
         let editAction = try XCTUnwrap(alert.alertActions[1])
         await editAction.handler?(editAction, [])
-        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: .fixture()))
+        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: .fixture(type: .identity)))
     }
 
-    /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a secure note cipher.
-    func test_perform_morePressed_secureNote() async throws {
-        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .secureNote)))
+    /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for a secure note cipher.
+    func test_receive_morePressed_secureNote() async throws {
+        var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .secureNote)))
 
         // If the secure note has no value, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.fixture(type: .secureNote))
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 3)
@@ -273,7 +337,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         // If the item is in the trash, the edit option should not display.
         subject.state.group = .trash
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 2)
@@ -282,9 +346,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         // A note with data should show the copy action.
         let noteWithData = CipherView.fixture(notes: "Test Note", type: .secureNote)
-        vaultRepository.fetchCipherResult = .success(noteWithData)
+        item = try XCTUnwrap(VaultListItem(cipherView: noteWithData))
         subject.state.group = .secureNote
-        await subject.perform(.morePressed(item))
+        subject.receive(.morePressed(item))
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 4)
@@ -309,52 +373,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let copyNoteAction = try XCTUnwrap(alert.alertActions[2])
         await copyNoteAction.handler?(copyNoteAction, [])
         XCTAssertEqual(pasteboardService.copiedString, "Test Note")
-    }
-
-    /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
-    func test_perform_refreshed() async {
-        await subject.perform(.refresh)
-        XCTAssertTrue(vaultRepository.fetchSyncCalled)
-    }
-
-    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with the correct group.
-    func test_receive_addItemPressed() {
-        subject.state.group = .card
-        subject.receive(.addItemPressed)
-        XCTAssertEqual(coordinator.routes.last, .addItem(group: .card))
-    }
-
-    /// `receive(_:)` with `.clearURL` clears the url in the state.
-    func test_receive_clearURL() {
-        subject.state.url = .example
-        subject.receive(.clearURL)
-        XCTAssertNil(subject.state.url)
-    }
-
-    /// `receive` with `.copyTOTPCode` copies the value with the pasteboard service.
-    func test_receive_copyTOTPCode() {
-        subject.receive(.copyTOTPCode("123456"))
-        XCTAssertEqual(pasteboardService.copiedString, "123456")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.verificationCode))
-    }
-
-    /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
-    func test_receive_itemPressed_cipher() {
-        subject.receive(.itemPressed(.fixture(cipherListView: .fixture(id: "id"))))
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id"))
-    }
-
-    /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
-    func test_receive_itemPressed_group() {
-        subject.receive(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
-        XCTAssertEqual(coordinator.routes.last, .group(.card))
-    }
-
-    /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
-    func test_receive_itemPressed_totp() {
-        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture())
-        subject.receive(.itemPressed(totpItem))
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id))
     }
 
     /// `receive(_:)` with `.searchTextChanged` and no value sets the state correctly.

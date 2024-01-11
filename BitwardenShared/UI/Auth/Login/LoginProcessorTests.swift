@@ -156,8 +156,9 @@ class LoginProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.enterpriseSingleSignOnPressed` navigates to the enterprise single sign-on screen.
     func test_receive_enterpriseSingleSignOnPressed() {
+        subject.state.username = "test@example.com"
         subject.receive(.enterpriseSingleSignOnPressed)
-        XCTAssertEqual(coordinator.routes.last, .enterpriseSingleSignOn)
+        XCTAssertEqual(coordinator.routes.last, .enterpriseSingleSignOn(email: "test@example.com"))
     }
 
     /// `receive(_:)` with `.getMasterPasswordHintPressed` navigates to the master password hint screen.

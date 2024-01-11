@@ -275,30 +275,33 @@ class DefaultVaultRepository {
         filter: VaultFilterType?
     ) async throws -> [VaultListItem] {
         let responseCiphers = response.ciphers.map(Cipher.init)
-        let active = responseCiphers.filter { cipher in
+
+        // Decode the response into CipherViews, then filter and sort the list.
+        let activeCiphers = try await responseCiphers.asyncMap { cipher in
+            try await self.clientVault.ciphers().decrypt(cipher: cipher)
+        }
+        .filter(filter?.cipherFilter(_:) ?? { _ in true })
+        .filter { cipher in
             cipher.deletedDate == nil
                 && cipher.type == .login
                 && cipher.login?.totp != nil
         }
-        let listItemTransform: (CipherListView) async throws -> VaultListItem? = { [weak self] cipherListView in
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        // A transform to convert a `CipherListView` into a `VaultListItem`.
+        let listItemTransform: (CipherView) async throws -> VaultListItem? = { [weak self] cipherView in
             guard let self,
-                  let id = cipherListView.id,
-                  let cipher = active.first(where: { $0.id == id }) else {
-                return nil
-            }
-            let decoded = try await clientVault.ciphers()
-                .decrypt(cipher: cipher)
-            guard let login = decoded.login,
+                  let id = cipherView.id,
+                  let login = cipherView.login,
                   let key = login.totp else {
                 return nil
             }
+
             let code = try await clientVault.generateTOTPCode(
                 for: key,
                 date: Date()
             )
-            let iconsBaseURL = environmentService.iconsURL
             let listModel = VaultListTOTP(
-                iconBaseURL: iconsBaseURL,
                 id: id,
                 loginView: login,
                 totpCode: code,
@@ -309,17 +312,17 @@ class DefaultVaultRepository {
             return VaultListItem(
                 id: id,
                 itemType: .totp(
-                    name: decoded.name,
+                    name: cipherView.name,
                     totpModel: listModel
                 )
             )
         }
-        let totpItems: [VaultListItem] = try await clientVault.ciphers()
-            .decryptList(ciphers: active)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-            .filter(filter?.cipherFilter(_:) ?? { _ in true })
+
+        // Convert the CipherViews into VaultListItem.
+        let totpItems: [VaultListItem] = try await activeCiphers
             .asyncMap(listItemTransform)
             .compactMap { $0 }
+
         return totpItems
     }
 
@@ -335,9 +338,10 @@ class DefaultVaultRepository {
         from response: SyncResponseModel
     ) async throws -> [VaultListItem] {
         let responseCiphers = response.ciphers.map(Cipher.init)
-        let ciphers = try await clientVault.ciphers()
-            .decryptList(ciphers: responseCiphers)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        let ciphers = try await responseCiphers.asyncMap { cipher in
+            try await self.clientVault.ciphers().decrypt(cipher: cipher)
+        }
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
         let deletedCiphers = ciphers.filter { $0.deletedDate != nil }
@@ -376,11 +380,11 @@ class DefaultVaultRepository {
     ) async throws -> [VaultListSection] {
         let responseCiphers: [Cipher] = response.ciphers.map(Cipher.init)
 
-        let ciphers = try await clientVault
-            .ciphers()
-            .decryptList(ciphers: responseCiphers)
-            .filter(filter.cipherFilter)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        let ciphers = try await responseCiphers.asyncMap { cipher in
+            try await self.clientVault.ciphers().decrypt(cipher: cipher)
+        }
+        .filter(filter.cipherFilter)
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let folders = try await clientVault.folders()
             .decryptList(folders: response.folders.map(Folder.init))
@@ -592,45 +596,37 @@ extension DefaultVaultRepository: VaultRepository {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased()
             .folding(options: .diacriticInsensitive, locale: .current)
-        let ciphers = cipherService.cipherPublisher(userId: userId).asyncTryMap { ciphers -> [VaultListItem] in
-            // Since original search was doing search on name, id, subTitle, uri etc
-            // and uris are in CipherListView, subTitle is in CipherView
-            // we are zipping two list of `CipherView` and `CipherListView` and filtering
-            let clientVault = self.clientVault.ciphers()
 
-            var zippedCiphers: [(cipherView: CipherView, cipherListView: CipherListView)] = []
+        return cipherService.cipherPublisher(userId: userId).asyncTryMap { ciphers -> [VaultListItem] in
+            // Convert the Ciphers to CipherViews and filter appropriately.
+            let activeCiphers = try await ciphers.asyncMap { cipher in
+                try await self.clientVault.ciphers().decrypt(cipher: cipher)
+            }
+            .filter { filterType.cipherFilter($0) && $0.deletedDate == nil }
 
-            // loop through the ciphers and decrypt, feed the list of tuples with `CipherView` and `CipherListView`
-            for cipher in ciphers {
-                let cipherView = try await clientVault.decrypt(cipher: cipher)
-                if let cipherListView = try await clientVault.decryptList(ciphers: [cipher]).first {
-                    zippedCiphers.append((cipherView: cipherView, cipherListView: cipherListView))
+            var matchedCiphers: [CipherView] = []
+            var lowPriorityMatchedCiphers: [CipherView] = []
+
+            // Search the ciphers.
+            activeCiphers.forEach { cipherView in
+                if cipherView.name.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+                    matchedCiphers.append(cipherView)
+                } else if query.count >= 8, cipherView.id?.starts(with: query) == true {
+                    lowPriorityMatchedCiphers.append(cipherView)
+                } else if cipherView.subtitle?.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    lowPriorityMatchedCiphers.append(cipherView)
+                } else if cipherView.login?.uris?.contains(where: { $0.uri?.contains(query) == true }) == true {
+                    lowPriorityMatchedCiphers.append(cipherView)
                 }
             }
 
-            var matchedCiphers: [CipherListView] = []
-            var lowPriorityMatchedCiphers: [CipherListView] = []
-            zippedCiphers
-                .filter { $0.cipherListView.deletedDate == nil }
-                .filter { filterType.cipherFilter($0.cipherListView) }
-                .forEach { cipherView, cipherListView in
-                    if cipherListView.name.lowercased()
-                        .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
-                        matchedCiphers.append(cipherListView)
-                    } else if query.count >= 8, cipherListView.id?.starts(with: query) == true {
-                        lowPriorityMatchedCiphers.append(cipherListView)
-                    } else if cipherListView.subTitle.lowercased()
-                        .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
-                        lowPriorityMatchedCiphers.append(cipherListView)
-                    } else if cipherView.login?.uris?.contains(where: { $0.uri?.contains(query) == true }) == true {
-                        lowPriorityMatchedCiphers.append(cipherListView)
-                    }
-                }
-            let result = matchedCiphers
-                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } + lowPriorityMatchedCiphers
-            return result.compactMap { VaultListItem(cipherListView: $0) }
+            // Return the result.
+            let result = matchedCiphers.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } +
+                lowPriorityMatchedCiphers
+            return result.compactMap { VaultListItem(cipherView: $0) }
         }.eraseToAnyPublisher().values
-        return ciphers
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {

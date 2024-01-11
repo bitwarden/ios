@@ -58,6 +58,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(state.activeUserId, "2")
     }
 
+    /// `appLocale` gets and sets the value as expected.
+    func test_appLocale() {
+        // Getting the value should get the value from the app settings store.
+        appSettingsStore.appLocale = "de"
+        XCTAssertEqual(subject.appLanguage, .custom(languageCode: "de"))
+
+        // Setting the value should update the value in the app settings store.
+        subject.appLanguage = .custom(languageCode: "th")
+        XCTAssertEqual(appSettingsStore.appLocale, "th")
+    }
+
     /// `appTheme` gets and sets the value as expected.
     func test_appTheme() async {
         // Getting the value should get the value from the app settings store.
@@ -351,6 +362,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getShowWebIcons` gets the show web icons value.
+    func test_getShowWebIcons() async {
+        appSettingsStore.disableWebIcons = true
+
+        let value = await subject.getShowWebIcons()
+        XCTAssertFalse(value)
+    }
+
     /// `getUsernameGenerationOptions()` gets the saved username generation options for the account.
     func test_getUsernameGenerationOptions() async throws {
         let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
@@ -376,7 +395,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 
-    /// lastSyncTimePublisher()` returns a publisher for the user's last sync time.
+    /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
     func test_lastSyncTimePublisher() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
@@ -393,7 +412,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(publishedValues, [nil, date])
     }
 
-    /// lastSyncTimePublisher()` gets the initial stored value if a cached sync time doesn't exist.
+    /// `lastSyncTimePublisher()` gets the initial stored value if a cached sync time doesn't exist.
     func test_lastSyncTimePublisher_fetchesInitialValue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
         let initialSync = Date(year: 2023, month: 12, day: 1)
@@ -714,6 +733,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let urls = EnvironmentUrlData(base: .example)
         await subject.setPreAuthEnvironmentUrls(urls)
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `setShowWebIcons` saves the show web icons value..
+    func test_setShowWebIcons() async {
+        await subject.setShowWebIcons(false)
+        XCTAssertTrue(appSettingsStore.disableWebIcons)
     }
 
     /// `setUsernameGenerationOptions` sets the username generation options for an account.

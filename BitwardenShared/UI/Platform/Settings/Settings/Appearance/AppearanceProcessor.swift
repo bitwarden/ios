@@ -42,7 +42,9 @@ final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceActio
     override func perform(_ effect: AppearanceEffect) async {
         switch effect {
         case .loadData:
+            state.currentLanguage = services.stateService.appLanguage
             state.appTheme = await services.stateService.getAppTheme()
+            state.isShowWebsiteIconsToggleOn = await services.stateService.getShowWebIcons()
         }
     }
 
@@ -54,9 +56,21 @@ final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceActio
                 await services.stateService.setAppTheme(appTheme)
             }
         case .languageTapped:
-            print("languageTapped")
+            coordinator.navigate(to: .selectLanguage(currentLanguage: state.currentLanguage), context: self)
         case let .toggleShowWebsiteIcons(isOn):
             state.isShowWebsiteIconsToggleOn = isOn
+            Task {
+                await services.stateService.setShowWebIcons(isOn)
+            }
         }
+    }
+}
+
+// MARK: - SelectLanguageDelegate
+
+extension AppearanceProcessor: SelectLanguageDelegate {
+    /// Update the language selection.
+    func languageSelected(_ languageOption: LanguageOption) {
+        state.currentLanguage = languageOption
     }
 }
