@@ -120,6 +120,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
     }
 
+    /// `defaultUriMatchType(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_defaultUriMatchType_isInitiallyNil() {
+        XCTAssertNil(subject.defaultUriMatchType(userId: "-1"))
+    }
+
+    /// `defaultUriMatchType(userId:)` can be used to get the default URI match type value for a user.
+    func test_defaultUriMatchType_withValue() {
+        subject.setDefaultUriMatchType(.exact, userId: "1")
+        subject.setDefaultUriMatchType(.host, userId: "2")
+
+        XCTAssertEqual(subject.defaultUriMatchType(userId: "1"), .exact)
+        XCTAssertEqual(subject.defaultUriMatchType(userId: "2"), .host)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:defaultUriMatch_1"), 3)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:defaultUriMatch_2"), 1)
+    }
+
     /// `disableAutoTotpCopy(userId:)` returns `false` if there isn't a previously stored value.
     func test_disableAutoTotpCopy_isInitiallyNil() {
         XCTAssertFalse(subject.disableAutoTotpCopy(userId: "-1"))

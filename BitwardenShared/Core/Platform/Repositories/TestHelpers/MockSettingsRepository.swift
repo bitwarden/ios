@@ -16,12 +16,15 @@ class MockSettingsRepository: SettingsRepository {
     var fetchSyncCalled = false
     var fetchSyncResult: Result<Void, Error> = .success(())
     var foldersListError: Error?
+    var getDefaultUriMatchTypeResult: Result<BitwardenShared.UriMatchType, Error> = .success(.domain)
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
     var isLockedResult: Result<Bool, VaultTimeoutServiceError> = .failure(.noAccountFound)
     var lastSyncTimeError: Error?
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lockVaultCalls = [String?]()
     var unlockVaultCalls = [String?]()
+    var updateDefaultUriMatchTypeValue: BitwardenShared.UriMatchType?
+    var updateDefaultUriMatchTypeResult: Result<Void, Error> = .success(())
     var updateDisableAutoTotpCopyValue: Bool?
     var updateDisableAutoTotpCopyResult: Result<Void, Error> = .success(())
     var validatePasswordPasswords = [String]()
@@ -56,6 +59,10 @@ class MockSettingsRepository: SettingsRepository {
         return allowSyncOnRefresh
     }
 
+    func getDefaultUriMatchType() async throws -> BitwardenShared.UriMatchType {
+        try getDefaultUriMatchTypeResult.get()
+    }
+
     func getDisableAutoTotpCopy() async throws -> Bool {
         try getDisableAutoTotpCopyResult.get()
     }
@@ -82,6 +89,11 @@ class MockSettingsRepository: SettingsRepository {
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         self.allowSyncOnRefresh = allowSyncOnRefresh
         try allowSyncOnRefreshResult.get()
+    }
+
+    func updateDefaultUriMatchType(_ defaultUriMatchType: BitwardenShared.UriMatchType) async throws {
+        updateDefaultUriMatchTypeValue = defaultUriMatchType
+        try updateDefaultUriMatchTypeResult.get()
     }
 
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {

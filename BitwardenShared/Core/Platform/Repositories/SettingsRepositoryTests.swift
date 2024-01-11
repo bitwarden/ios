@@ -104,6 +104,18 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(value)
     }
 
+    /// `getDefaultUriMatchType()` returns the default URI match type value.
+    func test_getDefaultUriMatchType() async throws {
+        stateService.activeAccount = .fixture()
+
+        let initialValue = try await subject.getDefaultUriMatchType()
+        XCTAssertEqual(initialValue, .domain)
+
+        stateService.defaultUriMatchTypeByUserId["1"] = .never
+        let value = try await subject.getDefaultUriMatchType()
+        XCTAssertEqual(value, .never)
+    }
+
     /// `getDisableAutoTotpCopy()` returns the disable auto-copy TOTP value.
     func test_getDisableAutoTotpCopy() async throws {
         stateService.activeAccount = .fixture()
@@ -225,6 +237,15 @@ class SettingsRepositoryTests: BitwardenTestCase {
         try await subject.updateAllowSyncOnRefresh(true)
         value = try await stateService.getAllowSyncOnRefresh()
         XCTAssertTrue(value)
+    }
+
+    /// `updateDefaultUriMatchType(_:)` updates the state service's default URI match type value.
+    func test_updateDefaultUriMatchType() async throws {
+        stateService.activeAccount = .fixture()
+
+        try await subject.updateDefaultUriMatchType(.exact)
+
+        XCTAssertEqual(stateService.defaultUriMatchTypeByUserId["1"], .exact)
     }
 
     /// `updateDisableAutoTotpCopy(_:)` updates the state service's disable auto-copy TOTP value.
