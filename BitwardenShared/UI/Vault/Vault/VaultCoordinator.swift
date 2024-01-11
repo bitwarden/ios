@@ -89,13 +89,29 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         case .addAccount:
             delegate?.didTapAddAccount()
         case let .addItem(allowTypeSelection, group, uri):
-            showVaultItem(route: .addItem(allowTypeSelection: allowTypeSelection, group: group, uri: uri))
+            Task {
+                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                showVaultItem(
+                    route: .addItem(
+                        allowTypeSelection: allowTypeSelection,
+                        group: group,
+                        hasPremium: hasPremium ?? false,
+                        uri: uri
+                    )
+                )
+            }
         case let .alert(alert):
             stackNavigator.present(alert)
         case .autofillList:
             showAutofillList()
-        case let .editItem(cipher: cipher):
-            showVaultItem(route: .editItem(cipher: cipher))
+        case let .editItem(cipher):
+            Task {
+                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                showVaultItem(
+                    route: .editItem(cipher, hasPremium ?? false),
+                    delegate: context as? CipherItemOperationDelegate
+                )
+            }
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):
