@@ -88,47 +88,40 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
-        case .addItem,
-             .editItem,
-             .viewItem:
+        case let .addItem(allowTypeSelection, group, uri):
             Task {
-                await navigate(asyncTo: route, context: context)
+                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                showVaultItem(
+                    route: .addItem(
+                        allowTypeSelection: allowTypeSelection,
+                        group: group,
+                        hasPremium: hasPremium ?? false,
+                        uri: uri
+                    )
+                )
             }
         case let .alert(alert):
             stackNavigator.present(alert)
         case .autofillList:
             showAutofillList()
+        case let .editItem(cipher):
+            Task {
+                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                showVaultItem(
+                    route: .editItem(cipher, hasPremium ?? false),
+                    delegate: context as? CipherItemOperationDelegate
+                )
+            }
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):
             showGroup(group)
         case .list:
             showList()
+        case let .viewItem(id):
+            showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
-        }
-    }
-
-    func navigate(asyncTo route: VaultRoute, context: AnyObject?) async {
-        switch route {
-        case let .addItem(allowTypeSelection, group, uri):
-            await showVaultItem(
-                route: .addItem(
-                    allowTypeSelection: allowTypeSelection,
-                    group: group,
-                    uri: uri
-                ),
-                delegate: context as? CipherItemOperationDelegate
-            )
-        case let .editItem(cipher: cipher):
-            await showVaultItem(
-                route: .editItem(cipher: cipher),
-                delegate: context as? CipherItemOperationDelegate
-            )
-        case let .viewItem(id):
-            await showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
-        default:
-            navigate(to: route, context: context)
         }
     }
 
@@ -194,11 +187,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate? = nil) async {
+    private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate? = nil) {
         let navigationController = UINavigationController()
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        await coordinator.navigate(asyncTo: route, context: delegate)
+        coordinator.navigate(to: route, context: delegate)
 
         stackNavigator.present(navigationController)
     }

@@ -67,10 +67,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     // MARK: Methods
 
     override func perform(_ effect: ViewItemEffect) async {
-        guard !state.isMasterPasswordRequired || !effect.requiresMasterPasswordReprompt else {
-            await presentMasterPasswordRepromptAlert(for: effect)
-            return
-        }
         switch effect {
         case .appeared:
             for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
@@ -82,8 +78,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
         case .deletePressed:
             await showDeleteConfirmation()
-        case .editPressed:
-            await editItem()
         }
     }
 
@@ -111,6 +105,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             state.loadingState = .data(cipherState)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
+        case .editPressed:
+            editItem()
         case let .morePressed(menuAction):
             handleMenuAction(menuAction)
         case .passwordVisibilityPressed:
@@ -145,13 +141,15 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     /// Triggers the edit state for the item currently stored in `state`.
     ///
-    private func editItem() async {
+    private func editItem() {
         guard case let .data(cipherState) = state.loadingState,
               case let .existing(cipher) = cipherState.configuration else {
             return
         }
-
-        await coordinator.navigate(asyncTo: .editItem(cipher: cipher), context: self)
+        Task {
+            let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+            coordinator.navigate(to: .editItem(cipher, hasPremium ?? false), context: self)
+        }
     }
 
     /// Soft deletes the item currently stored in `state`.
@@ -231,25 +229,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// - Parameter action: The action to process once the password has been verified.
     ///
     private func presentMasterPasswordRepromptAlert(for action: ViewItemAction) {
-        presentMasterPasswordRepromptAlert(onValidation: { [weak self] in
-            guard let self else { return }
-            receive(action)
-        })
-    }
-
-    /// Presents the master password re-prompt alert for the specified effect. This method will
-    /// process the effect once the master password has been verified.
-    ///
-    /// - Parameter effect: The effect to process once the password has been verified.
-    ///
-    private func presentMasterPasswordRepromptAlert(for effect: ViewItemEffect) async {
-        presentMasterPasswordRepromptAlert(onValidation: { [weak self] in
-            guard let self else { return }
-            await perform(effect)
-        })
-    }
-
-    private func presentMasterPasswordRepromptAlert(onValidation: @MainActor @escaping () async -> Void) {
         let alert = Alert.masterPasswordPrompt { [weak self] password in
             guard let self else { return }
 
@@ -260,7 +239,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                     return
                 }
                 state.hasVerifiedMasterPassword = true
-                await onValidation()
+                receive(action)
             } catch {
                 services.errorReporter.log(error: error)
             }

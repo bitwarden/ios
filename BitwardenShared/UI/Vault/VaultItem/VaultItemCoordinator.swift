@@ -50,12 +50,14 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
-        case .addItem,
-             .editItem,
-             .scanCode:
-            Task {
-                await navigate(asyncTo: route, context: context)
-            }
+        case let .addItem(allowTypeSelection, group, hasPremium, uri):
+            showAddItem(
+                for: group.flatMap(CipherType.init),
+                allowTypeSelection: allowTypeSelection,
+                hasPremium: hasPremium,
+                uri: uri,
+                delegate: context as? CipherItemOperationDelegate
+            )
         case let .alert(alert):
             stackNavigator.present(alert)
         case let .dismiss(onDismiss):
@@ -64,6 +66,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             })
         case let .editCollections(cipher):
             showEditCollections(cipher: cipher, delegate: context as? EditCollectionsProcessorDelegate)
+        case let .editItem(cipher, hasPremium):
+            showEditItem(for: cipher, hasPremium: hasPremium, delegate: context as? CipherItemOperationDelegate)
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
@@ -74,29 +78,20 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             showManualTotp(delegate: delegate)
         case let .viewItem(id):
             showViewItem(id: id, delegate: context as? CipherItemOperationDelegate)
+        case .scanCode:
+            Task {
+                await navigate(asyncTo: .scanCode, context: context)
+            }
         }
     }
 
     func navigate(asyncTo route: VaultItemRoute, context: AnyObject?) async {
-        switch route {
-        case let .addItem(allowTypeSelection, group, uri):
-            await showAddItem(
-                for: group.flatMap(CipherType.init),
-                allowTypeSelection: allowTypeSelection,
-                uri: uri,
-                delegate: context as? CipherItemOperationDelegate
-            )
-        case .scanCode:
-            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
-            await showCamera(delegate: delegate)
-        case let .editItem(cipher: cipherView):
-            await showEditItem(
-                for: cipherView,
-                delegate: context as? CipherItemOperationDelegate
-            )
-        default:
+        guard case .scanCode = route else {
             navigate(to: route, context: context)
+            return
         }
+        guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
+        await showCamera(delegate: delegate)
     }
 
     func start() {}
@@ -124,6 +119,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     /// - Parameters:
     ///   - type: An optional `CipherType` to initialize this view with.
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
+    ///   - hasPremium: Whether the user has premium,
     ///   - uri: A URI string used to populate the add item screen.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
@@ -131,11 +127,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     private func showAddItem(
         for type: CipherType?,
         allowTypeSelection: Bool,
+        hasPremium: Bool,
         uri: String?,
         delegate: CipherItemOperationDelegate?
-    ) async {
-        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
-            ?? false
+    ) {
         let state = CipherItemState(
             addItem: type ?? .login,
             allowTypeSelection: allowTypeSelection,
@@ -168,17 +163,16 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     }
 
     /// Shows the edit item screen.
-    ///
+    /// .
     /// - Parameters:
-    ///   - cipherView: A `CipherView` to initialize this view with.
-    ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
-    ///     in the add/edit/delete item view have occurred.
+    ///   - cipherView: The `CipherView` to edit.
+    ///   - hasPremium: Whether the user has premium.
+    ///   - delegate: The delegate for the view.
     ///
-    private func showEditItem(for cipherView: CipherView, delegate: CipherItemOperationDelegate?) async {
-        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
-            ?? false
-        guard let state = CipherItemState(existing: cipherView, hasPremium: hasPremium) else { return }
+    private func showEditItem(for cipherView: CipherView, hasPremium: Bool, delegate: CipherItemOperationDelegate?) {
         if stackNavigator.isEmpty {
+            guard let state = CipherItemState(existing: cipherView, hasPremium: hasPremium) else { return }
+
             let processor = AddEditItemProcessor(
                 coordinator: asAnyCoordinator(),
                 delegate: delegate,
@@ -189,17 +183,13 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             let view = AddEditItemView(store: store)
             stackNavigator.replace(view)
         } else {
-            presentChildVaultItemCoordinator(route: .editItem(cipher: cipherView), context: delegate)
+            presentChildVaultItemCoordinator(route: .editItem(cipherView, hasPremium), context: delegate)
         }
     }
 
     /// Shows the totp camera setup screen.
     ///
     private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
-        guard services.cameraService.deviceSupportsCamera() else {
-            showManualTotp(delegate: delegate)
-            return
-        }
         let navigationController = UINavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
@@ -263,7 +253,9 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the view item screen.
     ///
-    /// - Parameter id: The id of the item to show.
+    /// - Parameters:
+    ///   - id: The id of the item to show.
+    ///   - delegate: The delegate.
     ///
     private func showViewItem(id: String, delegate: CipherItemOperationDelegate?) {
         let processor = ViewItemProcessor(

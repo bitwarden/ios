@@ -5,7 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - VaultItemCooridnatorTests
+// MARK: - VaultItemCoordinatorTests
 
 class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -171,18 +171,14 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.editItem()` with a malformed cipher fails to trigger the show edit flow.
     func test_navigateTo_editItem_newCipher() throws {
-        subject.navigate(to: .editItem(cipher: .fixture()), context: nil)
+        subject.navigate(to: .editItem(.fixture(id: nil), false), context: nil)
 
         XCTAssertNil(stackNavigator.actions.last)
     }
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
     func test_navigateTo_editItem_existingCipher_withoutContext() throws {
-        let task = Task {
-            subject.navigate(to: .editItem(cipher: .loginFixture()), context: nil)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
+        subject.navigate(to: .editItem(.loginFixture(), false), context: nil)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -193,25 +189,17 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_editItem_presentsCoordinator() throws {
         stackNavigator.isEmpty = false
 
-        let task = Task {
-            subject.navigate(to: .editItem(cipher: .loginFixture()), context: nil)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
+        subject.navigate(to: .editItem(.loginFixture(), false), context: nil)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
-        XCTAssertEqual(module.vaultItemCoordinator.routes, [.editItem(cipher: .loginFixture())])
+        XCTAssertEqual(module.vaultItemCoordinator.routes, [.editItem(.loginFixture(), false)])
     }
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
     func test_navigateTo_editItem_existingCipher_withContext() throws {
-        let task = Task {
-            subject.navigate(to: .editItem(cipher: .loginFixture()), context: subject)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
+        subject.navigate(to: .editItem(.loginFixture(), false), context: subject)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -220,12 +208,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
     func test_navigateTo_editItem_existingCipher_nonPremium() throws {
-        vaultRepository.hasPremiumResult = .success(false)
-        let task = Task {
-            await subject.navigate(asyncTo: .editItem(cipher: .loginFixture()), context: subject)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
+        subject.navigate(to: .editItem(.loginFixture(), false), context: subject)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -235,13 +218,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
     func test_navigateTo_editItem_existingCipher_unknownPremium() throws {
-        struct TestError: Error {}
-        vaultRepository.hasPremiumResult = .failure(TestError())
-        let task = Task {
-            await subject.navigate(asyncTo: .editItem(cipher: .loginFixture()), context: subject)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
+        subject.navigate(to: .editItem(.loginFixture(), false), context: subject)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
