@@ -72,6 +72,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_w"))
     }
 
+    /// `appLocale`is initially `nil`.
+    func test_appLocale_isInitiallyNil() {
+        XCTAssertNil(subject.appLocale)
+    }
+
+    /// `appLocale` can be used to get and set the persisted value in user defaults.
+    func test_appLocale_withValue() {
+        subject.appLocale = "th"
+        XCTAssertEqual(subject.appLocale, "th")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:appLocale"), "th")
+
+        subject.appLocale = nil
+        XCTAssertNil(subject.appLocale)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appLocale"))
+    }
+
     /// `appTheme` returns `nil` if there isn't a previously stored value.
     func test_appTheme_isInitiallyNil() {
         XCTAssertNil(subject.appTheme)

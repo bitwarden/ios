@@ -12,6 +12,9 @@ public enum UI {
     /// App-wide flag that allows disabling UI animations for testing.
     public static var animated = true
 
+    /// The language code at initialization.
+    public static var initialLanguageCode: String?
+
     #if DEBUG
     /// App-wide flag that allows overriding the OS level sizeCategory for testing.
     public static var sizeCategory: UIContentSizeCategory?
@@ -61,6 +64,16 @@ public enum UI {
         let tintedImage = image.withTintColor(Asset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
         UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
         UISearchBar.appearance().setImage(Asset.Images.magnifyingGlass.image, for: .search, state: .normal)
+    }
+
+    /// Override SwiftGen's lookup function in order to determine the language manually.
+    public static func localizationFunction(key: String, table: String, fallbackValue: String) -> String {
+        if let languageCode = initialLanguageCode,
+           let path = Bundle(for: AppProcessor.self).path(forResource: languageCode, ofType: "lproj"),
+           let bundle = Bundle(path: path) {
+            return bundle.localizedString(forKey: key, value: fallbackValue, table: table)
+        }
+        return Bundle.main.localizedString(forKey: key, value: fallbackValue, table: table)
     }
 }
 
