@@ -92,7 +92,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack
     /// navigator.
     func test_navigate_enterpriseSingleSignOn() throws {
-        subject.navigate(to: .enterpriseSingleSignOn)
+        subject.navigate(to: .enterpriseSingleSignOn(email: "email@example.com"))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)

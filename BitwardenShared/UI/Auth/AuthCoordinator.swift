@@ -98,8 +98,8 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             showCreateAccount()
         case .dismiss:
             stackNavigator.dismiss()
-        case .enterpriseSingleSignOn:
-            showEnterpriseSingleSignOn()
+        case let .enterpriseSingleSignOn(email):
+            showEnterpriseSingleSignOn(email: email)
         case .landing:
             showLanding()
         case let .login(username, region, isLoginWithDeviceVisible):
@@ -207,11 +207,14 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     }
 
     /// Shows the enterprise single sign-on screen.
-    private func showEnterpriseSingleSignOn() {
+    ///
+    /// - Parameter email: The user's email address.
+    ///
+    private func showEnterpriseSingleSignOn(email: String) {
         let processor = SingleSignOnProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: SingleSignOnState()
+            state: SingleSignOnState(email: email)
         )
         let store = Store(processor: processor)
         let view = SingleSignOnView(store: store)

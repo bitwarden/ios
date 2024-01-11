@@ -8,6 +8,9 @@ import Foundation
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
 protocol StateService: AnyObject {
+    /// The language option currently selected for the app.
+    var appLanguage: LanguageOption { get set }
+
     /// The organization identifier being remembered on the single-sign on screen.
     var rememberedOrgIdentifier: String? { get set }
 
@@ -384,6 +387,12 @@ enum StateServiceError: Error {
 ///
 actor DefaultStateService: StateService {
     // MARK: Properties
+
+    /// The language option currently selected for the app.
+    nonisolated var appLanguage: LanguageOption {
+        get { LanguageOption(appSettingsStore.appLocale) }
+        set { appSettingsStore.appLocale = newValue.value }
+    }
 
     /// The organization identifier being remembered on the single-sign on screen.
     nonisolated var rememberedOrgIdentifier: String? {

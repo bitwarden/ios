@@ -38,7 +38,7 @@ struct AppearanceView: View {
             ) {
                 store.send(.languageTapped)
             } trailingContent: {
-                Text(Localizations.defaultSystem) // TODO: BIT-1185 Dynamic value
+                Text(store.state.currentLanguage.title)
             }
             .cornerRadius(10)
 
