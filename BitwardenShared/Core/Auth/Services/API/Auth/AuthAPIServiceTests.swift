@@ -64,6 +64,18 @@ class AuthAPIServiceTests: BitwardenTestCase {
         }
     }
 
+    /// `getSingleSignOnDetails(email:)` successfully decodes the single sign on details response.
+    func test_getSingleSignOnDetails() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetails)
+
+        let response = try await subject.getSingleSignOnDetails(email: "example@email.com")
+
+        XCTAssertEqual(
+            response,
+            SingleSignOnDetailsResponse(organizationIdentifier: "TeamLivefront", ssoAvailable: true)
+        )
+    }
+
     /// `preValidateSingleSignOn(organizationIdentifier:)` successfully decodes the pre-validate
     ///  single sign on response.
     func test_preValidateSingleSignOn() async throws {
