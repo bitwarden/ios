@@ -5,7 +5,7 @@ import UIKit
 
 /// A coordinator that manages navigation in the tab interface.
 ///
-internal final class TabCoordinator: Coordinator, HasTabNavigator {
+final class TabCoordinator: Coordinator, HasTabNavigator {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.

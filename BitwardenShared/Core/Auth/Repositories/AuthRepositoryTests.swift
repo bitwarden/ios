@@ -290,6 +290,27 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `passwordStrength(email:password)` returns the calculated password strength.
+    func test_passwordStrength() async {
+        clientAuth.passwordStrengthResult = 0
+        let weakPasswordStrength = await subject.passwordStrength(email: "user@bitwarden.com", password: "password")
+        XCTAssertEqual(weakPasswordStrength, 0)
+        XCTAssertEqual(clientAuth.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertEqual(clientAuth.passwordStrengthPassword, "password")
+
+        clientAuth.passwordStrengthResult = 4
+        let strongPasswordStrength = await subject.passwordStrength(
+            email: "user@bitwarden.com",
+            password: "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03"
+        )
+        XCTAssertEqual(strongPasswordStrength, 4)
+        XCTAssertEqual(clientAuth.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertEqual(
+            clientAuth.passwordStrengthPassword,
+            "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03"
+        )
+    }
+
     /// `setActiveAccount(userId: )` loads the environment URLs for the active account.
     func test_setActiveAccount_loadsEnvironmentUrls() async throws {
         let urls = EnvironmentUrlData(base: .example)

@@ -15,7 +15,12 @@ protocol SendRepository: AnyObject {
     ///
     func addSend(_ sendView: SendView) async throws
 
-    func fetchSync() async throws
+    /// Performs an API request to sync the user's send data. The publishers in the repository can
+    /// be used to subscribe to the send data, which are updated as a result of the request.
+    ///
+    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
+    ///
+    func fetchSync(isManualRefresh: Bool) async throws
 
     // MARK: Publishers
 
@@ -34,8 +39,11 @@ class DefaultSendRepository: SendRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
-    /// The API service used to perform API requests for the ciphers in a user's vault.
+    /// The API service used to perform API requests for the sends in a user's vault.
     let sendAPIService: SendAPIService
+
+    /// The service used by the application to manage account state.
+    let stateService: StateService
 
     /// The service used to handle syncing send data with the API.
     let syncService: SyncService
@@ -46,15 +54,19 @@ class DefaultSendRepository: SendRepository {
     ///
     /// - Parameters:
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - sendAPIService: The API service used to perform API requests for the sends in a user's vault. 
+    ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
         clientVault: ClientVaultService,
         sendAPIService: SendAPIService,
+        stateService: StateService,
         syncService: SyncService
     ) {
         self.clientVault = clientVault
         self.sendAPIService = sendAPIService
+        self.stateService = stateService
         self.syncService = syncService
     }
 
@@ -66,13 +78,16 @@ class DefaultSendRepository: SendRepository {
         _ = try await sendAPIService.addSend(send)
 
         // TODO: BIT-92 Insert response into database instead of fetching sync.
-        try await fetchSync()
+        try await fetchSync(isManualRefresh: false)
     }
 
     // MARK: API Methods
 
-    func fetchSync() async throws {
-        try await syncService.fetchSync()
+    func fetchSync(isManualRefresh: Bool) async throws {
+        let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
+        if !isManualRefresh || allowSyncOnRefresh {
+            try await syncService.fetchSync()
+        }
     }
 
     // MARK: Publishers

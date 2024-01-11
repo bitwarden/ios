@@ -58,6 +58,32 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(state.activeUserId, "2")
     }
 
+    /// `appTheme` gets and sets the value as expected.
+    func test_appTheme() async {
+        // Getting the value should get the value from the app settings store.
+        appSettingsStore.appTheme = "light"
+        let theme = await subject.getAppTheme()
+        XCTAssertEqual(theme, .light)
+
+        // Setting the value should update the value in the app settings store.
+        await subject.setAppTheme(.dark)
+        XCTAssertEqual(appSettingsStore.appTheme, "dark")
+    }
+
+    /// `appThemePublisher()` returns a publisher for the app's theme.
+    func test_appThemePublisher() async {
+        var publishedValues = [AppTheme]()
+        let publisher = await subject.appThemePublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        await subject.setAppTheme(.dark)
+
+        XCTAssertEqual(publishedValues, [.default, .dark])
+    }
+
     /// `.deleteAccount()` deletes the active user's account, removing it from the state.
     func test_deleteAccount() async throws {
         let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -325,6 +351,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getShowWebIcons` gets the show web icons value.
+    func test_getShowWebIcons() async {
+        appSettingsStore.disableWebIcons = true
+
+        let value = await subject.getShowWebIcons()
+        XCTAssertFalse(value)
+    }
+
     /// `getUsernameGenerationOptions()` gets the saved username generation options for the account.
     func test_getUsernameGenerationOptions() async throws {
         let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
@@ -350,7 +384,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 
-    /// lastSyncTimePublisher()` returns a publisher for the user's last sync time.
+    /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
     func test_lastSyncTimePublisher() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
@@ -367,7 +401,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(publishedValues, [nil, date])
     }
 
-    /// lastSyncTimePublisher()` gets the initial stored value if a cached sync time doesn't exist.
+    /// `lastSyncTimePublisher()` gets the initial stored value if a cached sync time doesn't exist.
     func test_lastSyncTimePublisher_fetchesInitialValue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
         let initialSync = Date(year: 2023, month: 12, day: 1)
@@ -588,7 +622,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    /// `setActiveAccount(userId: )` returns without aciton if there are no accounts
+    /// `setActiveAccount(userId: )` returns without action if there are no accounts
     func test_setActiveAccount_noAccounts() async throws {
         let storeState = await subject.appSettingsStore.state
         XCTAssertNil(storeState)
@@ -688,6 +722,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let urls = EnvironmentUrlData(base: .example)
         await subject.setPreAuthEnvironmentUrls(urls)
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `setShowWebIcons` saves the show web icons value..
+    func test_setShowWebIcons() async {
+        await subject.setShowWebIcons(false)
+        XCTAssertTrue(appSettingsStore.disableWebIcons)
     }
 
     /// `setUsernameGenerationOptions` sets the username generation options for an account.

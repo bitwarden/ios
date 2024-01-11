@@ -12,6 +12,7 @@ class SendRepositoryTests: BitwardenTestCase {
     var client: MockHTTPClient!
     var clientVaultService: MockClientVaultService!
     var clientSends: MockClientSends!
+    var stateService: MockStateService!
     var syncService: MockSyncService!
     var subject: DefaultSendRepository!
 
@@ -23,10 +24,12 @@ class SendRepositoryTests: BitwardenTestCase {
         clientSends = MockClientSends()
         clientVaultService = MockClientVaultService()
         clientVaultService.clientSends = clientSends
+        stateService = MockStateService()
         syncService = MockSyncService()
         subject = DefaultSendRepository(
             clientVault: clientVaultService,
             sendAPIService: APIService(client: client),
+            stateService: stateService,
             syncService: syncService
         )
     }
@@ -43,6 +46,7 @@ class SendRepositoryTests: BitwardenTestCase {
     // MARK: Tests
 
     func test_addSend_success() async throws {
+        stateService.activeAccount = .fixture()
         client.results = [
             .httpSuccess(testData: APITestData.sendResponse),
         ]
@@ -70,18 +74,32 @@ class SendRepositoryTests: BitwardenTestCase {
         XCTAssertFalse(syncService.didFetchSync)
     }
 
-    /// `fetchSync()` with a successful response updates the publisher.
-    func test_fetchSync_success() async throws {
+    func test_fetchSync_manualRefreshAllowed_success() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .success(())
-        try await subject.fetchSync()
+
+        try await subject.fetchSync(isManualRefresh: true)
+
         XCTAssertTrue(syncService.didFetchSync)
     }
 
-    /// `fetchSync()` with a failure response throws the error.
+    func test_fetchSync_manualRefreshNotAllowed_success() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.allowSyncOnRefresh = [:]
+        syncService.fetchSyncResult = .success(())
+
+        try await subject.fetchSync(isManualRefresh: true)
+
+        XCTAssertFalse(syncService.didFetchSync)
+    }
+
     func test_fetchSync_failure() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows {
-            try await subject.fetchSync()
+            try await subject.fetchSync(isManualRefresh: true)
         }
         XCTAssertTrue(syncService.didFetchSync)
     }

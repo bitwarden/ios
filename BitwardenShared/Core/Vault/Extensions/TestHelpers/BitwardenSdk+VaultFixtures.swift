@@ -72,7 +72,7 @@ extension CipherView {
         favorite: Bool = false,
         fields: [FieldView]? = nil,
         folderId: String? = nil,
-        id: String? = nil,
+        id: String? = "1",
         identity: IdentityView? = nil,
         key: String? = nil,
         localData: LocalDataView? = nil,
