@@ -164,7 +164,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
               case let .existing(cipher) = cipherState.configuration else {
             return
         }
-        coordinator.navigate(to: .editItem(cipher: cipher), context: self)
+        Task {
+            let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+            coordinator.navigate(to: .editItem(cipher, hasPremium ?? false), context: self)
+        }
     }
 
     /// Soft deletes the item currently stored in `state`.

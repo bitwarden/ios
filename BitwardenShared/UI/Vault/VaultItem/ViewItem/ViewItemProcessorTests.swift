@@ -420,8 +420,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             totpTime: .init(provider: vaultRepository.timeProvider)
         )!
         subject.state.loadingState = .data(loginState)
+
         subject.receive(.editPressed)
-        XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
     }
 
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
