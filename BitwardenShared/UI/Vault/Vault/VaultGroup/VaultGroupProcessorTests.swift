@@ -212,6 +212,94 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(pasteboardService.copiedString, "123")
     }
 
+    /// `receive(_:)` with `.morePressed` and press `copyPassword` presents master password re-prompt alert.
+    func test_receive_morePressed_copyPassword_rePromptMasterPassword() async throws {
+        // A login with data should show the copy and launch actions.
+        let loginWithData = CipherView.loginFixture(
+            login: .fixture(
+                password: "secretPassword",
+                uris: [.init(uri: URL.example.relativeString, match: nil)],
+                username: "username"
+            ),
+            reprompt: .password
+        )
+        let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+        subject.receive(.morePressed(item))
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 6)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.copyPassword)
+
+        // Test the functionality of the copy user name and password buttons.
+
+        // Copy username copies the username.
+        let copyUsernameAction = try XCTUnwrap(alert.alertActions[2])
+        await copyUsernameAction.handler?(copyUsernameAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "username")
+
+        // Copy password copies the user's password.
+        let copyPasswordAction = try XCTUnwrap(alert.alertActions[3])
+        await copyPasswordAction.handler?(copyPasswordAction, [])
+
+        // mock the master password
+        vaultRepository.validatePasswordResult = .success(true)
+
+        // Validate master password re-prompt is shown
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(id: "password", text: "password")
+        let submitAction = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await submitAction.handler?(submitAction, [textField])
+
+        XCTAssertEqual(pasteboardService.copiedString, "secretPassword")
+    }
+
+    /// `receive(_:)` with `.morePressed` and press `copyPassword` presents master password re-prompt alert,
+    ///  entering wrong password should not allow to copy password.
+    func test_receive_morePressed_copyPassword_passwordReprompt_invalidPassword() async throws {
+        // A login with data should show the copy and launch actions.
+        let loginWithData = CipherView.loginFixture(
+            login: .fixture(
+                password: "password",
+                uris: [.init(uri: URL.example.relativeString, match: nil)],
+                username: "username"
+            ),
+            reprompt: .password
+        )
+        let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+        subject.receive(.morePressed(item))
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 6)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.copyPassword)
+
+        // Test the functionality of the copy user name and password buttons.
+
+        // Copy username copies the username.
+        let copyUsernameAction = try XCTUnwrap(alert.alertActions[2])
+        await copyUsernameAction.handler?(copyUsernameAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "username")
+
+        // Copy password copies the user's password.
+        let copyPasswordAction = try XCTUnwrap(alert.alertActions[3])
+        await copyPasswordAction.handler?(copyPasswordAction, [])
+
+        // mock the master password
+        vaultRepository.validatePasswordResult = .success(false)
+
+        // Validate master password re-prompt is shown
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
+        try await alert.tapAction(title: Localizations.submit)
+
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidMasterPassword))
+
+        XCTAssertNotEqual(pasteboardService.copiedString, "secretPassword")
+        XCTAssertEqual(pasteboardService.copiedString, "username")
+    }
+
     /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
     func test_receive_morePressed_login() async throws {
         var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .login)))
