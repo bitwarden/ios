@@ -6,7 +6,7 @@ import XCTest
 // MARK: - StoreTests
 
 @MainActor
-class StoreTests: XCTestCase {
+class StoreTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<TestState, TestAction, TestEffect>!
@@ -70,6 +70,28 @@ class StoreTests: XCTestCase {
         XCTAssertEqual(processor.dispatchedActions, [.counterChanged(20)])
     }
 
+    /// `bindingAsync(get:perform:)` creates a binding from a value in the state and performs an effect on the
+    /// processor when the binding's value changes.
+    func test_bindingAsync() {
+        let binding = subject.bindingAsync(
+            get: { $0.isToggleOn },
+            perform: { value in
+                .toggleFlipped(value)
+            }
+        )
+
+        XCTAssertEqual(binding.wrappedValue, false)
+
+        binding.wrappedValue = true
+        waitFor(!processor.effects.isEmpty)
+        XCTAssertEqual(processor.effects, [.toggleFlipped(true)])
+        processor.effects.removeAll()
+
+        binding.wrappedValue = false
+        waitFor(!processor.effects.isEmpty)
+        XCTAssertEqual(processor.effects, [.toggleFlipped(false)])
+    }
+
     /// `binding(get:)` creates a binding from a value in the state that does not update the state when the binding's
     /// value is changed.
     func test_binding_getOnly() {
@@ -105,9 +127,11 @@ enum TestAction: Equatable {
 enum TestEffect: Equatable {
     case child(ChildEffect)
     case something
+    case toggleFlipped(Bool)
 }
 
 struct TestState: Equatable {
     var child = ChildState()
     var counter = 0
+    var isToggleOn = false
 }

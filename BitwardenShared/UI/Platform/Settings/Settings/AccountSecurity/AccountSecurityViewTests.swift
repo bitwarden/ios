@@ -29,6 +29,40 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
+    /// The view renders correctly when biometrics are available.
+    func test_snapshot_biometricsDisabled_touchID() {
+        let subject = AccountSecurityView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AccountSecurityState(
+                        biometricAuthStatus: .authorized(.touchID),
+                        isApproveLoginRequestsToggleOn: true,
+                        isUnlockWithBiometricsToggleOn: false,
+                        sessionTimeoutValue: .custom
+                    )
+                )
+            )
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// The view renders correctly when biometrics are available.
+    func test_snapshot_biometricsEnabled_faceID() {
+        let subject = AccountSecurityView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AccountSecurityState(
+                        biometricAuthStatus: .authorized(.faceID),
+                        isApproveLoginRequestsToggleOn: true,
+                        isUnlockWithBiometricsToggleOn: true,
+                        sessionTimeoutValue: .custom
+                    )
+                )
+            )
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     /// The view renders correctly when showing the custom session timeout field.
     func test_snapshot_customSessionTimeoutField() {
         let subject = AccountSecurityView(
@@ -59,6 +93,15 @@ class AccountSecurityViewTests: BitwardenTestCase {
         }
         waitFor(processor.effects.last == .accountFingerprintPhrasePressed)
         task.cancel()
+    }
+
+    /// The view displays a biometrics toggle.
+    func test_biometricsToggle() throws {
+        processor.state.biometricAuthStatus = .authorized(.faceID)
+        processor.state.isUnlockWithBiometricsToggleOn = false
+        _ = try subject.inspect().find(
+            toggleWithAccessibilityLabel: subject.store.state.biometricsToggleText
+        )
     }
 
     /// Tapping the Lock now button dispatches the `.lockVault` effect.

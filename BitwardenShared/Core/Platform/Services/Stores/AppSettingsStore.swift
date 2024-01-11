@@ -74,6 +74,16 @@ protocol AppSettingsStore: AnyObject {
     ///
     func disableAutoTotpCopy(userId: String) -> Bool
 
+    /// Get the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter userId: The user ID associated with the encrypted user key.
+    ///
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool
+
     /// Gets the time of the last sync for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the last sync time.
@@ -157,6 +167,16 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the encrypted user key.
     ///
     func setEncryptedUserKey(key: String?, userId: String)
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameters:
+    ///   - isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///   - userId: The user ID associated with the encrypted user key.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, for userId: String)
 
     /// Sets the time of the last sync for the user ID.
     ///
@@ -321,6 +341,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appId
         case appLocale
         case appTheme
+        case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
         case defaultUriMatch(userId: String)
         case disableWebIcons
@@ -349,6 +370,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "appLocale"
             case .appTheme:
                 key = "theme"
+            case let .biometricAuthEnabled(userId):
+                key = "biometricUnlock_\(userId)"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case let .defaultUriMatch(userId):
@@ -455,6 +478,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .disableAutoTotpCopy(userId: userId))
     }
 
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool {
+        fetch(for: .biometricAuthEnabled(userId: userId))
+    }
+
     func lastSyncTime(userId: String) -> Date? {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -477,6 +504,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, for userId: String) {
+        store(isEnabled, for: .biometricAuthEnabled(userId: userId))
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {

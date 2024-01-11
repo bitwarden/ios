@@ -37,6 +37,9 @@ struct AccountSecurityView: View {
             openURL(url)
             store.send(.clearFingerprintPhraseUrl)
         }
+        .task {
+            await store.perform(.loadData)
+        }
     }
 
     // MARK: Private views
@@ -153,23 +156,15 @@ struct AccountSecurityView: View {
             SectionHeaderView(Localizations.unlockOptions)
 
             VStack(spacing: 24) {
-                if store.state.biometricAuthenticationType == .touchID {
-                    Toggle(isOn: store.binding(
-                        get: \.isUnlockWithTouchIDToggleOn,
-                        send: AccountSecurityAction.toggleUnlockWithTouchID
+                if store.state.biometricAuthStatus
+                    .shouldDisplayiometricsToggle {
+                    Toggle(isOn: store.bindingAsync(
+                        get: \.isUnlockWithBiometricsToggleOn,
+                        perform: AccountSecurityEffect.toggleUnlockWithBiometrics
                     )) {
-                        Text(Localizations.unlockWith(Localizations.touchID))
+                        Text(store.state.biometricsToggleText)
                     }
-                    .toggleStyle(.bitwarden)
-                }
-
-                if store.state.biometricAuthenticationType == .faceID {
-                    Toggle(isOn: store.binding(
-                        get: \.isUnlockWithFaceIDOn,
-                        send: AccountSecurityAction.toggleUnlockWithFaceID
-                    )) {
-                        Text(Localizations.unlockWith(Localizations.faceID))
-                    }
+                    .accessibilityLabel(store.state.biometricsToggleText)
                     .toggleStyle(.bitwarden)
                 }
 

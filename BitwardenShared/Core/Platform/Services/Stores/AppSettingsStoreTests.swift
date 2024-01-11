@@ -240,6 +240,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
+    func test_isBiometricAuthenticationEnabled_isInitiallyFalse() {
+        XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))
+    }
+
+    /// `isBiometricAuthenticationEnabled` can be used to get the biometric unlock preference for a user.
+    func test_isBiometricAuthenticationEnabled_withValue() {
+        subject.setBiometricAuthenticationEnabled(false, for: "0")
+        subject.setBiometricAuthenticationEnabled(true, for: "1")
+
+        XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "0"))
+        XCTAssertTrue(subject.isBiometricAuthenticationEnabled(userId: "1"))
+
+        subject.setBiometricAuthenticationEnabled(true, for: "0")
+        subject.setBiometricAuthenticationEnabled(false, for: "1")
+
+        XCTAssertTrue(subject.isBiometricAuthenticationEnabled(userId: "0"))
+        XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "1"))
+    }
+
     /// `lastSyncTime(userId:)` returns `nil` if there isn't a previously stored value.
     func test_lastSyncTime_isInitiallyNil() {
         XCTAssertNil(subject.lastSyncTime(userId: "-1"))

@@ -8,6 +8,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var appLocale: String?
     var appTheme: String?
+    var biometricAuthenticationEnabled = [String: Bool]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
@@ -139,5 +140,17 @@ class MockAppSettingsStore: AppSettingsStore {
         activeIdSubject
             .eraseToAnyPublisher()
             .values
+    }
+}
+
+// MARK: Biometrics
+
+extension MockAppSettingsStore {
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool {
+        biometricAuthenticationEnabled[userId] ?? false
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, for userId: String) {
+        biometricAuthenticationEnabled[userId] = isEnabled
     }
 }

@@ -13,6 +13,10 @@ protocol AuthRepository: AnyObject {
     ///
     func deleteAccount(passwordText: String) async throws
 
+    /// Deletes the user Biometric auth key from the keychain.
+    ///
+    func deleteUserBiometricAuthKey() async throws
+
     /// Gets all accounts.
     ///
     /// - Returns: The known user accounts as `[ProfileSwitcherItem]`.
@@ -64,6 +68,16 @@ protocol AuthRepository: AnyObject {
     /// - Parameter password: The user's master password to unlock the vault.
     ///
     func unlockVault(password: String) async throws
+
+    /// Attempts to unlock the user's vault with biometrics.
+    ///
+    /// - Returns: A `Bool` indicating if the attempt was successful.
+    ///
+    func unlockVaultWithBiometrics() async throws -> Bool
+
+    /// Stores the user auth key to the keychain.
+    ///
+    func storeUserBiometricAuthKey() async throws
 }
 
 // MARK: - DefaultAuthRepository
@@ -78,6 +92,9 @@ class DefaultAuthRepository {
 
     /// The service used that handles some of the auth logic.
     let authService: AuthService
+
+    /// The service to use system Biometrics for vault unlock.
+    let biometricsService: BiometricsService
 
     /// The client used by the application to handle auth related encryption and decryption tasks.
     let clientAuth: ClientAuthProtocol
@@ -107,6 +124,7 @@ class DefaultAuthRepository {
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
     ///   - authService: The service used that handles some of the auth logic.
+    ///   - biometricsService: The service to use system Biometrics for vault unlock.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientPlatform: The client used by the application to handle generating account fingerprints.
@@ -118,6 +136,7 @@ class DefaultAuthRepository {
     init(
         accountAPIService: AccountAPIService,
         authService: AuthService,
+        biometricsService: BiometricsService,
         clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
         clientPlatform: ClientPlatformProtocol,
@@ -128,6 +147,7 @@ class DefaultAuthRepository {
     ) {
         self.accountAPIService = accountAPIService
         self.authService = authService
+        self.biometricsService = biometricsService
         self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
         self.clientPlatform = clientPlatform
@@ -155,6 +175,11 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.deleteAccount()
         await vaultTimeoutService.remove(userId: nil)
+    }
+
+    func deleteUserBiometricAuthKey() async throws {
+        let userId = try await getActiveAccount().userId
+        try await biometricsService.deleteUserAuthKey(for: userId)
     }
 
     func getAccounts() async throws -> [ProfileSwitcherItem] {
@@ -215,6 +240,27 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setMasterPasswordHash(hashedPassword)
     }
 
+    func unlockVaultWithBiometrics() async throws -> Bool {
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+        let account = try await stateService.getActiveAccount()
+        guard let userKey = try await biometricsService
+            .retrieveUserAuthKey(for: account.profile.userId),
+            !userKey.isEmpty else {
+            return false
+        }
+        try await clientCrypto.initializeUserCrypto(
+            req: InitUserCryptoRequest(
+                kdfParams: account.kdf.sdkKdf,
+                email: account.profile.email,
+                privateKey: encryptionKeys.encryptedPrivateKey,
+                method: .decryptedKey(decryptedUserKey: userKey)
+            )
+        )
+        await vaultTimeoutService.unlockVault(userId: account.profile.userId)
+        try await organizationService.initializeOrganizationCrypto()
+        return true
+    }
+
     /// A function to convert an `Account` to a `ProfileSwitcherItem`
     ///
     ///   - Parameter account: The account to convert.
@@ -237,5 +283,11 @@ extension DefaultAuthRepository: AuthRepository {
             await vaultTimeoutService.lockVault(userId: userId)
             return profile
         }
+    }
+
+    func storeUserBiometricAuthKey() async throws {
+        let userId = try await getActiveAccount().userId
+        let key = try await clientCrypto.getUserEncryptionKey()
+        try await biometricsService.setUserAuthKey(value: key, for: userId)
     }
 }

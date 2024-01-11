@@ -268,6 +268,33 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, .twoMinutes)
     }
 
+    /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the default user.
+    func test_getBiometricAuthenticationEnabled_default() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.biometricAuthenticationEnabled = [
+            "1": true,
+        ]
+        let value = try await subject.getBiometricAuthenticationEnabled(userId: nil)
+        XCTAssertTrue(value)
+    }
+
+    /// `getBiometricAuthenticationEnabled(:)` throws errors if no user exists.
+    func test_getBiometricAuthenticationEnabled_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getBiometricAuthenticationEnabled(userId: nil)
+        }
+    }
+
+    /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of a user id.
+    func test_getBiometricAuthenticationEnabled_userID() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.biometricAuthenticationEnabled = [
+            "1": true,
+        ]
+        let value = try await subject.getBiometricAuthenticationEnabled(userId: subject.getActiveAccountId())
+        XCTAssertTrue(value)
+    }
+
     /// `getClearClipboardValue()` returns `.never` if the active account doesn't have a value set.
     func test_getClearClipboardValue_notSet() async throws {
         await subject.addAccount(.fixture())
@@ -701,6 +728,31 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setAllowSyncOnRefresh(true)
         XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
+    }
+
+    /// `setBiometricAuthenticationEnabled(isEnabled:, userId:)` sets biometric unlock preference for the default user.
+    func test_setBiometricAuthenticationEnabled_default() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setBiometricAuthenticationEnabled(true, userId: nil)
+        XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+        try await subject.setBiometricAuthenticationEnabled(false, userId: nil)
+        XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+    }
+
+    /// `setBiometricAuthenticationEnabled(isEnabled:, userId:)` throws with no userID and no active user.
+    func test_setBiometricAuthenticationEnabled_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setBiometricAuthenticationEnabled(true, userId: nil)
+        }
+    }
+
+    /// `setBiometricAuthenticationEnabled(isEnabled:, userId:)` sets biometric unlock preference for a user id.
+    func test_setBiometricAuthenticationEnabled_userID() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setBiometricAuthenticationEnabled(true, userId: subject.getActiveAccountId())
+        XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+        try await subject.setBiometricAuthenticationEnabled(false, userId: subject.getActiveAccountId())
+        XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
     }
 
     /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.

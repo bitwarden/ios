@@ -5,6 +5,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - VaultItemCoordinatorTests
 
 class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -441,4 +443,4 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     func didCancelScan() {
         didCancel = true
     }
-} // swiftlint:disable:this file_length
+}

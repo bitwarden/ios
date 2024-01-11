@@ -66,6 +66,8 @@ struct VaultUnlockView: View {
                 )
                 .textFieldConfiguration(.password)
 
+                biometricAuthButton
+
                 Button {
                     Task { await store.perform(.unlockVault) }
                 } label: {
@@ -91,6 +93,20 @@ struct VaultUnlockView: View {
                 mapEffect: nil
             )
         )
+    }
+
+    /// A button to trigger a biometric auth unlock.
+    @ViewBuilder private var biometricAuthButton: some View {
+        if store.state.biometricUnlockEnabled,
+           case .authorized = store.state.biometricAuthStatus,
+           let biometricAuthUnlockString = store.state.biometricUnlockString {
+            AsyncButton {
+                Task { await store.perform(.unlockVaultWithBiometrics) }
+            } label: {
+                Text(biometricAuthUnlockString)
+            }
+            .buttonStyle(.secondary(shouldFillWidth: true))
+        }
     }
 
     /// A view that displays the ability to add or switch between account profiles

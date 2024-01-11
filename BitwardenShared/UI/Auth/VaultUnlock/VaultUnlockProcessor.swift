@@ -6,6 +6,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasBiometricsService
         & HasErrorReporter
         & HasStateService
 
@@ -47,9 +48,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     override func perform(_ effect: VaultUnlockEffect) async {
         switch effect {
         case .appeared:
-            state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
-            state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
-            await refreshProfileState()
+            await loadData()
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -60,6 +59,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             }
         case .unlockVault:
             await unlockVault()
+        case .unlockVaultWithBiometrics:
+            await unlockWithBiometrics()
         }
     }
 
@@ -103,16 +104,43 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
 
     // MARK: Private
 
+    /// Loads the async state data for the view
+    ///
+    private func loadData() async {
+        state.biometricUnlockEnabled = await (try? services.stateService
+            .getBiometricAuthenticationEnabled(userId: nil)) ?? false
+        let biometricsStatus = services.biometricsService.getBiometricAuthStatus()
+        if case .lockedOut = biometricsStatus {
+            await logoutUser()
+            return
+        }
+        state.biometricAuthStatus = biometricsStatus
+        state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
+        state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
+        await refreshProfileState()
+    }
+
+    /// Log out the present user.
+    ///
+    private func logoutUser(resetAttempts: Bool = false) async {
+        do {
+            if resetAttempts {
+                state.unsuccessfulUnlockAttemptsCount = 0
+                await services.stateService.setUnsuccessfulUnlockAttempts(0)
+            }
+            try await services.authRepository.logout()
+        } catch {
+            services.errorReporter.log(error: BitwardenError.logoutError(error: error))
+        }
+        coordinator.navigate(to: .landing)
+    }
+
     /// Shows an alert asking the user to confirm that they want to logout.
     ///
     private func showLogoutConfirmation() {
-        let alert = Alert.logoutConfirmation {
-            do {
-                try await self.services.authRepository.logout()
-            } catch {
-                self.services.errorReporter.log(error: BitwardenError.logoutError(error: error))
-            }
-            self.coordinator.navigate(to: .landing)
+        let alert = Alert.logoutConfirmation { [weak self] in
+            guard let self else { return }
+            await logoutUser()
         }
         coordinator.navigate(to: .alert(alert))
     }
@@ -135,17 +163,40 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             state.unsuccessfulUnlockAttemptsCount += 1
             await services.stateService.setUnsuccessfulUnlockAttempts(state.unsuccessfulUnlockAttemptsCount)
             if state.unsuccessfulUnlockAttemptsCount >= 5 {
-                do {
-                    state.unsuccessfulUnlockAttemptsCount = 0
-                    await services.stateService.setUnsuccessfulUnlockAttempts(0)
-                    try await services.authRepository.logout()
-                } catch {
-                    services.errorReporter.log(error: BitwardenError.logoutError(error: error))
-                }
-                coordinator.navigate(to: .landing)
+                await logoutUser(resetAttempts: true)
                 return
             }
             coordinator.navigate(to: .alert(.invalidMasterPassword()))
+        }
+    }
+
+    /// Attempts to unlock the vault with the user's biometrics
+    ///
+    private func unlockWithBiometrics() async {
+        let status = services.biometricsService.getBiometricAuthStatus()
+        guard case .authorized = status else { return }
+
+        do {
+            guard try await services.stateService.getBiometricAuthenticationEnabled(userId: nil),
+                  try await services.authRepository.unlockVaultWithBiometrics() else {
+                await loadData()
+                return
+            }
+            coordinator.navigate(to: .complete)
+            state.unsuccessfulUnlockAttemptsCount = 0
+            await services.stateService.setUnsuccessfulUnlockAttempts(0)
+        } catch let error as StateServiceError {
+            // If there is no active account, don't add to the unsuccessful count.
+            Logger.processor.error("Error unlocking vault with biometrics: \(error)")
+            await loadData()
+        } catch {
+            Logger.processor.error("Error unlocking vault with biometrics: \(error)")
+            state.unsuccessfulUnlockAttemptsCount += 1
+            if state.unsuccessfulUnlockAttemptsCount >= 5 {
+                await logoutUser(resetAttempts: true)
+                return
+            }
+            await loadData()
         }
     }
 

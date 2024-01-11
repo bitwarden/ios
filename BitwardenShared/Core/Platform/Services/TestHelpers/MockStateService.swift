@@ -13,16 +13,21 @@ class MockStateService: StateService {
     var allowSyncOnRefresh = [String: Bool]()
     var appLanguage: LanguageOption = .default
     var appTheme: AppTheme?
+    var biometricsEnabled = [String: Bool]()
+    var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
     var environmentUrls = [String: EnvironmentUrlData]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var getAccountEncryptionKeysError: Error?
+    var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var rememberedOrgIdentifier: String?
@@ -44,6 +49,9 @@ class MockStateService: StateService {
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
+        if let error = getAccountEncryptionKeysError {
+            throw error
+        }
         let userId = try userId ?? getActiveAccount().profile.userId
         guard let encryptionKeys = accountEncryptionKeys[userId]
         else {
@@ -87,6 +95,18 @@ class MockStateService: StateService {
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccount().profile.userId
         return allowSyncOnRefresh[userId] ?? false
+    }
+
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        capturedUserId = userId
+        try getBiometricAuthenticationEnabledResult.get()
+        return biometricsEnabled[userId ?? activeAccount?.profile.userId ?? ""] ?? false
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, userId: String?) async throws {
+        capturedUserId = userId
+        try setBiometricAuthenticationEnabledResult.get()
+        biometricsEnabled[userId ?? activeAccount?.profile.userId ?? ""] = isEnabled
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {

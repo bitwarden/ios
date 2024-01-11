@@ -250,6 +250,7 @@ public class ServiceContainer: Services {
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
+            biometricsService: biometricsService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             clientPlatform: clientService.clientPlatform(),

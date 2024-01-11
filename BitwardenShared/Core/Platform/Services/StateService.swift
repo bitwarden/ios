@@ -68,6 +68,16 @@ protocol StateService: AnyObject {
     ///
     func getAppTheme() async -> AppTheme
 
+    /// Get the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool
+
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -172,6 +182,16 @@ protocol StateService: AnyObject {
     /// - Parameter appTheme: The new app theme.
     ///
     func setAppTheme(_ appTheme: AppTheme) async
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameters
+    ///   - isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///   - userId: The user ID of the account to log out of. Defaults to the active
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, userId: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -596,6 +616,11 @@ actor DefaultStateService: StateService {
         AppTheme(appSettingsStore.appTheme)
     }
 
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -689,6 +714,11 @@ actor DefaultStateService: StateService {
     func setAppTheme(_ appTheme: AppTheme) async {
         appSettingsStore.appTheme = appTheme.value
         appThemeSubject.send(appTheme)
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {

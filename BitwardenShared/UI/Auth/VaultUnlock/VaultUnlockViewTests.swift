@@ -93,10 +93,33 @@ class VaultUnlockViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .unlockVault)
     }
 
+    /// Tapping the vault biometric unlock button dispatches the `.unlockVaultWithBiometrics` action.
+    func test_vaultUnlockWithBiometricsButton_tap() throws {
+        processor.state.biometricAuthStatus = .authorized(.touchID)
+        processor.state.biometricUnlockEnabled = true
+        let expectedString = try XCTUnwrap(subject.store.state.biometricUnlockString)
+        let button = try subject.inspect().find(button: expectedString)
+        try button.tap()
+        waitFor(!processor.effects.isEmpty)
+        XCTAssertEqual(processor.effects.last, .unlockVaultWithBiometrics)
+    }
+
     // MARK: Snapshots
 
     /// Test a snapshot of the empty view.
     func test_snapshot_vaultUnlock_empty() {
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_vaultUnlock_withBiometrics_faceId() {
+        processor.state.biometricAuthStatus = .authorized(.faceID)
+        processor.state.biometricUnlockEnabled = true
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_vaultUnlock_withBiometrics_touchId() {
+        processor.state.biometricAuthStatus = .authorized(.touchID)
+        processor.state.biometricUnlockEnabled = true
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 

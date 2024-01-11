@@ -43,7 +43,7 @@ final class AccountSecurityProcessor: StateProcessor<
         state: AccountSecurityState
     ) {
         var state = state
-        state.biometricAuthenticationType = services.biometricsService.getBiometricAuthenticationType()
+        state.biometricAuthStatus = services.biometricsService.getBiometricAuthStatus()
 
         self.coordinator = coordinator
         self.services = services
@@ -56,15 +56,12 @@ final class AccountSecurityProcessor: StateProcessor<
         switch effect {
         case .accountFingerprintPhrasePressed:
             await showAccountFingerprintPhraseAlert()
+        case .loadData:
+            await loadData()
         case .lockVault:
-            do {
-                let account = try await services.stateService.getActiveAccount()
-                await services.settingsRepository.lockVault(userId: account.profile.userId)
-                coordinator.navigate(to: .lockVault(account: account))
-            } catch {
-                coordinator.navigate(to: .logout)
-                services.errorReporter.log(error: error)
-            }
+            await lockVault()
+        case let .toggleUnlockWithBiometrics(isOn):
+            await setBioMetricAuth(isOn)
         }
     }
 
@@ -86,12 +83,8 @@ final class AccountSecurityProcessor: StateProcessor<
             state.customSessionTimeoutValue = newValue
         case let .toggleApproveLoginRequestsToggle(isOn):
             state.isApproveLoginRequestsToggleOn = isOn
-        case let .toggleUnlockWithFaceID(isOn):
-            state.isUnlockWithFaceIDOn = isOn
         case let .toggleUnlockWithPINCode(isOn):
             toggleUnlockWithPIN(isOn)
-        case let .toggleUnlockWithTouchID(isOn):
-            state.isUnlockWithTouchIDToggleOn = isOn
         case .twoStepLoginPressed:
             showTwoStepLoginAlert()
         }
@@ -99,20 +92,42 @@ final class AccountSecurityProcessor: StateProcessor<
 
     // MARK: Private
 
-    /// Shows the account fingerprint phrase alert.
+    /// Loads async data to the state.
     ///
-    private func showAccountFingerprintPhraseAlert() async {
-        do {
-            let userId = try await services.stateService.getActiveAccountId()
-            let phrase = try await services.authRepository.getFingerprintPhrase(userId: userId)
+    private func loadData() async {
+        state.isUnlockWithBiometricsToggleOn = await (try? loadBiometricUnlockPreferenceAndUpdateIfNeeded())
+            ?? false
+    }
 
-            coordinator.navigate(to: .alert(
-                .displayFingerprintPhraseAlert({
-                    self.state.fingerprintPhraseUrl = ExternalLinksConstants.fingerprintPhrase
-                }, phrase: phrase))
-            )
+    /// Loads the state of the user's biometric unlock preferences.
+    ///
+    /// - Returns: A bool indicating if the state of `isUnlockWithBiometricsToggleOn`.
+    ///
+    private func loadBiometricUnlockPreferenceAndUpdateIfNeeded() async throws -> Bool {
+        let userId = try await services.stateService.getActiveAccountId()
+        let hasRequestedBiometricUnlock = try await services.stateService
+            .getBiometricAuthenticationEnabled(userId: userId)
+        let biometricsStatus = services.biometricsService.getBiometricAuthStatus()
+        guard hasRequestedBiometricUnlock,
+              biometricsStatus.shouldDisplayiometricsToggle else {
+            try await services.biometricsService.deleteUserAuthKey(for: userId)
+            try await services.stateService.setBiometricAuthenticationEnabled(false, userId: userId)
+            return false
+        }
+
+        return hasRequestedBiometricUnlock
+    }
+
+    /// Locks the user's vault
+    ///
+    private func lockVault() async {
+        do {
+            let account = try await services.stateService.getActiveAccount()
+            await services.settingsRepository.lockVault(userId: account.profile.userId)
+            coordinator.navigate(to: .lockVault(account: account))
         } catch {
-            coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+            coordinator.navigate(to: .logout)
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -130,6 +145,23 @@ final class AccountSecurityProcessor: StateProcessor<
         } else {
             // TODO: BIT-1125 Persist the setting
             state.sessionTimeoutAction = action
+        }
+    }
+
+    /// Shows the account fingerprint phrase alert.
+    ///
+    private func showAccountFingerprintPhraseAlert() async {
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            let phrase = try await services.authRepository.getFingerprintPhrase(userId: userId)
+
+            coordinator.navigate(to: .alert(
+                .displayFingerprintPhraseAlert({
+                    self.state.fingerprintPhraseUrl = ExternalLinksConstants.fingerprintPhrase
+                }, phrase: phrase))
+            )
+        } catch {
+            coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
         }
     }
 
@@ -156,15 +188,42 @@ final class AccountSecurityProcessor: StateProcessor<
         }))
     }
 
+    /// Sets the user's biometric auth
+    ///
+    /// - Parameter enabled: Whether or not the the user wants biometric auth enabled.
+    ///
+    private func setBioMetricAuth(_ enabled: Bool) async {
+        let status = services.biometricsService.getBiometricAuthStatus()
+        let bioMetricsEnabled = (status.shouldDisplayiometricsToggle)
+            ? enabled
+            : false
+        do {
+            try await services.stateService
+                .setBiometricAuthenticationEnabled(bioMetricsEnabled, userId: nil)
+            let shouldUseBiometricUnlock = try await services.stateService
+                .getBiometricAuthenticationEnabled(userId: nil)
+            shouldUseBiometricUnlock
+                ? try await services.authRepository.storeUserBiometricAuthKey()
+                : try await services.authRepository.deleteUserBiometricAuthKey()
+            state.isUnlockWithBiometricsToggleOn = shouldUseBiometricUnlock
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Shows an alert prompting the user to enter their PIN. If set successfully, the toggle will be turned on.
     ///
     /// - Parameter isOn: Whether or not the toggle value is true or false.
     ///
     private func toggleUnlockWithPIN(_ isOn: Bool) {
         if !state.isUnlockWithPINCodeOn {
-            coordinator.navigate(to: .alert(.enterPINCode(completion: { _ in
-                self.state.isUnlockWithPINCodeOn = isOn
-            })))
+            coordinator.navigate(
+                to: .alert(
+                    .enterPINCode(completion: { _ in
+                        self.state.isUnlockWithPINCodeOn = isOn
+                    })
+                )
+            )
         } else {
             state.isUnlockWithPINCodeOn = isOn
         }
