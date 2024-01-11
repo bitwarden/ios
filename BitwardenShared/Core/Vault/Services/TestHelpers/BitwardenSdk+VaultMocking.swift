@@ -419,4 +419,4 @@ extension Send {
             expirationDate: sendView.expirationDate
         )
     }
-}
+} // swiftlint:disable:this file_length

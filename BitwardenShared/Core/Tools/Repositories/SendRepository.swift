@@ -54,7 +54,7 @@ class DefaultSendRepository: SendRepository {
     ///
     /// - Parameters:
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
-    ///   - sendAPIService: The API service used to perform API requests for the sends in a user's vault. 
+    ///   - sendAPIService: The API service used to perform API requests for the sends in a user's vault.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///

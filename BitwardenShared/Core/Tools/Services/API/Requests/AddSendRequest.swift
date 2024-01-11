@@ -32,7 +32,7 @@ struct AddSendRequest: Request {
     /// - Parameter send: The `Send` to add to the user's vault.
     ///
     init(send: Send) {
-        self.requestModel = SendRequestModel.init(
+        requestModel = SendRequestModel(
             deletionDate: send.deletionDate,
             disabled: send.disabled,
             expirationDate: send.expirationDate,
