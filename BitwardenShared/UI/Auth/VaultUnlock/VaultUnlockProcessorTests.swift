@@ -230,13 +230,76 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         await subject.perform(.unlockVault)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
-        XCTAssertEqual(
-            alert,
-            Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.invalidMasterPassword
-            )
-        )
+        XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(alert.message, Localizations.invalidMasterPassword)
+    }
+
+    /// `perform(_:)` with `.unlockVault` displays an alert a maximum of 5 times if the master password was incorrect.
+    ///  After the 5th attempt, it logs the user out.
+    func test_perform_unlockVault_invalidPassword_logout() async throws {
+        subject.state.masterPassword = "password"
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
+        struct VaultUnlockError: Error {}
+        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+
+        // 1st unsuccessful attempt
+        await subject.perform(.unlockVault)
+        var alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(alert.message, Localizations.invalidMasterPassword)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 1)
+        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertNotEqual(coordinator.routes.last, .landing)
+
+        // 2nd unsuccessful attempt
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 2)
+        alert = try coordinator.unwrapLastRouteAsAlert()
+        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertNotEqual(coordinator.routes.last, .landing)
+
+        // 3rd unsuccessful attempt
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 3)
+        alert = try coordinator.unwrapLastRouteAsAlert()
+        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertNotEqual(coordinator.routes.last, .landing)
+
+        // 4th unsuccessful attempt
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 4)
+        alert = try coordinator.unwrapLastRouteAsAlert()
+        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertNotEqual(coordinator.routes.last, .landing)
+
+        // 5th unsuccessful attempt
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 5)
+        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        // should log user out
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(coordinator.routes.last, .landing)
+    }
+
+    /// `perform(_:)` with `.unlockVault` successful unlocking vault reset sthe `unsuccessfulUnlockAttemptsCount`.
+    func test_perform_unlockVault_validPassword_resetsFailedUnlockAttemptsCount() async throws {
+        subject.state.masterPassword = "password"
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
+        struct VaultUnlockError: Error {}
+        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 1)
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 2)
+
+        authRepository.unlockVaultResult = .success(())
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.
