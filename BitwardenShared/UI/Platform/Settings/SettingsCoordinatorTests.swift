@@ -177,6 +177,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UIHostingController<PasswordAutoFillView>)
     }
 
+    /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
+    func test_navigateTo_selectLanguage() throws {
+        subject.navigate(to: .selectLanguage(currentLanguage: .default))
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelectLanguageView>)
+    }
+
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.
     func test_navigateTo_settings() throws {
         subject.navigate(to: .settings)

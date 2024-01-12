@@ -58,6 +58,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(state.activeUserId, "2")
     }
 
+    /// `appLocale` gets and sets the value as expected.
+    func test_appLocale() {
+        // Getting the value should get the value from the app settings store.
+        appSettingsStore.appLocale = "de"
+        XCTAssertEqual(subject.appLanguage, .custom(languageCode: "de"))
+
+        // Setting the value should update the value in the app settings store.
+        subject.appLanguage = .custom(languageCode: "th")
+        XCTAssertEqual(appSettingsStore.appLocale, "th")
+    }
+
     /// `appTheme` gets and sets the value as expected.
     func test_appTheme() async {
         // Getting the value should get the value from the app settings store.

@@ -7,6 +7,7 @@ strings:
       params:
         enumName: Localizations
         publicAccess: true
+        lookupFunction: UI.localizationFunction(key:table:fallbackValue:)
 xcassets:
   inputs:
     - BitwardenShared/UI/Platform/Application/Support/Colors.xcassets
