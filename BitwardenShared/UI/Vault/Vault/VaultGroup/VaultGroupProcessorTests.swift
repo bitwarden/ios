@@ -12,7 +12,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     var coordinator: MockCoordinator<VaultRoute>!
     var errorReporter: MockErrorReporter!
-    var mockPresentTime = Date(year: 2023, month: 12, day: 31, minute: 0, second: 33)
+    let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 33)
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: VaultGroupProcessor!
@@ -28,8 +28,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
-        timeProvider = MockTimeProvider(.mockTime(mockPresentTime))
+        timeProvider = MockTimeProvider(.mockTime(fixedDate))
         vaultRepository = MockVaultRepository()
+        vaultRepository.timeProvider = timeProvider
 
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -442,38 +443,81 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
+                timeProvider: timeProvider,
                 vaultRepository: vaultRepository
             ),
             state: VaultGroupState()
         )
-        let expiredResult = VaultListItem.fixtureTOTP(
+        let olderThanIntervalResult = VaultListItem.fixtureTOTP(
             totp: .fixture(
-                id: "123",
+                id: "olderThanIntervalResult",
                 totpCode: .init(
-                    code: "",
-                    codeGenerationDate: .init(year: 2023, month: 12, day: 31),
+                    code: "olderThanIntervalResult",
+                    codeGenerationDate: fixedDate.addingTimeInterval(-31.0),
                     period: 30
                 )
             )
         )
-        let expectedUpdate = VaultListItem.fixtureTOTP(
+        let shortExpirationResult = VaultListItem.fixtureTOTP(
             totp: .fixture(
-                id: "123",
+                id: "shortExpirationResult",
                 totpCode: .init(
-                    code: "345678",
-                    codeGenerationDate: mockPresentTime,
+                    code: "shortExpirationResult",
+                    codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 24),
+                    period: 30
+                )
+            )
+        )
+        let veryOldResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "veryOldResult",
+                totpCode: .init(
+                    code: "veryOldResult",
+                    codeGenerationDate: fixedDate.addingTimeInterval(-40.0),
+                    period: 30
+                )
+            )
+        )
+        let expectedUpdate1 = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "olderThanIntervalResult",
+                totpCode: .init(
+                    code: "olderThanIntervalResult",
+                    codeGenerationDate: fixedDate,
+                    period: 30
+                )
+            )
+        )
+        let expectedUpdate2 = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "shortExpirationResult",
+                totpCode: .init(
+                    code: "shortExpirationResult",
+                    codeGenerationDate: fixedDate,
+                    period: 30
+                )
+            )
+        )
+        let expectedUpdate3 = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "veryOldResult",
+                totpCode: .init(
+                    code: "veryOldResult",
+                    codeGenerationDate: fixedDate,
                     period: 30
                 )
             )
         )
         let newResults: [VaultListItem] = [
-            expectedUpdate,
+            expectedUpdate1,
+            expectedUpdate2,
+            expectedUpdate3,
             .fixtureTOTP(
                 totp: .fixture(
-                    id: "456",
+                    id: "New Result",
                     totpCode: .init(
-                        code: "345678",
-                        codeGenerationDate: mockPresentTime,
+                        code: "New Result",
+                        codeGenerationDate: fixedDate,
                         period: 30
                     )
                 )
@@ -485,22 +529,33 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
         let stableResult = VaultListItem.fixtureTOTP(
             totp: .fixture(
-                id: "789",
+                id: "stableResult",
                 totpCode: .init(
-                    code: "",
-                    codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 31),
+                    code: "stableResult",
+                    codeGenerationDate: fixedDate.addingTimeInterval(2.0),
                     period: 30
                 )
             )
         )
         vaultRepository.vaultListGroupSubject.send([
-            expiredResult,
+            olderThanIntervalResult,
+            shortExpirationResult,
+            veryOldResult,
             stableResult,
         ])
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         task.cancel()
-        XCTAssertEqual(mockPresentTime, vaultRepository.refreshedTOTPTime)
-        XCTAssertEqual([expiredResult], vaultRepository.refreshedTOTPCodes)
+
+        XCTAssertEqual(fixedDate, vaultRepository.refreshedTOTPTime)
+        XCTAssertEqual(
+            [
+                olderThanIntervalResult,
+                shortExpirationResult,
+                veryOldResult,
+            ],
+            vaultRepository.refreshedTOTPCodes
+                .sorted { $0.id.localizedStandardCompare($1.id) == .orderedAscending }
+        )
     }
 
     /// `receive(_:)` with `.totpCodeExpired` handles errors.

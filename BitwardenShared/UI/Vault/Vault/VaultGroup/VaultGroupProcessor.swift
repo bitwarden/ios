@@ -66,10 +66,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             for await value in services.vaultRepository.vaultListPublisher(group: state.group) {
                 let sortedValues = value
                     .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-                totpExpirationManager?.configureTOTPRefreshScheduling(
-                    for: sortedValues,
-                    timeProvider: services.timeProvider
-                )
+                totpExpirationManager?.configureTOTPRefreshScheduling(for: sortedValues)
                 state.loadingState = .data(sortedValues)
             }
         case .refresh:
@@ -117,10 +114,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         do {
             let refreshedItems = try await services.vaultRepository.refreshTOTPCodes(for: items)
             let allItems = currentItems.updated(with: refreshedItems)
-            totpExpirationManager?.configureTOTPRefreshScheduling(
-                for: allItems,
-                timeProvider: services.timeProvider
-            )
+            totpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
             state.loadingState = .data(allItems)
         } catch {
             services.errorReporter.log(error: error)
@@ -235,12 +229,9 @@ private class TOTPExpirationManager {
 
     /// Configures TOTP code refresh scheduling
     ///
-    /// - Parameters
-    ///   - items: The vault list items that may require code expiration tracking.
-    ///   - timeProvider: The time provider to use for expiration calculation.
+    /// - Parameter items: The vault list items that may require code expiration tracking.
     ///
-    func configureTOTPRefreshScheduling(for items: [VaultListItem], timeProvider: any TimeProvider) {
-        self.timeProvider = timeProvider
+    func configureTOTPRefreshScheduling(for items: [VaultListItem]) {
         var newItemsByInterval = [UInt32: [VaultListItem]]()
         items.forEach { item in
             guard case let .totp(_, model) = item.itemType else { return }

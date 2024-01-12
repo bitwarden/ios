@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 /// A calculator to identify expired TOTP Codes.
 ///
@@ -19,11 +20,17 @@ enum TOTPExpirationCalculator {
     ) -> Bool {
         let period = codeModel.period
         let codeGenerationDate = codeModel.codeGenerationDate
-        let elapsedTimeSinceCalculation = timeProvider.timeSince(codeGenerationDate)
-        let isOlderThanInterval = elapsedTimeSinceCalculation >= Double(period)
-        let hasPastIntervalRefreshMark = timeRemaining(using: Double(period))
-            >= timeRemaining(for: codeGenerationDate, using: Double(period))
-        return isOlderThanInterval || hasPastIntervalRefreshMark
+
+        // The time interval until a code generated at the `codeGenerationDate` would need a refresh.
+        let codeGenerationDateTimeRemaining = timeRemaining(for: codeGenerationDate, using: Double(period))
+
+        // The date after which the codeModel would need a refresh.
+        let codeRefreshCutoffDate = codeGenerationDate.addingTimeInterval(codeGenerationDateTimeRemaining)
+
+        // Check if the cutoff date has past.
+        let hasCodeExpired = codeRefreshCutoffDate <= timeProvider.presentTime
+
+        return hasCodeExpired
     }
 
     /// Sorts a list of `VaultListItem` by expiration state
@@ -53,7 +60,7 @@ enum TOTPExpirationCalculator {
     ///   - period: The period of expiration.
     /// - Returns: The number of seconds remaining, expressed as an integer.
     ///
-    static func remainingSeconds(for date: Date = Date(), using period: Int) -> Int {
+    static func remainingSeconds(for date: Date, using period: Int) -> Int {
         Int(ceil(timeRemaining(for: date, using: Double(period))))
     }
 
@@ -64,7 +71,7 @@ enum TOTPExpirationCalculator {
     ///   - period: The period of expiration.
     /// - Returns: The time remaining, expressed as a TimeInterval.
     ///
-    static func timeRemaining(for date: Date = Date(), using period: TimeInterval) -> TimeInterval {
+    static func timeRemaining(for date: Date, using period: TimeInterval) -> TimeInterval {
         let interval = date.timeIntervalSinceReferenceDate
         let remainder = interval.truncatingRemainder(dividingBy: period)
         return Double(period) - remainder

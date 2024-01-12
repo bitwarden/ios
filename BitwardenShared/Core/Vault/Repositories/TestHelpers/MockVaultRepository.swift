@@ -41,7 +41,7 @@ class MockVaultRepository: VaultRepository {
     var sharedCiphers = [CipherView]()
     var softDeletedCipher = [CipherView]()
     var softDeleteCipherResult: Result<Void, Error> = .success(())
-    var mockTimeProvider = MockTimeProvider(.currentTime)
+    var timeProvider: TimeProvider = MockTimeProvider(.currentTime)
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
     var updateCipherCollectionsCiphers = [CipherView]()
@@ -56,10 +56,6 @@ class MockVaultRepository: VaultRepository {
 
     var refreshedTOTPKey: String? {
         refreshedTOTPKeyConfig?.rawAuthenticatorKey
-    }
-
-    var timeProvider: any TimeProvider {
-        mockTimeProvider
     }
 
     // MARK: Methods
