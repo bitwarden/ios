@@ -61,11 +61,29 @@ protocol VaultRepository: AnyObject {
     ///
     func fetchFolders() async throws -> [FolderView]
 
+    /// Regenerates the TOTP codes for a list of Vault Items.
+    ///
+    /// - Parameter items: The list of items that need updated TOTP codes.
+    /// - Returns: An updated list of items with new TOTP codes.
+    ///
+    func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem]
+
     /// Removes an account id.
     ///
     ///  - Parameter userId: An optional userId. Defaults to the active user id.
     ///
     func remove(userId: String?) async
+
+    /// A publisher for a user's cipher objects based on the specified search text and filter type.
+    ///
+    /// - Parameters:
+    ///     - searchText:  The search text to filter the cipher list.
+    ///     - filterType: The vault filter type to apply to the cipher list.
+    /// - Returns: A publisher for the user's ciphers.
+    func searchCipherPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>>
 
     /// Shares a cipher with an organization.
     ///
@@ -160,6 +178,9 @@ class DefaultVaultRepository {
     /// The service for managing the collections for the user.
     let collectionService: CollectionService
 
+    /// The service used by the application to manage the environment settings.
+    let environmentService: EnvironmentService
+
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
@@ -189,6 +210,7 @@ class DefaultVaultRepository {
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - collectionService: The service for managing the collections for the user.
+    ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
@@ -203,6 +225,7 @@ class DefaultVaultRepository {
         clientCrypto: ClientCryptoProtocol,
         clientVault: ClientVaultService,
         collectionService: CollectionService,
+        environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
         organizationService: OrganizationService,
@@ -216,6 +239,7 @@ class DefaultVaultRepository {
         self.clientCrypto = clientCrypto
         self.clientVault = clientVault
         self.collectionService = collectionService
+        self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.folderService = folderService
         self.organizationService = organizationService
@@ -238,38 +262,38 @@ class DefaultVaultRepository {
         filter: VaultFilterType?
     ) async throws -> [VaultListItem] {
         let responseCiphers = response.ciphers.map(Cipher.init)
-        let active = responseCiphers.filter { cipher in
+
+        // Decode the response into CipherViews, then filter and sort the list.
+        let activeCiphers = try await responseCiphers.asyncMap { cipher in
+            try await self.clientVault.ciphers().decrypt(cipher: cipher)
+        }
+        .filter(filter?.cipherFilter(_:) ?? { _ in true })
+        .filter { cipher in
             cipher.deletedDate == nil
                 && cipher.type == .login
                 && cipher.login?.totp != nil
         }
-        let listItemTransform: (CipherListView) async throws -> VaultListItem? = { [weak self] cipherListView in
-            guard let self,
-                  let id = cipherListView.id,
-                  let cipher = active.first(where: { $0.id == id }) else {
-                return nil
-            }
-            let decoded = try await clientVault.ciphers()
-                .decrypt(cipher: cipher)
-            guard let login = decoded.login,
-                  let key = login.totp,
-                  let totpKey = TOTPKey(key) else { return nil }
-            return VaultListItem(
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        // Convert the CipherViews into
+        let totpItems: [VaultListItem?] = try await activeCiphers.asyncMap { cipherView in
+            guard let id = cipherView.id,
+                  let login = cipherView.login,
+                  let key = login.totp
+            else { return nil }
+
+            let code = try await clientVault.generateTOTPCode(for: key, date: Date())
+
+            return .init(
                 id: id,
                 itemType: .totp(
-                    id: id,
-                    loginView: login,
-                    totpKey: totpKey
+                    name: cipherView.name,
+                    totpModel: .init(id: id, loginView: login, totpCode: code)
                 )
             )
         }
-        let totpItems: [VaultListItem] = try await clientVault.ciphers()
-            .decryptList(ciphers: active)
-            .filter(filter?.cipherFilter(_:) ?? { _ in true })
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-            .asyncMap(listItemTransform)
-            .compactMap { $0 }
-        return totpItems
+
+        return totpItems.compactMap { $0 }
     }
 
     /// Returns a list of items that are grouped together in the vault list from a sync response.
@@ -284,9 +308,10 @@ class DefaultVaultRepository {
         from response: SyncResponseModel
     ) async throws -> [VaultListItem] {
         let responseCiphers = response.ciphers.map(Cipher.init)
-        let ciphers = try await clientVault.ciphers()
-            .decryptList(ciphers: responseCiphers)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        let ciphers = try await responseCiphers.asyncMap { cipher in
+            try await self.clientVault.ciphers().decrypt(cipher: cipher)
+        }
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
         let deletedCiphers = ciphers.filter { $0.deletedDate != nil }
@@ -325,10 +350,11 @@ class DefaultVaultRepository {
     ) async throws -> [VaultListSection] {
         let responseCiphers: [Cipher] = response.ciphers.map(Cipher.init)
 
-        let ciphers = try await clientVault.ciphers()
-            .decryptList(ciphers: responseCiphers)
-            .filter(filter.cipherFilter)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        let ciphers = try await responseCiphers.asyncMap { cipher in
+            try await self.clientVault.ciphers().decrypt(cipher: cipher)
+        }
+        .filter(filter.cipherFilter)
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let folders = try await clientVault.folders()
             .decryptList(folders: response.folders.map(Folder.init))
@@ -355,7 +381,7 @@ class DefaultVaultRepository {
             filter: filter
         ).count
 
-        var totpItems = (oneTimePasswordCount > 0) ? [
+        let totpItems = (oneTimePasswordCount > 0) ? [
             VaultListItem(
                 id: "Types.VerificationCodes",
                 itemType: .group(.totp, oneTimePasswordCount)
@@ -483,6 +509,23 @@ extension DefaultVaultRepository: VaultRepository {
         return account.profile.hasPremiumPersonally ?? false
     }
 
+    func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
+        try await items.asyncMap { item in
+            guard case let .totp(name, model) = item.itemType,
+                  let key = model.loginView.totp else {
+                return item
+            }
+            let code = try await clientVault.generateTOTPCode(for: key, date: Date())
+            var updatedModel = model
+            updatedModel.totpCode = code
+            return .init(
+                id: item.id,
+                itemType: .totp(name: name, totpModel: updatedModel)
+            )
+        }
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
     func remove(userId: String?) async {
         await vaultTimeoutService.remove(userId: userId)
     }
@@ -492,6 +535,47 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.shareWithServer(encryptedCipher)
         // TODO: BIT-92 Insert response into database instead of fetching sync.
         try await fetchSync(isManualRefresh: false)
+    }
+
+    func searchCipherPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
+        let userId = try await stateService.getActiveAccountId()
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .folding(options: .diacriticInsensitive, locale: .current)
+
+        return cipherService.cipherPublisher(userId: userId).asyncTryMap { ciphers -> [VaultListItem] in
+            // Convert the Ciphers to CipherViews and filter appropriately.
+            let activeCiphers = try await ciphers.asyncMap { cipher in
+                try await self.clientVault.ciphers().decrypt(cipher: cipher)
+            }
+            .filter { filterType.cipherFilter($0) && $0.deletedDate == nil }
+
+            var matchedCiphers: [CipherView] = []
+            var lowPriorityMatchedCiphers: [CipherView] = []
+
+            // Search the ciphers.
+            activeCiphers.forEach { cipherView in
+                if cipherView.name.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+                    matchedCiphers.append(cipherView)
+                } else if query.count >= 8, cipherView.id?.starts(with: query) == true {
+                    lowPriorityMatchedCiphers.append(cipherView)
+                } else if cipherView.subtitle?.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    lowPriorityMatchedCiphers.append(cipherView)
+                } else if cipherView.login?.uris?.contains(where: { $0.uri?.contains(query) == true }) == true {
+                    lowPriorityMatchedCiphers.append(cipherView)
+                }
+            }
+
+            // Return the result.
+            let result = matchedCiphers.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } +
+                lowPriorityMatchedCiphers
+            return result.compactMap { VaultListItem(cipherView: $0) }
+        }.eraseToAnyPublisher().values
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {

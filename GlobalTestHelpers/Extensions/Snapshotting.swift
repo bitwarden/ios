@@ -53,6 +53,16 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
         )
     }
 
+    /// A default snapshot sized to fit the view, with precision 1 and perceptual precision of 0.95.
+    static var sizeThatFits: Snapshotting {
+        .image(
+            precision: defaultPrecision,
+            perceptualPrecision: defaultPerceptualPrecision,
+            layout: .sizeThatFits,
+            traits: UITraitCollection(userInterfaceStyle: .light)
+        )
+    }
+
     /// A tall snapshot in portrait on iPhone 13, with precision 1, perceptual precision of 0.95 and in light mode.
     ///
     /// This snapshot has double the height of a standard iPhone 13 snapshot, and should be used when the height
@@ -84,7 +94,26 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     }
 
     /// A default snapshot in portrait on iPhone 13, with precision 1, perceptual precision of 0.95
+    /// and in light mode.
+    ///
+    ///  - Parameter heightMultiple: Sets the height multiple of the snapshot relative to the iPhone 13 height.
+    ///
+    static func portrait(heightMultiple: CGFloat = 1) -> Snapshotting {
+        var viewImageConfig = ViewImageConfig.iPhone13(.portrait)
+        viewImageConfig.size?.height *= heightMultiple
+        return .image(
+            precision: defaultPrecision,
+            perceptualPrecision: defaultPerceptualPrecision,
+            layout: .device(config: viewImageConfig),
+            traits: .init(userInterfaceStyle: .light)
+        )
+    }
+
+    /// A default snapshot in portrait on iPhone 13, with precision 1, perceptual precision of 0.95
     /// and in dark mode.
+    ///
+    ///  - Parameter heightMultiple: Sets the height multiple of the snapshot relative to the iPhone 13 height.
+    ///
     static func portraitDark(heightMultiple: CGFloat = 1) -> Snapshotting {
         var viewImageConfig = ViewImageConfig.iPhone13(.portrait)
         viewImageConfig.size?.height *= heightMultiple

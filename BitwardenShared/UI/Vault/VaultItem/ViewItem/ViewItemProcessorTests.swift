@@ -103,7 +103,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     func test_perform_appeared_invalidFixture() {
-        let cipherItem = CipherView.fixture()
+        let cipherItem = CipherView.fixture(id: nil)
         vaultRepository.cipherDetailsSubject.send(cipherItem)
 
         let task = Task {
@@ -389,8 +389,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
         let loginState = CipherItemState(existing: cipherView, hasPremium: true)!
         subject.state.loadingState = .data(loginState)
+
         subject.receive(.editPressed)
-        XCTAssertEqual(coordinator.routes, [.editItem(cipher: cipherView)])
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
     }
 
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit

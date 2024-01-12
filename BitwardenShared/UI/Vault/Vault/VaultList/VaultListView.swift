@@ -56,6 +56,10 @@ private struct VaultMainView: View {
             send: VaultListAction.toastShown
         ))
         .animation(.default, value: isSearching)
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultListAction.toastShown
+        ))
     }
 
     // MARK: Private Properties
@@ -94,6 +98,8 @@ private struct VaultMainView: View {
         if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
             ScrollView {
                 LazyVStack(spacing: 0) {
+                    searchVaultFilterRow
+
                     ForEach(store.state.searchResults) { item in
                         Button {
                             store.send(.itemPressed(item: item))
@@ -110,21 +116,46 @@ private struct VaultMainView: View {
         } else {
             GeometryReader { reader in
                 ScrollView {
-                    VStack(spacing: 35) {
-                        Image(decorative: Asset.Images.magnifyingGlass)
-                            .resizable()
-                            .frame(width: 74, height: 74)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    VStack(spacing: 0) {
+                        searchVaultFilterRow
 
-                        Text(Localizations.thereAreNoItemsThatMatchTheSearch)
-                            .multilineTextAlignment(.center)
-                            .styleGuide(.callout)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        VStack(spacing: 35) {
+                            Image(decorative: Asset.Images.magnifyingGlass)
+                                .resizable()
+                                .frame(width: 74, height: 74)
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                            Text(Localizations.thereAreNoItemsThatMatchTheSearch)
+                                .multilineTextAlignment(.center)
+                                .styleGuide(.callout)
+                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
                     }
-                    .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
                 }
             }
         }
+    }
+
+    /// Displays the vault filter for search row if the user is a member of any org
+    private var searchVaultFilterRow: some View {
+        SearchVaultFilterRowView(
+            hasDivider: true, store: store.child(
+                state: { state in
+                    SearchVaultFilterRowState(
+                        organizations: state.organizations,
+                        searchVaultFilterType: state.searchVaultFilterType
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .searchVaultFilterChanged(type):
+                        return .searchVaultFilterChanged(type)
+                    }
+                },
+                mapEffect: nil
+            )
+        )
     }
 
     /// A view that displays either the my vault or empty vault interface.
@@ -162,37 +193,24 @@ private struct VaultMainView: View {
     /// Displays the vault filter row if the user is a member of any
     @ViewBuilder
     private func vaultFilterRow() -> some View {
-        if !store.state.vaultFilterOptions.isEmpty {
-            HStack(spacing: 0) {
-                Text(store.state.vaultFilterType.filterTitle)
-
-                Spacer()
-
-                Menu {
-                    Picker(selection: store.binding(
-                        get: \.vaultFilterType,
-                        send: VaultListAction.vaultFilterChanged
-                    )) {
-                        ForEach(store.state.vaultFilterOptions) { filter in
-                            Text(filter.title)
-                                .tag(filter)
-                        }
-                    } label: {
-                        EmptyView()
+        SearchVaultFilterRowView(
+            hasDivider: false, store: store.child(
+                state: { state in
+                    SearchVaultFilterRowState(
+                        organizations: state.organizations,
+                        searchVaultFilterType: state.vaultFilterType
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .searchVaultFilterChanged(type):
+                        return .vaultFilterChanged(type)
                     }
-                } label: {
-                    Asset.Images.horizontalKabob.swiftUIImage
-                        .frame(width: 44, height: 44, alignment: .trailing)
-                        .contentShape(Rectangle())
-                }
-                .accessibilityLabel(Localizations.filterByVault)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-            }
-            .frame(minHeight: 60)
-            .padding(.horizontal, 16)
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
+                },
+                mapEffect: nil
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// Creates a row in the list for the provided item.
@@ -204,14 +222,23 @@ private struct VaultMainView: View {
     @ViewBuilder
     private func vaultItemRow(for item: VaultListItem, isLastInSection: Bool = false) -> some View {
         VaultListItemRowView(store: store.child(
-            state: { _ in
+            state: { state in
                 VaultListItemRowState(
+                    iconBaseURL: state.iconBaseURL,
                     item: item,
-                    hasDivider: !isLastInSection
+                    hasDivider: !isLastInSection,
+                    showWebIcons: state.showWebIcons
                 )
             },
-            mapAction: nil,
-            mapEffect: { _ in .morePressed(item: item) }
+            mapAction: { action in
+                switch action {
+                case let .copyTOTPCode(code):
+                    return .copyTOTPCode(code)
+                case .morePressed:
+                    return .morePressed(item)
+                }
+            },
+            mapEffect: nil
         ))
     }
 
@@ -266,6 +293,12 @@ struct VaultListView: View {
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: Localizations.search
                 )
+                .task(id: store.state.searchText) {
+                    await store.perform(.search(store.state.searchText))
+                }
+                .task(id: store.state.searchVaultFilterType) {
+                    await store.perform(.search(store.state.searchText))
+                }
                 .refreshable {
                     await store.perform(.refreshVault)
                 }
@@ -299,6 +332,9 @@ struct VaultListView: View {
         }
         .task {
             await store.perform(.streamOrganizations)
+        }
+        .task {
+            await store.perform(.streamShowWebIcons)
         }
         .task(id: store.state.vaultFilterType) {
             await store.perform(.streamVaultList)
@@ -387,36 +423,61 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "1",
                                     items: [
-                                        .init(cipherListView: .init(
+                                        .init(cipherView: .init(
                                             id: UUID().uuidString,
                                             organizationId: nil,
                                             folderId: nil,
                                             collectionIds: [],
+                                            key: nil,
                                             name: "Example",
-                                            subTitle: "email@example.com",
+                                            notes: nil,
                                             type: .login,
+                                            login: .init(
+                                                username: "email@example.com",
+                                                password: nil,
+                                                passwordRevisionDate: nil,
+                                                uris: nil,
+                                                totp: nil,
+                                                autofillOnPageLoad: nil
+                                            ),
+                                            identity: nil,
+                                            card: nil,
+                                            secureNote: nil,
                                             favorite: true,
                                             reprompt: .none,
+                                            organizationUseTotp: false,
                                             edit: false,
                                             viewPassword: true,
-                                            attachments: 0,
+                                            localData: nil,
+                                            attachments: nil,
+                                            fields: nil,
+                                            passwordHistory: nil,
                                             creationDate: Date(),
                                             deletedDate: nil,
                                             revisionDate: Date()
                                         ))!,
-                                        .init(cipherListView: .init(
+                                        .init(cipherView: .init(
                                             id: UUID().uuidString,
                                             organizationId: nil,
                                             folderId: nil,
                                             collectionIds: [],
+                                            key: nil,
                                             name: "Example 2",
-                                            subTitle: "",
+                                            notes: nil,
                                             type: .secureNote,
+                                            login: nil,
+                                            identity: nil,
+                                            card: nil,
+                                            secureNote: nil,
                                             favorite: true,
                                             reprompt: .none,
+                                            organizationUseTotp: false,
                                             edit: false,
                                             viewPassword: true,
-                                            attachments: 0,
+                                            localData: nil,
+                                            attachments: nil,
+                                            fields: nil,
+                                            passwordHistory: nil,
                                             creationDate: Date(),
                                             deletedDate: nil,
                                             revisionDate: Date()
@@ -477,19 +538,35 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "CollectionItems",
                                     items: [
-                                        .init(cipherListView: .init(
+                                        .init(cipherView: .init(
                                             id: UUID().uuidString,
                                             organizationId: "1",
                                             folderId: nil,
                                             collectionIds: [],
+                                            key: nil,
                                             name: "Example",
-                                            subTitle: "email@example.com",
+                                            notes: nil,
                                             type: .login,
+                                            login: .init(
+                                                username: "email@example.com",
+                                                password: nil,
+                                                passwordRevisionDate: nil,
+                                                uris: nil,
+                                                totp: nil,
+                                                autofillOnPageLoad: nil
+                                            ),
+                                            identity: nil,
+                                            card: nil,
+                                            secureNote: nil,
                                             favorite: true,
                                             reprompt: .none,
+                                            organizationUseTotp: false,
                                             edit: false,
                                             viewPassword: true,
-                                            attachments: 0,
+                                            localData: nil,
+                                            attachments: nil,
+                                            fields: nil,
+                                            passwordHistory: nil,
                                             creationDate: Date(),
                                             deletedDate: nil,
                                             revisionDate: Date()
@@ -525,19 +602,35 @@ struct VaultListView_Previews: PreviewProvider {
                                 isVisible: false
                             ),
                             searchResults: [
-                                .init(cipherListView: .init(
+                                .init(cipherView: .init(
                                     id: UUID().uuidString,
                                     organizationId: nil,
                                     folderId: nil,
                                     collectionIds: [],
+                                    key: nil,
                                     name: "Example",
-                                    subTitle: "email@example.com",
+                                    notes: nil,
                                     type: .login,
+                                    login: .init(
+                                        username: "email@example.com",
+                                        password: nil,
+                                        passwordRevisionDate: nil,
+                                        uris: nil,
+                                        totp: nil,
+                                        autofillOnPageLoad: nil
+                                    ),
+                                    identity: nil,
+                                    card: nil,
+                                    secureNote: nil,
                                     favorite: true,
                                     reprompt: .none,
+                                    organizationUseTotp: false,
                                     edit: false,
                                     viewPassword: true,
-                                    attachments: 0,
+                                    localData: nil,
+                                    attachments: nil,
+                                    fields: nil,
+                                    passwordHistory: nil,
                                     creationDate: Date(),
                                     deletedDate: nil,
                                     revisionDate: Date()
@@ -557,53 +650,101 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             searchResults: [
-                                .init(cipherListView: .init(
+                                .init(cipherView: .init(
                                     id: UUID().uuidString,
                                     organizationId: nil,
                                     folderId: nil,
                                     collectionIds: [],
+                                    key: nil,
                                     name: "Example",
-                                    subTitle: "email@example.com",
+                                    notes: nil,
                                     type: .login,
+                                    login: .init(
+                                        username: "email@example.com",
+                                        password: nil,
+                                        passwordRevisionDate: nil,
+                                        uris: nil,
+                                        totp: nil,
+                                        autofillOnPageLoad: nil
+                                    ),
+                                    identity: nil,
+                                    card: nil,
+                                    secureNote: nil,
                                     favorite: true,
                                     reprompt: .none,
+                                    organizationUseTotp: false,
                                     edit: false,
                                     viewPassword: true,
-                                    attachments: 0,
+                                    localData: nil,
+                                    attachments: nil,
+                                    fields: nil,
+                                    passwordHistory: nil,
                                     creationDate: Date(),
                                     deletedDate: nil,
                                     revisionDate: Date()
                                 ))!,
-                                .init(cipherListView: .init(
+                                .init(cipherView: .init(
                                     id: UUID().uuidString,
                                     organizationId: nil,
                                     folderId: nil,
                                     collectionIds: [],
+                                    key: nil,
                                     name: "Example 2",
-                                    subTitle: "email2@example.com",
+                                    notes: nil,
                                     type: .login,
+                                    login: .init(
+                                        username: "email2@example.com",
+                                        password: nil,
+                                        passwordRevisionDate: nil,
+                                        uris: nil,
+                                        totp: nil,
+                                        autofillOnPageLoad: nil
+                                    ),
+                                    identity: nil,
+                                    card: nil,
+                                    secureNote: nil,
                                     favorite: true,
                                     reprompt: .none,
+                                    organizationUseTotp: false,
                                     edit: false,
                                     viewPassword: true,
-                                    attachments: 0,
+                                    localData: nil,
+                                    attachments: nil,
+                                    fields: nil,
+                                    passwordHistory: nil,
                                     creationDate: Date(),
                                     deletedDate: nil,
                                     revisionDate: Date()
                                 ))!,
-                                .init(cipherListView: .init(
+                                .init(cipherView: .init(
                                     id: UUID().uuidString,
                                     organizationId: nil,
                                     folderId: nil,
                                     collectionIds: [],
+                                    key: nil,
                                     name: "Example 3",
-                                    subTitle: "email3@example.com",
+                                    notes: nil,
                                     type: .login,
+                                    login: .init(
+                                        username: "email3@example.com",
+                                        password: nil,
+                                        passwordRevisionDate: nil,
+                                        uris: nil,
+                                        totp: nil,
+                                        autofillOnPageLoad: nil
+                                    ),
+                                    identity: nil,
+                                    card: nil,
+                                    secureNote: nil,
                                     favorite: true,
                                     reprompt: .none,
+                                    organizationUseTotp: false,
                                     edit: false,
                                     viewPassword: true,
-                                    attachments: 0,
+                                    localData: nil,
+                                    attachments: nil,
+                                    fields: nil,
+                                    passwordHistory: nil,
                                     creationDate: Date(),
                                     deletedDate: nil,
                                     revisionDate: Date()

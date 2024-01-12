@@ -12,6 +12,15 @@ protocol AppSettingsStore: AnyObject {
     /// The app's unique identifier.
     var appId: String? { get set }
 
+    /// The app's locale.
+    var appLocale: String? { get set }
+
+    /// The app's theme.
+    var appTheme: String? { get set }
+
+    /// Whether to disable the website icons.
+    var disableWebIcons: Bool { get set }
+
     /// The environment URLs used prior to user authentication.
     var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
 
@@ -266,7 +275,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     enum Keys {
         case allowSyncOnRefresh(userId: String)
         case appId
+        case appLocale
+        case appTheme
         case clearClipboardValue(userId: String)
+        case disableWebIcons
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case lastSync(userId: String)
@@ -286,8 +298,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "syncOnRefresh_\(userId)"
             case .appId:
                 key = "appId"
+            case .appLocale:
+                key = "appLocale"
+            case .appTheme:
+                key = "theme"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
+            case .disableWebIcons:
+                key = "disableFavicon"
             case let .encryptedUserKey(userId):
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
@@ -316,6 +334,21 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appId: String? {
         get { fetch(for: .appId) }
         set { store(newValue, for: .appId) }
+    }
+
+    var appLocale: String? {
+        get { fetch(for: .appLocale) }
+        set { store(newValue, for: .appLocale) }
+    }
+
+    var appTheme: String? {
+        get { fetch(for: .appTheme) }
+        set { store(newValue, for: .appTheme) }
+    }
+
+    var disableWebIcons: Bool {
+        get { fetch(for: .disableWebIcons) }
+        set { store(newValue, for: .disableWebIcons) }
     }
 
     var preAuthEnvironmentUrls: EnvironmentUrlData? {

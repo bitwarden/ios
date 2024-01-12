@@ -30,7 +30,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasAuthRepository
         & HasCameraService
+        & HasEnvironmentService
         & HasErrorReporter
+        & HasStateService
         & HasVaultRepository
         & VaultItemCoordinator.Services
 
@@ -86,14 +88,30 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
-        case let .addItem(group):
-            showVaultItem(route: .addItem(group: group))
+        case let .addItem(allowTypeSelection, group, uri):
+            Task {
+                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                showVaultItem(
+                    route: .addItem(
+                        allowTypeSelection: allowTypeSelection,
+                        group: group,
+                        hasPremium: hasPremium ?? false,
+                        uri: uri
+                    )
+                )
+            }
         case let .alert(alert):
             stackNavigator.present(alert)
         case .autofillList:
             showAutofillList()
-        case let .editItem(cipher: cipher):
-            showVaultItem(route: .editItem(cipher: cipher))
+        case let .editItem(cipher):
+            Task {
+                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                showVaultItem(
+                    route: .editItem(cipher, hasPremium ?? false),
+                    delegate: context as? CipherItemOperationDelegate
+                )
+            }
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):
@@ -130,31 +148,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         let processor = VaultGroupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultGroupState(group: group)
+            state: VaultGroupState(
+                group: group,
+                iconBaseURL: services.environmentService.iconsURL
+            )
         )
         let store = Store(processor: processor)
         let view = VaultGroupView(store: store)
         let viewController = UIHostingController(rootView: view)
 
-        // Preset some navigation item values so that the navigation bar does not flash oddly once
-        // the view's push animation has completed. This happens because `UIHostingController` does
-        // not resolve its `navigationItem` properties until the view has been displayed on screen.
-        // In this case, that doesn't happen until the push animation has completed, which results
-        // in both the title and the search bar flashing into view after the push animation
-        // completes. This occurs on all iOS versions (tested on iOS 17).
-        //
-        // The values set here are temporary, and are overwritten once the hosting controller has
-        // resolved its root view's navigation bar modifiers.
-        viewController.navigationItem.largeTitleDisplayMode = .never
-        viewController.navigationItem.title = group.navigationTitle
-        let searchController = UISearchController()
-        if #available(iOS 16.0, *) {
-            viewController.navigationItem.preferredSearchBarPlacement = .stacked
-        }
-        viewController.navigationItem.searchController = searchController
-        viewController.navigationItem.hidesSearchBarWhenScrolling = false
-
-        stackNavigator.push(viewController)
+        stackNavigator.push(
+            viewController,
+            navigationTitle: group.navigationTitle,
+            hasSearchBar: true
+        )
     }
 
     /// Shows the vault list screen.
@@ -166,7 +173,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             let processor = VaultListProcessor(
                 coordinator: asAnyCoordinator(),
                 services: services,
-                state: VaultListState()
+                state: VaultListState(
+                    iconBaseURL: services.environmentService.iconsURL
+                )
             )
             let store = Store(processor: processor)
             let view = VaultListView(store: store)

@@ -19,10 +19,14 @@ class MockVaultRepository: VaultRepository {
     var fetchCollectionsResult: Result<[CollectionView], Error> = .success([])
     var fetchFoldersResult: Result<[FolderView], Error> = .success([])
     var fetchSyncCalled = false
+    var fetchSyncResult: Result<Void, Error> = .success(())
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
+    var refreshedTOTPCodes: [VaultListItem] = []
+    var refreshTOTPCodesResult: Result<[VaultListItem], Error> = .success([])
     var removeAccountIds = [String?]()
+    var searchCipherSubject = CurrentValueSubject<[VaultListItem], Error>([])
     var shareCipherResult: Result<Void, Error> = .success(())
     var sharedCiphers = [CipherView]()
     var softDeletedCipher = [CipherView]()
@@ -81,14 +85,27 @@ class MockVaultRepository: VaultRepository {
 
     func fetchSync(isManualRefresh _: Bool) async throws {
         fetchSyncCalled = true
+        try fetchSyncResult.get()
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
         organizationsSubject.eraseToAnyPublisher().values
     }
 
+    func refreshTOTPCodes(for items: [BitwardenShared.VaultListItem]) async throws -> [BitwardenShared.VaultListItem] {
+        refreshedTOTPCodes = items
+        return try refreshTOTPCodesResult.get()
+    }
+
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
+    }
+
+    func searchCipherPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
+        searchCipherSubject.eraseToAnyPublisher().values
     }
 
     func shareCipher(_ cipher: CipherView) async throws {

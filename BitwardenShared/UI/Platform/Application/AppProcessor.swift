@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 /// The `AppProcessor` processes actions received at the application level and contains the logic
 /// to control the top-level flow through the app.
@@ -31,6 +31,7 @@ public class AppProcessor {
         self.appModule = appModule
         self.services = services
 
+        UI.initialLanguageCode = services.appSettingsStore.appLocale
         UI.applyDefaultAppearances()
     }
 
@@ -41,12 +42,19 @@ public class AppProcessor {
     /// - Parameters:
     ///   - appContext: The context that the app is running within.
     ///   - navigator: The object that will be used to navigate between routes.
+    ///   - window: The window to use to set the app's theme.
     ///
-    public func start(appContext: AppContext, navigator: RootNavigator) {
+    public func start(appContext: AppContext, navigator: RootNavigator, window: UIWindow?) {
         let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
         coordinator.start()
         self.coordinator = coordinator
 
+        Task {
+            for await appTheme in await services.stateService.appThemePublisher().values {
+                navigator.appTheme = appTheme
+                window?.overrideUserInterfaceStyle = appTheme.userInterfaceStyle
+            }
+        }
         Task {
             await services.environmentService.loadURLsForActiveAccount()
         }

@@ -11,6 +11,8 @@ class MockStateService: StateService {
     var activeAccount: Account?
     var accounts: [Account]?
     var allowSyncOnRefresh = [String: Bool]()
+    var appLanguage: LanguageOption = .default
+    var appTheme: AppTheme?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
     var environmentUrls = [String: EnvironmentUrlData]()
@@ -19,10 +21,13 @@ class MockStateService: StateService {
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var showWebIcons = true
+    var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var rememberedOrgIdentifier: String?
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
+    lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
 
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
@@ -72,6 +77,10 @@ class MockStateService: StateService {
         try getActiveAccount().profile.userId
     }
 
+    func getAppTheme() async -> AppTheme {
+        appTheme ?? .default
+    }
+
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccount().profile.userId
         return allowSyncOnRefresh[userId] ?? false
@@ -102,6 +111,10 @@ class MockStateService: StateService {
         preAuthEnvironmentUrls
     }
 
+    func getShowWebIcons() async -> Bool {
+        showWebIcons
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return usernameGenerationOptions[userId]
@@ -128,6 +141,10 @@ class MockStateService: StateService {
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
+    }
+
+    func setAppTheme(_ appTheme: AppTheme) async {
+        self.appTheme = appTheme
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
@@ -160,6 +177,10 @@ class MockStateService: StateService {
         preAuthEnvironmentUrls = urls
     }
 
+    func setShowWebIcons(_ showWebIcons: Bool) async {
+        self.showWebIcons = showWebIcons
+    }
+
     func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
@@ -170,12 +191,18 @@ class MockStateService: StateService {
     }
 
     func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>> {
-        activeIdSubject
-            .eraseToAnyPublisher()
-            .values
+        activeIdSubject.eraseToAnyPublisher().values
+    }
+
+    func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
+        appThemeSubject.eraseToAnyPublisher()
     }
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
         lastSyncTimeSubject.eraseToAnyPublisher()
+    }
+
+    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+        showWebIconsSubject.eraseToAnyPublisher().values
     }
 }

@@ -14,6 +14,9 @@ class MockGeneratorRepository: GeneratorRepository {
     var passwordGeneratorRequest: PasswordGeneratorRequest?
     var passwordResult: Result<String, Error> = .success("PASSWORD")
 
+    var usernameGeneratorRequest: UsernameGeneratorRequest?
+    var usernameResult: Result<String, Error> = .success("USERNAME")
+
     var getPasswordGenerationOptionsCalled = false
     var getPasswordGenerationOptionsResult: Result<PasswordGenerationOptions, Error> =
         .success(PasswordGenerationOptions())
@@ -55,6 +58,11 @@ class MockGeneratorRepository: GeneratorRepository {
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String {
         passwordGeneratorRequest = settings
         return try passwordResult.get()
+    }
+
+    func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
+        usernameGeneratorRequest = settings
+        return try usernameResult.get()
     }
 
     func generateUsernamePlusAddressedEmail(email: String) async throws -> String {

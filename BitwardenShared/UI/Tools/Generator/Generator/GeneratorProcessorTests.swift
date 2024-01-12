@@ -133,6 +133,20 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
+    /// If an error occurs generating a password, an alert is shown.
+    func test_generatePassword_error() {
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .password
+
+        struct PasswordGeneratorError: Error {}
+        generatorRepository.passwordResult = .failure(PasswordGeneratorError())
+
+        subject.receive(.refreshGeneratedValue)
+
+        waitFor { !coordinator.alertShown.isEmpty }
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+    }
+
     /// Generating a new password validates the password options before generating the value.
     func test_generatePassword_validatesOptions() {
         subject.state.generatorType = .password
@@ -144,10 +158,24 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.state.passwordState.containsUppercase = false
 
         subject.receive(.refreshGeneratedValue)
-        waitFor { subject.state.passwordState.containsLowercase }
+        waitFor { generatorRepository.passwordGeneratorRequest != nil }
 
         XCTAssertTrue(subject.state.passwordState.containsLowercase)
         XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.lowercase, true)
+    }
+
+    /// If an error occurs generating an username, an alert is shown.
+    func test_generateUsername_error() {
+        subject.state.generatorType = .username
+        subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
+
+        struct UsernameGeneratorError: Error {}
+        generatorRepository.usernameResult = .failure(UsernameGeneratorError())
+
+        subject.receive(.refreshGeneratedValue)
+
+        waitFor { !coordinator.alertShown.isEmpty }
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
     }
 
     /// `init` loads the username generation options and doesn't change the defaults if the options
@@ -381,27 +409,31 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(passwordHistory.lastUsedDate.timeIntervalSince1970, Date().timeIntervalSince1970, accuracy: 0.1)
     }
 
-    /// `receive(_:)` with `.selectButtonPressed` navigates to the `.complete` route.
-    func test_receive_selectButtonPressed() {
-        subject.state.generatorType = .password
-        subject.state.generatedValue = "password"
-        subject.receive(.selectButtonPressed)
-        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
-    }
-
-    /// `receive(_:)` with `.refreshGeneratedValue` generates a new plus addressed email.
-    func test_receive_refreshGeneratedValue_usernamePlusAddressedEmail() {
+    /// `receive(_:)` with `.refreshGeneratedValue` generates a new username.
+    func test_receive_refreshGeneratedValue_username() throws {
         subject.state.generatorType = .username
         subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
         subject.state.usernameState.email = "user@bitwarden.com"
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { !subject.state.generatedValue.isEmpty }
+        waitFor { subject.state.generatedValue == "USERNAME" }
 
-        XCTAssertEqual(generatorRepository.usernamePlusAddressEmail, "user@bitwarden.com")
-        XCTAssertEqual(subject.state.generatedValue, "user+abcd0123@bitwarden.com")
+        XCTAssertEqual(
+            generatorRepository.usernameGeneratorRequest,
+            UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com")
+        )
+
+        XCTAssertEqual(subject.state.generatedValue, "USERNAME")
         XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
+    }
+
+    /// `receive(_:)` with `.selectButtonPressed` navigates to the `.complete` route.
+    func test_receive_selectButtonPressed() {
+        subject.state.generatorType = .password
+        subject.state.generatedValue = "password"
+        subject.receive(.selectButtonPressed)
+        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.
@@ -450,9 +482,12 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(generatorRepository.usernamePlusAddressEmail)
 
         subject.receive(.textFieldFocusChanged(keyPath: nil))
-        waitFor { !subject.state.generatedValue.isEmpty }
-        XCTAssertEqual(generatorRepository.usernamePlusAddressEmail, "user@bitwarden.com")
-        XCTAssertEqual(subject.state.generatedValue, "user+abcd0123@bitwarden.com")
+        waitFor { subject.state.generatedValue == "USERNAME" }
+        XCTAssertEqual(
+            generatorRepository.usernameGeneratorRequest,
+            UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com")
+        )
+        XCTAssertEqual(subject.state.generatedValue, "USERNAME")
     }
 
     /// `receive(_:)` with `.textFieldIsPasswordVisibleChanged` updates the states value for whether
@@ -655,6 +690,17 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             errorReporter.errors[0] as NSError,
             BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount)
         )
+    }
+
+    /// A new value should only be generated when focus leaves a text field, and not when a text
+    /// field becomes focused.
+    func test_shouldGenerateNewValue_textFieldFocusChanged() {
+        XCTAssertFalse(
+            GeneratorAction.textFieldFocusChanged(keyPath: \.passwordState.wordSeparator)
+                .shouldGenerateNewValue
+        )
+
+        XCTAssertTrue(GeneratorAction.textFieldFocusChanged(keyPath: nil).shouldGenerateNewValue)
     }
 
     // MARK: Private

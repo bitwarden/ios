@@ -38,6 +38,14 @@ extension TextFieldConfiguration {
         textInputAutocapitalization: .never
     )
 
+    /// A `TextFieldConfiguration` for applying common properties to phone text fields.
+    static let phone = TextFieldConfiguration(
+        isAutocorrectionDisabled: true,
+        keyboardType: .numberPad,
+        textContentType: .telephoneNumber,
+        textInputAutocapitalization: .never
+    )
+
     /// A `TextFieldConfiguration` for applying common properties to URL text fields.
     static let url = TextFieldConfiguration(
         isAutocorrectionDisabled: true,

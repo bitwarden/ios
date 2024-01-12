@@ -1,0 +1,64 @@
+import SnapshotTesting
+import XCTest
+
+// MARK: - SelectLanguageViewTests
+
+@testable import BitwardenShared
+
+class SelectLanguageViewTests: BitwardenTestCase {
+    // MARK: Properties
+
+    var processor: MockProcessor<SelectLanguageState, SelectLanguageAction, Void>!
+    var subject: SelectLanguageView!
+
+    // MARK: Setup & Teardown
+
+    override func setUp() {
+        super.setUp()
+
+        processor = MockProcessor(state: SelectLanguageState())
+        let store = Store(processor: processor)
+
+        subject = SelectLanguageView(store: store)
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        processor = nil
+        subject = nil
+    }
+
+    // MARK: Tests
+
+    /// Tapping the cancel button dispatches the `.dismiss` action.
+    func test_cancelButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.cancel)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+    }
+
+    /// Tapping a language button dispatches the `.languageTapped(_)` action.
+    func test_languageButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.defaultSystem)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .languageTapped(.default))
+    }
+
+    // MARK: Snapshots
+
+    /// Test that the default view renders correctly.
+    func test_snapshot_default() {
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+    }
+
+    /// Test that the default view renders correctly.
+    func test_snapshot_default_dark() {
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitDark)
+    }
+
+    /// Test that the default view renders correctly.
+    func test_snapshot_default_large() {
+        assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5())
+    }
+}

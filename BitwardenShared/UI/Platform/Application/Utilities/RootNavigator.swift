@@ -6,6 +6,9 @@ import UIKit
 ///
 @MainActor
 public protocol RootNavigator: Navigator {
+    /// The app's theme.
+    var appTheme: AppTheme { get set }
+
     /// Shows the specified child navigator.
     ///
     /// - Parameter child: The navigator to show.
@@ -15,6 +18,10 @@ public protocol RootNavigator: Navigator {
 // MARK: - RootViewController
 
 extension RootViewController: RootNavigator {
+    override public var preferredStatusBarStyle: UIStatusBarStyle {
+        appTheme.statusBarStyle
+    }
+
     public var rootViewController: UIViewController? {
         self
     }
