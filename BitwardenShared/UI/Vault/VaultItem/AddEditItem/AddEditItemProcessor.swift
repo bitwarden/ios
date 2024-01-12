@@ -112,8 +112,8 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
                 // TODO: BIT-364
                 print("attachments")
             case .clone:
-                // TODO: BIT-365
-                print("clone")
+                // we don't show clone option in edit item state
+                break
             case .editCollections:
                 coordinator.navigate(to: .editCollections(state.cipher), context: self)
             case .moveToOrganization:

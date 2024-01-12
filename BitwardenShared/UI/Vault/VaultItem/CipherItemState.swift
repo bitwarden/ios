@@ -203,6 +203,25 @@ struct CipherItemState: Equatable {
         )
     }
 
+    init(cloneItem cipherView: CipherView, hasPremium: Bool, totpTime: TOTPTime) {
+        self.init(
+            accountHasPremium: hasPremium,
+            allowTypeSelection: false,
+            cardState: cipherView.cardItemState(),
+            configuration: .add,
+            customFields: cipherView.customFields,
+            folderId: cipherView.folderId,
+            identityState: cipherView.identityItemState(),
+            isFavoriteOn: cipherView.favorite,
+            isMasterPasswordRePromptOn: cipherView.reprompt == .password,
+            loginState: cipherView.loginItemState(showTOTP: hasPremium, totpTime: totpTime),
+            name: "\(cipherView.name) - \(Localizations.clone)",
+            notes: cipherView.notes ?? "",
+            type: .init(type: cipherView.type),
+            updatedDate: cipherView.revisionDate
+        )
+    }
+
     init?(existing cipherView: CipherView, hasPremium: Bool, totpTime: TOTPTime) {
         guard cipherView.id != nil else { return nil }
         self.init(
