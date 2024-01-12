@@ -63,7 +63,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
 
     func test_notesTextField_updated() throws {
         processor.state.isOptionsExpanded = true
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.notes)
+        let textField = try subject.inspect().find(bitwardenMultilineTextField: Localizations.notes)
         try textField.inputBinding().wrappedValue = "Notes"
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("Notes"))
     }
@@ -81,7 +81,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
     }
 
     func test_textTextField_updated() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.text)
+        let textField = try subject.inspect().find(bitwardenMultilineTextField: Localizations.text)
         try textField.inputBinding().wrappedValue = "Text"
         XCTAssertEqual(processor.dispatchedActions.last, .textChanged("Text"))
     }

@@ -12,7 +12,7 @@ struct AddEditSendItemView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 16) {
                 nameField
 
                 typePicker
@@ -191,7 +191,7 @@ struct AddEditSendItemView: View {
         )
         .textFieldConfiguration(.password)
 
-        BitwardenTextField(
+        BitwardenMultilineTextField(
             title: Localizations.notes,
             text: store.binding(
                 get: \.notes,
@@ -242,7 +242,7 @@ struct AddEditSendItemView: View {
 
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
-        BitwardenTextField(
+        BitwardenMultilineTextField(
             title: Localizations.text,
             text: store.binding(
                 get: \.text,
