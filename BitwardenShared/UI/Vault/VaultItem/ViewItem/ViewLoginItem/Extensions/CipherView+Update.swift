@@ -101,11 +101,7 @@ extension CipherView {
             isTOTPAvailable: showTOTP,
             password: login?.password ?? "",
             passwordUpdatedDate: login?.passwordRevisionDate,
-            totpState: LoginTOTPState(
-                TOTPKeyModel(
-                    authenticatorKey: login?.totp ?? ""
-                )
-            ),
+            totpState: .init(login?.totp),
             uris: login?.uris?.map(UriState.init) ?? [],
             username: login?.username ?? ""
         )

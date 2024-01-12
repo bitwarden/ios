@@ -72,11 +72,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
                     ?? false
-                var totpState = LoginTOTPState(
-                    .init(authenticatorKey: value.login?.totp ?? "")
-                )
-                if let key = totpState?.authKeyModel {
-                    totpState = try? await services.vaultRepository.refreshTOTPCode(for: key)
+                var totpState = LoginTOTPState(value.login?.totp)
+                if let key = totpState.authKeyModel,
+                   let updatedState = try? await services.vaultRepository.refreshTOTPCode(for: key) {
+                    totpState = updatedState
                 }
                 guard var newState = ViewItemState(
                     cipherView: value,
@@ -278,23 +277,24 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// Updates the TOTP Code for the view
     ///
     private func updateTOTPCode() async {
+        // Only update the code if there is a valid TOTP key model.
         guard case let .data(cipherItemState) = state.loadingState,
-              let calculationKey = cipherItemState.loginState.totpState?.authKeyModel else { return }
+              let calculationKey = cipherItemState.loginState.totpState.authKeyModel else { return }
         do {
+            // Get an updated TOTP code for the present key model.
             let newLoginTOTP = try await services.vaultRepository.refreshTOTPCode(for: calculationKey)
+
+            // Don't update the state if the state is presently loading.
             guard case let .data(cipherItemState) = state.loadingState else { return }
+
+            // Make a copy for the update.
             var updatedState = cipherItemState
-            guard let currentKey = cipherItemState.loginState.totpState?.authKeyModel else {
-                updatedState.loginState.totpState = nil
-                state.loadingState = .data(updatedState)
-                return
-            }
-            if currentKey == newLoginTOTP.authKeyModel {
-                updatedState.loginState.totpState = newLoginTOTP
-                state.loadingState = .data(updatedState)
-            } else {
-                await updateTOTPCode()
-            }
+
+            // Update the copy with the new TOTP state.
+            updatedState.loginState.totpState = newLoginTOTP
+
+            // Set the loading state with the updated model.
+            state.loadingState = .data(updatedState)
         } catch {
             services.errorReporter.log(error: error)
         }

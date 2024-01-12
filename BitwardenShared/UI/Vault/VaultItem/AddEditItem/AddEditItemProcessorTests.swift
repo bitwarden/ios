@@ -89,7 +89,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `didCompleteCapture` with a value updates the state with the new auth key value
     /// and navigates to the `.dismiss` route.
     func test_didCompleteCapture_failure() {
-        subject.state.loginState.totpState = nil
+        subject.state.loginState.totpState = .none
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: "1234")
@@ -116,7 +116,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `didCompleteCapture` with a value updates the state with the new auth key value
     /// and navigates to the `.dismiss()` route.
     func test_didCompleteCapture_success() throws {
-        subject.state.loginState.totpState = nil
+        subject.state.loginState.totpState = .none
         let key = String.base32Key
         let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
         totpService.getTOTPConfigResult = .success(keyConfig)
@@ -173,9 +173,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// Tapping the copy button on the auth key row dispatches the `.copyPassword` action.
     func test_perform_copyTotp() async throws {
-        subject.state.loginState.totpState = LoginTOTPState(
-            .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
-        )
+        subject.state.loginState.totpState = LoginTOTPState("JBSWY3DPEHPK3PXP")
 
         await subject.perform(.copyTotpPressed)
         XCTAssertEqual(
@@ -531,9 +529,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
     func test_receive_clearTOTPKey() {
-        subject.state.loginState.totpState = LoginTOTPState(
-            .init(authenticatorKey: .base32Key)!
-        )
+        subject.state.loginState.totpState = LoginTOTPState(.base32Key)
         subject.receive(.totpKeyChanged(nil))
 
         XCTAssertNil(subject.state.loginState.authenticatorKey)
@@ -860,6 +856,40 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         subject.receive(.togglePasswordVisibilityChanged(false))
         XCTAssertFalse(subject.state.loginState.isPasswordVisible)
+    }
+
+    /// `receive(_:)` with `.totpFieldLeftFocus` clears the authenticator key.
+    func test_receive_totpFieldLeftFocus_invalidKey() throws {
+        let badKey = "pasta batman"
+        subject.state.loginState.totpState = LoginTOTPState(badKey)
+        subject.receive(.totpFieldLeftFocus)
+
+        XCTAssertNil(subject.state.loginState.totpState.authKeyModel?.rawAuthenticatorKey)
+        XCTAssertEqual(badKey, subject.state.loginState.totpState.rawAuthenticatorKeyString)
+        waitFor(!coordinator.routes.isEmpty)
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.authenticatorKeyReadError)
+        XCTAssertNil(alert.message)
+        XCTAssertEqual(
+            alert.alertActions,
+            [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
+    /// `receive(_:)` with `.totpFieldLeftFocus` clears the authenticator key.
+    func test_receive_totpFieldLeftFocus_validKey() {
+        subject.state.loginState.totpState = LoginTOTPState(.base32Key)
+        subject.receive(.totpFieldLeftFocus)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        switch subject.state.loginState.totpState {
+        case let .key(keyModel):
+            XCTAssertEqual(keyModel.rawAuthenticatorKey, .base32Key)
+        default:
+            XCTFail("Unexpected State")
+        }
     }
 
     /// `receive(_:)` with `.typeChanged` updates the state correctly.

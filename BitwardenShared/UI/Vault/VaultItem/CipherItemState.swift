@@ -180,6 +180,7 @@ struct CipherItemState: Equatable {
         addItem type: CipherType = .login,
         allowTypeSelection: Bool = true,
         hasPremium: Bool,
+        totpKeyString: String? = nil,
         uri: String? = nil
     ) {
         self.init(
@@ -194,6 +195,7 @@ struct CipherItemState: Equatable {
             isMasterPasswordRePromptOn: false,
             loginState: .init(
                 isTOTPAvailable: hasPremium,
+                totpState: .init(totpKeyString),
                 uris: [UriState(uri: uri ?? "")]
             ),
             name: uri.flatMap(URL.init)?.host ?? "",

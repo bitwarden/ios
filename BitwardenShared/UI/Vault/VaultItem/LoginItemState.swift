@@ -23,7 +23,7 @@ struct LoginItemState: Equatable {
     var passwordUpdatedDate: Date?
 
     /// The TOTP key/code state.
-    var totpState: LoginTOTPState?
+    var totpState: LoginTOTPState
 
     /// The uris associated with this item. Used with autofill.
     var uris: [UriState] = [UriState()]
@@ -33,7 +33,7 @@ struct LoginItemState: Equatable {
 
     /// The TOTP Key.
     var authenticatorKey: String? {
-        totpState?.authKeyModel.rawAuthenticatorKey
+        totpState.rawAuthenticatorKeyString
     }
 
     /// BitwardenSDK loginView representation of loginItemState.
@@ -58,6 +58,6 @@ extension LoginItemState {
 
 extension LoginItemState: ViewLoginItemState {
     var totpCode: TOTPCodeModel? {
-        totpState?.codeModel
+        totpState.codeModel
     }
 }
