@@ -407,7 +407,7 @@ extension Send {
             name: sendView.name,
             notes: sendView.notes,
             key: sendView.key ?? "",
-            password: sendView.password,
+            password: sendView.newPassword,
             type: sendView.type,
             file: sendView.file.map(SendFile.init),
             text: sendView.text.map(SendText.init),
