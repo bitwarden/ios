@@ -16,6 +16,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: VaultGroupProcessor!
+    var timeProvider: MockTimeProvider!
     var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
@@ -27,8 +28,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
+        timeProvider = MockTimeProvider(.mockTime(mockPresentTime))
         vaultRepository = MockVaultRepository()
-        vaultRepository.mockTimeProvider = .init(mockTime: mockPresentTime)
 
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),

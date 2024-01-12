@@ -41,7 +41,7 @@ class MockVaultRepository: VaultRepository {
     var sharedCiphers = [CipherView]()
     var softDeletedCipher = [CipherView]()
     var softDeleteCipherResult: Result<Void, Error> = .success(())
-    var mockTimeProvider = MockTimeProvider()
+    var mockTimeProvider = MockTimeProvider(.currentTime)
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
     var updateCipherCollectionsCiphers = [CipherView]()
@@ -178,8 +178,26 @@ class MockVaultRepository: VaultRepository {
 
 // MARK: - MockTimeProvider
 
-struct MockTimeProvider {
-    var mockTime: Date?
+class MockTimeProvider {
+    enum TimeConfig {
+        case currentTime
+        case mockTime(Date)
+
+        var date: Date {
+            switch self {
+            case .currentTime:
+                return .now
+            case let .mockTime(fixedDate):
+                return fixedDate
+            }
+        }
+    }
+
+    var timeConfig: TimeConfig
+
+    init(_ timeConfig: TimeConfig) {
+        self.timeConfig = timeConfig
+    }
 }
 
 extension MockTimeProvider: Equatable {
@@ -190,7 +208,7 @@ extension MockTimeProvider: Equatable {
 
 extension MockTimeProvider: TimeProvider {
     var presentTime: Date {
-        mockTime ?? .now
+        timeConfig.date
     }
 
     func timeSince(_ date: Date) -> TimeInterval {

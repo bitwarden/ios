@@ -106,7 +106,7 @@ struct ViewItemView: View {
 // MARK: Previews
 
 #if DEBUG
-struct PreviewTimeProvider: TimeProvider {
+class PreviewTimeProvider: TimeProvider {
     var fixedDate: Date
 
     var presentTime: Date {

@@ -10,6 +10,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     typealias Services = HasErrorReporter
         & HasPasteboardService
         & HasStateService
+        & HasTimeProvider
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -42,7 +43,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
 
         super.init(state: state)
         totpExpirationManager = .init(
-            timeProvider: services.vaultRepository.timeProvider,
+            timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
                 Task {
@@ -67,7 +68,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                     .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
                 totpExpirationManager?.configureTOTPRefreshScheduling(
                     for: sortedValues,
-                    timeProvider: services.vaultRepository.timeProvider
+                    timeProvider: services.timeProvider
                 )
                 state.loadingState = .data(sortedValues)
             }
@@ -118,7 +119,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             let allItems = currentItems.updated(with: refreshedItems)
             totpExpirationManager?.configureTOTPRefreshScheduling(
                 for: allItems,
-                timeProvider: services.vaultRepository.timeProvider
+                timeProvider: services.timeProvider
             )
             state.loadingState = .data(allItems)
         } catch {

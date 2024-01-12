@@ -19,7 +19,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         let state = VaultListItemRowState(item: .fixture(), hasDivider: false, showWebIcons: true)
         processor = MockProcessor(state: state)
         let store = Store(processor: processor)
-        timeProvider = MockTimeProvider(mockTime: Date(year: 2023, month: 12, day: 31))
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2023, month: 12, day: 31)))
         subject = VaultListItemRowView(store: store, timeProvider: timeProvider)
     }
 

@@ -32,7 +32,7 @@ class VaultListViewTests: BitwardenTestCase {
             )
         )
         processor = MockProcessor(state: state)
-        timeProvider = MockTimeProvider(mockTime: Date(year: 2023, month: 12, day: 31))
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2023, month: 12, day: 31)))
         subject = VaultListView(
             store: Store(processor: processor),
             timeProvider: timeProvider

@@ -5,12 +5,6 @@ import Foundation
 /// A protocol for a `VaultRepository` which manages access to the data needed by the UI layer.
 ///
 protocol VaultRepository: AnyObject {
-    // MARK: Parameters
-
-    /// Provides the present time for TOTP Code Calculation
-    ///
-    var timeProvider: any TimeProvider { get }
-
     // MARK: API Methods
 
     /// Performs an API request to sync the user's vault data. The publishers in the repository can
