@@ -319,8 +319,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                 deletedDate: nil,
                 revisionDate: fixedDate
             ),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
         return state
@@ -405,8 +404,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                         state: {
                             var state = cipherState
                             state.loginState.totpState = .init(
-                                .init(authenticatorKey: "JBSWY3DPEHPK3PXP")!,
-                                time: .currentTime
+                                .init(authenticatorKey: "JBSWY3DPEHPK3PXP")!
                             )
                             state.toast = Toast(text: "Authenticator key added.")
                             return state

@@ -452,8 +452,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                     code: "",
                     codeGenerationDate: .init(year: 2023, month: 12, day: 31),
                     period: 30
-                ),
-                totpTime: .init(provider: vaultRepository.mockTimeProvider)
+                )
             )
         )
         let expectedUpdate = VaultListItem.fixtureTOTP(
@@ -463,8 +462,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                     code: "345678",
                     codeGenerationDate: mockPresentTime,
                     period: 30
-                ),
-                totpTime: .init(provider: vaultRepository.mockTimeProvider)
+                )
             )
         )
         let newResults: [VaultListItem] = [
@@ -476,8 +474,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                         code: "345678",
                         codeGenerationDate: mockPresentTime,
                         period: 30
-                    ),
-                    totpTime: .init(provider: vaultRepository.mockTimeProvider)
+                    )
                 )
             ),
         ]
@@ -492,8 +489,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                     code: "",
                     codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 31),
                     period: 30
-                ),
-                totpTime: .init(provider: vaultRepository.mockTimeProvider)
+                )
             )
         )
         vaultRepository.vaultListGroupSubject.send([
@@ -524,8 +520,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                     code: "",
                     codeGenerationDate: .distantPast,
                     period: 30
-                ),
-                totpTime: .currentTime
+                )
             )
         )
         vaultRepository.refreshTOTPCodesResult = .failure(TestError())

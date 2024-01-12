@@ -10,6 +10,9 @@ struct VaultListItemRowView: View {
     /// The `Store` for this view.
     var store: Store<VaultListItemRowState, VaultListItemRowAction, Void>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 16) {
@@ -139,7 +142,7 @@ struct VaultListItemRowView: View {
         }
         Spacer()
         TOTPCountdownTimerView(
-            timeProvider: model.totpTime.provider,
+            timeProvider: timeProvider,
             totpCode: model.totpCode,
             onExpiration: nil
         )

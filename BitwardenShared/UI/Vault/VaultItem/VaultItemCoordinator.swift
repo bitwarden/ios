@@ -164,8 +164,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             ) ?? false
             let state = CipherItemState(
                 cloneItem: cipherView,
-                hasPremium: hasPremium,
-                totpTime: TOTPTime(provider: services.vaultRepository.timeProvider)
+                hasPremium: hasPremium
             )
             if stackNavigator.isEmpty {
                 let processor = AddEditItemProcessor(
@@ -208,8 +207,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         if stackNavigator.isEmpty {
             guard let state = CipherItemState(
                 existing: cipherView,
-                hasPremium: hasPremium,
-                totpTime: TOTPTime(provider: services.vaultRepository.timeProvider)
+                hasPremium: hasPremium
             ) else { return }
 
             let processor = AddEditItemProcessor(

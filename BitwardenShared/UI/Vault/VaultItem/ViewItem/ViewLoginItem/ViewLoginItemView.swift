@@ -13,6 +13,9 @@ struct ViewLoginItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ViewLoginItemState, ViewItemAction, ViewItemEffect>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     var body: some View {
         if !store.state.username.isEmpty {
             let username = store.state.username
@@ -80,7 +83,7 @@ struct ViewLoginItemView: View {
                 },
                 accessoryContent: {
                     TOTPCountdownTimerView(
-                        timeProvider: store.state.time.provider,
+                        timeProvider: timeProvider,
                         totpCode: totpModel,
                         onExpiration: {
                             Task {

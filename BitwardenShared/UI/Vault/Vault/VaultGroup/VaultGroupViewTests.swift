@@ -11,19 +11,25 @@ class VaultGroupViewTests: BitwardenTestCase {
 
     var processor: MockProcessor<VaultGroupState, VaultGroupAction, VaultGroupEffect>!
     var subject: VaultGroupView!
+    var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
         processor = MockProcessor(state: VaultGroupState())
-        subject = VaultGroupView(store: Store(processor: processor))
+        timeProvider = MockTimeProvider(mockTime: Date(year: 2023, month: 12, day: 31))
+        subject = VaultGroupView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
     }
 
     override func tearDown() {
         super.tearDown()
         processor = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests

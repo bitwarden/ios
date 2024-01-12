@@ -11,37 +11,28 @@ struct LoginTOTPState: Equatable {
     ///
     var codeModel: TOTPCodeModel?
 
-    /// The model used to provide time for a TOTP code expiration check.
-    ///
-    let totpTime: TOTPTime
-
     /// Initializes a LoginTOTPState model.
     ///
     /// - Parameters:
     ///   - authKeyModel: The TOTP key model.
     ///   - codeModel: The TOTP code model. Defaults to `nil`.
-    ///   - totpTime: The TimeProvider used to calculate code expiration.
     ///
     init(
         authKeyModel: TOTPKeyModel,
-        codeModel: TOTPCodeModel? = nil,
-        totpTime: TOTPTime
+        codeModel: TOTPCodeModel? = nil
     ) {
         self.authKeyModel = authKeyModel
         self.codeModel = codeModel
-        self.totpTime = totpTime
     }
 
     /// Optionally Initializes a LoginTOTPState model without a current code.
     ///
     /// - Parameters:
     ///   - authKeyModel: The optional TOTP key model.
-    ///   - totpTime: The TimeProvider used to calculate code expiration.
     ///
-    init?(_ authKeyModel: TOTPKeyModel?, time: TOTPTime) {
+    init?(_ authKeyModel: TOTPKeyModel?) {
         guard let authKeyModel else { return nil }
         self.authKeyModel = authKeyModel
         codeModel = nil
-        totpTime = time
     }
 }

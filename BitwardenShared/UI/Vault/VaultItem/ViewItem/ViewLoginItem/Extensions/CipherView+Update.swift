@@ -91,10 +91,10 @@ extension CipherView {
     /// - Parameters:
     ///   - showPassword: A Boolean value indicating whether the password should be visible.
     ///   - showTOTP: A Boolean value indicating whether TOTP should be visible.
-    ///   - totpTime: The time used in TOTP code expiration management.
+    ///
     /// - Returns: A `LoginItemState` representing the login information of the cipher.
     ///
-    func loginItemState(showPassword: Bool = false, showTOTP: Bool, totpTime: TOTPTime) -> LoginItemState {
+    func loginItemState(showPassword: Bool = false, showTOTP: Bool) -> LoginItemState {
         LoginItemState(
             canViewPassword: viewPassword,
             isPasswordVisible: showPassword,
@@ -104,8 +104,7 @@ extension CipherView {
             totpState: LoginTOTPState(
                 TOTPKeyModel(
                     authenticatorKey: login?.totp ?? ""
-                ),
-                time: totpTime
+                )
             ),
             uris: login?.uris?.map(UriState.init) ?? [],
             username: login?.username ?? ""

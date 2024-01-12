@@ -52,8 +52,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.loginState.totpState = LoginTOTPState(
             .init(
                 authenticatorKey: "JBSWY3DPEHPK3PXP"
-            ),
-            time: .currentTime
+            )
         )
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.copyTotp)
         try await button.tap()
@@ -65,8 +64,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_dismissButton_tap() throws {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close)
         try button.tap()
@@ -208,8 +206,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
     func test_setupTotpButton_withKey_tap() async throws {
         processor.state.loginState.totpState = LoginTOTPState(
-            .init(authenticatorKey: "JBSWY3DPEHPK3PXP"),
-            time: .currentTime
+            .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
         )
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.setupTotp)
         try await button.tap()
@@ -571,8 +568,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_snapshot_edit_full_fieldsNotVisible() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         processor.state.loginState = .fixture(
             isPasswordVisible: false,
@@ -609,8 +605,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_snapshot_edit_full_disabledViewPassword() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         processor.state.loginState = .fixture(
             canViewPassword: false,
@@ -636,8 +631,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_snapshot_edit_full_fieldsNotVisible_largeText() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         processor.state.loginState = .fixture(
             isPasswordVisible: false,
@@ -662,8 +656,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_snapshot_edit_full_fieldsVisible() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         processor.state.type = .login
         processor.state.name = "Name"
@@ -688,8 +681,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_snapshot_edit_full_fieldsVisible_largeText() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         processor.state.loginState = .fixture(
             isPasswordVisible: true,

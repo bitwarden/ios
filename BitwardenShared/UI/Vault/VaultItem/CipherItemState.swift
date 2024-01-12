@@ -203,7 +203,7 @@ struct CipherItemState: Equatable {
         )
     }
 
-    init(cloneItem cipherView: CipherView, hasPremium: Bool, totpTime: TOTPTime) {
+    init(cloneItem cipherView: CipherView, hasPremium: Bool) {
         self.init(
             accountHasPremium: hasPremium,
             allowTypeSelection: false,
@@ -214,7 +214,7 @@ struct CipherItemState: Equatable {
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
-            loginState: cipherView.loginItemState(showTOTP: hasPremium, totpTime: totpTime),
+            loginState: cipherView.loginItemState(showTOTP: hasPremium),
             name: "\(cipherView.name) - \(Localizations.clone)",
             notes: cipherView.notes ?? "",
             type: .init(type: cipherView.type),
@@ -222,7 +222,7 @@ struct CipherItemState: Equatable {
         )
     }
 
-    init?(existing cipherView: CipherView, hasPremium: Bool, totpTime: TOTPTime) {
+    init?(existing cipherView: CipherView, hasPremium: Bool) {
         guard cipherView.id != nil else { return nil }
         self.init(
             accountHasPremium: hasPremium,
@@ -234,7 +234,7 @@ struct CipherItemState: Equatable {
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
-            loginState: cipherView.loginItemState(showTOTP: hasPremium, totpTime: totpTime),
+            loginState: cipherView.loginItemState(showTOTP: hasPremium),
             name: cipherView.name,
             notes: cipherView.notes ?? "",
             type: .init(type: cipherView.type),

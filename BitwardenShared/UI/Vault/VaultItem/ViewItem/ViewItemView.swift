@@ -87,7 +87,8 @@ struct ViewItemView: View {
                         state: { _ in state },
                         mapAction: { $0 },
                         mapEffect: { $0 }
-                    )
+                    ),
+                    timeProvider: PreviewTimeProvider()
                 )
             }
             .padding(16)
@@ -105,17 +106,27 @@ struct ViewItemView: View {
 // MARK: Previews
 
 #if DEBUG
-struct ViewItemView_Previews: PreviewProvider {
-    struct PreviewTimeProvider: TimeProvider {
-        var presentTime: Date {
-            .init(timeIntervalSinceReferenceDate: 1_695_000_011)
-        }
+struct PreviewTimeProvider: TimeProvider {
+    var fixedDate: Date
 
-        func timeSince(_ date: Date) -> TimeInterval {
-            presentTime.timeIntervalSince(date)
-        }
+    var presentTime: Date {
+        fixedDate
     }
 
+    func timeSince(_ date: Date) -> TimeInterval {
+        presentTime.timeIntervalSince(date)
+    }
+
+    init(
+        fixedDate: Date = .init(
+            timeIntervalSinceReferenceDate: 1_695_000_011
+        )
+    ) {
+        self.fixedDate = fixedDate
+    }
+}
+
+struct ViewItemView_Previews: PreviewProvider {
     static var cipher = CipherView(
         id: "123",
         organizationId: nil,
@@ -153,8 +164,7 @@ struct ViewItemView_Previews: PreviewProvider {
     static var cardState: CipherItemState {
         var state = CipherItemState(
             existing: cipher,
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         state.type = CipherType.card
         state.isMasterPasswordRePromptOn = true
@@ -175,10 +185,7 @@ struct ViewItemView_Previews: PreviewProvider {
     static var loginState: CipherItemState {
         var state = CipherItemState(
             existing: cipher,
-            hasPremium: true,
-            totpTime: .init(
-                provider: PreviewTimeProvider()
-            )
+            hasPremium: true
         )!
         state.customFields = [
             CustomFieldState(
@@ -203,8 +210,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 code: "032823",
                 codeGenerationDate: .init(timeIntervalSinceReferenceDate: 1_695_000_000),
                 period: 30
-            ),
-            totpTime: TOTPTime(provider: PreviewTimeProvider())
+            )
         )
         state.loginState.username = "email@example.com"
         return state

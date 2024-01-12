@@ -154,7 +154,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             )
         )
         let store = Store(processor: processor)
-        let view = VaultGroupView(store: store)
+        let view = VaultGroupView(
+            store: store,
+            timeProvider: services.vaultRepository.timeProvider
+        )
         let viewController = UIHostingController(rootView: view)
 
         stackNavigator.push(
@@ -178,7 +181,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 )
             )
             let store = Store(processor: processor)
-            let view = VaultListView(store: store)
+            let view = VaultListView(
+                store: store,
+                timeProvider: services.vaultRepository.timeProvider
+            )
             stackNavigator.replace(view, animated: false)
         }
     }

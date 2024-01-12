@@ -48,14 +48,12 @@ extension VaultListTOTP {
             code: "123456",
             codeGenerationDate: Date(),
             period: 30
-        ),
-        totpTime: TOTPTime = .currentTime
+        )
     ) -> VaultListTOTP {
         VaultListTOTP(
             id: id,
             loginView: loginView,
-            totpCode: totpCode,
-            totpTime: totpTime
+            totpCode: totpCode
         )
     }
 }

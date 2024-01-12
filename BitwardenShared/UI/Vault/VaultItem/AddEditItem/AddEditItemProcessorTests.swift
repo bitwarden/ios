@@ -174,8 +174,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// Tapping the copy button on the auth key row dispatches the `.copyPassword` action.
     func test_perform_copyTotp() async throws {
         subject.state.loginState.totpState = LoginTOTPState(
-            .init(authenticatorKey: "JBSWY3DPEHPK3PXP"),
-            time: .currentTime
+            .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
         )
 
         await subject.perform(.copyTotpPressed)
@@ -188,7 +187,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
     /// generic error alert if soft deleting fails.
     func test_perform_deletePressed_genericError() async throws {
-        subject.state = CipherItemState(existing: .fixture(id: "123"), hasPremium: false, totpTime: .currentTime)!
+        subject.state = CipherItemState(existing: .fixture(id: "123"), hasPremium: false)!
         struct TestError: Error, Equatable {}
         vaultRepository.softDeleteCipherResult = .failure(TestError())
         await subject.perform(.deletePressed)
@@ -214,8 +213,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_perform_deletePressed_success() async throws {
         subject.state = CipherItemState(
             existing: .fixture(id: "123"),
-            hasPremium: false,
-            totpTime: .currentTime
+            hasPremium: false
         )!
         vaultRepository.softDeleteCipherResult = .success(())
         await subject.perform(.deletePressed)
@@ -457,8 +455,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let cipher = CipherView.fixture(id: "123")
         let maybeCipherState = CipherItemState(
             existing: cipher,
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )
         let cipherState = try XCTUnwrap(maybeCipherState)
         struct EncryptError: Error, Equatable {}
@@ -476,8 +473,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let cipher = CipherView.fixture(id: "123")
         let maybeCipherState = CipherItemState(
             existing: cipher,
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )
         let cipherState = try XCTUnwrap(maybeCipherState)
         vaultRepository.updateCipherResult = .success(())
@@ -536,8 +532,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
     func test_receive_clearTOTPKey() {
         subject.state.loginState.totpState = LoginTOTPState(
-            .init(authenticatorKey: .base32Key)!,
-            time: .currentTime
+            .init(authenticatorKey: .base32Key)!
         )
         subject.receive(.totpKeyChanged(nil))
 
@@ -725,8 +720,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state = try XCTUnwrap(
             CipherItemState(
                 existing: cipher,
-                hasPremium: true,
-                totpTime: .currentTime
+                hasPremium: true
             )
         )
 
@@ -743,8 +737,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state = try XCTUnwrap(
             CipherItemState(
                 existing: cipher,
-                hasPremium: false,
-                totpTime: .currentTime
+                hasPremium: false
             )
         )
 

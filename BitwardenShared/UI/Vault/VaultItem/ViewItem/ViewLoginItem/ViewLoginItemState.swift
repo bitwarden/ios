@@ -23,9 +23,6 @@ protocol ViewLoginItemState: Sendable {
     /// The date the password was last updated.
     var passwordUpdatedDate: Date? { get }
 
-    /// A model to provide reference times for TOTP code exipration
-    var time: TOTPTime { get }
-
     /// The TOTP code model
     var totpCode: TOTPCodeModel? { get }
 

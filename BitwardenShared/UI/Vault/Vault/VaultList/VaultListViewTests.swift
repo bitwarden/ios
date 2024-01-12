@@ -13,6 +13,7 @@ class VaultListViewTests: BitwardenTestCase {
 
     var processor: MockProcessor<VaultListState, VaultListAction, VaultListEffect>!
     var subject: VaultListView!
+    var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
 
@@ -31,7 +32,11 @@ class VaultListViewTests: BitwardenTestCase {
             )
         )
         processor = MockProcessor(state: state)
-        subject = VaultListView(store: Store(processor: processor))
+        timeProvider = MockTimeProvider(mockTime: Date(year: 2023, month: 12, day: 31))
+        subject = VaultListView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
     }
 
     override func tearDown() {
@@ -39,6 +44,7 @@ class VaultListViewTests: BitwardenTestCase {
 
         processor = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests

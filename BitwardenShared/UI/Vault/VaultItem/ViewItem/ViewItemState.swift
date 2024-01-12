@@ -40,13 +40,11 @@ extension ViewItemState {
     /// - Parameters:
     ///   - cipherView: The `CipherView` to create this state with.
     ///   - hasPremium: Does the account have premium features.
-    ///   - totpTime: The time provider used to calculate TOTP code expiration.
     ///
-    init?(cipherView: CipherView, hasPremium: Bool, totpTime: TOTPTime) {
+    init?(cipherView: CipherView, hasPremium: Bool) {
         guard let cipherItemState = CipherItemState(
             existing: cipherView,
-            hasPremium: hasPremium,
-            totpTime: totpTime
+            hasPremium: hasPremium
         ) else { return nil }
         self.init(loadingState: .data(cipherItemState))
     }

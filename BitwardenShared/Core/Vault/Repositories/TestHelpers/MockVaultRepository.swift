@@ -31,8 +31,7 @@ class MockVaultRepository: VaultRepository {
     var refreshedTOTPCodes: [VaultListItem] = []
     var refreshTOTPCodeResult: Result<LoginTOTPState, Error> = .success(
         LoginTOTPState(
-            authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
-            totpTime: .currentTime
+            authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!
         )
     )
     var refreshedTOTPKeyConfig: TOTPKeyModel?

@@ -57,11 +57,6 @@ extension LoginItemState {
 }
 
 extension LoginItemState: ViewLoginItemState {
-    var time: TOTPTime {
-        totpState?.totpTime
-            ?? .currentTime
-    }
-
     var totpCode: TOTPCodeModel? {
         totpState?.codeModel
     }

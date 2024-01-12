@@ -304,10 +304,7 @@ class DefaultVaultRepository {
             let listModel = VaultListTOTP(
                 id: id,
                 loginView: login,
-                totpCode: code,
-                totpTime: TOTPTime(
-                    provider: timeProvider
-                )
+                totpCode: code
             )
             return VaultListItem(
                 id: id,
@@ -555,8 +552,7 @@ extension DefaultVaultRepository: VaultRepository {
         )
         return LoginTOTPState(
             authKeyModel: key,
-            codeModel: codeState,
-            totpTime: TOTPTime(provider: timeProvider)
+            codeModel: codeState
         )
     }
 

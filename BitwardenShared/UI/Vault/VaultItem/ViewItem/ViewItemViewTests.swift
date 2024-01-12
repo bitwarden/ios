@@ -42,8 +42,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 name: "Name",
                 revisionDate: Date()
             ),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.checkPassword)
@@ -61,8 +60,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 name: "Name",
                 revisionDate: Date()
             ),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -78,8 +76,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 login: .fixture(password: "password"),
                 revisionDate: Date()
             ),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -99,8 +96,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 name: "Name",
                 revisionDate: Date()
             ),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
@@ -129,8 +125,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 name: "identity example",
                 type: .identity
             ),
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
@@ -168,8 +163,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             existing: .fixture(
                 id: "fake-id"
             ),
-            hasPremium: hasPremium,
-            totpTime: .currentTime
+            hasPremium: hasPremium
         )!
         cipherState.accountHasPremium = hasPremium
         cipherState.folderId = "1"
@@ -188,8 +182,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 code: "032823",
                 codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 33),
                 period: 30
-            ),
-            totpTime: TOTPTime(provider: MockTimeProvider(mockTime: mockPresentTime))
+            )
         )
         cipherState.loginState.uris = [
             UriState(

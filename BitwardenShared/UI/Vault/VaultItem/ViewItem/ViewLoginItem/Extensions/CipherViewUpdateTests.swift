@@ -78,8 +78,7 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         var editState = try XCTUnwrap(
             CipherItemState(
                 existing: subject,
-                hasPremium: true,
-                totpTime: .currentTime
+                hasPremium: true
             )
         )
         editState.type = .identity
@@ -121,8 +120,7 @@ final class CipherViewUpdateTests: BitwardenTestCase {
     func test_update_noEdits_succeeds() {
         let editState = CipherItemState(
             existing: subject,
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )!
         let comparison = subject.updatedView(with: editState)
         XCTAssertEqual(subject, comparison)
@@ -133,8 +131,7 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         let editState = try XCTUnwrap(
             CipherItemState(
                 existing: subject,
-                hasPremium: true,
-                totpTime: .currentTime
+                hasPremium: true
             )
         )
         let comparison = subject.updatedView(with: editState)
@@ -196,8 +193,7 @@ final class CipherViewUpdateTests: BitwardenTestCase {
     func test_update_identity_edits_nilValues() throws {
         let state = CipherItemState(
             existing: subject,
-            hasPremium: true,
-            totpTime: .currentTime
+            hasPremium: true
         )
         var editState = try XCTUnwrap(state)
         editState.type = .identity

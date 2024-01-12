@@ -332,8 +332,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 code: "123456",
                 codeGenerationDate: Date(),
                 period: 30
-            ),
-            totpTime: .currentTime
+            )
         )
         let item: VaultListItem = .fixtureTOTP(totp: totpModel)
         let newItems = try await subject.refreshTOTPCodes(for: [item])
@@ -362,8 +361,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 code: "123456",
                 codeGenerationDate: Date(),
                 period: 30
-            ),
-            totpTime: .currentTime
+            )
         )
         let item: VaultListItem = .fixtureTOTP(totp: totpModel)
         let newItems = try await subject.refreshTOTPCodes(for: [item])
