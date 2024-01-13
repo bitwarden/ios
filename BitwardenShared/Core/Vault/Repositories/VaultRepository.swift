@@ -133,6 +133,15 @@ protocol VaultRepository: AnyObject {
     ///
     func cipherPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherListView], Error>>
 
+    /// A publisher for the list of a user's ciphers that can be used for autofill matching a URI.
+    ///
+    /// - Parameter uri: The URI used to filter ciphers that have a matching URI.
+    /// - Returns: The list of a user's ciphers that can be used for autofill.
+    ///
+    func ciphersAutofillPublisher(
+        uri: String?
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>>
+
     /// A publisher for the list of organizations the user is a member of.
     ///
     /// - Returns: A publisher for the list of organizations the user is a member of.
@@ -658,6 +667,22 @@ extension DefaultVaultRepository: VaultRepository {
                     return nil
                 }
                 return try? await self.clientVault.ciphers().decrypt(cipher: Cipher(responseModel: cipher))
+            }
+            .eraseToAnyPublisher()
+            .values
+    }
+
+    func ciphersAutofillPublisher(
+        uri: String?
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
+        try await cipherService.ciphersPublisher()
+            .asyncTryMap { ciphers in
+                try await ciphers.asyncMap { cipher in
+                    try await self.clientVault.ciphers().decrypt(cipher: cipher)
+                }
+            }
+            .map { ciphers in
+                CipherMatchingHelper.ciphersMatching(uri: uri, ciphers: ciphers)
             }
             .eraseToAnyPublisher()
             .values

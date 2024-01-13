@@ -10,6 +10,7 @@ class MockVaultRepository: VaultRepository {
     var addCipherCiphers = [BitwardenSdk.CipherView]()
     var addCipherResult: Result<Void, Error> = .success(())
     var ciphersSubject = CurrentValueSubject<[CipherListView], Error>([])
+    var ciphersAutofillSubject = CurrentValueSubject<[CipherView], Error>([])
     var cipherDetailsSubject = CurrentValueSubject<BitwardenSdk.CipherView, Never>(.fixture())
     var deletedCipher = [String]()
     var deleteCipherResult: Result<Void, Error> = .success(())
@@ -71,6 +72,12 @@ class MockVaultRepository: VaultRepository {
 
     func cipherDetailsPublisher(id _: String) -> AsyncPublisher<AnyPublisher<BitwardenSdk.CipherView, Never>> {
         cipherDetailsSubject.eraseToAnyPublisher().values
+    }
+
+    func ciphersAutofillPublisher(
+        uri: String?
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
+        ciphersAutofillSubject.eraseToAnyPublisher().values
     }
 
     func deleteCipher(_ id: String) async throws {

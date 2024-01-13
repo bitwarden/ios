@@ -142,6 +142,44 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(publishedCiphers, ciphers.map(CipherListView.init))
     }
 
+    /// `ciphersAutofillPublisher(uri:)` returns a publisher for the list of a user's ciphers
+    /// matching a URI.
+    func test_ciphersAutofillPublisher() async throws {
+        let ciphers: [Cipher] = [
+            .fixture(
+                id: "1",
+                login: .fixture(uris: [LoginUri(uri: "https://bitwarden.com", match: .exact)]),
+                name: "Bitwarden"
+            ),
+            .fixture(
+                creationDate: Date(year: 2024, month: 1, day: 1),
+                id: "2",
+                login: .fixture(uris: [LoginUri(uri: "https://example.com", match: .exact)]),
+                name: "Example",
+                revisionDate: Date(year: 2024, month: 1, day: 1)
+            ),
+        ]
+        cipherService.ciphersSubject.value = ciphers
+
+        var iterator = try await subject.ciphersAutofillPublisher(
+            uri: "https://example.com"
+        ).makeAsyncIterator()
+        let publishedCiphers = try await iterator.next()
+
+        XCTAssertEqual(
+            publishedCiphers,
+            [
+                .fixture(
+                    creationDate: Date(year: 2024, month: 1, day: 1),
+                    id: "2",
+                    login: .fixture(uris: [LoginUriView(uri: "https://example.com", match: .exact)]),
+                    name: "Example",
+                    revisionDate: Date(year: 2024, month: 1, day: 1)
+                ),
+            ]
+        )
+    }
+
     /// `deleteCipher()` throws on id errors.
     func test_deleteCipher_idError_nil() async throws {
         cipherService.deleteWithServerResult = .failure(CipherAPIServiceError.updateMissingId)

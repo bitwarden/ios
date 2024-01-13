@@ -6,7 +6,7 @@ import BitwardenSdk
 ///
 enum VaultAutofillListEffect: Equatable {
     /// A cipher in the list was tapped
-    case cipherTapped(CipherListView)
+    case cipherTapped(CipherView)
 
     /// Stream the autofill items for the user.
     case streamAutofillItems
