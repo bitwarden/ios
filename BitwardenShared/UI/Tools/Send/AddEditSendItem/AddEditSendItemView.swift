@@ -130,25 +130,40 @@ struct AddEditSendItemView: View {
                 .styleGuide(.subheadline, weight: .semibold)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
-            if let fileName = store.state.fileName {
-                Text(fileName)
-            } else {
-                HStack(spacing: 0) {
-                    Spacer()
+            HStack(spacing: 0) {
+                Spacer()
 
-                    Text(Localizations.noFileChosen)
-                        .styleGuide(.callout)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                Text(store.state.fileName ?? Localizations.noFileChosen)
+                    .styleGuide(.callout)
+                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
 
-                    Spacer()
-                }
+                Spacer()
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                Button(Localizations.chooseFile) {
-                    store.send(.chooseFilePressed)
+//                Button(Localizations.chooseFile) {
+//                    store.send(.chooseFilePressed)
+//                }
+//                .buttonStyle(.tertiary())
+                Menu {
+                    Button(Localizations.photos) {
+                        store.send(.photosPressed)
+                    }
+                    Button(Localizations.camera) {
+                        store.send(.cameraPressed)
+                    }
+                    Button("Browse") {
+                        store.send(.browsePressed)
+                    }
+                } label: {
+                    Text(Localizations.chooseFile)
+                        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .padding(.vertical, 14)
+                        .padding(.horizontal, 20)
+                        .frame(maxWidth: .infinity)
+                        .background(Asset.Colors.fillTertiary.swiftUIColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .buttonStyle(.tertiary())
 
                 Text(Localizations.maxFileSize)
                     .styleGuide(.subheadline)

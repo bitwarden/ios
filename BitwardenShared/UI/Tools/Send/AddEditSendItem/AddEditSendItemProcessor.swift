@@ -37,8 +37,10 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
 
     override func receive(_ action: AddEditSendItemAction) {
         switch action {
-        case .chooseFilePressed:
-            print("choose file")
+        case .browsePressed:
+            coordinator.navigate(to: .fileBrowser, context: self)
+        case .cameraPressed:
+            coordinator.navigate(to: .camera, context: self)
         case let .customDeletionDateChanged(newValue):
             state.customDeletionDate = newValue
         case let .customExpirationDateChanged(newValue):
@@ -61,6 +63,8 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.password = newValue
         case let .passwordVisibileChanged(newValue):
             state.isPasswordVisible = newValue
+        case .photosPressed:
+            coordinator.navigate(to: .photoLibrary, context: self)
         case let .maximumAccessCountChanged(newValue):
             state.maximumAccessCount = newValue
         case let .nameChanged(newValue):
@@ -100,4 +104,23 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         }
         state.type = newValue
     }
+}
+
+extension AddEditSendItemProcessor: FileSelectionDelegate {
+    func fileSelectionCompleted(fileName: String, data: Data) {
+        state.fileName = fileName
+        state.fileData = data
+    }
+}
+
+/// A delegate object that responds to file selection events.
+///
+protocol FileSelectionDelegate: AnyObject {
+    /// A file was chosen by the user.
+    ///
+    /// - Parameters:
+    ///   - fileName: The name of the selected file.
+    ///   - data: The data representation of the selected file.
+    ///
+    func fileSelectionCompleted(fileName: String, data: Data)
 }
