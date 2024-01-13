@@ -51,7 +51,7 @@ class DefaultPasteboardService: PasteboardService {
 
         // Get the value of the clipboard setting for the currently active user.
         Task {
-            for await _ in await self.stateService.activeAccountIdPublisher() {
+            for await _ in await self.stateService.activeAccountIdPublisher().values {
                 do {
                     clearClipboardValue = try await self.stateService.getClearClipboardValue()
                 } catch StateServiceError.noActiveAccount {
