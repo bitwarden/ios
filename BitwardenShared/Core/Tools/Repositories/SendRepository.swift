@@ -7,6 +7,14 @@ import Foundation
 /// A protocol for a `SendRepository` which manages access to the data needed by the UI layer.
 ///
 protocol SendRepository: AnyObject {
+    // MARK: Methods
+
+    /// Validates the user's active account has access to premium features.
+    ///
+    /// - Returns: Whether the active account has premium.
+    ///
+    func doesActiveAccountHavePremium() async throws -> Bool
+
     // MARK: Publishers
 
     /// Performs an API request to sync the user's send data. The publishers in the repository can
@@ -31,6 +39,8 @@ class DefaultSendRepository: SendRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
+    let organizationService: OrganizationService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -48,12 +58,29 @@ class DefaultSendRepository: SendRepository {
     ///
     init(
         clientVault: ClientVaultService,
+        organizationService: OrganizationService,
         stateService: StateService,
         syncService: SyncService
     ) {
         self.clientVault = clientVault
+        self.organizationService = organizationService
         self.stateService = stateService
         self.syncService = syncService
+    }
+
+    // MARK: Methods
+
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        let account = try await stateService.getActiveAccount()
+        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+        guard !hasPremiumPersonally else {
+            return true
+        }
+
+        let organizations = try await organizationService
+            .fetchAllOrganizations()
+            .filter { $0.enabled && $0.usersGetPremium }
+        return !organizations.isEmpty
     }
 
     // MARK: API Methods

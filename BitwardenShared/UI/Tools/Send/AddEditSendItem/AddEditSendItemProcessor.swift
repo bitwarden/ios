@@ -72,7 +72,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         case let .textChanged(newValue):
             state.text = newValue
         case let .typeChanged(newValue):
-            state.type = newValue
+            updateType(newValue)
         }
     }
 
@@ -85,5 +85,19 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         try? await Task.sleep(nanoseconds: 1_000_000_000)
         coordinator.hideLoadingOverlay()
         coordinator.navigate(to: .dismiss)
+    }
+
+    /// Attempts to update the send type. If the active account does not have premium access, this
+    /// method will display an alert informing the user that they do not have access to this
+    /// feature.
+    ///
+    /// - Parameter newValue: The new value for the Send's type that will be attempted to be set.
+    ///
+    private func updateType(_ newValue: SendType) {
+        guard state.hasPremium else {
+            coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
+            return
+        }
+        state.type = newValue
     }
 }

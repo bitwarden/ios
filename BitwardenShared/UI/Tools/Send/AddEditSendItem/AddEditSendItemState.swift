@@ -23,6 +23,9 @@ struct AddEditSendItemState: Equatable {
     /// The name of the selected file.
     var fileName: String?
 
+    /// A flag indicating if the active account has access to premium features.
+    var hasPremium = false
+
     /// A flag indicating if this item should be deactivated.
     var isDeactivateThisSendOn = false
 
