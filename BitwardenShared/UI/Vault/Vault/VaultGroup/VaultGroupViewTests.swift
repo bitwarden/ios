@@ -16,7 +16,7 @@ class VaultGroupViewTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: VaultGroupState())
+        processor = MockProcessor(state: VaultGroupState(vaultFilterType: .allVaults))
         subject = VaultGroupView(store: Store(processor: processor))
     }
 

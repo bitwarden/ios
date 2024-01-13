@@ -141,7 +141,8 @@ class MockVaultRepository: VaultRepository {
     }
 
     func vaultListPublisher(
-        group _: BitwardenShared.VaultListGroup
+        group _: BitwardenShared.VaultListGroup,
+        filter: VaultFilterType
     ) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
         vaultListGroupSubject.eraseToAnyPublisher().values
     }

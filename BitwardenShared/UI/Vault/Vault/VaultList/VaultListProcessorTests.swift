@@ -358,7 +358,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_receive_itemPressed_group() {
         subject.receive(.itemPressed(item: VaultListItem(id: "1", itemType: .group(.card, 1))))
 
-        XCTAssertEqual(coordinator.routes.last, .group(.card))
+        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.totp` route for a totp code.

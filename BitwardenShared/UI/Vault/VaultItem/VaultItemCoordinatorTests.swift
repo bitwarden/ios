@@ -403,4 +403,4 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     func didCancelScan() {
         didCancel = true
     }
-}
+} // swiftlint:disable:this file_length

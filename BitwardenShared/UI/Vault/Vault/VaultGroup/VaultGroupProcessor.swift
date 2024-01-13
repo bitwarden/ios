@@ -60,7 +60,10 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
         case .appeared:
-            for await value in services.vaultRepository.vaultListPublisher(group: state.group) {
+            for await value in services.vaultRepository.vaultListPublisher(
+                group: state.group,
+                filter: state.vaultFilterType
+            ) {
                 let sortedValues = value
                     .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
                 totpExpirationManager?.configureTOTPRefreshScheduling(for: sortedValues)
@@ -89,7 +92,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
-                coordinator.navigate(to: .group(group))
+                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }

@@ -36,7 +36,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 stateService: stateService,
                 vaultRepository: vaultRepository
             ),
-            state: VaultGroupState()
+            state: VaultGroupState(vaultFilterType: .allVaults)
         )
     }
 
@@ -139,7 +139,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
     func test_receive_itemPressed_group() {
         subject.receive(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
-        XCTAssertEqual(coordinator.routes.last, .group(.card))
+        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.

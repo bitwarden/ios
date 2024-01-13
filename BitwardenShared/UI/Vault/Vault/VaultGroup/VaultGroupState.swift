@@ -26,4 +26,7 @@ struct VaultGroupState: Equatable {
 
     /// The url to open in the device's web browser.
     var url: URL?
+
+    /// The vault filter used to display a single or all vaults for the user.
+    let vaultFilterType: VaultFilterType
 }
