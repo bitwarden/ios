@@ -27,6 +27,15 @@ struct AttachmentsView: View {
                 store.send(.dismissPressed)
             }
         }
+        .fullScreenCover(isPresented: store.binding(
+            get: \.cameraViewPresented,
+            send: AttachmentsAction.cameraViewPresentedChanged
+        )) {
+            CameraView(selectedImage: store.binding(
+                get: \.image,
+                send: AttachmentsAction.imageChanged
+            ))
+        }
     }
 
     // MARK: Private Views
