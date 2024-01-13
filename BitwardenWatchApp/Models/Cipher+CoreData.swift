@@ -1,30 +1,6 @@
 import CoreData
-import Foundation
 
-struct Cipher: Identifiable, Codable {
-    enum CodingKeys: CodingKey {
-        case id
-        case name
-        case login
-    }
-
-    var id: String
-    var name: String?
-    var userId: String?
-    var login: Login
-}
-
-struct Login: Codable {
-    var username: String?
-    var totp: String?
-    var uris: [LoginUri]?
-}
-
-struct LoginUri: Codable {
-    var uri: String?
-}
-
-extension Cipher {
+extension CipherDTO {
     func toCipherEntity(moContext: NSManagedObjectContext) -> CipherEntity {
         let entity = CipherEntity(context: moContext)
         entity.id = id

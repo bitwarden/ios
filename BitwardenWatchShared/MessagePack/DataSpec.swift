@@ -6,7 +6,7 @@ public struct DataSpec {
     let isArray: Bool
     let dataSpecBuilder: DataSpecBuilder?
 
-    init(_ name: String, _ isObj: Bool, _ isArray: Bool, _ dataSpecBuilder: DataSpecBuilder?) {
+    public init(_ name: String, _ isObj: Bool, _ isArray: Bool, _ dataSpecBuilder: DataSpecBuilder?) {
         self.name = name
         self.isObj = isObj
         self.isArray = isArray
@@ -18,37 +18,37 @@ public class DataSpecBuilder: NSCopying {
     var specs: [DataSpec] = []
     var specsIterator: IndexingIterator<[DataSpec]>
 
-    init() {
+    public init() {
         specsIterator = IndexingIterator(_elements: [])
     }
 
-    func append(_ name: String) -> DataSpecBuilder {
+    public func append(_ name: String) -> DataSpecBuilder {
         append(DataSpec(name, false, false, nil))
     }
 
-    func appendObj(_ name: String, _ dataSpecBuilder: DataSpecBuilder) -> DataSpecBuilder {
+    public func appendObj(_ name: String, _ dataSpecBuilder: DataSpecBuilder) -> DataSpecBuilder {
         append(DataSpec(name, true, false, dataSpecBuilder))
     }
 
-    func appendArray(_ name: String) -> DataSpecBuilder {
+    public func appendArray(_ name: String) -> DataSpecBuilder {
         append(DataSpec(name, false, true, nil))
     }
 
-    func appendArray(_ name: String, _ dataSpecBuilder: DataSpecBuilder) -> DataSpecBuilder {
+    public func appendArray(_ name: String, _ dataSpecBuilder: DataSpecBuilder) -> DataSpecBuilder {
         append(DataSpec(name, false, true, dataSpecBuilder))
     }
 
-    func append(_ spec: DataSpec) -> DataSpecBuilder {
+    public func append(_ spec: DataSpec) -> DataSpecBuilder {
         specs.append(spec)
         return self
     }
 
-    func build() -> DataSpecBuilder {
+    public func build() -> DataSpecBuilder {
         specsIterator = specs.makeIterator()
         return self
     }
 
-    func next() -> DataSpec {
+    public func next() -> DataSpec {
         specsIterator.next()!
     }
 

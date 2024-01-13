@@ -31,11 +31,11 @@ class StateService {
         }
     }
 
-    func getUser() -> User? {
-        KeychainHelper.standard.read(CURRENT_USER_KEY, User.self)
+    func getUser() -> UserDTO? {
+        KeychainHelper.standard.read(CURRENT_USER_KEY, UserDTO.self)
     }
 
-    func setUser(user: User?) {
+    func setUser(user: UserDTO?) {
         guard let user else {
             KeychainHelper.standard.delete(CURRENT_USER_KEY)
             return

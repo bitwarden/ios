@@ -323,6 +323,7 @@ targets:
         optional: true
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
+      - path: BitwardenWatchShared
     dependencies:
       - package: BitwardenSdk
       - package: Networking
@@ -370,6 +371,7 @@ targets:
         INFOPLIST_FILE: BitwardenWatchApp/Info.plist
     sources:
       - path: BitwardenWatchApp
+      - path: BitwardenWatchShared
       - path: BitwardenWatchApp/GoogleService-Info.plist
         buildPhase: resources
     dependencies:
