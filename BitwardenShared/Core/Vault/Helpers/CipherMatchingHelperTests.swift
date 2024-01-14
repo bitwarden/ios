@@ -104,6 +104,35 @@ class CipherMatchingHelperTests: BitwardenTestCase {
         XCTAssertTrue(CipherMatchingHelper.ciphersMatching(uri: "http://bitwarden.com", ciphers: ciphers).isEmpty)
     }
 
+    /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the
+    /// regular expression match type.
+    func test_ciphersMatching_regularExpression() {
+        let uris: [(String, String)] = [
+            ("Wikipedia Special", "https://en.wikipedia.org/w/index.php?title=Special:UserLogin&returnto=Bitwarden"),
+            ("Wikipedia Specjalna", "https://pl.wikipedia.org/w/index.php?title=Specjalna:Zaloguj&returnto=Bitwarden"),
+            ("Wikipedia", "https://en.wikipedia.org/w/index.php"),
+            ("Malicious", "https://malicious-site.com"),
+            ("Bitwarden Wikipedia", "https://en.wikipedia.org/wiki/Bitwarden"),
+        ]
+        let ciphers = uris.map { name, uri in
+            CipherView.fixture(
+                login: .fixture(uris: [LoginUriView(uri: uri, match: .regularExpression)]),
+                name: name
+            )
+        }
+
+        assertInlineSnapshot(
+            of: dumpMatching(uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#, ciphers: ciphers),
+            as: .lines
+        ) {
+            """
+            Wikipedia Special
+            Wikipedia Specjalna
+            Wikipedia
+            """
+        }
+    }
+
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the starts
     /// with match type.
     func test_ciphersMatching_startsWith() {
