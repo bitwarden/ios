@@ -8,6 +8,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SendRoute>!
+    var sendRepository: MockSendRepository!
     var subject: AddEditSendItemProcessor!
 
     // MARK: Setup & Teardown
@@ -15,8 +16,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        sendRepository = MockSendRepository()
         subject = AddEditSendItemProcessor(
             coordinator: coordinator,
+            services: ServiceContainer.withMocks(sendRepository: sendRepository),
             state: AddEditSendItemState()
         )
     }
@@ -39,6 +42,59 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
             LoadingOverlayState(title: Localizations.saving),
         ])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+    }
+
+    /// `perform(_:)` with `.savePressed` and valid input saves the item.
+    func test_perform_savePressed_validated_success() async {
+        subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
+        subject.state.deletionDate = .custom
+        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        sendRepository.addSendResult = .success(())
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [
+            LoadingOverlayState(title: Localizations.saving),
+        ])
+        XCTAssertEqual(sendRepository.addSendSendView?.name, "Name")
+        XCTAssertEqual(sendRepository.addSendSendView?.text?.text, "Text")
+        XCTAssertEqual(sendRepository.addSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }/// `perform(_:)` with `.savePressed` and valid input saves the item.
+    func test_perform_savePressed_validated_error() async {
+        subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
+        subject.state.deletionDate = .custom
+        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        sendRepository.addSendResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [
+            LoadingOverlayState(title: Localizations.saving),
+        ])
+        XCTAssertEqual(sendRepository.addSendSendView?.name, "Name")
+        XCTAssertEqual(sendRepository.addSendSendView?.text?.text, "Text")
+        XCTAssertEqual(sendRepository.addSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+    }
+
+    /// `perform(_:)` with `.savePressed` and valid input saves the item.
+    func test_perform_savePressed_unvalidated() async {
+        subject.state.name = ""
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.addSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.name),
+        ])
     }
 
     /// `receive(_:)` with `.chooseFilePressed` navigates to the document browser.

@@ -87,7 +87,6 @@ struct AboutView: View {
         }
         .toggleStyle(.bitwarden)
         .styleGuide(.body)
-        .padding(.top, 20)
     }
 }
 

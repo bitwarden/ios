@@ -38,19 +38,29 @@ protocol CaptchaService {
 class DefaultCaptchaService: CaptchaService {
     // MARK: Properties
 
-    /// The service used by the application to manage the environment settings.
-    let environmentService: EnvironmentService
-
+    /// The callback url scheme.
     let callbackUrlScheme: String
+
+    /// The service used by the application to manage the environment settings.
+    private let environmentService: EnvironmentService
+
+    /// The service used by the application to manage account state.
+    private let stateService: StateService
 
     // MARK: Initialization
 
     /// Creates a new `DefaultCaptchaService`.
     ///
-    /// - Parameter environmentService: The service used by the application to manage the environment settings.
+    /// - Parameters:
+    ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - stateService: The service used by the application to manage account state.
     ///
-    init(environmentService: EnvironmentService) {
+    init(
+        environmentService: EnvironmentService,
+        stateService: StateService
+    ) {
         self.environmentService = environmentService
+        self.stateService = stateService
         callbackUrlScheme = "bitwarden"
     }
 
@@ -58,8 +68,7 @@ class DefaultCaptchaService: CaptchaService {
 
     func generateCaptchaUrl(with siteKey: String) throws -> URL {
         let callbackUrl = "\(callbackUrlScheme)://captcha-callback"
-        // TODO: BIT-689 Dynamically retrieve the user's locale
-        let locale = "en"
+        let locale = stateService.appLanguage.value ?? Locale.current.identifier
         let request = CaptchaRequestModel(
             callbackUri: callbackUrl,
             captchaRequiredText: Localizations.captchaRequired,

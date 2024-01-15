@@ -9,6 +9,12 @@ import Foundation
 protocol SendRepository: AnyObject {
     // MARK: Methods
 
+    /// Adds a new Send to the repository.
+    ///
+    /// - Parameter sendView: The send to add to the repository.
+    ///
+    func addSend(_ sendView: SendView) async throws
+
     /// Validates the user's active account has access to premium features.
     ///
     /// - Returns: Whether the active account has premium.
@@ -23,6 +29,8 @@ protocol SendRepository: AnyObject {
     /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
     ///
     func fetchSync(isManualRefresh: Bool) async throws
+
+    // MARK: Publishers
 
     /// A publisher for all the sends in the user's account.
     ///
@@ -42,10 +50,13 @@ class DefaultSendRepository: SendRepository {
     /// The service used to manage syncing and updates to the user's organizations.
     let organizationService: OrganizationService
 
+    /// The service used to sync and store sends.
+    let sendService: SendService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
-    /// The service used to handle syncing vault data with the API.
+    /// The service used to handle syncing send data with the API.
     let syncService: SyncService
 
     // MARK: Initialization
@@ -54,17 +65,21 @@ class DefaultSendRepository: SendRepository {
     ///
     /// - Parameters:
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
+    ///   - sendService: The service used to sync and store sends.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
         clientVault: ClientVaultService,
         organizationService: OrganizationService,
+        sendService: SendService,
         stateService: StateService,
         syncService: SyncService
     ) {
         self.clientVault = clientVault
         self.organizationService = organizationService
+        self.sendService = sendService
         self.stateService = stateService
         self.syncService = syncService
     }
@@ -82,6 +97,13 @@ class DefaultSendRepository: SendRepository {
             .fetchAllOrganizations()
             .filter { $0.enabled && $0.usersGetPremium }
         return !organizations.isEmpty
+    }
+
+    // MARK: Data Methods
+
+    func addSend(_ sendView: SendView) async throws {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        try await sendService.addSend(send)
     }
 
     // MARK: API Methods

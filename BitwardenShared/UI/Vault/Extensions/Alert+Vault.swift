@@ -74,7 +74,8 @@ extension Alert {
                 alertActions.append(AlertAction(title: Localizations.copyNumber, style: .default) { _, _ in
                     action(.copy(
                         toast: Localizations.number,
-                        value: number
+                        value: number,
+                        requiresMasterPasswordReprompt: false
                     ))
                 })
             }
@@ -82,7 +83,8 @@ extension Alert {
                 alertActions.append(AlertAction(title: Localizations.copySecurityCode, style: .default) { _, _ in
                     action(.copy(
                         toast: Localizations.securityCode,
-                        value: code
+                        value: code,
+                        requiresMasterPasswordReprompt: false
                     ))
                 })
             }
@@ -91,7 +93,8 @@ extension Alert {
                 alertActions.append(AlertAction(title: Localizations.copyUsername, style: .default) { _, _ in
                     action(.copy(
                         toast: Localizations.username,
-                        value: username
+                        value: username,
+                        requiresMasterPasswordReprompt: false
                     ))
                 })
             }
@@ -99,7 +102,8 @@ extension Alert {
                 alertActions.append(AlertAction(title: Localizations.copyPassword, style: .default) { _, _ in
                     action(.copy(
                         toast: Localizations.password,
-                        value: password
+                        value: password,
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password
                     ))
                 })
             }
@@ -118,7 +122,8 @@ extension Alert {
                 alertActions.append(AlertAction(title: Localizations.copyNotes, style: .default) { _, _ in
                     action(.copy(
                         toast: Localizations.notes,
-                        value: notes
+                        value: notes,
+                        requiresMasterPasswordReprompt: false
                     ))
                 })
             }

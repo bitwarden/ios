@@ -1,3 +1,4 @@
+import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
 
@@ -8,8 +9,11 @@ import XCTest
 class SendRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
+    var client: MockHTTPClient!
     var clientVaultService: MockClientVaultService!
     var organizationService: MockOrganizationService!
+    var clientSends: MockClientSends!
+    var sendService: MockSendService!
     var stateService: MockStateService!
     var syncService: MockSyncService!
     var subject: DefaultSendRepository!
@@ -18,13 +22,18 @@ class SendRepositoryTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        client = MockHTTPClient()
+        clientSends = MockClientSends()
         clientVaultService = MockClientVaultService()
         organizationService = MockOrganizationService()
+        clientVaultService.clientSends = clientSends
+        sendService = MockSendService()
         stateService = MockStateService()
         syncService = MockSyncService()
         subject = DefaultSendRepository(
             clientVault: clientVaultService,
             organizationService: organizationService,
+            sendService: sendService,
             stateService: stateService,
             syncService: syncService
         )
@@ -32,8 +41,11 @@ class SendRepositoryTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        client = nil
+        clientSends = nil
         clientVaultService = nil
         organizationService = nil
+        sendService = nil
         stateService = nil
         syncService = nil
         subject = nil
@@ -41,11 +53,34 @@ class SendRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `addSend()` successfully encrypts the send view and uses the send service to add it.
+    func test_addSend_success() async throws {
+        sendService.addSendResult = .success(())
+        let sendView = SendView.fixture()
+        try await subject.addSend(sendView)
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendService.addSendSend, Send(sendView: sendView))
+    }
+
     /// `doesActiveAccountHavePremium()` with premium personally and no organizations returns true.
     func test_doesActiveAccountHavePremium_personalTrue_noOrganization() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(hasPremiumPersonally: true))
         let hasPremium = try await subject.doesActiveAccountHavePremium()
+        try await subject.addSend(sendView)
         XCTAssertTrue(hasPremium)
+    }
+
+    /// `addSend()` rethrows any errors encountered.
+    func test_addSend_failure() async {
+        sendService.addSendResult = .failure(BitwardenTestError.example)
+        let sendView = SendView.fixture()
+
+        await assertAsyncThrows {
+            try await subject.addSend(sendView)
+        }
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
     }
 
     /// `doesActiveAccountHavePremium()` with no premium personally and no organizations returns
