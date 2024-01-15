@@ -13,6 +13,9 @@ struct ViewItemDetailsView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ViewVaultItemState, ViewItemAction, ViewItemEffect>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     var body: some View {
         itemInformationSection
 
@@ -58,7 +61,8 @@ struct ViewItemDetailsView: View {
                         state: { _ in store.state.loginState },
                         mapAction: { $0 },
                         mapEffect: { $0 }
-                    )
+                    ),
+                    timeProvider: timeProvider
                 )
             case .secureNote:
                 EmptyView()

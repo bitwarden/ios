@@ -75,7 +75,12 @@ final class CipherViewUpdateTests: BitwardenTestCase {
 
     /// Tests that the update succeeds with matching properties.
     func test_update_identity_succeeds() throws {
-        var editState = try XCTUnwrap(CipherItemState(existing: subject, hasPremium: true))
+        var editState = try XCTUnwrap(
+            CipherItemState(
+                existing: subject,
+                hasPremium: true
+            )
+        )
         editState.type = .identity
         editState.identityState = .fixture(
             title: .custom(.mx),
@@ -113,14 +118,22 @@ final class CipherViewUpdateTests: BitwardenTestCase {
 
     /// Tests that the update succeeds with new properties.
     func test_update_noEdits_succeeds() {
-        let editState = CipherItemState(existing: subject, hasPremium: true)!
+        let editState = CipherItemState(
+            existing: subject,
+            hasPremium: true
+        )!
         let comparison = subject.updatedView(with: editState)
         XCTAssertEqual(subject, comparison)
     }
 
     /// Tests that the update succeeds with new properties.
     func test_update_login_noEdits_succeeds() throws {
-        let editState = try XCTUnwrap(CipherItemState(existing: subject, hasPremium: true))
+        let editState = try XCTUnwrap(
+            CipherItemState(
+                existing: subject,
+                hasPremium: true
+            )
+        )
         let comparison = subject.updatedView(with: editState)
         XCTAssertEqual(subject, comparison)
     }
@@ -178,7 +191,10 @@ final class CipherViewUpdateTests: BitwardenTestCase {
 
     /// Tests that the update succeeds with new properties.
     func test_update_identity_edits_nilValues() throws {
-        let state = CipherItemState(existing: subject, hasPremium: true)
+        let state = CipherItemState(
+            existing: subject,
+            hasPremium: true
+        )
         var editState = try XCTUnwrap(state)
         editState.type = .identity
         editState.identityState = .fixture(

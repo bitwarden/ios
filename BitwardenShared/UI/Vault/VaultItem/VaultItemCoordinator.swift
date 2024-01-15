@@ -14,6 +14,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
         & HasTOTPService
+        & HasTimeProvider
         & HasVaultRepository
 
     // MARK: - Private Properties
@@ -164,7 +165,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             let hasPremium = await (
                 try? services.vaultRepository.doesActiveAccountHavePremium()
             ) ?? false
-            let state = CipherItemState(cloneItem: cipherView, hasPremium: hasPremium)
+            let state = CipherItemState(
+                cloneItem: cipherView,
+                hasPremium: hasPremium
+            )
             if stackNavigator.isEmpty {
                 let processor = AddEditItemProcessor(
                     coordinator: asAnyCoordinator(),
@@ -217,7 +221,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     ///
     private func showEditItem(for cipherView: CipherView, hasPremium: Bool, delegate: CipherItemOperationDelegate?) {
         if stackNavigator.isEmpty {
-            guard let state = CipherItemState(existing: cipherView, hasPremium: hasPremium) else { return }
+            guard let state = CipherItemState(
+                existing: cipherView,
+                hasPremium: hasPremium
+            ) else { return }
 
             let processor = AddEditItemProcessor(
                 coordinator: asAnyCoordinator(),
@@ -312,7 +319,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             state: ViewItemState()
         )
         let store = Store(processor: processor)
-        let view = ViewItemView(store: store)
+        let view = ViewItemView(
+            store: store,
+            timeProvider: services.timeProvider
+        )
         stackNavigator.replace(view)
     }
 }

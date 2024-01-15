@@ -330,7 +330,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             loginView: .fixture(),
             totpCode: .init(
                 code: "123456",
-                date: Date(),
+                codeGenerationDate: Date(),
                 period: 30
             )
         )
@@ -359,7 +359,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             loginView: .fixture(totp: .base32Key),
             totpCode: .init(
                 code: "123456",
-                date: Date(),
+                codeGenerationDate: Date(),
                 period: 30
             )
         )
@@ -371,7 +371,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             XCTAssertEqual(model.id, totpModel.id)
             XCTAssertEqual(model.loginView, totpModel.loginView)
             XCTAssertNotEqual(model.totpCode.code, totpModel.totpCode.code)
-            XCTAssertNotEqual(model.totpCode.date, totpModel.totpCode.date)
+            XCTAssertNotEqual(model.totpCode.codeGenerationDate, totpModel.totpCode.codeGenerationDate)
             XCTAssertEqual(model.totpCode.period, totpModel.totpCode.period)
             XCTAssertEqual(model.totpCode.code, newCode)
         default:

@@ -9,7 +9,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
 
     /// Tests that a malformed string does not create a model.
     func test_init_totpCodeConfig_failure_incompletePrefix() {
-        let subject = TOTPCodeConfig(
+        let subject = TOTPKeyModel(
             authenticatorKey: "totp/Example:eliot@livefront.com?secret=JBSWY3DPEHPK3PXP"
         )
         XCTAssertNil(subject)
@@ -17,7 +17,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
 
     /// Tests that a malformed string does not create a model.
     func test_init_totpCodeConfig_failure_noSecret() {
-        let subject = TOTPCodeConfig(
+        let subject = TOTPKeyModel(
             authenticatorKey: "otpauth://totp/Example:eliot@livefront.com?issuer=Example&algorithm=SHA256&digits=6&period=30" // swiftlint:disable:this line_length
         )
         XCTAssertNil(subject)
@@ -25,7 +25,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
 
     /// Tests that a base32 string creates the model.
     func test_init_totpCodeConfig_base32() {
-        let subject = TOTPCodeConfig(
+        let subject = TOTPKeyModel(
             authenticatorKey: .base32Key
         )
         XCTAssertNotNil(subject)
@@ -34,7 +34,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
 
     /// Tests that an otp auth string creates the model.
     func test_init_totpCodeConfig_success_full() {
-        let subject = TOTPCodeConfig(
+        let subject = TOTPKeyModel(
             authenticatorKey: .otpAuthUriKeyComplete
         )
         XCTAssertNotNil(subject)
@@ -46,7 +46,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
 
     /// Tests that an otp auth string creates the model.
     func test_init_totpCodeConfig_success_partial() {
-        let subject = TOTPCodeConfig(
+        let subject = TOTPKeyModel(
             authenticatorKey: .otpAuthUriKeyPartial
         )
         XCTAssertNotNil(subject)
@@ -58,7 +58,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
 
     /// Tests that an otp auth string creates the model.
     func test_init_totpCodeConfig_success_sha512() {
-        let subject = TOTPCodeConfig(
+        let subject = TOTPKeyModel(
             authenticatorKey: .otpAuthUriKeySHA512
         )
         XCTAssertNotNil(subject)
@@ -70,7 +70,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
 
     /// Tests that a steam string creates the model.
     func test_init_totpCodeConfig_success_steam() {
-        let subject = TOTPCodeConfig(authenticatorKey: .steamUriKey)
+        let subject = TOTPKeyModel(authenticatorKey: .steamUriKey)
         XCTAssertNotNil(subject)
         XCTAssertEqual(subject?.base32Key, .base32Key)
         XCTAssertEqual(subject?.digits, 5)
