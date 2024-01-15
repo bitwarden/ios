@@ -38,8 +38,10 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 
     override func receive(_ action: AboutAction) {
         switch action {
+        case .clearURL:
+            state.url = nil
         case .helpCenterTapped:
-            break
+            state.url = ExternalLinksConstants.helpAndFeedback
         case .rateTheAppTapped:
             break
         case let .toastShown(newValue):
