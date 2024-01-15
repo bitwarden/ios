@@ -6,6 +6,7 @@ class MockAuthRepository: AuthRepository {
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var deleteAccountCalled = false
     var logoutCalled = false
+    var logoutResult: Result<Void, Error> = .success(())
     var passwordStrengthEmail: String?
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
@@ -37,6 +38,7 @@ class MockAuthRepository: AuthRepository {
 
     func logout() async throws {
         logoutCalled = true
+        try logoutResult.get()
     }
 
     func setActiveAccount(userId: String) async throws -> Account {

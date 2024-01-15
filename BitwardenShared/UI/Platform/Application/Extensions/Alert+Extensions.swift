@@ -82,17 +82,14 @@ extension Alert {
     ///
     /// - Parameter completion: A block that is executed when the user interacts with the "ok" button.
     ///
-    static func invalidMasterPassword(completion: @MainActor @escaping () async -> Void) -> Alert {
+    static func invalidMasterPassword() -> Alert {
         Alert(
             title: Localizations.anErrorHasOccurred,
             message: Localizations.invalidMasterPassword,
             alertActions: [
                 AlertAction(
                     title: Localizations.ok,
-                    style: .default,
-                    handler: { _ in
-                        await completion()
-                    }
+                    style: .default
                 ),
             ]
         )
