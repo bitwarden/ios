@@ -188,6 +188,7 @@ public class ServiceContainer: Services {
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
+        let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
 
         let cipherService = DefaultCipherService(
             cipherAPIService: apiService,
@@ -305,7 +306,7 @@ public class ServiceContainer: Services {
             authRepository: authRepository,
             authService: authService,
             biometricsService: biometricsService,
-            captchaService: DefaultCaptchaService(environmentService: environmentService),
+            captchaService: captchaService,
             cameraService: DefaultCameraService(),
             clientService: clientService,
             environmentService: environmentService,
