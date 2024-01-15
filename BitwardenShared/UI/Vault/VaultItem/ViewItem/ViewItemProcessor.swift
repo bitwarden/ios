@@ -85,7 +85,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                     itemState.loginState.totpState = totpState
                     newState.loadingState = .data(itemState)
                 }
-                newState.hasPremiumFeatures = hasPremium
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
             }
