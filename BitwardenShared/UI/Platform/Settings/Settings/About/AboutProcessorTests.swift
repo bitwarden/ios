@@ -18,7 +18,7 @@ class AboutProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<SettingsRoute>()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
-        
+
         subject = AboutProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
