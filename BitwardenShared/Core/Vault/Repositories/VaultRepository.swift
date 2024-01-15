@@ -466,12 +466,6 @@ class DefaultVaultRepository {
 }
 
 extension DefaultVaultRepository: VaultRepository {
-    // MARK: Parameters
-
-    var timeProvider: any TimeProvider {
-        CurrentTime()
-    }
-
     // MARK: API Methods
 
     func fetchSync(isManualRefresh: Bool) async throws {
