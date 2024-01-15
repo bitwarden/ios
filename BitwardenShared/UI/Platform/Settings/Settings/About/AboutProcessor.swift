@@ -5,7 +5,8 @@
 final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     // MARK: Types
 
-    typealias Services = HasPasteboardService
+    typealias Services = HasErrorReporter
+        & HasPasteboardService
 
     // MARK: Properties
 
@@ -31,6 +32,11 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     ) {
         self.coordinator = coordinator
         self.services = services
+
+        // Set the initial value of the crash logs toggle.
+        var state = state
+        state.isSubmitCrashLogsToggleOn = self.services.errorReporter.isEnabled
+
         super.init(state: state)
     }
 
@@ -48,6 +54,7 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
             state.toast = newValue
         case let .toggleSubmitCrashLogs(isOn):
             state.isSubmitCrashLogsToggleOn = isOn
+            services.errorReporter.isEnabled = isOn
         case .versionTapped:
             handleVersionTapped()
         }
