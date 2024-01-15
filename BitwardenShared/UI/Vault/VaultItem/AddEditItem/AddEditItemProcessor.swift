@@ -138,10 +138,10 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             state.loginState.isPasswordVisible = newValue
         case let .toastShown(newValue):
             state.toast = newValue
+        case .totpFieldLeftFocus:
+            parseAndValidateEditedAuthenticatorKey(state.loginState.totpState.rawAuthenticatorKeyString)
         case let .totpKeyChanged(newValue):
-            state.loginState.totpKey = (newValue != nil)
-                ? TOTPCodeConfig(authenticatorKey: newValue!)
-                : nil
+            state.loginState.totpState = .init(newValue)
         case let .typeChanged(newValue):
             state.type = newValue
         case let .uriChanged(newValue, index: index):
@@ -422,18 +422,27 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         with value: String
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
-            self?.parseAuthenticatorKey(value)
+            self?.parseAndValidateCapturedAuthenticatorKey(value)
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 
-    func parseAuthenticatorKey(_ key: String) {
+    func parseAndValidateCapturedAuthenticatorKey(_ key: String) {
         do {
-            state.loginState.totpKey = try services.totpService.getTOTPConfiguration(key: key)
+            let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
+            state.loginState.totpState = .key(authKeyModel)
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         } catch {
             coordinator.navigate(to: .alert(.totpScanFailureAlert()))
         }
+    }
+
+    func parseAndValidateEditedAuthenticatorKey(_ key: String?) {
+        guard key != state.loginState.totpState.authKeyModel?.rawAuthenticatorKey else { return }
+        let newState = LoginTOTPState(key)
+        state.loginState.totpState = newState
+        guard case .invalid = newState else { return }
+        coordinator.navigate(to: .alert(.totpScanFailureAlert()))
     }
 
     func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {

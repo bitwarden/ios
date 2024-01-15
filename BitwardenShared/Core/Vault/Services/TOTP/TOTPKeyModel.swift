@@ -1,14 +1,11 @@
-/// Represents the configuration for a TOTP code.
+/// A model representing  a TOTP authentication key.
 ///
-struct TOTPCodeConfig: Equatable {
+struct TOTPKeyModel: Equatable {
     // MARK: Properties
 
     /// The hash algorithm used for the TOTP code.
     ///
     let algorithm: TOTPCryptoHashAlgorithm
-
-    /// The authenticatorKey used to generate the `TOTPCodeConfig`.
-    let authenticatorKey: String
 
     /// The base 32 key used to generate the TOTP code.
     var base32Key: String {
@@ -23,6 +20,9 @@ struct TOTPCodeConfig: Equatable {
     ///
     let period: Int
 
+    /// The authenticatorKey used to generate the `TOTPCodeConfig`.
+    let rawAuthenticatorKey: String
+
     /// The key type used for generating the TOTP code.
     let totpKey: TOTPKey
 
@@ -33,7 +33,7 @@ struct TOTPCodeConfig: Equatable {
     /// - Parameter authenticatorKey: A string representing the TOTP key.
     init?(authenticatorKey: String) {
         guard let keyType = TOTPKey(authenticatorKey) else { return nil }
-        self.authenticatorKey = authenticatorKey
+        rawAuthenticatorKey = authenticatorKey
         totpKey = keyType
         period = keyType.period
         digits = keyType.digits
