@@ -44,7 +44,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// Creates a new `ViewItemProcessor`.
     ///
     /// - Parameters:
-    ///   - coordiantor: The `Coordinator` for this processor.
+    ///   - coordinator: The `Coordinator` for this processor.
     ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - itemId: The id of the item that is being viewed.
     ///   - services: The services used by this processor.
@@ -139,6 +139,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
             cipherState.loginState.isPasswordVisible.toggle()
             state.loadingState = .data(cipherState)
+        case .passwordHistoryPressed:
+            guard let passwordHistory = state.passwordHistory else { return }
+            // TODO: - go to password history view
         case let .toastShown(newValue):
             state.toast = newValue
         }
