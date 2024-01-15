@@ -394,6 +394,10 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     /// Kicks off the TOTP setup flow.
     ///
     private func setupTotp() async {
+        guard services.cameraService.deviceSupportsCamera() else {
+            coordinator.navigate(to: .setupTotpManual, context: self)
+            return
+        }
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
             await coordinator.navigate(asyncTo: .scanCode, context: self)
@@ -446,6 +450,21 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         state.loginState.totpState = newState
         guard case .invalid = newState else { return }
         coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+    }
+
+    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        guard services.cameraService.deviceSupportsCamera() else { return }
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.coordinator.navigate(to: .scanCode, context: self)
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+
+    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.coordinator.navigate(to: .setupTotpManual, context: self)
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 }
 

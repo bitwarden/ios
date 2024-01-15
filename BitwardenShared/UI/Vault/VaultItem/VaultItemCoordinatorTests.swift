@@ -402,6 +402,12 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     /// A flag to capture a `didCancel` call.
     var didCancel: Bool = false
 
+    /// A flag to capture a `showCameraScan` call.
+    var didRequestCamera: Bool = false
+
+    /// A flag to capture a `showManualEntry` call.
+    var didRequestManual: Bool = false
+
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
         with value: String
@@ -410,7 +416,17 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
         capturedScan = value
     }
 
+    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        didRequestCamera = true
+        capturedCoordinator = captureCoordinator
+    }
+
+    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        didRequestManual = true
+        capturedCoordinator = captureCoordinator
+    }
+
     func didCancelScan() {
         didCancel = true
     }
-}
+} // swiftlint:disable:this file_length
