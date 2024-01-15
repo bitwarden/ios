@@ -6,7 +6,7 @@ import XCTest
 // MARK: - ViewItemProcessorTests
 
 class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
-    // MARK: Propteries
+    // MARK: Properties
 
     var coordinator: MockCoordinator<VaultItemRoute>!
     var delegate: MockCipherItemOperationDelegate!
@@ -485,6 +485,20 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(coordinator.routes.last, .moveToOrganization(cipher))
         XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
+    }
+
+    /// `receive` with `.passwordHistoryPressed` navigates to the password history view.
+    func test_receive_passwordHistoryPressed() {
+        subject.state.passwordHistory = [.fixture(), .fixture()]
+        subject.receive(.passwordHistoryPressed)
+        XCTAssertEqual(coordinator.routes.last, .passwordHistory([.fixture(), .fixture()]))
+    }
+
+    /// `receive` with `.passwordHistoryPressed` does nothing if there's no password history.
+    func test_receive_passwordHistoryPressed_noData() {
+        subject.state.passwordHistory = nil
+        subject.receive(.passwordHistoryPressed)
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.

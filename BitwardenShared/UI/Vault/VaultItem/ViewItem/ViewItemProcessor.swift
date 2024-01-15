@@ -141,7 +141,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             state.loadingState = .data(cipherState)
         case .passwordHistoryPressed:
             guard let passwordHistory = state.passwordHistory else { return }
-            // TODO: - go to password history view
+            coordinator.navigate(to: .passwordHistory(passwordHistory))
         case let .toastShown(newValue):
             state.toast = newValue
         }

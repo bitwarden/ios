@@ -124,13 +124,5 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         coordinator.navigate(to: .passwordHistoryList(nil))
 
         stackNavigator.present(navigationController)
-//        let processor = PasswordHistoryListProcessor(
-//            coordinator: asAnyCoordinator(),
-//            services: services,
-//            state: PasswordHistoryListState()
-//        )
-//        let view = PasswordHistoryListView(store: Store(processor: processor))
-//        let hostingController = UIHostingController(rootView: view)
-//        stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }
 }

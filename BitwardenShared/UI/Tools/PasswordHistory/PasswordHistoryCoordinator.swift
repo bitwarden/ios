@@ -51,11 +51,18 @@ class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
     // MARK: Private Methods
 
     /// Show the password history view.
+    ///
+    /// - Parameter passwordHistory: The password history to display, if it's already known.
+    ///
     private func showPasswordHistoryListView(_ passwordHistory: [PasswordHistoryView]?) {
+        let state = PasswordHistoryListState(
+            passwordHistory: passwordHistory ?? [],
+            showClearButton: passwordHistory == nil
+        )
         let processor = PasswordHistoryListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: PasswordHistoryListState(passwordHistory: passwordHistory ?? [])
+            state: state
         )
         let view = PasswordHistoryListView(store: Store(processor: processor))
         stackNavigator.replace(view)

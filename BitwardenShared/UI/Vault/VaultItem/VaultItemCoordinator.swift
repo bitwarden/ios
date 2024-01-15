@@ -9,6 +9,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = GeneratorModule
+        & PasswordHistoryModule
         & VaultItemModule
 
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
@@ -78,6 +79,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
         case let .moveToOrganization(cipher):
             showMoveToOrganization(cipher: cipher, delegate: context as? MoveToOrganizationProcessorDelegate)
+        case let .passwordHistory(passwordHistory):
+            showPasswordHistory(passwordHistory)
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
@@ -153,6 +156,33 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.replace(view)
     }
 
+    /// Shows the attachments screen.
+    ///
+    private func showAttachments() {
+        let processor = AttachmentsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AttachmentsState()
+        )
+        let view = AttachmentsView(store: Store(processor: processor))
+        let hostingController = UIHostingController(rootView: view)
+        stackNavigator.present(UINavigationController(rootViewController: hostingController))
+    }
+
+    /// Shows the totp camera setup screen.
+    ///
+    private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
+        let navigationController = UINavigationController()
+        let coordinator = AuthenticatorKeyCaptureCoordinator(
+            delegate: delegate,
+            services: services,
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        await coordinator.navigate(asyncTo: .scanCode)
+        stackNavigator.present(navigationController, overFullscreen: true)
+    }
+
     /// Shows the clone item screen.
     ///
     /// - Parameters:
@@ -183,19 +213,6 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
                 presentChildVaultItemCoordinator(route: .cloneItem(cipher: cipherView), context: delegate)
             }
         }
-    }
-
-    /// Shows the attachments screen.
-    ///
-    private func showAttachments() {
-        let processor = AttachmentsProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: AttachmentsState()
-        )
-        let view = AttachmentsView(store: Store(processor: processor))
-        let hostingController = UIHostingController(rootView: view)
-        stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }
 
     /// Shows the move to organization screen.
@@ -240,18 +257,26 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         }
     }
 
-    /// Shows the totp camera setup screen.
+    /// Shows the generator screen for the the specified type.
     ///
-    private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
+    /// - Parameters:
+    ///   - type: The type to generate.
+    ///   - emailWebsite: An optional website host used to generate usernames.
+    ///   - delegate: The delegate for this generator flow.
+    ///
+    private func showGenerator(
+        for type: GeneratorType,
+        emailWebsite: String?,
+        delegate: GeneratorCoordinatorDelegate
+    ) {
         let navigationController = UINavigationController()
-        let coordinator = AuthenticatorKeyCaptureCoordinator(
+        let coordinator = module.makeGeneratorCoordinator(
             delegate: delegate,
-            services: services,
             stackNavigator: navigationController
-        )
+        ).asAnyCoordinator()
         coordinator.start()
-        await coordinator.navigate(asyncTo: .scanCode)
-        stackNavigator.present(navigationController, overFullscreen: true)
+        coordinator.navigate(to: .generator(staticType: type, emailWebsite: emailWebsite))
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the totp manual setup screen.
@@ -282,25 +307,15 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }
 
-    /// Shows the generator screen for the the specified type.
+    /// A route to view the password history view.
     ///
-    /// - Parameters:
-    ///   - type: The type to generate.
-    ///   - emailWebsite: An optional website host used to generate usernames.
-    ///   - delegate: The delegate for this generator flow.
+    /// - Parameter passwordHistory: The password history to view.
     ///
-    private func showGenerator(
-        for type: GeneratorType,
-        emailWebsite: String?,
-        delegate: GeneratorCoordinatorDelegate
-    ) {
+    private func showPasswordHistory(_ passwordHistory: [PasswordHistoryView]) {
         let navigationController = UINavigationController()
-        let coordinator = module.makeGeneratorCoordinator(
-            delegate: delegate,
-            stackNavigator: navigationController
-        ).asAnyCoordinator()
+        let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: .generator(staticType: type, emailWebsite: emailWebsite))
+        coordinator.navigate(to: .passwordHistoryList(passwordHistory))
         stackNavigator.present(navigationController)
     }
 

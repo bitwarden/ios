@@ -197,7 +197,10 @@ struct ViewItemDetailsView: View {
                                 .underline(color: Asset.Colors.primaryBitwarden.swiftUIColor)
                         }
                         .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .id("passwordHistoryButton")
                     }
+                    .accessibilityLabel(Localizations.passwordHistory + ": \(passwordHistoryCount)")
+                    .accessibilityElement(children: .combine)
                 }
             }
         }

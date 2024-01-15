@@ -135,25 +135,23 @@ extension PasswordHistoryView: Identifiable {
 // MARK: - Previews
 
 #if DEBUG
-struct GeneratorHistoryView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            PasswordHistoryListView(store: Store(processor: StateProcessor(
-                state: PasswordHistoryListState(
-                    passwordHistory: [
-                        PasswordHistoryView(password: "8gr6uY8CLYQwzr#", lastUsedDate: Date()),
-                        PasswordHistoryView(password: "%w4&D*48&CD&j2", lastUsedDate: Date()),
-                        PasswordHistoryView(password: "df@58^%8o7e@&@", lastUsedDate: Date()),
-                    ]
-                )
-            )))
-        }
-        .previewDisplayName("Password History")
+#Preview("Password History") {
+    NavigationView {
+        PasswordHistoryListView(store: Store(processor: StateProcessor(
+            state: PasswordHistoryListState(
+                passwordHistory: [
+                    PasswordHistoryView(password: "8gr6uY8CLYQwzr#", lastUsedDate: Date()),
+                    PasswordHistoryView(password: "%w4&D*48&CD&j2", lastUsedDate: Date()),
+                    PasswordHistoryView(password: "df@58^%8o7e@&@", lastUsedDate: Date()),
+                ]
+            )
+        )))
+    }
+}
 
-        NavigationView {
-            PasswordHistoryListView(store: Store(processor: StateProcessor(state: PasswordHistoryListState())))
-        }
-        .previewDisplayName("Empty")
+#Preview("Empty") {
+    NavigationView {
+        PasswordHistoryListView(store: Store(processor: StateProcessor(state: PasswordHistoryListState())))
     }
 }
 #endif

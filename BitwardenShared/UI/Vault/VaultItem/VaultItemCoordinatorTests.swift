@@ -305,6 +305,18 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertTrue(navigationController.topViewController is UIHostingController<MoveToOrganizationView>)
     }
 
+    /// `navigate(to:)` with `.passwordHistory` presents the password history view.
+    func test_navigateTo_passwordHistory() {
+        subject.navigate(to: .passwordHistory([.fixture()]))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(module.passwordHistoryCoordinator.isStarted)
+        XCTAssertEqual(module.passwordHistoryCoordinator.routes.last, .passwordHistoryList([.fixture()]))
+    }
+
     /// `navigate(to:)` with `.setupTotpCamera` with context without conformance fails to present.
     func test_navigateTo_setupTotpCamera_noConformance() async throws {
         cameraService.startResult = .success(AVCaptureSession())
