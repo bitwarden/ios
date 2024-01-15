@@ -65,7 +65,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: GeneratorRoute, context: AnyObject?) {
+    func navigate(to route: GeneratorRoute, context _: AnyObject?) {
         switch route {
         case .cancel:
             delegate?.didCancelGenerator()
@@ -110,12 +110,12 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     /// Shows the generator history screen.
     ///
     private func showGeneratorHistory() {
-        let processor = GeneratorHistoryProcessor(
+        let processor = PasswordHistoryListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: GeneratorHistoryState()
+            state: PasswordHistoryListState()
         )
-        let view = GeneratorHistoryView(store: Store(processor: processor))
+        let view = PasswordHistoryListView(store: Store(processor: processor))
         let hostingController = UIHostingController(rootView: view)
         stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }

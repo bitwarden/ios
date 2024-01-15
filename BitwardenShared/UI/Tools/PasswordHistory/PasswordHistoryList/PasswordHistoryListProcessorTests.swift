@@ -3,13 +3,13 @@ import XCTest
 
 @testable import BitwardenShared
 
-class GeneratorHistoryProcessorTests: BitwardenTestCase {
+class PasswordHistoryListProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<GeneratorRoute>!
     var generatorRepository: MockGeneratorRepository!
     var pasteboardService: MockPasteboardService!
-    var subject: GeneratorHistoryProcessor!
+    var subject: PasswordHistoryListProcessor!
 
     // MARK: Setup & Teardown
 
@@ -20,13 +20,13 @@ class GeneratorHistoryProcessorTests: BitwardenTestCase {
         generatorRepository = MockGeneratorRepository()
         pasteboardService = MockPasteboardService()
 
-        subject = GeneratorHistoryProcessor(
+        subject = PasswordHistoryListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 generatorRepository: generatorRepository,
                 pasteboardService: pasteboardService
             ),
-            state: GeneratorHistoryState()
+            state: PasswordHistoryListState()
         )
     }
 

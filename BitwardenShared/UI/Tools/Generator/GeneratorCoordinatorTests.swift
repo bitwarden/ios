@@ -149,7 +149,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
         let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.topViewController is UIHostingController<GeneratorHistoryView>)
+        XCTAssertTrue(navigationController.topViewController is UIHostingController<PasswordHistoryListView>)
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
