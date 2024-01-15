@@ -24,7 +24,7 @@ public class Alert {
     let preferredStyle: UIAlertController.Style
 
     /// The title of the message that is displayed at the top of the alert.
-    let title: String
+    let title: String?
 
     // MARK: Initialization
 
@@ -38,7 +38,7 @@ public class Alert {
     ///   - alertTextFields: A list of text fields that the user can enter text into.
     ///
     public init(
-        title: String,
+        title: String?,
         message: String?,
         preferredStyle: UIAlertController.Style = .alert,
         alertActions: [AlertAction] = [],
@@ -140,7 +140,7 @@ public class Alert {
 extension Alert: CustomDebugStringConvertible {
     public var debugDescription: String {
         """
-        Alert(title: \(title), message: \(message ?? "nil"), alertActions: \(alertActions), alertTextFields: \(alertTextFields))
+        Alert(title: \(title ?? "nil"), message: \(message ?? "nil"), alertActions: \(alertActions), alertTextFields: \(alertTextFields))
         """
     }
 }

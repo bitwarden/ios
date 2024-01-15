@@ -439,6 +439,16 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
     }
 
+    /// `receive(_:)` with `.morePressed(.attachments)` navigates the user to attachments view.
+    func test_receive_morePressed_attachments() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
+
+        subject.receive(.morePressed(.attachments))
+
+        XCTAssertEqual(coordinator.routes.last, .attachments)
+    }
+
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
     /// collections view.
     func test_receive_morePressed_editCollections() throws {

@@ -226,8 +226,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
         switch action {
         case .attachments:
-            // TODO: BIT-364
-            print("attachments")
+            coordinator.navigate(to: .attachments)
         case .clone:
             coordinator.navigate(to: .cloneItem(cipher: cipher), context: self)
         case .editCollections:
