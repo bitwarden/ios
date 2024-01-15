@@ -57,9 +57,28 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
         // She the alert to confirm exporting the vault.
         coordinator.showAlert(.confirmExportVault(encrypted: encrypted) {
+            // Validate the password before exporting the vault.
+            guard await self.validatePassword() else {
+                return self.coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
+            }
+
             // TODO: BIT-429
             // TODO: BIT-447
             // TODO: BIT-449
         })
+    }
+
+    /// Validate the password.
+    ///
+    /// - Returns: `true` if the password is valid.
+    ///
+    @MainActor
+    private func validatePassword() async -> Bool {
+        do {
+            return try await services.settingsRepository.validatePassword(state.passwordText)
+        } catch {
+            services.errorReporter.log(error: error)
+            return false
+        }
     }
 }
