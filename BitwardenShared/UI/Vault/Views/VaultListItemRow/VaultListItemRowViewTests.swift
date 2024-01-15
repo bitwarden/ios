@@ -10,6 +10,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
 
     var processor: MockProcessor<VaultListItemRowState, VaultListItemRowAction, Void>!
     var subject: VaultListItemRowView!
+    var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
 
@@ -18,13 +19,15 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         let state = VaultListItemRowState(item: .fixture(), hasDivider: false, showWebIcons: true)
         processor = MockProcessor(state: state)
         let store = Store(processor: processor)
-        subject = VaultListItemRowView(store: store)
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2023, month: 12, day: 31)))
+        subject = VaultListItemRowView(store: store, timeProvider: timeProvider)
     }
 
     override func tearDown() {
         super.tearDown()
         processor = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests

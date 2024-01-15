@@ -137,6 +137,7 @@ struct LandingView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 struct LandingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -218,3 +219,4 @@ struct LandingView_Previews: PreviewProvider {
         .previewDisplayName("Profiles Open")
     }
 }
+#endif

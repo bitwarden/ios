@@ -287,6 +287,7 @@ struct AddEditSendItemView: View {
 
 // MARK: Previews
 
+#if DEBUG
 struct AddSendItemView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -346,3 +347,4 @@ struct AddSendItemView_Previews: PreviewProvider {
         .previewDisplayName("Options - Custom Dates")
     }
 }
+#endif

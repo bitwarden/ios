@@ -4,6 +4,24 @@ import UIKit
 // MARK: - Alert+Vault
 
 extension Alert {
+    /// An alert presenting the user with options to select an attachment type.
+    ///
+    /// - Returns: An alert presenting the user with options to select an attachment type.
+    ///
+    static func attachmentOptions(handler: @escaping (AlertAction) async -> Void) -> Alert {
+        Alert(
+            title: nil,
+            message: nil,
+            preferredStyle: .actionSheet,
+            alertActions: [
+                AlertAction(title: Localizations.photos, style: .default, handler: handler),
+                AlertAction(title: Localizations.camera, style: .default, handler: handler),
+                AlertAction(title: Localizations.browse, style: .default, handler: handler),
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
     /// An alert presenting the user with more options for a vault list item.
     ///
     /// - Parameters:
