@@ -93,7 +93,9 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     private func presentFileSelectionAlert() {
         let alert = Alert.fileSelectionOptions { [weak self] route in
             guard let self else { return }
-            coordinator.navigate(to: .fileSelection(route), context: self)
+            DispatchQueue.main.async {
+                self.coordinator.navigate(to: .fileSelection(route), context: self)
+            }
         }
         coordinator.showAlert(alert)
     }

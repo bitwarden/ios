@@ -64,7 +64,9 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
-    }/// `perform(_:)` with `.savePressed` and valid input saves the item.
+    }
+
+    /// `perform(_:)` with `.savePressed` and valid input saves the item.
     func test_perform_savePressed_validated_error() async {
         subject.state.name = "Name"
         subject.state.type = .text

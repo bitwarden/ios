@@ -82,7 +82,9 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
             imageData = image.pngData()
         }
         guard let imageData else { return }
-        delegate?.fileSelectionCompleted(fileName: fileName, data: imageData)
+        DispatchQueue.main.async { [weak self] in
+            self?.delegate?.fileSelectionCompleted(fileName: fileName, data: imageData)
+        }
     }
 
     /// Shows the camera screen.
@@ -137,7 +139,9 @@ extension FileSelectionCoordinator: UIDocumentPickerDelegate {
 
         do {
             let fileData = try Data(contentsOf: url)
-            delegate?.fileSelectionCompleted(fileName: fileName, data: fileData)
+            DispatchQueue.main.async { [weak self] in
+                self?.delegate?.fileSelectionCompleted(fileName: fileName, data: fileData)
+            }
         } catch {
             services.errorReporter.log(error: error)
         }
