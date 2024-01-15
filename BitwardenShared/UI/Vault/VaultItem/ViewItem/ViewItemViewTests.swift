@@ -11,6 +11,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     // MARK: Properties
 
     var mockPresentTime = Date(year: 2023, month: 12, day: 31, minute: 0, second: 41)
+    var timeProvider: TimeProvider!
     var processor: MockProcessor<ViewItemState, ViewItemAction, ViewItemEffect>!
     var subject: ViewItemView!
 
@@ -21,13 +22,15 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let state = ViewItemState()
         processor = MockProcessor(state: state)
         let store = Store(processor: processor)
-        subject = ViewItemView(store: store)
+        timeProvider = MockTimeProvider(.mockTime(mockPresentTime))
+        subject = ViewItemView(store: store, timeProvider: timeProvider)
     }
 
     override func tearDown() {
         super.tearDown()
         processor = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests

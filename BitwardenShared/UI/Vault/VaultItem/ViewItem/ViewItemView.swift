@@ -27,6 +27,9 @@ struct ViewItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ViewItemState, ViewItemAction, ViewItemEffect>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     var body: some View {
         LoadingView(state: store.state.loadingState) { state in
             if let viewState = state.viewState {
@@ -88,7 +91,7 @@ struct ViewItemView: View {
                         mapAction: { $0 },
                         mapEffect: { $0 }
                     ),
-                    timeProvider: PreviewTimeProvider()
+                    timeProvider: timeProvider
                 )
             }
             .padding(16)
@@ -225,6 +228,13 @@ struct ViewItemView_Previews: PreviewProvider {
                             loadingState: .loading
                         )
                     )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_000
+                        )
+                    )
                 )
             )
         }
@@ -244,6 +254,13 @@ struct ViewItemView_Previews: PreviewProvider {
                             loadingState: .data(cardState)
                         )
                     )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_000
+                        )
+                    )
                 )
             )
         }
@@ -257,6 +274,13 @@ struct ViewItemView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: ViewItemState(
                             loadingState: .data(loginState)
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_011
                         )
                     )
                 )

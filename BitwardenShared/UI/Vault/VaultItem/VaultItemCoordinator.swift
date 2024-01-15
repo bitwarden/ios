@@ -14,6 +14,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
         & HasTOTPService
+        & HasTimeProvider
         & HasVaultRepository
 
     // MARK: - Private Properties
@@ -303,7 +304,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             state: ViewItemState()
         )
         let store = Store(processor: processor)
-        let view = ViewItemView(store: store)
+        let view = ViewItemView(
+            store: store,
+            timeProvider: services.timeProvider
+        )
         stackNavigator.replace(view)
     }
 }
