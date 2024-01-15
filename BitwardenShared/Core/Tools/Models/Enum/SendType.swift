@@ -24,13 +24,3 @@ enum SendType: Int, CaseIterable, Codable, Equatable, Menuable {
         }
     }
 }
-
-extension SendType {
-    /// Returns the SDK representation of this value.
-    var sdkType: BitwardenSdk.SendType {
-        switch self {
-        case .file: .file
-        case .text: .text
-        }
-    }
-}
