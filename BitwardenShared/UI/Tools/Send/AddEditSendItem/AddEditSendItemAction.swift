@@ -5,11 +5,8 @@ import Foundation
 /// Actions that can be processed by a `AddEditSendItemProcessor`.
 ///
 enum AddEditSendItemAction: Equatable {
-    /// The browse button was pressed.
-    case browsePressed
-
-    /// The camera button was pressed.
-    case cameraPressed
+    /// The choose file button was pressed.
+    case chooseFilePressed
 
     /// The custom deletion date was changed.
     case customDeletionDateChanged(Date)
@@ -52,9 +49,6 @@ enum AddEditSendItemAction: Equatable {
 
     /// The password visibility was changed.
     case passwordVisibileChanged(Bool)
-
-    /// The photos button was pressed.
-    case photosPressed
 
     /// The share on save toggle was changed.
     case shareOnSaveChanged(Bool)

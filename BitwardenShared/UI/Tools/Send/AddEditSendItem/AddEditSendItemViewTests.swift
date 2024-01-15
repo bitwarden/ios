@@ -22,20 +22,12 @@ class AddEditSendItemViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the browse button sends the `.browsePressed` action.
-    func test_browseButton_tap() throws {
+    /// Tapping the choose file button sends the `.chooseFilePressed` action.
+    func test_chooseFileButton_tap() throws {
         processor.state.type = .file
-        let button = try subject.inspect().find(button: Localizations.browse)
+        let button = try subject.inspect().find(button: Localizations.chooseFile)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .browsePressed)
-    }
-
-    /// Tapping the camera button sends the `.cameraPressed` action.
-    func test_cameraButton_tap() throws {
-        processor.state.type = .file
-        let button = try subject.inspect().find(button: Localizations.camera)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .cameraPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .chooseFilePressed)
     }
 
     /// Tapping the cancel button sends the `.dismissPressed` action.
@@ -102,14 +94,6 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.options)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .optionsPressed)
-    }
-
-    /// Tapping the photos button dispatches the `.photosPressed` action.
-    func test_photosButton_tap() throws {
-        processor.state.type = .file
-        let button = try subject.inspect().find(button: Localizations.photos)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .photosPressed)
     }
 
     /// Tapping the save button performs the `.savePressed` effect.

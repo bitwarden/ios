@@ -40,7 +40,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     func test_receive_chooseFilePressed() {
         subject.receive(.chooseFilePressed)
 
-        XCTAssertEqual(coordinator.alertShown.last, .attachmentOptions(handler: { _ in }))
+        XCTAssertEqual(coordinator.alertShown.last, .fileSelectionOptions(handler: { _ in }))
     }
 
     /// `receive(_:)` with `.dismissPressed` dismisses the view.

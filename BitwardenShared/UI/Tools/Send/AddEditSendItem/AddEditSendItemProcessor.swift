@@ -37,10 +37,12 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
 
     override func receive(_ action: AddEditSendItemAction) {
         switch action {
-        case .browsePressed:
-            coordinator.navigate(to: .fileBrowser, context: self)
-        case .cameraPressed:
-            coordinator.navigate(to: .camera, context: self)
+//        case .browsePressed:
+//            coordinator.navigate(to: .fileBrowser, context: self)
+//        case .cameraPressed:
+//            coordinator.navigate(to: .camera, context: self)
+        case .chooseFilePressed:
+            presentFileSelectionAlert()
         case let .customDeletionDateChanged(newValue):
             state.customDeletionDate = newValue
         case let .customExpirationDateChanged(newValue):
@@ -63,8 +65,8 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.password = newValue
         case let .passwordVisibileChanged(newValue):
             state.isPasswordVisible = newValue
-        case .photosPressed:
-            coordinator.navigate(to: .photoLibrary, context: self)
+//        case .photosPressed:
+//            coordinator.navigate(to: .photoLibrary, context: self)
         case let .maximumAccessCountChanged(newValue):
             state.maximumAccessCount = newValue
         case let .nameChanged(newValue):
@@ -81,6 +83,23 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     }
 
     // MARK: Private Methods
+
+    /// Presents the file selection alert.
+    ///
+    private func presentFileSelectionAlert() {
+        let alert = Alert.fileSelectionOptions { [weak self] route in
+            guard let self else { return }
+            switch route {
+            case .camera:
+                coordinator.navigate(to: .camera, context: self)
+            case .file:
+                coordinator.navigate(to: .fileBrowser, context: self)
+            case .photo:
+                coordinator.navigate(to: .photoLibrary, context: self)
+            }
+        }
+        coordinator.showAlert(alert)
+    }
 
     /// Saves the current send item.
     ///

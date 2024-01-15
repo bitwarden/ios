@@ -141,25 +141,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                Menu {
-                    Button(Localizations.photos) {
-                        store.send(.photosPressed)
-                    }
-                    Button(Localizations.camera) {
-                        store.send(.cameraPressed)
-                    }
-                    Button(Localizations.browse) {
-                        store.send(.browsePressed)
-                    }
-                } label: {
-                    Text(Localizations.chooseFile)
-                        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
-                        .padding(.vertical, 14)
-                        .padding(.horizontal, 20)
-                        .frame(maxWidth: .infinity)
-                        .background(Asset.Colors.fillTertiary.swiftUIColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                Button(Localizations.chooseFile) {
+                    store.send(.chooseFilePressed)
                 }
+                .buttonStyle(.tertiary())
 
                 Text(Localizations.maxFileSize)
                     .styleGuide(.subheadline)
@@ -407,5 +392,5 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             )
         )
     }
-} // swiftlint:disable:this file_length
+}
 #endif

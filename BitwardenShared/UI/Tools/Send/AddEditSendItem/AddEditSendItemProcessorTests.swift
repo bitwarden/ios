@@ -41,17 +41,22 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
     }
 
-    /// `receive(_:)` with `.browsePressed` navigates to the document browser.
-    func test_receive_browsePressed() {
-        subject.receive(.browsePressed)
+    /// `receive(_:)` with `.chooseFilePressed` navigates to the document browser.
+    func test_receive_chooseFilePressed() async throws {
+        subject.receive(.chooseFilePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+
+        try await alert.tapAction(title: Localizations.browse)
         XCTAssertEqual(coordinator.routes.last, .fileBrowser)
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
-    }
 
-    /// `receive(_:)` with `.cameraPressed` navigates to the camera.
-    func test_receive_cameraPressed() {
-        subject.receive(.cameraPressed)
+        try await alert.tapAction(title: Localizations.camera)
         XCTAssertEqual(coordinator.routes.last, .camera)
+        XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
+
+        try await alert.tapAction(title: Localizations.photos)
+        XCTAssertEqual(coordinator.routes.last, .photoLibrary)
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
     }
 
@@ -166,13 +171,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         subject.receive(.passwordVisibileChanged(true))
 
         XCTAssertTrue(subject.state.isPasswordVisible)
-    }
-
-    /// `receive(_:)` with `.photosPressed` navigates to the photo picker.
-    func test_receive_photosPressed() {
-        subject.receive(.photosPressed)
-        XCTAssertEqual(coordinator.routes.last, .photoLibrary)
-        XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
     }
 
     /// `receive(_:)` with `.shareOnSaveChanged` updates the share on save toggle.
