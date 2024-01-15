@@ -71,7 +71,11 @@ class SendCoordinatorTests: BitwardenTestCase {
 
     /// `imagePickerController(_:,didFinishPickingMediaWithInfo:)` creates a filename for the photo
     /// and notifies the delegate.
-    func test_imagePickerViewControllerDidFinishPickingMediaWithInfo() {
+    func test_imagePickerViewControllerDidFinishPickingMediaWithInfo() throws {
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            throw XCTSkip("Unable to unit test UIImagePickerController with a camera input on CI")
+        }
+
         let fileSelectionDelegate = MockFileSelectionDelegate()
         subject.navigate(to: .camera, context: fileSelectionDelegate)
 
@@ -147,6 +151,10 @@ class SendCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.camera` and with a file selection delegate presents the camera
     /// screen.
     func test_navigateTo_camera_withDelegate() throws {
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            throw XCTSkip("Unable to unit test UIImagePickerController with a camera input on CI")
+        }
+
         let delegate = MockFileSelectionDelegate()
         subject.navigate(to: .camera, context: delegate)
 
