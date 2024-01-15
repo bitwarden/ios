@@ -300,6 +300,8 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(attemptsInUserDefaults, 5)
         await alert.alertActions[0].handler?(alert.alertActions[0], [])
         // should log user out
+        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 0)
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(coordinator.routes.last, .landing)
     }

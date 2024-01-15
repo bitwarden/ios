@@ -133,23 +133,19 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
         } catch {
             state.unsuccessfulUnlockAttemptsCount += 1
             await services.stateService.setUnsuccessfulUnlockAttempts(state.unsuccessfulUnlockAttemptsCount)
-            let alertAction = AlertAction(title: Localizations.ok, style: .cancel) { [weak self] _, _ in
+
+            coordinator.navigate(to: .alert(.invalidMasterPassword { [weak self] in
                 guard let self else { return }
                 if state.unsuccessfulUnlockAttemptsCount >= 5 {
                     do {
+                        await services.stateService.setUnsuccessfulUnlockAttempts(0)
                         try await services.authRepository.logout()
                     } catch {
                         services.errorReporter.log(error: BitwardenError.logoutError(error: error))
                     }
                     coordinator.navigate(to: .landing)
                 }
-            }
-            let alert = Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.invalidMasterPassword,
-                alertActions: [alertAction]
-            )
-            coordinator.navigate(to: .alert(alert))
+            }))
             Logger.processor.error("Error unlocking vault: \(error)")
         }
     }

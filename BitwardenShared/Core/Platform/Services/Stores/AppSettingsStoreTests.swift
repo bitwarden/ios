@@ -338,9 +338,9 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `unsuccessfulUnlockAttempts` returns `nil` if there isn't a previously stored value.
-    func test_unsuccessfulUnlockAttempts_isInitiallyNil() {
-        XCTAssertNil(subject.unsuccessfulUnlockAttempts(userId: "1"))
+    /// `unsuccessfulUnlockAttempts` returns `0` if there isn't a previously stored value.
+    func test_unsuccessfulUnlockAttempts_isInitially0() {
+        XCTAssertEqual(0, subject.unsuccessfulUnlockAttempts(userId: "1"))
     }
 
     /// `unsuccessfulUnlockAttempts(userId:)`can be used to get the unsuccessful unlock attempts  for a user.
