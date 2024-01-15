@@ -2,7 +2,7 @@ import BitwardenSdk
 import Foundation
 
 /// A helper class to retrieve icon images for login items.
-class IconImageHelper {
+enum IconImageHelper {
     // MARK: Static Methods
 
     /// Retrieves an icon image URL for a given login view.

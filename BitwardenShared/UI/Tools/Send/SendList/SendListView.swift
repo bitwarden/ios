@@ -132,6 +132,7 @@ struct SendListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
+            .refreshable { await store.perform(.refresh) }
             .navigationBar(title: Localizations.send, titleDisplayMode: .large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -200,7 +201,8 @@ struct SendListView: View {
                                             name: "File Send",
                                             notes: nil,
                                             key: "",
-                                            password: nil,
+                                            newPassword: nil,
+                                            hasPassword: false,
                                             type: .file,
                                             file: nil,
                                             text: nil,
@@ -220,7 +222,8 @@ struct SendListView: View {
                                             name: "Text Send",
                                             notes: nil,
                                             key: "",
-                                            password: nil,
+                                            newPassword: nil,
+                                            hasPassword: false,
                                             type: .text,
                                             file: nil,
                                             text: nil,
@@ -240,7 +243,8 @@ struct SendListView: View {
                                             name: "All Statuses",
                                             notes: nil,
                                             key: "",
-                                            password: "password",
+                                            newPassword: nil,
+                                            hasPassword: true,
                                             type: .text,
                                             file: nil,
                                             text: nil,

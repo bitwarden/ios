@@ -133,6 +133,7 @@ struct ProfileSwitcherView: View {
 
 // MARK: Previews
 
+#if DEBUG
 struct ProfileSwitcherView_Previews: PreviewProvider {
     static let selectedAccount = ProfileSwitcherItem(
         color: .purple,
@@ -259,3 +260,4 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
         .previewDisplayName("Max Accounts")
     }
 }
+#endif

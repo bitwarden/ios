@@ -30,7 +30,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasAuthRepository
         & HasCameraService
+        & HasEnvironmentService
         & HasErrorReporter
+        & HasStateService
+        & HasTimeProvider
         & HasVaultRepository
         & VaultItemCoordinator.Services
 
@@ -86,14 +89,30 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
-        case let .addItem(group):
-            showVaultItem(route: .addItem(group: group))
+        case let .addItem(allowTypeSelection, group, uri):
+            Task {
+                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                showVaultItem(
+                    route: .addItem(
+                        allowTypeSelection: allowTypeSelection,
+                        group: group,
+                        hasPremium: hasPremium ?? false,
+                        uri: uri
+                    )
+                )
+            }
         case let .alert(alert):
             stackNavigator.present(alert)
         case .autofillList:
             showAutofillList()
-        case let .editItem(cipher: cipher):
-            showVaultItem(route: .editItem(cipher: cipher))
+        case let .editItem(cipher):
+            Task {
+                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                showVaultItem(
+                    route: .editItem(cipher, hasPremium ?? false),
+                    delegate: context as? CipherItemOperationDelegate
+                )
+            }
         case .dismiss:
             stackNavigator.dismiss()
         case let .group(group):
@@ -130,10 +149,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         let processor = VaultGroupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultGroupState(group: group)
+            state: VaultGroupState(
+                group: group,
+                iconBaseURL: services.environmentService.iconsURL
+            )
         )
         let store = Store(processor: processor)
-        let view = VaultGroupView(store: store)
+        let view = VaultGroupView(
+            store: store,
+            timeProvider: services.timeProvider
+        )
         let viewController = UIHostingController(rootView: view)
 
         stackNavigator.push(
@@ -152,10 +177,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             let processor = VaultListProcessor(
                 coordinator: asAnyCoordinator(),
                 services: services,
-                state: VaultListState()
+                state: VaultListState(
+                    iconBaseURL: services.environmentService.iconsURL
+                )
             )
             let store = Store(processor: processor)
-            let view = VaultListView(store: store)
+            let view = VaultListView(
+                store: store,
+                timeProvider: services.timeProvider
+            )
             stackNavigator.replace(view, animated: false)
         }
     }

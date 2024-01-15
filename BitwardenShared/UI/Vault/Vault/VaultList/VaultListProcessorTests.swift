@@ -14,6 +14,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var coordinator: MockCoordinator<VaultRoute>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var stateService: MockStateService!
     var subject: VaultListProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -28,12 +29,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authRepository = MockAuthRepository()
         errorReporter = MockErrorReporter()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+        stateService = MockStateService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
             errorReporter: errorReporter,
             pasteboardService: pasteboardService,
+            stateService: stateService,
             vaultRepository: vaultRepository
         )
 
@@ -51,6 +55,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        stateService = nil
         subject = nil
         vaultRepository = nil
     }
@@ -72,205 +77,22 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
-    /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a card cipher.
-    func test_perform_morePressed_card() async throws {
-        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .card)))
-
-        // If the card item has no number or code, only the view and add buttons should display.
-        vaultRepository.fetchCipherResult = .success(.cardFixture())
-        await subject.perform(.morePressed(item: item))
-        var alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 3)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
-
-        // A card with data should show the copy actions.
-        let cardWithData = CipherView.cardFixture(card: .fixture(
-            code: "123",
-            number: "123456789"
-        ))
-        vaultRepository.fetchCipherResult = .success(cardWithData)
-        await subject.perform(.morePressed(item: item))
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 5)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.copyNumber)
-        XCTAssertEqual(alert.alertActions[3].title, Localizations.copySecurityCode)
-        XCTAssertEqual(alert.alertActions[4].title, Localizations.cancel)
-
-        // Test the functionality of the buttons.
-
-        // View navigates to the view item view.
-        let viewAction = try XCTUnwrap(alert.alertActions[0])
-        await viewAction.handler?(viewAction, [])
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
-
-        // Edit navigates to the edit view.
-        let editAction = try XCTUnwrap(alert.alertActions[1])
-        await editAction.handler?(editAction, [])
-        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: cardWithData))
-
-        // Copy number copies the card's number.
-        let copyNumberAction = try XCTUnwrap(alert.alertActions[2])
-        await copyNumberAction.handler?(copyNumberAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "123456789")
-
-        // Copy security code copies the card's security code.
-        let copyCodeAction = try XCTUnwrap(alert.alertActions[3])
-        await copyCodeAction.handler?(copyCodeAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "123")
-    }
-
-    /// `perform(_:)` with `.morePressed` handles errors correctly.
-    func test_perform_morePressed_error() async throws {
-        vaultRepository.fetchCipherResult = .failure(BitwardenTestError.example)
-
-        await subject.perform(.morePressed(item: .fixture()))
-
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
-    func test_perform_morePressed_login() async throws {
-        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .login)))
-
-        // If the login item has no username, password, or url, only the view and add buttons should display.
-        vaultRepository.fetchCipherResult = .success(.loginFixture())
-        await subject.perform(.morePressed(item: item))
-        var alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 3)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
-
-        // A login with data should show the copy and launch actions.
-        let loginWithData = CipherView.loginFixture(login: .fixture(
-            password: "password",
-            uris: [.init(uri: URL.example.relativeString, match: nil)],
-            username: "username"
-        ))
-        vaultRepository.fetchCipherResult = .success(loginWithData)
-        await subject.perform(.morePressed(item: item))
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 6)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.copyUsername)
-        XCTAssertEqual(alert.alertActions[3].title, Localizations.copyPassword)
-        XCTAssertEqual(alert.alertActions[4].title, Localizations.launch)
-        XCTAssertEqual(alert.alertActions[5].title, Localizations.cancel)
-
-        // Test the functionality of the buttons.
-
-        // View navigates to the view item view.
-        let viewAction = try XCTUnwrap(alert.alertActions[0])
-        await viewAction.handler?(viewAction, [])
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
-
-        // Edit navigates to the edit view.
-        let editAction = try XCTUnwrap(alert.alertActions[1])
-        await editAction.handler?(editAction, [])
-        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: loginWithData))
-
-        // Copy username copies the username.
-        let copyUsernameAction = try XCTUnwrap(alert.alertActions[2])
-        await copyUsernameAction.handler?(copyUsernameAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "username")
-
-        // Copy password copies the user's username.
-        let copyPasswordAction = try XCTUnwrap(alert.alertActions[3])
-        await copyPasswordAction.handler?(copyPasswordAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "password")
-
-        // Launch action set's the url to open.
-        let launchAction = try XCTUnwrap(alert.alertActions[4])
-        await launchAction.handler?(launchAction, [])
-        XCTAssertEqual(subject.state.url, .example)
-    }
-
-    /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for an identity cipher.
-    func test_perform_morePressed_identity() async throws {
-        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .identity)))
-
-        // An identity option can be viewed or edited.
-        vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
-        await subject.perform(.morePressed(item: item))
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 3)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
-
-        // Test the functionality of the buttons.
-
-        // View navigates to the view item view.
-        let viewAction = try XCTUnwrap(alert.alertActions[0])
-        await viewAction.handler?(viewAction, [])
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
-
-        // Edit navigates to the edit view.
-        let editAction = try XCTUnwrap(alert.alertActions[1])
-        await editAction.handler?(editAction, [])
-        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: .fixture(type: .identity)))
-    }
-
-    /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a secure note cipher.
-    func test_perform_morePressed_secureNote() async throws {
-        let item = try XCTUnwrap(VaultListItem(cipherListView: CipherListView.fixture(type: .secureNote)))
-
-        // If the secure note has no value, only the view and add buttons should display.
-        vaultRepository.fetchCipherResult = .success(.fixture(type: .secureNote))
-        await subject.perform(.morePressed(item: item))
-        var alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 3)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
-
-        // A note with data should show the copy action.
-        let noteWithData = CipherView.fixture(notes: "Test Note", type: .secureNote)
-        vaultRepository.fetchCipherResult = .success(noteWithData)
-        await subject.perform(.morePressed(item: item))
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 4)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.copyNotes)
-        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
-
-        // Test the functionality of the buttons.
-
-        // View navigates to the view item view.
-        let viewAction = try XCTUnwrap(alert.alertActions[0])
-        await viewAction.handler?(viewAction, [])
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
-
-        // Edit navigates to the edit view.
-        let editAction = try XCTUnwrap(alert.alertActions[1])
-        await editAction.handler?(editAction, [])
-        XCTAssertEqual(coordinator.routes.last, .editItem(cipher: noteWithData))
-
-        // Copy copies the items notes.
-        let copyNoteAction = try XCTUnwrap(alert.alertActions[2])
-        await copyNoteAction.handler?(copyNoteAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "Test Note")
-    }
-
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
     func test_perform_refresh() async {
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.refreshed` records an error if applicable.
+    func test_perform_refreshed_error() async {
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(.refreshAccountProfiles)` without profiles for the profile switcher.
@@ -324,6 +146,43 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(profile1, subject.state.profileSwitcherState.activeAccountProfile)
     }
 
+    /// `perform(.search)` with a keyword should update search results in state.
+    func test_perform_search() async {
+        let searchResult: [CipherView] = [.fixture(name: "example")]
+        vaultRepository.searchCipherSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
+        await subject.perform(.search("example"))
+
+        XCTAssertEqual(subject.state.searchResults.count, 1)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            try [VaultListItem.fixture(cipherView: XCTUnwrap(searchResult.first))]
+        )
+    }
+
+    /// `perform(.search)` throws error and error is logged.
+    func test_perform_search_error() async {
+        struct DecryptError: Error, Equatable {}
+        vaultRepository.searchCipherSubject.send(completion: .failure(DecryptError()))
+        await subject.perform(.search("example"))
+
+        XCTAssertEqual(subject.state.searchResults.count, 0)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            []
+        )
+        XCTAssertEqual(errorReporter.errors.last as? DecryptError, DecryptError())
+    }
+
+    /// `perform(.search)` with a empty keyword should get empty search result.
+    func test_perform_search_emptyString() async {
+        await subject.perform(.search("   "))
+        XCTAssertEqual(subject.state.searchResults.count, 0)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            []
+        )
+    }
+
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
     func test_perform_streamOrganizations() {
         let task = Task {
@@ -341,6 +200,33 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         task.cancel()
 
         XCTAssertEqual(subject.state.organizations, organizations)
+    }
+
+    /// `perform(_:)` with `.streamOrganizations` records any errors
+    func test_perform_streamOrganizations_error() {
+        let task = Task {
+            await subject.perform(.streamOrganizations)
+        }
+
+        vaultRepository.organizationsSubject.send(completion: .failure(BitwardenTestError.example))
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
+    /// web icons parameter from the state service.
+    func test_perform_streamShowWebIcons() {
+        let task = Task {
+            await subject.perform(.streamShowWebIcons)
+        }
+
+        stateService.showWebIconsSubject.send(false)
+        waitFor(subject.state.showWebIcons == false)
+
+        task.cancel()
     }
 
     /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
@@ -475,6 +361,197 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .group(.card))
     }
 
+    /// `receive(_:)` with `.itemPressed` navigates to the `.totp` route for a totp code.
+    func test_receive_itemPressed_totp() {
+        subject.receive(.itemPressed(item: .fixtureTOTP(totp: .fixture())))
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123"))
+    }
+
+    /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for a card cipher.
+    func test_receive_morePressed_card() async throws {
+        var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .card)))
+
+        // If the card item has no number or code, only the view and add buttons should display.
+        vaultRepository.fetchCipherResult = .success(.cardFixture())
+        subject.receive(.morePressed(item))
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // A card with data should show the copy actions.
+        let cardWithData = CipherView.cardFixture(card: .fixture(
+            code: "123",
+            number: "123456789"
+        ))
+        item = try XCTUnwrap(VaultListItem(cipherView: cardWithData))
+        subject.receive(.morePressed(item))
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 5)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.copyNumber)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.copySecurityCode)
+        XCTAssertEqual(alert.alertActions[4].title, Localizations.cancel)
+
+        // Test the functionality of the buttons.
+
+        // View navigates to the view item view.
+        let viewAction = try XCTUnwrap(alert.alertActions[0])
+        await viewAction.handler?(viewAction, [])
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+
+        // Edit navigates to the edit view.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(cardWithData))
+
+        // Copy number copies the card's number.
+        let copyNumberAction = try XCTUnwrap(alert.alertActions[2])
+        await copyNumberAction.handler?(copyNumberAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "123456789")
+
+        // Copy security code copies the card's security code.
+        let copyCodeAction = try XCTUnwrap(alert.alertActions[3])
+        await copyCodeAction.handler?(copyCodeAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "123")
+    }
+
+    /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
+    func test_receive_morePressed_login() async throws {
+        var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .login)))
+
+        // If the login item has no username, password, or url, only the view and add buttons should display.
+        vaultRepository.fetchCipherResult = .success(.loginFixture())
+        subject.receive(.morePressed(item))
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // A login with data should show the copy and launch actions.
+        let loginWithData = CipherView.loginFixture(login: .fixture(
+            password: "password",
+            uris: [.init(uri: URL.example.relativeString, match: nil)],
+            username: "username"
+        ))
+        item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+        subject.receive(.morePressed(item))
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 6)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.copyUsername)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.copyPassword)
+        XCTAssertEqual(alert.alertActions[4].title, Localizations.launch)
+        XCTAssertEqual(alert.alertActions[5].title, Localizations.cancel)
+
+        // Test the functionality of the buttons.
+
+        // View navigates to the view item view.
+        let viewAction = try XCTUnwrap(alert.alertActions[0])
+        await viewAction.handler?(viewAction, [])
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+
+        // Edit navigates to the edit view.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(loginWithData))
+
+        // Copy username copies the username.
+        let copyUsernameAction = try XCTUnwrap(alert.alertActions[2])
+        await copyUsernameAction.handler?(copyUsernameAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "username")
+
+        // Copy password copies the user's username.
+        let copyPasswordAction = try XCTUnwrap(alert.alertActions[3])
+        await copyPasswordAction.handler?(copyPasswordAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "password")
+
+        // Launch action set's the url to open.
+        let launchAction = try XCTUnwrap(alert.alertActions[4])
+        await launchAction.handler?(launchAction, [])
+        XCTAssertEqual(subject.state.url, .example)
+    }
+
+    /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for an identity cipher.
+    func test_receive_morePressed_identity() async throws {
+        let item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .identity)))
+
+        // An identity option can be viewed or edited.
+        vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
+        subject.receive(.morePressed(item))
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // Test the functionality of the buttons.
+
+        // View navigates to the view item view.
+        let viewAction = try XCTUnwrap(alert.alertActions[0])
+        await viewAction.handler?(viewAction, [])
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+
+        // Edit navigates to the edit view.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(.fixture(type: .identity)))
+    }
+
+    /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for a secure note cipher.
+    func test_receive_morePressed_secureNote() async throws {
+        var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .secureNote)))
+
+        // If the secure note has no value, only the view and add buttons should display.
+        vaultRepository.fetchCipherResult = .success(.fixture(type: .secureNote))
+        subject.receive(.morePressed(item))
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // A note with data should show the copy action.
+        let noteWithData = CipherView.fixture(notes: "Test Note", type: .secureNote)
+        item = try XCTUnwrap(VaultListItem(cipherView: noteWithData))
+        subject.receive(.morePressed(item))
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.copyNotes)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
+
+        // Test the functionality of the buttons.
+
+        // View navigates to the view item view.
+        let viewAction = try XCTUnwrap(alert.alertActions[0])
+        await viewAction.handler?(viewAction, [])
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+
+        // Edit navigates to the edit view.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(noteWithData))
+
+        // Copy copies the items notes.
+        let copyNoteAction = try XCTUnwrap(alert.alertActions[2])
+        await copyNoteAction.handler?(copyNoteAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "Test Note")
+    }
+
     /// `receive(_:)` with `ProfileSwitcherAction.backgroundPressed` turns off the Profile Switcher Visibility.
     func test_receive_profileSwitcherBackgroundPressed() {
         subject.state.profileSwitcherState.isVisible = true
@@ -515,13 +592,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.searchResults.count, 0)
     }
 
-    /// `receive(_:)` with `.searchTextChanged` with a matching search term updates the state correctly.
-    func test_receive_searchTextChanged_withResult() {
-        subject.state.searchText = ""
-        subject.receive(.searchTextChanged("example"))
+    /// `receive(_:)` with `.searchVaultFilterChanged` updates the state correctly.
+    func test_receive_searchVaultFilterChanged() {
+        let organization = Organization.fixture()
 
-        // TODO: BIT-628 Replace assertion with mock vault assertion
-        XCTAssertEqual(subject.state.searchResults.count, 1)
+        subject.state.searchVaultFilterType = .myVault
+        subject.receive(.searchVaultFilterChanged(.organization(organization)))
+
+        XCTAssertEqual(subject.state.searchVaultFilterType, .organization(organization))
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
@@ -532,6 +610,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    /// `receive(_:)` with `.totpCodeExpired` does nothing.
+    func test_receive_totpCodeExpired() {
+        let initialState = subject.state
+
+        subject.receive(.totpCodeExpired(.fixture()))
+
+        XCTAssertEqual(subject.state, initialState)
     }
 
     /// `receive(_:)` with `.toggleProfilesViewVisibility` updates the state correctly.

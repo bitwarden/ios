@@ -7,6 +7,9 @@ public protocol AppExtensionDelegate: AnyObject {
     /// Whether the app is running within an extension.
     var isInAppExtension: Bool { get }
 
+    /// The URI of the credential to autofill.
+    var uri: String? { get }
+
     /// The autofill request should be completed with the specified username and password.
     ///
     /// - Parameters:

@@ -11,6 +11,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     typealias Services = HasAuthRepository
         & HasErrorReporter
         & HasPasteboardService
+        & HasStateService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -46,8 +47,6 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         switch effect {
         case .appeared:
             await refreshVault(isManualRefresh: false)
-        case let .morePressed(item):
-            await showMoreOptionsAlert(for: item)
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -60,8 +59,14 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             await refreshProfileState()
         case .refreshVault:
             await refreshVault(isManualRefresh: true)
+        case let .search(text):
+            state.searchResults = await searchVault(for: text)
         case .streamOrganizations:
             await streamOrganizations()
+        case .streamShowWebIcons:
+            for await value in await services.stateService.showWebIconsPublisher() {
+                state.showWebIcons = value
+            }
         case .streamVaultList:
             for await value in services.vaultRepository.vaultListPublisher(filter: state.vaultFilterType) {
                 state.loadingState = .data(value)
@@ -100,12 +105,15 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             case let .scrollOffsetChanged(newOffset):
                 state.profileSwitcherState.scrollOffset = newOffset
             }
+        case let .morePressed(item):
+            showMoreOptionsAlert(for: item)
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else { return }
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
-            state.searchResults = searchVault(for: newValue)
+        case let .searchVaultFilterChanged(newValue):
+            state.searchVaultFilterType = newValue
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpCodeExpired:
@@ -165,8 +173,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         do {
             try await services.vaultRepository.fetchSync(isManualRefresh: isManualRefresh)
         } catch {
-            // TODO: BIT-1034 Add an error alert
-            print(error)
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -175,31 +183,22 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     /// - Parameter searchText: The string to use when searching the vault.
     /// - Returns: An array of `VaultListItem`s. If no results can be found, an empty array will be returned.
     ///
-    private func searchVault(for searchText: String) -> [VaultListItem] {
-        // TODO: BIT-628 Actually search the vault for the provided string.
-        if "example".contains(searchText.lowercased()) {
-            return [
-                VaultListItem(cipherListView: .init(
-                    id: "1",
-                    organizationId: nil,
-                    folderId: nil,
-                    collectionIds: [],
-                    name: "Example",
-                    subTitle: "email@example.com",
-                    type: .login,
-                    favorite: true,
-                    reprompt: .none,
-                    edit: false,
-                    viewPassword: true,
-                    attachments: 0,
-                    creationDate: Date(),
-                    deletedDate: nil,
-                    revisionDate: Date()
-                ))!,
-            ]
-        } else {
+    private func searchVault(for searchText: String) async -> [VaultListItem] {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return []
         }
+        do {
+            let result = try await services.vaultRepository.searchCipherPublisher(
+                searchText: searchText,
+                filterType: state.searchVaultFilterType
+            )
+            for try await ciphers in result {
+                return ciphers
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+        return []
     }
 
     /// Sets the visibility of the profiles view and updates accessibility focus
@@ -227,22 +226,16 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     ///
     /// - Parameter item: The selected item to show the options for.
     ///
-    private func showMoreOptionsAlert(for item: VaultListItem) async {
-        // Load the content of the cipher item to determine which values to show in the menu.
-        do {
-            guard let cipherView = try await services.vaultRepository.fetchCipher(withId: item.id)
-            else { return }
+    private func showMoreOptionsAlert(for item: VaultListItem) {
+        // Only ciphers have more options.
+        guard case let .cipher(cipherView) = item.itemType else { return }
 
-            coordinator.showAlert(.moreOptions(
-                cipherView: cipherView,
-                id: item.id,
-                showEdit: true,
-                action: handleMoreOptionsAction
-            ))
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
-        }
+        coordinator.showAlert(.moreOptions(
+            cipherView: cipherView,
+            id: item.id,
+            showEdit: true,
+            action: handleMoreOptionsAction
+        ))
     }
 
     /// Handle the result of the selected option on the More Options alert..
@@ -251,14 +244,14 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     ///
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) {
         switch action {
-        case let .copy(toast: toast, value: value):
+        case let .copy(toast, value):
             services.pasteboardService.copy(value)
             state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
-        case let .edit(cipherView: cipherView):
-            coordinator.navigate(to: .editItem(cipher: cipherView))
-        case let .launch(url: url):
+        case let .edit(cipherView):
+            coordinator.navigate(to: .editItem(cipherView), context: self)
+        case let .launch(url):
             state.url = url.sanitized
-        case let .view(id: id):
+        case let .view(id):
             coordinator.navigate(to: .viewItem(id: id))
         }
     }

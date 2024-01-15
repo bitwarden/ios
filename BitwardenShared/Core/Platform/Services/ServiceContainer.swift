@@ -69,6 +69,9 @@ public class ServiceContainer: Services {
     /// The object used by the application to retrieve information about this device.
     let systemDevice: SystemDevice
 
+    /// Provides the present time for TOTP Code Calculation.
+    let timeProvider: TimeProvider
+
     /// The service used by the application to manage account access tokens.
     let tokenService: TokenService
 
@@ -108,6 +111,7 @@ public class ServiceContainer: Services {
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
+    ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - tokenService: The service used by the application to manage account access tokens.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///   - twoStepLoginService: The service used by the application to generate a two step login URL.
@@ -133,6 +137,7 @@ public class ServiceContainer: Services {
         stateService: StateService,
         syncService: SyncService,
         systemDevice: SystemDevice,
+        timeProvider: TimeProvider,
         tokenService: TokenService,
         totpService: TOTPService,
         twoStepLoginService: TwoStepLoginService,
@@ -157,6 +162,7 @@ public class ServiceContainer: Services {
         self.stateService = stateService
         self.syncService = syncService
         self.systemDevice = systemDevice
+        self.timeProvider = timeProvider
         self.tokenService = tokenService
         self.totpService = totpService
         self.twoStepLoginService = twoStepLoginService
@@ -254,6 +260,7 @@ public class ServiceContainer: Services {
 
         let sendRepository = DefaultSendRepository(
             clientVault: clientService.clientVault(),
+            stateService: stateService,
             syncService: syncService
         )
 
@@ -265,6 +272,8 @@ public class ServiceContainer: Services {
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
+
+        let timeProvider = CurrentTime()
 
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
@@ -301,6 +310,7 @@ public class ServiceContainer: Services {
             stateService: stateService,
             syncService: syncService,
             systemDevice: UIDevice.current,
+            timeProvider: timeProvider,
             tokenService: tokenService,
             totpService: totpService,
             twoStepLoginService: twoStepLoginService,

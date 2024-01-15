@@ -33,6 +33,19 @@ class AboutProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
+    }
+
+    /// `receive(_:)` with `.helpCenterTapped` set the URL to open in the state.
+    func test_receive_helpCenterTapped() {
+        subject.receive(.helpCenterTapped)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.helpAndFeedback)
+    }
+
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")

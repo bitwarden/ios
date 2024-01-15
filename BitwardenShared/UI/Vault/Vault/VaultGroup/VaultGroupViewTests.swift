@@ -11,19 +11,25 @@ class VaultGroupViewTests: BitwardenTestCase {
 
     var processor: MockProcessor<VaultGroupState, VaultGroupAction, VaultGroupEffect>!
     var subject: VaultGroupView!
+    var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
         processor = MockProcessor(state: VaultGroupState())
-        subject = VaultGroupView(store: Store(processor: processor))
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2023, month: 12, day: 31)))
+        subject = VaultGroupView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
     }
 
     override func tearDown() {
         super.tearDown()
         processor = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests
@@ -46,20 +52,29 @@ class VaultGroupViewTests: BitwardenTestCase {
 
     /// Tapping a vault item dispatches the `.itemPressed` action.
     func test_vaultItem_tap() throws {
-        let item = VaultListItem.fixture(cipherListView: .fixture(name: "Item", subTitle: ""))
+        let item = VaultListItem.fixture(cipherView: .fixture(name: "Item"))
         processor.state.loadingState = .data([item])
         let button = try subject.inspect().find(button: "Item")
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item))
     }
 
+    /// Tapping the vault item copy totp button dispatches the `.copyTOTPCode` action.
+    func test_vaultItem_copyTOTPButton_tap() throws {
+        processor.state.loadingState = .data([.fixtureTOTP(totp: .fixture())])
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyTotp)
+        try button.tap()
+        waitFor(!processor.dispatchedActions.isEmpty)
+        XCTAssertEqual(processor.dispatchedActions.last, .copyTOTPCode("123456"))
+    }
+
     /// Tapping the more button on a vault item dispatches the `.morePressed` action.
-    func test_vaultItemMoreButton_tap() async throws {
+    func test_vaultItem_moreButton_tap() throws {
         let item = VaultListItem.fixture()
-        processor.state.loadingState = .data([item])
-        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.more)
-        try await button.tap()
-        XCTAssertEqual(processor.effects.last, .morePressed(item))
+        processor.state.loadingState = .data([.fixture()])
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.more)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .morePressed(item))
     }
 
     // MARK: Snapshots
@@ -76,21 +91,40 @@ class VaultGroupViewTests: BitwardenTestCase {
 
     func test_snapshot_multipleItems() {
         processor.state.loadingState = .data([
-            .fixture(cipherListView: .fixture(id: "1")),
-            .fixture(cipherListView: .fixture(
+            .fixture(
+                cipherView: .fixture(
+                    id: "1",
+                    login: .fixture(username: "email@example.com"),
+                    name: "Example"
+                )
+            ),
+            .fixture(cipherView: .fixture(
                 id: "2",
-                name: "An extra long name that should take up more than one line",
-                subTitle: "An equally long subtitle that should also take up more than one line"
+                login: .fixture(
+                    username: "An equally long subtitle that should also take up more than one line"
+                ),
+                name: "An extra long name that should take up more than one line"
             )),
-            .fixture(cipherListView: .fixture(id: "3")),
-            .fixture(cipherListView: .fixture(id: "4")),
+            .fixture(cipherView: .fixture(
+                id: "3",
+                login: .fixture(username: "email@example.com"),
+                name: "Example"
+            )),
+            .fixture(cipherView: .fixture(
+                id: "4",
+                login: .fixture(username: "email@example.com"),
+                name: "Example"
+            )),
         ])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_oneItem() {
         processor.state.loadingState = .data([
-            .fixture(),
+            .fixture(cipherView: .fixture(
+                login: .fixture(username: "email@example.com"),
+                name: "Example"
+            )),
         ])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }

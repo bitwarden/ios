@@ -5,4 +5,5 @@ extension APITestData {
     static let identityTokenCaptchaError = loadFromJsonBundle(resource: "IdentityTokenCaptchaFailure")
     static let identityTokenRefresh = loadFromJsonBundle(resource: "identityTokenRefresh")
     static let preValidateSingleSignOn = loadFromJsonBundle(resource: "preValidateSingleSignOn")
+    static let singleSignOnDetails = loadFromJsonBundle(resource: "singleSignOnDetails")
 }

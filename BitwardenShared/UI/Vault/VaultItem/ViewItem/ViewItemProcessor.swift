@@ -72,12 +72,27 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
                     ?? false
-                guard var newState = ViewItemState(cipherView: value, hasPremium: hasPremium) else { continue }
+                var totpState = LoginTOTPState(value.login?.totp)
+                if let key = totpState.authKeyModel,
+                   let updatedState = try? await services.vaultRepository.refreshTOTPCode(for: key) {
+                    totpState = updatedState
+                }
+                guard var newState = ViewItemState(
+                    cipherView: value,
+                    hasPremium: hasPremium
+                ) else { continue }
+                if case var .data(itemState) = newState.loadingState {
+                    itemState.loginState.totpState = totpState
+                    newState.loadingState = .data(itemState)
+                }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
             }
         case .deletePressed:
             await showDeleteConfirmation()
+        case .totpCodeExpired:
+            guard state.hasPremiumFeatures else { return }
+            await updateTOTPCode()
         }
     }
 
@@ -146,7 +161,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
               case let .existing(cipher) = cipherState.configuration else {
             return
         }
-        coordinator.navigate(to: .editItem(cipher: cipher), context: self)
+        Task {
+            let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+            coordinator.navigate(to: .editItem(cipher, hasPremium ?? false), context: self)
+        }
     }
 
     /// Soft deletes the item currently stored in `state`.
@@ -208,11 +226,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
         switch action {
         case .attachments:
-            // TODO: BIT-364
-            print("attachments")
+            coordinator.navigate(to: .attachments)
         case .clone:
-            // TODO: BIT-365
-            print("clone")
+            coordinator.navigate(to: .cloneItem(cipher: cipher), context: self)
         case .editCollections:
             coordinator.navigate(to: .editCollections(cipher), context: self)
         case .moveToOrganization:
@@ -255,6 +271,32 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             await deleteItem(cipherState.cipher)
         }
         coordinator.showAlert(alert)
+    }
+
+    /// Updates the TOTP Code for the view
+    ///
+    private func updateTOTPCode() async {
+        // Only update the code if there is a valid TOTP key model.
+        guard case let .data(cipherItemState) = state.loadingState,
+              let calculationKey = cipherItemState.loginState.totpState.authKeyModel else { return }
+        do {
+            // Get an updated TOTP code for the present key model.
+            let newLoginTOTP = try await services.vaultRepository.refreshTOTPCode(for: calculationKey)
+
+            // Don't update the state if the state is presently loading.
+            guard case let .data(cipherItemState) = state.loadingState else { return }
+
+            // Make a copy for the update.
+            var updatedState = cipherItemState
+
+            // Update the copy with the new TOTP state.
+            updatedState.loginState.totpState = newLoginTOTP
+
+            // Set the loading state with the updated model.
+            state.loadingState = .data(updatedState)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 }
 
