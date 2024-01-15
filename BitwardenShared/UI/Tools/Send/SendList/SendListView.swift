@@ -117,6 +117,9 @@ private struct MainSendListView: View {
 struct SendListView: View {
     // MARK: Properties
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<SendListState, SendListAction, SendListEffect>
 
@@ -151,6 +154,11 @@ struct SendListView: View {
                 }
             }
             .task { await store.perform(.appeared) }
+            .onChange(of: store.state.infoUrl) { newValue in
+                guard let url = newValue else { return }
+                openURL(url)
+                store.send(.clearInfoUrl)
+            }
     }
 }
 

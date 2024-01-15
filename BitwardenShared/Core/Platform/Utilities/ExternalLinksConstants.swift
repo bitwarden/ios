@@ -18,6 +18,10 @@ enum ExternalLinksConstants {
         string: "https://bitwarden.com/help/managing-items/#protect-individual-items"
     )!
 
+    static let sendInfo = URL(
+        string: "https://bitwarden.com/products/send/"
+    )!
+
     /// A markdown link to Bitwarden's terms of service.
     static let termsOfService = URL(string: "https://bitwarden.com/terms/")!
 }
