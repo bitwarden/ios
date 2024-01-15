@@ -109,15 +109,14 @@ struct ViewItemView: View {
 // MARK: Previews
 
 #if DEBUG
+/// A `TimeProvider` for previews.
+///
 class PreviewTimeProvider: TimeProvider {
+    /// A fixed date to use for previews.
     var fixedDate: Date
 
     var presentTime: Date {
         fixedDate
-    }
-
-    func timeSince(_ date: Date) -> TimeInterval {
-        presentTime.timeIntervalSince(date)
     }
 
     init(
@@ -126,6 +125,10 @@ class PreviewTimeProvider: TimeProvider {
         )
     ) {
         self.fixedDate = fixedDate
+    }
+
+    func timeSince(_ date: Date) -> TimeInterval {
+        presentTime.timeIntervalSince(date)
     }
 }
 
