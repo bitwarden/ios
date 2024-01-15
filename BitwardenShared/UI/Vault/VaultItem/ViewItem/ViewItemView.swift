@@ -27,6 +27,9 @@ struct ViewItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ViewItemState, ViewItemAction, ViewItemEffect>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     var body: some View {
         LoadingView(state: store.state.loadingState) { state in
             if let viewState = state.viewState {
@@ -87,7 +90,8 @@ struct ViewItemView: View {
                         state: { _ in state },
                         mapAction: { $0 },
                         mapEffect: { $0 }
-                    )
+                    ),
+                    timeProvider: timeProvider
                 )
             }
             .padding(16)
@@ -105,6 +109,26 @@ struct ViewItemView: View {
 // MARK: Previews
 
 #if DEBUG
+class PreviewTimeProvider: TimeProvider {
+    var fixedDate: Date
+
+    var presentTime: Date {
+        fixedDate
+    }
+
+    func timeSince(_ date: Date) -> TimeInterval {
+        presentTime.timeIntervalSince(date)
+    }
+
+    init(
+        fixedDate: Date = .init(
+            timeIntervalSinceReferenceDate: 1_695_000_011
+        )
+    ) {
+        self.fixedDate = fixedDate
+    }
+}
+
 struct ViewItemView_Previews: PreviewProvider {
     static var cipher = CipherView(
         id: "123",
@@ -141,7 +165,10 @@ struct ViewItemView_Previews: PreviewProvider {
     )
 
     static var cardState: CipherItemState {
-        var state = CipherItemState(existing: cipher, hasPremium: true)!
+        var state = CipherItemState(
+            existing: cipher,
+            hasPremium: true
+        )!
         state.type = CipherType.card
         state.isMasterPasswordRePromptOn = true
         state.name = "Points ALL Day"
@@ -159,7 +186,10 @@ struct ViewItemView_Previews: PreviewProvider {
     }
 
     static var loginState: CipherItemState {
-        var state = CipherItemState(existing: cipher, hasPremium: true)!
+        var state = CipherItemState(
+            existing: cipher,
+            hasPremium: true
+        )!
         state.customFields = [
             CustomFieldState(
                 linkedIdType: nil,
@@ -177,6 +207,14 @@ struct ViewItemView_Previews: PreviewProvider {
             UriState(matchType: .custom(.startsWith), uri: "https://www.example.com"),
             UriState(matchType: .custom(.startsWith), uri: "https://www.example.com/account/login"),
         ]
+        state.loginState.totpState = .init(
+            authKeyModel: .init(authenticatorKey: "JBSWY3DPEHPK3PXP")!,
+            codeModel: .init(
+                code: "032823",
+                codeGenerationDate: .init(timeIntervalSinceReferenceDate: 1_695_000_000),
+                period: 30
+            )
+        )
         state.loginState.username = "email@example.com"
         return state
     }
@@ -188,6 +226,13 @@ struct ViewItemView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: ViewItemState(
                             loadingState: .loading
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_000
                         )
                     )
                 )
@@ -209,6 +254,13 @@ struct ViewItemView_Previews: PreviewProvider {
                             loadingState: .data(cardState)
                         )
                     )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_000
+                        )
+                    )
                 )
             )
         }
@@ -222,6 +274,13 @@ struct ViewItemView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: ViewItemState(
                             loadingState: .data(loginState)
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_011
                         )
                     )
                 )

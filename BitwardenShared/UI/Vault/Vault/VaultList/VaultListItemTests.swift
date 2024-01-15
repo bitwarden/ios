@@ -84,7 +84,7 @@ class VaultListItemTests: BitwardenTestCase {
         )
 
         XCTAssertEqual(
-            VaultListItem.fixtureTOTP().icon.name,
+            VaultListItem.fixtureTOTP(totp: .fixture()).icon.name,
             Asset.Images.clock.name
         )
     }
@@ -93,7 +93,7 @@ class VaultListItemTests: BitwardenTestCase {
     func test_name() {
         XCTAssertEqual(subject.name, "")
 
-        subject = .fixtureTOTP()
+        subject = .fixtureTOTP(totp: .fixture())
         XCTAssertEqual(subject.name, "Name123")
     }
 
@@ -148,6 +148,6 @@ class VaultListItemTests: BitwardenTestCase {
         XCTAssertNil(VaultListItem(cipherView: .fixture(type: .secureNote))?.subtitle)
 
         XCTAssertNil(VaultListItem(id: "1", itemType: .group(.card, 1)).subtitle)
-        XCTAssertNil(VaultListItem.fixtureTOTP().subtitle)
+        XCTAssertNil(VaultListItem.fixtureTOTP(totp: .fixture()).subtitle)
     }
 }

@@ -9,6 +9,7 @@ extension LoginItemState {
         isPasswordVisible: Bool = false,
         isTOTPAvailable: Bool = true,
         password: String = "",
+        totpState: LoginTOTPState = .none,
         uris: [UriState] = [],
         username: String = ""
     ) -> Self {
@@ -17,6 +18,7 @@ extension LoginItemState {
             isPasswordVisible: isPasswordVisible,
             isTOTPAvailable: isTOTPAvailable,
             password: password,
+            totpState: totpState,
             uris: uris,
             username: username
         )
