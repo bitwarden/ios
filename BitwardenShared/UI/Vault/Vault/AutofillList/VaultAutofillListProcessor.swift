@@ -62,6 +62,8 @@ class VaultAutofillListProcessor: StateProcessor<
             await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
                 self?.state.toast = Toast(text: toastText)
             }
+        case let .search(text):
+            await searchVault(for: text)
         case .streamAutofillItems:
             await streamAutofillItems()
         }
@@ -79,12 +81,43 @@ class VaultAutofillListProcessor: StateProcessor<
             )
         case .cancelTapped:
             appExtensionDelegate?.didCancel()
+        case let .searchStateChanged(isSearching: isSearching):
+            guard isSearching else { return }
+            state.searchText = ""
+            state.ciphersForSearch = []
+            state.showNoResults = false
+        case let .searchTextChanged(newValue):
+            state.searchText = newValue
         case let .toastShown(newValue):
             state.toast = newValue
         }
     }
 
     // MARK: Private Methods
+
+    /// Searches the list of ciphers for those matching the search term.
+    ///
+    private func searchVault(for searchText: String) async {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            state.ciphersForSearch = []
+            state.showNoResults = false
+            return
+        }
+        do {
+            let searchResult = try await services.vaultRepository.searchCipherAutofillPublisher(
+                searchText: searchText,
+                filterType: .allVaults
+            )
+            for try await ciphers in searchResult {
+                state.ciphersForSearch = ciphers
+                state.showNoResults = ciphers.isEmpty
+            }
+        } catch {
+            state.ciphersForSearch = []
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Streams the list of autofill items.
     ///
