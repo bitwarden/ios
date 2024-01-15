@@ -350,6 +350,9 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(subject.unsuccessfulUnlockAttempts(userId: "1"), 4)
         XCTAssertEqual(subject.unsuccessfulUnlockAttempts(userId: "3"), 1)
+
+        XCTAssertEqual(4, userDefaults.integer(forKey: "bwPreferencesStorage:invalidUnlockAttempts_1"))
+        XCTAssertEqual(1, userDefaults.integer(forKey: "bwPreferencesStorage:invalidUnlockAttempts_3"))
     }
 
     /// `usernameGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.
