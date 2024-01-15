@@ -244,9 +244,16 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     ///
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) {
         switch action {
-        case let .copy(toast, value):
-            services.pasteboardService.copy(value)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+        case let .copy(toast, value, requiresMasterPasswordReprompt):
+            if requiresMasterPasswordReprompt {
+                presentMasterPasswordRepromptAlert {
+                    self.services.pasteboardService.copy(value)
+                    self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+                }
+            } else {
+                services.pasteboardService.copy(value)
+                state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+            }
         case let .edit(cipherView):
             coordinator.navigate(to: .editItem(cipherView), context: self)
         case let .launch(url):
@@ -254,6 +261,30 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case let .view(id):
             coordinator.navigate(to: .viewItem(id: id))
         }
+    }
+
+    /// Presents the master password reprompt alert and calls the completion handler when the user's
+    /// master password has been confirmed.
+    ///
+    /// - Parameter completion: A completion handler that is called when the user's master password
+    ///     has been confirmed.
+    ///
+    private func presentMasterPasswordRepromptAlert(completion: @escaping () -> Void) {
+        let alert = Alert.masterPasswordPrompt { [weak self] password in
+            guard let self else { return }
+
+            do {
+                let isValid = try await services.vaultRepository.validatePassword(password)
+                guard isValid else {
+                    coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
+                    return
+                }
+                completion()
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+        coordinator.showAlert(alert)
     }
 }
 
@@ -270,7 +301,7 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 /// The actions available from the More Options alert.
 enum MoreOptionsAction {
     /// Copy the `value` and show a toast with the `toast` string.
-    case copy(toast: String, value: String)
+    case copy(toast: String, value: String, requiresMasterPasswordReprompt: Bool)
 
     /// Navigate to the view to edit the `cipherView`.
     case edit(cipherView: CipherView)

@@ -13,7 +13,7 @@ protocol CipherService {
     ///
     func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error>
 
-    /// Deletes a cipher for the current user both in the backend and in local storage..
+    /// Deletes a cipher for the current user both in the backend and in local storage.
     ///
     /// - Parameter id: The id of cipher item to be deleted.
     ///

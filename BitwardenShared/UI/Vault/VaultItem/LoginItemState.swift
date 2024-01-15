@@ -42,7 +42,7 @@ struct LoginItemState: Equatable {
             username: username.nilIfEmpty,
             password: password.nilIfEmpty,
             passwordRevisionDate: passwordUpdatedDate,
-            uris: nil,
+            uris: uris.compactMap(\.loginUriView).nilIfEmpty,
             totp: authenticatorKey,
             autofillOnPageLoad: nil
         )

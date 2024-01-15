@@ -21,6 +21,8 @@ class MockSettingsRepository: SettingsRepository {
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lockVaultCalls = [String?]()
     var unlockVaultCalls = [String?]()
+    var validatePasswordPasswords = [String]()
+    var validatePasswordResult: Result<Bool, Error> = .success(true)
     var logoutResult: Result<Void, StateServiceError> = .failure(.noActiveAccount)
     var foldersListSubject = CurrentValueSubject<[FolderView], Error>([])
 
@@ -73,6 +75,11 @@ class MockSettingsRepository: SettingsRepository {
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         self.allowSyncOnRefresh = allowSyncOnRefresh
         try allowSyncOnRefreshResult.get()
+    }
+
+    func validatePassword(_ password: String) async throws -> Bool {
+        validatePasswordPasswords.append(password)
+        return try validatePasswordResult.get()
     }
 
     func logout() async throws {

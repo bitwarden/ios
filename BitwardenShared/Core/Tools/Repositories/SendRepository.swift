@@ -7,7 +7,13 @@ import Foundation
 /// A protocol for a `SendRepository` which manages access to the data needed by the UI layer.
 ///
 protocol SendRepository: AnyObject {
-    // MARK: Publishers
+    // MARK: Methods
+
+    /// Adds a new Send to the repository.
+    ///
+    /// - Parameter sendView: The send to add to the repository.
+    ///
+    func addSend(_ sendView: SendView) async throws
 
     /// Performs an API request to sync the user's send data. The publishers in the repository can
     /// be used to subscribe to the send data, which are updated as a result of the request.
@@ -15,6 +21,8 @@ protocol SendRepository: AnyObject {
     /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
     ///
     func fetchSync(isManualRefresh: Bool) async throws
+
+    // MARK: Publishers
 
     /// A publisher for all the sends in the user's account.
     ///
@@ -31,10 +39,13 @@ class DefaultSendRepository: SendRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
+    /// The service used to sync and store sends.
+    let sendService: SendService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
-    /// The service used to handle syncing vault data with the API.
+    /// The service used to handle syncing send data with the API.
     let syncService: SyncService
 
     // MARK: Initialization
@@ -43,17 +54,27 @@ class DefaultSendRepository: SendRepository {
     ///
     /// - Parameters:
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - sendService: The service used to sync and store sends.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
         clientVault: ClientVaultService,
+        sendService: SendService,
         stateService: StateService,
         syncService: SyncService
     ) {
         self.clientVault = clientVault
+        self.sendService = sendService
         self.stateService = stateService
         self.syncService = syncService
+    }
+
+    // MARK: Data Methods
+
+    func addSend(_ sendView: SendView) async throws {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        try await sendService.addSend(send)
     }
 
     // MARK: API Methods
