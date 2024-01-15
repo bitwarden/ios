@@ -3,6 +3,9 @@
 /// Actions handled by the `AboutProcessor`.
 ///
 enum AboutAction: Equatable {
+    /// The url has been opened so clear the value in the state.
+    case clearURL
+
     /// The help center button was tapped.
     case helpCenterTapped
 
