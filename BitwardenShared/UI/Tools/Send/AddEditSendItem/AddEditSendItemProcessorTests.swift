@@ -23,6 +23,14 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `fileSelectionCompleted()` updates the state with the new file values.
+    func test_fileSelectionCompleted() {
+        let data = Data("data".utf8)
+        subject.fileSelectionCompleted(fileName: "exampleFile.txt", data: data)
+        XCTAssertEqual(subject.state.fileName, "exampleFile.txt")
+        XCTAssertEqual(subject.state.fileData, data)
+    }
+
     /// `perform(_:)` with `.savePressed` saves the item.
     func test_perform_savePressed() async {
         await subject.perform(.savePressed)
@@ -31,6 +39,20 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
             LoadingOverlayState(title: Localizations.saving),
         ])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+    }
+
+    /// `receive(_:)` with `.browsePressed` navigates to the document browser.
+    func test_receive_browsePressed() {
+        subject.receive(.browsePressed)
+        XCTAssertEqual(coordinator.routes.last, .fileBrowser)
+        XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
+    }
+
+    /// `receive(_:)` with `.cameraPressed` navigates to the camera.
+    func test_receive_cameraPressed() {
+        subject.receive(.cameraPressed)
+        XCTAssertEqual(coordinator.routes.last, .camera)
+        XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
     }
 
     /// `receive(_:)` with `.customDeletionDateChanged` updates the custom deletion date.
@@ -146,6 +168,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isPasswordVisible)
     }
 
+    /// `receive(_:)` with `.photosPressed` navigates to the photo picker.
+    func test_receive_photosPressed() {
+        subject.receive(.photosPressed)
+        XCTAssertEqual(coordinator.routes.last, .photoLibrary)
+        XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
+    }
+
     /// `receive(_:)` with `.shareOnSaveChanged` updates the share on save toggle.
     func test_receive_shareOnSaveChanged() {
         subject.state.isShareOnSaveOn = false
@@ -162,11 +191,24 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.text, "Text")
     }
 
-    /// `receive(_:)` with `.typeChanged` updates the type.
-    func test_receive_typeChanged() {
+    /// `receive(_:)` with `.typeChanged` and premium access updates the type.
+    func test_receive_typeChanged_hasPremium() {
+        subject.state.hasPremium = true
         subject.state.type = .text
         subject.receive(.typeChanged(.file))
 
         XCTAssertEqual(subject.state.type, .file)
+    }
+
+    /// `receive(_:)` with `.typeChanged` and no premium access does not update the type.
+    func test_receive_typeChanged_notHasPremium() {
+        subject.state.hasPremium = false
+        subject.state.type = .text
+        subject.receive(.typeChanged(.file))
+
+        XCTAssertEqual(coordinator.alertShown, [
+            .defaultAlert(title: Localizations.sendFilePremiumRequired),
+        ])
+        XCTAssertEqual(subject.state.type, .text)
     }
 }

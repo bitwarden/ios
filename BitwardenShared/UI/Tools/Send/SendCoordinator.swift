@@ -1,3 +1,4 @@
+import OSLog
 import Photos
 import PhotosUI
 import SwiftUI
@@ -9,7 +10,8 @@ import SwiftUI
 final class SendCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasSendRepository
+    typealias Services = HasErrorReporter
+        & HasSendRepository
 
     // MARK: Private Properties
 
@@ -129,8 +131,8 @@ final class SendCoordinator: NSObject, Coordinator, HasStackNavigator {
     private func showFileBrowser() {
         let viewController = UIDocumentPickerViewController(forOpeningContentTypes: [.data])
         viewController.allowsMultipleSelection = false
-        viewController.delegate = self
         viewController.shouldShowFileExtensions = true
+        viewController.delegate = self
         stackNavigator.present(viewController)
     }
 
@@ -160,10 +162,6 @@ final class SendCoordinator: NSObject, Coordinator, HasStackNavigator {
 }
 
 extension SendCoordinator: UIDocumentPickerDelegate {
-    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-        controller.dismiss(animated: UI.animated)
-    }
-
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         controller.dismiss(animated: UI.animated)
         guard let url = urls.first else { return }
@@ -171,14 +169,18 @@ extension SendCoordinator: UIDocumentPickerDelegate {
         let document = UIDocument(fileURL: url)
         let fileName = document.localizedName.nilIfEmpty
             ?? url.lastPathComponent.nilIfEmpty
-            ?? "unknown_file_name"
+            ?? Constants.unknownFileName
 
-        guard let fileData = FileManager().contents(atPath: url.absoluteString)
-            ?? (try? Data(contentsOf: url))
-        else { return }
+        do {
+            let fileData = try Data(contentsOf: url)
+            fileSelectionDelegate?.fileSelectionCompleted(fileName: fileName, data: fileData)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
-        print("success!")
-        fileSelectionDelegate?.fileSelectionCompleted(fileName: fileName, data: fileData)
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        controller.dismiss(animated: UI.animated)
     }
 }
 
@@ -189,14 +191,14 @@ extension SendCoordinator: PHPickerViewControllerDelegate {
         guard let result = results.first else { return }
 
         if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
-            result.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
                 if let error {
-                    print(error)
-                    // TODO: log error
+                    self?.services.errorReporter.log(error: error)
+                    return
                 }
 
                 guard let image = image as? UIImage else { return }
-                self.selected(image: image, suggestedName: result.itemProvider.suggestedName)
+                self?.selected(image: image, suggestedName: result.itemProvider.suggestedName)
             }
         }
     }
@@ -205,12 +207,16 @@ extension SendCoordinator: PHPickerViewControllerDelegate {
 extension SendCoordinator: UIImagePickerControllerDelegate {
     func imagePickerController(
         _ picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
     ) {
         picker.dismiss()
 
         guard let image = (info[.editedImage] ?? info[.originalImage]) as? UIImage else { return }
         selected(image: image, suggestedName: nil)
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss()
     }
 }
 

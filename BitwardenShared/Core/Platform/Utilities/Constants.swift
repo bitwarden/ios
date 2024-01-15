@@ -42,4 +42,7 @@ enum Constants {
 
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations: Int = 600_000
+
+    /// The default file name when the file name cannot be determined.
+    static let unknownFileName: String = "unknown_file_name"
 }

@@ -22,6 +22,22 @@ class AddEditSendItemViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping the browse button sends the `.browsePressed` action.
+    func test_browseButton_tap() throws {
+        processor.state.type = .file
+        let button = try subject.inspect().find(button: Localizations.browse)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .browsePressed)
+    }
+
+    /// Tapping the camera button sends the `.cameraPressed` action.
+    func test_cameraButton_tap() throws {
+        processor.state.type = .file
+        let button = try subject.inspect().find(button: Localizations.camera)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .cameraPressed)
+    }
+
     /// Tapping the cancel button sends the `.dismissPressed` action.
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
@@ -88,6 +104,14 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .optionsPressed)
     }
 
+    /// Tapping the photos button dispatches the `.photosPressed` action.
+    func test_photosButton_tap() throws {
+        processor.state.type = .file
+        let button = try subject.inspect().find(button: Localizations.photos)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .photosPressed)
+    }
+
     /// Tapping the save button performs the `.savePressed` effect.
     func test_saveButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.save)
@@ -110,6 +134,45 @@ class AddEditSendItemViewTests: BitwardenTestCase {
     }
 
     // MARK: Snapshots
+
+    func test_snapshot_file_empty() {
+        processor.state.type = .file
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_file_withValues() {
+        processor.state.type = .file
+        processor.state.name = "Name"
+        processor.state.fileName = "example_file.txt"
+        processor.state.fileData = Data("example".utf8)
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_file_withOptions_empty() {
+        processor.state.type = .file
+        processor.state.isOptionsExpanded = true
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot_file_withOptions_withValues() {
+        processor.state.type = .file
+        processor.state.isOptionsExpanded = true
+        processor.state.name = "Name"
+        processor.state.fileName = "example_file.txt"
+        processor.state.fileData = Data("example".utf8)
+        processor.state.isHideTextByDefaultOn = true
+        processor.state.isShareOnSaveOn = true
+        processor.state.deletionDate = .custom
+        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.expirationDate = .custom
+        processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.maximumAccessCount = 42
+        processor.state.password = "pa$$w0rd"
+        processor.state.notes = "Notes"
+        processor.state.isHideMyEmailOn = true
+        processor.state.isDeactivateThisSendOn = true
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
 
     func test_snapshot_text_empty() {
         assertSnapshot(of: subject, as: .defaultPortrait)

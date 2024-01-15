@@ -91,14 +91,14 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         coordinator.navigate(to: .dismiss)
     }
 
-    /// Attempts to update the send type. If the active account does not have premium access, this
-    /// method will display an alert informing the user that they do not have access to this
-    /// feature.
+    /// Attempts to update the send type. If the new value requires premium access and the active
+    /// account does not have premium access, this method will display an alert informing the user
+    /// that they do not have access to this feature.
     ///
     /// - Parameter newValue: The new value for the Send's type that will be attempted to be set.
     ///
     private func updateType(_ newValue: SendType) {
-        guard state.hasPremium else {
+        guard !newValue.requiresPremium || state.hasPremium else {
             coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
             return
         }
@@ -106,21 +106,11 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     }
 }
 
+// MARK: - AddEditSendItemProcessor:FileSelectionDelegate
+
 extension AddEditSendItemProcessor: FileSelectionDelegate {
     func fileSelectionCompleted(fileName: String, data: Data) {
         state.fileName = fileName
         state.fileData = data
     }
-}
-
-/// A delegate object that responds to file selection events.
-///
-protocol FileSelectionDelegate: AnyObject {
-    /// A file was chosen by the user.
-    ///
-    /// - Parameters:
-    ///   - fileName: The name of the selected file.
-    ///   - data: The data representation of the selected file.
-    ///
-    func fileSelectionCompleted(fileName: String, data: Data)
 }

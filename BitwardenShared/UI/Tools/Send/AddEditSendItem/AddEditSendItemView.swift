@@ -4,7 +4,7 @@ import SwiftUI
 
 /// A view that allows the user to add or edit a send item.
 ///
-struct AddEditSendItemView: View {
+struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The `Store` for this view.
@@ -141,10 +141,6 @@ struct AddEditSendItemView: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-//                Button(Localizations.chooseFile) {
-//                    store.send(.chooseFilePressed)
-//                }
-//                .buttonStyle(.tertiary())
                 Menu {
                     Button(Localizations.photos) {
                         store.send(.photosPressed)
@@ -152,7 +148,7 @@ struct AddEditSendItemView: View {
                     Button(Localizations.camera) {
                         store.send(.cameraPressed)
                     }
-                    Button("Browse") {
+                    Button(Localizations.browse) {
                         store.send(.browsePressed)
                     }
                 } label: {
@@ -352,7 +348,7 @@ struct AddEditSendItemView: View {
             store: Store(
                 processor: StateProcessor(
                     state: AddEditSendItemState(
-//                        fileName: "Example File",
+                        fileName: "Example File",
                         isHideTextByDefaultOn: true,
                         isShareOnSaveOn: true,
                         name: "Sendy",
@@ -410,4 +406,4 @@ struct AddEditSendItemView: View {
             )
         )
     }
-}
+} // swiftlint:disable:this file_length
