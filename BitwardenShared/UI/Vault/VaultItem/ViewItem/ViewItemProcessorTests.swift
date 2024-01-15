@@ -72,6 +72,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     func test_perform_appeared() {
+        vaultRepository.hasPremiumResult = .success(true)
         let cipherItem = CipherView.fixture(
             id: "id",
             login: LoginView(
@@ -100,6 +101,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             hasPremium: true
         )!
 
+        XCTAssertTrue(subject.state.hasPremiumFeatures)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
