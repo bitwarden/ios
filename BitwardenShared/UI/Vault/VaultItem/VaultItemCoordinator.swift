@@ -61,6 +61,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             )
         case let .alert(alert):
             stackNavigator.present(alert)
+        case .attachments:
+            showAttachments()
         case let .cloneItem(cipher):
             showCloneItem(for: cipher, delegate: context as? CipherItemOperationDelegate)
         case let .dismiss(onDismiss):
@@ -181,6 +183,19 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
                 presentChildVaultItemCoordinator(route: .cloneItem(cipher: cipherView), context: delegate)
             }
         }
+    }
+
+    /// Shows the attachments screen.
+    ///
+    private func showAttachments() {
+        let processor = AttachmentsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AttachmentsState()
+        )
+        let view = AttachmentsView(store: Store(processor: processor))
+        let hostingController = UIHostingController(rootView: view)
+        stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }
 
     /// Shows the move to organization screen.

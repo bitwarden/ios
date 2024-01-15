@@ -128,6 +128,7 @@ extension PasswordHistoryView: Identifiable {
 
 // MARK: - Previews
 
+#if DEBUG
 struct GeneratorHistoryView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -149,3 +150,4 @@ struct GeneratorHistoryView_Previews: PreviewProvider {
         .previewDisplayName("Empty")
     }
 }
+#endif

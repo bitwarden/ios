@@ -143,6 +143,7 @@ struct VaultGroupView: View {
 
 // MARK: Previews
 
+#if DEBUG
 #Preview("Loading") {
     NavigationView {
         VaultGroupView(
@@ -255,3 +256,4 @@ struct VaultGroupView: View {
         )
     }
 }
+#endif

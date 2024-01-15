@@ -107,18 +107,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
         case let .morePressed(menuAction):
-            switch menuAction {
-            case .attachments:
-                // TODO: BIT-364
-                print("attachments")
-            case .clone:
-                // we don't show clone option in edit item state
-                break
-            case .editCollections:
-                coordinator.navigate(to: .editCollections(state.cipher), context: self)
-            case .moveToOrganization:
-                coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
-            }
+            handleMenuAction(menuAction)
         case let .nameChanged(newValue):
             state.name = newValue
         case .newCustomFieldPressed:
@@ -169,6 +158,24 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             state.folders = [.default] + folders
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Handles an action associated with the `VaultItemManagementMenuAction` menu.
+    ///
+    /// - Parameter action: The action that was sent from the menu.
+    ///
+    private func handleMenuAction(_ action: VaultItemManagementMenuAction) {
+        switch action {
+        case .attachments:
+            coordinator.navigate(to: .attachments)
+        case .clone:
+            // we don't show clone option in edit item state
+            break
+        case .editCollections:
+            coordinator.navigate(to: .editCollections(state.cipher), context: self)
+        case .moveToOrganization:
+            coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
         }
     }
 
@@ -387,6 +394,10 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     /// Kicks off the TOTP setup flow.
     ///
     private func setupTotp() async {
+        guard services.cameraService.deviceSupportsCamera() else {
+            coordinator.navigate(to: .setupTotpManual, context: self)
+            return
+        }
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
             await coordinator.navigate(asyncTo: .scanCode, context: self)
@@ -439,6 +450,21 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         state.loginState.totpState = newState
         guard case .invalid = newState else { return }
         coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+    }
+
+    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        guard services.cameraService.deviceSupportsCamera() else { return }
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.coordinator.navigate(to: .scanCode, context: self)
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+
+    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.coordinator.navigate(to: .setupTotpManual, context: self)
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 }
 

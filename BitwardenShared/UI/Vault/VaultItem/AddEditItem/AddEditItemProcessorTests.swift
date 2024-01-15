@@ -709,6 +709,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.isMasterPasswordRePromptOn)
     }
 
+    /// `receive(_:)` with `.morePressed(.attachments)` navigates the user to the attachments  view.
+    func test_receive_morePressed_attachments() throws {
+        subject.receive(.morePressed(.attachments))
+        XCTAssertEqual(coordinator.routes.last, .attachments)
+    }
+
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
     /// collections view.
     func test_receive_morePressed_editCollections() throws {
