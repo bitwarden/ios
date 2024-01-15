@@ -751,6 +751,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appSettingsStore.disableWebIcons)
     }
 
+    /// `setUnsuccessfulUnlockAttempts(userId:)` sets the unsuccessful unlock attempts for the account.
+    func test_setUnsuccessfulUnlockAttempts() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setUnsuccessfulUnlockAttempts(3, userId: "1")
+
+        XCTAssertEqual(appSettingsStore.unsuccessfulUnlockAttempts["1"], 3)
+    }
+
     /// `setUsernameGenerationOptions` sets the username generation options for an account.
     func test_setUsernameGenerationOptions() async throws {
         let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
