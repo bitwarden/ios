@@ -273,6 +273,7 @@ public class ServiceContainer: Services {
         )
 
         let settingsRepository = DefaultSettingsRepository(
+            clientAuth: clientService.clientAuth(),
             clientVault: clientService.clientVault(),
             folderService: folderService,
             pasteboardService: pasteboardService,
