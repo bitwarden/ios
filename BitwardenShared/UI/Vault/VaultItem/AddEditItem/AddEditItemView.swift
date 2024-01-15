@@ -403,7 +403,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: {
                             var state = cipherState
-                            state.loginState.totpKey = .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
+                            state.loginState.totpState = .init("JBSWY3DPEHPK3PXP")
                             state.toast = Toast(text: "Authenticator key added.")
                             return state
                         }()
