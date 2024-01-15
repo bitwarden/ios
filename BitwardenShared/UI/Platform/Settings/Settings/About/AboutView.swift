@@ -7,6 +7,9 @@ import SwiftUI
 struct AboutView: View {
     // MARK: Properties
 
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<AboutState, AboutAction, Void>
 
@@ -26,6 +29,11 @@ struct AboutView: View {
             get: \.toast,
             send: AboutAction.toastShown
         ))
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
     }
 
     // MARK: Private views
