@@ -186,7 +186,6 @@ public class ServiceContainer: Services {
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
-        let sendService = DefaultSendService(sendDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
 
@@ -201,10 +200,17 @@ public class ServiceContainer: Services {
             folderDataStore: dataStore,
             stateService: stateService
         )
+
         let organizationService = DefaultOrganizationService(
             clientCrypto: clientService.clientCrypto(),
             errorReporter: errorReporter,
             organizationDataStore: dataStore,
+            stateService: stateService
+        )
+
+        let sendService = DefaultSendService(
+            sendAPIService: apiService,
+            sendDataStore: dataStore,
             stateService: stateService
         )
 
@@ -260,6 +266,7 @@ public class ServiceContainer: Services {
 
         let sendRepository = DefaultSendRepository(
             clientVault: clientService.clientVault(),
+            sendService: sendService,
             stateService: stateService,
             syncService: syncService
         )

@@ -1,8 +1,9 @@
 import Foundation
+import Networking
 
 /// API response model for a send.
 ///
-struct SendResponseModel: Codable, Equatable {
+struct SendResponseModel: Codable, Equatable, JSONResponse {
     // MARK: Properties
 
     /// The number of times the send has been accessed.
@@ -41,10 +42,10 @@ struct SendResponseModel: Codable, Equatable {
     /// Notes about the send.
     let notes: String?
 
-    /// An optional password used to access the send.
+    /// An optional password used to restrict access to the send.
     let password: String?
 
-    /// The date of the sends's last revision.
+    /// The date of the send's last revision.
     let revisionDate: Date
 
     /// The text included in the send.
