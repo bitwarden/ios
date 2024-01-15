@@ -61,13 +61,6 @@ protocol VaultRepository: AnyObject {
     ///
     func fetchFolders() async throws -> [FolderView]
 
-    /// Generates a TOTP code.
-    ///
-    /// - Parameter key: The key used to generate the TOTP code.
-    /// - Returns: The generated TOTP code.
-    ///
-    func generateTOTP(for key: String) async throws -> TOTPCode
-
     /// Get the value of the disable auto-copy TOTP setting for the current user.
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
@@ -542,10 +535,6 @@ extension DefaultVaultRepository: VaultRepository {
     func doesActiveAccountHavePremium() async throws -> Bool {
         let account = try await stateService.getActiveAccount()
         return account.profile.hasPremiumPersonally ?? false
-    }
-
-    func generateTOTP(for key: String) async throws -> TOTPCode {
-        try await clientVault.generateTOTPCode(for: key, date: Date())
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {

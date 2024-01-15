@@ -102,9 +102,11 @@ class AutofillHelper {
 
         do {
             let disableAutoTotpCopy = try await services.vaultRepository.getDisableAutoTotpCopy()
-            if !disableAutoTotpCopy, let totp = cipherView.login?.totp {
-                let response = try await services.vaultRepository.generateTOTP(for: totp)
-                services.pasteboardService.copy(response.code)
+            if !disableAutoTotpCopy,
+               let totp = cipherView.login?.totp,
+               let key = TOTPKeyModel(authenticatorKey: totp),
+               let codeModel = try await services.vaultRepository.refreshTOTPCode(for: key).codeModel {
+                services.pasteboardService.copy(codeModel.code)
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -146,12 +148,16 @@ class AutofillHelper {
             })
         }
 
-        if let totp = login.totp, !totp.isEmpty {
+        if let totp = login.totp, !totp.isEmpty, let key = TOTPKeyModel(authenticatorKey: totp) {
             alert.add(AlertAction(title: Localizations.copyTotp, style: .default) { _ in
                 do {
-                    let response = try await self.services.vaultRepository.generateTOTP(for: totp)
-                    self.services.pasteboardService.copy(response.code)
-                    showToast(Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+                    let response = try await self.services.vaultRepository.refreshTOTPCode(for: key)
+                    if let code = response.codeModel?.code {
+                        self.services.pasteboardService.copy(code)
+                        showToast(Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+                    } else {
+                        self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                    }
                 } catch {
                     self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                     self.services.errorReporter.log(error: error)

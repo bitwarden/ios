@@ -68,6 +68,12 @@ class AutofillHelperTests: BitwardenTestCase {
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
         ))
         vaultRepository.getDisableAutoTotpCopyResult = .success(false)
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
 
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
@@ -159,6 +165,12 @@ class AutofillHelperTests: BitwardenTestCase {
             login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
             name: "Bitwarden Login"
         ))
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
 
         let cipher = CipherListView.fixture(id: "1")
         var showToastValue: String?
@@ -189,7 +201,7 @@ class AutofillHelperTests: BitwardenTestCase {
             name: "Bitwarden Login"
         ))
         struct GenerateTotpError: Error, Equatable {}
-        vaultRepository.generateTOTPResult = .failure(GenerateTotpError())
+        vaultRepository.refreshTOTPCodeResult = .failure(GenerateTotpError())
 
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
@@ -263,7 +275,7 @@ class AutofillHelperTests: BitwardenTestCase {
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
         ))
         struct GenerateTotpError: Error, Equatable {}
-        vaultRepository.generateTOTPResult = .failure(GenerateTotpError())
+        vaultRepository.refreshTOTPCodeResult = .failure(GenerateTotpError())
 
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
