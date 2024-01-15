@@ -39,8 +39,8 @@ class DefaultSendRepository: SendRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
-    /// The API service used to perform API requests for the sends in a user's vault.
-    let sendAPIService: SendAPIService
+    /// The service used to sync and store sends.
+    let sendService: SendService
 
     /// The service used by the application to manage account state.
     let stateService: StateService
@@ -54,18 +54,18 @@ class DefaultSendRepository: SendRepository {
     ///
     /// - Parameters:
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
-    ///   - sendAPIService: The API service used to perform API requests for the sends in a user's vault.
+    ///   - sendService: The service used to sync and store sends.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
         clientVault: ClientVaultService,
-        sendAPIService: SendAPIService,
+        sendService: SendService,
         stateService: StateService,
         syncService: SyncService
     ) {
         self.clientVault = clientVault
-        self.sendAPIService = sendAPIService
+        self.sendService = sendService
         self.stateService = stateService
         self.syncService = syncService
     }
@@ -74,11 +74,7 @@ class DefaultSendRepository: SendRepository {
 
     func addSend(_ sendView: SendView) async throws {
         let send = try await clientVault.sends().encrypt(send: sendView)
-
-        _ = try await sendAPIService.addSend(send)
-
-        // TODO: BIT-92 Insert response into database instead of fetching sync.
-        try await fetchSync(isManualRefresh: false)
+        try await sendService.addSend(send)
     }
 
     // MARK: API Methods

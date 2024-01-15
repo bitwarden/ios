@@ -45,6 +45,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(sendRepository.addSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// `perform(_:)` with `.savePressed` and valid input saves the item.

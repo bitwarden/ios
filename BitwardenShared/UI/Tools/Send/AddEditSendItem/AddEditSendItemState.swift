@@ -67,7 +67,7 @@ extension AddEditSendItemState {
             key: nil,
             newPassword: password.nilIfEmpty,
             hasPassword: !password.isEmpty,
-            type: type.sdkType,
+            type: .init(type: type),
             file: type == .file ? newFileView() : nil,
             text: type == .text ? newTextView() : nil,
             maxAccessCount: maximumAccessCount == 0 ? nil : UInt32(maximumAccessCount),

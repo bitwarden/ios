@@ -42,7 +42,7 @@ struct SendResponseModel: Codable, Equatable, JSONResponse {
     /// Notes about the send.
     let notes: String?
 
-    /// An optional password used to restrict access the send.
+    /// An optional password used to restrict access to the send.
     let password: String?
 
     /// The date of the send's last revision.
