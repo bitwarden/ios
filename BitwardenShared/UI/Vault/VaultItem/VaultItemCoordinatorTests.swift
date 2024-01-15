@@ -149,6 +149,16 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(stackNavigator.alerts.last, alert)
     }
 
+    /// `navigate(to:)` with `.attachments()` navigates to the attachments view..
+    func test_navigateTo_attachments() throws {
+        subject.navigate(to: .attachments)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.topViewController is UIHostingController<AttachmentsView>)
+    }
+
     /// `navigate(to:)` with `.generator`, `.password`, and a delegate presents the generator
     /// screen.
     func test_navigateTo_generator_withPassword_withDelegate() throws {
@@ -392,6 +402,12 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     /// A flag to capture a `didCancel` call.
     var didCancel: Bool = false
 
+    /// A flag to capture a `showCameraScan` call.
+    var didRequestCamera: Bool = false
+
+    /// A flag to capture a `showManualEntry` call.
+    var didRequestManual: Bool = false
+
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
         with value: String
@@ -400,7 +416,17 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
         capturedScan = value
     }
 
+    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        didRequestCamera = true
+        capturedCoordinator = captureCoordinator
+    }
+
+    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        didRequestManual = true
+        capturedCoordinator = captureCoordinator
+    }
+
     func didCancelScan() {
         didCancel = true
     }
-}
+} // swiftlint:disable:this file_length
