@@ -14,6 +14,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
         & HasTOTPService
+        & HasTimeProvider
         & HasVaultRepository
 
     // MARK: - Private Properties
@@ -60,6 +61,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             )
         case let .alert(alert):
             stackNavigator.present(alert)
+        case .attachments:
+            showAttachments()
         case let .cloneItem(cipher):
             showCloneItem(for: cipher, delegate: context as? CipherItemOperationDelegate)
         case let .dismiss(onDismiss):
@@ -162,7 +165,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             let hasPremium = await (
                 try? services.vaultRepository.doesActiveAccountHavePremium()
             ) ?? false
-            let state = CipherItemState(cloneItem: cipherView, hasPremium: hasPremium)
+            let state = CipherItemState(
+                cloneItem: cipherView,
+                hasPremium: hasPremium
+            )
             if stackNavigator.isEmpty {
                 let processor = AddEditItemProcessor(
                     coordinator: asAnyCoordinator(),
@@ -177,6 +183,19 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
                 presentChildVaultItemCoordinator(route: .cloneItem(cipher: cipherView), context: delegate)
             }
         }
+    }
+
+    /// Shows the attachments screen.
+    ///
+    private func showAttachments() {
+        let processor = AttachmentsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AttachmentsState()
+        )
+        let view = AttachmentsView(store: Store(processor: processor))
+        let hostingController = UIHostingController(rootView: view)
+        stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }
 
     /// Shows the move to organization screen.
@@ -202,7 +221,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     ///
     private func showEditItem(for cipherView: CipherView, hasPremium: Bool, delegate: CipherItemOperationDelegate?) {
         if stackNavigator.isEmpty {
-            guard let state = CipherItemState(existing: cipherView, hasPremium: hasPremium) else { return }
+            guard let state = CipherItemState(
+                existing: cipherView,
+                hasPremium: hasPremium
+            ) else { return }
 
             let processor = AddEditItemProcessor(
                 coordinator: asAnyCoordinator(),
@@ -297,7 +319,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             state: ViewItemState()
         )
         let store = Store(processor: processor)
-        let view = ViewItemView(store: store)
+        let view = ViewItemView(
+            store: store,
+            timeProvider: services.timeProvider
+        )
         stackNavigator.replace(view)
     }
 }

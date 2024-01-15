@@ -41,7 +41,7 @@ struct ManualEntryView: View {
             Text(Localizations.enterKeyManually)
                 .styleGuide(.title2, weight: .bold)
             BitwardenTextField(
-                title: Localizations.authenticatorKey,
+                title: Localizations.authenticatorKeyScanner,
                 text: store.binding(
                     get: \.authenticatorKey,
                     send: ManualEntryAction.authenticatorKeyChanged
@@ -100,6 +100,11 @@ struct ManualEntryView_Previews: PreviewProvider {
     }
 
     static var previews: some View {
+        empty
+        textAdded
+    }
+
+    @ViewBuilder static var empty: some View {
         NavigationView {
             ManualEntryView(
                 store: Store(
@@ -110,7 +115,9 @@ struct ManualEntryView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Empty")
+    }
 
+    @ViewBuilder static var textAdded: some View {
         NavigationView {
             ManualEntryView(
                 store: Store(
