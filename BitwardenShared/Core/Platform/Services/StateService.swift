@@ -109,6 +109,14 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
+    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
+    /// if `nil` defaults to currently active user.
+    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    ///
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -204,6 +212,13 @@ protocol StateService: AnyObject {
     ///
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
 
+    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// if `nil` defaults to currently active user.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws
+
     /// Sets the username generation options for a user ID.
     ///
     /// - Parameters:
@@ -288,6 +303,17 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
+    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
+    ///
+    /// - Returns: The number of unsuccessful unlock attempts for the active account.
+    ///
+    func getUnsuccessfulUnlockAttempts() async -> Int {
+        if let attempts = try? await getUnsuccessfulUnlockAttempts(userId: nil) {
+            return attempts
+        }
+        return 0
+    }
+
     /// Gets the username generation options for the active account.
     ///
     /// - Returns: The username generation options for the user ID.
@@ -358,6 +384,14 @@ extension StateService {
     ///
     func setTokens(accessToken: String, refreshToken: String) async throws {
         try await setTokens(accessToken: accessToken, refreshToken: refreshToken, userId: nil)
+    }
+
+    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
+    ///
+    /// - Parameter attempts: The number of unsuccessful unlock attempts.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int) async {
+        try? await setUnsuccessfulUnlockAttempts(attempts, userId: nil)
     }
 
     /// Sets the username generation options for the active account.
@@ -528,6 +562,11 @@ actor DefaultStateService: StateService {
         !appSettingsStore.disableWebIcons
     }
 
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId) ?? 0
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.usernameGenerationOptions(userId: userId)
@@ -620,6 +659,11 @@ actor DefaultStateService: StateService {
             refreshToken: refreshToken
         )
         appSettingsStore.state = state
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
