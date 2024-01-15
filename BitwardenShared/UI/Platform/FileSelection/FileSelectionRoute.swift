@@ -2,7 +2,7 @@
 
 /// The enumeration of file selection options.
 ///
-enum FileSelectionRoute {
+public enum FileSelectionRoute {
     /// A route to the camera screen.
     case camera
 

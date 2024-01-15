@@ -57,19 +57,13 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addItem:
             showAddItem()
-        case .camera:
+        case let .fileSelection(route):
             guard let delegate = context as? FileSelectionDelegate else { return }
-            showFileSelection(route: .camera, delegate: delegate)
+            showFileSelection(route: route, delegate: delegate)
         case .dismiss:
             stackNavigator.dismiss()
-        case .fileBrowser:
-            guard let delegate = context as? FileSelectionDelegate else { return }
-            showFileSelection(route: .file, delegate: delegate)
         case .list:
             showList()
-        case .photoLibrary:
-            guard let delegate = context as? FileSelectionDelegate else { return }
-            showFileSelection(route: .photo, delegate: delegate)
         }
     }
 

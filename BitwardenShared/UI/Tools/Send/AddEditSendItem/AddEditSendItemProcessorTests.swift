@@ -48,15 +48,15 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
 
         try await alert.tapAction(title: Localizations.browse)
-        XCTAssertEqual(coordinator.routes.last, .fileBrowser)
+        XCTAssertEqual(coordinator.routes.last, .fileSelection(.file))
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
 
         try await alert.tapAction(title: Localizations.camera)
-        XCTAssertEqual(coordinator.routes.last, .camera)
+        XCTAssertEqual(coordinator.routes.last, .fileSelection(.camera))
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
 
         try await alert.tapAction(title: Localizations.photos)
-        XCTAssertEqual(coordinator.routes.last, .photoLibrary)
+        XCTAssertEqual(coordinator.routes.last, .fileSelection(.photo))
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
     }
 

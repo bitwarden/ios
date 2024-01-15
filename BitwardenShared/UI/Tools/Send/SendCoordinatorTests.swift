@@ -93,18 +93,18 @@ class SendCoordinatorTests: BitwardenTestCase {
         XCTAssertFalse(view.store.state.hasPremium)
     }
 
-    /// `navigate(to:)` with `.camera` and without a file selection delegate does not present the
-    /// camera screen.
-    func test_navigateTo_camera_withoutDelegate() throws {
-        subject.navigate(to: .camera, context: nil)
+    /// `navigate(to:)` with `.fileSelection` and without a file selection delegate does not present the
+    /// file selection screen.
+    func test_navigateTo_fileSelection_withoutDelegate() throws {
+        subject.navigate(to: .fileSelection(.camera), context: nil)
         XCTAssertNil(stackNavigator.actions.last)
     }
 
-    /// `navigate(to:)` with `.camera` and with a file selection delegate presents the camera
-    /// screen.
-    func test_navigateTo_camera_withDelegate() throws {
+    /// `navigate(to:)` with `.fileSelection` and with a file selection delegate presents the file
+    /// selection screen.
+    func test_navigateTo_fileSelection_withDelegate() throws {
         let delegate = MockFileSelectionDelegate()
-        subject.navigate(to: .camera, context: delegate)
+        subject.navigate(to: .fileSelection(.camera), context: delegate)
 
         XCTAssertEqual(module.fileSelectionCoordinator.routes.last, .camera)
         XCTAssertTrue(module.fileSelectionCoordinator.isStarted)
@@ -119,24 +119,6 @@ class SendCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
-    /// `navigate(to:)` with `.fileBrowser` and without a file selection delegate does not present
-    /// the file browser screen.
-    func test_navigateTo_fileBrowser_withoutDelegate() throws {
-        subject.navigate(to: .fileBrowser, context: nil)
-        XCTAssertNil(stackNavigator.actions.last)
-    }
-
-    /// `navigate(to:)` with `.fileBrowser` and with a file selection delegate presents the file
-    /// browser screen.
-    func test_navigateTo_fileBrowser_withDelegate() throws {
-        let delegate = MockFileSelectionDelegate()
-        subject.navigate(to: .fileBrowser, context: delegate)
-
-        XCTAssertEqual(module.fileSelectionCoordinator.routes.last, .file)
-        XCTAssertTrue(module.fileSelectionCoordinator.isStarted)
-        XCTAssertIdentical(module.fileSelectionDelegate, delegate)
-    }
-
     /// `navigate(to:)` with `.list` replaces the stack navigator's current stack with the send list
     /// screen.
     func test_navigateTo_list() throws {
@@ -145,24 +127,6 @@ class SendCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         XCTAssertTrue(action.view is SendListView)
-    }
-
-    /// `navigate(to:)` with `.photoLibrary` and without a file selection delegate does not present
-    /// the photo picker screen.
-    func test_navigateTo_photoLibrary_withoutDelegate() throws {
-        subject.navigate(to: .photoLibrary, context: nil)
-        XCTAssertNil(stackNavigator.actions.last)
-    }
-
-    /// `navigate(to:)` with `.photoLibrary` and with a file selection delegate presents the photo
-    /// picker screen.
-    func test_navigateTo_photoLibrary_withDelegate() throws {
-        let delegate = MockFileSelectionDelegate()
-        subject.navigate(to: .photoLibrary, context: delegate)
-
-        XCTAssertEqual(module.fileSelectionCoordinator.routes.last, .photo)
-        XCTAssertTrue(module.fileSelectionCoordinator.isStarted)
-        XCTAssertIdentical(module.fileSelectionDelegate, delegate)
     }
 
     /// `start()` initializes the coordinator's state correctly.
