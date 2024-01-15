@@ -171,6 +171,7 @@ struct ProfileSwitcherRow: View {
     }
 }
 
+#if DEBUG
 struct ProfileSwitcherRow_Previews: PreviewProvider {
     static var unlockedAccount = ProfileSwitcherItem(
         color: .purple,
@@ -273,3 +274,4 @@ struct ProfileSwitcherRow_Previews: PreviewProvider {
         .previewDisplayName("Add Account")
     }
 }
+#endif

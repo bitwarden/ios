@@ -180,6 +180,7 @@ struct CipherItemState: Equatable {
         addItem type: CipherType = .login,
         allowTypeSelection: Bool = true,
         hasPremium: Bool,
+        totpKeyString: String? = nil,
         uri: String? = nil
     ) {
         self.init(
@@ -194,12 +195,32 @@ struct CipherItemState: Equatable {
             isMasterPasswordRePromptOn: false,
             loginState: .init(
                 isTOTPAvailable: hasPremium,
+                totpState: .init(totpKeyString),
                 uris: [UriState(uri: uri ?? "")]
             ),
             name: uri.flatMap(URL.init)?.host ?? "",
             notes: "",
             type: type,
             updatedDate: .now
+        )
+    }
+
+    init(cloneItem cipherView: CipherView, hasPremium: Bool) {
+        self.init(
+            accountHasPremium: hasPremium,
+            allowTypeSelection: false,
+            cardState: cipherView.cardItemState(),
+            configuration: .add,
+            customFields: cipherView.customFields,
+            folderId: cipherView.folderId,
+            identityState: cipherView.identityItemState(),
+            isFavoriteOn: cipherView.favorite,
+            isMasterPasswordRePromptOn: cipherView.reprompt == .password,
+            loginState: cipherView.loginItemState(showTOTP: hasPremium),
+            name: "\(cipherView.name) - \(Localizations.clone)",
+            notes: cipherView.notes ?? "",
+            type: .init(type: cipherView.type),
+            updatedDate: cipherView.revisionDate
         )
     }
 

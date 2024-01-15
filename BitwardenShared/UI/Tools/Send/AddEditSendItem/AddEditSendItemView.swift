@@ -330,6 +330,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
 // MARK: Previews
 
+#if DEBUG
 #Preview("Empty") {
     NavigationView {
         AddEditSendItemView(
@@ -407,3 +408,4 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         )
     }
 } // swiftlint:disable:this file_length
+#endif

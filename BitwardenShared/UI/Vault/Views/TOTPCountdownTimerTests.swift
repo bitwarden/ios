@@ -12,9 +12,11 @@ final class TOTPCountdownTimerTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         subject = TOTPCountdownTimer(
+            timeProvider: CurrentTime(),
+            timerInterval: 0.5,
             totpCode: .init(
                 code: "123456",
-                date: .distantPast,
+                codeGenerationDate: .distantPast,
                 period: 30
             ),
             onExpiration: {}
@@ -29,9 +31,11 @@ final class TOTPCountdownTimerTests: BitwardenTestCase {
     func test_onExpiration_oldDate() {
         var didExpire = false
         subject = TOTPCountdownTimer(
+            timeProvider: CurrentTime(),
+            timerInterval: 0.1,
             totpCode: .init(
                 code: "123456",
-                date: .distantPast,
+                codeGenerationDate: .distantPast,
                 period: 3
             ),
             onExpiration: {
