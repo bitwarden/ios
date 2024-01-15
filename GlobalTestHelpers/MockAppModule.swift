@@ -5,6 +5,7 @@
 class MockAppModule:
     AppModule,
     AuthModule,
+    FileSelectionModule,
     GeneratorModule,
     TabModule,
     SendModule,
@@ -13,6 +14,8 @@ class MockAppModule:
     VaultItemModule {
     var appCoordinator = MockCoordinator<AppRoute>()
     var authCoordinator = MockCoordinator<AuthRoute>()
+    var fileSelectionDelegate: FileSelectionDelegate?
+    var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute>()
     var sendCoordinator = MockCoordinator<SendRoute>()
     var settingsCoordinator = MockCoordinator<SettingsRoute>()
@@ -33,6 +36,14 @@ class MockAppModule:
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<AuthRoute> {
         authCoordinator.asAnyCoordinator()
+    }
+
+    func makeFileSelectionCoordinator(
+        delegate: FileSelectionDelegate,
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<FileSelectionRoute> {
+        fileSelectionDelegate = delegate
+        return fileSelectionCoordinator.asAnyCoordinator()
     }
 
     func makeGeneratorCoordinator(

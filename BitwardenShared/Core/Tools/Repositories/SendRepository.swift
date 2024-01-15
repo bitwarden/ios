@@ -39,6 +39,7 @@ class DefaultSendRepository: SendRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
+    /// The service used to manage syncing and updates to the user's organizations.
     let organizationService: OrganizationService
 
     /// The service used by the application to manage account state.

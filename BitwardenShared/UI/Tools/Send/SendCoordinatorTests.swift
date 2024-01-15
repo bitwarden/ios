@@ -8,6 +8,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var errorReporter: MockErrorReporter!
+    var module: MockAppModule!
     var sendRepository: MockSendRepository!
     var stackNavigator: MockStackNavigator!
     var subject: SendCoordinator!
@@ -17,9 +18,11 @@ class SendCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         errorReporter = MockErrorReporter()
+        module = MockAppModule()
         sendRepository = MockSendRepository()
         stackNavigator = MockStackNavigator()
         subject = SendCoordinator(
+            module: module,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 sendRepository: sendRepository
@@ -31,64 +34,13 @@ class SendCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         errorReporter = nil
+        module = nil
         sendRepository = nil
         stackNavigator = nil
         subject = nil
     }
 
     // MARK: Tests
-
-    /// `documentPickerWasCancelled()` dismisses the view controller.
-    func test_documentPickerWasCancelled() {
-        let viewController = MockUIDocumentPickerViewController()
-        subject.documentPickerWasCancelled(viewController)
-        XCTAssertTrue(viewController.didDismiss)
-    }
-
-    /// `documentPicker(_,didPickDocumentsAt:)` reads the file at the specified URL and notifies the
-    /// delegate.
-    func test_documentPickerDidPickDocumentsAt_withUrl() throws {
-        let fileSelectionDelegate = MockFileSelectionDelegate()
-        subject.navigate(to: .fileBrowser, context: fileSelectionDelegate)
-
-        let data = Data("example".utf8)
-
-        let viewController = MockUIDocumentPickerViewController()
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("example.txt")
-
-        // Write to a temporary file
-        try data.write(to: url)
-
-        subject.documentPicker(viewController, didPickDocumentsAt: [url])
-
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-        XCTAssertEqual(fileSelectionDelegate.fileName, "example.txt")
-        XCTAssertEqual(fileSelectionDelegate.data, data)
-
-        // Clean up the temporary file
-        try FileManager.default.removeItem(at: url)
-    }
-
-    /// `imagePickerController(_:,didFinishPickingMediaWithInfo:)` creates a filename for the photo
-    /// and notifies the delegate.
-    func test_imagePickerViewControllerDidFinishPickingMediaWithInfo() throws {
-        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
-            throw XCTSkip("Unable to unit test UIImagePickerController with a camera input on CI")
-        }
-
-        let fileSelectionDelegate = MockFileSelectionDelegate()
-        subject.navigate(to: .camera, context: fileSelectionDelegate)
-
-        let viewController = UIImagePickerController()
-        let image = UIImage(systemName: "doc.zipper")!
-        subject.imagePickerController(viewController, didFinishPickingMediaWithInfo: [
-            .originalImage: image,
-        ])
-
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-        XCTAssertTrue(fileSelectionDelegate.fileName!.hasPrefix("photo_"))
-        XCTAssertEqual(fileSelectionDelegate.data, image.jpegData(compressionQuality: 1))
-    }
 
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
     func test_navigateTo_addItem_hasPremium() throws {
@@ -151,20 +103,12 @@ class SendCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.camera` and with a file selection delegate presents the camera
     /// screen.
     func test_navigateTo_camera_withDelegate() throws {
-        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
-            throw XCTSkip("Unable to unit test UIImagePickerController with a camera input on CI")
-        }
-
         let delegate = MockFileSelectionDelegate()
         subject.navigate(to: .camera, context: delegate)
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-
-        let viewController = try XCTUnwrap(action.view as? UIImagePickerController)
-        XCTAssertIdentical(viewController.delegate, subject)
-        XCTAssertEqual(viewController.sourceType, .camera)
-        XCTAssertFalse(viewController.allowsEditing)
+        XCTAssertEqual(module.fileSelectionCoordinator.routes.last, .camera)
+        XCTAssertTrue(module.fileSelectionCoordinator.isStarted)
+        XCTAssertIdentical(module.fileSelectionDelegate, delegate)
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the current modally presented screen.
@@ -188,12 +132,9 @@ class SendCoordinatorTests: BitwardenTestCase {
         let delegate = MockFileSelectionDelegate()
         subject.navigate(to: .fileBrowser, context: delegate)
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-
-        let viewController = try XCTUnwrap(action.view as? UIDocumentPickerViewController)
-        XCTAssertIdentical(viewController.delegate, subject)
-        XCTAssertFalse(viewController.allowsMultipleSelection)
+        XCTAssertEqual(module.fileSelectionCoordinator.routes.last, .file)
+        XCTAssertTrue(module.fileSelectionCoordinator.isStarted)
+        XCTAssertIdentical(module.fileSelectionDelegate, delegate)
     }
 
     /// `navigate(to:)` with `.list` replaces the stack navigator's current stack with the send list
@@ -219,13 +160,9 @@ class SendCoordinatorTests: BitwardenTestCase {
         let delegate = MockFileSelectionDelegate()
         subject.navigate(to: .photoLibrary, context: delegate)
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-
-        let viewController = try XCTUnwrap(action.view as? PHPickerViewController)
-        XCTAssertIdentical(viewController.delegate, subject)
-        XCTAssertEqual(viewController.configuration.filter, .images)
-        XCTAssertEqual(viewController.configuration.selectionLimit, 1)
+        XCTAssertEqual(module.fileSelectionCoordinator.routes.last, .photo)
+        XCTAssertTrue(module.fileSelectionCoordinator.isStarted)
+        XCTAssertIdentical(module.fileSelectionDelegate, delegate)
     }
 
     /// `start()` initializes the coordinator's state correctly.

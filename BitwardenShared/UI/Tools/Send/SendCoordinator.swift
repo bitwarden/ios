@@ -7,20 +7,20 @@ import SwiftUI
 
 /// A coordinator that manages navigation in the send tab.
 ///
-final class SendCoordinator: NSObject, Coordinator, HasStackNavigator {
+final class SendCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
+
+    typealias Module = FileSelectionModule
 
     typealias Services = HasErrorReporter
         & HasSendRepository
 
-    // MARK: Private Properties
-
-    /// The current file selection delegate.
-    private weak var fileSelectionDelegate: FileSelectionDelegate?
-
     // MARK: Properties
 
-    /// The services used by this processor.
+    /// The module used by this coordinator
+    let module: Module
+
+    /// The services used by this coordinator.
     let services: Services
 
     /// The stack navigator that is managed by this coordinator.
@@ -31,13 +31,16 @@ final class SendCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// Creates a new `SendCoordinator`.
     ///
     /// - Parameters:
-    ///   - services: The services used by this processor.
+    ///   - module: The module used by this coordinator.
+    ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        module: Module,
         services: Services,
         stackNavigator: StackNavigator
     ) {
+        self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
     }
@@ -50,20 +53,17 @@ final class SendCoordinator: NSObject, Coordinator, HasStackNavigator {
             showAddItem()
         case .camera:
             guard let delegate = context as? FileSelectionDelegate else { return }
-            fileSelectionDelegate = delegate
-            showCamera()
+            showFileSelection(route: .camera, delegate: delegate)
         case .dismiss:
             stackNavigator.dismiss()
         case .fileBrowser:
             guard let delegate = context as? FileSelectionDelegate else { return }
-            fileSelectionDelegate = delegate
-            showFileBrowser()
+            showFileSelection(route: .file, delegate: delegate)
         case .list:
             showList()
         case .photoLibrary:
             guard let delegate = context as? FileSelectionDelegate else { return }
-            fileSelectionDelegate = delegate
-            showPhotoLibrary()
+            showFileSelection(route: .photo, delegate: delegate)
         }
     }
 
@@ -72,30 +72,6 @@ final class SendCoordinator: NSObject, Coordinator, HasStackNavigator {
     }
 
     // MARK: Private methods
-
-    /// The provided image was selected from the photo library or the camera.
-    ///
-    /// - Parameters:
-    ///   - image: The image that was selected.
-    ///   - suggestedName: The name suggested by the system, if one was provided.
-    ///
-    private func selected(image: UIImage, suggestedName: String?) {
-        let fileName = suggestedName ?? {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyyMMddHHmmss"
-            return "photo_\(formatter.string(from: Date())).jpg"
-        }()
-            .lowercased()
-
-        let imageData: Data?
-        if fileName.hasSuffix("jpg") || fileName.hasSuffix("jpeg") {
-            imageData = image.jpegData(compressionQuality: 1)
-        } else {
-            imageData = image.pngData()
-        }
-        guard let imageData else { return }
-        fileSelectionDelegate?.fileSelectionCompleted(fileName: fileName, data: imageData)
-    }
 
     /// Shows the add item screen.
     ///
@@ -116,24 +92,22 @@ final class SendCoordinator: NSObject, Coordinator, HasStackNavigator {
         }
     }
 
-    /// Shows the camera screen.
+    /// Navigates to the specified `FileSelectionRoute`.
     ///
-    private func showCamera() {
-        let viewController = UIImagePickerController()
-        viewController.sourceType = .camera
-        viewController.allowsEditing = false
-        viewController.delegate = self
-        stackNavigator.present(viewController)
-    }
-
-    /// Shows the file browser screen.
+    /// - Parameters:
+    ///   - route: The route to navigate to.
+    ///   - delegate: The `FileSelectionDelegate` for this navigation.
     ///
-    private func showFileBrowser() {
-        let viewController = UIDocumentPickerViewController(forOpeningContentTypes: [.data])
-        viewController.allowsMultipleSelection = false
-        viewController.shouldShowFileExtensions = true
-        viewController.delegate = self
-        stackNavigator.present(viewController)
+    private func showFileSelection(
+        route: FileSelectionRoute,
+        delegate: FileSelectionDelegate
+    ) {
+        let coordinator = module.makeFileSelectionCoordinator(
+            delegate: delegate,
+            stackNavigator: stackNavigator
+        )
+        coordinator.start()
+        coordinator.navigate(to: route)
     }
 
     /// Shows the list of sends.
@@ -148,76 +122,4 @@ final class SendCoordinator: NSObject, Coordinator, HasStackNavigator {
         let view = SendListView(store: store)
         stackNavigator.replace(view)
     }
-
-    /// Shows the photo library screen.
-    ///
-    private func showPhotoLibrary() {
-        var configuration = PHPickerConfiguration()
-        configuration.filter = .images
-        configuration.selectionLimit = 1
-        let viewController = PHPickerViewController(configuration: configuration)
-        viewController.delegate = self
-        stackNavigator.present(viewController)
-    }
 }
-
-extension SendCoordinator: UIDocumentPickerDelegate {
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        controller.dismiss(animated: UI.animated)
-        guard let url = urls.first else { return }
-
-        let document = UIDocument(fileURL: url)
-        let fileName = document.localizedName.nilIfEmpty
-            ?? url.lastPathComponent.nilIfEmpty
-            ?? Constants.unknownFileName
-
-        do {
-            let fileData = try Data(contentsOf: url)
-            fileSelectionDelegate?.fileSelectionCompleted(fileName: fileName, data: fileData)
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-    }
-
-    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-        controller.dismiss(animated: UI.animated)
-    }
-}
-
-extension SendCoordinator: PHPickerViewControllerDelegate {
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: UI.animated)
-
-        guard let result = results.first else { return }
-
-        if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
-            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
-                if let error {
-                    self?.services.errorReporter.log(error: error)
-                    return
-                }
-
-                guard let image = image as? UIImage else { return }
-                self?.selected(image: image, suggestedName: result.itemProvider.suggestedName)
-            }
-        }
-    }
-}
-
-extension SendCoordinator: UIImagePickerControllerDelegate {
-    func imagePickerController(
-        _ picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
-    ) {
-        picker.dismiss()
-
-        guard let image = (info[.editedImage] ?? info[.originalImage]) as? UIImage else { return }
-        selected(image: image, suggestedName: nil)
-    }
-
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss()
-    }
-}
-
-extension SendCoordinator: UINavigationControllerDelegate {}
