@@ -879,6 +879,46 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault
+    /// list filtered by the user's vault.
+    func test_vaultListPublisher_forGroup_login_myVault() async throws {
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
+
+        var iterator = subject.vaultListPublisher(group: .login, filter: .myVault).makeAsyncIterator()
+        let items = await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+            """
+            - Cipher: Facebook
+            """
+        }
+    }
+
+    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault
+    /// list filtered by an organization.
+    func test_vaultListPublisher_forGroup_login_organization() async throws {
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
+
+        var iterator = subject.vaultListPublisher(
+            group: .login,
+            filter: .organization(.fixture(id: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"))
+        ).makeAsyncIterator()
+        let items = await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+            """
+            - Cipher: Apple
+            - Cipher: Figma
+            """
+        }
+    }
+
     /// `vaultListPublisher(group:filter:)` returns a publisher for a group of items in a collection within
     /// the vault list.
     func test_vaultListPublisher_forGroup_collection() async throws {
