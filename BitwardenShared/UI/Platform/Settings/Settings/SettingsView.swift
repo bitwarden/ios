@@ -73,6 +73,7 @@ struct SettingsView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -80,3 +81,4 @@ struct SettingsView_Previews: PreviewProvider {
         }
     }
 }
+#endif

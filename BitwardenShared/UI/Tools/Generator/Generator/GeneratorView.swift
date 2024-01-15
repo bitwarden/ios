@@ -196,6 +196,7 @@ struct GeneratorView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 struct GeneratorView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -203,3 +204,4 @@ struct GeneratorView_Previews: PreviewProvider {
         }
     }
 }
+#endif

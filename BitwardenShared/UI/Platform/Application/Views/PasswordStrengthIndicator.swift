@@ -121,6 +121,7 @@ extension PasswordStrengthIndicator {
 
 // MARK: Previews
 
+#if DEBUG
 struct PasswordStrengthIndicator_Previews: PreviewProvider {
     static var previews: some View {
         ScrollView {
@@ -141,3 +142,4 @@ struct PasswordStrengthIndicator_Previews: PreviewProvider {
         }
     }
 }
+#endif

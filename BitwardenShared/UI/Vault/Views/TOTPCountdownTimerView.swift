@@ -2,12 +2,20 @@ import SwiftUI
 
 // MARK: - TOTPCountdownTimerView
 
-/// A circular countdown timer view that marks the time remaining for a TOTPCode.
+/// A circular countdown timer view that marks the time remaining for a TOTPCodeState.
 ///
 struct TOTPCountdownTimerView: View {
+    // MARK: Static Properties
+
+    /// The interval at which the view should check for expirations and update the time remaining.
+    ///
+    static let timerInterval: TimeInterval = 0.1
+
+    // MARK: Properties
+
     /// The TOTPCode used to generate the countdown
     ///
-    let totpCode: TOTPCode
+    let totpCode: TOTPCodeModel
 
     /// The `TOTPCountdownTimer`responsible for updating the view state.
     ///
@@ -27,17 +35,34 @@ struct TOTPCountdownTimerView: View {
             CircularProgressShape(progress: timer.remainingFraction, clockwise: true)
                 .stroke(lineWidth: 3)
                 .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .animation(
+                    .smooth(
+                        duration: TOTPCountdownTimerView.timerInterval
+                    ),
+                    value: timer.remainingFraction
+                )
         }
     }
 
-    /// Initializes the view for a TOTPCode and a timer expiration handler.
+    /// Initializes the view for a TOTPCodeModel and a timer expiration handler.
     ///
     /// - Parameters:
+    ///   - timeProvider: A protocol providing the present time as a `Date`.
+    ///         Used to calculate time remaining for a present TOTP code.
     ///   - totpCode: The code that the timer represents.
     ///   - onExpiration: A closure called when the code expires.
     ///
-    init(totpCode: TOTPCode, onExpiration: (() -> Void)?) {
+    init(
+        timeProvider: any TimeProvider,
+        totpCode: TOTPCodeModel,
+        onExpiration: (() -> Void)?
+    ) {
         self.totpCode = totpCode
-        timer = .init(totpCode: totpCode, onExpiration: onExpiration)
+        timer = .init(
+            timeProvider: timeProvider,
+            timerInterval: TOTPCountdownTimerView.timerInterval,
+            totpCode: totpCode,
+            onExpiration: onExpiration
+        )
     }
 }

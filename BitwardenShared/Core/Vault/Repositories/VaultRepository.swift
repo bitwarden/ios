@@ -72,6 +72,13 @@ protocol VaultRepository: AnyObject {
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
 
+    /// Regenerates the TOTP code for a given key.
+    ///
+    /// - Parameter key: The key for a TOTP code.
+    /// - Returns: An updated LoginTOTPState.
+    ///
+    func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState
+
     /// Regenerates the TOTP codes for a list of Vault Items.
     ///
     /// - Parameter items: The list of items that need updated TOTP codes.
@@ -286,25 +293,39 @@ class DefaultVaultRepository {
         }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        // Convert the CipherViews into
-        let totpItems: [VaultListItem?] = try await activeCiphers.asyncMap { cipherView in
-            guard let id = cipherView.id,
+        // A transform to convert a `CipherListView` into a `VaultListItem`.
+        let listItemTransform: (CipherView) async throws -> VaultListItem? = { [weak self] cipherView in
+            guard let self,
+                  let id = cipherView.id,
                   let login = cipherView.login,
-                  let key = login.totp
-            else { return nil }
+                  let key = login.totp else {
+                return nil
+            }
 
-            let code = try await clientVault.generateTOTPCode(for: key, date: Date())
-
-            return .init(
+            let code = try await clientVault.generateTOTPCode(
+                for: key,
+                date: Date()
+            )
+            let listModel = VaultListTOTP(
+                id: id,
+                loginView: login,
+                totpCode: code
+            )
+            return VaultListItem(
                 id: id,
                 itemType: .totp(
                     name: cipherView.name,
-                    totpModel: .init(id: id, loginView: login, totpCode: code)
+                    totpModel: listModel
                 )
             )
         }
 
-        return totpItems.compactMap { $0 }
+        // Convert the CipherViews into VaultListItem.
+        let totpItems: [VaultListItem] = try await activeCiphers
+            .asyncMap(listItemTransform)
+            .compactMap { $0 }
+
+        return totpItems
     }
 
     /// Returns a list of items that are grouped together in the vault list from a sync response.
@@ -395,7 +416,10 @@ class DefaultVaultRepository {
         let totpItems = (oneTimePasswordCount > 0) ? [
             VaultListItem(
                 id: "Types.VerificationCodes",
-                itemType: .group(.totp, oneTimePasswordCount)
+                itemType: .group(
+                    .totp,
+                    oneTimePasswordCount
+                )
             ),
         ] : []
 
@@ -526,6 +550,17 @@ extension DefaultVaultRepository: VaultRepository {
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try await stateService.getDisableAutoTotpCopy()
+    }
+
+    func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {
+        let codeState = try await clientVault.generateTOTPCode(
+            for: key.rawAuthenticatorKey,
+            date: Date()
+        )
+        return LoginTOTPState(
+            authKeyModel: key,
+            codeModel: codeState
+        )
     }
 
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
