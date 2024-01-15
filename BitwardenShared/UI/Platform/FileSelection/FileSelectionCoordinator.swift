@@ -8,7 +8,8 @@ import UIKit
 class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasCameraService
+        & HasErrorReporter
 
     // MARK: Properties
 
@@ -87,11 +88,17 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// Shows the camera screen.
     ///
     private func showCamera() {
-        let viewController = UIImagePickerController()
-        viewController.sourceType = .camera
-        viewController.allowsEditing = false
-        viewController.delegate = self
-        stackNavigator.present(viewController)
+        Task {
+            if await services.cameraService.checkStatusOrRequestCameraAuthorization() == .authorized {
+                let viewController = UIImagePickerController()
+                viewController.sourceType = .camera
+                viewController.allowsEditing = false
+                viewController.delegate = self
+                stackNavigator.present(viewController)
+            } else {
+                // TODO: BIT-1466 Present an alert about camera permissions being needed.
+            }
+        }
     }
 
     /// Shows the file browser screen.

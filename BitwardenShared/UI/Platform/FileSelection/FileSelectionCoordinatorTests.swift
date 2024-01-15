@@ -8,6 +8,7 @@ import XCTest
 class FileSelectionCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var cameraService: MockCameraService!
     var delegate: MockFileSelectionDelegate!
     var errorReporter: MockErrorReporter!
     var stackNavigator: MockStackNavigator!
@@ -17,12 +18,16 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        cameraService = MockCameraService()
         delegate = MockFileSelectionDelegate()
         errorReporter = MockErrorReporter()
         stackNavigator = MockStackNavigator()
         subject = FileSelectionCoordinator(
             delegate: delegate,
-            services: ServiceContainer.withMocks(errorReporter: errorReporter),
+            services: ServiceContainer.withMocks(
+                cameraService: cameraService,
+                errorReporter: errorReporter
+            ),
             stackNavigator: stackNavigator
         )
     }
@@ -87,15 +92,17 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(delegate.data, image.jpegData(compressionQuality: 1))
     }
 
-    /// `navigate(to:)` with `.camera` and presents the camera
-    /// screen.
-    func test_navigateTo_camera() throws {
+    /// `navigate(to:)` with `.camera` and with camera authorization presents the camera screen.
+    func test_navigateTo_camera_authorized() throws {
         guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
             throw XCTSkip("Unable to unit test UIImagePickerController with a camera input on CI")
         }
 
+        cameraService.cameraAuthorizationStatus = .authorized
         let delegate = MockFileSelectionDelegate()
         subject.navigate(to: .camera, context: delegate)
+
+        waitFor(!stackNavigator.actions.isEmpty)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
@@ -104,6 +111,16 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
         XCTAssertIdentical(viewController.delegate, subject)
         XCTAssertEqual(viewController.sourceType, .camera)
         XCTAssertFalse(viewController.allowsEditing)
+    }
+
+    /// `navigate(to:)` with `.camera` and without camera authorization does not present the camera
+    /// screen.
+    func test_navigateTo_camera_denied() throws {
+        cameraService.cameraAuthorizationStatus = .denied
+        let delegate = MockFileSelectionDelegate()
+        subject.navigate(to: .camera, context: delegate)
+
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
     /// `navigate(to:)` with `.fileBrowser` presents the file browser screen.
