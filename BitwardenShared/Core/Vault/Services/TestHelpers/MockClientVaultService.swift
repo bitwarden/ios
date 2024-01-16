@@ -24,8 +24,8 @@ class MockClientVaultService: ClientVaultService {
         clientFolders
     }
 
-    func generateTOTPCode(for key: String, date: Date?) async throws -> BitwardenShared.TOTPCode {
-        TOTPCode(code: totpCode, date: date ?? Date(), period: totpPeriod)
+    func generateTOTPCode(for key: String, date: Date?) async throws -> BitwardenShared.TOTPCodeModel {
+        TOTPCodeModel(code: totpCode, codeGenerationDate: date ?? Date(), period: totpPeriod)
     }
 
     func passwordHistory() -> ClientPasswordHistoryProtocol {
@@ -115,8 +115,12 @@ class MockClientPasswordHistory: ClientPasswordHistoryProtocol {
 // MARK: - MockClientSends
 
 class MockClientSends: ClientSendsProtocol {
+    var decryptedSends: [Send] = []
+    var encryptedSendViews: [SendView] = []
+
     func decrypt(send: Send) async throws -> SendView {
-        SendView(send: send)
+        decryptedSends.append(send)
+        return SendView(send: send)
     }
 
     func decryptBuffer(send _: Send, buffer _: Data) async throws -> Data {
@@ -131,8 +135,9 @@ class MockClientSends: ClientSendsProtocol {
         fatalError("Not implemented yet")
     }
 
-    func encrypt(send _: SendView) async throws -> Send {
-        fatalError("Not implemented yet")
+    func encrypt(send sendView: SendView) async throws -> Send {
+        encryptedSendViews.append(sendView)
+        return Send(sendView: sendView)
     }
 
     func encryptBuffer(send _: Send, buffer _: Data) async throws -> Data {

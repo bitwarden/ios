@@ -1,10 +1,13 @@
-import BitwardenSdk
+import Foundation
 
 // MARK: - SendListState
 
 /// An object that defines the current state of a `SendListView`.
 ///
 struct SendListState {
+    /// The info URL to open.
+    var infoUrl: URL?
+
     /// The text that the user is currently searching for.
     var searchText: String = ""
 

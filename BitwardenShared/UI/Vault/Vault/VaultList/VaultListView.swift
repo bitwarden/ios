@@ -18,6 +18,9 @@ private struct VaultMainView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultListState, VaultListAction, VaultListEffect>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     var body: some View {
         // A ZStack with hidden children is used here so that opening and closing the
         // search interface does not reset the scroll position for the main vault
@@ -221,25 +224,28 @@ private struct VaultMainView: View {
     ///
     @ViewBuilder
     private func vaultItemRow(for item: VaultListItem, isLastInSection: Bool = false) -> some View {
-        VaultListItemRowView(store: store.child(
-            state: { state in
-                VaultListItemRowState(
-                    iconBaseURL: state.iconBaseURL,
-                    item: item,
-                    hasDivider: !isLastInSection,
-                    showWebIcons: state.showWebIcons
-                )
-            },
-            mapAction: { action in
-                switch action {
-                case let .copyTOTPCode(code):
-                    return .copyTOTPCode(code)
-                case .morePressed:
-                    return .morePressed(item)
-                }
-            },
-            mapEffect: nil
-        ))
+        VaultListItemRowView(
+            store: store.child(
+                state: { state in
+                    VaultListItemRowState(
+                        iconBaseURL: state.iconBaseURL,
+                        item: item,
+                        hasDivider: !isLastInSection,
+                        showWebIcons: state.showWebIcons
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .copyTOTPCode(code):
+                        return .copyTOTPCode(code)
+                    case .morePressed:
+                        return .morePressed(item)
+                    }
+                },
+                mapEffect: nil
+            ),
+            timeProvider: timeProvider
+        )
     }
 
     /// Creates a section that appears in the vault.
@@ -282,26 +288,32 @@ struct VaultListView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultListState, VaultListAction, VaultListEffect>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     var body: some View {
         ZStack {
-            VaultMainView(store: store)
-                .searchable(
-                    text: store.binding(
-                        get: \.searchText,
-                        send: VaultListAction.searchTextChanged
-                    ),
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: Localizations.search
-                )
-                .task(id: store.state.searchText) {
-                    await store.perform(.search(store.state.searchText))
-                }
-                .task(id: store.state.searchVaultFilterType) {
-                    await store.perform(.search(store.state.searchText))
-                }
-                .refreshable {
-                    await store.perform(.refreshVault)
-                }
+            VaultMainView(
+                store: store,
+                timeProvider: timeProvider
+            )
+            .searchable(
+                text: store.binding(
+                    get: \.searchText,
+                    send: VaultListAction.searchTextChanged
+                ),
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: Localizations.search
+            )
+            .task(id: store.state.searchText) {
+                await store.perform(.search(store.state.searchText))
+            }
+            .task(id: store.state.searchVaultFilterType) {
+                await store.perform(.search(store.state.searchText))
+            }
+            .refreshable {
+                await store.perform(.refreshVault)
+            }
             profileSwitcher
         }
         .navigationTitle(store.state.navigationTitle)
@@ -396,7 +408,8 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState()
                     )
-                )
+                ),
+                timeProvider: PreviewTimeProvider()
             )
         }
         .previewDisplayName("Loading")
@@ -409,7 +422,8 @@ struct VaultListView_Previews: PreviewProvider {
                             loadingState: .data([])
                         )
                     )
-                )
+                ),
+                timeProvider: PreviewTimeProvider()
             )
         }
         .previewDisplayName("Empty")
@@ -510,7 +524,8 @@ struct VaultListView_Previews: PreviewProvider {
                             ])
                         )
                     )
-                )
+                ),
+                timeProvider: PreviewTimeProvider()
             )
         }
         .previewDisplayName("My Vault")
@@ -586,7 +601,8 @@ struct VaultListView_Previews: PreviewProvider {
                             ]
                         )
                     )
-                )
+                ),
+                timeProvider: PreviewTimeProvider()
             )
         }
         .previewDisplayName("My Vault - Collections")
@@ -639,7 +655,8 @@ struct VaultListView_Previews: PreviewProvider {
                             searchText: "Exam"
                         )
                     )
-                )
+                ),
+                timeProvider: PreviewTimeProvider()
             )
         }
         .previewDisplayName("1 Search Result")
@@ -753,7 +770,8 @@ struct VaultListView_Previews: PreviewProvider {
                             searchText: "Exam"
                         )
                     )
-                )
+                ),
+                timeProvider: PreviewTimeProvider()
             )
         }
         .previewDisplayName("3 Search Results")
@@ -767,7 +785,8 @@ struct VaultListView_Previews: PreviewProvider {
                             searchText: "Exam"
                         )
                     )
-                )
+                ),
+                timeProvider: PreviewTimeProvider()
             )
         }
         .previewDisplayName("No Search Results")
@@ -781,7 +800,8 @@ struct VaultListView_Previews: PreviewProvider {
                             profileSwitcherState: singleAccountState
                         )
                     )
-                )
+                ),
+                timeProvider: PreviewTimeProvider()
             )
         }
         .previewDisplayName("Profile Switcher Visible: Single Account")
@@ -795,7 +815,8 @@ struct VaultListView_Previews: PreviewProvider {
                             profileSwitcherState: dualAccountState
                         )
                     )
-                )
+                ),
+                timeProvider: PreviewTimeProvider()
             )
         }
         .previewDisplayName("Profile Switcher Visible: Multi Account")

@@ -1,3 +1,4 @@
+import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
 
@@ -8,7 +9,10 @@ import XCTest
 class SendRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
+    var client: MockHTTPClient!
     var clientVaultService: MockClientVaultService!
+    var clientSends: MockClientSends!
+    var sendService: MockSendService!
     var stateService: MockStateService!
     var syncService: MockSyncService!
     var subject: DefaultSendRepository!
@@ -17,11 +21,16 @@ class SendRepositoryTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        client = MockHTTPClient()
+        clientSends = MockClientSends()
         clientVaultService = MockClientVaultService()
+        clientVaultService.clientSends = clientSends
+        sendService = MockSendService()
         stateService = MockStateService()
         syncService = MockSyncService()
         subject = DefaultSendRepository(
             clientVault: clientVaultService,
+            sendService: sendService,
             stateService: stateService,
             syncService: syncService
         )
@@ -29,12 +38,37 @@ class SendRepositoryTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        client = nil
+        clientSends = nil
         clientVaultService = nil
+        sendService = nil
         syncService = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `addSend()` successfully encrypts the send view and uses the send service to add it.
+    func test_addSend_success() async throws {
+        sendService.addSendResult = .success(())
+        let sendView = SendView.fixture()
+        try await subject.addSend(sendView)
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendService.addSendSend, Send(sendView: sendView))
+    }
+
+    /// `addSend()` rethrows any errors encountered.
+    func test_addSend_failure() async {
+        sendService.addSendResult = .failure(BitwardenTestError.example)
+        let sendView = SendView.fixture()
+
+        await assertAsyncThrows {
+            try await subject.addSend(sendView)
+        }
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+    }
 
     func test_fetchSync_manualRefreshAllowed_success() async throws {
         await stateService.addAccount(.fixture())

@@ -12,6 +12,9 @@ struct VaultGroupView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     // MARK: View
 
     var body: some View {
@@ -105,25 +108,28 @@ struct VaultGroupView: View {
                         Button {
                             store.send(.itemPressed(item))
                         } label: {
-                            VaultListItemRowView(store: store.child(
-                                state: { state in
-                                    VaultListItemRowState(
-                                        iconBaseURL: state.iconBaseURL,
-                                        item: item,
-                                        hasDivider: items.last != item,
-                                        showWebIcons: state.showWebIcons
-                                    )
-                                },
-                                mapAction: { action in
-                                    switch action {
-                                    case let .copyTOTPCode(code):
-                                        return .copyTOTPCode(code)
-                                    case .morePressed:
-                                        return .morePressed(item)
-                                    }
-                                },
-                                mapEffect: nil
-                            ))
+                            VaultListItemRowView(
+                                store: store.child(
+                                    state: { state in
+                                        VaultListItemRowState(
+                                            iconBaseURL: state.iconBaseURL,
+                                            item: item,
+                                            hasDivider: items.last != item,
+                                            showWebIcons: state.showWebIcons
+                                        )
+                                    },
+                                    mapAction: { action in
+                                        switch action {
+                                        case let .copyTOTPCode(code):
+                                            return .copyTOTPCode(code)
+                                        case .morePressed:
+                                            return .morePressed(item)
+                                        }
+                                    },
+                                    mapEffect: nil
+                                ),
+                                timeProvider: timeProvider
+                            )
                         }
                     }
                 }
@@ -137,16 +143,19 @@ struct VaultGroupView: View {
 
 // MARK: Previews
 
+#if DEBUG
 #Preview("Loading") {
     NavigationView {
         VaultGroupView(
             store: Store(
                 processor: StateProcessor(
                     state: VaultGroupState(
-                        loadingState: .loading
+                        loadingState: .loading,
+                        vaultFilterType: .allVaults
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
@@ -157,10 +166,12 @@ struct VaultGroupView: View {
             store: Store(
                 processor: StateProcessor(
                     state: VaultGroupState(
-                        loadingState: .data([])
+                        loadingState: .data([]),
+                        vaultFilterType: .allVaults
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
@@ -239,10 +250,13 @@ struct VaultGroupView: View {
                                 deletedDate: nil,
                                 revisionDate: Date()
                             ))!,
-                        ])
+                        ]),
+                        vaultFilterType: .allVaults
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
+#endif

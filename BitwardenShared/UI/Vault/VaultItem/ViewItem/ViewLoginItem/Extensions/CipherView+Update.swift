@@ -91,16 +91,17 @@ extension CipherView {
     /// - Parameters:
     ///   - showPassword: A Boolean value indicating whether the password should be visible.
     ///   - showTOTP: A Boolean value indicating whether TOTP should be visible.
+    ///
     /// - Returns: A `LoginItemState` representing the login information of the cipher.
     ///
     func loginItemState(showPassword: Bool = false, showTOTP: Bool) -> LoginItemState {
-        .init(
+        LoginItemState(
             canViewPassword: viewPassword,
             isPasswordVisible: showPassword,
             isTOTPAvailable: showTOTP,
             password: login?.password ?? "",
             passwordUpdatedDate: login?.passwordRevisionDate,
-            totpKey: .init(authenticatorKey: login?.totp ?? ""),
+            totpState: .init(login?.totp),
             uris: login?.uris?.map(UriState.init) ?? [],
             username: login?.username ?? ""
         )
@@ -117,7 +118,7 @@ extension CipherView {
             organizationId: organizationId,
             folderId: addEditState.folderId,
             collectionIds: collectionIds,
-            key: addEditState.configuration.existingCipherView?.key,
+            key: key,
             name: addEditState.name,
             notes: addEditState.notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(addEditState.type),
@@ -127,15 +128,15 @@ extension CipherView {
             secureNote: (addEditState.type == .secureNote) ? secureNote : nil,
             favorite: addEditState.isFavoriteOn,
             reprompt: addEditState.isMasterPasswordRePromptOn ? .password : .none,
-            organizationUseTotp: false,
-            edit: true,
-            viewPassword: true,
+            organizationUseTotp: organizationUseTotp,
+            edit: edit,
+            viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
             fields: fields,
             passwordHistory: passwordHistory,
             creationDate: creationDate,
-            deletedDate: nil,
+            deletedDate: deletedDate,
             revisionDate: revisionDate
         )
     }

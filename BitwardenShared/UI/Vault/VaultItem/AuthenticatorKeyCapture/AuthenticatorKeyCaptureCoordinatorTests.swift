@@ -91,6 +91,56 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
     }
 
+    /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view.
+    func test_navigateTo_setupTotpManual_async() throws {
+        let task = Task {
+            await subject.navigate(asyncTo: .manualKeyEntry)
+        }
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
+    }
+
+    /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view.
+    func test_navigateTo_setupTotpManual_nonEmptyStack() throws {
+        stackNavigator.isEmpty = false
+        subject.navigate(to: .manualKeyEntry)
+        waitFor(delegate.didRequestManual)
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
+    /// `navigate(to:)` with `.scanCode` shows the scan view.
+    func test_navigateTo_scanCode() throws {
+        cameraService.deviceHasCamera = true
+        let task = Task {
+            subject.navigate(to: .scanCode)
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = action.view as? (any View)
+        XCTAssertNotNil(try? view?.inspect().find(ScanCodeView.self))
+    }
+
+    /// `navigate(to:)` with `.scanCode` shows the scan view.
+    func test_navigateTo_scanCode_nonEmptyStack() throws {
+        stackNavigator.isEmpty = false
+        cameraService.deviceHasCamera = true
+        let task = Task {
+            subject.navigate(to: .scanCode)
+        }
+        waitFor(delegate.didRequestCamera)
+        task.cancel()
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
     func test_show_hide_loadingOverlay() throws {
         stackNavigator.rootViewController = UIViewController()
@@ -107,7 +157,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
-    func test_waitAndNavigateTo_scanCode() throws {
+    func test_navigateAsyncTo_scanCode() throws {
         cameraService.deviceHasCamera = true
         let task = Task {
             await subject.navigate(asyncTo: .scanCode)
@@ -122,7 +172,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
-    func test_waitAndNavigateTo_scanCode_cameraSessionError() throws {
+    func test_navigateAsyncTo_scanCode_cameraSessionError() throws {
         cameraService.deviceHasCamera = true
         struct TestError: Error, Equatable {}
         cameraService.startResult = .failure(TestError())
@@ -140,7 +190,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
-    func test_waitAndNavigateTo_scanCode_declineAuthorization() throws {
+    func test_navigateAsyncTo_scanCode_declineAuthorization() throws {
         cameraService.deviceHasCamera = true
         cameraService.cameraAuthorizationStatus = .denied
         let task = Task {
@@ -156,7 +206,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
-    func test_waitAndNavigateTo_scanCode_noCamera() throws {
+    func test_navigateAsyncTo_scanCode_noCamera() throws {
         cameraService.deviceHasCamera = false
         let task = Task {
             await subject.navigate(asyncTo: .scanCode)
@@ -169,6 +219,18 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         let view = action.view as? (any View)
         XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
     }
+
+    /// `navigate(to:)` with `.scanCode` shows the scan view.
+    func test_navigateAsyncTo_scanCode_nonEmptyStack() throws {
+        stackNavigator.isEmpty = false
+        cameraService.deviceHasCamera = true
+        let task = Task {
+            await subject.navigate(asyncTo: .scanCode)
+        }
+        waitFor(delegate.didRequestCamera)
+        task.cancel()
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
 }
 
 // MARK: - MockAuthenticatorKeyCaptureDelegate
@@ -179,6 +241,12 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
 
     var didCompleteCaptureCalled = false
     var didCompleteCaptureValue: String?
+
+    /// A flag to capture a `showCameraScan` call.
+    var didRequestCamera: Bool = false
+
+    /// A flag to capture a `showManualEntry` call.
+    var didRequestManual: Bool = false
 
     func didCancelScan() {
         didCancelScanCalled = true
@@ -191,5 +259,15 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
         didCompleteCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
         didCompleteCaptureValue = value
+    }
+
+    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        didRequestCamera = true
+        capturedCaptureCoordinator = captureCoordinator
+    }
+
+    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        didRequestManual = true
+        capturedCaptureCoordinator = captureCoordinator
     }
 }

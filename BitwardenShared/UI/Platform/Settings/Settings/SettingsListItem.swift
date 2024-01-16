@@ -78,6 +78,7 @@ struct SettingsListItem<Content: View>: View {
 
 // MARK: Previews
 
+#if DEBUG
 struct SettingsListItem_Previews: PreviewProvider {
     static var previews: some View {
         ScrollView {
@@ -95,3 +96,4 @@ struct SettingsListItem_Previews: PreviewProvider {
         }
     }
 }
+#endif
