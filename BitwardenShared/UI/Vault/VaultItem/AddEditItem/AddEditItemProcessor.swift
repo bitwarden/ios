@@ -254,11 +254,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         defer { coordinator.hideLoadingOverlay() }
         do {
             let breachCount = try await services.apiService.checkDataBreaches(password: state.loginState.password)
-            guard breachCount == 0 else {
-                coordinator.navigate(to: .alert(.passwordExposedAlert(count: breachCount)))
-                return
-            }
-            coordinator.navigate(to: .alert(.passwordSafeAlert()))
+            coordinator.navigate(to: .alert(.dataBreachesCountAlert(count: breachCount)))
         } catch {
             services.errorReporter.log(error: error)
         }

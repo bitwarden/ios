@@ -81,11 +81,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             do {
                 guard let password = state.loadingState.data?.cipher.login?.password else { return }
                 let breachCount = try await services.apiService.checkDataBreaches(password: password)
-                guard breachCount == 0 else {
-                    coordinator.navigate(to: .alert(.passwordExposedAlert(count: breachCount)))
-                    return
-                }
-                coordinator.navigate(to: .alert(.passwordSafeAlert()))
+                coordinator.navigate(to: .alert(.dataBreachesCountAlert(count: breachCount)))
             } catch {
                 services.errorReporter.log(error: error)
             }

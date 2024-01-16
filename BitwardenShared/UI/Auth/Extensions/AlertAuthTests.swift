@@ -28,18 +28,18 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
     }
 
-    /// `passwordExposedAlert()` constructs an alert with the correct title and alert actions.
+    /// `dataBreachesCountAlert(count:)` constructs an alert with the correct title and alert actions.
     func test_passwordExposedAlert() {
-        let subject = Alert.passwordExposedAlert(count: 1)
+        let subject = Alert.dataBreachesCountAlert(count: 1)
 
         XCTAssertEqual(subject.title, Localizations.passwordExposed(1))
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
     }
 
-    /// `passwordSafeAlert()` constructs an alert with the correct title and alert actions.
+    /// `dataBreachesCountAlert(count:)` constructs an alert with the correct title and alert actions.
     func test_passwordSafeAlert() {
-        let subject = Alert.passwordSafeAlert()
+        let subject = Alert.dataBreachesCountAlert(count: 0)
 
         XCTAssertEqual(subject.title, Localizations.passwordSafe)
         XCTAssertEqual(subject.alertActions.count, 1)
