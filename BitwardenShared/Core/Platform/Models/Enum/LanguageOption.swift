@@ -93,7 +93,7 @@ public enum LanguageOption: Equatable {
         }
     }
 
-    /// The value to cache to local storage.
+    /// The two letter language code representation of the language, or `nil` for the system default.
     var value: String? {
         switch self {
         case .default:

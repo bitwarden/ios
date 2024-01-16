@@ -88,6 +88,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
 
+    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    ///
+    func unsuccessfulUnlockAttempts(userId: String) -> Int?
+
     /// Whether the vault should sync on refreshing.
     ///
     /// - Parameters:
@@ -145,6 +152,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
+
+    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameters:
+    ///  -  attempts: The number of unsuccessful unlock attempts..
+    ///  -  userId: The user ID associated with the unsuccessful unlock attempts.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
 
     /// Sets the username generation options for a user ID.
     ///
@@ -288,6 +303,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case rememberedEmail
         case rememberedOrgIdentifier
         case state
+        case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
@@ -324,6 +340,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedOrgIdentifier"
             case .state:
                 key = "state"
+            case let .unsuccessfulUnlockAttempts(userId):
+                key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
             }
@@ -406,6 +424,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
 
+    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+        fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
+    }
+
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
     }
@@ -440,6 +462,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         store(options, for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
+        store(attempts, for: .unsuccessfulUnlockAttempts(userId: userId))
     }
 
     func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
