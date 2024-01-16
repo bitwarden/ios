@@ -34,6 +34,9 @@ struct VaultUnlockView: View {
                     ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options) {
                         store.send(.morePressed)
                     }
+                    .accessibilityIdentifier(
+                        "//XCUIElementTypeScrollView[2]/XCUIElementTypeOther[1]/XCUIElementTypeOther"
+                    )
                 }
             }
             ToolbarItem(placement: .navigationBarLeading) {

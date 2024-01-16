@@ -20,6 +20,7 @@ struct ProfileSwitcherRow: View {
             .onChange(of: store.state.shouldTakeAccessibilityFocus) { shouldTakeFocus in
                 updateFocusIfNeeded(shouldTakeFocus: shouldTakeFocus)
             }
+            .accessibilityIdentifier("//XCUIElementTypeTable/XCUIElementTypeCell")
     }
 
     // MARK: Private Properties
