@@ -214,7 +214,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             footer: Localizations.passwordInfo,
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
-                send: AddEditSendItemAction.passwordVisibileChanged
+                send: AddEditSendItemAction.passwordVisibleChanged
             )
         )
         .textFieldConfiguration(.password)
