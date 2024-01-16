@@ -49,6 +49,8 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         switch action {
         case .chooseFilePressed:
             presentFileSelectionAlert()
+        case .clearExpirationDatePressed:
+            state.customExpirationDate = nil
         case let .customDeletionDateChanged(newValue):
             state.customDeletionDate = newValue
         case let .customExpirationDateChanged(newValue):

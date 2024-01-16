@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SwiftUI
 
 // MARK: - AddEditSendItemView
@@ -15,7 +16,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             LazyVStack(alignment: .leading, spacing: 16) {
                 nameField
 
-                typePicker
+                if store.state.mode == .add {
+                    typePicker
+                }
 
                 switch store.state.type {
                 case .text:
@@ -35,10 +38,30 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             .padding(16)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .navigationBar(title: Localizations.addSend, titleDisplayMode: .inline)
+        .navigationBar(
+            title: store.state.mode.navigationTitle,
+            titleDisplayMode: .inline
+        )
         .toolbar {
-            cancelToolbarItem {
-                store.send(.dismissPressed)
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                if store.state.mode == .edit {
+                    Menu {
+                        // TODO: BIT-1266 Add Menu items
+                        Text("Coming soon, in BIT-1266")
+                    } label: {
+                        Asset.Images.verticalKabob.swiftUIImage
+                            .resizable()
+                            .frame(width: 19, height: 19)
+                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    }
+                }
+
+                ToolbarButton(
+                    asset: Asset.Images.cancel,
+                    label: Localizations.cancel
+                ) {
+                    store.send(.dismissPressed)
+                }
             }
         }
         .animation(.easeInOut(duration: 0.2), value: store.state.type)
@@ -47,17 +70,64 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         .animation(.default, value: store.state.isOptionsExpanded)
     }
 
+    /// The access count stepper.
+    @ViewBuilder private var accessCount: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Stepper(
+                value: store.binding(
+                    get: \.maximumAccessCount,
+                    send: AddEditSendItemAction.maximumAccessCountChanged
+                ),
+                in: 0 ... Int.max
+            ) {
+                HStack(spacing: 8) {
+                    Text(Localizations.maximumAccessCount)
+                        .styleGuide(.body)
+                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+
+                    Spacer()
+
+                    if store.state.maximumAccessCount > 0 {
+                        Text("\(store.state.maximumAccessCount)")
+                            .styleGuide(.body, monoSpacedDigit: true)
+                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    }
+                }
+            }
+
+            Divider()
+
+            Text(Localizations.maximumAccessCountInfo)
+                .styleGuide(.footnote)
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+            if let currentAccessCount = store.state.currentAccessCount {
+                // Wrap these texts in a group so that the style guide can be set on
+                // both of them at once.
+                Group {
+                    Text("\(Localizations.currentAccessCount): ")
+                        + Text("\(currentAccessCount)")
+                        .fontWeight(.bold)
+                }
+                .styleGuide(.footnote)
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            }
+        }
+    }
+
     /// The deletion date field.
     @ViewBuilder private var deletionDate: some View {
         VStack(alignment: .leading, spacing: 8) {
-            BitwardenMenuField(
-                title: Localizations.deletionDate,
-                options: SendDeletionDateType.allCases,
-                selection: store.binding(
-                    get: \.deletionDate,
-                    send: AddEditSendItemAction.deletionDateChanged
+            if store.state.mode == .add {
+                BitwardenMenuField(
+                    title: Localizations.deletionDate,
+                    options: SendDeletionDateType.allCases,
+                    selection: store.binding(
+                        get: \.deletionDate,
+                        send: AddEditSendItemAction.deletionDateChanged
+                    )
                 )
-            )
+            }
 
             if store.state.deletionDate == .custom {
                 AccessibleHStack(alignment: .leading, spacing: 8) {
@@ -88,14 +158,16 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The expiration date field.
     @ViewBuilder private var expirationDate: some View {
         VStack(alignment: .leading, spacing: 8) {
-            BitwardenMenuField(
-                title: Localizations.expirationDate,
-                options: SendExpirationDateType.allCases,
-                selection: store.binding(
-                    get: \.expirationDate,
-                    send: AddEditSendItemAction.expirationDateChanged
+            if store.state.mode == .add {
+                BitwardenMenuField(
+                    title: Localizations.expirationDate,
+                    options: SendExpirationDateType.allCases,
+                    selection: store.binding(
+                        get: \.expirationDate,
+                        send: AddEditSendItemAction.expirationDateChanged
+                    )
                 )
-            )
+            }
 
             if store.state.expirationDate == .custom {
                 AccessibleHStack(alignment: .leading, spacing: 8) {
@@ -117,9 +189,20 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 }
             }
 
-            Text(Localizations.expirationDateInfo)
-                .styleGuide(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            HStack(spacing: 8) {
+                Text(Localizations.expirationDateInfo)
+                    .styleGuide(.footnote)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                if store.state.mode == .edit {
+                    Spacer()
+
+                    Button(Localizations.clear) {
+                        store.send(.clearExpirationDatePressed)
+                    }
+                    .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                }
+            }
         }
     }
 
@@ -130,30 +213,50 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 .styleGuide(.subheadline, weight: .semibold)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
-            HStack(spacing: 0) {
-                Spacer()
+            switch store.state.mode {
+            case .add:
+                HStack(spacing: 0) {
+                    Spacer()
 
-                Text(store.state.fileName ?? Localizations.noFileChosen)
-                    .styleGuide(.callout)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    Text(store.state.fileName ?? Localizations.noFileChosen)
+                        .styleGuide(.callout)
+                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
 
-                Spacer()
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                Button(Localizations.chooseFile) {
-                    store.send(.chooseFilePressed)
+                    Spacer()
                 }
-                .buttonStyle(.tertiary())
 
-                Text(Localizations.maxFileSize)
-                    .styleGuide(.subheadline)
+                VStack(alignment: .leading, spacing: 8) {
+                    Button(Localizations.chooseFile) {
+                        store.send(.chooseFilePressed)
+                    }
+                    .buttonStyle(.tertiary())
+
+                    Text(Localizations.maxFileSize)
+                        .styleGuide(.subheadline)
+                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                }
+
+                Text(Localizations.typeFileInfo)
+                    .styleGuide(.footnote)
                     .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-            }
 
-            Text(Localizations.typeFileInfo)
-                .styleGuide(.footnote)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+            case .edit:
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    if let fileName = store.state.fileName {
+                        Text(fileName)
+                            .styleGuide(.body)
+                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    }
+
+                    Spacer()
+
+                    if let fileSize = store.state.fileSize {
+                        Text(fileSize)
+                            .styleGuide(.footnote)
+                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    }
+                }
+            }
         }
     }
 
@@ -175,35 +278,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
         expirationDate
 
-        VStack(alignment: .leading, spacing: 8) {
-            Stepper(
-                value: store.binding(
-                    get: \.maximumAccessCount,
-                    send: AddEditSendItemAction.maximumAccessCountChanged
-                ),
-                in: 0 ... Int.max
-            ) {
-                HStack(spacing: 8) {
-                    Text(Localizations.maximumAccessCount)
-                        .styleGuide(.body)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-
-                    Spacer()
-
-                    if store.state.maximumAccessCount > 0 {
-                        Text("\(store.state.maximumAccessCount)")
-                            .styleGuide(.body, monoSpacedDigit: true)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                    }
-                }
-            }
-
-            Divider()
-
-            Text(Localizations.maximumAccessCountInfo)
-                .styleGuide(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-        }
+        accessCount
 
         BitwardenTextField(
             title: Localizations.newPassword,
@@ -393,4 +468,55 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         )
     }
 }
-#endif
+
+#Preview("Text - Edit") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        currentAccessCount: 42,
+                        customDeletionDate: Date(),
+                        customExpirationDate: nil,
+                        deletionDate: .custom,
+                        expirationDate: .custom,
+                        isHideTextByDefaultOn: true,
+                        isShareOnSaveOn: true,
+                        isOptionsExpanded: true,
+                        mode: .edit,
+                        name: "Sendy",
+                        text: "Example text",
+                        type: .text
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("File - Edit") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        currentAccessCount: 42,
+                        customDeletionDate: Date(),
+                        customExpirationDate: nil,
+                        deletionDate: .custom,
+                        expirationDate: .custom,
+                        fileName: "example.txt",
+                        fileSize: "420.42 KB",
+                        isHideTextByDefaultOn: true,
+                        isShareOnSaveOn: true,
+                        isOptionsExpanded: true,
+                        mode: .edit,
+                        name: "Sendy",
+                        type: .file
+                    )
+                )
+            )
+        )
+    }
+}
+#endif // swiftlint:disable:this file_length
