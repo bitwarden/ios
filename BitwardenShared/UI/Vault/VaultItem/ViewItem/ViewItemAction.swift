@@ -29,9 +29,6 @@ enum ViewItemAction: Equatable {
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
 
-    /// The restore button was pressed.
-    case restorePressed
-
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 
@@ -49,7 +46,6 @@ enum ViewItemAction: Equatable {
         case .dismissPressed,
              .morePressed,
              .passwordHistoryPressed,
-             .restorePressed,
              .toastShown:
             false
         }

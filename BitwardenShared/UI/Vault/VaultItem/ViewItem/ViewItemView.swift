@@ -99,8 +99,8 @@ struct ViewItemView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 if state.isSoftDeleted {
-                    Button(Localizations.restore) {
-                        store.send(.restorePressed)
+                    AsyncButton(Localizations.restore) {
+                        await store.perform(.restorePressed)
                     }
                 } else {
                     Button(Localizations.edit) {

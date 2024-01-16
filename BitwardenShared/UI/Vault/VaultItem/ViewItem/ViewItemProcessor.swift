@@ -99,6 +99,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
         case .deletePressed:
             await showDeleteConfirmation()
+        case .restorePressed:
+            await showRestoreItemConfirmation()
         case .totpCodeExpired:
             guard state.hasPremiumFeatures else { return }
             await updateTOTPCode()
@@ -148,8 +150,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .passwordHistoryPressed:
             guard let passwordHistory = state.passwordHistory else { return }
             coordinator.navigate(to: .passwordHistory(passwordHistory))
-        case .restorePressed:
-            break
         case let .toastShown(newValue):
             state.toast = newValue
         }
@@ -271,6 +271,23 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.navigate(to: .alert(alert))
     }
 
+    /// Restores the item currently stored in `state`.
+    ///
+    private func restoreItem(_ cipher: CipherView) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(.init(title: Localizations.restoring))
+
+            try await services.vaultRepository.restoreCipher(cipher)
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemRestored()
+            })))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Shows delete cipher confirmation alert.
     ///
     private func showDeleteConfirmation() async {
@@ -279,6 +296,28 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             guard let self else { return }
             await deleteItem(cipherState.cipher)
         }
+        coordinator.showAlert(alert)
+    }
+
+    /// Shows restore cipher confirmation alert.
+    ///
+    private func showRestoreItemConfirmation() async {
+        guard case let .data(cipherState) = state.loadingState else { return }
+        let alert = Alert(
+            title: Localizations.doYouReallyWantToRestoreCipher,
+            message: nil,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.yes,
+                    style: .default,
+                    handler: { [weak self] _ in
+                        guard let self else { return }
+                        await restoreItem(cipherState.cipher)
+                    }
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
         coordinator.showAlert(alert)
     }
 
@@ -316,6 +355,10 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
             self?.delegate?.itemDeleted()
         })))
+    }
+
+    func itemRestored() {
+        delegate?.itemRestored()
     }
 }
 

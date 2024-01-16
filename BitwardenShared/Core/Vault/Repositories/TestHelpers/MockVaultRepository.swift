@@ -38,6 +38,7 @@ class MockVaultRepository: VaultRepository {
     )
     var refreshedTOTPKeyConfig: TOTPKeyModel?
     var removeAccountIds = [String?]()
+    var restoredCipher = [CipherView]()
     var searchCipherSubject = CurrentValueSubject<[VaultListItem], Error>([])
     var shareCipherResult: Result<Void, Error> = .success(())
     var sharedCiphers = [CipherView]()
@@ -136,6 +137,10 @@ class MockVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
+    }
+
+    func restoreCipher(_ cipher: CipherView) async throws {
+        restoredCipher.append(cipher)
     }
 
     func searchCipherPublisher(

@@ -8,6 +8,9 @@ import Foundation
 protocol CipherItemOperationDelegate: AnyObject {
     /// Called when the cipher item has been successfully deleted.
     func itemDeleted()
+
+    /// Called when the cipher item has been successfully restored.
+    func itemRestored()
 }
 
 // MARK: - AddEditItemProcessor

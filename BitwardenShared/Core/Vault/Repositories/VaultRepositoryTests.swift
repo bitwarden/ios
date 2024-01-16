@@ -707,6 +707,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `restoreCipher()` throws on id errors.
+    func test_restoreCipher_idError_nil() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.restoreCipher(.fixture(id: nil))
+        }
+    }
+
+    /// `restoreCipher()` restores cipher from back end and local storage.
+    func test_restoreCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        let cipherView: CipherView = .fixture(deletedDate: .now, id: "123")
+        cipherService.softDeleteWithServerResult = .success(())
+        try await subject.restoreCipher(cipherView)
+        XCTAssertNotNil(cipherView.deletedDate)
+        XCTAssertNil(cipherService.restoredCipher?.deletedDate)
+        XCTAssertEqual(cipherService.restoredCipherId, "123")
+    }
+
     /// `softDeleteCipher()` throws on id errors.
     func test_softDeleteCipher_idError_nil() async throws {
         stateService.accounts = [.fixtureAccountLogin()]

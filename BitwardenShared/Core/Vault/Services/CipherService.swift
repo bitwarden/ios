@@ -34,6 +34,14 @@ protocol CipherService {
     ///
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws
 
+    /// Restores a cipher from trash both in the backend and in local storage...
+    ///
+    /// - Parameters:
+    ///  - id: The id of the cipher to be restored.
+    ///  - cipher: The cipher that the user is restoring.
+    ///
+    func restoreCipherWithServer(id: String, _ cipher: Cipher) async throws
+
     /// Shares a cipher with an organization and updates the locally stored data.
     ///
     /// - Parameter cipher: The cipher to share.
@@ -117,6 +125,16 @@ extension DefaultCipherService {
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
         try await cipherDataStore.replaceCiphers(ciphers.map(Cipher.init), userId: userId)
+    }
+
+    func restoreCipherWithServer(id: String, _ cipher: Cipher) async throws {
+        let userID = try await stateService.getActiveAccountId()
+
+        // Restore cipher from backend.
+        _ = try await cipherAPIService.restoreCipher(withID: id)
+
+        // Restore cipher from local storage
+        try await cipherDataStore.upsertCipher(cipher, userId: userID)
     }
 
     func shareWithServer(_ cipher: Cipher) async throws {
