@@ -142,6 +142,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .passwordHistoryPressed:
             guard let passwordHistory = state.passwordHistory else { return }
             coordinator.navigate(to: .passwordHistory(passwordHistory))
+        case .restorePressed:
+            break
         case let .toastShown(newValue):
             state.toast = newValue
         }
