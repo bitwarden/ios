@@ -48,7 +48,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
     override func receive(_ action: AttachmentsAction) {
         switch action {
         case .chooseFilePressed:
-            coordinator.showAlert(.attachmentOptions(handler: attachmentOptionSelected))
+            coordinator.showAlert(.fileSelectionOptions(handler: fileSelectionOptionSelected))
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
         }
@@ -57,18 +57,16 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
     // MARK: Private Methods
 
     /// Handle an attachment option being selected.
-    private func attachmentOptionSelected(alertAction: AlertAction) async {
-        switch alertAction.title {
-        case Localizations.photos:
-            // TODO: BIT-1447
-            break
-        case Localizations.camera:
+    private func fileSelectionOptionSelected(fileSelectionRoute: FileSelectionRoute) {
+        switch fileSelectionRoute {
+        case .camera:
             // TODO: BIT-1448
             break
-        case Localizations.browse:
+        case .file:
             // TODO: BIT-1449
             break
-        default:
+        case .photo:
+            // TODO: BIT-1447
             break
         }
     }

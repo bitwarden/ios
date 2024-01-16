@@ -18,6 +18,15 @@ struct AddEditSendItemState: Equatable {
     /// The expiration date for this item.
     var expirationDate: SendExpirationDateType = .never
 
+    /// The data for the selected file.
+    var fileData: Data?
+
+    /// The name of the selected file.
+    var fileName: String?
+
+    /// A flag indicating if the active account has access to premium features.
+    var hasPremium = false
+
     /// A flag indicating if this item should be deactivated.
     var isDeactivateThisSendOn = false
 

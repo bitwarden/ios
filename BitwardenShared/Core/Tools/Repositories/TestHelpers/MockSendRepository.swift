@@ -8,6 +8,7 @@ import Combine
 class MockSendRepository: SendRepository {
     // MARK: Properties
 
+    var doesActivateAccountHavePremiumResult: Result<Bool, Error> = .success(true)
     var fetchSyncCalled = false
     var fetchSyncIsManualRefresh: Bool?
     var sendListSubject = CurrentValueSubject<[SendListSection], Never>([])
@@ -20,6 +21,10 @@ class MockSendRepository: SendRepository {
     func addSend(_ sendView: SendView) async throws {
         addSendSendView = sendView
         try addSendResult.get()
+    }
+
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        try doesActivateAccountHavePremiumResult.get()
     }
 
     func fetchSync(isManualRefresh: Bool) async throws {

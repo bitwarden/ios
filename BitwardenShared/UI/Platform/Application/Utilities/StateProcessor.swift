@@ -1,4 +1,5 @@
 import Combine
+import Foundation
 
 // MARK: - StateProcessor
 
@@ -15,7 +16,9 @@ open class StateProcessor<State: Sendable, Action: Sendable, Effect: Sendable>: 
 
     /// A publisher that publishes the processor's state when it changes.
     open var statePublisher: AnyPublisher<State, Never> {
-        stateSubject.eraseToAnyPublisher()
+        stateSubject
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 
     // MARK: Private properties

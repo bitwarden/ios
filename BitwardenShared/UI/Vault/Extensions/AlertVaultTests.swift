@@ -5,8 +5,8 @@ import XCTest
 class AlertVaultTests: BitwardenTestCase {
     /// `attachmentOptions(handler:)` constructs an `Alert` that presents the user with options
     /// to select an attachment type.
-    func test_attachmentOptions() {
-        let subject = Alert.attachmentOptions { _ in }
+    func test_fileSelectionOptions() {
+        let subject = Alert.fileSelectionOptions { _ in }
 
         XCTAssertNil(subject.title)
         XCTAssertNil(subject.message)

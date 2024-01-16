@@ -15,6 +15,14 @@ protocol SendRepository: AnyObject {
     ///
     func addSend(_ sendView: SendView) async throws
 
+    /// Validates the user's active account has access to premium features.
+    ///
+    /// - Returns: Whether the active account has premium.
+    ///
+    func doesActiveAccountHavePremium() async throws -> Bool
+
+    // MARK: Publishers
+
     /// Performs an API request to sync the user's send data. The publishers in the repository can
     /// be used to subscribe to the send data, which are updated as a result of the request.
     ///
@@ -39,6 +47,9 @@ class DefaultSendRepository: SendRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
+    /// The service used to manage syncing and updates to the user's organizations.
+    let organizationService: OrganizationService
+
     /// The service used to sync and store sends.
     let sendService: SendService
 
@@ -54,20 +65,38 @@ class DefaultSendRepository: SendRepository {
     ///
     /// - Parameters:
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - sendService: The service used to sync and store sends.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
         clientVault: ClientVaultService,
+        organizationService: OrganizationService,
         sendService: SendService,
         stateService: StateService,
         syncService: SyncService
     ) {
         self.clientVault = clientVault
+        self.organizationService = organizationService
         self.sendService = sendService
         self.stateService = stateService
         self.syncService = syncService
+    }
+
+    // MARK: Methods
+
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        let account = try await stateService.getActiveAccount()
+        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+        guard !hasPremiumPersonally else {
+            return true
+        }
+
+        let organizations = try await organizationService
+            .fetchAllOrganizations()
+            .filter { $0.enabled && $0.usersGetPremium }
+        return !organizations.isEmpty
     }
 
     // MARK: Data Methods

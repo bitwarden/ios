@@ -47,6 +47,8 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
 
     override func receive(_ action: AddEditSendItemAction) {
         switch action {
+        case .chooseFilePressed:
+            presentFileSelectionAlert()
         case let .customDeletionDateChanged(newValue):
             state.customDeletionDate = newValue
         case let .customExpirationDateChanged(newValue):
@@ -80,11 +82,21 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         case let .textChanged(newValue):
             state.text = newValue
         case let .typeChanged(newValue):
-            state.type = newValue
+            updateType(newValue)
         }
     }
 
     // MARK: Private Methods
+
+    /// Presents the file selection alert.
+    ///
+    private func presentFileSelectionAlert() {
+        let alert = Alert.fileSelectionOptions { [weak self] route in
+            guard let self else { return }
+            coordinator.navigate(to: .fileSelection(route), context: self)
+        }
+        coordinator.showAlert(alert)
+    }
 
     /// Saves the current send item.
     ///
@@ -108,5 +120,28 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
                 await self?.saveSendItem()
             })
         }
+    }
+
+    /// Attempts to update the send type. If the new value requires premium access and the active
+    /// account does not have premium access, this method will display an alert informing the user
+    /// that they do not have access to this feature.
+    ///
+    /// - Parameter newValue: The new value for the Send's type that will be attempted to be set.
+    ///
+    private func updateType(_ newValue: SendType) {
+        guard !newValue.requiresPremium || state.hasPremium else {
+            coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
+            return
+        }
+        state.type = newValue
+    }
+}
+
+// MARK: - AddEditSendItemProcessor:FileSelectionDelegate
+
+extension AddEditSendItemProcessor: FileSelectionDelegate {
+    func fileSelectionCompleted(fileName: String, data: Data) {
+        state.fileName = fileName
+        state.fileData = data
     }
 }
