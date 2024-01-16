@@ -49,12 +49,15 @@ struct AutoFillView: View {
             .padding(.bottom, 12)
 
             VStack(spacing: 2) {
-                SettingsListItem(
-                    Localizations.defaultUriMatchDetection,
-                    hasDivider: false
-                ) {} trailingContent: {
-                    Text(Localizations.baseDomain) // TODO: BIT-1185 Dynamic value
-                }
+                SettingsMenuField(
+                    title: Localizations.defaultUriMatchDetection,
+                    options: UriMatchType.allCases,
+                    hasDivider: false,
+                    selection: store.binding(
+                        get: \.defaultUriMatchType,
+                        send: AutoFillAction.defaultUriMatchTypeChanged
+                    )
+                )
                 .cornerRadius(10)
                 .padding(.bottom, 8)
 

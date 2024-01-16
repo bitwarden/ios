@@ -9,6 +9,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appLocale: String?
     var appTheme: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var disableWebIcons: Bool = false
     var encryptedPrivateKeys = [String: String]()
@@ -36,6 +37,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func defaultUriMatchType(userId: String) -> UriMatchType? {
+        defaultUriMatchTypeByUserId[userId]
     }
 
     func disableAutoTotpCopy(userId: String) -> Bool {
@@ -76,6 +81,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String) {
+        defaultUriMatchTypeByUserId[userId] = uriMatchType
     }
 
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
