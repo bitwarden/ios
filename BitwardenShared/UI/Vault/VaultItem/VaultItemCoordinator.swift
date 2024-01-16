@@ -8,7 +8,8 @@ import SwiftUI
 class VaultItemCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Module = GeneratorModule
+    typealias Module = FileSelectionModule
+        & GeneratorModule
         & PasswordHistoryModule
         & VaultItemModule
 
@@ -20,6 +21,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         & HasVaultRepository
 
     // MARK: - Private Properties
+
+    /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
+    /// coordinator in memory.
+    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute>?
 
     /// The module used by this coordinator to create child coordinators.
     private let module: Module
@@ -75,6 +80,9 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             showEditCollections(cipher: cipher, delegate: context as? EditCollectionsProcessorDelegate)
         case let .editItem(cipher, hasPremium):
             showEditItem(for: cipher, hasPremium: hasPremium, delegate: context as? CipherItemOperationDelegate)
+        case let .fileSelection(route):
+            guard let delegate = context as? FileSelectionDelegate else { return }
+            showFileSelection(route: route, delegate: delegate)
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
@@ -256,6 +264,25 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         } else {
             presentChildVaultItemCoordinator(route: .editItem(cipherView, hasPremium), context: delegate)
         }
+    }
+
+    /// Navigates to the specified `FileSelectionRoute`.
+    ///
+    /// - Parameters:
+    ///   - route: The route to navigate to.
+    ///   - delegate: The `FileSelectionDelegate` for this navigation.
+    ///
+    private func showFileSelection(
+        route: FileSelectionRoute,
+        delegate: FileSelectionDelegate
+    ) {
+        let coordinator = module.makeFileSelectionCoordinator(
+            delegate: delegate,
+            stackNavigator: stackNavigator
+        )
+        coordinator.start()
+        coordinator.navigate(to: route)
+        fileSelectionCoordinator = coordinator
     }
 
     /// Shows the generator screen for the the specified type.
