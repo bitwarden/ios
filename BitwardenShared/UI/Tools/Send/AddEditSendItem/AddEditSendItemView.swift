@@ -34,6 +34,7 @@ struct AddEditSendItemView: View {
             }
             .padding(16)
         }
+        .dismissKeyboardInteractively()
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationBar(title: Localizations.addSend, titleDisplayMode: .inline)
         .toolbar {
