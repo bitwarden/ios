@@ -67,7 +67,6 @@ class SendRepositoryTests: BitwardenTestCase {
     func test_doesActiveAccountHavePremium_personalTrue_noOrganization() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(hasPremiumPersonally: true))
         let hasPremium = try await subject.doesActiveAccountHavePremium()
-        try await subject.addSend(sendView)
         XCTAssertTrue(hasPremium)
     }
 
