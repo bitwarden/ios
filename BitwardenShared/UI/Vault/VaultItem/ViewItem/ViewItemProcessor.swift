@@ -7,7 +7,8 @@ import Foundation
 final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasAPIService
+        & HasErrorReporter
         & HasPasteboardService
         & HasVaultRepository
 
@@ -88,6 +89,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
             }
+        case .checkPasswordPressed:
+            do {
+                guard let password = state.loadingState.data?.cipher.login?.password else { return }
+                let breachCount = try await services.apiService.checkDataBreaches(password: password)
+                coordinator.navigate(to: .alert(.dataBreachesCountAlert(count: breachCount)))
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         case .deletePressed:
             await showDeleteConfirmation()
         case .totpCodeExpired:
@@ -104,9 +113,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         switch action {
         case let .cardItemAction(cardAction):
             handleCardAction(cardAction)
-        case .checkPasswordPressed:
-            // TODO: BIT-1130 Check password
-            print("check password")
         case let .copyPressed(value):
             copyValue(value)
         case let .customFieldVisibilityPressed(customFieldState):
