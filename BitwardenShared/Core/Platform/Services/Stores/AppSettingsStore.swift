@@ -168,7 +168,7 @@ protocol AppSettingsStore: AnyObject {
     ///   - key: The session timeout date.
     ///   - userId: The user ID associated with the session timeout date.
     ///
-    func setVaultTimeout(key: Double?, userId: String)
+    func setVaultTimeout(key: Int?, userId: String)
 
     /// Sets the username generation options for a user ID.
     ///
@@ -183,14 +183,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the session timeout action.
     /// - Returns: The  user's session timeout action.
     ///
-    func timeoutAction(userId: String) -> SessionTimeoutAction?
+    func timeoutAction(userId: String) -> SessionTimeoutAction.RawValue?
 
     /// Returns the session timeout date.
     ///
     /// - Parameter userId: The user ID associated with the session timeout date.
     /// - Returns: The user's session timeout date.
     ///
-    func vaultTimeout(userId: String) -> Double?
+    func vaultTimeout(userId: String) -> Int?
 
     /// Gets the username generation options for a user ID.
     ///
@@ -334,9 +334,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case rememberedEmail
         case rememberedOrgIdentifier
         case state
-        case timeoutAction(userId: String)
         case usernameGenerationOptions(userId: String)
         case vaultTimeout(userId: String)
+        case vaultTimeoutAction(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -374,12 +374,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedOrgIdentifier"
             case .state:
                 key = "state"
-            case let .timeoutAction(userId):
-                key = "timeoutAction_\(userId)"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
             case let .vaultTimeout(userId):
                 key = "vaultTimeout_\(userId)"
+            case let .vaultTimeoutAction(userId):
+                key = "vaultTimeoutAction_\(userId)"
             }
             return "bwPreferencesStorage:\(key)"
         }
@@ -497,10 +497,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
-        store(key, for: .timeoutAction(userId: userId))
+        store(key.rawValue, for: .vaultTimeoutAction(userId: userId))
     }
 
-    func setVaultTimeout(key: Double?, userId: String) {
+    func setVaultTimeout(key: Int?, userId: String) {
         store(key, for: .vaultTimeout(userId: userId))
     }
 
@@ -508,11 +508,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
 
-    func timeoutAction(userId: String) -> SessionTimeoutAction? {
-        fetch(for: .timeoutAction(userId: userId))
+    func timeoutAction(userId: String) -> SessionTimeoutAction.RawValue? {
+        fetch(for: .vaultTimeoutAction(userId: userId))
     }
 
-    func vaultTimeout(userId: String) -> Double? {
+    func vaultTimeout(userId: String) -> Int? {
         fetch(for: .vaultTimeout(userId: userId))
     }
 

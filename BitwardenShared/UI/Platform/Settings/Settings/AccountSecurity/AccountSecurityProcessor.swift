@@ -83,6 +83,7 @@ final class AccountSecurityProcessor: StateProcessor<
             setTimeoutAction(newValue)
         case let .sessionTimeoutValueChanged(newValue):
             state.sessionTimeoutValue = newValue
+            setVaultTimeout(value: newValue.rawValue)
         case let .toggleApproveLoginRequestsToggle(isOn):
             state.isApproveLoginRequestsToggleOn = isOn
         case let .toggleUnlockWithFaceID(isOn):
@@ -102,26 +103,21 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func appeared() async {
         do {
-            let userId = try await services.stateService.getActiveAccountId()
-            let timeoutAction = try await services.stateService.getTimeoutAction(userId: userId)
-            let timeout = try await services.stateService.getVaultTimeout(userId: userId)
+            let timeoutAction = try await services.stateService.getTimeoutAction()
+            let vaultTimeout = try await services.stateService.getVaultTimeout()
 
-            if timeoutAction == nil, timeout == nil {
-                try await services.stateService.setVaultTimeout(value: 0, userId: userId)
-                try await services.stateService.setTimeoutAction(action: .lock, userId: userId)
+            if timeoutAction == nil {
+                try await services.stateService.setTimeoutAction(action: .lock)
             }
 
-            state.sessionTimeoutAction = try await services.stateService.getTimeoutAction(userId: userId) ?? .lock
-
-            guard let vaultTimeout = try await services.stateService.getVaultTimeout(userId: userId) else {
-                state.sessionTimeoutValue = .never
-                return
-            }
+            state.sessionTimeoutAction = try await services.stateService.getTimeoutAction() ?? .lock
 
             if vaultTimeout == -1 {
                 state.sessionTimeoutValue = .onAppRestart
+            } else if vaultTimeout == -2 {
+                state.sessionTimeoutValue = .never
             } else {
-                var rawTimeoutValues: [Double] = []
+                var rawTimeoutValues: [Int] = []
                 for value in SessionTimeoutValue.allCases {
                     rawTimeoutValues.append(value.rawValue)
                 }
@@ -149,8 +145,7 @@ final class AccountSecurityProcessor: StateProcessor<
         if action == .logout {
             coordinator.navigate(to: .alert(.logoutOnTimeoutAlert {
                 do {
-                    let userId = try await self.services.stateService.getActiveAccountId()
-                    try await self.services.stateService.setTimeoutAction(action: action, userId: userId)
+                    try await self.services.stateService.setTimeoutAction(action: action)
                 } catch {
                     self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
                     self.services.errorReporter.log(error: error)
@@ -158,8 +153,7 @@ final class AccountSecurityProcessor: StateProcessor<
             }))
         } else {
             Task {
-                let userId = try await services.stateService.getActiveAccountId()
-                try await services.stateService.setTimeoutAction(action: action, userId: userId)
+                try await services.stateService.setTimeoutAction(action: action)
             }
         }
 
@@ -170,16 +164,15 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     /// - Parameter value: The vault timeout value.
     ///
-    private func setVaultTimeout(value: Double) {
+    private func setVaultTimeout(value: Int) {
         Task {
             do {
-                let userId = try await self.services.stateService.getActiveAccountId()
                 if value == -100 {
-                    try await services.vaultTimeoutService.setVaultTimeout(value: 60, userId: userId)
+                    try await services.vaultTimeoutService.setVaultTimeout(value: 60, userId: nil)
                 } else if value == -2 {
-                    try await services.vaultTimeoutService.setVaultTimeout(value: nil, userId: userId)
+                    try await services.vaultTimeoutService.setVaultTimeout(value: nil, userId: nil)
                 } else {
-                    try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: userId)
+                    try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: nil)
                 }
             } catch {
                 self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))

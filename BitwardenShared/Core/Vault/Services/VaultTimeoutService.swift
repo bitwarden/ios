@@ -46,7 +46,11 @@ protocol VaultTimeoutService: AnyObject {
 
     /// Sets the session timeout date upon the app being backgrounded.
     ///
-    func setVaultTimeout(value: Double?, userId: String?) async throws
+    /// - Parameters:
+    ///   - value: The timeout value.
+    ///   - userId: The user's ID.
+    ///
+    func setVaultTimeout(value: Int?, userId: String?) async throws
 
     /// Whether a session timeout should occur.
     ///
@@ -164,13 +168,13 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         try await stateService.setLastActiveTime(userId: userId)
     }
 
-    func setVaultTimeout(value: Double?, userId: String?) async throws {
+    func setVaultTimeout(value: Int?, userId: String?) async throws {
         try await stateService.setVaultTimeout(value: value, userId: userId)
     }
 
     func shouldSessionTimeout(userId: String) async throws -> Bool {
         guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId) else { return false }
-        guard let vaultTimeout = try await stateService.getVaultTimeout(userId: userId) else { return false }
+        let vaultTimeout = try await stateService.getVaultTimeout(userId: userId)
 
         if vaultTimeout == -1 { return true }
         if vaultTimeout == -2 { return false }

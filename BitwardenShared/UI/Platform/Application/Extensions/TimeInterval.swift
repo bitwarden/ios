@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - TimeInterval
 
-extension TimeInterval {
+extension Int {
     // MARK: Methods
 
     /// Creates a string from a time interval value in the format of `HH:mm`.

@@ -88,6 +88,7 @@ protocol StateService: AnyObject {
     /// This value is set when the app is backgrounded.
     ///
     /// - Parameter userId: The user ID associated with the last active time within the app.
+    /// - Returns: The date of the last active time.
     ///
     func getLastActiveTime(userId: String?) async throws -> Date?
 
@@ -136,7 +137,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID for the account.
     /// - Returns: The session timeout date.
     ///
-    func getVaultTimeout(userId: String?) async throws -> Double?
+    func getVaultTimeout(userId: String?) async throws -> Int
 
     /// Logs the user out of an account.
     ///
@@ -256,7 +257,7 @@ protocol StateService: AnyObject {
     ///   - value: How many minutes in the future the timeout should occur.
     ///   - userId: The user ID associated with the timeout value.
     ///
-    func setVaultTimeout(value: Double?, userId: String?) async throws
+    func setVaultTimeout(value: Int?, userId: String?) async throws
 
     // MARK: Publishers
 
@@ -318,6 +319,15 @@ extension StateService {
         try await getEnvironmentUrls(userId: nil)
     }
 
+    /// Gets the user's last active time within the app.
+    /// This value is set when the app is backgrounded.
+    ///
+    /// - Returns: The date of the last active time.
+    ///
+    func getLastActiveTime() async throws -> Date? {
+        try await getLastActiveTime(userId: nil)
+    }
+
     /// Gets the master password hash for the active account.
     ///
     /// - Returns: The user's master password hash.
@@ -334,12 +344,28 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
+    /// Gets the session timeout action.
+    ///
+    /// - Returns: The action to perform when a session timeout occurs.
+    ///
+    func getTimeoutAction() async throws -> SessionTimeoutAction? {
+        try await getTimeoutAction(userId: nil)
+    }
+
     /// Gets the username generation options for the active account.
     ///
     /// - Returns: The username generation options for the user ID.
     ///
     func getUsernameGenerationOptions() async throws -> UsernameGenerationOptions? {
         try await getUsernameGenerationOptions(userId: nil)
+    }
+
+    /// Gets the session timeout date.
+    ///
+    /// - Returns: The session timeout date.
+    ///
+    func getVaultTimeout() async throws -> Int {
+        try await getVaultTimeout(userId: nil)
     }
 
     /// Logs the user out of the active account.
@@ -372,6 +398,14 @@ extension StateService {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
     }
 
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameter date: The date of the last active time.
+    ///
+    func setLastActiveTime() async throws {
+        try await setLastActiveTime(userId: nil)
+    }
+
     /// Sets the time of the last sync for a user ID.
     ///
     /// - Parameter date: The time of the last sync (as the number of seconds since the Unix epoch).]
@@ -396,6 +430,15 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
+
+    /// Sets the session timeout action.
+    ///
+    /// - Parameter action: The action to take when the user's session times out.
+    ///
+    func setTimeoutAction(action: SessionTimeoutAction) async throws {
+        try await setTimeoutAction(action: action, userId: nil)
+    }
+
     /// Sets a new access and refresh token for the active account.
     ///
     /// - Parameters:
@@ -412,6 +455,14 @@ extension StateService {
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?) async throws {
         try await setUsernameGenerationOptions(options, userId: nil)
+    }
+
+    /// Sets the session timeout date.
+    ///
+    /// - Parameter value: How many minutes in the future the timeout should occur.
+    ///
+    func setVaultTimeout(value: Int?) async throws {
+        try await setVaultTimeout(value: value, userId: nil)
     }
 }
 
@@ -590,7 +641,8 @@ actor DefaultStateService: StateService {
 
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction? {
         let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.timeoutAction(userId: userId)
+        let rawValue = appSettingsStore.timeoutAction(userId: userId)
+        return SessionTimeoutAction(rawValue: rawValue ?? 0)
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
@@ -598,9 +650,9 @@ actor DefaultStateService: StateService {
         return appSettingsStore.usernameGenerationOptions(userId: userId)
     }
 
-    func getVaultTimeout(userId: String?) async throws -> Double? {
+    func getVaultTimeout(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccountId()
-        return appSettingsStore.vaultTimeout(userId: userId)
+        return appSettingsStore.vaultTimeout(userId: userId) ?? -2
     }
 
     func logoutAccount(userId: String?) async throws {
@@ -707,7 +759,7 @@ actor DefaultStateService: StateService {
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
     }
 
-    func setVaultTimeout(value: Double?, userId: String?) async throws {
+    func setVaultTimeout(value: Int?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setVaultTimeout(key: value, userId: userId)
     }

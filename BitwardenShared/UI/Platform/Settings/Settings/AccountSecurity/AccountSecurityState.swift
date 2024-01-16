@@ -4,7 +4,7 @@ import Foundation
 
 /// An enumeration of session timeout values to choose from.
 ///
-public enum SessionTimeoutValue: Double, CaseIterable, Codable, Equatable, Menuable {
+public enum SessionTimeoutValue: Int, CaseIterable, Equatable, Menuable {
     /// Timeout immediately.
     case immediately = 0
 
@@ -80,12 +80,12 @@ public enum SessionTimeoutValue: Double, CaseIterable, Codable, Equatable, Menua
 
 /// The action to perform on session timeout.
 ///
-public enum SessionTimeoutAction: CaseIterable, Codable, Equatable, Menuable {
+public enum SessionTimeoutAction: Int, CaseIterable, Equatable, Menuable {
     /// Lock the vault.
-    case lock
+    case lock = 0
 
     /// Log the user out.
-    case logout
+    case logout = 1
 
     /// All of the cases to show in the menu.
     public static let allCases: [SessionTimeoutAction] = [.lock, .logout]
@@ -114,7 +114,7 @@ struct AccountSecurityState: Equatable {
     }
 
     /// The custom session timeout value, initially set to 60 seconds.
-    var customTimeoutValue: TimeInterval = 60
+    var customTimeoutValue: Int = 60
 
     /// The string representation of the custom session timeout value.
     var customTimeoutString: String {
@@ -149,8 +149,8 @@ struct AccountSecurityState: Equatable {
 
     /// A dictionary mapping session timeout values and their numerical representations.
     /// e.g. `[0: .immediately]`
-    var vaultTimeoutValues: [Double: SessionTimeoutValue] {
-        var map: [Double: SessionTimeoutValue] = [:]
+    var vaultTimeoutValues: [Int: SessionTimeoutValue] {
+        var map: [Int: SessionTimeoutValue] = [:]
         for object in SessionTimeoutValue.allCases {
             map.updateValue(object, forKey: object.rawValue)
         }

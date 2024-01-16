@@ -105,13 +105,15 @@ public class AppProcessor {
         guard let account = services.appSettingsStore.state?.activeAccount else { return }
         guard let action = services.appSettingsStore.timeoutAction(userId: account.profile.userId) else { return }
         switch action {
-        case .lock:
+        case 0:
             coordinator?.navigate(to: .auth(.vaultUnlock(account)))
-        case .logout:
+        case 1:
             Task {
                 try await services.stateService.logoutAccount(userId: account.profile.userId)
             }
             coordinator?.navigate(to: .auth(.landing))
+        default:
+            break
         }
     }
 }
