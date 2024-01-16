@@ -275,6 +275,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, .never)
     }
 
+    /// `getDisableAutoTotpCopy()` returns the disable auto-copy TOTP value for the active account.
+    func test_getDisableAutoTotpCopy() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.disableAutoTotpCopyByUserId["1"] = true
+
+        let value = try await subject.getDisableAutoTotpCopy()
+        XCTAssertTrue(value)
+    }
+
     /// `getEnvironmentUrls()` returns the environment URLs for the active account.
     func test_getEnvironmentUrls() async throws {
         let urls = EnvironmentUrlData(base: .example)
@@ -449,6 +458,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY"
         ))
+        try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
         try await dataStore.insertPasswordHistory(
             userId: "1",
@@ -469,6 +479,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.logoutAccount()
 
+        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
@@ -697,6 +708,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let date2 = Date(year: 2023, month: 12, day: 2)
         try await subject.setLastSyncTime(date2, userId: "1")
         XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
+    }
+
+    /// `setDisableAutoTotpCopy(_:userId:)` sets the disable auto-copy TOTP value for a user.
+    func test_setDisableAutoTotpCopy() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setDisableAutoTotpCopy(true, userId: "1")
+        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId["1"], true)
+
+        try await subject.setDisableAutoTotpCopy(false, userId: "1")
+        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId["1"], false)
     }
 
     /// `setActiveAccount(userId: )` succeeds if there is a matching account

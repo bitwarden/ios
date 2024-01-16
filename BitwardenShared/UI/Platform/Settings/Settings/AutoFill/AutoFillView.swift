@@ -8,7 +8,7 @@ struct AutoFillView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<AutoFillState, AutoFillAction, Void>
+    @ObservedObject var store: Store<AutoFillState, AutoFillAction, AutoFillEffect>
 
     // MARK: View
 
@@ -20,6 +20,9 @@ struct AutoFillView: View {
         }
         .scrollView()
         .navigationBar(title: Localizations.autofill, titleDisplayMode: .inline)
+        .task {
+            await store.perform(.fetchSettingValues)
+        }
     }
 
     // MARK: Private views

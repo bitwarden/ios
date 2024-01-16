@@ -76,6 +76,13 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Gets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The disable auto-copy TOTP value.
+    ///
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool
+
     /// Gets the environment URLs for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the environment URLs.
@@ -166,6 +173,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameters:
+    ///   - disableAutoTotpCopy: Whether the TOTP for a cipher should be auto-copied.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws
 
     /// Sets the time of the last sync for a user ID.
     ///
@@ -279,6 +294,14 @@ extension StateService {
         try await getClearClipboardValue(userId: nil)
     }
 
+    /// Gets the disable auto-copy TOTP value for the active account.
+    ///
+    /// - Returns: The disable auto-copy TOTP value.
+    ///
+    func getDisableAutoTotpCopy() async throws -> Bool {
+        try await getDisableAutoTotpCopy(userId: nil)
+    }
+
     /// Gets the environment URLs for the active account.
     ///
     /// - Returns: The environment URLs for the active account.
@@ -350,6 +373,14 @@ extension StateService {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?) async throws {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
+    }
+
+    /// Sets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameter disableAutoTotpCopy: Whether the TOTP for a cipher should be auto-copied.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
+        try await setDisableAutoTotpCopy(disableAutoTotpCopy, userId: nil)
     }
 
     /// Sets the time of the last sync for a user ID.
@@ -539,6 +570,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.disableAutoTotpCopy(userId: userId)
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
@@ -583,6 +619,7 @@ actor DefaultStateService: StateService {
             state.activeUserId = state.accounts.first?.key
         }
 
+        appSettingsStore.setDisableAutoTotpCopy(nil, userId: userId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
         appSettingsStore.setLastSyncTime(nil, userId: userId)
@@ -620,6 +657,11 @@ actor DefaultStateService: StateService {
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setDisableAutoTotpCopy(disableAutoTotpCopy, userId: userId)
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {

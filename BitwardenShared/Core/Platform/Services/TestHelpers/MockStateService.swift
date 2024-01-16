@@ -16,6 +16,7 @@ class MockStateService: StateService {
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
     var environmentUrls = [String: EnvironmentUrlData]()
+    var disableAutoTotpCopyByUserId = [String: Bool]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var masterPasswordHashes = [String: String]()
@@ -93,6 +94,11 @@ class MockStateService: StateService {
         return clearClipboardValues[userId] ?? .never
     }
 
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return disableAutoTotpCopyByUserId[userId] ?? false
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return environmentUrls[userId]
@@ -157,6 +163,11 @@ class MockStateService: StateService {
         try clearClipboardResult.get()
         let userId = try userId ?? getActiveAccount().profile.userId
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
     }
 
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {

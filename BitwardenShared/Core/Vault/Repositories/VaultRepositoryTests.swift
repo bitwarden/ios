@@ -321,6 +321,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(syncService.didFetchSync)
     }
 
+    /// `getDisableAutoTotpCopy()` gets the user's disable auto-copy TOTP value.
+    func test_getDisableAutoTotpCopy() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.disableAutoTotpCopyByUserId["1"] = false
+
+        var isDisabled = try await subject.getDisableAutoTotpCopy()
+        XCTAssertFalse(isDisabled)
+
+        stateService.disableAutoTotpCopyByUserId["1"] = true
+        isDisabled = try await subject.getDisableAutoTotpCopy()
+        XCTAssertTrue(isDisabled)
+    }
+
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_noKey() async throws {
         let newCode = "999232"

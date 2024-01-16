@@ -35,6 +35,10 @@ protocol SettingsRepository: AnyObject {
     /// Get the current value of the allow sync on refresh value.
     func getAllowSyncOnRefresh() async throws -> Bool
 
+    /// Get the value of the disable auto-copy TOTP setting for the current user.
+    ///
+    func getDisableAutoTotpCopy() async throws -> Bool
+
     /// A publisher for the last sync time.
     ///
     /// - Returns: A publisher for the last sync time.
@@ -64,6 +68,12 @@ protocol SettingsRepository: AnyObject {
     /// - Parameter allowSyncOnRefresh: Whether the vault should sync on refreshing.
     ///
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws
+
+    /// Update the cached value of the disable auto-copy TOTP setting.
+    ///
+    /// - Parameter disableAutoTotpCopy: Whether a cipher's TOTP should be auto-copied during autofill.
+    ///
+    func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws
 
     /// Validates the user's entered master password to determine if it matches the stored hash.
     ///
@@ -171,6 +181,10 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.getAllowSyncOnRefresh()
     }
 
+    func getDisableAutoTotpCopy() async throws -> Bool {
+        try await stateService.getDisableAutoTotpCopy()
+    }
+
     func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>> {
         try await stateService.lastSyncTimePublisher().values
     }
@@ -189,6 +203,10 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await stateService.setAllowSyncOnRefresh(allowSyncOnRefresh)
+    }
+
+    func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
+        try await stateService.setDisableAutoTotpCopy(disableAutoTotpCopy)
     }
 
     func validatePassword(_ password: String) async throws -> Bool {

@@ -24,6 +24,7 @@ class MockVaultRepository: VaultRepository {
     var fetchSyncCalled = false
     var fetchSyncResult: Result<Void, Error> = .success(())
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
+    var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
     var hasPremiumResult: Result<Bool, Error> = .success(true)
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
     var refreshTOTPCodesResult: Result<[VaultListItem], Error> = .success([])
@@ -105,6 +106,10 @@ class MockVaultRepository: VaultRepository {
     func fetchSync(isManualRefresh _: Bool) async throws {
         fetchSyncCalled = true
         try fetchSyncResult.get()
+    }
+
+    func getDisableAutoTotpCopy() async throws -> Bool {
+        try getDisableAutoTotpCopyResult.get()
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {

@@ -61,6 +61,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedUserKey(userId: String) -> String?
 
+    /// Gets the disable auto-copy TOTP value for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the disable auto-copy TOTP value.
+    ///
+    func disableAutoTotpCopy(userId: String) -> Bool
+
     /// Gets the time of the last sync for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the last sync time.
@@ -112,6 +118,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The time after which the clipboard should be cleared.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
+
+    /// Sets the disable auto-copy TOTP value for a user ID.
+    ///
+    /// - Parameters:
+    ///   - disableAutoTotpCopy: The user's disable auto-copy TOTP value.
+    ///   - userId: The user ID associated with the disable auto-copy TOTP value.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String)
 
     /// Sets the encrypted private key for a user ID.
     ///
@@ -296,6 +310,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case disableWebIcons
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
+        case disableAutoTotpCopy(userId: String)
         case lastSync(userId: String)
         case masterPasswordHash(userId: String)
         case passwordGenerationOptions(userId: String)
@@ -326,6 +341,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
                 key = "encPrivateKey_\(userId)"
+            case let .disableAutoTotpCopy(userId):
+                key = "disableAutoTotpCopy_\(userId)"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
             case let .masterPasswordHash(userId):
@@ -412,6 +429,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .encryptedUserKey(userId: userId))
     }
 
+    func disableAutoTotpCopy(userId: String) -> Bool {
+        fetch(for: .disableAutoTotpCopy(userId: userId))
+    }
+
     func lastSyncTime(userId: String) -> Date? {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -446,6 +467,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setEncryptedUserKey(key: String?, userId: String) {
         store(key, for: .encryptedUserKey(userId: userId))
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
+        store(disableAutoTotpCopy, for: .disableAutoTotpCopy(userId: userId))
     }
 
     func setLastSyncTime(_ date: Date?, userId: String) {
