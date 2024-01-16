@@ -1363,7 +1363,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
 class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
     var itemDeletedCalled = false
+    var itemRestoredCalled = false
+
     func itemDeleted() {
         itemDeletedCalled = true
+    }
+
+    func itemRestored() {
+        itemRestoredCalled = true
     }
 }

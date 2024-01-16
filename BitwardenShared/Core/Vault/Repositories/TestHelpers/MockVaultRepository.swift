@@ -39,6 +39,7 @@ class MockVaultRepository: VaultRepository {
     var refreshedTOTPKeyConfig: TOTPKeyModel?
     var removeAccountIds = [String?]()
     var restoredCipher = [CipherView]()
+    var restoreCipherResult: Result<Void, Error> = .success(())
     var searchCipherSubject = CurrentValueSubject<[VaultListItem], Error>([])
     var shareCipherResult: Result<Void, Error> = .success(())
     var sharedCiphers = [CipherView]()
@@ -141,6 +142,7 @@ class MockVaultRepository: VaultRepository {
 
     func restoreCipher(_ cipher: CipherView) async throws {
         restoredCipher.append(cipher)
+        try restoreCipherResult.get()
     }
 
     func searchCipherPublisher(
