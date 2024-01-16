@@ -2,9 +2,9 @@ import CoreData
 import Foundation
 
 protocol CipherServiceProtocol {
-    func getCipher(_ id: String) -> Cipher?
-    func fetchCiphers(_ withUserId: String?) -> [Cipher]
-    func saveCiphers(_ ciphers: [Cipher], completionHandler: @escaping () -> Void)
+    func getCipher(_ id: String) -> CipherDTO?
+    func fetchCiphers(_ withUserId: String?) -> [CipherDTO]
+    func saveCiphers(_ ciphers: [CipherDTO], completionHandler: @escaping () -> Void)
     func deleteAll(_ withUserId: String?, completionHandler: @escaping () -> Void)
 }
 
@@ -15,7 +15,7 @@ class CipherService {
 
     private init() {}
 
-    func getCipher(_ id: String) -> Cipher? {
+    func getCipher(_ id: String) -> CipherDTO? {
         let predicate = NSPredicate(
             format: "id = %@",
             id as CVarArg
@@ -33,7 +33,7 @@ class CipherService {
 // MARK: - CipherServiceProtocol
 
 extension CipherService: CipherServiceProtocol {
-    func fetchCiphers(_ withUserId: String?) -> [Cipher] {
+    func fetchCiphers(_ withUserId: String?) -> [CipherDTO] {
         let result: Result<[CipherEntity], Error> = dbHelper.fetch(
             CipherEntity.self,
             "CipherEntity",
@@ -47,11 +47,11 @@ extension CipherService: CipherServiceProtocol {
         }
     }
 
-    func saveCiphers(_ ciphers: [Cipher], completionHandler: @escaping () -> Void) {
+    func saveCiphers(_ ciphers: [CipherDTO], completionHandler: @escaping () -> Void) {
         let cipherIds = ciphers.map(\.id)
         deleteAll(ciphers[0].userId, notIn: cipherIds) {
             self.dbHelper.insertBatch("CipherEntity", items: ciphers) { item, context in
-                guard let cipher = item as! Cipher? else { return [:] }
+                guard let cipher = item as! CipherDTO? else { return [:] }
                 let c = cipher.toCipherEntity(moContext: context)
                 guard let data = try? JSONEncoder().encode(c) else {
                     Log.e("Error converting to data")

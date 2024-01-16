@@ -6,7 +6,7 @@ struct CipherDetailsView: View {
 
     let iconSize: CGSize = .init(width: 30, height: 30)
 
-    init(cipher: Cipher) {
+    init(cipher: CipherDTO) {
         cipherDetailsViewModel = CipherDetailsViewModel(cipher: cipher)
     }
 

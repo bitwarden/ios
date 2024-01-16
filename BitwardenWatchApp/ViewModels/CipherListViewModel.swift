@@ -6,12 +6,12 @@ class CipherListViewModel: ObservableObject {
     var cipherService: CipherServiceProtocol
     var watchConnectivityManager = WatchConnectivityManager.shared
 
-    @Published private var ciphers: [Cipher] = []
-    @Published var filteredCiphers: [Cipher] = []
+    @Published private var ciphers: [CipherDTO] = []
+    @Published var filteredCiphers: [CipherDTO] = []
     @Published var updateHack: Bool = false
     @Published var showingSheet = false
     @Published var currentState = BWState.valid
-    @Published var user: User?
+    @Published var user: UserDTO?
 
     @Published var searchTerm: String = ""
 
@@ -36,12 +36,19 @@ class CipherListViewModel: ObservableObject {
                 }
 
                 // WORKAROUND: To display 0 search results
-                if !searchTerm.isEmpty, returnCiphers.isEmpty {
-                    returnCiphers.append(Cipher(
-                        id: "-1",
-                        name: "NoItemsFound",
-                        login: Login(username: "", totp: "", uris: nil)
-                    ))
+                if !searchTerm.isEmpty,
+                   returnCiphers.isEmpty {
+                    returnCiphers.append(
+                        CipherDTO(
+                            id: "-1",
+                            login: LoginDTO(
+                                totp: "",
+                                uris: nil,
+                                username: ""
+                            ),
+                            name: "NoItemsFound"
+                        )
+                    )
                 }
 
                 if searchTerm.isEmpty {
@@ -84,7 +91,7 @@ class CipherListViewModel: ObservableObject {
         }
     }
 
-    func cipherContains(_ cipher: Cipher, _: String) -> Bool {
+    func cipherContains(_ cipher: CipherDTO, _: String) -> Bool {
         if searchTerm.isEmpty {
             return true
         }

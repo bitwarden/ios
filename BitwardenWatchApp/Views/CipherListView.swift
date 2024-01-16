@@ -129,7 +129,11 @@ struct ContentView_Previews: PreviewProvider {
         var v = CipherListView()
         StateService.shared.currentState = .valid
         v.viewModel = CipherListViewModel(CipherServiceMock())
-        v.viewModel.user = User(id: "zxc", email: "testing@test.com", name: "Tester")
+        v.viewModel.user = UserDTO(
+            email: "testing@test.com",
+            id: "zxc",
+            name: "Tester"
+        )
         return v
     }
 }

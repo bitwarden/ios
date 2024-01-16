@@ -17,15 +17,21 @@ public extension CipherEntity {
 }
 
 extension CipherEntity: Identifiable {
-    func toCipher() -> Cipher {
-        var loginUrisArray: [LoginUri]?
+    func toCipher() -> CipherDTO {
+        var loginUrisArray: [LoginUriDTO]?
         if loginUris != nil {
-            loginUrisArray = try? JSONDecoder().decode([LoginUri].self, from: loginUris!.data(using: .utf8)!)
+            loginUrisArray = try? JSONDecoder().decode([LoginUriDTO].self, from: loginUris!.data(using: .utf8)!)
         }
 
-        return Cipher(id: id,
-                      name: name,
-                      userId: userId,
-                      login: Login(username: username, totp: totp, uris: loginUrisArray))
+        return CipherDTO(
+            id: id,
+            login: LoginDTO(
+                totp: totp,
+                uris: loginUrisArray,
+                username: username
+            ),
+            name: name,
+            userId: userId
+        )
     }
 }

@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 class CipherDetailsViewModel: ObservableObject {
-    @Published var cipher: Cipher
+    @Published var cipher: CipherDTO
 
     @Published var totpFormatted: String = ""
     @Published var progress: Double = 1
@@ -13,7 +13,7 @@ class CipherDetailsViewModel: ObservableObject {
     var period: Int
     var timer: Timer? = nil
 
-    init(cipher: Cipher) {
+    init(cipher: CipherDTO) {
         self.cipher = cipher
         key = cipher.login.totp!
         period = TotpService.shared.getPeriodFrom(key)

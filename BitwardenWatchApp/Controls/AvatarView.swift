@@ -5,7 +5,7 @@ struct AvatarView: View {
     var textColor = Color.black
     var initials = ""
 
-    init(_ user: User?) {
+    init(_ user: UserDTO?) {
         let source = user?.name ?? user?.email
         var upperCaseText: String? = nil
 
@@ -80,6 +80,12 @@ struct AvatarView: View {
 
 struct AvatarView_Previews: PreviewProvider {
     static var previews: some View {
-        AvatarView(User(id: "zxc", email: "asdfasdf@gmail.com", name: "John Snow"))
+        AvatarView(
+            UserDTO(
+                email: "asdfasdf@gmail.com",
+                id: "zxc",
+                name: "John Snow"
+            )
+        )
     }
 }
