@@ -6,7 +6,12 @@ import Foundation
 class MockAppSettingsStore: AppSettingsStore {
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
+    var appLocale: String?
+    var appTheme: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var defaultUriMatchTypeByUserId = [String: UriMatchType]()
+    var disableAutoTotpCopyByUserId = [String: Bool]()
+    var disableWebIcons: Bool = false
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var lastSyncTimeByUserId = [String: Date]()
@@ -22,6 +27,7 @@ class MockAppSettingsStore: AppSettingsStore {
         }
     }
 
+    var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
@@ -32,6 +38,14 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func defaultUriMatchType(userId: String) -> UriMatchType? {
+        defaultUriMatchTypeByUserId[userId]
+    }
+
+    func disableAutoTotpCopy(userId: String) -> Bool {
+        disableAutoTotpCopyByUserId[userId] ?? false
     }
 
     func encryptedPrivateKey(userId: String) -> String? {
@@ -58,6 +72,10 @@ class MockAppSettingsStore: AppSettingsStore {
         pinProtectedUserKey[userId] ?? nil
     }
 
+    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+        unsuccessfulUnlockAttempts[userId]
+    }
+
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         usernameGenerationOptions[userId]
     }
@@ -68,6 +86,14 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String) {
+        defaultUriMatchTypeByUserId[userId] = uriMatchType
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
+        disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {
@@ -104,6 +130,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setPinProtectedUserKey(key: String?, userId: String) {
         pinProtectedUserKey[userId] = key
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
+        unsuccessfulUnlockAttempts[userId] = attempts
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {

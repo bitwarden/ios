@@ -59,7 +59,7 @@ class VaultAutofillListProcessor: StateProcessor<
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
         case let .cipherTapped(cipher):
-            await autofillHelper.handleCipherForAutofill(cipherListView: cipher) { [weak self] toastText in
+            await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
                 self?.state.toast = Toast(text: toastText)
             }
         case .streamAutofillItems:
@@ -69,6 +69,14 @@ class VaultAutofillListProcessor: StateProcessor<
 
     override func receive(_ action: VaultAutofillListAction) {
         switch action {
+        case .addTapped:
+            coordinator.navigate(
+                to: .addItem(
+                    allowTypeSelection: false,
+                    group: .login,
+                    uri: appExtensionDelegate?.uri
+                )
+            )
         case .cancelTapped:
             appExtensionDelegate?.didCancel()
         case let .toastShown(newValue):
@@ -82,7 +90,9 @@ class VaultAutofillListProcessor: StateProcessor<
     ///
     private func streamAutofillItems() async {
         do {
-            for try await ciphers in try await services.vaultRepository.cipherPublisher() {
+            for try await ciphers in try await services.vaultRepository.ciphersAutofillPublisher(
+                uri: appExtensionDelegate?.uri
+            ) {
                 state.ciphersForAutofill = ciphers
             }
         } catch {

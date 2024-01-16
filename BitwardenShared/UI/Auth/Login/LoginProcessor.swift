@@ -77,7 +77,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     override func receive(_ action: LoginAction) {
         switch action {
         case .enterpriseSingleSignOnPressed:
-            coordinator.navigate(to: .enterpriseSingleSignOn)
+            coordinator.navigate(to: .enterpriseSingleSignOn(email: state.username))
         case .getMasterPasswordHintPressed:
             coordinator.navigate(to: .masterPasswordHint(username: state.username))
         case .loginWithDevicePressed:

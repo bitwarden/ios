@@ -1,3 +1,4 @@
+import AuthenticationServices
 import Foundation
 
 // MARK: - SingleSignOnFlowDelegate
@@ -25,7 +26,8 @@ protocol SingleSignOnFlowDelegate: AnyObject {
 final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignOnAction, SingleSignOnEffect> {
     // MARK: Types
 
-    typealias Services = HasAuthService
+    typealias Services = HasAuthAPIService
+        & HasAuthService
         & HasErrorReporter
         & HasStateService
 
@@ -54,10 +56,6 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         self.coordinator = coordinator
         self.services = services
 
-        // Set the initial value of the organization identifier, if applicable.
-        var state = state
-        state.identifierText = self.services.stateService.rememberedOrgIdentifier ?? ""
-
         super.init(state: state)
     }
 
@@ -65,6 +63,8 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
 
     override func perform(_ effect: SingleSignOnEffect) async {
         switch effect {
+        case .loadSingleSignOnDetails:
+            await loadSingleSignOnDetails()
         case .loginTapped:
             await handleLoginTapped()
         }
@@ -84,6 +84,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     /// Generically handle an error on the view.
     private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) {
         coordinator.hideLoadingOverlay()
+        if case ASWebAuthenticationSessionError.canceledLogin = error { return }
         coordinator.showAlert(.networkResponseError(error, tryAgain))
         services.errorReporter.log(error: error)
     }
@@ -110,6 +111,33 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch {
             handleError(error) { await self.handleLoginTapped() }
+        }
+    }
+
+    /// Load the single sign on details to ensure the user is able to complete the single sign on process
+    /// and attempt to start the WebAuth session if applicable.
+    private func loadSingleSignOnDetails() async {
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+        defer {
+            coordinator.hideLoadingOverlay()
+            state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
+        }
+
+        // Get the single sign on details for the user.
+        do {
+            let response = try await services.authAPIService.getSingleSignOnDetails(email: state.email)
+
+            // If there is already an organization identifier associated with the user's email,
+            // attempt to start the single sign on process with that identifier.
+            if response.ssoAvailable,
+               let organizationIdentifier = response.organizationIdentifier,
+               !organizationIdentifier.isEmpty {
+                state.identifierText = organizationIdentifier
+                coordinator.hideLoadingOverlay()
+                await handleLoginTapped()
+            }
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 }

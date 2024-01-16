@@ -72,7 +72,7 @@ extension CipherView {
         favorite: Bool = false,
         fields: [FieldView]? = nil,
         folderId: String? = nil,
-        id: String? = nil,
+        id: String? = "1",
         identity: IdentityView? = nil,
         key: String? = nil,
         localData: LocalDataView? = nil,
@@ -277,6 +277,26 @@ extension CollectionView {
     }
 }
 
+extension BitwardenSdk.Login {
+    static func fixture(
+        autofillOnPageLoad: Bool? = nil,
+        password: String? = nil,
+        passwordRevisionDate: Date? = nil,
+        uris: [LoginUri]? = nil,
+        username: String? = nil,
+        totp: String? = nil
+    ) -> BitwardenSdk.Login {
+        BitwardenSdk.Login(
+            username: username,
+            password: password,
+            passwordRevisionDate: passwordRevisionDate,
+            uris: uris,
+            totp: totp,
+            autofillOnPageLoad: autofillOnPageLoad
+        )
+    }
+}
+
 extension BitwardenSdk.LoginView {
     static func fixture(
         password: String? = nil,
@@ -300,7 +320,7 @@ extension BitwardenSdk.LoginView {
 extension PasswordHistoryView {
     static func fixture(
         password: String = "",
-        lastUsedDate: Date = Date()
+        lastUsedDate: Date = Date(year: 2024, month: 1, day: 1)
     ) -> PasswordHistoryView {
         PasswordHistoryView(
             password: password,

@@ -82,6 +82,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UIHostingController<AppearanceView>)
     }
 
+    /// `navigate(to:)` with `.appExtension` pushes the app extension view onto the stack navigator.
+    func test_navigateTo_appExtension() throws {
+        subject.navigate(to: .appExtension)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<AppExtensionView>)
+    }
+
     /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
     func test_navigateTo_autoFill() throws {
         subject.navigate(to: .autoFill)
@@ -166,6 +175,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
         XCTAssertTrue(action.view is UIHostingController<PasswordAutoFillView>)
+    }
+
+    /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
+    func test_navigateTo_selectLanguage() throws {
+        subject.navigate(to: .selectLanguage(currentLanguage: .default))
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelectLanguageView>)
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.

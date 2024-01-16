@@ -29,6 +29,13 @@ class VaultAutofillListViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping the add an item button dispatches the `.addTapped` action.
+    func test_addItemButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.add)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
+    }
+
     /// Tapping the cancel button dispatches the `.cancelTapped` action.
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
@@ -49,9 +56,9 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     /// The populated view renders correctly.
     func test_snapshot_vaultAutofillList_populated() {
         processor.state.ciphersForAutofill = [
-            .fixture(id: "1", name: "Apple", subTitle: "user@bitwarden.com"),
-            .fixture(id: "2", name: "Bitwarden", subTitle: "user@bitwarden.com"),
-            .fixture(id: "3", name: "Company XYZ", subTitle: ""),
+            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Apple"),
+            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Bitwarden"),
+            .fixture(id: "3", login: .fixture(username: ""), name: "Company XYZ"),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,

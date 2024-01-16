@@ -28,6 +28,7 @@ extension ButtonStyle where Self == AccessoryButtonStyle {
 
 // MARK: Previews
 
+#if DEBUG
 struct AccessoryButtonStyle_Previews: PreviewProvider {
     static var previews: some View {
         Button {} label: {
@@ -44,3 +45,4 @@ struct AccessoryButtonStyle_Previews: PreviewProvider {
         .previewDisplayName("Disabled")
     }
 }
+#endif

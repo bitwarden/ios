@@ -35,6 +35,18 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.exportVaultWarning)
     }
 
+    /// `languageChanged(to:)` constructs an `Alert` with the title and ok buttons.
+    func test_languageChanged() {
+        let subject = Alert.languageChanged(to: "Thai") {}
+
+        XCTAssertEqual(subject.title, Localizations.languageChangeXDescription("Thai"))
+        XCTAssertNil(subject.message)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.ok)
+        XCTAssertEqual(subject.alertActions.first?.style, .default)
+    }
+
     /// `logoutOnTimeoutAlert(action:)` constructs an `Alert` with the title, message, and Yes and Cancel buttons.
     func test_logoutOnTimeoutAlert() {
         let subject = Alert.logoutOnTimeoutAlert {}

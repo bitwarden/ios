@@ -48,7 +48,6 @@ struct SettingsMenuField<T>: View where T: Menuable {
                 }
             }
             .styleGuide(.body)
-
             .id(title)
             .padding(.horizontal, 16)
 

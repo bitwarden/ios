@@ -11,6 +11,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var clientCrypto: MockClientCrypto!
+    var clientPlatform: MockClientPlatform!
     var environmentService: MockEnvironmentService!
     var organizationService: MockOrganizationService!
     var subject: DefaultAuthRepository!
@@ -77,6 +78,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         accountAPIService = APIService(client: client)
         authService = MockAuthService()
         clientCrypto = MockClientCrypto()
+        clientPlatform = MockClientPlatform()
         environmentService = MockEnvironmentService()
         organizationService = MockOrganizationService()
         stateService = MockStateService()
@@ -87,6 +89,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             authService: authService,
             clientAuth: clientAuth,
             clientCrypto: clientCrypto,
+            clientPlatform: clientPlatform,
             environmentService: environmentService,
             organizationService: organizationService,
             stateService: stateService,
@@ -102,6 +105,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         client = nil
         clientAuth = nil
         clientCrypto = nil
+        clientPlatform = nil
         environmentService = nil
         organizationService = nil
         subject = nil
@@ -288,6 +292,49 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncThrows(error: StateServiceError.noAccounts) {
             _ = try await subject.getAccount(for: profile.userId)
         }
+    }
+
+    /// `getFingerprintPhrase(userId:)` gets the account's fingerprint phrase.
+    func test_getFingerprintPhrase() async throws {
+        let account = Account.fixture()
+        stateService.accounts = [account]
+        _ = try await subject.setActiveAccount(userId: account.profile.userId)
+        try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "USER_KEY"
+        ))
+
+        let phrase = try await subject.getFingerprintPhrase(userId: account.profile.userId)
+        XCTAssertEqual(clientPlatform.fingerprintMaterialString, account.profile.userId)
+        XCTAssertEqual(try clientPlatform.fingerprintResult.get(), phrase)
+    }
+
+    /// `getFingerprintPhrase(userId:)` throws an error if there is no active account.
+    func test_getFingerprintPhrase_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getFingerprintPhrase(userId: "")
+        }
+    }
+
+    /// `passwordStrength(email:password)` returns the calculated password strength.
+    func test_passwordStrength() async {
+        clientAuth.passwordStrengthResult = 0
+        let weakPasswordStrength = await subject.passwordStrength(email: "user@bitwarden.com", password: "password")
+        XCTAssertEqual(weakPasswordStrength, 0)
+        XCTAssertEqual(clientAuth.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertEqual(clientAuth.passwordStrengthPassword, "password")
+
+        clientAuth.passwordStrengthResult = 4
+        let strongPasswordStrength = await subject.passwordStrength(
+            email: "user@bitwarden.com",
+            password: "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03"
+        )
+        XCTAssertEqual(strongPasswordStrength, 4)
+        XCTAssertEqual(clientAuth.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertEqual(
+            clientAuth.passwordStrengthPassword,
+            "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03"
+        )
     }
 
     /// `setActiveAccount(userId: )` loads the environment URLs for the active account.

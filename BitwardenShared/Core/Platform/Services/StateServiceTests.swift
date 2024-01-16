@@ -58,6 +58,43 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(state.activeUserId, "2")
     }
 
+    /// `appLocale` gets and sets the value as expected.
+    func test_appLocale() {
+        // Getting the value should get the value from the app settings store.
+        appSettingsStore.appLocale = "de"
+        XCTAssertEqual(subject.appLanguage, .custom(languageCode: "de"))
+
+        // Setting the value should update the value in the app settings store.
+        subject.appLanguage = .custom(languageCode: "th")
+        XCTAssertEqual(appSettingsStore.appLocale, "th")
+    }
+
+    /// `appTheme` gets and sets the value as expected.
+    func test_appTheme() async {
+        // Getting the value should get the value from the app settings store.
+        appSettingsStore.appTheme = "light"
+        let theme = await subject.getAppTheme()
+        XCTAssertEqual(theme, .light)
+
+        // Setting the value should update the value in the app settings store.
+        await subject.setAppTheme(.dark)
+        XCTAssertEqual(appSettingsStore.appTheme, "dark")
+    }
+
+    /// `appThemePublisher()` returns a publisher for the app's theme.
+    func test_appThemePublisher() async {
+        var publishedValues = [AppTheme]()
+        let publisher = await subject.appThemePublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        await subject.setAppTheme(.dark)
+
+        XCTAssertEqual(publishedValues, [.default, .dark])
+    }
+
     /// `.deleteAccount()` deletes the active user's account, removing it from the state.
     func test_deleteAccount() async throws {
         let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -238,6 +275,27 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, .never)
     }
 
+    /// `getDefaultUriMatchType()` returns the default URI match type value for the active account.
+    func test_getDefaultUriMatchType() async throws {
+        await subject.addAccount(.fixture())
+
+        let initialValue = try await subject.getDefaultUriMatchType()
+        XCTAssertEqual(initialValue, .domain)
+
+        appSettingsStore.defaultUriMatchTypeByUserId["1"] = .exact
+        let value = try await subject.getDefaultUriMatchType()
+        XCTAssertEqual(value, .exact)
+    }
+
+    /// `getDisableAutoTotpCopy()` returns the disable auto-copy TOTP value for the active account.
+    func test_getDisableAutoTotpCopy() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.disableAutoTotpCopyByUserId["1"] = true
+
+        let value = try await subject.getDisableAutoTotpCopy()
+        XCTAssertTrue(value)
+    }
+
     /// `getEnvironmentUrls()` returns the environment URLs for the active account.
     func test_getEnvironmentUrls() async throws {
         let urls = EnvironmentUrlData(base: .example)
@@ -325,6 +383,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getShowWebIcons` gets the show web icons value.
+    func test_getShowWebIcons() async {
+        appSettingsStore.disableWebIcons = true
+
+        let value = await subject.getShowWebIcons()
+        XCTAssertFalse(value)
+    }
+
+    /// `getUnsuccessfulUnlockAttempts(userId:)` gets the unsuccessful unlock attempts for the account.
+    func test_getUnsuccessfulUnlockAttempts() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        appSettingsStore.unsuccessfulUnlockAttempts["1"] = 4
+
+        let unsuccessfulUnlockAttempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
+        XCTAssertEqual(unsuccessfulUnlockAttempts, 4)
+    }
+
     /// `getUsernameGenerationOptions()` gets the saved username generation options for the account.
     func test_getUsernameGenerationOptions() async throws {
         let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
@@ -350,7 +426,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 
-    /// lastSyncTimePublisher()` returns a publisher for the user's last sync time.
+    /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
     func test_lastSyncTimePublisher() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
@@ -367,7 +443,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(publishedValues, [nil, date])
     }
 
-    /// lastSyncTimePublisher()` gets the initial stored value if a cached sync time doesn't exist.
+    /// `lastSyncTimePublisher()` gets the initial stored value if a cached sync time doesn't exist.
     func test_lastSyncTimePublisher_fetchesInitialValue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
         let initialSync = Date(year: 2023, month: 12, day: 1)
@@ -394,6 +470,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY"
         ))
+        try await subject.setDefaultUriMatchType(.never)
+        try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
         try await dataStore.insertPasswordHistory(
             userId: "1",
@@ -416,6 +494,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
+        XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
+        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
 
         let context = dataStore.persistentContainer.viewContext
@@ -596,7 +676,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    /// `setActiveAccount(userId: )` returns without aciton if there are no accounts
+    /// `setActiveAccount(userId: )` returns without action if there are no accounts
     func test_setActiveAccount_noAccounts() async throws {
         let storeState = await subject.appSettingsStore.state
         XCTAssertNil(storeState)
@@ -652,6 +732,28 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
     }
 
+    /// `setDefaultUriMatchType(_:userId:)` sets the default URI match type value for a user.
+    func test_setDefaultUriMatchType() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setDefaultUriMatchType(.startsWith, userId: "1")
+        XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId["1"], .startsWith)
+
+        try await subject.setDefaultUriMatchType(.regularExpression, userId: "1")
+        XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId["1"], .regularExpression)
+    }
+
+    /// `setDisableAutoTotpCopy(_:userId:)` sets the disable auto-copy TOTP value for a user.
+    func test_setDisableAutoTotpCopy() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setDisableAutoTotpCopy(true, userId: "1")
+        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId["1"], true)
+
+        try await subject.setDisableAutoTotpCopy(false, userId: "1")
+        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId["1"], false)
+    }
+
     /// `setActiveAccount(userId: )` succeeds if there is a matching account
     func test_setActiveAccount_match_multi() async throws {
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
@@ -704,6 +806,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let urls = EnvironmentUrlData(base: .example)
         await subject.setPreAuthEnvironmentUrls(urls)
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `setShowWebIcons` saves the show web icons value..
+    func test_setShowWebIcons() async {
+        await subject.setShowWebIcons(false)
+        XCTAssertTrue(appSettingsStore.disableWebIcons)
+    }
+
+    /// `setUnsuccessfulUnlockAttempts(userId:)` sets the unsuccessful unlock attempts for the account.
+    func test_setUnsuccessfulUnlockAttempts() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setUnsuccessfulUnlockAttempts(3, userId: "1")
+
+        XCTAssertEqual(appSettingsStore.unsuccessfulUnlockAttempts["1"], 3)
     }
 
     /// `setUsernameGenerationOptions` sets the username generation options for an account.

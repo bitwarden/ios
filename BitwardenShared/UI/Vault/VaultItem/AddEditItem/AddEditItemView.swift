@@ -44,7 +44,7 @@ struct AddEditItemView: View {
 
     private var content: some View {
         ScrollView {
-            LazyVStack(spacing: 20) {
+            VStack(spacing: 20) {
                 informationSection
                 miscellaneousSection
                 notesSection
@@ -115,7 +115,7 @@ struct AddEditItemView: View {
 
     private var informationSection: some View {
         SectionView(Localizations.itemInformation) {
-            if case .add = store.state.configuration {
+            if case .add = store.state.configuration, store.state.allowTypeSelection {
                 BitwardenMenuField(
                     title: Localizations.type,
                     options: CipherType.allCases,
@@ -281,12 +281,6 @@ struct AddEditItemView_Previews: PreviewProvider {
         .init(timeIntervalSince1970: 1_695_000_000)
     }
 
-    static var emptyCipherState: CipherItemState {
-        var state = CipherItemState(hasPremium: true)
-        state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
-        return state
-    }
-
     static var cipherState: CipherItemState {
         var state = CipherItemState(
             existing: .init(
@@ -409,7 +403,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: {
                             var state = cipherState
-                            state.loginState.totpKey = .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
+                            state.loginState.totpState = .init("JBSWY3DPEHPK3PXP")
                             state.toast = Toast(text: "Authenticator key added.")
                             return state
                         }()

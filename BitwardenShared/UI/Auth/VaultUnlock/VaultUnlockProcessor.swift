@@ -7,6 +7,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasStateService
 
     // MARK: Private Properties
 
@@ -47,6 +48,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
         switch effect {
         case .appeared:
             state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
+            state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
             await refreshProfileState()
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
@@ -134,6 +136,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                 try await services.authRepository.unlockVaultWithPIN(pin: state.pin)
             }
             coordinator.navigate(to: .complete)
+            state.unsuccessfulUnlockAttemptsCount = 0
+            await services.stateService.setUnsuccessfulUnlockAttempts(0)
         } catch let error as InputValidationError {
             coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))
         } catch {
@@ -143,6 +147,20 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             )
             coordinator.navigate(to: .alert(alert))
             Logger.processor.error("Error unlocking vault: \(error)")
+            state.unsuccessfulUnlockAttemptsCount += 1
+            await services.stateService.setUnsuccessfulUnlockAttempts(state.unsuccessfulUnlockAttemptsCount)
+            if state.unsuccessfulUnlockAttemptsCount >= 5 {
+                do {
+                    state.unsuccessfulUnlockAttemptsCount = 0
+                    await services.stateService.setUnsuccessfulUnlockAttempts(0)
+                    try await services.authRepository.logout()
+                } catch {
+                    services.errorReporter.log(error: BitwardenError.logoutError(error: error))
+                }
+                coordinator.navigate(to: .landing)
+                return
+            }
+            coordinator.navigate(to: .alert(.invalidMasterPassword()))
         }
     }
 

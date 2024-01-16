@@ -6,12 +6,19 @@ import BitwardenShared
 class CredentialProviderViewController: ASCredentialProviderViewController {
     // MARK: Properties
 
+    /// The app's theme.
+    var appTheme: AppTheme = .default
+
     /// The processor that manages application level logic.
     private var appProcessor: AppProcessor?
+
+    /// A list of service identifiers used to filter credentials for autofill.
+    private var serviceIdentifiers = [ASCredentialServiceIdentifier]()
 
     // MARK: ASCredentialProviderViewController
 
     override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        self.serviceIdentifiers = serviceIdentifiers
         initializeApp()
     }
 
@@ -66,7 +73,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         let appProcessor = AppProcessor(appModule: appModule, services: services)
         self.appProcessor = appProcessor
 
-        appProcessor.start(appContext: .appExtension, navigator: self)
+        appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
     }
 }
 
@@ -74,6 +81,18 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
 extension CredentialProviderViewController: AppExtensionDelegate {
     var isInAppExtension: Bool { true }
+
+    var uri: String? {
+        guard let serviceIdentifier = serviceIdentifiers.first else { return nil }
+        return switch serviceIdentifier.type {
+        case .domain:
+            "https://" + serviceIdentifier.identifier
+        case .URL:
+            serviceIdentifier.identifier
+        @unknown default:
+            serviceIdentifier.identifier
+        }
+    }
 
     func completeAutofillRequest(username: String, password: String) {
         let passwordCredential = ASPasswordCredential(user: username, password: password)

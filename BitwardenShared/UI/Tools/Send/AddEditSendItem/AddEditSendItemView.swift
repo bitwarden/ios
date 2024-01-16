@@ -4,7 +4,7 @@ import SwiftUI
 
 /// A view that allows the user to add or edit a send item.
 ///
-struct AddEditSendItemView: View {
+struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The `Store` for this view.
@@ -41,7 +41,7 @@ struct AddEditSendItemView: View {
                 store.send(.dismissPressed)
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: store.state.type)
+        .animation(.easeInOut(duration: 0.2), value: store.state.type)
         .animation(.easeInOut(duration: 0.2), value: store.state.deletionDate)
         .animation(.easeInOut(duration: 0.2), value: store.state.expirationDate)
         .animation(.default, value: store.state.isOptionsExpanded)
@@ -125,8 +125,36 @@ struct AddEditSendItemView: View {
 
     /// The attributes for a file type send.
     @ViewBuilder private var fileSendAttributes: some View {
-        // TODO: BIT-1255 Add the UI for file sends
-        Text("File Send Attributes")
+        VStack(alignment: .leading, spacing: 16) {
+            Text(Localizations.file)
+                .styleGuide(.subheadline, weight: .semibold)
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+            HStack(spacing: 0) {
+                Spacer()
+
+                Text(store.state.fileName ?? Localizations.noFileChosen)
+                    .styleGuide(.callout)
+                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+
+                Spacer()
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Button(Localizations.chooseFile) {
+                    store.send(.chooseFilePressed)
+                }
+                .buttonStyle(.tertiary())
+
+                Text(Localizations.maxFileSize)
+                    .styleGuide(.subheadline)
+                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+            }
+
+            Text(Localizations.typeFileInfo)
+                .styleGuide(.footnote)
+                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+        }
     }
 
     /// The name field.
@@ -287,62 +315,82 @@ struct AddEditSendItemView: View {
 
 // MARK: Previews
 
-struct AddSendItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            AddEditSendItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: AddEditSendItemState()
-                    )
+#if DEBUG
+#Preview("Empty") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState()
                 )
             )
-        }
-        .previewDisplayName("Empty")
-
-        NavigationView {
-            AddEditSendItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: AddEditSendItemState(
-                            isHideTextByDefaultOn: true,
-                            isShareOnSaveOn: true,
-                            name: "Sendy",
-                            text: "Example text",
-                            type: .text
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Text")
-
-        NavigationView {
-            AddEditSendItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: AddEditSendItemState(
-                            isOptionsExpanded: true
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Options")
-
-        NavigationView {
-            AddEditSendItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: AddEditSendItemState(
-                            deletionDate: .custom,
-                            expirationDate: .custom,
-                            isOptionsExpanded: true
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Options - Custom Dates")
+        )
     }
 }
+
+#Preview("File") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        fileName: "Example File",
+                        isHideTextByDefaultOn: true,
+                        isShareOnSaveOn: true,
+                        name: "Sendy",
+                        type: .file
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("Text") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        isHideTextByDefaultOn: true,
+                        isShareOnSaveOn: true,
+                        name: "Sendy",
+                        text: "Example text",
+                        type: .text
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("Options") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        isOptionsExpanded: true
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("Options - Custom Dates") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        deletionDate: .custom,
+                        expirationDate: .custom,
+                        isOptionsExpanded: true
+                    )
+                )
+            )
+        )
+    }
+}
+#endif

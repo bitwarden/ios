@@ -1,3 +1,6 @@
+import OSLog
+import Photos
+import PhotosUI
 import SwiftUI
 
 // MARK: - SendCoordinator
@@ -5,18 +8,46 @@ import SwiftUI
 /// A coordinator that manages navigation in the send tab.
 ///
 final class SendCoordinator: Coordinator, HasStackNavigator {
+    // MARK: Types
+
+    typealias Module = FileSelectionModule
+
+    typealias Services = HasErrorReporter
+        & HasSendRepository
+
     // MARK: - Private Properties
 
+    /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
+    /// coordinator in memory.
+    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute>?
+
+    // MARK: Properties
+
+    /// The module used by this coordinator
+    let module: Module
+
+    /// The services used by this coordinator.
+    let services: Services
+
     /// The stack navigator that is managed by this coordinator.
-    var stackNavigator: StackNavigator
+    let stackNavigator: StackNavigator
 
     // MARK: Initialization
 
     /// Creates a new `SendCoordinator`.
     ///
-    /// - Parameters stackNavigator: The stack navigator that is managed by this coordinator.
+    /// - Parameters:
+    ///   - module: The module used by this coordinator.
+    ///   - services: The services used by this coordinator.
+    ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
-    init(stackNavigator: StackNavigator) {
+    init(
+        module: Module,
+        services: Services,
+        stackNavigator: StackNavigator
+    ) {
+        self.module = module
+        self.services = services
         self.stackNavigator = stackNavigator
     }
 
@@ -26,6 +57,9 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addItem:
             showAddItem()
+        case let .fileSelection(route):
+            guard let delegate = context as? FileSelectionDelegate else { return }
+            showFileSelection(route: route, delegate: delegate)
         case .dismiss:
             stackNavigator.dismiss()
         case .list:
@@ -42,15 +76,40 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     /// Shows the add item screen.
     ///
     private func showAddItem() {
-        let state = AddEditSendItemState()
-        let processor = AddEditSendItemProcessor(
-            coordinator: self,
-            state: state
+        Task {
+            let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
+            let state = AddEditSendItemState(
+                hasPremium: hasPremium ?? false
+            )
+            let processor = AddEditSendItemProcessor(
+                coordinator: self,
+                services: services,
+                state: state
+            )
+            let view = AddEditSendItemView(store: Store(processor: processor))
+            let viewController = UIHostingController(rootView: view)
+            let navigationController = UINavigationController(rootViewController: viewController)
+            stackNavigator.present(navigationController)
+        }
+    }
+
+    /// Navigates to the specified `FileSelectionRoute`.
+    ///
+    /// - Parameters:
+    ///   - route: The route to navigate to.
+    ///   - delegate: The `FileSelectionDelegate` for this navigation.
+    ///
+    private func showFileSelection(
+        route: FileSelectionRoute,
+        delegate: FileSelectionDelegate
+    ) {
+        let coordinator = module.makeFileSelectionCoordinator(
+            delegate: delegate,
+            stackNavigator: stackNavigator
         )
-        let view = AddEditSendItemView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator.present(navigationController)
+        coordinator.start()
+        coordinator.navigate(to: route)
+        fileSelectionCoordinator = coordinator
     }
 
     /// Shows the list of sends.
@@ -58,6 +117,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     private func showList() {
         let processor = SendListProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: SendListState()
         )
         let store = Store(processor: processor)

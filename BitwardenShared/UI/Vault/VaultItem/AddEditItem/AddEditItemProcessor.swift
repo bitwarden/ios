@@ -17,7 +17,8 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
     // MARK: Types
 
-    typealias Services = HasCameraService
+    typealias Services = HasAPIService
+        & HasCameraService
         & HasErrorReporter
         & HasPasteboardService
         & HasTOTPService
@@ -107,18 +108,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         case let .masterPasswordRePromptChanged(newValue):
             state.isMasterPasswordRePromptOn = newValue
         case let .morePressed(menuAction):
-            switch menuAction {
-            case .attachments:
-                // TODO: BIT-364
-                print("attachments")
-            case .clone:
-                // TODO: BIT-365
-                print("clone")
-            case .editCollections:
-                coordinator.navigate(to: .editCollections(state.cipher), context: self)
-            case .moveToOrganization:
-                coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
-            }
+            handleMenuAction(menuAction)
         case let .nameChanged(newValue):
             state.name = newValue
         case .newCustomFieldPressed:
@@ -138,10 +128,10 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             state.loginState.isPasswordVisible = newValue
         case let .toastShown(newValue):
             state.toast = newValue
+        case .totpFieldLeftFocus:
+            parseAndValidateEditedAuthenticatorKey(state.loginState.totpState.rawAuthenticatorKeyString)
         case let .totpKeyChanged(newValue):
-            state.loginState.totpKey = (newValue != nil)
-                ? TOTPCodeConfig(authenticatorKey: newValue!)
-                : nil
+            state.loginState.totpState = .init(newValue)
         case let .typeChanged(newValue):
             state.type = newValue
         case let .uriChanged(newValue, index: index):
@@ -169,6 +159,24 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             state.folders = [.default] + folders
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Handles an action associated with the `VaultItemManagementMenuAction` menu.
+    ///
+    /// - Parameter action: The action that was sent from the menu.
+    ///
+    private func handleMenuAction(_ action: VaultItemManagementMenuAction) {
+        switch action {
+        case .attachments:
+            coordinator.navigate(to: .attachments)
+        case .clone:
+            // we don't show clone option in edit item state
+            break
+        case .editCollections:
+            coordinator.navigate(to: .editCollections(state.cipher), context: self)
+        case .moveToOrganization:
+            coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
         }
     }
 
@@ -251,21 +259,9 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     private func checkPassword() async {
         coordinator.showLoadingOverlay(title: Localizations.checkingPassword)
         defer { coordinator.hideLoadingOverlay() }
-
         do {
-            // TODO: BIT-369 Use the api to check the password
-            try await Task.sleep(nanoseconds: 1_000_000_000)
-            let alert = Alert(
-                title: Localizations.passwordExposed(9_659_365),
-                message: nil,
-                alertActions: [
-                    AlertAction(
-                        title: Localizations.ok,
-                        style: .default
-                    ),
-                ]
-            )
-            coordinator.navigate(to: .alert(alert))
+            let breachCount = try await services.apiService.checkDataBreaches(password: state.loginState.password)
+            coordinator.navigate(to: .alert(.dataBreachesCountAlert(count: breachCount)))
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -387,6 +383,10 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     /// Kicks off the TOTP setup flow.
     ///
     private func setupTotp() async {
+        guard services.cameraService.deviceSupportsCamera() else {
+            coordinator.navigate(to: .setupTotpManual, context: self)
+            return
+        }
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
             await coordinator.navigate(asyncTo: .scanCode, context: self)
@@ -418,18 +418,42 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         with value: String
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
-            self?.parseAuthenticatorKey(value)
+            self?.parseAndValidateCapturedAuthenticatorKey(value)
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 
-    func parseAuthenticatorKey(_ key: String) {
+    func parseAndValidateCapturedAuthenticatorKey(_ key: String) {
         do {
-            state.loginState.totpKey = try services.totpService.getTOTPConfiguration(key: key)
+            let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
+            state.loginState.totpState = .key(authKeyModel)
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         } catch {
             coordinator.navigate(to: .alert(.totpScanFailureAlert()))
         }
+    }
+
+    func parseAndValidateEditedAuthenticatorKey(_ key: String?) {
+        guard key != state.loginState.totpState.authKeyModel?.rawAuthenticatorKey else { return }
+        let newState = LoginTOTPState(key)
+        state.loginState.totpState = newState
+        guard case .invalid = newState else { return }
+        coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+    }
+
+    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        guard services.cameraService.deviceSupportsCamera() else { return }
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.coordinator.navigate(to: .scanCode, context: self)
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+
+    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.coordinator.navigate(to: .setupTotpManual, context: self)
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 }
 

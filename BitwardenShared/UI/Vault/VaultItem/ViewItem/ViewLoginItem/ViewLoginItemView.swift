@@ -13,6 +13,9 @@ struct ViewLoginItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ViewLoginItemState, ViewItemAction, ViewItemEffect>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     var body: some View {
         if !store.state.username.isEmpty {
             let username = store.state.username
@@ -40,8 +43,8 @@ struct ViewLoginItemView: View {
                         store.send(.passwordVisibilityPressed)
                     }
 
-                    Button {
-                        store.send(.checkPasswordPressed)
+                    AsyncButton {
+                        await store.perform(.checkPasswordPressed)
                     } label: {
                         Asset.Images.roundCheck.swiftUIImage
                             .resizable()
@@ -69,19 +72,27 @@ struct ViewLoginItemView: View {
                     .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
-        } else if store.state.totpKey != nil {
-            // TODO: BIT-760 - Implement OTP Logic & Calculation
+        } else if let totpModel = store.state.totpCode {
             BitwardenField(
                 title: Localizations.verificationCodeTotp,
                 content: {
-                    Text("123 456")
+                    Text(totpModel.displayCode)
                         .styleGuide(.bodyMonospaced)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 },
                 accessoryContent: {
+                    TOTPCountdownTimerView(
+                        timeProvider: timeProvider,
+                        totpCode: totpModel,
+                        onExpiration: {
+                            Task {
+                                await store.perform(.totpCodeExpired)
+                            }
+                        }
+                    )
                     Button {
-                        // TODO: BIT-760 - Implement OTP Logic & Calculation
+                        store.send(.copyPressed(value: totpModel.code))
                     } label: {
                         Asset.Images.copy.swiftUIImage
                             .resizable()

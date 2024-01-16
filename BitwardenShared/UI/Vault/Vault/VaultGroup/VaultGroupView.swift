@@ -12,6 +12,9 @@ struct VaultGroupView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     // MARK: View
 
     var body: some View {
@@ -43,6 +46,9 @@ struct VaultGroupView: View {
         }
         .task {
             await store.perform(.appeared)
+        }
+        .task {
+            await store.perform(.streamShowWebIcons)
         }
         .toast(store.binding(
             get: \.toast,
@@ -102,22 +108,28 @@ struct VaultGroupView: View {
                         Button {
                             store.send(.itemPressed(item))
                         } label: {
-                            VaultListItemRowView(store: store.child(
-                                state: { _ in
-                                    VaultListItemRowState(
-                                        item: item,
-                                        hasDivider: items.last != item
-                                    )
-                                },
-                                mapAction: { action in
-                                    switch action {
-                                    case let .copyTOTPCode(code):
-                                        return .copyTOTPCode(code)
-                                    }
-                                },
-                                mapEffect: { _ in .morePressed(item)
-                                }
-                            ))
+                            VaultListItemRowView(
+                                store: store.child(
+                                    state: { state in
+                                        VaultListItemRowState(
+                                            iconBaseURL: state.iconBaseURL,
+                                            item: item,
+                                            hasDivider: items.last != item,
+                                            showWebIcons: state.showWebIcons
+                                        )
+                                    },
+                                    mapAction: { action in
+                                        switch action {
+                                        case let .copyTOTPCode(code):
+                                            return .copyTOTPCode(code)
+                                        case .morePressed:
+                                            return .morePressed(item)
+                                        }
+                                    },
+                                    mapEffect: nil
+                                ),
+                                timeProvider: timeProvider
+                            )
                         }
                     }
                 }
@@ -131,16 +143,19 @@ struct VaultGroupView: View {
 
 // MARK: Previews
 
+#if DEBUG
 #Preview("Loading") {
     NavigationView {
         VaultGroupView(
             store: Store(
                 processor: StateProcessor(
                     state: VaultGroupState(
-                        loadingState: .loading
+                        loadingState: .loading,
+                        vaultFilterType: .allVaults
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
@@ -151,10 +166,12 @@ struct VaultGroupView: View {
             store: Store(
                 processor: StateProcessor(
                     state: VaultGroupState(
-                        loadingState: .data([])
+                        loadingState: .data([]),
+                        vaultFilterType: .allVaults
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
@@ -167,44 +184,79 @@ struct VaultGroupView: View {
                     state: VaultGroupState(
                         group: .login,
                         loadingState: .data([
-                            .init(cipherListView: .init(
+                            .init(cipherView: .init(
                                 id: UUID().uuidString,
                                 organizationId: nil,
                                 folderId: nil,
                                 collectionIds: [],
+                                key: nil,
                                 name: "Example",
-                                subTitle: "email@example.com",
+                                notes: nil,
                                 type: .login,
+                                login: .init(
+                                    username: "email@example.com",
+                                    password: nil,
+                                    passwordRevisionDate: nil,
+                                    uris: nil,
+                                    totp: nil,
+                                    autofillOnPageLoad: nil
+                                ),
+                                identity: nil,
+                                card: nil,
+                                secureNote: nil,
                                 favorite: true,
                                 reprompt: .none,
+                                organizationUseTotp: false,
                                 edit: false,
                                 viewPassword: true,
-                                attachments: 0,
+                                localData: nil,
+                                attachments: [],
+                                fields: [],
+                                passwordHistory: [],
                                 creationDate: Date(),
                                 deletedDate: nil,
                                 revisionDate: Date()
                             ))!,
-                            .init(cipherListView: .init(
+                            .init(cipherView: .init(
                                 id: UUID().uuidString,
                                 organizationId: nil,
                                 folderId: nil,
                                 collectionIds: [],
+                                key: nil,
                                 name: "Example 2",
-                                subTitle: "email2@example.com",
+                                notes: nil,
                                 type: .login,
+                                login: .init(
+                                    username: "email2@example.com",
+                                    password: nil,
+                                    passwordRevisionDate: nil,
+                                    uris: nil,
+                                    totp: nil,
+                                    autofillOnPageLoad: nil
+                                ),
+                                identity: nil,
+                                card: nil,
+                                secureNote: nil,
                                 favorite: true,
                                 reprompt: .none,
+                                organizationUseTotp: false,
                                 edit: false,
                                 viewPassword: true,
-                                attachments: 0,
+                                localData: nil,
+                                attachments: [],
+                                fields: [],
+                                passwordHistory: [],
                                 creationDate: Date(),
                                 deletedDate: nil,
                                 revisionDate: Date()
                             ))!,
-                        ])
+                        ]),
+                        vaultFilterType: .allVaults
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
+#endif

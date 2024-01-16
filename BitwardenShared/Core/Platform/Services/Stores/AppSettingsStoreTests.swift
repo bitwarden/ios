@@ -72,6 +72,38 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_w"))
     }
 
+    /// `appLocale`is initially `nil`.
+    func test_appLocale_isInitiallyNil() {
+        XCTAssertNil(subject.appLocale)
+    }
+
+    /// `appLocale` can be used to get and set the persisted value in user defaults.
+    func test_appLocale_withValue() {
+        subject.appLocale = "th"
+        XCTAssertEqual(subject.appLocale, "th")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:appLocale"), "th")
+
+        subject.appLocale = nil
+        XCTAssertNil(subject.appLocale)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appLocale"))
+    }
+
+    /// `appTheme` returns `nil` if there isn't a previously stored value.
+    func test_appTheme_isInitiallyNil() {
+        XCTAssertNil(subject.appTheme)
+    }
+
+    /// `appTheme` can be used to get and set the persisted value in user defaults.
+    func test_appTheme_withValue() {
+        subject.appTheme = "light"
+        XCTAssertEqual(subject.appTheme, "light")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:theme"), "light")
+
+        subject.appTheme = nil
+        XCTAssertNil(subject.appTheme)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
+    }
+
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
     func test_clearClipboardValue_isInitiallyNil() {
         XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
@@ -86,6 +118,54 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.clearClipboardValue(userId: "2"), .never)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_1"), 10)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
+    }
+
+    /// `defaultUriMatchType(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_defaultUriMatchType_isInitiallyNil() {
+        XCTAssertNil(subject.defaultUriMatchType(userId: "-1"))
+    }
+
+    /// `defaultUriMatchType(userId:)` can be used to get the default URI match type value for a user.
+    func test_defaultUriMatchType_withValue() {
+        subject.setDefaultUriMatchType(.exact, userId: "1")
+        subject.setDefaultUriMatchType(.host, userId: "2")
+
+        XCTAssertEqual(subject.defaultUriMatchType(userId: "1"), .exact)
+        XCTAssertEqual(subject.defaultUriMatchType(userId: "2"), .host)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:defaultUriMatch_1"), 3)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:defaultUriMatch_2"), 1)
+    }
+
+    /// `disableAutoTotpCopy(userId:)` returns `false` if there isn't a previously stored value.
+    func test_disableAutoTotpCopy_isInitiallyNil() {
+        XCTAssertFalse(subject.disableAutoTotpCopy(userId: "-1"))
+    }
+
+    /// `disableAutoTotpCopy(userId:)` can be used to get the disable auto-copy TOTP value for a user.
+    func test_disableAutoTotpCopy_withValue() {
+        subject.setDisableAutoTotpCopy(true, userId: "1")
+        subject.setDisableAutoTotpCopy(false, userId: "2")
+
+        XCTAssertTrue(subject.disableAutoTotpCopy(userId: "1"))
+        XCTAssertFalse(subject.disableAutoTotpCopy(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:disableAutoTotpCopy_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:disableAutoTotpCopy_2"))
+    }
+
+    /// `disableWebIcons` returns `false` if there isn't a previously stored value.
+    func test_disableWebIcons_isInitiallyFalse() {
+        XCTAssertFalse(subject.disableWebIcons)
+    }
+
+    /// `disableWebIcons` can be used to get and set the persisted value in user defaults.
+    func test_disableWebIcons_withValue() {
+        subject.disableWebIcons = true
+        XCTAssertTrue(subject.disableWebIcons)
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:disableFavicon"))
+
+        subject.disableWebIcons = false
+        XCTAssertFalse(subject.disableWebIcons)
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:disableFavicon"))
     }
 
     /// `encryptedPrivateKey(userId:)` returns `nil` if there isn't a previously stored value.
@@ -296,6 +376,23 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
             .defaultEU
         )
+    }
+
+    /// `unsuccessfulUnlockAttempts` returns `0` if there isn't a previously stored value.
+    func test_unsuccessfulUnlockAttempts_isInitially0() {
+        XCTAssertEqual(0, subject.unsuccessfulUnlockAttempts(userId: "1"))
+    }
+
+    /// `unsuccessfulUnlockAttempts(userId:)`can be used to get the unsuccessful unlock attempts  for a user.
+    func test_unsuccessfulUnlockAttempts_withValue() {
+        subject.setUnsuccessfulUnlockAttempts(4, userId: "1")
+        subject.setUnsuccessfulUnlockAttempts(1, userId: "3")
+
+        XCTAssertEqual(subject.unsuccessfulUnlockAttempts(userId: "1"), 4)
+        XCTAssertEqual(subject.unsuccessfulUnlockAttempts(userId: "3"), 1)
+
+        XCTAssertEqual(4, userDefaults.integer(forKey: "bwPreferencesStorage:invalidUnlockAttempts_1"))
+        XCTAssertEqual(1, userDefaults.integer(forKey: "bwPreferencesStorage:invalidUnlockAttempts_3"))
     }
 
     /// `usernameGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.

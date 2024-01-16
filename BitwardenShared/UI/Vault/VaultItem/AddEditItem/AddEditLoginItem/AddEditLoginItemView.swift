@@ -5,7 +5,19 @@ import SwiftUI
 /// A view that allows the user to add or edit a cipher to a vault.
 ///
 struct AddEditLoginItemView: View {
+    // MARK: Types
+
+    /// The focusable fields in a login view.
+    enum FocusedField: Int, Hashable {
+        case userName
+        case password
+        case totp
+    }
+
     // MARK: Properties
+
+    /// The currently focused field.
+    @FocusState private var focusedField: FocusedField?
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
@@ -26,6 +38,8 @@ struct AddEditLoginItemView: View {
             }
         }
         .textFieldConfiguration(.username)
+        .focused($focusedField, equals: .userName)
+        .onSubmit { focusNextField($focusedField) }
 
         BitwardenTextField(
             title: Localizations.password,
@@ -50,6 +64,8 @@ struct AddEditLoginItemView: View {
         }
         .disabled(!store.state.canViewPassword)
         .textFieldConfiguration(.password)
+        .focused($focusedField, equals: .password)
+        .onSubmit { focusNextField($focusedField) }
 
         totpView
 
@@ -75,6 +91,11 @@ struct AddEditLoginItemView: View {
                     }
                 }
             )
+            .focused($focusedField, equals: .totp)
+            .onSubmit {
+                store.send(.totpFieldLeftFocus)
+                focusNextField($focusedField)
+            }
         } else {
             VStack(alignment: .leading, spacing: 8) {
                 Text(Localizations.authenticatorKey)
@@ -154,7 +175,10 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                     AddEditLoginItemView(
                         store: Store(
                             processor: StateProcessor(
-                                state: LoginItemState(isTOTPAvailable: false)
+                                state: LoginItemState(
+                                    isTOTPAvailable: false,
+                                    totpState: .none
+                                )
                             )
                         )
                     )
@@ -174,7 +198,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                             processor: StateProcessor(
                                 state: LoginItemState(
                                     isTOTPAvailable: true,
-                                    totpKey: .init(authenticatorKey: key)
+                                    totpState: .init(key)
                                 )
                             )
                         )

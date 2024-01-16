@@ -8,6 +8,9 @@ import Foundation
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
 protocol StateService: AnyObject {
+    /// The language option currently selected for the app.
+    var appLanguage: LanguageOption { get set }
+
     /// The organization identifier being remembered on the single-sign on screen.
     var rememberedOrgIdentifier: String? { get set }
 
@@ -59,6 +62,12 @@ protocol StateService: AnyObject {
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
 
+    /// Get the app theme.
+    ///
+    /// - Returns: The app theme.
+    ///
+    func getAppTheme() async -> AppTheme
+
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -66,6 +75,20 @@ protocol StateService: AnyObject {
     /// - Returns: The time after which the clipboard should clear.
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
+
+    /// Gets the default URI match type value for an account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The default URI match type value.
+    ///
+    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType
+
+    /// Gets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The disable auto-copy TOTP value.
+    ///
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool
 
     /// Gets the environment URLs for a user ID.
     ///
@@ -93,6 +116,20 @@ protocol StateService: AnyObject {
     /// - Returns: The environment URLs used prior to user authentication.
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
+
+    /// Get whether to show the website icons.
+    ///
+    /// - Returns: Whether to show the website icons.
+    ///
+    func getShowWebIcons() async -> Bool
+
+    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
+    /// if `nil` defaults to currently active user.
+    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    ///
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int
 
     /// Gets the username generation options for a user ID.
     ///
@@ -137,6 +174,12 @@ protocol StateService: AnyObject {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
 
+    /// Sets the app theme.
+    ///
+    /// - Parameter appTheme: The new app theme.
+    ///
+    func setAppTheme(_ appTheme: AppTheme) async
+
     /// Sets the clear clipboard value for an account.
     ///
     /// - Parameters:
@@ -144,6 +187,22 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the default URI match type value for an account.
+    ///
+    /// - Parameters:
+    ///   - defaultUriMatchType: The default URI match type.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws
+
+    /// Sets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameters:
+    ///   - disableAutoTotpCopy: Whether the TOTP for a cipher should be auto-copied.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws
 
     /// Sets the time of the last sync for a user ID.
     ///
@@ -183,6 +242,12 @@ protocol StateService: AnyObject {
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
 
+    /// Set whether to show the website icons.
+    ///
+    /// - Parameter showWebIcons: Whether to show the website icons.
+    ///
+    func setShowWebIcons(_ showWebIcons: Bool) async
+
     /// Sets a new access and refresh token for an account.
     ///
     /// - Parameters:
@@ -191,6 +256,13 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
+
+    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// if `nil` defaults to currently active user.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws
 
     /// Sets the username generation options for a user ID.
     ///
@@ -208,11 +280,23 @@ protocol StateService: AnyObject {
     ///
     func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>>
 
+    /// A publisher for the app theme.
+    ///
+    /// - Returns: A publisher for the app theme.
+    ///
+    func appThemePublisher() async -> AnyPublisher<AppTheme, Never>
+
     /// A publisher for the last sync time for the active account.
     ///
     /// - Returns: A publisher for the last sync time.
     ///
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never>
+
+    /// A publisher for whether or not to show the web icons.
+    ///
+    /// - Returns: A publisher for whether or not to show the web icons.
+    ///
+    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>>
 }
 
 extension StateService {
@@ -240,6 +324,22 @@ extension StateService {
         try await getClearClipboardValue(userId: nil)
     }
 
+    /// Gets the default URI match type value for the active account.
+    ///
+    /// - Returns: The default URI match type value.
+    ///
+    func getDefaultUriMatchType() async throws -> UriMatchType {
+        try await getDefaultUriMatchType(userId: nil)
+    }
+
+    /// Gets the disable auto-copy TOTP value for the active account.
+    ///
+    /// - Returns: The disable auto-copy TOTP value.
+    ///
+    func getDisableAutoTotpCopy() async throws -> Bool {
+        try await getDisableAutoTotpCopy(userId: nil)
+    }
+
     /// Gets the environment URLs for the active account.
     ///
     /// - Returns: The environment URLs for the active account.
@@ -262,6 +362,17 @@ extension StateService {
     ///
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions? {
         try await getPasswordGenerationOptions(userId: nil)
+    }
+
+    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
+    ///
+    /// - Returns: The number of unsuccessful unlock attempts for the active account.
+    ///
+    func getUnsuccessfulUnlockAttempts() async -> Int {
+        if let attempts = try? await getUnsuccessfulUnlockAttempts(userId: nil) {
+            return attempts
+        }
+        return 0
     }
 
     /// Gets the username generation options for the active account.
@@ -302,6 +413,22 @@ extension StateService {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
     }
 
+    /// Sets the default URI match type value the active account.
+    ///
+    /// - Parameter defaultUriMatchType: The default URI match type.
+    ///
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?) async throws {
+        try await setDefaultUriMatchType(defaultUriMatchType, userId: nil)
+    }
+
+    /// Sets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameter disableAutoTotpCopy: Whether the TOTP for a cipher should be auto-copied.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
+        try await setDisableAutoTotpCopy(disableAutoTotpCopy, userId: nil)
+    }
+
     /// Sets the time of the last sync for a user ID.
     ///
     /// - Parameter date: The time of the last sync (as the number of seconds since the Unix epoch).]
@@ -336,6 +463,14 @@ extension StateService {
         try await setTokens(accessToken: accessToken, refreshToken: refreshToken, userId: nil)
     }
 
+    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
+    ///
+    /// - Parameter attempts: The number of unsuccessful unlock attempts.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int) async {
+        try? await setUnsuccessfulUnlockAttempts(attempts, userId: nil)
+    }
+
     /// Sets the username generation options for the active account.
     ///
     /// - Parameter options: The user's username generation options.
@@ -364,20 +499,34 @@ enum StateServiceError: Error {
 actor DefaultStateService: StateService {
     // MARK: Properties
 
+    /// The language option currently selected for the app.
+    nonisolated var appLanguage: LanguageOption {
+        get { LanguageOption(appSettingsStore.appLocale) }
+        set { appSettingsStore.appLocale = newValue.value }
+    }
+
     /// The organization identifier being remembered on the single-sign on screen.
     nonisolated var rememberedOrgIdentifier: String? {
         get { appSettingsStore.rememberedOrgIdentifier }
         set { appSettingsStore.rememberedOrgIdentifier = newValue }
     }
 
+    // MARK: Private Properties
+
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
 
+    /// A subject containing the app theme..
+    private var appThemeSubject: CurrentValueSubject<AppTheme, Never>
+
     /// The data store that handles performing data requests.
-    let dataStore: DataStore
+    private let dataStore: DataStore
 
     /// A subject containing the last sync time mapped to user ID.
-    var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
+    private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
+
+    /// A subject containing whether to show the website icons.
+    var showWebIconsSubject: CurrentValueSubject<Bool, Never>
 
     // MARK: Initialization
 
@@ -390,6 +539,9 @@ actor DefaultStateService: StateService {
     init(appSettingsStore: AppSettingsStore, dataStore: DataStore) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
+
+        appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
+        showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
     }
 
     // MARK: Methods
@@ -455,9 +607,23 @@ actor DefaultStateService: StateService {
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
     }
 
+    func getAppTheme() async -> AppTheme {
+        AppTheme(appSettingsStore.appTheme)
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
+    }
+
+    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
+    }
+
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.disableAutoTotpCopy(userId: userId)
     }
 
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
@@ -479,6 +645,15 @@ actor DefaultStateService: StateService {
         appSettingsStore.preAuthEnvironmentUrls
     }
 
+    func getShowWebIcons() async -> Bool {
+        !appSettingsStore.disableWebIcons
+    }
+
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId) ?? 0
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.usernameGenerationOptions(userId: userId)
@@ -495,6 +670,8 @@ actor DefaultStateService: StateService {
             state.activeUserId = state.accounts.first?.key
         }
 
+        appSettingsStore.setDefaultUriMatchType(nil, userId: userId)
+        appSettingsStore.setDisableAutoTotpCopy(nil, userId: userId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
         appSettingsStore.setLastSyncTime(nil, userId: userId)
@@ -529,9 +706,24 @@ actor DefaultStateService: StateService {
         appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
     }
 
+    func setAppTheme(_ appTheme: AppTheme) async {
+        appSettingsStore.appTheme = appTheme.value
+        appThemeSubject.send(appTheme)
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setDefaultUriMatchType(defaultUriMatchType, userId: userId)
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setDisableAutoTotpCopy(disableAutoTotpCopy, userId: userId)
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
@@ -559,6 +751,11 @@ actor DefaultStateService: StateService {
         appSettingsStore.preAuthEnvironmentUrls = urls
     }
 
+    func setShowWebIcons(_ showWebIcons: Bool) async {
+        appSettingsStore.disableWebIcons = !showWebIcons
+        showWebIconsSubject.send(showWebIcons)
+    }
+
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {
         guard var state = appSettingsStore.state,
               let userId = userId ?? state.activeUserId
@@ -573,6 +770,11 @@ actor DefaultStateService: StateService {
         appSettingsStore.state = state
     }
 
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
@@ -584,12 +786,20 @@ actor DefaultStateService: StateService {
         appSettingsStore.activeAccountIdPublisher()
     }
 
+    func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
+        appThemeSubject.eraseToAnyPublisher()
+    }
+
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
         let userId = try getActiveAccountUserId()
         if lastSyncTimeByUserIdSubject.value[userId] == nil {
             lastSyncTimeByUserIdSubject.value[userId] = appSettingsStore.lastSyncTime(userId: userId)
         }
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
+    }
+
+    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+        showWebIconsSubject.eraseToAnyPublisher().values
     }
 
     // MARK: Private

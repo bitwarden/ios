@@ -36,6 +36,25 @@ extension Alert {
         )
     }
 
+    /// Displays the account fingerprint phrase alert.
+    ///
+    /// - Parameters:
+    ///   - action: The action to perform when the user selects `Learn more`.
+    ///   - phrase: The user's fingerprint phrase.
+    ///
+    /// - Returns: An alert that displays the user's fingerprint phrase and prompts them to learn more about it.
+    ///
+    static func displayFingerprintPhraseAlert(_ action: @escaping () async -> Void, phrase: String) -> Alert {
+        Alert(
+            title: Localizations.fingerprintPhrase,
+            message: "\(Localizations.yourAccountsFingerprint):\n\n\(phrase)",
+            alertActions: [
+                AlertAction(title: Localizations.close, style: .cancel),
+                AlertAction(title: Localizations.learnMore, style: .default) { _ in await action() },
+            ]
+        )
+    }
+
     /// An alert that prompts the user to enter their PIN.
     ///
     /// - Parameter completion: The code block that's executed when the user has entered their pin.
@@ -63,6 +82,26 @@ extension Alert {
                     autocorrectionType: .no,
                     keyboardType: .numberPad
                 ),
+            ]
+        )
+    }
+
+    /// Show the alert notifying the user that the language has been changed.
+    ///
+    /// - Parameters:
+    ///   - newLanguage: The title of the new language.
+    ///   - action: The action to run after the user clicks ok.
+    /// - Returns: An alert confirming the language change.
+    ///
+    @MainActor
+    static func languageChanged(to newLanguage: String, action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.languageChangeXDescription(newLanguage),
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default) { _ in
+                    action()
+                },
             ]
         )
     }

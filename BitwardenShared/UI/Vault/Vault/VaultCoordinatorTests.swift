@@ -62,10 +62,12 @@ class VaultCoordinatorTests: BitwardenTestCase {
         module.vaultItemCoordinator = coordinator
         subject.navigate(to: .addItem())
 
+        waitFor(!stackNavigator.actions.isEmpty)
+
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
-        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem())
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem(hasPremium: true))
     }
 
     /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
@@ -88,12 +90,14 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `.navigate(to:)` with `.editItem` presents the edit item screen.
     func test_navigateTo_editItem() throws {
-        subject.navigate(to: .editItem(cipher: .fixture()))
+        subject.navigate(to: .editItem(.fixture()))
+
+        waitFor(!stackNavigator.actions.isEmpty)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
-        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .editItem(cipher: .fixture()))
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .editItem(.fixture(), true))
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
@@ -106,13 +110,14 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
     func test_navigateTo_group() throws {
-        subject.navigate(to: .group(.identity))
+        subject.navigate(to: .group(.identity, filter: .allVaults))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
 
         let view = try XCTUnwrap((action.view as? UIHostingController<VaultGroupView>)?.rootView)
         XCTAssertEqual(view.store.state.group, .identity)
+        XCTAssertEqual(view.store.state.vaultFilterType, .allVaults)
     }
 
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.

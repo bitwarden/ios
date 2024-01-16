@@ -334,3 +334,90 @@ extension SecureNoteView {
         self.init(type: secureNote.type)
     }
 }
+
+extension SendFileView {
+    init(sendFile: SendFile) {
+        self.init(
+            id: sendFile.id,
+            fileName: sendFile.fileName,
+            size: sendFile.size,
+            sizeName: sendFile.sizeName
+        )
+    }
+}
+
+extension SendTextView {
+    init(sendText: SendText) {
+        self.init(
+            text: sendText.text,
+            hidden: sendText.hidden
+        )
+    }
+}
+
+extension SendView {
+    init(send: Send) {
+        self.init(
+            id: send.id,
+            accessId: send.accessId,
+            name: send.name,
+            notes: send.notes,
+            key: send.key,
+            newPassword: nil,
+            hasPassword: !(send.password?.isEmpty ?? true),
+            type: send.type,
+            file: send.file.map(SendFileView.init),
+            text: send.text.map(SendTextView.init),
+            maxAccessCount: send.maxAccessCount,
+            accessCount: send.accessCount,
+            disabled: send.disabled,
+            hideEmail: send.hideEmail,
+            revisionDate: send.revisionDate,
+            deletionDate: send.deletionDate,
+            expirationDate: send.expirationDate
+        )
+    }
+}
+
+extension SendFile {
+    init(sendFileView: SendFileView) {
+        self.init(
+            id: sendFileView.id,
+            fileName: sendFileView.fileName,
+            size: sendFileView.size,
+            sizeName: sendFileView.sizeName
+        )
+    }
+}
+
+extension SendText {
+    init(sendTextView: SendTextView) {
+        self.init(
+            text: sendTextView.text,
+            hidden: sendTextView.hidden
+        )
+    }
+}
+
+extension Send {
+    init(sendView: SendView) {
+        self.init(
+            id: sendView.id,
+            accessId: sendView.accessId,
+            name: sendView.name,
+            notes: sendView.notes,
+            key: sendView.key ?? "",
+            password: sendView.newPassword,
+            type: sendView.type,
+            file: sendView.file.map(SendFile.init),
+            text: sendView.text.map(SendText.init),
+            maxAccessCount: sendView.maxAccessCount,
+            accessCount: sendView.accessCount,
+            disabled: sendView.disabled,
+            hideEmail: sendView.hideEmail,
+            revisionDate: sendView.revisionDate,
+            deletionDate: sendView.deletionDate,
+            expirationDate: sendView.expirationDate
+        )
+    }
+} // swiftlint:disable:this file_length

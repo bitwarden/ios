@@ -17,10 +17,12 @@ typealias Services = HasAPIService
     & HasErrorReporter
     & HasGeneratorRepository
     & HasPasteboardService
+    & HasSendRepository
     & HasSettingsRepository
     & HasStateService
     & HasSystemDevice
     & HasTOTPService
+    & HasTimeProvider
     & HasTwoStepLoginService
     & HasVaultRepository
     & HasVaultTimeoutService
@@ -135,6 +137,13 @@ protocol HasPasteboardService {
     var pasteboardService: PasteboardService { get }
 }
 
+/// Protocol for an object that provides a `SendRepository`.
+///
+protocol HasSendRepository {
+    /// The repository used by the application to manage send data for the UI layer.
+    var sendRepository: SendRepository { get }
+}
+
 /// Protocol for an object that provides a `SettingsRepository`.
 ///
 protocol HasSettingsRepository {
@@ -154,6 +163,13 @@ protocol HasStateService {
 protocol HasSystemDevice {
     /// The object used by the application to retrieve information about this device.
     var systemDevice: SystemDevice { get }
+}
+
+/// Protocol for an object that provides a `TimeProvider`.
+///
+protocol HasTimeProvider {
+    /// Provides the present time for TOTP Code Calculation.
+    var timeProvider: TimeProvider { get }
 }
 
 /// Protocol for an object that provides a `TOTPService`.

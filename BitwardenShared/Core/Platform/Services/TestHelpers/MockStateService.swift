@@ -11,19 +11,27 @@ class MockStateService: StateService {
     var activeAccount: Account?
     var accounts: [Account]?
     var allowSyncOnRefresh = [String: Bool]()
+    var appLanguage: LanguageOption = .default
+    var appTheme: AppTheme?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
     var environmentUrls = [String: EnvironmentUrlData]()
+    var defaultUriMatchTypeByUserId = [String: UriMatchType]()
+    var disableAutoTotpCopyByUserId = [String: Bool]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String?]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var showWebIcons = true
+    var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var rememberedOrgIdentifier: String?
+    var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
+    lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
 
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
@@ -73,6 +81,10 @@ class MockStateService: StateService {
         try getActiveAccount().profile.userId
     }
 
+    func getAppTheme() async -> AppTheme {
+        appTheme ?? .default
+    }
+
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccount().profile.userId
         return allowSyncOnRefresh[userId] ?? false
@@ -82,6 +94,16 @@ class MockStateService: StateService {
         try clearClipboardResult.get()
         let userId = try userId ?? getActiveAccount().profile.userId
         return clearClipboardValues[userId] ?? .never
+    }
+
+    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return defaultUriMatchTypeByUserId[userId] ?? .domain
+    }
+
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return disableAutoTotpCopyByUserId[userId] ?? false
     }
 
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
@@ -101,6 +123,15 @@ class MockStateService: StateService {
 
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
         preAuthEnvironmentUrls
+    }
+
+    func getShowWebIcons() async -> Bool {
+        showWebIcons
+    }
+
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return unsuccessfulUnlockAttempts[userId] ?? 0
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
@@ -136,10 +167,24 @@ class MockStateService: StateService {
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
     }
 
+    func setAppTheme(_ appTheme: AppTheme) async {
+        self.appTheme = appTheme
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         try clearClipboardResult.get()
         let userId = try userId ?? getActiveAccount().profile.userId
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        defaultUriMatchTypeByUserId[userId] = defaultUriMatchType
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
     }
 
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
@@ -171,8 +216,17 @@ class MockStateService: StateService {
         preAuthEnvironmentUrls = urls
     }
 
+    func setShowWebIcons(_ showWebIcons: Bool) async {
+        self.showWebIcons = showWebIcons
+    }
+
     func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        unsuccessfulUnlockAttempts[userId] = attempts
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
@@ -181,12 +235,18 @@ class MockStateService: StateService {
     }
 
     func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>> {
-        activeIdSubject
-            .eraseToAnyPublisher()
-            .values
+        activeIdSubject.eraseToAnyPublisher().values
+    }
+
+    func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
+        appThemeSubject.eraseToAnyPublisher()
     }
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
         lastSyncTimeSubject.eraseToAnyPublisher()
+    }
+
+    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+        showWebIconsSubject.eraseToAnyPublisher().values
     }
 }

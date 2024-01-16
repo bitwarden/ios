@@ -19,6 +19,8 @@ extension DefaultAppModule: SendModule {
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<SendRoute> {
         SendCoordinator(
+            module: self,
+            services: services,
             stackNavigator: stackNavigator
         ).asAnyCoordinator()
     }

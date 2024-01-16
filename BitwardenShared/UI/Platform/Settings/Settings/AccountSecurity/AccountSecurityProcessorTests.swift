@@ -6,6 +6,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
+    var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<SettingsRoute>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
@@ -19,6 +20,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         super.setUp()
 
         appSettingsStore = MockAppSettingsStore()
+        authRepository = MockAuthRepository()
         coordinator = MockCoordinator<SettingsRoute>()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
@@ -41,6 +43,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         appSettingsStore = nil
+        authRepository = nil
         coordinator = nil
         errorReporter = nil
         settingsRepository = nil
@@ -77,6 +80,46 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [StateServiceError.noActiveAccount])
         XCTAssertEqual(coordinator.routes.last, .logout)
+    }
+
+    /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
+    /// and clears the fingerprint phrase URL.
+    func test_perform_showAccountFingerprintPhraseAlert() async throws {
+        stateService.activeAccount = .fixture()
+        await subject.perform(.accountFingerprintPhrasePressed)
+
+        let fingerprint = try authRepository.fingerprintPhraseResult.get()
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.fingerprintPhrase)
+        XCTAssertEqual(alert.message, "\(Localizations.yourAccountsFingerprint):\n\n\(fingerprint)")
+        XCTAssertEqual(alert.preferredStyle, .alert)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.close)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.learnMore)
+
+        // Tapping learn more navigates the user to the web app.
+        try await alert.tapAction(title: Localizations.learnMore)
+        XCTAssertNotNil(subject.state.fingerprintPhraseUrl)
+
+        subject.receive(.clearFingerprintPhraseUrl)
+        XCTAssertNil(subject.state.fingerprintPhraseUrl)
+    }
+
+    /// `perform(_:)` with `.accountFingerprintPhrasePressed` shows an alert if an error occurs.
+    func test_perform_showAccountFingerprintPhraseAlert_error() async throws {
+        struct FingerprintPhraseError: Error {}
+
+        authRepository.fingerprintPhraseResult = .failure(FingerprintPhraseError())
+        await subject.perform(.accountFingerprintPhrasePressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred
+            )
+        )
     }
 
     /// `receive(_:)` with `.twoStepLoginPressed` clears the two step login URL.

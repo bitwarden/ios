@@ -11,5 +11,5 @@
 --exclude **/Generated,build,vendor/bundle
 
 # rules
---disable elseOnSameLine,semicolons,unusedArguments,opaqueGenericParameters,wrapMultilineStatementBraces
---enable blankLineAfterImports,isEmpty,blockComments,docComments,sortedSwitchCases
+--disable elseOnSameLine,semicolons,unusedArguments,opaqueGenericParameters,wrapMultilineStatementBraces,preferForLoop
+--enable blankLineAfterImports,isEmpty,blockComments,docComments,sortSwitchCases

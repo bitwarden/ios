@@ -4,13 +4,16 @@ import BitwardenSdk
 
 class MockClientService: ClientService {
     var clientAuthService: MockClientAuth
+    var clientPlatformService: MockClientPlatform
     var clientVaultService: MockClientVaultService
 
     init(
         clientAuth: MockClientAuth = MockClientAuth(),
+        clientPlatform: MockClientPlatform = MockClientPlatform(),
         clientVault: MockClientVaultService = MockClientVaultService()
     ) {
         clientAuthService = clientAuth
+        clientPlatformService = clientPlatform
         clientVaultService = clientVault
     }
 
@@ -24,6 +27,10 @@ class MockClientService: ClientService {
 
     func clientGenerator() -> ClientGeneratorsProtocol {
         fatalError("Not implemented yet")
+    }
+
+    func clientPlatform() -> ClientPlatformProtocol {
+        clientPlatformService
     }
 
     func clientVault() -> ClientVaultService {

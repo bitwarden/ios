@@ -54,6 +54,9 @@ public class ServiceContainer: Services {
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
 
+    /// The repository used by the application to manage send data for the UI layer.
+    let sendRepository: SendRepository
+
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
 
@@ -65,6 +68,9 @@ public class ServiceContainer: Services {
 
     /// The object used by the application to retrieve information about this device.
     let systemDevice: SystemDevice
+
+    /// Provides the present time for TOTP Code Calculation.
+    let timeProvider: TimeProvider
 
     /// The service used by the application to manage account access tokens.
     let tokenService: TokenService
@@ -100,10 +106,12 @@ public class ServiceContainer: Services {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
+    ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
+    ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - tokenService: The service used by the application to manage account access tokens.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///   - twoStepLoginService: The service used by the application to generate a two step login URL.
@@ -124,10 +132,12 @@ public class ServiceContainer: Services {
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
         pasteboardService: PasteboardService,
+        sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
         syncService: SyncService,
         systemDevice: SystemDevice,
+        timeProvider: TimeProvider,
         tokenService: TokenService,
         totpService: TOTPService,
         twoStepLoginService: TwoStepLoginService,
@@ -147,10 +157,12 @@ public class ServiceContainer: Services {
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
         self.pasteboardService = pasteboardService
+        self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
         self.syncService = syncService
         self.systemDevice = systemDevice
+        self.timeProvider = timeProvider
         self.tokenService = tokenService
         self.totpService = totpService
         self.twoStepLoginService = twoStepLoginService
@@ -174,9 +186,9 @@ public class ServiceContainer: Services {
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
-        let sendService = DefaultSendService(sendDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
+        let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
 
         let cipherService = DefaultCipherService(
             cipherAPIService: apiService,
@@ -189,10 +201,17 @@ public class ServiceContainer: Services {
             folderDataStore: dataStore,
             stateService: stateService
         )
+
         let organizationService = DefaultOrganizationService(
             clientCrypto: clientService.clientCrypto(),
             errorReporter: errorReporter,
             organizationDataStore: dataStore,
+            stateService: stateService
+        )
+
+        let sendService = DefaultSendService(
+            sendAPIService: apiService,
+            sendDataStore: dataStore,
             stateService: stateService
         )
 
@@ -233,6 +252,7 @@ public class ServiceContainer: Services {
             authService: authService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
+            clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
             organizationService: organizationService,
             stateService: stateService,
@@ -246,7 +266,16 @@ public class ServiceContainer: Services {
             stateService: stateService
         )
 
+        let sendRepository = DefaultSendRepository(
+            clientVault: clientService.clientVault(),
+            organizationService: organizationService,
+            sendService: sendService,
+            stateService: stateService,
+            syncService: syncService
+        )
+
         let settingsRepository = DefaultSettingsRepository(
+            clientAuth: clientService.clientAuth(),
             clientVault: clientService.clientVault(),
             folderService: folderService,
             pasteboardService: pasteboardService,
@@ -254,6 +283,8 @@ public class ServiceContainer: Services {
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
+
+        let timeProvider = CurrentTime()
 
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
@@ -278,17 +309,19 @@ public class ServiceContainer: Services {
             authRepository: authRepository,
             authService: authService,
             biometricsService: biometricsService,
-            captchaService: DefaultCaptchaService(environmentService: environmentService),
+            captchaService: captchaService,
             cameraService: DefaultCameraService(),
             clientService: clientService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
             pasteboardService: pasteboardService,
+            sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,
             syncService: syncService,
             systemDevice: UIDevice.current,
+            timeProvider: timeProvider,
             tokenService: tokenService,
             totpService: totpService,
             twoStepLoginService: twoStepLoginService,
@@ -317,5 +350,9 @@ extension ServiceContainer {
 
     var clientCrypto: ClientCryptoProtocol {
         clientService.clientCrypto()
+    }
+
+    var clientPlatform: ClientPlatformProtocol {
+        clientService.clientPlatform()
     }
 }

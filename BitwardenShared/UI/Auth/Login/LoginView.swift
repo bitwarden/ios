@@ -124,6 +124,7 @@ struct LoginView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -151,3 +152,4 @@ struct LoginView_Previews: PreviewProvider {
         .previewDisplayName("With Device")
     }
 }
+#endif

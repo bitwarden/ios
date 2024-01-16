@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: - AddEditSendItemState
@@ -16,6 +17,15 @@ struct AddEditSendItemState: Equatable {
 
     /// The expiration date for this item.
     var expirationDate: SendExpirationDateType = .never
+
+    /// The data for the selected file.
+    var fileData: Data?
+
+    /// The name of the selected file.
+    var fileName: String?
+
+    /// A flag indicating if the active account has access to premium features.
+    var hasPremium = false
 
     /// A flag indicating if this item should be deactivated.
     var isDeactivateThisSendOn = false
@@ -52,4 +62,50 @@ struct AddEditSendItemState: Equatable {
 
     /// The type of this item.
     var type: SendType = .text
+}
+
+extension AddEditSendItemState {
+    /// Returns a `SendView` based on the properties of the `AddEditSendItemState`.
+    ///
+    func newSendView() -> SendView {
+        SendView(
+            id: nil,
+            accessId: nil,
+            name: name,
+            notes: notes.nilIfEmpty,
+            key: nil,
+            newPassword: password.nilIfEmpty,
+            hasPassword: !password.isEmpty,
+            type: .init(type: type),
+            file: type == .file ? newFileView() : nil,
+            text: type == .text ? newTextView() : nil,
+            maxAccessCount: maximumAccessCount == 0 ? nil : UInt32(maximumAccessCount),
+            accessCount: 0, // Defaulting to `0`, since the API ignores the values we set here.
+            disabled: isDeactivateThisSendOn,
+            hideEmail: isHideMyEmailOn,
+            revisionDate: Date(),
+            deletionDate: deletionDate.calculateDate(customValue: customDeletionDate) ?? Date(),
+            expirationDate: expirationDate.calculateDate(customValue: customExpirationDate)
+        )
+    }
+
+    /// Returns a `SendTextView` based on the properties of the `AddEditSendItemState`.
+    ///
+    private func newTextView() -> SendTextView {
+        SendTextView(
+            text: text,
+            hidden: isHideTextByDefaultOn
+        )
+    }
+
+    /// Returns a `SendFileView` based on the properties of the `AddEditSendItemState`.
+    ///
+    private func newFileView() -> SendFileView {
+        SendFileView(
+            id: nil,
+            fileName: "",
+            size: nil,
+            sizeName: nil
+        )
+    }
 }

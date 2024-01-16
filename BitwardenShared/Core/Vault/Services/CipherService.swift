@@ -6,7 +6,14 @@ import Combine
 /// A protocol for a `CipherService` which manages syncing and updates to the user's ciphers.
 ///
 protocol CipherService {
-    /// Deletes a cipher for the current user both in the backend and in local storage..
+    /// A publisher for a user's cipher objects.
+    ///
+    /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
+    /// - Returns: A publisher for the user's ciphers.
+    ///
+    func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error>
+
+    /// Deletes a cipher for the current user both in the backend and in local storage.
     ///
     /// - Parameter id: The id of cipher item to be deleted.
     ///
@@ -89,6 +96,10 @@ class DefaultCipherService: CipherService {
 }
 
 extension DefaultCipherService {
+    func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error> {
+        cipherDataStore.cipherPublisher(userId: userId)
+    }
+
     func deleteCipherWithServer(id: String) async throws {
         let userID = try await stateService.getActiveAccountId()
 

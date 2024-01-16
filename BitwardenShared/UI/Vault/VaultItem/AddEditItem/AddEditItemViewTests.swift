@@ -49,7 +49,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tapping the copy totp button performs the `.copyTotp` effect.
     func test_copyTotpButton_tap() async throws {
-        processor.state.loginState.totpKey = .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
+        processor.state.loginState.totpState = LoginTOTPState("JBSWY3DPEHPK3PXP")
+
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.copyTotp)
         try await button.tap()
 
@@ -58,7 +59,10 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     func test_dismissButton_tap() throws {
-        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
+        processor.state = CipherItemState(
+            existing: CipherView.loginFixture(),
+            hasPremium: true
+        )!
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
@@ -198,7 +202,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
     func test_setupTotpButton_withKey_tap() async throws {
-        processor.state.loginState.totpKey = .init(authenticatorKey: "JBSWY3DPEHPK3PXP")
+        processor.state.loginState.totpState = LoginTOTPState("JBSWY3DPEHPK3PXP")
+
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.setupTotp)
         try await button.tap()
 
@@ -557,7 +562,10 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     func test_snapshot_edit_full_fieldsNotVisible() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
+        processor.state = CipherItemState(
+            existing: CipherView.loginFixture(),
+            hasPremium: true
+        )!
         processor.state.loginState = .fixture(
             isPasswordVisible: false,
             password: "password1!",
@@ -591,7 +599,10 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     func test_snapshot_edit_full_disabledViewPassword() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
+        processor.state = CipherItemState(
+            existing: CipherView.loginFixture(),
+            hasPremium: true
+        )!
         processor.state.loginState = .fixture(
             canViewPassword: false,
             isPasswordVisible: false,
@@ -614,7 +625,10 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     func test_snapshot_edit_full_fieldsNotVisible_largeText() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
+        processor.state = CipherItemState(
+            existing: CipherView.loginFixture(),
+            hasPremium: true
+        )!
         processor.state.loginState = .fixture(
             isPasswordVisible: false,
             password: "password1!",
@@ -636,7 +650,10 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     func test_snapshot_edit_full_fieldsVisible() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
+        processor.state = CipherItemState(
+            existing: CipherView.loginFixture(),
+            hasPremium: true
+        )!
         processor.state.type = .login
         processor.state.name = "Name"
         processor.state.loginState = .fixture(
@@ -658,7 +675,10 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     func test_snapshot_edit_full_fieldsVisible_largeText() {
-        processor.state = CipherItemState(existing: CipherView.loginFixture(), hasPremium: true)!
+        processor.state = CipherItemState(
+            existing: CipherView.loginFixture(),
+            hasPremium: true
+        )!
         processor.state.loginState = .fixture(
             isPasswordVisible: true,
             password: "password1!",

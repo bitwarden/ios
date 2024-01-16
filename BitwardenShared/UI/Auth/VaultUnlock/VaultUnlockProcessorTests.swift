@@ -7,6 +7,8 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     var appExtensionDelegate: MockAppExtensionDelegate!
     var authRepository: MockAuthRepository!
+    var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
     var coordinator: MockCoordinator<AuthRoute>!
     var subject: VaultUnlockProcessor!
 
@@ -18,12 +20,18 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         appExtensionDelegate = MockAppExtensionDelegate()
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
+        stateService = MockStateService()
 
         subject = VaultUnlockProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(authRepository: authRepository),
-            state: VaultUnlockState(account: .fixture(), unlockMethod: .password)
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                errorReporter: errorReporter,
+                stateService: stateService
+            ),
+            state: VaultUnlockState(account: .fixture())
         )
     }
 
@@ -43,11 +51,14 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         let profile = ProfileSwitcherItem()
         authRepository.accountsResult = .success([profile])
         authRepository.activeAccountResult = .success(profile)
+        stateService.activeAccount = .fixture()
+        await stateService.setUnsuccessfulUnlockAttempts(3)
         await subject.perform(.appeared)
 
         XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
         XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
         XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
+        XCTAssertEqual(3, subject.state.unsuccessfulUnlockAttemptsCount)
     }
 
     /// `perform(.appeared)`
@@ -245,13 +256,118 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         await subject.perform(.unlockVault)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
-        XCTAssertEqual(
-            alert,
-            Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.invalidMasterPassword
-            )
-        )
+        XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(alert.message, Localizations.invalidMasterPassword)
+    }
+
+    /// `perform(_:)` with `.unlockVault` displays an alert a maximum of 5 times if the master password was incorrect.
+    ///  After the 5th attempt, it logs the user out.
+    func test_perform_unlockVault_invalidPassword_logout() async throws {
+        subject.state.masterPassword = "password"
+        stateService.activeAccount = .fixture()
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
+        struct VaultUnlockError: Error {}
+        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+
+        // 1st unsuccessful attempt
+        await subject.perform(.unlockVault)
+        var alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(alert.message, Localizations.invalidMasterPassword)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 1)
+        var attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 1)
+        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertNotEqual(coordinator.routes.last, .landing)
+
+        // 2nd unsuccessful attempts
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 2)
+        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 2)
+        alert = try coordinator.unwrapLastRouteAsAlert()
+        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertNotEqual(coordinator.routes.last, .landing)
+
+        // 3rd unsuccessful attempts
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 3)
+        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 3)
+        alert = try coordinator.unwrapLastRouteAsAlert()
+        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertNotEqual(coordinator.routes.last, .landing)
+
+        // 4th unsuccessful attempts
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 4)
+        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 4)
+        alert = try coordinator.unwrapLastRouteAsAlert()
+        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertNotEqual(coordinator.routes.last, .landing)
+
+        // 5th unsuccessful attempts
+        await subject.perform(.unlockVault)
+        // after 5th unsuccessful attempts, we log user out and reset the count to 0.
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
+        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 0)
+        await alert.alertActions[0].handler?(alert.alertActions[0], [])
+        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 0)
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(coordinator.routes.last, .landing)
+    }
+
+    /// `perform(_:)` with `.unlockVault` logs error if force logout fails after the 5th unsuccessful attempts.
+    func test_perform_unlockVault_invalidPassword_logoutError() async throws {
+        subject.state.masterPassword = "password"
+        stateService.activeAccount = .fixture()
+        subject.state.unsuccessfulUnlockAttemptsCount = 4
+        await stateService.setUnsuccessfulUnlockAttempts(5)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 4)
+        struct VaultUnlockError: Error {}
+        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+        struct LogoutError: Error, Equatable {}
+        authRepository.logoutResult = .failure(LogoutError())
+
+        // 5th unsuccessful attempts
+        await subject.perform(.unlockVault)
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(errorReporter.errors.last as? NSError, BitwardenError.logoutError(error: LogoutError()))
+        XCTAssertEqual(coordinator.routes.last, .landing)
+    }
+
+    /// `perform(_:)` with `.unlockVault` successful unlocking vault resets the `unsuccessfulUnlockAttemptsCount`.
+    func test_perform_unlockVault_validPassword_resetsFailedUnlockAttemptsCount() async throws {
+        subject.state.masterPassword = "password"
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
+        struct VaultUnlockError: Error {}
+        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+        stateService.activeAccount = .fixture()
+        var attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 0)
+
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 1)
+        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 1)
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 2)
+        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 2)
+
+        authRepository.unlockVaultResult = .success(())
+        await subject.perform(.unlockVault)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
+        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
+        XCTAssertEqual(attemptsInUserDefaults, 0)
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.
