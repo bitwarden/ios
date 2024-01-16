@@ -277,6 +277,26 @@ extension CollectionView {
     }
 }
 
+extension BitwardenSdk.Login {
+    static func fixture(
+        autofillOnPageLoad: Bool? = nil,
+        password: String? = nil,
+        passwordRevisionDate: Date? = nil,
+        uris: [LoginUri]? = nil,
+        username: String? = nil,
+        totp: String? = nil
+    ) -> BitwardenSdk.Login {
+        BitwardenSdk.Login(
+            username: username,
+            password: password,
+            passwordRevisionDate: passwordRevisionDate,
+            uris: uris,
+            totp: totp,
+            autofillOnPageLoad: autofillOnPageLoad
+        )
+    }
+}
+
 extension BitwardenSdk.LoginView {
     static func fixture(
         password: String? = nil,
