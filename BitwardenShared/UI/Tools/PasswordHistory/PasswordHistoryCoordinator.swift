@@ -41,8 +41,8 @@ class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .dismiss:
             stackNavigator.dismiss()
-        case let .passwordHistoryList(passwordHistory):
-            showPasswordHistoryListView(passwordHistory)
+        case let .passwordHistoryList(source):
+            showPasswordHistoryListView(source)
         }
     }
 
@@ -52,17 +52,13 @@ class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
 
     /// Show the password history view.
     ///
-    /// - Parameter passwordHistory: The password history to display, if it's already known.
+    /// - Parameter source: The source of the password history to display.
     ///
-    private func showPasswordHistoryListView(_ passwordHistory: [PasswordHistoryView]?) {
-        let state = PasswordHistoryListState(
-            passwordHistory: passwordHistory ?? [],
-            showClearButton: passwordHistory == nil
-        )
+    private func showPasswordHistoryListView(_ source: PasswordHistoryListState.Source) {
         let processor = PasswordHistoryListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: state
+            state: PasswordHistoryListState(source: source)
         )
         let view = PasswordHistoryListView(store: Store(processor: processor))
         stackNavigator.replace(view)

@@ -9,7 +9,7 @@ enum PasswordHistoryRoute: Equatable, Hashable {
 
     /// Show the password history list.
     ///
-    /// - Parameter passwordHistory: The password history to display, if already known.
+    /// - Parameter source: The source of the password history.
     ///
-    case passwordHistoryList(_ passwordHistory: [PasswordHistoryView]?)
+    case passwordHistoryList(_ source: PasswordHistoryListState.Source)
 }

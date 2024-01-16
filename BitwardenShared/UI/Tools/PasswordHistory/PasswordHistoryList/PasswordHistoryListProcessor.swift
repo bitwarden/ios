@@ -75,9 +75,12 @@ final class PasswordHistoryListProcessor: StateProcessor<
 
     /// Stream the generator's password history, if applicable.
     private func streamPasswordHistory() async {
-        // If viewing an item's password history, the password history will already be set,
-        // so don't load the generator's history.
-        guard state.passwordHistory.isEmpty else { return }
+        // If viewing an item's password history, the password history will already
+        // be set, so don't load the generator's history.
+        if case let .item(passwordHistory) = state.source {
+            state.passwordHistory = passwordHistory
+            return
+        }
 
         do {
             for try await passwordHistory in try await services.generatorRepository.passwordHistoryPublisher() {

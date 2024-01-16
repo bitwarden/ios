@@ -42,7 +42,7 @@ class PasswordHistoryCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.passwordHistoryList(_)` displays the password history list view.
     func test_navigate_passwordHistoryList() throws {
-        subject.navigate(to: .passwordHistoryList(nil))
+        subject.navigate(to: .passwordHistoryList(.generator))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)

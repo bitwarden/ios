@@ -79,13 +79,13 @@ class PasswordHistoryListProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` doesn't load anything if the password history is already set.
-    func test_perform_appeared_preExistingData() async {
+    func test_perform_appeared_sourceItem() async {
         let passwordHistory = [
             PasswordHistoryView.fixture(password: "8gr6uY8CLYQwzr#"),
             PasswordHistoryView.fixture(password: "%w4&D*48&CD&j2"),
             PasswordHistoryView.fixture(password: "df@58^%8o7e@&@"),
         ]
-        subject.state.passwordHistory = passwordHistory
+        subject.state.source = .item(passwordHistory)
 
         await subject.perform(.appeared)
 

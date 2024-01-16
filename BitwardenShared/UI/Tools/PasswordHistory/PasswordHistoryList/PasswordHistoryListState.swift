@@ -6,13 +6,24 @@ import Foundation
 /// An object that defines the current state of a `PasswordHistoryListView`.
 ///
 struct PasswordHistoryListState: Equatable {
+    // MARK: Types
+
+    /// The source of the password history.
+    enum Source: Equatable, Hashable {
+        /// Display password history from the generator.
+        case generator
+
+        /// Display password history for an item.
+        case item(_ passwordHistory: [PasswordHistoryView])
+    }
+
     // MARK: Properties
 
-    /// The user's history of generated passwords.
+    /// The password history to display.
     var passwordHistory = [PasswordHistoryView]()
 
-    /// Whether to show the button to clear the history.
-    var showClearButton = true
+    /// The source of the password history.
+    var source: Source = .generator
 
     /// A toast message to show in the view.
     var toast: Toast?

@@ -156,7 +156,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UINavigationController)
 
         XCTAssertTrue(module.passwordHistoryCoordinator.isStarted)
-        XCTAssertEqual(module.passwordHistoryCoordinator.routes.last, .passwordHistoryList(nil))
+        XCTAssertEqual(module.passwordHistoryCoordinator.routes.last, .passwordHistoryList(.generator))
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.

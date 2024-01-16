@@ -315,7 +315,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         let navigationController = UINavigationController()
         let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: .passwordHistoryList(passwordHistory))
+        coordinator.navigate(to: .passwordHistoryList(.item(passwordHistory)))
         stackNavigator.present(navigationController)
     }
 

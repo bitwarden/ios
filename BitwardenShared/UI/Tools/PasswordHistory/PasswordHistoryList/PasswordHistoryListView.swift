@@ -29,7 +29,7 @@ struct PasswordHistoryListView: View {
         ))
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                if store.state.showClearButton {
+                if store.state.source == .generator {
                     Menu {
                         AsyncButton(Localizations.clear) {
                             await store.perform(.clearList)

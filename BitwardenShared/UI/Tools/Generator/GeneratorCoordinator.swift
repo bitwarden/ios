@@ -121,7 +121,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         let navigationController = UINavigationController()
         let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: .passwordHistoryList(nil))
+        coordinator.navigate(to: .passwordHistoryList(.generator))
 
         stackNavigator.present(navigationController)
     }

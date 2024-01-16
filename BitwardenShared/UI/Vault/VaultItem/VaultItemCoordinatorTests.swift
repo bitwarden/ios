@@ -314,7 +314,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertTrue(action.view is UINavigationController)
 
         XCTAssertTrue(module.passwordHistoryCoordinator.isStarted)
-        XCTAssertEqual(module.passwordHistoryCoordinator.routes.last, .passwordHistoryList([.fixture()]))
+        XCTAssertEqual(module.passwordHistoryCoordinator.routes.last, .passwordHistoryList(.item([.fixture()])))
     }
 
     /// `navigate(to:)` with `.setupTotpCamera` with context without conformance fails to present.
