@@ -53,7 +53,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(processor.dispatchedActions.last, .checkPasswordPressed)
     }
 
-    /// Tapping the copy usename button dispatches the `.copyPressed` action with the username.
+    /// Tapping the copy username button dispatches the `.copyPressed` action with the username.
     func test_copyUsernameButton_tap() throws {
         let loginState = CipherItemState(
             existing: .loginFixture(
@@ -112,6 +112,14 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
+    }
+
+    /// Tapping the password history button dispatches the `passwordHistoryPressed` action.
+    func test_passwordHistoryButton_tap() throws {
+        processor.state.loadingState = .data(loginState())
+        let button = try subject.inspect().find(buttonWithId: "passwordHistoryButton")
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .passwordHistoryPressed)
     }
 
     // MARK: Snapshots
@@ -177,6 +185,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.loginState.canViewPassword = canViewPassword
         cipherState.loginState.isPasswordVisible = isPasswordVisible
         cipherState.loginState.password = "Password1234!"
+        cipherState.loginState.passwordHistoryCount = 4
         cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.loginState.username = "email@example.com"
         cipherState.loginState.totpState = .init(
@@ -314,7 +323,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    /// Snapshots the previews for login types.#imageLiteral(resourceName: "test_snapshot_previews_card_largeText.1.png")
+    /// Snapshots the previews for login types.#imageLiteral(resourceName:
+    /// "test_snapshot_previews_card_largeText.1.png")
     func test_snapshot_previews_login() {
         assertSnapshot(
             matching: ViewItemView_Previews.loginPreview,

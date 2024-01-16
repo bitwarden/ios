@@ -13,7 +13,7 @@ protocol ViewVaultItemState: Sendable {
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
 
-    /// The custome fields.
+    /// The custom fields.
     var customFields: [CustomFieldState] { get set }
 
     /// A flag indicating if master password re-prompt is required.

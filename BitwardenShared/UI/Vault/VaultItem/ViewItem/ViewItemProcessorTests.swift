@@ -6,7 +6,7 @@ import XCTest
 // MARK: - ViewItemProcessorTests
 
 class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
-    // MARK: Propteries
+    // MARK: Properties
 
     var coordinator: MockCoordinator<VaultItemRoute>!
     var delegate: MockCipherItemOperationDelegate!
@@ -173,6 +173,34 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.totpCodeExpired` updates the totp code.
+    func test_perform_totpCodeExpired() async throws {
+        let totpKey = TOTPKeyModel(authenticatorKey: .base32Key)!
+        let cipherView = CipherView.fixture(login: .fixture(totp: totpKey.rawAuthenticatorKey))
+        let cipherState = try XCTUnwrap(CipherItemState(existing: cipherView, hasPremium: true))
+        subject.state.loadingState = .data(cipherState)
+        subject.state.hasPremiumFeatures = true
+        vaultRepository.refreshTOTPCodeResult = .success(LoginTOTPState("Test"))
+
+        await subject.perform(.totpCodeExpired)
+
+        XCTAssertEqual(subject.state.loadingState.data?.loginState.totpState, LoginTOTPState("Test"))
+    }
+
+    /// `perform(_:)` with `.totpCodeExpired` records any errors.
+    func test_perform_totpCodeExpired_error() async throws {
+        let totpKey = TOTPKeyModel(authenticatorKey: .base32Key)!
+        let cipherView = CipherView.fixture(login: .fixture(totp: totpKey.rawAuthenticatorKey))
+        let cipherState = try XCTUnwrap(CipherItemState(existing: cipherView, hasPremium: true))
+        subject.state.loadingState = .data(cipherState)
+        subject.state.hasPremiumFeatures = true
+        vaultRepository.refreshTOTPCodeResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.totpCodeExpired)
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
     /// `receive` with `.cardItemAction` while loading logs an error.
     func test_receive_cardItemAction_impossible_loading() throws {
         subject.state.loadingState = .loading
@@ -238,25 +266,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_receive_checkPasswordPressed() {
         subject.receive(.checkPasswordPressed)
         // TODO: BIT-1130 Assertion for check password service call
-    }
-
-    /// `receive(_:)` with `.morePressed(.clone)` navigates the user to the move to
-    /// clone item view.
-    func test_receive_morePressed_clone() throws {
-        let cipher = CipherView.fixture(id: "1")
-        subject.state.loadingState = try .data(
-            XCTUnwrap(
-                CipherItemState(
-                    existing: cipher,
-                    hasPremium: false
-                )
-            )
-        )
-
-        subject.receive(.morePressed(.clone))
-
-        XCTAssertEqual(coordinator.routes.last, .cloneItem(cipher: cipher))
-        XCTAssertIdentical(coordinator.contexts.last as? ViewItemProcessor, subject)
     }
 
     /// `receive` with `.copyPressed` copies the value with the pasteboard service.
@@ -449,6 +458,25 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes.last, .attachments)
     }
 
+    /// `receive(_:)` with `.morePressed(.clone)` navigates the user to the move to
+    /// clone item view.
+    func test_receive_morePressed_clone() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state.loadingState = try .data(
+            XCTUnwrap(
+                CipherItemState(
+                    existing: cipher,
+                    hasPremium: false
+                )
+            )
+        )
+
+        subject.receive(.morePressed(.clone))
+
+        XCTAssertEqual(coordinator.routes.last, .cloneItem(cipher: cipher))
+        XCTAssertIdentical(coordinator.contexts.last as? ViewItemProcessor, subject)
+    }
+
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
     /// collections view.
     func test_receive_morePressed_editCollections() throws {
@@ -468,6 +496,19 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
     }
 
+    /// `receive(_:)` with `.morePressed()` shows an error alert if the data is unavailable.
+    func test_receive_morePressed_loading() throws {
+        subject.state.loadingState = .loading
+
+        subject.receive(.morePressed(.attachments))
+
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(
+            errorReporter.errors.last as? ViewItemProcessor.ActionError,
+            .dataNotLoaded("Cannot perform action on cipher until it's loaded.")
+        )
+    }
+
     /// `receive(_:)` with `.morePressed(.moveToOrganization)` navigates the user to the move to
     /// organization view.
     func test_receive_morePressed_moveToOrganization() throws {
@@ -485,6 +526,20 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(coordinator.routes.last, .moveToOrganization(cipher))
         XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
+    }
+
+    /// `receive` with `.passwordHistoryPressed` navigates to the password history view.
+    func test_receive_passwordHistoryPressed() {
+        subject.state.passwordHistory = [.fixture(), .fixture()]
+        subject.receive(.passwordHistoryPressed)
+        XCTAssertEqual(coordinator.routes.last, .passwordHistory([.fixture(), .fixture()]))
+    }
+
+    /// `receive` with `.passwordHistoryPressed` does nothing if there's no password history.
+    func test_receive_passwordHistoryPressed_noData() {
+        subject.state.passwordHistory = nil
+        subject.receive(.passwordHistoryPressed)
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.

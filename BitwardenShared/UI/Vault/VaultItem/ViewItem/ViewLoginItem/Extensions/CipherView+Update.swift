@@ -4,7 +4,7 @@ import Foundation
 extension CipherView {
     // MARK: Properties
 
-    /// A coputed array of `CustomFieldState`, representing the custom fields of the cipher.
+    /// A computed array of `CustomFieldState`, representing the custom fields of the cipher.
     ///
     var customFields: [CustomFieldState] {
         fields?.map(CustomFieldState.init) ?? []
@@ -100,6 +100,7 @@ extension CipherView {
             isPasswordVisible: showPassword,
             isTOTPAvailable: showTOTP,
             password: login?.password ?? "",
+            passwordHistoryCount: passwordHistory?.count,
             passwordUpdatedDate: login?.passwordRevisionDate,
             totpState: .init(login?.totp),
             uris: login?.uris?.map(UriState.init) ?? [],

@@ -300,7 +300,7 @@ extension BitwardenSdk.LoginView {
 extension PasswordHistoryView {
     static func fixture(
         password: String = "",
-        lastUsedDate: Date = Date()
+        lastUsedDate: Date = Date(year: 2024, month: 1, day: 1)
     ) -> PasswordHistoryView {
         PasswordHistoryView(
             password: password,

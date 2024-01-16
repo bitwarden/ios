@@ -1,6 +1,8 @@
-/// Effects that can be processed by a `GeneratorHistoryProcessor`.
+// MARK: - PasswordHistoryListEffect
+
+/// Effects that can be processed by a `PasswordHistoryListProcessor`.
 ///
-enum GeneratorHistoryEffect {
+enum PasswordHistoryListEffect {
     /// The generator history appeared on screen.
     case appeared
 

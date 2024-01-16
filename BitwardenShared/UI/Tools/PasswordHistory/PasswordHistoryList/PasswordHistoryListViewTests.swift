@@ -7,21 +7,21 @@ import SwiftUI
 
 @testable import BitwardenShared
 
-class GeneratorHistoryViewTests: BitwardenTestCase {
+class PasswordHistoryListViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<GeneratorHistoryState, GeneratorHistoryAction, GeneratorHistoryEffect>!
-    var subject: GeneratorHistoryView!
+    var processor: MockProcessor<PasswordHistoryListState, PasswordHistoryListAction, PasswordHistoryListEffect>!
+    var subject: PasswordHistoryListView!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: GeneratorHistoryState())
+        processor = MockProcessor(state: PasswordHistoryListState())
         let store = Store(processor: processor)
 
-        subject = GeneratorHistoryView(store: store)
+        subject = PasswordHistoryListView(store: store)
     }
 
     override func tearDown() {

@@ -1,8 +1,10 @@
 import BitwardenSdk
 
-/// Actions that can be processed by a `GeneratorHistoryProcessor`.
+// MARK: - PasswordHistoryListAction
+
+/// Actions that can be processed by a `PasswordHistoryListProcessor`.
 ///
-enum GeneratorHistoryAction: Equatable {
+enum PasswordHistoryListAction: Equatable {
     /// The copy password button was tapped for a password.
     case copyPassword(PasswordHistoryView)
 

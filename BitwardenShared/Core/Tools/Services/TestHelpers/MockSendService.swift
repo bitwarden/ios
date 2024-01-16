@@ -8,7 +8,7 @@ class MockSendService: SendService {
     // MARK: Properties
 
     var addSendSend: Send?
-    var addSendResult: Result<(), Error> = .success(())
+    var addSendResult: Result<Void, Error> = .success(())
 
     var replaceSendsSends: [SendResponseModel]?
     var replaceSendsUserId: String?

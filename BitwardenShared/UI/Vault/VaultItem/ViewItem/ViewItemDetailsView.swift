@@ -176,15 +176,33 @@ struct ViewItemDetailsView: View {
         }
     }
 
-    /// The updated date footer..
+    /// The updated date footer.
     @ViewBuilder var updatedDate: some View {
         VStack(alignment: .leading, spacing: 0) {
             FormattedDateTimeView(label: Localizations.dateUpdated, date: store.state.updatedDate)
 
-            if store.state.type == .login, let passwordUpdatedDate = store.state.loginState.passwordUpdatedDate {
-                FormattedDateTimeView(label: Localizations.datePasswordUpdated, date: passwordUpdatedDate)
+            if store.state.type == .login {
+                if let passwordUpdatedDate = store.state.loginState.passwordUpdatedDate {
+                    FormattedDateTimeView(label: Localizations.datePasswordUpdated, date: passwordUpdatedDate)
+                }
+
+                if let passwordHistoryCount = store.state.loginState.passwordHistoryCount, passwordHistoryCount > 0 {
+                    HStack(spacing: 4) {
+                        Text(Localizations.passwordHistory + ":")
+
+                        Button {
+                            store.send(.passwordHistoryPressed)
+                        } label: {
+                            Text("\(passwordHistoryCount)")
+                                .underline(color: Asset.Colors.primaryBitwarden.swiftUIColor)
+                        }
+                        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .id("passwordHistoryButton")
+                    }
+                    .accessibilityLabel(Localizations.passwordHistory + ": \(passwordHistoryCount)")
+                    .accessibilityElement(children: .combine)
+                }
             }
-            // TODO: BIT-1186 Display the password history button here
         }
         .styleGuide(.subheadline)
         .multilineTextAlignment(.leading)

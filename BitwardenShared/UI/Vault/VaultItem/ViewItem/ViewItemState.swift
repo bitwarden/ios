@@ -28,6 +28,9 @@ struct ViewItemState: Equatable {
         }
     }
 
+    /// The password history of the item.
+    var passwordHistory: [PasswordHistoryView]?
+
     /// A toast message to show in the view.
     var toast: Toast?
 }
@@ -48,5 +51,6 @@ extension ViewItemState {
         ) else { return nil }
         self.init(loadingState: .data(cipherItemState))
         hasPremiumFeatures = cipherItemState.accountHasPremium
+        passwordHistory = cipherView.passwordHistory
     }
 }

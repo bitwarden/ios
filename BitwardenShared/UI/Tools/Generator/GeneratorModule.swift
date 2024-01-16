@@ -24,6 +24,7 @@ extension DefaultAppModule: GeneratorModule {
     ) -> AnyCoordinator<GeneratorRoute> {
         GeneratorCoordinator(
             delegate: delegate,
+            module: self,
             services: services,
             stackNavigator: stackNavigator
         ).asAnyCoordinator()

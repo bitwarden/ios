@@ -63,12 +63,16 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to the move to organization screen.
     case moveToOrganization(CipherView)
 
-    /// A route to the manual totp screen for setting up TOTP.
+    /// A route to the password history view.
     ///
+    /// - Parameter passwordHistory: The password history to display.
+    ///
+    case passwordHistory(_ passwordHistory: [PasswordHistoryView])
+
+    /// A route to the manual totp screen for setting up TOTP.
     case setupTotpManual
 
     /// A route to the scan code screen. Defaults to `.setupTotpManual` if camera is unavailable.
-    ///
     case scanCode
 
     /// A route to the view item screen.

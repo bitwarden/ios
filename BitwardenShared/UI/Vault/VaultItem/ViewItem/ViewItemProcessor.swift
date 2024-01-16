@@ -44,7 +44,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// Creates a new `ViewItemProcessor`.
     ///
     /// - Parameters:
-    ///   - coordiantor: The `Coordinator` for this processor.
+    ///   - coordinator: The `Coordinator` for this processor.
     ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - itemId: The id of the item that is being viewed.
     ///   - services: The services used by this processor.
@@ -139,6 +139,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
             cipherState.loginState.isPasswordVisible.toggle()
             state.loadingState = .data(cipherState)
+        case .passwordHistoryPressed:
+            guard let passwordHistory = state.passwordHistory else { return }
+            coordinator.navigate(to: .passwordHistory(passwordHistory))
         case let .toastShown(newValue):
             state.toast = newValue
         }
@@ -263,9 +266,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// Shows delete cipher confirmation alert.
     ///
     private func showDeleteConfirmation() async {
-        guard case let .data(cipherState) = state.loadingState else {
-            return
-        }
+        guard case let .data(cipherState) = state.loadingState else { return }
         let alert = Alert.deleteCipherConfirmation { [weak self] in
             guard let self else { return }
             await deleteItem(cipherState.cipher)
@@ -273,7 +274,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.showAlert(alert)
     }
 
-    /// Updates the TOTP Code for the view
+    /// Updates the TOTP Code for the view.
     ///
     private func updateTOTPCode() async {
         // Only update the code if there is a valid TOTP key model.

@@ -19,6 +19,9 @@ struct LoginItemState: Equatable {
     /// The password for this item.
     var password: String = ""
 
+    /// The password history count, if it exists.
+    var passwordHistoryCount: Int?
+
     /// The date the password was last updated.
     var passwordUpdatedDate: Date?
 
