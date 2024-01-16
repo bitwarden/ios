@@ -150,7 +150,8 @@ struct VaultGroupView: View {
             store: Store(
                 processor: StateProcessor(
                     state: VaultGroupState(
-                        loadingState: .loading
+                        loadingState: .loading,
+                        vaultFilterType: .allVaults
                     )
                 )
             ),
@@ -165,7 +166,8 @@ struct VaultGroupView: View {
             store: Store(
                 processor: StateProcessor(
                     state: VaultGroupState(
-                        loadingState: .data([])
+                        loadingState: .data([]),
+                        vaultFilterType: .allVaults
                     )
                 )
             ),
@@ -248,7 +250,8 @@ struct VaultGroupView: View {
                                 deletedDate: nil,
                                 revisionDate: Date()
                             ))!,
-                        ])
+                        ]),
+                        vaultFilterType: .allVaults
                     )
                 )
             ),

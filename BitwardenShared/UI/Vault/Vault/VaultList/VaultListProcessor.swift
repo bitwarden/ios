@@ -88,7 +88,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
-                coordinator.navigate(to: .group(group))
+                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }

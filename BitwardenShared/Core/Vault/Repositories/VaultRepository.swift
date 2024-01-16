@@ -148,6 +148,7 @@ protocol VaultRepository: AnyObject {
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
     ///
+    /// - Parameter filter: A filter to apply to the vault items.
     /// - Returns: A publisher for the sections of the vault list which will be notified as the
     ///     data changes.
     ///
@@ -155,11 +156,16 @@ protocol VaultRepository: AnyObject {
 
     /// A publisher for a group of items within the vault list.
     ///
-    /// - Parameter group: The group of items within the vault list to subscribe to.
+    /// - Parameters:
+    ///   - group: The group of items within the vault list to subscribe to.
+    ///   - filter: A filter to apply to the vault items.
     /// - Returns: A publisher for a group of items within the vault list which will be notified as
     ///     the data changes.
     ///
-    func vaultListPublisher(group: VaultListGroup) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>>
+    func vaultListPublisher(
+        group: VaultListGroup,
+        filter: VaultFilterType
+    ) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>>
 }
 
 /// A default implementation of a `VaultRepository`.
@@ -321,17 +327,20 @@ class DefaultVaultRepository {
     ///
     /// - Parameters:
     ///   - group: The group of items to get.
+    ///   - filter: A filter to apply to the vault items.
     ///   - response: The sync response used to build the list of items.
     /// - Returns: A list of items for the group in the vault list.
     ///
     private func vaultListItems(
         group: VaultListGroup,
+        filter: VaultFilterType,
         from response: SyncResponseModel
     ) async throws -> [VaultListItem] {
         let responseCiphers = response.ciphers.map(Cipher.init)
         let ciphers = try await responseCiphers.asyncMap { cipher in
             try await self.clientVault.ciphers().decrypt(cipher: cipher)
         }
+        .filter(filter.cipherFilter)
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
@@ -353,7 +362,7 @@ class DefaultVaultRepository {
         case .totp:
             return try await totpListItems(
                 from: response,
-                filter: nil
+                filter: filter
             )
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
@@ -362,7 +371,9 @@ class DefaultVaultRepository {
 
     /// Returns a list of the sections in the vault list from a sync response.
     ///
-    /// - Parameter response: The sync response used to build the list of sections.
+    /// - Parameters:
+    ///   - response: The sync response used to build the list of sections.
+    ///   - filter: A filter to apply to the vault items.
     /// - Returns: A list of the sections to display in the vault list.
     ///
     private func vaultListSections( // swiftlint:disable:this function_body_length
@@ -677,11 +688,14 @@ extension DefaultVaultRepository: VaultRepository {
             .values
     }
 
-    func vaultListPublisher(group: VaultListGroup) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
+    func vaultListPublisher(
+        group: VaultListGroup,
+        filter: VaultFilterType
+    ) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
         syncService.syncResponsePublisher()
             .asyncCompactMap { response in
                 guard let response else { return nil }
-                return try? await self.vaultListItems(group: group, from: response)
+                return try? await self.vaultListItems(group: group, filter: filter, from: response)
             }
             .eraseToAnyPublisher()
             .values
