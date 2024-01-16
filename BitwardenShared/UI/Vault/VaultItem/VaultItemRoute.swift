@@ -10,15 +10,30 @@ enum VaultItemRoute: Equatable, Hashable {
     /// - Parameters:
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
+    ///   - hasPremium: Whether the user has premium.
     ///   - uri: A URI string used to populate the add item screen.
     ///
-    case addItem(allowTypeSelection: Bool = true, group: VaultListGroup? = nil, uri: String? = nil)
+    case addItem(
+        allowTypeSelection: Bool = true,
+        group: VaultListGroup? = nil,
+        hasPremium: Bool = false,
+        uri: String? = nil
+    )
 
     /// A route to display the specified alert.
     ///
     /// - Parameter alert: The alert to display.
     ///
     case alert(_ alert: Alert)
+
+    /// A route to view the attachments.
+    case attachments
+
+    /// A route to the clone item screen.
+    ///
+    /// - Parameter cipher: A  `CipherView` to be cloned
+    ///
+    case cloneItem(cipher: CipherView)
 
     /// A route to dismiss the screen currently presented modally.
     ///
@@ -29,9 +44,13 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to edit the collections of a cipher.
     case editCollections(CipherView)
 
-    /// A route to edit an item
+    /// A route to edit an item.
     ///
-    case editItem(cipher: CipherView)
+    /// - Parameters:
+    ///  - cipher: The `CipherView` to edit
+    ///  - hasPremium: Whether the user has premium.
+    ///
+    case editItem(_ cipher: CipherView, _ hasPremium: Bool)
 
     /// A route to the username/password generator screen.
     ///
@@ -44,12 +63,16 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to the move to organization screen.
     case moveToOrganization(CipherView)
 
-    /// A route to the manual totp screen for setting up TOTP.
+    /// A route to the password history view.
     ///
+    /// - Parameter passwordHistory: The password history to display.
+    ///
+    case passwordHistory(_ passwordHistory: [PasswordHistoryView])
+
+    /// A route to the manual totp screen for setting up TOTP.
     case setupTotpManual
 
-    /// A route to the scan code screen. Deftaults to `.setupTotpManual` if camera is unavailable.
-    ///
+    /// A route to the scan code screen. Defaults to `.setupTotpManual` if camera is unavailable.
     case scanCode
 
     /// A route to the view item screen.

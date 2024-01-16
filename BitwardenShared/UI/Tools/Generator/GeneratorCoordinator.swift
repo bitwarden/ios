@@ -27,6 +27,8 @@ protocol GeneratorCoordinatorDelegate: AnyObject {
 final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
+    typealias Module = PasswordHistoryModule
+
     typealias Services = HasErrorReporter
         & HasGeneratorRepository
         & HasPasteboardService
@@ -36,10 +38,13 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     /// A delegate that responds to events in this coordinator.
     private weak var delegate: GeneratorCoordinatorDelegate?
 
-    // MARK: Properties
+    /// The module used by this coordinator to create child coordinators.
+    private let module: Module
 
     /// The services used by this coordinator.
-    let services: Services
+    private let services: Services
+
+    // MARK: Properties
 
     /// The stack navigator that is managed by this coordinator.
     let stackNavigator: StackNavigator
@@ -50,22 +55,25 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameters:
     ///   - delegate: An optional delegate that responds to events in this coordinator.
+    ///   - module: The module used by this coordinator to create child coordinators.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
         delegate: GeneratorCoordinatorDelegate?,
+        module: Module,
         services: Services,
         stackNavigator: StackNavigator
     ) {
         self.delegate = delegate
+        self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
     }
 
     // MARK: Methods
 
-    func navigate(to route: GeneratorRoute, context: AnyObject?) {
+    func navigate(to route: GeneratorRoute, context _: AnyObject?) {
         switch route {
         case .cancel:
             delegate?.didCancelGenerator()
@@ -107,16 +115,14 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.replace(view)
     }
 
-    /// Shows the generator history screen.
+    /// Shows the generator password history screen.
     ///
     private func showGeneratorHistory() {
-        let processor = GeneratorHistoryProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: GeneratorHistoryState()
-        )
-        let view = GeneratorHistoryView(store: Store(processor: processor))
-        let hostingController = UIHostingController(rootView: view)
-        stackNavigator.present(UINavigationController(rootViewController: hostingController))
+        let navigationController = UINavigationController()
+        let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: .passwordHistoryList(.generator))
+
+        stackNavigator.present(navigationController)
     }
 }

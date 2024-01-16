@@ -8,6 +8,7 @@ enum ViewItemAction: Equatable {
     /// A copy button was pressed for the given value.
     ///
     /// - Parameter value: The value to copy.
+    ///
     case copyPressed(value: String)
 
     /// The visibility button was pressed for the specified custom field.
@@ -21,6 +22,9 @@ enum ViewItemAction: Equatable {
 
     /// The more button was pressed.
     case morePressed(VaultItemManagementMenuAction)
+
+    /// The password history button was pressed.
+    case passwordHistoryPressed
 
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
@@ -41,6 +45,7 @@ enum ViewItemAction: Equatable {
             true
         case .dismissPressed,
              .morePressed,
+             .passwordHistoryPressed,
              .toastShown:
             false
         }

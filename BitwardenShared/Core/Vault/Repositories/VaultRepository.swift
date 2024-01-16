@@ -61,6 +61,17 @@ protocol VaultRepository: AnyObject {
     ///
     func fetchFolders() async throws -> [FolderView]
 
+    /// Get the value of the disable auto-copy TOTP setting for the current user.
+    ///
+    func getDisableAutoTotpCopy() async throws -> Bool
+
+    /// Regenerates the TOTP code for a given key.
+    ///
+    /// - Parameter key: The key for a TOTP code.
+    /// - Returns: An updated LoginTOTPState.
+    ///
+    func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState
+
     /// Regenerates the TOTP codes for a list of Vault Items.
     ///
     /// - Parameter items: The list of items that need updated TOTP codes.
@@ -141,6 +152,7 @@ protocol VaultRepository: AnyObject {
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
     ///
+    /// - Parameter filter: A filter to apply to the vault items.
     /// - Returns: A publisher for the sections of the vault list which will be notified as the
     ///     data changes.
     ///
@@ -148,11 +160,16 @@ protocol VaultRepository: AnyObject {
 
     /// A publisher for a group of items within the vault list.
     ///
-    /// - Parameter group: The group of items within the vault list to subscribe to.
+    /// - Parameters:
+    ///   - group: The group of items within the vault list to subscribe to.
+    ///   - filter: A filter to apply to the vault items.
     /// - Returns: A publisher for a group of items within the vault list which will be notified as
     ///     the data changes.
     ///
-    func vaultListPublisher(group: VaultListGroup) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>>
+    func vaultListPublisher(
+        group: VaultListGroup,
+        filter: VaultFilterType
+    ) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>>
 }
 
 /// A default implementation of a `VaultRepository`.
@@ -275,42 +292,59 @@ class DefaultVaultRepository {
         }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        // Convert the CipherViews into
-        let totpItems: [VaultListItem?] = try await activeCiphers.asyncMap { cipherView in
-            guard let id = cipherView.id,
+        // A transform to convert a `CipherListView` into a `VaultListItem`.
+        let listItemTransform: (CipherView) async throws -> VaultListItem? = { [weak self] cipherView in
+            guard let self,
+                  let id = cipherView.id,
                   let login = cipherView.login,
-                  let key = login.totp
-            else { return nil }
+                  let key = login.totp else {
+                return nil
+            }
 
-            let code = try await clientVault.generateTOTPCode(for: key, date: Date())
-
-            return .init(
+            let code = try await clientVault.generateTOTPCode(
+                for: key,
+                date: Date()
+            )
+            let listModel = VaultListTOTP(
+                id: id,
+                loginView: login,
+                totpCode: code
+            )
+            return VaultListItem(
                 id: id,
                 itemType: .totp(
                     name: cipherView.name,
-                    totpModel: .init(id: id, loginView: login, totpCode: code)
+                    totpModel: listModel
                 )
             )
         }
 
-        return totpItems.compactMap { $0 }
+        // Convert the CipherViews into VaultListItem.
+        let totpItems: [VaultListItem] = try await activeCiphers
+            .asyncMap(listItemTransform)
+            .compactMap { $0 }
+
+        return totpItems
     }
 
     /// Returns a list of items that are grouped together in the vault list from a sync response.
     ///
     /// - Parameters:
     ///   - group: The group of items to get.
+    ///   - filter: A filter to apply to the vault items.
     ///   - response: The sync response used to build the list of items.
     /// - Returns: A list of items for the group in the vault list.
     ///
     private func vaultListItems(
         group: VaultListGroup,
+        filter: VaultFilterType,
         from response: SyncResponseModel
     ) async throws -> [VaultListItem] {
         let responseCiphers = response.ciphers.map(Cipher.init)
         let ciphers = try await responseCiphers.asyncMap { cipher in
             try await self.clientVault.ciphers().decrypt(cipher: cipher)
         }
+        .filter(filter.cipherFilter)
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
@@ -332,7 +366,7 @@ class DefaultVaultRepository {
         case .totp:
             return try await totpListItems(
                 from: response,
-                filter: nil
+                filter: filter
             )
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
@@ -341,7 +375,9 @@ class DefaultVaultRepository {
 
     /// Returns a list of the sections in the vault list from a sync response.
     ///
-    /// - Parameter response: The sync response used to build the list of sections.
+    /// - Parameters:
+    ///   - response: The sync response used to build the list of sections.
+    ///   - filter: A filter to apply to the vault items.
     /// - Returns: A list of the sections to display in the vault list.
     ///
     private func vaultListSections( // swiftlint:disable:this function_body_length
@@ -384,7 +420,10 @@ class DefaultVaultRepository {
         let totpItems = (oneTimePasswordCount > 0) ? [
             VaultListItem(
                 id: "Types.VerificationCodes",
-                itemType: .group(.totp, oneTimePasswordCount)
+                itemType: .group(
+                    .totp,
+                    oneTimePasswordCount
+                )
             ),
         ] : []
 
@@ -507,6 +546,21 @@ extension DefaultVaultRepository: VaultRepository {
     func doesActiveAccountHavePremium() async throws -> Bool {
         let account = try await stateService.getActiveAccount()
         return account.profile.hasPremiumPersonally ?? false
+    }
+
+    func getDisableAutoTotpCopy() async throws -> Bool {
+        try await stateService.getDisableAutoTotpCopy()
+    }
+
+    func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {
+        let codeState = try await clientVault.generateTOTPCode(
+            for: key.rawAuthenticatorKey,
+            date: Date()
+        )
+        return LoginTOTPState(
+            authKeyModel: key,
+            codeModel: codeState
+        )
     }
 
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
@@ -642,11 +696,14 @@ extension DefaultVaultRepository: VaultRepository {
             .values
     }
 
-    func vaultListPublisher(group: VaultListGroup) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
+    func vaultListPublisher(
+        group: VaultListGroup,
+        filter: VaultFilterType
+    ) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
         syncService.syncResponsePublisher()
             .asyncCompactMap { response in
                 guard let response else { return nil }
-                return try? await self.vaultListItems(group: group, from: response)
+                return try? await self.vaultListItems(group: group, filter: filter, from: response)
             }
             .eraseToAnyPublisher()
             .values

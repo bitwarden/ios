@@ -63,6 +63,22 @@ class SendListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .addItem)
     }
 
+    /// `receive(_:)` with `.clearInfoUrl` clears the info url.
+    func test_receive_clearInfoUrl() {
+        subject.state.infoUrl = .example
+        subject.receive(.clearInfoUrl)
+
+        XCTAssertNil(subject.state.infoUrl)
+    }
+
+    /// `receive(_:)` with `.infoButtonPressed` sets the info url.
+    func test_receive_infoButtonPressed() {
+        subject.state.infoUrl = nil
+        subject.receive(.infoButtonPressed)
+
+        XCTAssertEqual(subject.state.infoUrl, ExternalLinksConstants.sendInfo)
+    }
+
     /// `receive(_:)` with `.searchTextChanged` updates the state correctly.
     func test_receive_searchTextChanged() {
         subject.state.searchText = ""

@@ -10,4 +10,7 @@ enum ViewItemEffect: Equatable {
 
     /// The delete option was pressed.
     case deletePressed
+
+    /// The TOTP code for the view expired.
+    case totpCodeExpired
 }

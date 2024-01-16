@@ -7,6 +7,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var delegate: MockGeneratorCoordinatorDelegate!
+    var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: GeneratorCoordinator!
 
@@ -16,10 +17,12 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
         super.setUp()
 
         delegate = MockGeneratorCoordinatorDelegate()
+        module = MockAppModule()
         stackNavigator = MockStackNavigator()
 
         subject = GeneratorCoordinator(
             delegate: delegate,
+            module: module,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
@@ -28,6 +31,8 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        delegate = nil
+        module = nil
         stackNavigator = nil
         subject = nil
     }
@@ -110,6 +115,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_generator_withoutDelegate() throws {
         subject = GeneratorCoordinator(
             delegate: nil,
+            module: module,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
@@ -148,8 +154,9 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.topViewController is UIHostingController<GeneratorHistoryView>)
+
+        XCTAssertTrue(module.passwordHistoryCoordinator.isStarted)
+        XCTAssertEqual(module.passwordHistoryCoordinator.routes.last, .passwordHistoryList(.generator))
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.

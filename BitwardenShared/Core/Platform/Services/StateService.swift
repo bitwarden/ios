@@ -76,6 +76,13 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Gets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The disable auto-copy TOTP value.
+    ///
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool
+
     /// Gets the environment URLs for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the environment URLs.
@@ -108,6 +115,14 @@ protocol StateService: AnyObject {
     /// - Returns: Whether to show the website icons.
     ///
     func getShowWebIcons() async -> Bool
+
+    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
+    /// if `nil` defaults to currently active user.
+    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    ///
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int
 
     /// Gets the username generation options for a user ID.
     ///
@@ -159,6 +174,14 @@ protocol StateService: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
 
+    /// Sets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameters:
+    ///   - disableAutoTotpCopy: Whether the TOTP for a cipher should be auto-copied.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws
+
     /// Sets the time of the last sync for a user ID.
     ///
     /// - Parameters:
@@ -203,6 +226,13 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
+
+    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// if `nil` defaults to currently active user.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws
 
     /// Sets the username generation options for a user ID.
     ///
@@ -264,6 +294,14 @@ extension StateService {
         try await getClearClipboardValue(userId: nil)
     }
 
+    /// Gets the disable auto-copy TOTP value for the active account.
+    ///
+    /// - Returns: The disable auto-copy TOTP value.
+    ///
+    func getDisableAutoTotpCopy() async throws -> Bool {
+        try await getDisableAutoTotpCopy(userId: nil)
+    }
+
     /// Gets the environment URLs for the active account.
     ///
     /// - Returns: The environment URLs for the active account.
@@ -286,6 +324,17 @@ extension StateService {
     ///
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions? {
         try await getPasswordGenerationOptions(userId: nil)
+    }
+
+    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
+    ///
+    /// - Returns: The number of unsuccessful unlock attempts for the active account.
+    ///
+    func getUnsuccessfulUnlockAttempts() async -> Int {
+        if let attempts = try? await getUnsuccessfulUnlockAttempts(userId: nil) {
+            return attempts
+        }
+        return 0
     }
 
     /// Gets the username generation options for the active account.
@@ -326,6 +375,14 @@ extension StateService {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
     }
 
+    /// Sets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameter disableAutoTotpCopy: Whether the TOTP for a cipher should be auto-copied.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
+        try await setDisableAutoTotpCopy(disableAutoTotpCopy, userId: nil)
+    }
+
     /// Sets the time of the last sync for a user ID.
     ///
     /// - Parameter date: The time of the last sync (as the number of seconds since the Unix epoch).]
@@ -358,6 +415,14 @@ extension StateService {
     ///
     func setTokens(accessToken: String, refreshToken: String) async throws {
         try await setTokens(accessToken: accessToken, refreshToken: refreshToken, userId: nil)
+    }
+
+    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
+    ///
+    /// - Parameter attempts: The number of unsuccessful unlock attempts.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int) async {
+        try? await setUnsuccessfulUnlockAttempts(attempts, userId: nil)
     }
 
     /// Sets the username generation options for the active account.
@@ -505,6 +570,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.disableAutoTotpCopy(userId: userId)
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
@@ -528,6 +598,11 @@ actor DefaultStateService: StateService {
         !appSettingsStore.disableWebIcons
     }
 
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId) ?? 0
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.usernameGenerationOptions(userId: userId)
@@ -544,6 +619,7 @@ actor DefaultStateService: StateService {
             state.activeUserId = state.accounts.first?.key
         }
 
+        appSettingsStore.setDisableAutoTotpCopy(nil, userId: userId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
         appSettingsStore.setLastSyncTime(nil, userId: userId)
@@ -583,6 +659,11 @@ actor DefaultStateService: StateService {
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
     }
 
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setDisableAutoTotpCopy(disableAutoTotpCopy, userId: userId)
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastSyncTime(date, userId: userId)
@@ -620,6 +701,11 @@ actor DefaultStateService: StateService {
             refreshToken: refreshToken
         )
         appSettingsStore.state = state
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {

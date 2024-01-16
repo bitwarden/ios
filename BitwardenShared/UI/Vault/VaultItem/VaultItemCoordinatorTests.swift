@@ -5,7 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - VaultItemCooridnatorTests
+// MARK: - VaultItemCoordinatorTests
 
 class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -109,6 +109,18 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(view.store.state.type, .card)
     }
 
+    /// `navigate(to:)` with `.cloneItem()`  triggers the show clone item flow.
+    func test_navigateTo_cloneItem_nonPremium() throws {
+        vaultRepository.hasPremiumResult = .success(false)
+        subject.navigate(to: .cloneItem(cipher: .loginFixture()), context: subject)
+        waitFor(!stackNavigator.actions.isEmpty)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertFalse(view.store.state.loginState.isTOTPAvailable)
+    }
+
     /// `navigate(to:)` with `.editCollections()` triggers the edit collections flow.
     func test_navigateTo_editCollections() throws {
         subject.navigate(to: .editCollections(.fixture()))
@@ -135,6 +147,16 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         subject.navigate(to: .alert(alert))
         XCTAssertEqual(stackNavigator.alerts.last, alert)
+    }
+
+    /// `navigate(to:)` with `.attachments()` navigates to the attachments view..
+    func test_navigateTo_attachments() throws {
+        subject.navigate(to: .attachments)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.topViewController is UIHostingController<AttachmentsView>)
     }
 
     /// `navigate(to:)` with `.generator`, `.password`, and a delegate presents the generator
@@ -171,18 +193,14 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.editItem()` with a malformed cipher fails to trigger the show edit flow.
     func test_navigateTo_editItem_newCipher() throws {
-        subject.navigate(to: .editItem(cipher: .fixture()), context: nil)
+        subject.navigate(to: .editItem(.fixture(id: nil), false), context: nil)
 
         XCTAssertNil(stackNavigator.actions.last)
     }
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
     func test_navigateTo_editItem_existingCipher_withoutContext() throws {
-        let task = Task {
-            subject.navigate(to: .editItem(cipher: .loginFixture()), context: nil)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
+        subject.navigate(to: .editItem(.loginFixture(), false), context: nil)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -193,25 +211,17 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_editItem_presentsCoordinator() throws {
         stackNavigator.isEmpty = false
 
-        let task = Task {
-            subject.navigate(to: .editItem(cipher: .loginFixture()), context: nil)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
+        subject.navigate(to: .editItem(.loginFixture(), false), context: nil)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
-        XCTAssertEqual(module.vaultItemCoordinator.routes, [.editItem(cipher: .loginFixture())])
+        XCTAssertEqual(module.vaultItemCoordinator.routes, [.editItem(.loginFixture(), false)])
     }
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
     func test_navigateTo_editItem_existingCipher_withContext() throws {
-        let task = Task {
-            subject.navigate(to: .editItem(cipher: .loginFixture()), context: subject)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
+        subject.navigate(to: .editItem(.loginFixture(), false), context: subject)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -220,12 +230,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
     func test_navigateTo_editItem_existingCipher_nonPremium() throws {
-        vaultRepository.hasPremiumResult = .success(false)
-        let task = Task {
-            subject.navigate(to: .editItem(cipher: .loginFixture()), context: subject)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
+        subject.navigate(to: .editItem(.loginFixture(), false), context: subject)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -235,13 +240,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
     func test_navigateTo_editItem_existingCipher_unknownPremium() throws {
-        struct TestError: Error {}
-        vaultRepository.hasPremiumResult = .failure(TestError())
-        let task = Task {
-            subject.navigate(to: .editItem(cipher: .loginFixture()), context: subject)
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
+        subject.navigate(to: .editItem(.loginFixture(), false), context: subject)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -304,6 +303,18 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(action.type, .presented)
         let navigationController = try XCTUnwrap(action.view as? UINavigationController)
         XCTAssertTrue(navigationController.topViewController is UIHostingController<MoveToOrganizationView>)
+    }
+
+    /// `navigate(to:)` with `.passwordHistory` presents the password history view.
+    func test_navigateTo_passwordHistory() throws {
+        subject.navigate(to: .passwordHistory([.fixture()]))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(module.passwordHistoryCoordinator.isStarted)
+        XCTAssertEqual(module.passwordHistoryCoordinator.routes.last, .passwordHistoryList(.item([.fixture()])))
     }
 
     /// `navigate(to:)` with `.setupTotpCamera` with context without conformance fails to present.
@@ -403,12 +414,28 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     /// A flag to capture a `didCancel` call.
     var didCancel: Bool = false
 
+    /// A flag to capture a `showCameraScan` call.
+    var didRequestCamera: Bool = false
+
+    /// A flag to capture a `showManualEntry` call.
+    var didRequestManual: Bool = false
+
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
         with value: String
     ) {
         capturedCoordinator = captureCoordinator
         capturedScan = value
+    }
+
+    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        didRequestCamera = true
+        capturedCoordinator = captureCoordinator
+    }
+
+    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+        didRequestManual = true
+        capturedCoordinator = captureCoordinator
     }
 
     func didCancelScan() {

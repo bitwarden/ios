@@ -56,9 +56,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         switch action {
         case .addItemPressed:
             coordinator.navigate(to: .addItem)
+        case .clearInfoUrl:
+            state.infoUrl = nil
         case .infoButtonPressed:
-            // TODO: BIT-1390 Open the Sends info url
-            break
+            state.infoUrl = ExternalLinksConstants.sendInfo
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .sendListItemRow(rowAction):

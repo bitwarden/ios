@@ -117,6 +117,9 @@ private struct MainSendListView: View {
 struct SendListView: View {
     // MARK: Properties
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<SendListState, SendListAction, SendListEffect>
 
@@ -151,6 +154,11 @@ struct SendListView: View {
                 }
             }
             .task { await store.perform(.appeared) }
+            .onChange(of: store.state.infoUrl) { newValue in
+                guard let url = newValue else { return }
+                openURL(url)
+                store.send(.clearInfoUrl)
+            }
     }
 }
 
@@ -201,7 +209,8 @@ struct SendListView: View {
                                             name: "File Send",
                                             notes: nil,
                                             key: "",
-                                            password: nil,
+                                            newPassword: nil,
+                                            hasPassword: false,
                                             type: .file,
                                             file: nil,
                                             text: nil,
@@ -221,7 +230,8 @@ struct SendListView: View {
                                             name: "Text Send",
                                             notes: nil,
                                             key: "",
-                                            password: nil,
+                                            newPassword: nil,
+                                            hasPassword: false,
                                             type: .text,
                                             file: nil,
                                             text: nil,
@@ -241,7 +251,8 @@ struct SendListView: View {
                                             name: "All Statuses",
                                             notes: nil,
                                             key: "",
-                                            password: "password",
+                                            newPassword: nil,
+                                            hasPassword: true,
                                             type: .text,
                                             file: nil,
                                             text: nil,

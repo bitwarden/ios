@@ -44,6 +44,7 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.webVaultUrlChanged
                     )
                 )
+                .accessibilityIdentifier("WebVaultUrlEntry")
 
                 BitwardenTextField(
                     title: Localizations.apiUrl,
@@ -52,6 +53,7 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.apiUrlChanged
                     )
                 )
+                .accessibilityIdentifier("ApiUrlEntry")
 
                 BitwardenTextField(
                     title: Localizations.identityUrl,
@@ -60,6 +62,7 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.identityUrlChanged
                     )
                 )
+                .accessibilityIdentifier("IdentityUrlEntry")
 
                 BitwardenTextField(
                     title: Localizations.iconsUrl,
@@ -68,6 +71,7 @@ struct SelfHostedView: View {
                         send: SelfHostedAction.iconsUrlChanged
                     )
                 )
+                .accessibilityIdentifier("IconsUrlEntry")
             }
         }
         .padding(.top, 8)
@@ -98,6 +102,7 @@ struct SelfHostedView: View {
                 ),
                 placeholder: "ex. https://bitwarden.company.com"
             )
+            .accessibilityIdentifier("ServerUrlEntry")
             .autocorrectionDisabled()
             .keyboardType(.URL)
             .textContentType(.URL)
@@ -137,8 +142,10 @@ struct SelfHostedView: View {
 
 // MARK: Previews
 
+#if DEBUG
 struct SelfHostedView_Previews: PreviewProvider {
     static var previews: some View {
         SelfHostedView(store: Store(processor: StateProcessor(state: SelfHostedState())))
     }
 }
+#endif

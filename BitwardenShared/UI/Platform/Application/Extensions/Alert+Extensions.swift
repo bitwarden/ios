@@ -103,6 +103,23 @@ extension Alert {
         )
     }
 
+    /// An alert to show when the user enters invalid master password to unlock the vault.
+    ///
+    /// - Parameter completion: A block that is executed when the user interacts with the "ok" button.
+    ///
+    static func invalidMasterPassword() -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.invalidMasterPassword,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.ok,
+                    style: .default
+                ),
+            ]
+        )
+    }
+
     /// An alert to show when the user needs to confirm their master password.
     ///
     /// - Parameter completion: A block that is executed when the user interacts with the "Submit" button.

@@ -25,15 +25,17 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the autofill list screen.
     case autofillList
 
-    /// A route to edit an item
+    /// A route to edit an item.
     ///
-    case editItem(cipher: CipherView)
+    /// - Parameter cipher: The `CipherView` to edit.
+    ///
+    case editItem(_ cipher: CipherView)
 
     /// A route to dismiss the screen currently presented modally.
     case dismiss
 
     /// A route to the vault item list screen for the specified group.
-    case group(_ group: VaultListGroup)
+    case group(_ group: VaultListGroup, filter: VaultFilterType)
 
     /// A route to the vault list screen.
     case list

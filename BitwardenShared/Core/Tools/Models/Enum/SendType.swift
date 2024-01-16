@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 // MARK: - SendType
 
 /// An enum describing the type of data in a send.

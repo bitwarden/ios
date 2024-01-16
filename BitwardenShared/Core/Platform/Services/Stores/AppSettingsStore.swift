@@ -61,6 +61,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedUserKey(userId: String) -> String?
 
+    /// Gets the disable auto-copy TOTP value for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the disable auto-copy TOTP value.
+    ///
+    func disableAutoTotpCopy(userId: String) -> Bool
+
     /// Gets the time of the last sync for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the last sync time.
@@ -88,6 +94,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
 
+    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    ///
+    func unsuccessfulUnlockAttempts(userId: String) -> Int?
+
     /// Whether the vault should sync on refreshing.
     ///
     /// - Parameters:
@@ -105,6 +118,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The time after which the clipboard should be cleared.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
+
+    /// Sets the disable auto-copy TOTP value for a user ID.
+    ///
+    /// - Parameters:
+    ///   - disableAutoTotpCopy: The user's disable auto-copy TOTP value.
+    ///   - userId: The user ID associated with the disable auto-copy TOTP value.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String)
 
     /// Sets the encrypted private key for a user ID.
     ///
@@ -145,6 +166,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
+
+    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameters:
+    ///  -  attempts: The number of unsuccessful unlock attempts..
+    ///  -  userId: The user ID associated with the unsuccessful unlock attempts.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
 
     /// Sets the username generation options for a user ID.
     ///
@@ -281,6 +310,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case disableWebIcons
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
+        case disableAutoTotpCopy(userId: String)
         case lastSync(userId: String)
         case masterPasswordHash(userId: String)
         case passwordGenerationOptions(userId: String)
@@ -288,6 +318,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case rememberedEmail
         case rememberedOrgIdentifier
         case state
+        case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
@@ -310,6 +341,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
                 key = "encPrivateKey_\(userId)"
+            case let .disableAutoTotpCopy(userId):
+                key = "disableAutoTotpCopy_\(userId)"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
             case let .masterPasswordHash(userId):
@@ -324,6 +357,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedOrgIdentifier"
             case .state:
                 key = "state"
+            case let .unsuccessfulUnlockAttempts(userId):
+                key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
             }
@@ -394,6 +429,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .encryptedUserKey(userId: userId))
     }
 
+    func disableAutoTotpCopy(userId: String) -> Bool {
+        fetch(for: .disableAutoTotpCopy(userId: userId))
+    }
+
     func lastSyncTime(userId: String) -> Date? {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -404,6 +443,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         fetch(for: .passwordGenerationOptions(userId: userId))
+    }
+
+    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+        fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
     }
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
@@ -426,6 +469,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .encryptedUserKey(userId: userId))
     }
 
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
+        store(disableAutoTotpCopy, for: .disableAutoTotpCopy(userId: userId))
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
     }
@@ -440,6 +487,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         store(options, for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
+        store(attempts, for: .unsuccessfulUnlockAttempts(userId: userId))
     }
 
     func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {

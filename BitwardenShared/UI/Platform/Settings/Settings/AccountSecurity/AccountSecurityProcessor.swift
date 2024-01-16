@@ -12,7 +12,9 @@ final class AccountSecurityProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasBiometricsService
+    typealias Services = HasAuthRepository
+        & HasBiometricsService
+        & HasClientAuth
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
@@ -52,6 +54,8 @@ final class AccountSecurityProcessor: StateProcessor<
 
     override func perform(_ effect: AccountSecurityEffect) async {
         switch effect {
+        case .accountFingerprintPhrasePressed:
+            await showAccountFingerprintPhraseAlert()
         case .lockVault:
             do {
                 let account = try await services.stateService.getActiveAccount()
@@ -66,6 +70,8 @@ final class AccountSecurityProcessor: StateProcessor<
 
     override func receive(_ action: AccountSecurityAction) {
         switch action {
+        case .clearFingerprintPhraseUrl:
+            state.fingerprintPhraseUrl = nil
         case .clearTwoStepLoginUrl:
             state.twoStepLoginUrl = nil
         case .deleteAccountPressed:
@@ -92,6 +98,23 @@ final class AccountSecurityProcessor: StateProcessor<
     }
 
     // MARK: Private
+
+    /// Shows the account fingerprint phrase alert.
+    ///
+    private func showAccountFingerprintPhraseAlert() async {
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            let phrase = try await services.authRepository.getFingerprintPhrase(userId: userId)
+
+            coordinator.navigate(to: .alert(
+                .displayFingerprintPhraseAlert({
+                    self.state.fingerprintPhraseUrl = ExternalLinksConstants.fingerprintPhrase
+                }, phrase: phrase))
+            )
+        } catch {
+            coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+        }
+    }
 
     /// Saves the user's session timeout action.
     ///

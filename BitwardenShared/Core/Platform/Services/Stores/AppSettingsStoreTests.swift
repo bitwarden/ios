@@ -120,6 +120,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
     }
 
+    /// `disableAutoTotpCopy(userId:)` returns `false` if there isn't a previously stored value.
+    func test_disableAutoTotpCopy_isInitiallyNil() {
+        XCTAssertFalse(subject.disableAutoTotpCopy(userId: "-1"))
+    }
+
+    /// `disableAutoTotpCopy(userId:)` can be used to get the disable auto-copy TOTP value for a user.
+    func test_disableAutoTotpCopy_withValue() {
+        subject.setDisableAutoTotpCopy(true, userId: "1")
+        subject.setDisableAutoTotpCopy(false, userId: "2")
+
+        XCTAssertTrue(subject.disableAutoTotpCopy(userId: "1"))
+        XCTAssertFalse(subject.disableAutoTotpCopy(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:disableAutoTotpCopy_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:disableAutoTotpCopy_2"))
+    }
+
     /// `disableWebIcons` returns `false` if there isn't a previously stored value.
     func test_disableWebIcons_isInitiallyFalse() {
         XCTAssertFalse(subject.disableWebIcons)
@@ -336,6 +352,23 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
             .defaultEU
         )
+    }
+
+    /// `unsuccessfulUnlockAttempts` returns `0` if there isn't a previously stored value.
+    func test_unsuccessfulUnlockAttempts_isInitially0() {
+        XCTAssertEqual(0, subject.unsuccessfulUnlockAttempts(userId: "1"))
+    }
+
+    /// `unsuccessfulUnlockAttempts(userId:)`can be used to get the unsuccessful unlock attempts  for a user.
+    func test_unsuccessfulUnlockAttempts_withValue() {
+        subject.setUnsuccessfulUnlockAttempts(4, userId: "1")
+        subject.setUnsuccessfulUnlockAttempts(1, userId: "3")
+
+        XCTAssertEqual(subject.unsuccessfulUnlockAttempts(userId: "1"), 4)
+        XCTAssertEqual(subject.unsuccessfulUnlockAttempts(userId: "3"), 1)
+
+        XCTAssertEqual(4, userDefaults.integer(forKey: "bwPreferencesStorage:invalidUnlockAttempts_1"))
+        XCTAssertEqual(1, userDefaults.integer(forKey: "bwPreferencesStorage:invalidUnlockAttempts_3"))
     }
 
     /// `usernameGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.

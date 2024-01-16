@@ -10,6 +10,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     typealias Services = HasErrorReporter
         & HasPasteboardService
         & HasStateService
+        & HasTimeProvider
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -41,13 +42,15 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         self.services = services
 
         super.init(state: state)
-
-        totpExpirationManager = .init(onExpiration: { [weak self] expiredItems in
-            guard let self else { return }
-            Task {
-                await self.refreshTOTPCodes(for: expiredItems)
+        totpExpirationManager = .init(
+            timeProvider: services.timeProvider,
+            onExpiration: { [weak self] expiredItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(for: expiredItems)
+                }
             }
-        })
+        )
     }
 
     deinit {
@@ -60,7 +63,10 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
         case .appeared:
-            for await value in services.vaultRepository.vaultListPublisher(group: state.group) {
+            for await value in services.vaultRepository.vaultListPublisher(
+                group: state.group,
+                filter: state.vaultFilterType
+            ) {
                 let sortedValues = value
                     .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
                 totpExpirationManager?.configureTOTPRefreshScheduling(for: sortedValues)
@@ -89,7 +95,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
-                coordinator.navigate(to: .group(group))
+                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
@@ -151,16 +157,47 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     ///
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) {
         switch action {
-        case let .copy(toast: toast, value: value):
-            services.pasteboardService.copy(value)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
-        case let .edit(cipherView: cipherView):
-            coordinator.navigate(to: .editItem(cipher: cipherView))
-        case let .launch(url: url):
+        case let .copy(toast, value, requiresMasterPasswordReprompt):
+            if requiresMasterPasswordReprompt {
+                presentMasterPasswordRepromptAlert {
+                    self.services.pasteboardService.copy(value)
+                    self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+                }
+            } else {
+                services.pasteboardService.copy(value)
+                state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+            }
+        case let .edit(cipherView):
+            coordinator.navigate(to: .editItem(cipherView), context: self)
+        case let .launch(url):
             state.url = url.sanitized
-        case let .view(id: id):
+        case let .view(id):
             coordinator.navigate(to: .viewItem(id: id))
         }
+    }
+
+    /// Presents the master password reprompt alert and calls the completion handler when the user's
+    /// master password has been confirmed.
+    ///
+    /// - Parameter completion: A completion handler that is called when the user's master password
+    ///     has been confirmed.
+    ///
+    private func presentMasterPasswordRepromptAlert(completion: @escaping () -> Void) {
+        let alert = Alert.masterPasswordPrompt { [weak self] password in
+            guard let self else { return }
+
+            do {
+                let isValid = try await services.vaultRepository.validatePassword(password)
+                guard isValid else {
+                    coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
+                    return
+                }
+                completion()
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+        coordinator.showAlert(alert)
     }
 }
 
@@ -187,6 +224,10 @@ private class TOTPExpirationManager {
     ///
     private(set) var itemsByInterval = [UInt32: [VaultListItem]]()
 
+    /// A model to provide time to calculate the countdown.
+    ///
+    private var timeProvider: any TimeProvider
+
     /// A timer that triggers `checkForExpirations` to manage code expirations.
     ///
     private var updateTimer: Timer?
@@ -194,11 +235,15 @@ private class TOTPExpirationManager {
     /// Initializes a new countdown timer
     ///
     /// - Parameters
+    ///   - timeProvider: A protocol providing the present time as a `Date`.
+    ///         Used to calculate time remaining for a present TOTP code.
     ///   - onExpiration: A closure to call on code expiration for a list of vault items.
     ///
     init(
+        timeProvider: any TimeProvider,
         onExpiration: (([VaultListItem]) -> Void)?
     ) {
+        self.timeProvider = timeProvider
         self.onExpiration = onExpiration
         updateTimer = Timer.scheduledTimer(
             withTimeInterval: 0.25,
@@ -240,29 +285,15 @@ private class TOTPExpirationManager {
         var expired = [VaultListItem]()
         var notExpired = [UInt32: [VaultListItem]]()
         itemsByInterval.forEach { period, items in
-            let sortedItems: [Bool: [VaultListItem]] = Dictionary(grouping: items, by: { item in
-                guard case let .totp(_, model) = item.itemType else { return false }
-                let elapsedCodeTime = model.totpCode.date.timeIntervalSinceNow * -1.0
-                let isOlderThanInterval = elapsedCodeTime >= Double(period)
-                let hasPastIntervalRefreshMark = remainingSeconds(using: Int(period))
-                    >= remainingSeconds(for: model.totpCode.date, using: Int(period))
-                return isOlderThanInterval || hasPastIntervalRefreshMark
-            })
+            let sortedItems: [Bool: [VaultListItem]] = TOTPExpirationCalculator.listItemsByExpiration(
+                items,
+                timeProvider: timeProvider
+            )
             expired.append(contentsOf: sortedItems[true] ?? [])
             notExpired[period] = sortedItems[false]
         }
         itemsByInterval = notExpired
         guard !expired.isEmpty else { return }
         onExpiration?(expired)
-    }
-
-    /// Calculates the seconds remaining before an update is needed.
-    ///
-    /// - Parameters:
-    ///   - date: The date used to calculate the remaining seconds.
-    ///   - period: The period of expiration.
-    ///
-    private func remainingSeconds(for date: Date = Date(), using period: Int) -> Int {
-        period - (Int(date.timeIntervalSinceReferenceDate) % period)
     }
 }

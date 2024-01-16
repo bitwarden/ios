@@ -321,6 +321,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(syncService.didFetchSync)
     }
 
+    /// `getDisableAutoTotpCopy()` gets the user's disable auto-copy TOTP value.
+    func test_getDisableAutoTotpCopy() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.disableAutoTotpCopyByUserId["1"] = false
+
+        var isDisabled = try await subject.getDisableAutoTotpCopy()
+        XCTAssertFalse(isDisabled)
+
+        stateService.disableAutoTotpCopyByUserId["1"] = true
+        isDisabled = try await subject.getDisableAutoTotpCopy()
+        XCTAssertTrue(isDisabled)
+    }
+
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_noKey() async throws {
         let newCode = "999232"
@@ -330,7 +343,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             loginView: .fixture(),
             totpCode: .init(
                 code: "123456",
-                date: Date(),
+                codeGenerationDate: Date(),
                 period: 30
             )
         )
@@ -359,7 +372,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             loginView: .fixture(totp: .base32Key),
             totpCode: .init(
                 code: "123456",
-                date: Date(),
+                codeGenerationDate: Date(),
                 period: 30
             )
         )
@@ -371,7 +384,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             XCTAssertEqual(model.id, totpModel.id)
             XCTAssertEqual(model.loginView, totpModel.loginView)
             XCTAssertNotEqual(model.totpCode.code, totpModel.totpCode.code)
-            XCTAssertNotEqual(model.totpCode.date, totpModel.totpCode.date)
+            XCTAssertNotEqual(model.totpCode.codeGenerationDate, totpModel.totpCode.codeGenerationDate)
             XCTAssertEqual(model.totpCode.period, totpModel.totpCode.period)
             XCTAssertEqual(model.totpCode.code, newCode)
         default:
@@ -868,7 +881,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             from: APITestData.syncWithCiphers.data
         ))
 
-        var iterator = subject.vaultListPublisher(group: .login).makeAsyncIterator()
+        var iterator = subject.vaultListPublisher(group: .login, filter: .allVaults).makeAsyncIterator()
         let items = await iterator.next()
 
         try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
@@ -879,7 +892,47 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
-    /// `vaultListPublisher(group:)` returns a publisher for a group of items in a collection within
+    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault
+    /// list filtered by the user's vault.
+    func test_vaultListPublisher_forGroup_login_myVault() async throws {
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
+
+        var iterator = subject.vaultListPublisher(group: .login, filter: .myVault).makeAsyncIterator()
+        let items = await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+            """
+            - Cipher: Facebook
+            """
+        }
+    }
+
+    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault
+    /// list filtered by an organization.
+    func test_vaultListPublisher_forGroup_login_organization() async throws {
+        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        ))
+
+        var iterator = subject.vaultListPublisher(
+            group: .login,
+            filter: .organization(.fixture(id: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"))
+        ).makeAsyncIterator()
+        let items = await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+            """
+            - Cipher: Apple
+            - Cipher: Figma
+            """
+        }
+    }
+
+    /// `vaultListPublisher(group:filter:)` returns a publisher for a group of items in a collection within
     /// the vault list.
     func test_vaultListPublisher_forGroup_collection() async throws {
         try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
@@ -888,7 +941,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ))
 
         var iterator = subject.vaultListPublisher(
-            group: .collection(id: "f96de98e-618a-4886-b396-66b92a385325", name: "Engineering")
+            group: .collection(id: "f96de98e-618a-4886-b396-66b92a385325", name: "Engineering"),
+            filter: .allVaults
         ).makeAsyncIterator()
         let items = await iterator.next()
 

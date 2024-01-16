@@ -32,6 +32,11 @@ struct AccountSecurityView: View {
             openURL(url)
             store.send(.clearTwoStepLoginUrl)
         }
+        .onChange(of: store.state.fingerprintPhraseUrl) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearFingerprintPhraseUrl)
+        }
     }
 
     // MARK: Private views
@@ -65,7 +70,11 @@ struct AccountSecurityView: View {
             SectionHeaderView(Localizations.other)
 
             VStack(spacing: 0) {
-                SettingsListItem(Localizations.accountFingerprintPhrase) {}
+                SettingsListItem(Localizations.accountFingerprintPhrase) {
+                    Task {
+                        await store.perform(.accountFingerprintPhrasePressed)
+                    }
+                }
 
                 SettingsListItem(Localizations.twoStepLogin) {
                     store.send(.twoStepLoginPressed)
@@ -178,6 +187,7 @@ struct AccountSecurityView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 struct AccountSecurityView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -187,3 +197,4 @@ struct AccountSecurityView_Previews: PreviewProvider {
         }
     }
 }
+#endif

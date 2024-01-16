@@ -9,6 +9,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appLocale: String?
     var appTheme: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var disableAutoTotpCopyByUserId = [String: Bool]()
     var disableWebIcons: Bool = false
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
@@ -24,6 +25,7 @@ class MockAppSettingsStore: AppSettingsStore {
         }
     }
 
+    var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
@@ -34,6 +36,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func disableAutoTotpCopy(userId: String) -> Bool {
+        disableAutoTotpCopyByUserId[userId] ?? false
     }
 
     func encryptedPrivateKey(userId: String) -> String? {
@@ -56,6 +62,10 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId]
     }
 
+    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+        unsuccessfulUnlockAttempts[userId]
+    }
+
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         usernameGenerationOptions[userId]
     }
@@ -66,6 +76,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
+        disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {
@@ -98,6 +112,10 @@ class MockAppSettingsStore: AppSettingsStore {
             return
         }
         passwordGenerationOptions[userId] = options
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
+        unsuccessfulUnlockAttempts[userId] = attempts
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
