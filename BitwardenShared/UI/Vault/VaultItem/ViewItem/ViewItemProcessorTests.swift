@@ -177,7 +177,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
-<<<<<<< HEAD
     /// `perform` with `.checkPasswordPressed` shows an alert if the password has been exposed.
     func test_perform_checkPasswordPressed_exposedPassword() async throws {
         let cipher = CipherView.loginFixture(login: .fixture(password: "password1234"))
