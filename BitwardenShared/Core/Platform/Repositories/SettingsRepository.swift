@@ -75,6 +75,13 @@ protocol SettingsRepository: AnyObject {
     ///
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws
 
+    /// Validates the user's entered master password to determine if it matches the stored hash.
+    ///
+    /// - Parameter password: The user's master password.
+    /// - Returns: Whether the hash of the password matches the stored hash.
+    ///
+    func validatePassword(_ password: String) async throws -> Bool
+
     // MARK: Publishers
 
     /// The publisher to keep track of the list of the user's current folders.
@@ -87,6 +94,9 @@ protocol SettingsRepository: AnyObject {
 ///
 class DefaultSettingsRepository {
     // MARK: Properties
+
+    /// The client used by the application to handle auth related encryption and decryption tasks.
+    private let clientAuth: ClientAuthProtocol
 
     /// The client used by the application to handle vault encryption and decryption tasks.
     private let clientVault: ClientVaultService
@@ -111,6 +121,7 @@ class DefaultSettingsRepository {
     /// Initialize a `DefaultSettingsRepository`.
     ///
     /// - Parameters:
+    ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - pasteboardService: The service used to manage copy/pasting from the device's clipboard.
@@ -119,6 +130,7 @@ class DefaultSettingsRepository {
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
     init(
+        clientAuth: ClientAuthProtocol,
         clientVault: ClientVaultService,
         folderService: FolderService,
         pasteboardService: PasteboardService,
@@ -126,6 +138,7 @@ class DefaultSettingsRepository {
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
     ) {
+        self.clientAuth = clientAuth
         self.clientVault = clientVault
         self.folderService = folderService
         self.pasteboardService = pasteboardService
@@ -194,6 +207,11 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
         try await stateService.setDisableAutoTotpCopy(disableAutoTotpCopy)
+    }
+
+    func validatePassword(_ password: String) async throws -> Bool {
+        guard let passwordHash = try await stateService.getMasterPasswordHash() else { return false }
+        return try await clientAuth.validatePassword(password: password, passwordHash: passwordHash)
     }
 
     // MARK: Publishers

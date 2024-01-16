@@ -25,6 +25,7 @@ class MockAppSettingsStore: AppSettingsStore {
         }
     }
 
+    var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
@@ -59,6 +60,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         passwordGenerationOptions[userId]
+    }
+
+    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+        unsuccessfulUnlockAttempts[userId]
     }
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
@@ -107,6 +112,10 @@ class MockAppSettingsStore: AppSettingsStore {
             return
         }
         passwordGenerationOptions[userId] = options
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
+        unsuccessfulUnlockAttempts[userId] = attempts
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {

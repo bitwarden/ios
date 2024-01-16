@@ -110,13 +110,14 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
     func test_navigateTo_group() throws {
-        subject.navigate(to: .group(.identity))
+        subject.navigate(to: .group(.identity, filter: .allVaults))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
 
         let view = try XCTUnwrap((action.view as? UIHostingController<VaultGroupView>)?.rootView)
         XCTAssertEqual(view.store.state.group, .identity)
+        XCTAssertEqual(view.store.state.vaultFilterType, .allVaults)
     }
 
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.

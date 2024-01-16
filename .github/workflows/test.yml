@@ -58,7 +58,6 @@ jobs:
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \
-            -sdk iphonesimulator \
             -destination "${{ env.SIMULATOR_DESTINATION }}" \
             -resultBundlePath build/BitwardenTests.xcresult \
             -derivedDataPath build/DerivedData \

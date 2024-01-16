@@ -5,7 +5,8 @@
 final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     // MARK: Types
 
-    typealias Services = HasPasteboardService
+    typealias Services = HasErrorReporter
+        & HasPasteboardService
 
     // MARK: Properties
 
@@ -31,6 +32,11 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     ) {
         self.coordinator = coordinator
         self.services = services
+
+        // Set the initial value of the crash logs toggle.
+        var state = state
+        state.isSubmitCrashLogsToggleOn = self.services.errorReporter.isEnabled
+
         super.init(state: state)
     }
 
@@ -38,14 +44,17 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 
     override func receive(_ action: AboutAction) {
         switch action {
+        case .clearURL:
+            state.url = nil
         case .helpCenterTapped:
-            break
+            state.url = ExternalLinksConstants.helpAndFeedback
         case .rateTheAppTapped:
             break
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleSubmitCrashLogs(isOn):
             state.isSubmitCrashLogsToggleOn = isOn
+            services.errorReporter.isEnabled = isOn
         case .versionTapped:
             handleVersionTapped()
         }
