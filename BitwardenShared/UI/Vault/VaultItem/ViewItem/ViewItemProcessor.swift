@@ -266,9 +266,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// Shows delete cipher confirmation alert.
     ///
     private func showDeleteConfirmation() async {
-        guard case let .data(cipherState) = state.loadingState else {
-            return
-        }
+        guard case let .data(cipherState) = state.loadingState else { return }
         let alert = Alert.deleteCipherConfirmation { [weak self] in
             guard let self else { return }
             await deleteItem(cipherState.cipher)
@@ -276,7 +274,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.showAlert(alert)
     }
 
-    /// Updates the TOTP Code for the view
+    /// Updates the TOTP Code for the view.
     ///
     private func updateTOTPCode() async {
         // Only update the code if there is a valid TOTP key model.

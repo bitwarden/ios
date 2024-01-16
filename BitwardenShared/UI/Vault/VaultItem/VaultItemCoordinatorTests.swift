@@ -306,7 +306,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.passwordHistory` presents the password history view.
-    func test_navigateTo_passwordHistory() {
+    func test_navigateTo_passwordHistory() throws {
         subject.navigate(to: .passwordHistory([.fixture()]))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
