@@ -80,7 +80,7 @@ public enum SessionTimeoutValue: Int, CaseIterable, Equatable, Menuable {
 
 /// The action to perform on session timeout.
 ///
-public enum SessionTimeoutAction: Int, CaseIterable, Equatable, Menuable {
+public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuable {
     /// Lock the vault.
     case lock = 0
 

@@ -459,11 +459,11 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `.timeoutAction(userId:)` returns the correct timeout action.
     func test_timeoutAction() throws {
         subject.setTimeoutAction(key: .logout, userId: "1")
-        XCTAssertEqual(subject.timeoutAction(userId: "1"), .logout)
+        XCTAssertEqual(subject.timeoutAction(userId: "1"), 1)
         XCTAssertEqual(
             try JSONDecoder().decode(
                 SessionTimeoutAction.self,
-                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:timeoutAction_1")).utf8)
+                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:vaultTimeoutAction_1")).utf8)
             ),
             .logout
         )

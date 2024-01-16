@@ -20,8 +20,8 @@ class MockAppSettingsStore: AppSettingsStore {
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
-    var timeoutAction = [String: SessionTimeoutAction]()
-    var vaultTimeout = [String: Double?]()
+    var timeoutAction = [String: Int]()
+    var vaultTimeout = [String: Int?]()
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)
@@ -108,12 +108,12 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(key: Double?, userId: String) {
+    func setVaultTimeout(key: Int?, userId: String) {
         vaultTimeout[userId] = key
     }
 
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
-        timeoutAction[userId] = key
+        timeoutAction[userId] = key.rawValue
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
@@ -124,7 +124,7 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId] = options
     }
 
-    func timeoutAction(userId: String) -> SessionTimeoutAction? {
+    func timeoutAction(userId: String) -> Int? {
         timeoutAction[userId]
     }
 
@@ -132,7 +132,7 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId]
     }
 
-    func vaultTimeout(userId: String) -> Double? {
+    func vaultTimeout(userId: String) -> Int? {
         vaultTimeout[userId] ?? 0
     }
 

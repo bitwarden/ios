@@ -183,7 +183,7 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the session timeout action.
     /// - Returns: The  user's session timeout action.
     ///
-    func timeoutAction(userId: String) -> SessionTimeoutAction.RawValue?
+    func timeoutAction(userId: String) -> Int?
 
     /// Returns the session timeout date.
     ///
@@ -508,7 +508,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
 
-    func timeoutAction(userId: String) -> SessionTimeoutAction.RawValue? {
+    func timeoutAction(userId: String) -> Int? {
         fetch(for: .vaultTimeoutAction(userId: userId))
     }
 

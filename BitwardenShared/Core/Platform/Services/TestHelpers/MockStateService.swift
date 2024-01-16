@@ -28,7 +28,7 @@ class MockStateService: StateService {
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var timeoutAction = [String: SessionTimeoutAction]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
-    var vaultTimeout = [String: Double?]()
+    var vaultTimeout = [String: Int]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
@@ -134,7 +134,7 @@ class MockStateService: StateService {
         return usernameGenerationOptions[userId]
     }
 
-    func getVaultTimeout(userId: String?) async throws -> Double? {
+    func getVaultTimeout(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccount().profile.userId
         return vaultTimeout[userId] ?? 0
     }
@@ -219,7 +219,7 @@ class MockStateService: StateService {
         usernameGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(value: Double?, userId: String?) async throws {
+    func setVaultTimeout(value: Int?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         vaultTimeout[userId] = value
     }

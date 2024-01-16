@@ -74,7 +74,7 @@ class AppProcessorTests: BitwardenTestCase {
         let rootNavigator = MockRootNavigator()
         let account: Account = .fixture()
 
-        appSettingStore.timeoutAction[account.profile.userId] = .logout
+        appSettingStore.timeoutAction[account.profile.userId] = 1
         appSettingStore.state = State(
             accounts: [account.profile.userId: account],
             activeUserId: account.profile.userId
@@ -97,7 +97,7 @@ class AppProcessorTests: BitwardenTestCase {
         let rootNavigator = MockRootNavigator()
         let account: Account = .fixture()
 
-        appSettingStore.timeoutAction[account.profile.userId] = .lock
+        appSettingStore.timeoutAction[account.profile.userId] = 0
         appSettingStore.state = State(
             accounts: [account.profile.userId: account],
             activeUserId: account.profile.userId

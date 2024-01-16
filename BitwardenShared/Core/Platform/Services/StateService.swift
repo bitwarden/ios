@@ -430,7 +430,6 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
-
     /// Sets the session timeout action.
     ///
     /// - Parameter action: The action to take when the user's session times out.
@@ -641,8 +640,8 @@ actor DefaultStateService: StateService {
 
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction? {
         let userId = try userId ?? getActiveAccountUserId()
-        let rawValue = appSettingsStore.timeoutAction(userId: userId)
-        return SessionTimeoutAction(rawValue: rawValue ?? 0)
+        let rawValue = appSettingsStore.timeoutAction(userId: userId) ?? 0
+        return SessionTimeoutAction(rawValue: rawValue)
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {

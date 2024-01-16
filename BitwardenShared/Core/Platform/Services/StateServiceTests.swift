@@ -798,7 +798,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let userId = account.profile.userId
 
         try await subject.setTimeoutAction(action: .logout, userId: userId)
-        XCTAssertEqual(appSettingsStore.timeoutAction[userId], .logout)
+        XCTAssertEqual(appSettingsStore.timeoutAction[userId], 1)
     }
 
     /// `.setTimeoutAction(userId:)` sets the timeout action when there is no user ID passed.
@@ -806,7 +806,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
         try await subject.setTimeoutAction(action: .logout, userId: nil)
-        XCTAssertEqual(appSettingsStore.timeoutAction["1"], .logout)
+        XCTAssertEqual(appSettingsStore.timeoutAction["1"], 1)
     }
 
     /// `.setVaultTimeout(value:userId:)` sets the vault timeout value for the user.
