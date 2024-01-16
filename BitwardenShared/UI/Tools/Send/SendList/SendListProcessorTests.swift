@@ -8,6 +8,7 @@ class SendListProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SendRoute>!
+    var errorReporter: MockErrorReporter!
     var sendRepository: MockSendRepository!
     var subject: SendListProcessor!
 
@@ -15,10 +16,15 @@ class SendListProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         sendRepository = MockSendRepository()
+
         subject = SendListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(sendRepository: sendRepository),
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                sendRepository: sendRepository
+            ),
             state: SendListState()
         )
     }
@@ -27,6 +33,8 @@ class SendListProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        errorReporter = nil
+        sendRepository = nil
         subject = nil
     }
 
@@ -50,10 +58,35 @@ class SendListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.sections[0].items, [sendListItem])
     }
 
+    /// `perform(_:)` with `.appeared` records any errors.
+    func test_perform_appeared_error() {
+        sendRepository.sendListSubject.send(completion: .failure(BitwardenTestError.example))
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `refresh` calls the refresh method.
     func test_perform_refresh() async {
         await subject.perform(.refresh)
 
         XCTAssertTrue(sendRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `refresh` records any errors.
+    func test_perform_refresh_error() async {
+        sendRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.refresh)
+
+        XCTAssertTrue(sendRepository.fetchSyncCalled)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
@@ -87,6 +120,7 @@ class SendListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.searchText, "search")
     }
 
+    /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the edit send route.
     func test_receive_sendListItemRow_sendListItemPressed() {
         subject.receive(.sendListItemRow(.sendListItemPressed(.fixture())))
 

@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Combine
 
 @testable import BitwardenShared
 
@@ -13,6 +14,8 @@ class MockSendService: SendService {
     var replaceSendsSends: [SendResponseModel]?
     var replaceSendsUserId: String?
 
+    var sendsSubject = CurrentValueSubject<[Send], Error>([])
+
     // MARK: Methods
 
     func addSend(_ send: Send) async throws {
@@ -23,5 +26,9 @@ class MockSendService: SendService {
     func replaceSends(_ sends: [SendResponseModel], userId: String) async throws {
         replaceSendsSends = sends
         replaceSendsUserId = userId
+    }
+
+    func sendsPublisher() async throws -> AnyPublisher<[Send], Error> {
+        sendsSubject.eraseToAnyPublisher()
     }
 }

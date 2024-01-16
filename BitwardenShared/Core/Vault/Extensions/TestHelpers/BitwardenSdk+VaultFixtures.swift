@@ -10,7 +10,7 @@ extension Cipher {
         attachments: [Attachment]? = nil,
         card: Card? = nil,
         collectionIds: [String] = [],
-        creationDate: DateTime = Date(),
+        creationDate: DateTime = Date(year: 2024, month: 1, day: 1),
         deletedDate: Date? = nil,
         edit: Bool = true,
         favorite: Bool = false,
@@ -27,7 +27,7 @@ extension Cipher {
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistory]? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
-        revisionDate: Date = Date(),
+        revisionDate: Date = Date(year: 2024, month: 1, day: 1),
         secureNote: SecureNote? = nil,
         type: BitwardenSdk.CipherType = .login,
         viewPassword: Bool = true
@@ -219,7 +219,7 @@ extension CipherView {
 
 extension Collection {
     static func fixture(
-        id: String = "",
+        id: String? = "",
         organizationId: String = "",
         name: String = "",
         externalId: String = "",

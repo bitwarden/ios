@@ -39,6 +39,31 @@ class CipherServiceTests: XCTestCase {
 
     // MARK: Tests
 
+    /// `addCipherWithServer(_:)` adds the cipher in the backend and local storage.
+    func test_addCipherWithServer() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: .cipherResponse)
+
+        try await subject.addCipherWithServer(.fixture())
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers")
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+    }
+
+    /// `addCipherWithServer(_:)` adds the cipher in the backend and local storage.
+    func test_addCipherWithServer_withCollections() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: .cipherResponse)
+
+        let cipher = Cipher.fixture(collectionIds: ["1"])
+        try await subject.addCipherWithServer(cipher)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/create")
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+    }
+
     /// `ciphersPublisher()` returns a publisher that emits data as the data store changes.
     func test_ciphersPublisher() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
@@ -91,13 +116,13 @@ class CipherServiceTests: XCTestCase {
         XCTAssertEqual(cipherDataStore.replaceCiphersUserId, "1")
     }
 
-    /// `shareCipher(_:)` shares the cipher with the organization and updates the data store.
-    func test_shareCipher() async throws {
+    /// `shareCipherWithServer(_:)` shares the cipher with the organization and updates the data store.
+    func test_shareCipherWithServer() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)
         stateService.activeAccount = .fixture()
 
         let cipher = Cipher.fixture(collectionIds: ["1", "2"], id: "123")
-        try await subject.shareWithServer(cipher)
+        try await subject.shareCipherWithServer(cipher)
 
         var cipherResponse = try CipherDetailsResponseModel(
             response: .success(body: APITestData.cipherResponse.data)
@@ -129,5 +154,17 @@ class CipherServiceTests: XCTestCase {
 
         XCTAssertEqual(cipherDataStore.upsertCipherValue, cipher)
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+    }
+
+    /// `updateCipherWithServer(_:)` updates the cipher in the backend and local storage.
+    func test_updateCipherWithServer() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.result = .httpSuccess(testData: .cipherResponse)
+
+        try await subject.updateCipherWithServer(.fixture(id: "123"))
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
 }
