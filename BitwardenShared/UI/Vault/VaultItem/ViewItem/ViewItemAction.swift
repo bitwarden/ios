@@ -5,9 +5,6 @@ enum ViewItemAction: Equatable {
     /// A card item action
     case cardItemAction(ViewCardItemAction)
 
-    /// The check password button was pressed.
-    case checkPasswordPressed
-
     /// A copy button was pressed for the given value.
     ///
     /// - Parameter value: The value to copy.
@@ -49,8 +46,7 @@ enum ViewItemAction: Equatable {
              .editPressed,
              .passwordVisibilityPressed:
             true
-        case .checkPasswordPressed,
-             .dismissPressed,
+        case .dismissPressed,
              .morePressed,
              .passwordHistoryPressed,
              .restorePressed,

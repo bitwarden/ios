@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct CipherItemView: View {
-    let cipher: Cipher
+    let cipher: CipherDTO
     let maxWidth: CGFloat
 
-    init(_ cipher: Cipher, _ maxWidth: CGFloat) {
+    init(_ cipher: CipherDTO, _ maxWidth: CGFloat) {
         self.cipher = cipher
         self.maxWidth = maxWidth
     }

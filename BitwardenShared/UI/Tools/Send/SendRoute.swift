@@ -9,6 +9,9 @@ public enum SendRoute: Equatable {
     /// A route that dismisses a presented sheet.
     case dismiss
 
+    /// A route to a file selection route.
+    case fileSelection(FileSelectionRoute)
+
     /// A route to the send screen.
     case list
 }

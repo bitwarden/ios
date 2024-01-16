@@ -47,15 +47,15 @@ public final class MessagePackDecoder {
         case cast
     }
 
-    static var nonMatchingFloatDecodingStrategyKey: CodingUserInfoKey {
+    public static var nonMatchingFloatDecodingStrategyKey: CodingUserInfoKey {
         CodingUserInfoKey(rawValue: "nonMatchingFloatDecodingStrategyKey")!
     }
 
-    static var dataSpecKey: CodingUserInfoKey {
+    public static var dataSpecKey: CodingUserInfoKey {
         CodingUserInfoKey(rawValue: "dataSpecKey")!
     }
 
-    static var isArrayDataSpecKey: CodingUserInfoKey {
+    public static var isArrayDataSpecKey: CodingUserInfoKey {
         CodingUserInfoKey(rawValue: "isArrayDataSpecKey")!
     }
 }

@@ -35,6 +35,10 @@ protocol SettingsRepository: AnyObject {
     /// Get the current value of the allow sync on refresh value.
     func getAllowSyncOnRefresh() async throws -> Bool
 
+    /// Gets the default URI match type setting for the current user.
+    ///
+    func getDefaultUriMatchType() async throws -> UriMatchType
+
     /// Get the value of the disable auto-copy TOTP setting for the current user.
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
@@ -68,6 +72,12 @@ protocol SettingsRepository: AnyObject {
     /// - Parameter allowSyncOnRefresh: Whether the vault should sync on refreshing.
     ///
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws
+
+    /// Update the cached value of the default URI match type setting.
+    ///
+    /// - Parameter defaultUriMatchType: The default URI match type.
+    ///
+    func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async throws
 
     /// Update the cached value of the disable auto-copy TOTP setting.
     ///
@@ -181,6 +191,10 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.getAllowSyncOnRefresh()
     }
 
+    func getDefaultUriMatchType() async throws -> UriMatchType {
+        try await stateService.getDefaultUriMatchType()
+    }
+
     func getDisableAutoTotpCopy() async throws -> Bool {
         try await stateService.getDisableAutoTotpCopy()
     }
@@ -203,6 +217,10 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await stateService.setAllowSyncOnRefresh(allowSyncOnRefresh)
+    }
+
+    func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async throws {
+        try await stateService.setDefaultUriMatchType(defaultUriMatchType)
     }
 
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {

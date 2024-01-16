@@ -49,6 +49,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func clearClipboardValue(userId: String) -> ClearClipboardValue
 
+    /// Gets the default URI match type.
+    ///
+    /// - Parameter userId: The user ID associated with the default URI match type.
+    /// - Returns: The default URI match type.
+    ///
+    func defaultUriMatchType(userId: String) -> UriMatchType?
+
     /// Gets the encrypted private key for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the encrypted private key.
@@ -118,6 +125,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The time after which the clipboard should be cleared.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
+
+    /// Sets the default URI match type.
+    ///
+    /// - Parameters:
+    ///   - uriMatchType: The default URI match type.
+    ///   - userId: The user ID associated with the default URI match type.
+    ///
+    func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String)
 
     /// Sets the disable auto-copy TOTP value for a user ID.
     ///
@@ -307,6 +322,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appLocale
         case appTheme
         case clearClipboardValue(userId: String)
+        case defaultUriMatch(userId: String)
         case disableWebIcons
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
@@ -335,6 +351,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "theme"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
+            case let .defaultUriMatch(userId):
+                key = "defaultUriMatch_\(userId)"
             case .disableWebIcons:
                 key = "disableFavicon"
             case let .encryptedUserKey(userId):
@@ -429,6 +447,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .encryptedUserKey(userId: userId))
     }
 
+    func defaultUriMatchType(userId: String) -> UriMatchType? {
+        fetch(for: .defaultUriMatch(userId: userId))
+    }
+
     func disableAutoTotpCopy(userId: String) -> Bool {
         fetch(for: .disableAutoTotpCopy(userId: userId))
     }
@@ -459,6 +481,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
+    }
+
+    func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String) {
+        store(uriMatchType, for: .defaultUriMatch(userId: userId))
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {

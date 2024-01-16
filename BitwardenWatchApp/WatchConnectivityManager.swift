@@ -84,34 +84,9 @@ extension WatchConnectivityManager: WCSessionDelegate {
                 return
             }
 
-            let decoder = MessagePackDecoder()
-            decoder.userInfo[MessagePackDecoder.dataSpecKey] = DataSpecBuilder()
-                .append("state")
-                .appendArray("ciphers", DataSpecBuilder()
-                    .append("id")
-                    .append("name")
-                    .appendObj("login", DataSpecBuilder()
-                        .append("username")
-                        .append("totp")
-                        .appendArray("uris", DataSpecBuilder()
-                            .append("uri")
-                            .build())
-                        .build())
-                    .build())
-                .appendObj("userData", DataSpecBuilder()
-                    .append("id")
-                    .append("email")
-                    .append("name")
-                    .build())
-                .appendObj("environmentData", DataSpecBuilder()
-                    .append("base")
-                    .append("icons")
-                    .build())
-                .build()
-
             let rawData = try nsRawData.decompressed(using: .lzfse)
 
-            let watchDTO = try decoder.decode(WatchDTO.self, from: Data(referencing: rawData))
+            let watchDTO = try MessagePackDecoder().decode(WatchDTO.self, from: Data(referencing: rawData))
 
             let previousUserId = StateService.shared.getUser()?.id
 

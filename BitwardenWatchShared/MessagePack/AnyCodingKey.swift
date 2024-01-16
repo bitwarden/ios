@@ -21,8 +21,4 @@ struct AnyCodingKey: CodingKey, Equatable {
     }
 }
 
-extension AnyCodingKey: Hashable {
-    var hashValue: Int {
-        intValue?.hashValue ?? stringValue.hashValue
-    }
-}
+extension AnyCodingKey: Hashable {}

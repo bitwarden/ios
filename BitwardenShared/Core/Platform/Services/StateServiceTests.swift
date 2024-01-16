@@ -275,6 +275,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, .never)
     }
 
+    /// `getDefaultUriMatchType()` returns the default URI match type value for the active account.
+    func test_getDefaultUriMatchType() async throws {
+        await subject.addAccount(.fixture())
+
+        let initialValue = try await subject.getDefaultUriMatchType()
+        XCTAssertEqual(initialValue, .domain)
+
+        appSettingsStore.defaultUriMatchTypeByUserId["1"] = .exact
+        let value = try await subject.getDefaultUriMatchType()
+        XCTAssertEqual(value, .exact)
+    }
+
     /// `getDisableAutoTotpCopy()` returns the disable auto-copy TOTP value for the active account.
     func test_getDisableAutoTotpCopy() async throws {
         await subject.addAccount(.fixture())
@@ -458,6 +470,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY"
         ))
+        try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
         try await dataStore.insertPasswordHistory(
@@ -479,9 +492,10 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.logoutAccount()
 
-        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
+        XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
+        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
 
         let context = dataStore.persistentContainer.viewContext
@@ -708,6 +722,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let date2 = Date(year: 2023, month: 12, day: 2)
         try await subject.setLastSyncTime(date2, userId: "1")
         XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
+    }
+
+    /// `setDefaultUriMatchType(_:userId:)` sets the default URI match type value for a user.
+    func test_setDefaultUriMatchType() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setDefaultUriMatchType(.startsWith, userId: "1")
+        XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId["1"], .startsWith)
+
+        try await subject.setDefaultUriMatchType(.regularExpression, userId: "1")
+        XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId["1"], .regularExpression)
     }
 
     /// `setDisableAutoTotpCopy(_:userId:)` sets the disable auto-copy TOTP value for a user.

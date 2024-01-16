@@ -5,7 +5,7 @@ class IconImageHelper {
 
     private init() {}
 
-    func getLoginIconImage(_ cipher: Cipher) -> String? {
+    func getLoginIconImage(_ cipher: CipherDTO) -> String? {
         guard let uris = cipher.login.uris, !uris.isEmpty else {
             return nil
         }

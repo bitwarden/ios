@@ -596,7 +596,8 @@ struct VaultListView_Previews: PreviewProvider {
                                     id: "",
                                     key: nil,
                                     name: "Org",
-                                    status: .confirmed
+                                    status: .confirmed,
+                                    usersGetPremium: false
                                 ),
                             ]
                         )

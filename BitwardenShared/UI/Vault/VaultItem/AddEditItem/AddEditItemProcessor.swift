@@ -17,7 +17,8 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
     // MARK: Types
 
-    typealias Services = HasCameraService
+    typealias Services = HasAPIService
+        & HasCameraService
         & HasErrorReporter
         & HasPasteboardService
         & HasTOTPService
@@ -258,21 +259,9 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     private func checkPassword() async {
         coordinator.showLoadingOverlay(title: Localizations.checkingPassword)
         defer { coordinator.hideLoadingOverlay() }
-
         do {
-            // TODO: BIT-369 Use the api to check the password
-            try await Task.sleep(nanoseconds: 1_000_000_000)
-            let alert = Alert(
-                title: Localizations.passwordExposed(9_659_365),
-                message: nil,
-                alertActions: [
-                    AlertAction(
-                        title: Localizations.ok,
-                        style: .default
-                    ),
-                ]
-            )
-            coordinator.navigate(to: .alert(alert))
+            let breachCount = try await services.apiService.checkDataBreaches(password: state.loginState.password)
+            coordinator.navigate(to: .alert(.dataBreachesCountAlert(count: breachCount)))
         } catch {
             services.errorReporter.log(error: error)
         }

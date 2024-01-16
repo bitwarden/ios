@@ -4,20 +4,37 @@ import UIKit
 // MARK: - Alert+Vault
 
 extension Alert {
-    /// An alert presenting the user with options to select an attachment type.
+    /// An alert presenting the user with options to select a file.
     ///
-    /// - Returns: An alert presenting the user with options to select an attachment type.
+    /// - Parameter handler: A block that is executed when one of the selections is made.
     ///
-    static func attachmentOptions(handler: @escaping (AlertAction) async -> Void) -> Alert {
+    static func fileSelectionOptions(
+        handler: @MainActor @escaping (FileSelectionRoute) -> Void
+    ) -> Alert {
         Alert(
             title: nil,
             message: nil,
             preferredStyle: .actionSheet,
             alertActions: [
-                AlertAction(title: Localizations.photos, style: .default, handler: handler),
-                AlertAction(title: Localizations.camera, style: .default, handler: handler),
-                AlertAction(title: Localizations.browse, style: .default, handler: handler),
-                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(
+                    title: Localizations.photos,
+                    style: .default,
+                    handler: { _ in await handler(.photo) }
+                ),
+                AlertAction(
+                    title: Localizations.camera,
+                    style: .default,
+                    handler: { _ in await handler(.camera) }
+                ),
+                AlertAction(
+                    title: Localizations.browse,
+                    style: .default,
+                    handler: { _ in await handler(.file) }
+                ),
+                AlertAction(
+                    title: Localizations.cancel,
+                    style: .cancel
+                ),
             ]
         )
     }

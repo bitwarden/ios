@@ -17,6 +17,9 @@ public struct Organization: Equatable, Hashable {
 
     /// The profile's organization's status.
     let status: OrganizationUserStatusType
+
+    /// Whether the profile organization's users get premium.
+    let usersGetPremium: Bool
 }
 
 extension Organization {
@@ -27,7 +30,8 @@ extension Organization {
             id: responseModel.id,
             key: responseModel.key,
             name: name,
-            status: responseModel.status
+            status: responseModel.status,
+            usersGetPremium: responseModel.usersGetPremium
         )
     }
 
