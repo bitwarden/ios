@@ -114,7 +114,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
     func test_snapshot_text_withOptions_withValues() {
         processor.state.isOptionsExpanded = true
         processor.state.name = "Name"
-        processor.state.text = "Text"
+        processor.state.text = "Text with lots of text that wraps to new lines when displayed."
         processor.state.isHideTextByDefaultOn = true
         processor.state.isShareOnSaveOn = true
         processor.state.deletionDate = .custom
@@ -123,7 +123,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.maximumAccessCount = 42
         processor.state.password = "pa$$w0rd"
-        processor.state.notes = "Notes"
+        processor.state.notes = "Notes with lots of text that wraps to new lines when displayed."
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
         assertSnapshot(of: subject, as: .tallPortrait)
