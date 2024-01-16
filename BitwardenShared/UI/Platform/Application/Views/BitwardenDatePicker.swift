@@ -5,22 +5,29 @@ import SwiftUI
 /// A view that uses wraps a SwiftUI date picker in a custom label.
 ///
 struct BitwardenDatePicker: View {
+    // MARK: Private Properties
+
+    /// The date picker's current size.
+    @SwiftUI.State private var datePickerSize: CGSize = .zero
+
+    /// The property used to track the non-nil selection state of the underlying date pickers.
+    @SwiftUI.State private var nonNilSelection: Date
+
     // MARK: Properties
 
     /// The date value being displayed and selected.
-    @Binding var selection: Date
+    @Binding var selection: Date?
 
     /// The date components to display in this picker.
     var displayComponents: DatePicker.Components = .date
 
-    /// The date picker's current size.
-    @SwiftUI.State private var datePickerSize: CGSize = .zero
+    // MARK: View
 
     var body: some View {
         ZStack(alignment: .center) {
             // A hidden date picker used to calculate the size for the scaled metrics of the actual
             // date picker below.
-            DatePicker("", selection: $selection, displayedComponents: displayComponents)
+            DatePicker("", selection: $nonNilSelection, displayedComponents: displayComponents)
                 .background(
                     GeometryReader { reader in
                         Color.clear.onAppear {
@@ -36,7 +43,7 @@ struct BitwardenDatePicker: View {
             GeometryReader { reader in
                 // The actual date picker used for user interaction, scaled to fit the same size as
                 // the content displayed above it.
-                DatePicker("", selection: $selection, displayedComponents: displayComponents)
+                DatePicker("", selection: $nonNilSelection, displayedComponents: displayComponents)
                     .scaleEffect(
                         x: reader.size.width / datePickerSize.width,
                         y: reader.size.height / datePickerSize.height,
@@ -51,13 +58,24 @@ struct BitwardenDatePicker: View {
                 HStack {
                     Spacer()
 
-                    switch displayComponents {
-                    case .date:
-                        Text(selection.formatted(date: .numeric, time: .omitted))
-                    case .hourAndMinute:
-                        Text(selection.formatted(date: .omitted, time: .shortened))
-                    default:
-                        Text(selection.formatted(date: .numeric, time: .shortened))
+                    if let selection {
+                        switch displayComponents {
+                        case .date:
+                            Text(selection.formatted(date: .numeric, time: .omitted))
+                        case .hourAndMinute:
+                            Text(selection.formatted(date: .omitted, time: .shortened))
+                        default:
+                            Text(selection.formatted(date: .numeric, time: .shortened))
+                        }
+                    } else {
+                        switch displayComponents {
+                        case .date:
+                            Text("mm/dd/yyyy")
+                        case .hourAndMinute:
+                            Text("--:-- --")
+                        default:
+                            Text("mm/dd/yyyy --:-- --")
+                        }
                     }
 
                     Spacer()
@@ -72,5 +90,49 @@ struct BitwardenDatePicker: View {
                 .allowsHitTesting(false)
             }
         }
+        .onChange(of: nonNilSelection, perform: { newValue in
+            selection = newValue
+        })
+    }
+
+    // MARK: Initialization
+
+    /// Creates a `BitwardenDatePicker` with an optional date binding.
+    ///
+    /// - Parameters:
+    ///   - selection: The binding for the optional date value to display within this component.
+    ///   - displayComponents: The date components to display in this picker.
+    ///
+    init(
+        selection: Binding<Date?>,
+        displayComponents: DatePicker.Components = .date
+    ) {
+        _selection = selection
+        let nonNilStartValue = selection.wrappedValue ?? Date()
+        _nonNilSelection = .init(initialValue: nonNilStartValue)
+        self.displayComponents = displayComponents
+        datePickerSize = .zero
+    }
+
+    /// Creates a `BitwardenDatePicker` with a date binding.
+    ///
+    /// - Parameters:
+    ///   - selection: The binding for the date value to display within this component.
+    ///   - displayComponents: The date components to display in this picker.
+    ///
+    init(
+        selection: Binding<Date>,
+        displayComponents: DatePicker.Components = .date
+    ) {
+        _selection = Binding(
+            get: {
+                selection.wrappedValue
+            }, set: { newValue in
+                selection.wrappedValue = newValue ?? Date()
+            })
+        let nonNilStartValue = selection.wrappedValue
+        _nonNilSelection = .init(initialValue: nonNilStartValue)
+        self.displayComponents = displayComponents
+        datePickerSize = .zero
     }
 }
