@@ -9,7 +9,7 @@ extension Alert {
     /// - Parameter handler: A block that is executed when one of the selections is made.
     ///
     static func fileSelectionOptions(
-        handler: @escaping (FileSelectionRoute) -> Void
+        handler: @MainActor @escaping (FileSelectionRoute) -> Void
     ) -> Alert {
         Alert(
             title: nil,
@@ -19,17 +19,17 @@ extension Alert {
                 AlertAction(
                     title: Localizations.photos,
                     style: .default,
-                    handler: { _ in handler(.photo) }
+                    handler: { _ in await handler(.photo) }
                 ),
                 AlertAction(
                     title: Localizations.camera,
                     style: .default,
-                    handler: { _ in handler(.camera) }
+                    handler: { _ in await handler(.camera) }
                 ),
                 AlertAction(
                     title: Localizations.browse,
                     style: .default,
-                    handler: { _ in handler(.file) }
+                    handler: { _ in await handler(.file) }
                 ),
                 AlertAction(
                     title: Localizations.cancel,

@@ -4,6 +4,7 @@ import Foundation
 
 /// A delegate object that responds to file selection events.
 ///
+@MainActor
 protocol FileSelectionDelegate: AnyObject {
     /// A file was chosen by the user.
     ///

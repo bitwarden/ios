@@ -5,6 +5,7 @@ import UIKit
 
 /// A coordinator that manages navigation for file selection routes.
 ///
+@MainActor
 class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
@@ -82,9 +83,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
             imageData = image.pngData()
         }
         guard let imageData else { return }
-        DispatchQueue.main.async { [weak self] in
-            self?.delegate?.fileSelectionCompleted(fileName: fileName, data: imageData)
-        }
+        delegate?.fileSelectionCompleted(fileName: fileName, data: imageData)
     }
 
     /// Shows the camera screen.
@@ -139,9 +138,7 @@ extension FileSelectionCoordinator: UIDocumentPickerDelegate {
 
         do {
             let fileData = try Data(contentsOf: url)
-            DispatchQueue.main.async { [weak self] in
-                self?.delegate?.fileSelectionCompleted(fileName: fileName, data: fileData)
-            }
+            delegate?.fileSelectionCompleted(fileName: fileName, data: fileData)
         } catch {
             services.errorReporter.log(error: error)
         }
