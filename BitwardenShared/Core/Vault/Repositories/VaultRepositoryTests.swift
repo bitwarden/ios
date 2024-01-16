@@ -722,7 +722,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.accounts = [.fixtureAccountLogin()]
         stateService.activeAccount = .fixtureAccountLogin()
         let cipherView: CipherView = .fixture(deletedDate: .now, id: "123")
-        cipherService.softDeleteWithServerResult = .success(())
+        cipherService.restoreWithServerResult = .success(())
         try await subject.restoreCipher(cipherView)
         XCTAssertNotNil(cipherView.deletedDate)
         XCTAssertNil(cipherService.restoredCipher?.deletedDate)

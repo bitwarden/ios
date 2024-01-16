@@ -21,9 +21,9 @@ struct RestoreCipherRequest: Request {
 
     // MARK: Initialization
 
-    /// Initialize an `DeleteCipherRequest` for a `Cipher`.
+    /// Initialize an `RestoreCipherRequest` for a `Cipher`.
     ///
-    /// - Parameter id: The id of `Cipher` to be deleted in the user's vault.
+    /// - Parameter id: The id of `Cipher` to be restored from the trash.
     ///
     init(id: String) throws {
         guard !id.isEmpty else { throw CipherAPIServiceError.updateMissingId }
