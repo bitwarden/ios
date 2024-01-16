@@ -4,7 +4,9 @@ import XCTest
 
 @testable import BitwardenShared
 
-class CipherMatchingHelperTests: BitwardenTestCase {
+class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+    // MARK: Properties
+
     let ciphers: [CipherView] = [
         .fixture(
             login: .fixture(uris: [LoginUriView(uri: "https://vault.bitwarden.com", match: .exact)]),
@@ -28,11 +30,132 @@ class CipherMatchingHelperTests: BitwardenTestCase {
         .fixture(login: .fixture(uris: []), name: "Empty URIs"),
     ]
 
+    var settingsService: MockSettingsService!
+    var stateService: MockStateService!
+    var subject: CipherMatchingHelper!
+
+    // MARK: Setup & Teardown
+
+    override func setUp() {
+        super.setUp()
+
+        settingsService = MockSettingsService()
+        stateService = MockStateService()
+
+        subject = CipherMatchingHelper(
+            settingsService: settingsService,
+            stateService: stateService
+        )
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        settingsService = nil
+        stateService = nil
+        subject = nil
+    }
+
     // MARK: Tests
+
+    /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the base
+    /// domain match type.
+    func test_ciphersMatching_baseDomain() async {
+        let uris: [(String, String)] = [
+            ("Google", "http://google.com"),
+            ("Google Accounts", "https://accounts.google.com"),
+            ("Google Domain", "google.com"),
+            ("Google Net", "https://google.net"),
+            ("Yahoo", "http://yahoo.com"),
+        ]
+        let ciphers = uris.map { name, uri in
+            CipherView.fixture(
+                login: .fixture(uris: [LoginUriView(uri: uri, match: .domain)]),
+                name: name
+            )
+        }
+
+        let matchingCiphers = await subject.ciphersMatching(uri: "https://google.com", ciphers: ciphers)
+        assertInlineSnapshot(
+            of: dumpMatchingCiphers(matchingCiphers),
+            as: .lines
+        ) {
+            """
+            Google
+            Google Accounts
+            Google Domain
+            """
+        }
+    }
+
+    /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the base
+    /// domain match type using an equivalent domain.
+    func test_ciphersMatching_baseDomain_equivalentDomains() async {
+        settingsService.fetchEquivalentDomainsResult = .success([["google.com", "youtube.com"]])
+        let ciphers = ciphersForUris(
+            [
+                ("Google", "https://google.com"),
+                ("Google Account", "https://accounts.google.com"),
+                ("Youtube", "https://youtube.com/login"),
+                ("Yahoo", "https://yahoo.com"),
+            ],
+            matchType: .domain
+        )
+
+        let matchingCiphers = await subject.ciphersMatching(uri: "https://google.com", ciphers: ciphers)
+        assertInlineSnapshot(
+            of: dumpMatchingCiphers(matchingCiphers),
+            as: .lines
+        ) {
+            """
+            Google
+            Google Account
+            Youtube
+            """
+        }
+    }
+
+    /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI using the
+    /// default match type if the cipher doesn't specify a match type.
+    func test_ciphersMatching_defaultMatchType() async {
+        stateService.activeAccount = .fixture()
+
+        let ciphers = ciphersForUris(
+            [
+                ("Google", "https://google.com"),
+                ("Google Account", "https://accounts.google.com"),
+                ("Youtube", "https://youtube.com/login"),
+                ("Yahoo", "https://yahoo.com"),
+            ],
+            matchType: nil
+        )
+
+        stateService.defaultUriMatchTypeByUserId["1"] = .exact
+        var matchingCiphers = await subject.ciphersMatching(uri: "https://yahoo.com", ciphers: ciphers)
+        assertInlineSnapshot(
+            of: dumpMatchingCiphers(matchingCiphers),
+            as: .lines
+        ) {
+            """
+            Yahoo
+            """
+        }
+
+        stateService.defaultUriMatchTypeByUserId["1"] = .host
+        matchingCiphers = await subject.ciphersMatching(uri: "https://google.com", ciphers: ciphers)
+        assertInlineSnapshot(
+            of: dumpMatchingCiphers(matchingCiphers),
+            as: .lines
+        ) {
+            """
+            Google
+            """
+        }
+    }
 
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the exact
     /// match type.
-    func test_ciphersMatching_exact() {
+    func test_ciphersMatching_exact() async {
         let ciphers: [CipherView] = [
             .fixture(
                 login: .fixture(uris: [LoginUriView(uri: "https://vault.bitwarden.com", match: .exact)]),
@@ -55,8 +178,9 @@ class CipherMatchingHelperTests: BitwardenTestCase {
             ),
         ]
 
+        var matchingCiphers = await subject.ciphersMatching(uri: "https://vault.bitwarden.com", ciphers: ciphers)
         assertInlineSnapshot(
-            of: dumpMatching(uri: "https://vault.bitwarden.com", ciphers: ciphers),
+            of: dumpMatchingCiphers(matchingCiphers),
             as: .lines
         ) {
             """
@@ -65,8 +189,9 @@ class CipherMatchingHelperTests: BitwardenTestCase {
             """
         }
 
+        matchingCiphers = await subject.ciphersMatching(uri: "https://bitwarden.com", ciphers: ciphers)
         assertInlineSnapshot(
-            of: dumpMatching(uri: "https://bitwarden.com", ciphers: ciphers),
+            of: dumpMatchingCiphers(matchingCiphers),
             as: .lines
         ) {
             """
@@ -75,12 +200,13 @@ class CipherMatchingHelperTests: BitwardenTestCase {
             """
         }
 
-        XCTAssertTrue(CipherMatchingHelper.ciphersMatching(uri: "http://bitwarden.com", ciphers: ciphers).isEmpty)
+        matchingCiphers = await subject.ciphersMatching(uri: "http://bitwarden.com", ciphers: ciphers)
+        XCTAssertTrue(matchingCiphers.isEmpty)
     }
 
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the host
     /// match type.
-    func test_ciphersMatching_host() {
+    func test_ciphersMatching_host() async {
         let uris: [(String, String)] = [
             ("Sub Domain 4000", "http://sub.domain.com:4000"),
             ("Sub Domain 4000 with Page", "https://sub.domain.com:4000/page.html"),
@@ -96,8 +222,9 @@ class CipherMatchingHelperTests: BitwardenTestCase {
             )
         }
 
+        let matchingCiphers = await subject.ciphersMatching(uri: "https://sub.domain.com:4000", ciphers: ciphers)
         assertInlineSnapshot(
-            of: dumpMatching(uri: "https://sub.domain.com:4000", ciphers: ciphers),
+            of: dumpMatchingCiphers(matchingCiphers),
             as: .lines
         ) {
             """
@@ -109,7 +236,7 @@ class CipherMatchingHelperTests: BitwardenTestCase {
 
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the never
     /// match type.
-    func test_ciphersMatching_never() {
+    func test_ciphersMatching_never() async {
         let ciphers: [CipherView] = [
             .fixture(
                 login: .fixture(uris: [LoginUriView(uri: "https://vault.bitwarden.com", match: .never)]),
@@ -121,8 +248,9 @@ class CipherMatchingHelperTests: BitwardenTestCase {
             ),
         ]
 
+        var matchingCiphers = await subject.ciphersMatching(uri: "https://vault.bitwarden.com", ciphers: ciphers)
         assertInlineSnapshot(
-            of: dumpMatching(uri: "https://vault.bitwarden.com", ciphers: ciphers),
+            of: dumpMatchingCiphers(matchingCiphers),
             as: .lines
         ) {
             """
@@ -130,43 +258,61 @@ class CipherMatchingHelperTests: BitwardenTestCase {
             """
         }
 
-        XCTAssertTrue(CipherMatchingHelper.ciphersMatching(uri: "http://bitwarden.com", ciphers: ciphers).isEmpty)
+        matchingCiphers = await subject.ciphersMatching(uri: "http://bitwarden.com", ciphers: ciphers)
+        XCTAssertTrue(matchingCiphers.isEmpty)
     }
 
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the
     /// regular expression match type.
-    func test_ciphersMatching_regularExpression() {
-        let uris: [(String, String)] = [
-            ("Wikipedia Special", "https://en.wikipedia.org/w/index.php?title=Special:UserLogin&returnto=Bitwarden"),
-            ("Wikipedia Specjalna", "https://pl.wikipedia.org/w/index.php?title=Specjalna:Zaloguj&returnto=Bitwarden"),
-            ("Wikipedia", "https://en.wikipedia.org/w/index.php"),
-            ("Malicious", "https://malicious-site.com"),
-            ("Bitwarden Wikipedia", "https://en.wikipedia.org/wiki/Bitwarden"),
-        ]
-        let ciphers = uris.map { name, uri in
-            CipherView.fixture(
-                login: .fixture(uris: [LoginUriView(uri: uri, match: .regularExpression)]),
-                name: name
+    func test_ciphersMatching_regularExpression() async {
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                uris: [
+                    LoginUriView(
+                        uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#,
+                        match: .regularExpression
+                    ),
+                ]
             )
-        }
+        )
 
-        assertInlineSnapshot(
-            of: dumpMatching(uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#, ciphers: ciphers),
-            as: .lines
-        ) {
-            """
-            Wikipedia Special
-            Wikipedia Specjalna
-            Wikipedia
-            """
-        }
+        var matchingCiphers = await subject.ciphersMatching(
+            uri: "https://en.wikipedia.org/w/index.php?title=Special:UserLogin&returnto=Bitwarden",
+            ciphers: [cipher]
+        )
+        XCTAssertFalse(matchingCiphers.isEmpty)
+
+        matchingCiphers = await subject.ciphersMatching(
+            uri: "https://pl.wikipedia.org/w/index.php?title=Specjalna:Zaloguj&returnto=Bitwarden",
+            ciphers: [cipher]
+        )
+        XCTAssertFalse(matchingCiphers.isEmpty)
+
+        matchingCiphers = await subject.ciphersMatching(
+            uri: "https://en.wikipedia.org/w/index.php",
+            ciphers: [cipher]
+        )
+        XCTAssertFalse(matchingCiphers.isEmpty)
+
+        matchingCiphers = await subject.ciphersMatching(
+            uri: "https://malicious-site.com",
+            ciphers: [cipher]
+        )
+        XCTAssertTrue(matchingCiphers.isEmpty)
+
+        matchingCiphers = await subject.ciphersMatching(
+            uri: "https://en.wikipedia.org/wiki/Bitwarden",
+            ciphers: [cipher]
+        )
+        XCTAssertTrue(matchingCiphers.isEmpty)
     }
 
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the starts
     /// with match type.
-    func test_ciphersMatching_startsWith() {
+    func test_ciphersMatching_startsWith() async {
+        let matchingCiphers = await subject.ciphersMatching(uri: "https://vault.bitwarden.com", ciphers: ciphers)
         assertInlineSnapshot(
-            of: dumpMatching(uri: "https://vault.bitwarden.com", ciphers: ciphers),
+            of: dumpMatchingCiphers(matchingCiphers),
             as: .lines
         ) {
             """
@@ -178,14 +324,18 @@ class CipherMatchingHelperTests: BitwardenTestCase {
 
     // MARK: Private
 
+    /// Returns a list of `CipherView`s created with the specified name, URI and match type.
+    func ciphersForUris(_ nameUris: [(String, String)], matchType: BitwardenSdk.UriMatchType?) -> [CipherView] {
+        nameUris.map { name, uri in
+            CipherView.fixture(
+                login: .fixture(uris: [LoginUriView(uri: uri, match: matchType)]),
+                name: name
+            )
+        }
+    }
+
     /// Returns a string containing a description of the matching ciphers.
     func dumpMatchingCiphers(_ ciphers: [CipherView]) -> String {
         ciphers.map(\.name).joined(separator: "\n")
-    }
-
-    /// Filters the ciphers that match the URI and returns a string containing the description of
-    ///  the matching ciphers.
-    func dumpMatching(uri: String, ciphers: [CipherView]) -> String {
-        dumpMatchingCiphers(CipherMatchingHelper.ciphersMatching(uri: uri, ciphers: ciphers))
     }
 }

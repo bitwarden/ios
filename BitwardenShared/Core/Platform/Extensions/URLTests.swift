@@ -5,6 +5,40 @@ import XCTest
 class URLTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `domain` returns the URL's domain constructed from the top-level and second-level domain.
+    func test_domain() {
+        XCTAssertEqual(URL(string: "https://localhost")?.domain, "localhost")
+        XCTAssertEqual(URL(string: "https://localhost/test")?.domain, "localhost")
+        XCTAssertEqual(URL(string: "https://1.1.1.1")?.domain, "1.1.1.1")
+        XCTAssertEqual(URL(string: "https://1.1.1.1/test")?.domain, "1.1.1.1")
+
+        XCTAssertEqual(URL(string: "https://example.com")?.domain, "example.com")
+        XCTAssertEqual(URL(string: "https://example.co.uk")?.domain, "example.co.uk")
+
+        XCTAssertEqual(URL(string: "https://example.com")?.domain, "example.com")
+        XCTAssertEqual(URL(string: "https://sub.example.co.uk")?.domain, "example.co.uk")
+
+        // Wildcard: *.compute.amazonaws.com
+        XCTAssertEqual(
+            URL(string: "https://sub.example.compute.amazonaws.com")?.domain,
+            "sub.example.compute.amazonaws.com"
+        )
+        XCTAssertEqual(
+            URL(string: "https://foo.sub.example.compute.amazonaws.com")?.domain,
+            "sub.example.compute.amazonaws.com"
+        )
+
+        // Exception: !city.kobe.jp
+        XCTAssertEqual(
+            URL(string: "https://example.city.kobe.jp")?.domain,
+            "example.city.kobe.jp"
+        )
+        XCTAssertEqual(
+            URL(string: "https://sub.example.city.kobe.jp")?.domain,
+            "example.city.kobe.jp"
+        )
+    }
+
     /// `hostWithPort` returns the URL's host with the port, if one exists.
     func test_hostWithPort() {
         XCTAssertEqual(URL(string: "https://example.com")?.hostWithPort, "example.com")

@@ -1,7 +1,26 @@
 import Foundation
 
 extension URL {
+    // MARK: Private Properties
+
+    /// A regular expression that matches IP addresses.
+    private var ipRegex: String {
+        "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
+            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
+            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
+            "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+    }
+
     // MARK: Properties
+
+    /// Returns the URL's domain constructed from the top-level and second-level domain.
+    var domain: String? {
+        let isIpAddress = host?.range(of: ipRegex, options: .regularExpression) != nil
+        if host == "localhost" || isIpAddress {
+            return host
+        }
+        return DomainName.parseBaseDomain(url: self) ?? host
+    }
 
     /// Returns the URL's host with a port, if one exists.
     var hostWithPort: String? {

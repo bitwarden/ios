@@ -220,6 +220,9 @@ class DefaultVaultRepository {
     /// The service used to manage syncing and updates to the user's organizations.
     private let organizationService: OrganizationService
 
+    /// The service used by the application to manage user settings.
+    let settingsService: SettingsService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -244,6 +247,7 @@ class DefaultVaultRepository {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
+    ///   - settingsService: The service used by the application to manage user settings.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -259,6 +263,7 @@ class DefaultVaultRepository {
         errorReporter: ErrorReporter,
         folderService: FolderService,
         organizationService: OrganizationService,
+        settingsService: SettingsService,
         stateService: StateService,
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
@@ -273,6 +278,7 @@ class DefaultVaultRepository {
         self.errorReporter = errorReporter
         self.folderService = folderService
         self.organizationService = organizationService
+        self.settingsService = settingsService
         self.stateService = stateService
         self.syncService = syncService
         self.vaultTimeoutService = vaultTimeoutService
@@ -679,8 +685,12 @@ extension DefaultVaultRepository: VaultRepository {
                     try await self.clientVault.ciphers().decrypt(cipher: cipher)
                 }
             }
-            .map { ciphers in
-                CipherMatchingHelper.ciphersMatching(uri: uri, ciphers: ciphers)
+            .asyncTryMap { ciphers in
+                await CipherMatchingHelper(
+                    settingsService: self.settingsService,
+                    stateService: self.stateService
+                )
+                .ciphersMatching(uri: uri, ciphers: ciphers)
             }
             .eraseToAnyPublisher()
             .values
