@@ -46,7 +46,7 @@ struct ViewItemView: View {
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 VaultItemManagementMenuView(
-                    isCloneEnabled: true,
+                    isCloneEnabled: store.state.canClone,
                     isCollectionsEnabled: isCollectionsEnabled,
                     isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
                     store: store.child(
