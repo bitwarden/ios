@@ -68,6 +68,12 @@ public enum AuthRoute: Equatable {
     ///
     case switchAccount(userId: String)
 
+    /// A route to the two-factor authentication view.
+    ///
+    /// - Parameter
+    ///
+    case twoFactor(_ email: String, _ password: String?, _ authMethodsData: [String: [String: String]])
+
     /// A route to the unlock vault screen.
     ///
     /// - Parameters:

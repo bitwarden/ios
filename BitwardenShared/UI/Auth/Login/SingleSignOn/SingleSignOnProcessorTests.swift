@@ -161,6 +161,21 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `singleSignOnCompleted(code:)` navigates to the two-factor view if two-factor authentication is needed.
+    func test_singleSignOnCompleted_twoFactorError() async throws {
+        // Set up the mock data.
+        let authMethodsData = [String: [String: String]]()
+        authService.generateSingleSignOnUrlResult = .failure(
+            IdentityTokenRequestError.twoFactorRequired(authMethodsData)
+        )
+        subject.state.identifierText = "TeamLivefront"
+
+        await subject.perform(.loginTapped)
+
+        // Verify the results.
+        XCTAssertEqual(coordinator.routes.last, .twoFactor("", nil, authMethodsData))
+    }
+
     /// `singleSignOnCompleted(code:)` navigates to the vault unlock view if the vault is still locked.
     func test_singleSignOnCompleted_vaultLocked() {
         // Set up the mock data.
