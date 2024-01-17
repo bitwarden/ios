@@ -9,7 +9,7 @@ import CoreData
 protocol CollectionDataStore: AnyObject {
     /// A publisher for a user's collection objects.
     ///
-    /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
+    /// - Parameter userId: The ID of the user associated with the objects to fetch.
     /// - Returns: A publisher for the user's collections.
     ///
     func collectionPublisher(userId: String) -> AnyPublisher<[Collection], Error>
