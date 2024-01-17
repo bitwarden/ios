@@ -52,6 +52,12 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case editItem(_ cipher: CipherView, _ hasPremium: Bool)
 
+    /// A route to a file selection route.
+    ///
+    /// - Parameter route: The file selection route to follow.
+    ///
+    case fileSelection(_ route: FileSelectionRoute)
+
     /// A route to the username/password generator screen.
     ///
     /// - Parameters:
