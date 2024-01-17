@@ -130,7 +130,7 @@ class DefaultSendRepository: SendRepository {
 
     /// Returns a list of the sections in the vault list from a sync response.
     ///
-    /// - Parameter response: The sync response used to build the list of sections.
+    /// - Parameter sends: The sends used to build the list of sections.
     /// - Returns: A list of the sections to display in the vault list.
     ///
     private func sendListSections(from sends: [Send]) async throws -> [SendListSection] {
