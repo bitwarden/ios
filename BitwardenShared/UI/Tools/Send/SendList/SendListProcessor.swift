@@ -68,8 +68,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                 switch item.itemType {
                 case let .send(sendView):
                     coordinator.navigate(to: .edit(sendView))
-                case let .group(sendType, _):
-                    // TODO: 1412 Navigate to the group list screen
+                case .group:
+                    // TODO: BIT-1412 Navigate to the group list screen
                     break
                 }
             }

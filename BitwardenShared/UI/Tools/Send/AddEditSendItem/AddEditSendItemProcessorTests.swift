@@ -35,7 +35,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` and valid input saves the item.
-    func test_perform_savePressed_validated_success() async {
+    func test_perform_savePressed_add_validated_success() async {
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
@@ -56,14 +56,14 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
-    /// `perform(_:)` with `.savePressed` and valid input saves the item.
-    func test_perform_savePressed_validated_error() async {
+    /// `perform(_:)` with `.savePressed` and valid input and http failure shows an error alert.
+    func test_perform_savePressed_add_validated_error() async throws {
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
         subject.state.deletionDate = .custom
         subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
-        sendRepository.addSendResult = .failure(BitwardenTestError.example)
+        sendRepository.addSendResult = .failure(URLError(.timedOut))
 
         await subject.perform(.savePressed)
 
@@ -75,15 +75,88 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(sendRepository.addSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
+
+        sendRepository.addSendResult = .success(())
+        try await alert.tapAction(title: Localizations.tryAgain)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
-    /// `perform(_:)` with `.savePressed` and valid input saves the item.
-    func test_perform_savePressed_unvalidated() async {
+    /// `perform(_:)` with `.savePressed` and invalid input shows a validation alert.
+    func test_perform_savePressed_add_unvalidated() async {
         subject.state.name = ""
         await subject.perform(.savePressed)
 
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertNil(sendRepository.addSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.name),
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` while editing and valid input updates the item.
+    func test_perform_savePressed_edit_validated_success() async {
+        subject.state.mode = .edit
+        subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
+        subject.state.deletionDate = .custom
+        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        sendRepository.updateSendResult = .success(())
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [
+            LoadingOverlayState(title: Localizations.saving),
+        ])
+        XCTAssertEqual(sendRepository.updateSendSendView?.name, "Name")
+        XCTAssertEqual(sendRepository.updateSendSendView?.text?.text, "Text")
+        XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.savePressed` while editing and valid input and http failure shows an
+    /// alert.
+    func test_perform_savePressed_edit_validated_error() async throws {
+        subject.state.mode = .edit
+        subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
+        subject.state.deletionDate = .custom
+        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        sendRepository.updateSendResult = .failure(URLError(.timedOut))
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [
+            LoadingOverlayState(title: Localizations.saving),
+        ])
+        XCTAssertEqual(sendRepository.updateSendSendView?.name, "Name")
+        XCTAssertEqual(sendRepository.updateSendSendView?.text?.text, "Text")
+        XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
+
+        sendRepository.updateSendResult = .success(())
+        try await alert.tapAction(title: Localizations.tryAgain)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(_:)` with `.savePressed` while editing and invalid input shows a validation alert.
+    func test_perform_savePressed_edit_unvalidated() async {
+        subject.state.mode = .edit
+        subject.state.name = ""
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.updateSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
             .validationFieldRequired(fieldName: Localizations.name),
         ])
@@ -106,6 +179,14 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.photos)
         XCTAssertEqual(coordinator.routes.last, .fileSelection(.photo))
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
+    }
+
+    /// `receive(_:)` with `.clearExpirationDatePressed` removes the expiration date.
+    func test_receive_clearExpirationDatePressed() {
+        subject.state.customExpirationDate = Date(year: 2023, month: 11, day: 5)
+        subject.receive(.clearExpirationDatePressed)
+
+        XCTAssertNil(subject.state.customExpirationDate)
     }
 
     /// `receive(_:)` with `.customDeletionDateChanged` updates the custom deletion date.

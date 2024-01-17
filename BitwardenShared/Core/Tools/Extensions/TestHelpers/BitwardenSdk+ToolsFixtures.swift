@@ -8,13 +8,13 @@ import Foundation
 extension Send {
     static func fixture(
         accessCount: UInt32 = 0,
-        accessId: String = "ACCESS_ID",
+        accessId: String? = "ACCESS_ID",
         deletionDate: Date = Date(),
         disabled: Bool = false,
         expirationDate: Date? = nil,
         file: SendFileModel? = nil,
         hideEmail: Bool = false,
-        id: String = UUID().uuidString,
+        id: String? = UUID().uuidString,
         key: String = "KEY",
         maxAccessCount: UInt32? = nil,
         name: String = "Test Send",

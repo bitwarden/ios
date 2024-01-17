@@ -63,4 +63,3 @@ struct UpdateSendRequest: Request {
         sendId = id
     }
 }
-

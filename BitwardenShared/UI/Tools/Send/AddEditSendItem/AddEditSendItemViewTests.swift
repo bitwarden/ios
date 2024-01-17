@@ -22,6 +22,13 @@ class AddEditSendItemViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping the cancel button sends the `.dismissPressed` action.
+    func test_cancelButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.cancel)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
+    }
+
     /// Tapping the choose file button sends the `.chooseFilePressed` action.
     func test_chooseFileButton_tap() throws {
         processor.state.type = .file
@@ -30,11 +37,13 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .chooseFilePressed)
     }
 
-    /// Tapping the cancel button sends the `.dismissPressed` action.
-    func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+    /// Tapping the clear expiration date button sends the `.clearExpirationDatePressed` action.
+    func test_clearExpirationDateButton_tap() throws {
+        processor.state.isOptionsExpanded = true
+        processor.state.mode = .edit
+        let button = try subject.inspect().find(button: Localizations.clear)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .clearExpirationDatePressed)
     }
 
     /// Updating the deletion date menu sends the `.deletionDateChanged` action.
@@ -158,6 +167,26 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
+    func test_snapshot_file_edit_withOptions_withValues() {
+        processor.state.mode = .edit
+        processor.state.type = .file
+        processor.state.isOptionsExpanded = true
+        processor.state.name = "Name"
+        processor.state.fileName = "example_file.txt"
+        processor.state.fileSize = "420.42 KB"
+        processor.state.deletionDate = .custom
+        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.expirationDate = .custom
+        processor.state.customExpirationDate = nil
+        processor.state.maximumAccessCount = 420
+        processor.state.currentAccessCount = 42
+        processor.state.password = "pa$$w0rd"
+        processor.state.notes = "Notes"
+        processor.state.isHideMyEmailOn = true
+        processor.state.isDeactivateThisSendOn = true
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
     func test_snapshot_text_empty() {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -186,6 +215,25 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.maximumAccessCount = 42
+        processor.state.password = "pa$$w0rd"
+        processor.state.notes = "Notes"
+        processor.state.isHideMyEmailOn = true
+        processor.state.isDeactivateThisSendOn = true
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot_text_edit_withOptions_withValues() {
+        processor.state.mode = .edit
+        processor.state.type = .text
+        processor.state.isOptionsExpanded = true
+        processor.state.name = "Name"
+        processor.state.text = "Text"
+        processor.state.deletionDate = .custom
+        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.expirationDate = .custom
+        processor.state.customExpirationDate = nil
+        processor.state.maximumAccessCount = 420
+        processor.state.currentAccessCount = 42
         processor.state.password = "pa$$w0rd"
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true

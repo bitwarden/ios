@@ -129,7 +129,8 @@ struct BitwardenDatePicker: View {
                 selection.wrappedValue
             }, set: { newValue in
                 selection.wrappedValue = newValue ?? Date()
-            })
+            }
+        )
         let nonNilStartValue = selection.wrappedValue
         _nonNilSelection = .init(initialValue: nonNilStartValue)
         self.displayComponents = displayComponents
