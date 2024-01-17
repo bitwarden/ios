@@ -47,7 +47,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem_nonPremium() throws {
-        vaultRepository.hasPremiumResult = .success(false)
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
         let task = Task {
             subject.navigate(to: .addItem())
         }
@@ -64,7 +64,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem_unknownPremium() throws {
         struct TestError: Error {}
-        vaultRepository.hasPremiumResult = .failure(TestError())
+        vaultRepository.doesActiveAccountHavePremiumResult = .failure(TestError())
         let task = Task {
             subject.navigate(to: .addItem())
         }
@@ -111,7 +111,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.cloneItem()`  triggers the show clone item flow.
     func test_navigateTo_cloneItem_nonPremium() throws {
-        vaultRepository.hasPremiumResult = .success(false)
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
         subject.navigate(to: .cloneItem(cipher: .loginFixture()), context: subject)
         waitFor(!stackNavigator.actions.isEmpty)
 
@@ -246,6 +246,24 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(action.type, .replaced)
         let view = try XCTUnwrap(action.view as? AddEditItemView)
         XCTAssertFalse(view.store.state.loginState.isTOTPAvailable)
+    }
+
+    /// `navigate(to:)` with `.fileSelection` and without a file selection delegate does not present the
+    /// file selection screen.
+    func test_navigateTo_fileSelection_withoutDelegate() throws {
+        subject.navigate(to: .fileSelection(.camera), context: nil)
+        XCTAssertNil(stackNavigator.actions.last)
+    }
+
+    /// `navigate(to:)` with `.fileSelection` and with a file selection delegate presents the file
+    /// selection screen.
+    func test_navigateTo_fileSelection_withDelegate() throws {
+        let delegate = MockFileSelectionDelegate()
+        subject.navigate(to: .fileSelection(.camera), context: delegate)
+
+        XCTAssertEqual(module.fileSelectionCoordinator.routes.last, .camera)
+        XCTAssertTrue(module.fileSelectionCoordinator.isStarted)
+        XCTAssertIdentical(module.fileSelectionDelegate, delegate)
     }
 
     /// `navigate(to:)` with `.generator`, `.password`, and without a delegate does not present the
