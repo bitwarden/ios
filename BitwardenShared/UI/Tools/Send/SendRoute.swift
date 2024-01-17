@@ -11,7 +11,7 @@ public enum SendRoute: Equatable {
 
     /// A route to a file selection route.
     ///
-    /// - Parameter fileSelectionRoute: The file selection route to follow.
+    /// - Parameter route: The file selection route to follow.
     ///
     case fileSelection(_ route: FileSelectionRoute)
 
