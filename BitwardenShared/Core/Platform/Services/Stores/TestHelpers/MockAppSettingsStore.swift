@@ -17,7 +17,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
-    var pinProtectedUserKey = [String: String?]()
+    var pinKeyEncryptedUserKey = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
@@ -68,8 +68,8 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId]
     }
 
-    func pinProtectedUserKey(userId: String) -> String? {
-        pinProtectedUserKey[userId] ?? nil
+    func pinKeyEncryptedUserKey(userId: String) -> String? {
+        pinKeyEncryptedUserKey[userId]
     }
 
     func unsuccessfulUnlockAttempts(userId: String) -> Int? {
@@ -128,8 +128,8 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId] = options
     }
 
-    func setPinProtectedUserKey(key: String?, userId: String) {
-        pinProtectedUserKey[userId] = key
+    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
+        pinKeyEncryptedUserKey[userId] = key
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {

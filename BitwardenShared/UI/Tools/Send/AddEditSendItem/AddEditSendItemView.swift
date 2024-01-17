@@ -212,7 +212,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 send: AddEditSendItemAction.passwordChanged
             ),
             footer: Localizations.passwordInfo,
-            isTextFieldTextVisible: store.binding(
+            isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
                 send: AddEditSendItemAction.passwordVisibileChanged
             )

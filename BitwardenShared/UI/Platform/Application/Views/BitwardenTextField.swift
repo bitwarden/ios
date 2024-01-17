@@ -23,17 +23,17 @@ struct BitwardenTextField<TrailingContent: View>: View {
     /// The accessibility identifier for the text field.
     let accessibilityIdentifier: String?
 
-    /// Whether the text field text can be viewed (only applies if text exists in the field).
-    let canViewTextFieldText: Bool
+    /// Whether the password can be viewed (only applies if a password exists in the field).
+    let canViewPassword: Bool
 
     /// The footer text displayed below the text field.
     let footer: String?
 
-    /// Whether the text in this text field is visible.
-    let isTextFieldTextVisible: Binding<Bool>?
+    /// Whether a password in this text field is visible.
+    let isPasswordVisible: Binding<Bool>?
 
-    /// The accessibility identifier for the button to toggle text visibility.
-    let textVisibilityAccessibilityId: String?
+    /// The accessibility identifier for the button to toggle password visibility.
+    let passwordVisibilityAccessibilityId: String?
 
     /// The placeholder that is displayed in the textfield.
     let placeholder: String
@@ -50,23 +50,23 @@ struct BitwardenTextField<TrailingContent: View>: View {
     // MARK: View
 
     var body: some View {
-        let isTrailingContentShown = isTextFieldTextVisible != nil || trailingContent != nil
+        let isTrailingContentShown = isPasswordVisible != nil || trailingContent != nil
         if isTrailingContentShown {
             BitwardenField(title: title, footer: footer) {
                 textField
             } accessoryContent: {
-                if let isTextFieldTextVisible, canViewTextFieldText {
+                if let isPasswordVisible, canViewPassword {
                     AccessoryButton(
-                        asset: isTextFieldTextVisible.wrappedValue
+                        asset: isPasswordVisible.wrappedValue
                             ? Asset.Images.hidden
                             : Asset.Images.visible,
-                        accessibilityLabel: isTextFieldTextVisible.wrappedValue
+                        accessibilityLabel: isPasswordVisible.wrappedValue
                             ? Localizations.passwordIsVisibleTapToHide
                             : Localizations.passwordIsNotVisibleTapToShow
                     ) {
-                        isTextFieldTextVisible.wrappedValue.toggle()
+                        isPasswordVisible.wrappedValue.toggle()
                     }
-                    .accessibilityIdentifier(textVisibilityAccessibilityId ?? "TextVisibilityToggle")
+                    .accessibilityIdentifier(passwordVisibilityAccessibilityId ?? "TextVisibilityToggle")
 
                     if let trailingContent {
                         trailingContent
@@ -88,15 +88,15 @@ struct BitwardenTextField<TrailingContent: View>: View {
     private var textField: some View {
         HStack(spacing: 8) {
             ZStack {
-                let isText = isTextFieldTextVisible != nil
-                let isTextFieldTextVisible = isTextFieldTextVisible?.wrappedValue ?? false
+                let isText = isPasswordVisible != nil
+                let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
                 TextField(placeholder, text: $text)
                     .focused($isTextFieldFocused)
                     .styleGuide(isText ? .bodyMonospaced : .body, includeLineSpacing: false)
-                    .hidden(!isTextFieldTextVisible && isText)
+                    .hidden(!isPasswordVisible && isText)
                     .id(title)
-                if isText, !isTextFieldTextVisible {
+                if isText, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
                         .focused($isSecureFieldFocused)
                         .styleGuide(.bodyMonospaced, includeLineSpacing: false)
@@ -128,9 +128,9 @@ struct BitwardenTextField<TrailingContent: View>: View {
     ///   - footer: The footer text displayed below the text field.
     ///   - text: The text entered into the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
-    ///   - canViewTextFieldText: Whether the text field text can be viewed.
-    ///   - isTextFieldTextVisible: Whether the text in this text field is visible.
-    ///   - textVisibilityAccessibilityId: The accessibility identifier for the
+    ///   - canViewPassword: Whether the password can be viewed.
+    ///   - isPasswordVisible: Whether the password is visible.
+    ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
     ///     button to toggle text visibility.
     ///   - placeholder: An optional placeholder to display in the text field.
     ///
@@ -139,17 +139,17 @@ struct BitwardenTextField<TrailingContent: View>: View {
         text: Binding<String>,
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
-        canViewTextFieldText: Bool = true,
-        isTextFieldTextVisible: Binding<Bool>? = nil,
-        textVisibilityAccessibilityId: String? = nil,
+        canViewPassword: Bool = true,
+        isPasswordVisible: Binding<Bool>? = nil,
+        passwordVisibilityAccessibilityId: String? = nil,
         placeholder: String? = nil,
         @ViewBuilder trailingContent: () -> TrailingContent
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
-        self.isTextFieldTextVisible = isTextFieldTextVisible
+        self.isPasswordVisible = isPasswordVisible
         self.footer = footer
-        self.canViewTextFieldText = canViewTextFieldText
-        self.textVisibilityAccessibilityId = textVisibilityAccessibilityId
+        self.canViewPassword = canViewPassword
+        self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.placeholder = placeholder ?? ""
         _text = text
         self.title = title
@@ -165,9 +165,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     ///   - footer: The footer text displayed below the text field.
     ///   - text: The text entered into the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
-    ///   - canViewTextFieldText: Whether the text field text can be viewed.
-    ///   - isTextFieldTextVisible: Whether the text in this text field is visible.
-    ///   - textVisibilityAccessibilityId: The accessibility identifier for the
+    ///   - canViewPassword: Whether the password can be viewed.
+    ///   - isPasswordVisible: Whether the password is visible.
+    ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
     ///     button to toggle text visibility.
     ///   - placeholder: An optional placeholder to display in the text field.
     ///
@@ -176,16 +176,16 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         text: Binding<String>,
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
-        canViewTextFieldText: Bool = true,
-        isTextFieldTextVisible: Binding<Bool>? = nil,
-        textVisibilityAccessibilityId: String? = nil,
+        canViewPassword: Bool = true,
+        isPasswordVisible: Binding<Bool>? = nil,
+        passwordVisibilityAccessibilityId: String? = nil,
         placeholder: String? = nil
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
-        self.canViewTextFieldText = canViewTextFieldText
+        self.canViewPassword = canViewPassword
         self.footer = footer
-        self.isTextFieldTextVisible = isTextFieldTextVisible
-        self.textVisibilityAccessibilityId = textVisibilityAccessibilityId
+        self.isPasswordVisible = isPasswordVisible
+        self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.placeholder = placeholder ?? ""
         _text = text
         self.title = title
@@ -213,7 +213,7 @@ struct BitwardenTextField_Previews: PreviewProvider {
             BitwardenTextField(
                 title: "Title",
                 text: .constant("Text field text"),
-                isTextFieldTextVisible: .constant(false)
+                isPasswordVisible: .constant(false)
             )
             .textContentType(.password)
             .padding()
@@ -225,7 +225,7 @@ struct BitwardenTextField_Previews: PreviewProvider {
             BitwardenTextField(
                 title: "Title",
                 text: .constant("Password"),
-                isTextFieldTextVisible: .constant(true)
+                isPasswordVisible: .constant(true)
             )
             .textContentType(.password)
             .padding()
@@ -250,7 +250,7 @@ struct BitwardenTextField_Previews: PreviewProvider {
                 title: "Title",
                 text: .constant("Text field text"),
                 footer: Localizations.vaultLockedMasterPassword,
-                isTextFieldTextVisible: .constant(false)
+                isPasswordVisible: .constant(false)
             ) {
                 AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
             }

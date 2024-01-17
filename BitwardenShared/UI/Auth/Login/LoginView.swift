@@ -51,11 +51,11 @@ struct LoginView: View {
                     send: LoginAction.masterPasswordChanged
                 ),
                 accessibilityIdentifier: "MasterPasswordEntry",
-                isTextFieldTextVisible: store.binding(
+                isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: LoginAction.revealMasterPasswordFieldPressed
                 ),
-                textVisibilityAccessibilityId: "PasswordVisibilityToggle"
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle"
             )
             .textFieldConfiguration(.password)
 

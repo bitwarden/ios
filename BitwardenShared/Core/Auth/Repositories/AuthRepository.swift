@@ -208,56 +208,60 @@ extension DefaultAuthRepository: AuthRepository {
 
     func setPin(_ pin: String) async throws {
         let key = try await clientCrypto.derivePinKey(pin: pin)
-        let userId = try await stateService.getActiveAccount().profile.userId
-        try await stateService.setPinProtectedUserKey(key.pinProtectedUserKey, userId: userId)
+        try await stateService.setPinKeyEncryptedUserKey(key.pinProtectedUserKey)
     }
 
     func unlockVaultWithPassword(password: String) async throws {
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
-        let account = try await stateService.getActiveAccount()
-
-        try await clientCrypto.initializeUserCrypto(
-            req: InitUserCryptoRequest(
-                kdfParams: account.kdf.sdkKdf,
-                email: account.profile.email,
-                privateKey: encryptionKeys.encryptedPrivateKey,
-                method: .password(
-                    password: password,
-                    userKey: encryptionKeys.encryptedUserKey
-                )
-            )
-        )
-        await vaultTimeoutService.unlockVault(userId: account.profile.userId)
-        try await organizationService.initializeOrganizationCrypto()
-
-        let hashedPassword = try await authService.hashPassword(password: password, purpose: .localAuthorization)
-        try await stateService.setMasterPasswordHash(hashedPassword)
+        try await unlockVault(password, method: .password)
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
-        let account = try await stateService.getActiveAccount()
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
-
-        guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey(
-            userId: account.profile.userId
-        ) else { return }
-
-        try await clientCrypto.initializeUserCrypto(
-            req: InitUserCryptoRequest(
-                kdfParams: account.kdf.sdkKdf,
-                email: account.profile.email,
-                privateKey: encryptionKeys.encryptedPrivateKey,
-                method: .pin(
-                    pin: pin,
-                    pinProtectedUserKey: pinProtectedUserKey
-                )
-            )
-        )
-        await vaultTimeoutService.unlockVault(userId: account.profile.userId)
-        try await organizationService.initializeOrganizationCrypto()
+        try await unlockVault(pin, method: .pin)
     }
 
     // MARK: Private
+
+    private func unlockVault(_ passwordOrPin: String, method: UnlockMethod) async throws {
+        let account = try await stateService.getActiveAccount()
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+
+        switch method {
+        case .password:
+            try await clientCrypto.initializeUserCrypto(
+                req: InitUserCryptoRequest(
+                    kdfParams: account.kdf.sdkKdf,
+                    email: account.profile.email,
+                    privateKey: encryptionKeys.encryptedPrivateKey,
+                    method: .password(
+                        password: passwordOrPin,
+                        userKey: encryptionKeys.encryptedUserKey
+                    )
+                )
+            )
+            let hashedPassword = try await authService.hashPassword(
+                password: passwordOrPin,
+                purpose: .localAuthorization
+            )
+            try await stateService.setMasterPasswordHash(hashedPassword)
+        case .pin:
+            guard let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() else { return }
+
+            try await clientCrypto.initializeUserCrypto(
+                req: InitUserCryptoRequest(
+                    kdfParams: account.kdf.sdkKdf,
+                    email: account.profile.email,
+                    privateKey: encryptionKeys.encryptedPrivateKey,
+                    method: .pin(
+                        pin: passwordOrPin,
+                        pinProtectedUserKey: pinKeyEncryptedUserKey
+                    )
+                )
+            )
+        }
+
+        await vaultTimeoutService.unlockVault(userId: account.profile.userId)
+        try await organizationService.initializeOrganizationCrypto()
+    }
 
     /// A function to convert an `Account` to a `ProfileSwitcherItem`
     ///

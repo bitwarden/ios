@@ -9,18 +9,12 @@ struct VaultUnlockView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect>
 
-    /// The text to display in the footer of the master password text field.
-    var passwordFooterText: String {
+    /// The text to display in the footer of the password/pin text field.
+    var footerText: String {
         """
-        \(Localizations.vaultLockedMasterPassword)
-        \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
-        """
-    }
-
-    /// The text to display in the footer of the PIN text field.
-    var pinFooterText: String {
-        """
-        \(Localizations.vaultLockedPIN)
+        \(store.state.unlockMethod == .pin
+        ? Localizations.vaultLockedMasterPassword
+        : Localizations.vaultLockedMasterPassword)
         \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
         """
     }
@@ -113,8 +107,8 @@ struct VaultUnlockView: View {
                     get: \.masterPassword,
                     send: VaultUnlockAction.masterPasswordChanged
                 ),
-                footer: passwordFooterText,
-                isTextFieldTextVisible: store.binding(
+                footer: footerText,
+                isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: VaultUnlockAction.revealMasterPasswordFieldPressed
                 )
@@ -127,8 +121,8 @@ struct VaultUnlockView: View {
                     get: \.pin,
                     send: VaultUnlockAction.pinChanged
                 ),
-                footer: pinFooterText,
-                isTextFieldTextVisible: store.binding(
+                footer: footerText,
+                isPasswordVisible: store.binding(
                     get: \.isPinRevealed,
                     send: VaultUnlockAction.revealPinFieldPressed
                 )

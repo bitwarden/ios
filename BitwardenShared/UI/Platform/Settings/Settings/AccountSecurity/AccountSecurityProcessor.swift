@@ -98,8 +98,7 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func appeared() async {
         do {
-            let userId = try await services.stateService.getActiveAccountId()
-            if try await services.stateService.pinProtectedUserKey(userId: userId) != nil {
+            if try await services.stateService.pinKeyEncryptedUserKey() != nil {
                 state.isUnlockWithPINCodeOn = true
             }
         } catch {
@@ -196,8 +195,7 @@ final class AccountSecurityProcessor: StateProcessor<
         } else {
             Task {
                 do {
-                    let userId = try await services.stateService.getActiveAccountId()
-                    try await self.services.stateService.setPinProtectedUserKey(nil, userId: userId)
+                    try await self.services.stateService.setPinKeyEncryptedUserKey(nil)
                     state.isUnlockWithPINCodeOn = isOn
                 } catch {
                     self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))

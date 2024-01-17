@@ -26,6 +26,7 @@ struct VaultUnlockState: Equatable {
     /// A flag indicating if the master password should be revealed or not.
     var isMasterPasswordRevealed = false
 
+    /// Whether the pin is revealed.
     var isPinRevealed = false
 
     /// The master password provided by the user.
@@ -55,6 +56,7 @@ extension VaultUnlockState {
     /// - Parameters:
     ///   - account: The active account.
     ///   - profileSwitcherState: State for the profile switcher.
+    ///   - unlockMethod: The vault unlocking method.
     ///
     init(
         account: Account,

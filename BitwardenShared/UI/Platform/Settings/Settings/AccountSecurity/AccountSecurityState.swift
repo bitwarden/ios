@@ -1,5 +1,17 @@
 import Foundation
 
+// MARK: - UnlockMethod
+
+/// The vault unlocking method.
+///
+public enum UnlockMethod {
+    /// Unlocking with password.
+    case password
+
+    /// Unlocking with PIN.
+    case pin
+}
+
 // MARK: - SessionTimeoutValue
 
 /// The session timeout value.

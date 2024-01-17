@@ -145,7 +145,6 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                 title: Localizations.anErrorHasOccurred,
                 message: state.unlockMethod == .pin ? Localizations.invalidPIN : Localizations.invalidMasterPassword
             )
-            coordinator.navigate(to: .alert(alert))
             Logger.processor.error("Error unlocking vault: \(error)")
             state.unsuccessfulUnlockAttemptsCount += 1
             await services.stateService.setUnsuccessfulUnlockAttempts(state.unsuccessfulUnlockAttemptsCount)
@@ -160,7 +159,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                 coordinator.navigate(to: .landing)
                 return
             }
-            coordinator.navigate(to: .alert(.invalidMasterPassword()))
+            coordinator.navigate(to: .alert(alert))
         }
     }
 

@@ -47,8 +47,8 @@ struct AddEditLoginItemView: View {
                 get: \.password,
                 send: AddEditItemAction.passwordChanged
             ),
-            canViewTextFieldText: store.state.canViewPassword,
-            isTextFieldTextVisible: store.binding(
+            canViewPassword: store.state.canViewPassword,
+            isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
                 send: AddEditItemAction.togglePasswordVisibilityChanged
             )

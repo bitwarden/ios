@@ -364,7 +364,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     ///
     private func showVaultUnlock(account: Account, animated: Bool = true) {
         var unlockMethod: VaultUnlockState.UnlockMethod = .password
-        if services.appSettingsStore.pinProtectedUserKey(userId: account.profile.userId) != nil {
+        if services.appSettingsStore.pinKeyEncryptedUserKey(userId: account.profile.userId) != nil {
             unlockMethod = .pin
         }
 
