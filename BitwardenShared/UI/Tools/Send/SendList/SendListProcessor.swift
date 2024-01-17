@@ -45,7 +45,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             do {
                 try await services.sendRepository.fetchSync(isManualRefresh: true)
             } catch {
-                services.errorReporter.log(error: error)
+                // TODO: BIT-1034 Add an error alert
+                print("error: \(error)")
             }
         }
     }

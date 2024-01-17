@@ -79,16 +79,6 @@ class SendListProcessorTests: BitwardenTestCase {
         XCTAssertTrue(sendRepository.fetchSyncCalled)
     }
 
-    /// `perform(_:)` with `refresh` records any errors.
-    func test_perform_refresh_error() async {
-        sendRepository.fetchSyncResult = .failure(BitwardenTestError.example)
-
-        await subject.perform(.refresh)
-
-        XCTAssertTrue(sendRepository.fetchSyncCalled)
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
     func test_receive_addItemPressed() {
         subject.receive(.addItemPressed)
