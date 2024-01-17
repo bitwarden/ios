@@ -184,7 +184,7 @@ final class AccountSecurityProcessor: StateProcessor<
         if isOn {
             coordinator.navigate(to: .alert(.enterPINCode(completion: { pin in
                 do {
-                    try await self.services.authRepository.setPin(pin)
+                    try await self.services.authRepository.setPinKeyEncryptedUserKey(pin)
                     try await self.services.authRepository.setPinProtectedKey(pin)
                     self.state.isUnlockWithPINCodeOn = isOn
                 } catch {
@@ -192,7 +192,7 @@ final class AccountSecurityProcessor: StateProcessor<
                 }
                 self.coordinator.navigate(to: .alert(.unlockWithPINCodeAlert {
                     do {
-                        try await self.services.authRepository.setPin(pin)
+                        try await self.services.authRepository.setPinKeyEncryptedUserKey(pin)
                         try await self.services.authRepository.setPinProtectedKeyInMemory(pin)
                     } catch {
                         self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))

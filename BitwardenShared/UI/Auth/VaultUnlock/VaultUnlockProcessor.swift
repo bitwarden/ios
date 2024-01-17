@@ -150,7 +150,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
 
             if let encryptedPin = try await services.stateService.pinKeyEncryptedUserKey() {
-                try await services.stateService.derivePinUserKey(encryptedPin)
+                try await services.authRepository.setPinProtectedKeyInMemory(encryptedPin)
             }
         } catch let error as InputValidationError {
             coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))

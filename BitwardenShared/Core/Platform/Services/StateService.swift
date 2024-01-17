@@ -24,8 +24,6 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
-    func derivePinUserKey(_ encryptedPin: String) async throws
-
     /// Gets the account encryptions keys for an account.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -596,10 +594,6 @@ actor DefaultStateService: StateService {
         try await logoutAccount()
     }
 
-    func derivePinUserKey(_ encryptedPin: String) async throws {
-        let pinProtectedUserKey = 
-    }
-
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
         guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId),
@@ -730,7 +724,7 @@ actor DefaultStateService: StateService {
 
     func pinProtectedKey(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.
+        return appSettingsStore.pinProtectedUserKey(userId: userId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {

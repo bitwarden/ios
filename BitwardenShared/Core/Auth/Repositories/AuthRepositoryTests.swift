@@ -458,7 +458,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setPinProtectedUserKey() async throws {
         stateService.activeAccount = Account.fixture()
         clientCrypto.derivePinKeyResult = .success(DerivePinKeyResponse(pinProtectedUserKey: "12", encryptedPin: "34"))
-        try await subject.setPin("99")
+        try await subject.setPinKeyEncryptedUserKey("99")
         XCTAssertEqual(stateService.pinProtectedUserKey["1"], "12")
     }
 

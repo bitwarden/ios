@@ -69,7 +69,7 @@ protocol AuthRepository: AnyObject {
     ///
     /// - Parameter pin: The user's PIN.
     ///
-    func setPin(_ pin: String) async throws
+    func setPinKeyEncryptedUserKey(_ pin: String) async throws
 
     /// Attempts to unlock the user's vault with their master password.
     ///
@@ -176,8 +176,8 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func derivePinUserKey(_ encryptedPin: String) async throws {
-        let pinProtectedUserKey = clientCrypto.derivePinUserKey(pin: encryptedPin)
-        stateService.setPinProtectedKeyInMemory(pinProtectedUserKey)
+        let pinProtectedUserKey = try await clientCrypto.derivePinUserKey(encryptedPin: encryptedPin)
+        try await stateService.setPinProtectedKeyInMemory(pinProtectedUserKey)
     }
 
     func getAccounts() async throws -> [ProfileSwitcherItem] {
@@ -213,12 +213,12 @@ extension DefaultAuthRepository: AuthRepository {
 
     func setPinProtectedKey(_ pin: String) async throws {
         let key = try await clientCrypto.derivePinKey(pin: pin)
-        try await stateService.setPinProtectedKey(key.pinProtectedUserKey)
+        try await stateService.setPinProtectedKey(key.encryptedPin)
     }
 
-    func setPinProtectedKeyInMemory(_ pin: String) async throws {
-        let key = try await clientCrypto.derivePinKey(pin: pin)
-        try await stateService.setPinProtectedKey(key.pinProtectedUserKey)
+    func setPinProtectedKeyInMemory(_ encryptedPin: String) async throws {
+        let key = try await clientCrypto.derivePinUserKey(encryptedPin: encryptedPin)
+        try await stateService.setPinProtectedKeyInMemory(key)
     }
 
     func setActiveAccount(userId: String) async throws -> Account {
@@ -227,7 +227,7 @@ extension DefaultAuthRepository: AuthRepository {
         return try await stateService.getActiveAccount()
     }
 
-    func setPin(_ pin: String) async throws {
+    func setPinKeyEncryptedUserKey(_ pin: String) async throws {
         let key = try await clientCrypto.derivePinKey(pin: pin)
         try await stateService.setPinKeyEncryptedUserKey(key.encryptedPin)
     }
