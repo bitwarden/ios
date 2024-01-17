@@ -161,8 +161,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(.search)` throws error and error is logged.
     func test_perform_search_error() async {
-        struct DecryptError: Error, Equatable {}
-        vaultRepository.searchCipherSubject.send(completion: .failure(DecryptError()))
+        vaultRepository.searchCipherSubject.send(completion: .failure(BitwardenTestError.example))
         await subject.perform(.search("example"))
 
         XCTAssertEqual(subject.state.searchResults.count, 0)
@@ -170,7 +169,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             subject.state.searchResults,
             []
         )
-        XCTAssertEqual(errorReporter.errors.last as? DecryptError, DecryptError())
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(.search)` with a empty keyword should get empty search result.
@@ -202,7 +201,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.organizations, organizations)
     }
 
-    /// `perform(_:)` with `.streamOrganizations` records any errors
+    /// `perform(_:)` with `.streamOrganizations` records any errors.
     func test_perform_streamOrganizations_error() {
         let task = Task {
             await subject.perform(.streamOrganizations)
@@ -250,6 +249,20 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let sections = try XCTUnwrap(subject.state.loadingState.data)
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[0].items, [vaultListItem])
+    }
+
+    /// `perform(_:)` with `.streamVaultList` records any errors.
+    func test_perform_streamVaultList_error() throws {
+        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `receive(_:)` with `.addAccountPressed` updates the state correctly

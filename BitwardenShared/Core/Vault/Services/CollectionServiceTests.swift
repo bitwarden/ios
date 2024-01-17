@@ -83,4 +83,16 @@ class CollectionServiceTests: XCTestCase {
         XCTAssertEqual(collectionDataStore.replaceCollectionsValue, collections.map(Collection.init))
         XCTAssertEqual(collectionDataStore.replaceCollectionsUserId, "1")
     }
+
+    /// `collectionsPublisher()` returns a publisher for the list of collections and items that are
+    /// displayed in the vaults tab.
+    func test_collectionsPublisher_withValues() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        collectionDataStore.collectionSubject.send([.fixture()])
+
+        var iterator = try await subject.collectionsPublisher().values.makeAsyncIterator()
+        let publisherValue = try await iterator.next()
+
+        try XCTAssertEqual(XCTUnwrap(publisherValue), [.fixture()])
+    }
 }

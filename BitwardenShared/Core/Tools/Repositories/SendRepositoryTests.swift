@@ -183,13 +183,21 @@ class SendRepositoryTests: BitwardenTestCase {
     /// `sendListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the sends tab.
     func test_sendListPublisher_withValues() async throws {
-        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithSends.data
-        ))
+        sendService.sendsSubject.send([
+            .fixture(
+                name: "encrypted name",
+                text: .init(hidden: false, text: "encrypted text"),
+                type: .text
+            ),
+            .fixture(
+                file: .init(fileName: "test.txt", id: "1", size: "123", sizeName: "123 KB"),
+                name: "encrypted name",
+                type: .file
+            ),
+        ])
 
-        var iterator = subject.sendListPublisher().makeAsyncIterator()
-        let sections = await iterator.next()
+        var iterator = try await subject.sendListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
 
         try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
             """

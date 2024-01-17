@@ -65,29 +65,4 @@ class AppProcessorTests: BitwardenTestCase {
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(appModule.appCoordinator.routes, [.auth(.landing)])
     }
-
-    /// `start(navigator:)` subscribes to the vault timeout service publisher and clears any cached
-    ///  data if it receives the value to clear cached data.
-    func test_start_shouldClearData() {
-        let rootNavigator = MockRootNavigator()
-
-        subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
-
-        vaultTimeoutService.shouldClearSubject.send(true)
-
-        waitFor { syncService.didClearCachedData }
-        XCTAssertTrue(syncService.didClearCachedData)
-    }
-
-    /// `start(navigator:)` subscribes to the vault timeout service publisher and does not clear
-    /// any cached data if the published value is false.
-    func test_start_shouldNotClearData() {
-        let rootNavigator = MockRootNavigator()
-
-        subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
-
-        vaultTimeoutService.shouldClearSubject.send(false)
-
-        XCTAssertFalse(syncService.didClearCachedData)
-    }
 }

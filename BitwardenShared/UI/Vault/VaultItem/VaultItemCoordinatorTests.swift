@@ -47,7 +47,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem_nonPremium() throws {
-        vaultRepository.hasPremiumResult = .success(false)
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
         let task = Task {
             subject.navigate(to: .addItem())
         }
@@ -64,7 +64,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem_unknownPremium() throws {
         struct TestError: Error {}
-        vaultRepository.hasPremiumResult = .failure(TestError())
+        vaultRepository.doesActiveAccountHavePremiumResult = .failure(TestError())
         let task = Task {
             subject.navigate(to: .addItem())
         }
@@ -111,7 +111,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.cloneItem()`  triggers the show clone item flow.
     func test_navigateTo_cloneItem_nonPremium() throws {
-        vaultRepository.hasPremiumResult = .success(false)
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
         subject.navigate(to: .cloneItem(cipher: .loginFixture()), context: subject)
         waitFor(!stackNavigator.actions.isEmpty)
 
