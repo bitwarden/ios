@@ -6,8 +6,11 @@ import Foundation
 /// An object that is notified when specific circumstances in the add/edit/delete item view have occurred.
 ///
 protocol CipherItemOperationDelegate: AnyObject {
-    /// Called when the cipher item has been successfully deleted.
+    /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
+
+    /// Called when the cipher item has been successfully soft deleted.
+    func itemSoftDeleted()
 }
 
 // MARK: - AddEditItemProcessor
@@ -74,7 +77,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         case .setupTotpPressed:
             await setupTotp()
         case .deletePressed:
-            await showDeleteConfirmation()
+            await showSoftDeleteConfirmation()
         }
     }
 
@@ -348,13 +351,13 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
 
     /// Soft Deletes the item currently stored in `state`.
     ///
-    private func deleteItem() async {
+    private func softDeleteItem() async {
         defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(title: Localizations.softDeleting)
             try await services.vaultRepository.softDeleteCipher(state.cipher)
             coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemDeleted()
+                self?.delegate?.itemSoftDeleted()
             })))
         } catch {
             coordinator.showAlert(.networkResponseError(error))
@@ -362,12 +365,12 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         }
     }
 
-    /// Shows delete cipher confirmation alert.
+    /// Shows soft delete cipher confirmation alert.
     ///
-    private func showDeleteConfirmation() async {
-        let alert = Alert.deleteCipherConfirmation { [weak self] in
+    private func showSoftDeleteConfirmation() async {
+        let alert = Alert.deleteCipherConfirmation(isSoftDelete: true) { [weak self] in
             guard let self else { return }
-            await deleteItem()
+            await softDeleteItem()
         }
         coordinator.showAlert(alert)
     }

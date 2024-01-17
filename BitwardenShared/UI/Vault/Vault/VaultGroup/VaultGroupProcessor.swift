@@ -205,6 +205,10 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
 
 extension VaultGroupProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
+        state.toast = Toast(text: Localizations.itemDeleted)
+    }
+
+    func itemSoftDeleted() {
         state.toast = Toast(text: Localizations.itemSoftDeleted)
     }
 }

@@ -402,7 +402,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
         var alert = coordinator.alertShown.last
-        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+        XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: true) {})
 
         // Tap the "Yes" button on the alert.
         let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
@@ -415,6 +415,73 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             .networkResponseError(TestError())
         )
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
+    /// generic error alert if permanent deleting fails.
+    func test_perform_deletePressed_genericError_permanentDelete() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        struct TestError: Error, Equatable {}
+        vaultRepository.deleteCipherResult = .failure(TestError())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        var alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: false) {})
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the generic error alert is displayed.
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert,
+            .networkResponseError(TestError())
+        )
+        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before deletes the item from trash.
+    func test_perform_deletePressed_showsPermanentDeleteConfirmationAlert() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: false) {})
+    }
+
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before soft delete the item.
+    func test_perform_deletePressed_showsSoftDeleteConfirmationAlert() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(id: "123"),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        vaultRepository.softDeleteCipherResult = .success(())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: true) {})
     }
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
@@ -433,7 +500,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
         let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+        XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: true) {})
 
         // Tap the "Yes" button on the alert.
         let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
@@ -442,6 +509,40 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is deleted and the view is dismissed.
         XCTAssertEqual(vaultRepository.softDeletedCipher.last?.id, "123")
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemSoftDeletedCalled)
+    }
+
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
+    /// toast if permanently deleting succeeds.
+    func test_perform_deletePressed_success_permanent_delete() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        vaultRepository.softDeleteCipherResult = .success(())
+        await subject.perform(.deletePressed)
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: false) {})
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        XCTAssertNil(errorReporter.errors.first)
+        // Ensure the cipher is deleted and the view is dismissed.
+        XCTAssertEqual(vaultRepository.deletedCipher.last, "123")
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = coordinator.routes.last {
             dismissAction = onDismiss

@@ -292,6 +292,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
 
 extension VaultListProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
+        state.toast = Toast(text: Localizations.itemDeleted)
+    }
+
+    func itemSoftDeleted() {
         state.toast = Toast(text: Localizations.itemSoftDeleted)
     }
 }
