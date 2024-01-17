@@ -47,7 +47,7 @@ struct AttachmentsView: View {
 
     /// The currently chosen file to add.
     @ViewBuilder private var chosenFile: some View {
-        Text(Localizations.noFileChosen)
+        Text(store.state.fileName ?? Localizations.noFileChosen)
             .styleGuide(.body)
             .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
             .multilineTextAlignment(.center)

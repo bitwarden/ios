@@ -46,6 +46,9 @@ class DefaultSyncService: SyncService {
     /// The service for managing the sends for the user.
     let sendService: SendService
 
+    /// The service for managing the settings for the user.
+    let settingsService: SettingsService
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -65,6 +68,7 @@ class DefaultSyncService: SyncService {
     ///   - folderService: The service for managing the folders for the user.
     ///   - organizationService: The service for managing the organizations for the user.
     ///   - sendService: The service for managing the sends for the user.
+    ///   - settingsService: The service for managing the organizations for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///
@@ -74,6 +78,7 @@ class DefaultSyncService: SyncService {
         folderService: FolderService,
         organizationService: OrganizationService,
         sendService: SendService,
+        settingsService: SettingsService,
         stateService: StateService,
         syncAPIService: SyncAPIService
     ) {
@@ -82,6 +87,7 @@ class DefaultSyncService: SyncService {
         self.folderService = folderService
         self.organizationService = organizationService
         self.sendService = sendService
+        self.settingsService = settingsService
         self.stateService = stateService
         self.syncAPIService = syncAPIService
     }
@@ -108,6 +114,7 @@ extension DefaultSyncService {
         try await collectionService.replaceCollections(response.collections, userId: userId)
         try await folderService.replaceFolders(response.folders, userId: userId)
         try await sendService.replaceSends(response.sends, userId: userId)
+        try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
 
         syncResponseSubject.value = response
 
