@@ -508,6 +508,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             let context = self.dataStore.persistentContainer.viewContext
             _ = try CipherData(context: context, userId: "1", cipher: .fixture(id: UUID().uuidString))
             _ = try CollectionData(context: context, userId: "1", collection: .fixture())
+            _ = try DomainData(
+                context: context,
+                userId: "1",
+                domains: DomainsResponseModel(
+                    equivalentDomains: nil,
+                    globalEquivalentDomains: nil
+                )
+            )
             _ = FolderData(
                 context: context,
                 userId: "1",
@@ -528,6 +536,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let context = dataStore.persistentContainer.viewContext
         try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: CollectionData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: DomainData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: FolderData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: OrganizationData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)

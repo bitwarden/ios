@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - MoveToOrganizationProcessor
 
 /// The processor used to manage state and handle actions for `AttachmentsView`.
@@ -48,7 +50,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
     override func receive(_ action: AttachmentsAction) {
         switch action {
         case .chooseFilePressed:
-            coordinator.showAlert(.fileSelectionOptions(handler: fileSelectionOptionSelected))
+            presentFileSelectionAlert()
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
         }
@@ -56,18 +58,22 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
     // MARK: Private Methods
 
-    /// Handle an attachment option being selected.
-    private func fileSelectionOptionSelected(fileSelectionRoute: FileSelectionRoute) {
-        switch fileSelectionRoute {
-        case .camera:
-            // TODO: BIT-1448
-            break
-        case .file:
-            // TODO: BIT-1449
-            break
-        case .photo:
-            // TODO: BIT-1447
-            break
+    /// Presents the file selection alert.
+    ///
+    private func presentFileSelectionAlert() {
+        let alert = Alert.fileSelectionOptions { [weak self] route in
+            guard let self else { return }
+            coordinator.navigate(to: .fileSelection(route), context: self)
         }
+        coordinator.showAlert(alert)
+    }
+}
+
+// MARK: - FileSelectionDelegate
+
+extension AttachmentsProcessor: FileSelectionDelegate {
+    func fileSelectionCompleted(fileName: String, data: Data) {
+        state.fileName = fileName
+        state.fileData = data
     }
 }

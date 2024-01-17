@@ -22,6 +22,15 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="DomainData" representedClassName=".DomainData" syncable="YES">
+        <attribute name="modelData" attributeType="Binary"/>
+        <attribute name="userId" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="userId"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
     <entity name="FolderData" representedClassName=".FolderData" syncable="YES">
         <attribute name="id" attributeType="String"/>
         <attribute name="modelData" optional="YES" attributeType="Binary"/>
@@ -37,6 +46,12 @@
         <attribute name="id" attributeType="String"/>
         <attribute name="modelData" attributeType="Binary"/>
         <attribute name="userId" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="userId"/>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="PasswordHistoryData" representedClassName=".PasswordHistoryData" syncable="YES">
         <attribute name="lastUsedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>

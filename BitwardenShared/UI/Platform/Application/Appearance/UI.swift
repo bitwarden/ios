@@ -64,6 +64,13 @@ public enum UI {
         let tintedImage = image.withTintColor(Asset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
         UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
         UISearchBar.appearance().setImage(Asset.Images.magnifyingGlass.image, for: .search, state: .normal)
+
+        // Adjust the appearance of `UITextView` for `BitwardenMultilineTextField` instances on
+        // iOS 15.
+        UITextView.appearance().isScrollEnabled = false
+        UITextView.appearance().backgroundColor = .clear
+        UITextView.appearance().textContainerInset = .zero
+        UITextView.appearance().textContainer.lineFragmentPadding = 0
     }
 
     /// Override SwiftGen's lookup function in order to determine the language manually.

@@ -250,6 +250,24 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertFalse(view.store.state.loginState.isTOTPAvailable)
     }
 
+    /// `navigate(to:)` with `.fileSelection` and without a file selection delegate does not present the
+    /// file selection screen.
+    func test_navigateTo_fileSelection_withoutDelegate() throws {
+        subject.navigate(to: .fileSelection(.camera), context: nil)
+        XCTAssertNil(stackNavigator.actions.last)
+    }
+
+    /// `navigate(to:)` with `.fileSelection` and with a file selection delegate presents the file
+    /// selection screen.
+    func test_navigateTo_fileSelection_withDelegate() throws {
+        let delegate = MockFileSelectionDelegate()
+        subject.navigate(to: .fileSelection(.camera), context: delegate)
+
+        XCTAssertEqual(module.fileSelectionCoordinator.routes.last, .camera)
+        XCTAssertTrue(module.fileSelectionCoordinator.isStarted)
+        XCTAssertIdentical(module.fileSelectionDelegate, delegate)
+    }
+
     /// `navigate(to:)` with `.generator`, `.password`, and without a delegate does not present the
     /// generator screen.
     func test_navigateTo_generator_withPassword_withoutDelegate() throws {

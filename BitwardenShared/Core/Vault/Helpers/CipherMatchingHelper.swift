@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 /// A helper object to handle filtering a list of ciphers that match a URI.
 ///
@@ -74,8 +75,13 @@ enum CipherMatchingHelper {
                 // TODO: BIT-1097
                 matchResult = .none
             case .host:
-                // TODO: BIT-596
-                matchResult = .none
+                let uriHost = URL(string: uri)?.hostWithPort
+                let matchUriHost = URL(string: matchUri)?.hostWithPort
+                if let uriHost, let matchUriHost, uriHost == matchUriHost {
+                    matchResult = .exact
+                } else {
+                    matchResult = .none
+                }
             case .startsWith:
                 matchResult = uri.starts(with: matchUri) ? .exact : .none
             case .exact:
