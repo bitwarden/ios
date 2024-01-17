@@ -1,0 +1,27 @@
+{
+  "profile": null,
+  "folders": [],
+  "collections": [],
+  "ciphers": [],
+  "domains": {
+    "equivalentDomains": [
+      [
+        "example.com",
+        "test.com"
+      ]
+    ],
+    "globalEquivalentDomains": [
+      {
+        "type": 1,
+        "domains": [
+          "apple.com",
+          "icloud.com"
+        ],
+        "excluded": false
+      }
+    ]
+  },
+  "policies": [],
+  "sends": [],
+  "object": "sync"
+}

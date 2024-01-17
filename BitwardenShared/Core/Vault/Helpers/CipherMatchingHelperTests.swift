@@ -78,6 +78,35 @@ class CipherMatchingHelperTests: BitwardenTestCase {
         XCTAssertTrue(CipherMatchingHelper.ciphersMatching(uri: "http://bitwarden.com", ciphers: ciphers).isEmpty)
     }
 
+    /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the host
+    /// match type.
+    func test_ciphersMatching_host() {
+        let uris: [(String, String)] = [
+            ("Sub Domain 4000", "http://sub.domain.com:4000"),
+            ("Sub Domain 4000 with Page", "https://sub.domain.com:4000/page.html"),
+            ("Domain", "https://domain.com"),
+            ("Sub Domain No Port", "https://sub.domain.com"),
+            ("Sub Sub Domain", "https://sub2.sub.domain.com:4000"),
+            ("Sub Domain 500", "https://sub.domain.com:5000"),
+        ]
+        let ciphers = uris.map { name, uri in
+            CipherView.fixture(
+                login: .fixture(uris: [LoginUriView(uri: uri, match: .host)]),
+                name: name
+            )
+        }
+
+        assertInlineSnapshot(
+            of: dumpMatching(uri: "https://sub.domain.com:4000", ciphers: ciphers),
+            as: .lines
+        ) {
+            """
+            Sub Domain 4000
+            Sub Domain 4000 with Page
+            """
+        }
+    }
+
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the never
     /// match type.
     func test_ciphersMatching_never() {

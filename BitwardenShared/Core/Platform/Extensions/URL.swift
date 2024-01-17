@@ -3,6 +3,16 @@ import Foundation
 extension URL {
     // MARK: Properties
 
+    /// Returns the URL's host with a port, if one exists.
+    var hostWithPort: String? {
+        guard let host else { return nil }
+        return if let port {
+            "\(host):\(port)"
+        } else {
+            host
+        }
+    }
+
     /// Returns a sanitized version of the URL. This will add a https scheme to the URL if the
     /// scheme is missing.
     var sanitized: URL {

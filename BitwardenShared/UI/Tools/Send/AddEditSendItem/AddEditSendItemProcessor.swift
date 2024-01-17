@@ -69,7 +69,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.isOptionsExpanded.toggle()
         case let .passwordChanged(newValue):
             state.password = newValue
-        case let .passwordVisibileChanged(newValue):
+        case let .passwordVisibleChanged(newValue):
             state.isPasswordVisible = newValue
         case let .maximumAccessCountChanged(newValue):
             state.maximumAccessCount = newValue

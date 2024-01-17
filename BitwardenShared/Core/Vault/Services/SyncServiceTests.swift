@@ -13,6 +13,7 @@ class SyncServiceTests: BitwardenTestCase {
     var folderService: MockFolderService!
     var organizationService: MockOrganizationService!
     var sendService: MockSendService!
+    var settingsService: MockSettingsService!
     var stateService: MockStateService!
     var subject: SyncService!
 
@@ -27,6 +28,7 @@ class SyncServiceTests: BitwardenTestCase {
         folderService = MockFolderService()
         organizationService = MockOrganizationService()
         sendService = MockSendService()
+        settingsService = MockSettingsService()
         stateService = MockStateService()
 
         subject = DefaultSyncService(
@@ -35,6 +37,7 @@ class SyncServiceTests: BitwardenTestCase {
             folderService: folderService,
             organizationService: organizationService,
             sendService: sendService,
+            settingsService: settingsService,
             stateService: stateService,
             syncAPIService: APIService(client: client)
         )
@@ -49,30 +52,12 @@ class SyncServiceTests: BitwardenTestCase {
         folderService = nil
         organizationService = nil
         sendService = nil
+        settingsService = nil
         stateService = nil
         subject = nil
     }
 
     // MARK: Tests
-
-    /// `clearCachedData()` removes any data cached by the service.
-    func test_clearCachedData() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
-        stateService.activeAccount = .fixture()
-
-        var iterator = subject.syncResponsePublisher().values.makeAsyncIterator()
-        _ = await iterator.next()
-
-        Task {
-            try await subject.fetchSync()
-        }
-        var publisherValue = await iterator.next()
-        try XCTAssertNotNil(XCTUnwrap(publisherValue))
-
-        subject.clearCachedData()
-        publisherValue = await iterator.next()
-        try XCTAssertNil(XCTUnwrap(publisherValue))
-    }
 
     /// `fetchSync()` performs the sync API request.
     func test_fetchSync() async throws {
@@ -191,6 +176,24 @@ class SyncServiceTests: BitwardenTestCase {
             ]
         )
         XCTAssertEqual(sendService.replaceSendsUserId, "1")
+    }
+
+    /// `fetchSync()` replaces the list of the user's equivalent domains.
+    func test_fetchSync_domains() async throws {
+        client.result = .httpSuccess(testData: .syncWithDomains)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync()
+
+        XCTAssertEqual(
+            settingsService.replaceEquivalentDomainsDomains,
+            DomainsResponseModel(
+                equivalentDomains: [["example.com", "test.com"]],
+                globalEquivalentDomains: [
+                    GlobalDomains(domains: ["apple.com", "icloud.com"], excluded: false, type: 1),
+                ]
+            )
+        )
     }
 
     /// `fetchSync()` replaces the list of the user's folders.

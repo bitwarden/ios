@@ -63,15 +63,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
         case .appeared:
-            for await value in services.vaultRepository.vaultListPublisher(
-                group: state.group,
-                filter: state.vaultFilterType
-            ) {
-                let sortedValues = value
-                    .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-                totpExpirationManager?.configureTOTPRefreshScheduling(for: sortedValues)
-                state.loadingState = .data(sortedValues)
-            }
+            await streamVaultList()
         case .refresh:
             await refreshVaultGroup()
         case .streamShowWebIcons:
@@ -149,6 +141,21 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             showEdit: state.group != .trash,
             action: handleMoreOptionsAction
         ))
+    }
+
+    /// Stream the vault list.
+    private func streamVaultList() async {
+        do {
+            for try await vaultList in try await services.vaultRepository.vaultListPublisher(
+                group: state.group,
+                filter: state.vaultFilterType
+            ) {
+                totpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList)
+                state.loadingState = .data(vaultList)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Handle the result of the selected option on the More Options alert..
