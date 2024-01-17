@@ -28,6 +28,9 @@ struct AddEditSendItemState: Equatable {
 
     // MARK: Properties
 
+    /// The access id for this send.
+    var accessId: String?
+
     /// The number of times this send has been accessed.
     var currentAccessCount: Int?
 
@@ -55,6 +58,9 @@ struct AddEditSendItemState: Equatable {
     /// A flag indicating if the active account has access to premium features.
     var hasPremium = false
 
+    /// The id for this send.
+    var id: String?
+
     /// A flag indicating if this item should be deactivated.
     var isDeactivateThisSendOn = false
 
@@ -72,6 +78,9 @@ struct AddEditSendItemState: Equatable {
 
     /// A flag indicating if the options section is expanded.
     var isOptionsExpanded = false
+
+    /// The key for this send.
+    var key: String?
 
     /// The maximum number of times this share can be accessed before being deactivated.
     var maximumAccessCount: Int = 0
@@ -104,6 +113,7 @@ extension AddEditSendItemState {
     ///
     init(sendView: SendView, hasPremium: Bool) {
         self.init(
+            accessId: sendView.accessId,
             currentAccessCount: Int(sendView.accessCount),
             customDeletionDate: sendView.deletionDate,
             customExpirationDate: sendView.expirationDate,
@@ -113,12 +123,14 @@ extension AddEditSendItemState {
             fileName: sendView.file?.fileName,
             fileSize: sendView.file?.sizeName,
             hasPremium: hasPremium,
+            id: sendView.id,
             isDeactivateThisSendOn: sendView.disabled,
             isHideMyEmailOn: sendView.hideEmail,
             isHideTextByDefaultOn: sendView.text?.hidden ?? false,
             isPasswordVisible: false,
             isShareOnSaveOn: false,
             isOptionsExpanded: false,
+            key: sendView.key,
             maximumAccessCount: sendView.maxAccessCount.map(Int.init) ?? 0,
             mode: .edit,
             name: sendView.name,
@@ -133,11 +145,11 @@ extension AddEditSendItemState {
     ///
     func newSendView() -> SendView {
         SendView(
-            id: nil,
-            accessId: nil,
+            id: id,
+            accessId: accessId,
             name: name,
             notes: notes.nilIfEmpty,
-            key: nil,
+            key: key,
             newPassword: password.nilIfEmpty,
             hasPassword: !password.isEmpty,
             type: .init(type: type),

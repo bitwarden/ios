@@ -114,7 +114,12 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
 
         let sendView = state.newSendView()
         do {
-            try await services.sendRepository.addSend(sendView)
+            switch state.mode {
+            case .add:
+                try await services.sendRepository.addSend(sendView)
+            case .edit:
+                try await services.sendRepository.updateSend(sendView)
+            }
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .dismiss)
         } catch {
