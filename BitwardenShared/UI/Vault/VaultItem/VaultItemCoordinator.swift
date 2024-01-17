@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A coordinator that manages navigation for displaying, editing, and adding individual vault items.
 ///
-class VaultItemCoordinator: Coordinator, HasStackNavigator {
+class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Module = FileSelectionModule
