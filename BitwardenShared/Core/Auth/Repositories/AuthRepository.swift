@@ -13,6 +13,8 @@ protocol AuthRepository: AnyObject {
     ///
     func deleteAccount(passwordText: String) async throws
 
+    func derivePinUserKey(_ encryptedPin: String) async throws
+
     /// Gets all accounts.
     ///
     /// - Returns: The known user accounts as `[ProfileSwitcherItem]`.
@@ -51,6 +53,10 @@ protocol AuthRepository: AnyObject {
     /// - Returns: The password strength of the password.
     ///
     func passwordStrength(email: String, password: String) async -> UInt8
+
+    func setPinProtectedKey(_ pin: String) async throws
+
+    func setPinProtectedKeyInMemory(_ pin: String) async throws
 
     /// Sets the active account by User Id.
     ///
@@ -169,6 +175,11 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.remove(userId: nil)
     }
 
+    func derivePinUserKey(_ encryptedPin: String) async throws {
+        let pinProtectedUserKey = clientCrypto.derivePinUserKey(pin: encryptedPin)
+        stateService.setPinProtectedKeyInMemory(pinProtectedUserKey)
+    }
+
     func getAccounts() async throws -> [ProfileSwitcherItem] {
         let accounts = try await stateService.getAccounts()
         return await accounts.asyncMap { account in
@@ -200,6 +211,16 @@ extension DefaultAuthRepository: AuthRepository {
         await clientAuth.passwordStrength(password: password, email: email, additionalInputs: [])
     }
 
+    func setPinProtectedKey(_ pin: String) async throws {
+        let key = try await clientCrypto.derivePinKey(pin: pin)
+        try await stateService.setPinProtectedKey(key.pinProtectedUserKey)
+    }
+
+    func setPinProtectedKeyInMemory(_ pin: String) async throws {
+        let key = try await clientCrypto.derivePinKey(pin: pin)
+        try await stateService.setPinProtectedKey(key.pinProtectedUserKey)
+    }
+
     func setActiveAccount(userId: String) async throws -> Account {
         try await stateService.setActiveAccount(userId: userId)
         await environmentService.loadURLsForActiveAccount()
@@ -208,7 +229,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     func setPin(_ pin: String) async throws {
         let key = try await clientCrypto.derivePinKey(pin: pin)
-        try await stateService.setPinKeyEncryptedUserKey(key.pinProtectedUserKey)
+        try await stateService.setPinKeyEncryptedUserKey(key.encryptedPin)
     }
 
     func unlockVaultWithPassword(password: String) async throws {

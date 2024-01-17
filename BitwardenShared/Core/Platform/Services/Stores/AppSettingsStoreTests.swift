@@ -337,7 +337,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `.pinProtectedUserKey(userId:)` can be used to get the pin protected user key for a user.
     func test_pinProtectedUserKey() {
         let userId = Account.fixture().profile.userId
-        subject.setPinProtectedUserKey(key: "123", userId: userId)
+        subject.setPinProtectedKey(key: "123", userId: userId)
         let pin = subject.pinProtectedUserKey(userId: userId)
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinProtectedUserKey_1"), pin)
     }

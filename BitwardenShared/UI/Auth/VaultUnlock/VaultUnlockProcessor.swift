@@ -50,6 +50,16 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
             state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
             await refreshProfileState()
+
+            do {
+                if try await services.stateService.pinProtectedKey() != nil {
+                    // show unlock with pin
+                } else {
+                    if try await services.stateService.pinKeyEncryptedUserKey() != nil {
+                        // unlock with password
+                    }
+                }
+            } catch {}
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -138,6 +148,10 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             coordinator.navigate(to: .complete)
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
+
+            if let encryptedPin = try await services.stateService.pinKeyEncryptedUserKey() {
+                try await services.stateService.derivePinUserKey(encryptedPin)
+            }
         } catch let error as InputValidationError {
             coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))
         } catch {

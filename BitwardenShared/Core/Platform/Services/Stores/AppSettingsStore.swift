@@ -101,6 +101,8 @@ protocol AppSettingsStore: AnyObject {
     ///
     func pinKeyEncryptedUserKey(userId: String) -> String?
 
+    func pinProtectedUserKey(userId: String) -> String?
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -196,6 +198,8 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPinKeyEncryptedUserKey(key: String?, userId: String)
+
+    func setPinProtectedKey(key: String?, userId: String)
 
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
@@ -346,6 +350,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case masterPasswordHash(userId: String)
         case passwordGenerationOptions(userId: String)
         case pinKeyEncryptedUserKey(userId: String)
+        case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentUrls
         case rememberedEmail
         case rememberedOrgIdentifier
@@ -385,6 +390,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "passwordGenerationOptions_\(userId)"
             case let .pinKeyEncryptedUserKey(userId):
                 key = "pinKeyEncryptedUserKey_\(userId)"
+            case let .pinProtectedUserKey(userId):
+                key = "pinProtectedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
             case .rememberedEmail:
@@ -489,6 +496,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .pinKeyEncryptedUserKey(userId: userId))
     }
 
+    func pinProtectedUserKey(userId: String) -> String? {
+        fetch(for: .pinProtectedUserKey(userId: userId))
+    }
+
     func unsuccessfulUnlockAttempts(userId: String) -> Int? {
         fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
     }
@@ -535,6 +546,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setPinKeyEncryptedUserKey(key: String?, userId: String) {
         store(key, for: .pinKeyEncryptedUserKey(userId: userId))
+    }
+
+    func setPinProtectedKey(key: String?, userId: String) {
+        store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {

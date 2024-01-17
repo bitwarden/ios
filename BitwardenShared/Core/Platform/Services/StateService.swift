@@ -24,6 +24,8 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
+    func derivePinUserKey(_ encryptedPin: String) async throws
+
     /// Gets the account encryptions keys for an account.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -152,6 +154,8 @@ protocol StateService: AnyObject {
     ///
     func pinKeyEncryptedUserKey(userId: String?) async throws -> String?
 
+    func pinProtectedKey(userId: String?) async throws -> String?
+
     /// Sets the account encryption keys for an account.
     ///
     /// - Parameters:
@@ -235,6 +239,10 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPinKeyEncryptedUserKey(_ key: String?, userId: String?) async throws
+
+    func setPinProtectedKey(_ key: String?, userId: String?) async throws
+
+    func setPinProtectedKeyInMemory(_ key: String?, userId: String?) async throws
 
     /// Sets the environment URLs used prior to user authentication.
     ///
@@ -397,6 +405,10 @@ extension StateService {
         try await pinKeyEncryptedUserKey(userId: nil)
     }
 
+    func pinProtectedKey() async throws -> String? {
+        try await pinProtectedKey(userId: nil)
+    }
+
     /// Sets the account encryption keys for the active account.
     ///
     /// - Parameter encryptionKeys: The account encryption keys.
@@ -469,6 +481,14 @@ extension StateService {
         try await setPinKeyEncryptedUserKey(key, userId: nil)
     }
 
+    func setPinProtectedKey(_ key: String?) async throws {
+        try await setPinProtectedKey(key, userId: nil)
+    }
+
+    func setPinProtectedKeyInMemory(_ key: String?) async throws {
+        try await setPinProtectedKeyInMemory(key, userId: nil)
+    }
+
     /// Sets a new access and refresh token for the active account.
     ///
     /// - Parameters:
@@ -514,6 +534,8 @@ enum StateServiceError: Error {
 ///
 actor DefaultStateService: StateService {
     // MARK: Properties
+
+    var accountVolatileData: [String: AccountVolatileData] = [:]
 
     /// The language option currently selected for the app.
     nonisolated var appLanguage: LanguageOption {
@@ -572,6 +594,10 @@ actor DefaultStateService: StateService {
 
     func deleteAccount() async throws {
         try await logoutAccount()
+    }
+
+    func derivePinUserKey(_ encryptedPin: String) async throws {
+        let pinProtectedUserKey = 
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
@@ -702,6 +728,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.pinKeyEncryptedUserKey(userId: userId)
     }
 
+    func pinProtectedKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
@@ -761,6 +792,16 @@ actor DefaultStateService: StateService {
     func setPinKeyEncryptedUserKey(_ key: String?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPinKeyEncryptedUserKey(key: key, userId: userId)
+    }
+
+    func setPinProtectedKey(_ key: String?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPinProtectedKey(key: key, userId: userId)
+    }
+
+    func setPinProtectedKeyInMemory(_ key: String?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        accountVolatileData[userId, default: AccountVolatileData()].pinProtectedKey = key ?? ""
     }
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
@@ -830,4 +871,8 @@ actor DefaultStateService: StateService {
         }
         return activeUserId
     }
+}
+
+struct AccountVolatileData {
+    var pinProtectedKey: String = ""
 }
