@@ -210,6 +210,9 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
 
     func itemRestored() {
         state.toast = Toast(text: Localizations.itemRestored)
+        Task {
+            await perform(.refresh)
+        }
     }
 }
 
