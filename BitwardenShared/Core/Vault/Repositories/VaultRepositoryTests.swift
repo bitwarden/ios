@@ -1,4 +1,5 @@
 import BitwardenSdk
+import InlineSnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
@@ -862,6 +863,159 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             errorReporter.errors.last as? NSError,
             BitwardenError.dataError("Received a folder from the API with a missing ID.")
         )
+    }
+
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections with the my vault filter.
+    func test_vaultListPublisher_withCollections_myVault() async throws {
+        let syncResponse = try JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        )
+        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
+        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
+        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
+
+        var iterator = try await subject.vaultListPublisher(filter: .myVault).makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Types
+              - Group: Login (1)
+              - Group: Card (1)
+              - Group: Identity (1)
+              - Group: Secure note (1)
+            Section: Folders
+              - Group: Social (1)
+            Section: No Folder
+              - Cipher: Bitwarden User
+              - Cipher: Top Secret Note
+              - Cipher: Visa
+            Section: Trash
+              - Group: Trash (1)
+            """
+        }
+    }
+
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections with the organization filter.
+    func test_vaultListPublisher_withCollections_organization() async throws {
+        let syncResponse = try JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        )
+        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
+        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
+        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
+
+        let organization = Organization.fixture(id: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf")
+        var iterator = try await subject.vaultListPublisher(filter: .organization(organization)).makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Favorites
+              - Cipher: Apple
+            Section: Types
+              - Group: Login (2)
+              - Group: Card (0)
+              - Group: Identity (0)
+              - Group: Secure note (0)
+            Section: No Folder
+              - Cipher: Apple
+              - Cipher: Figma
+            Section: Collections
+              - Group: Design (1)
+              - Group: Engineering (1)
+            Section: Trash
+              - Group: Trash (0)
+            """
+        }
+    }
+
+    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault list.
+    func test_vaultListPublisher_forGroup_login() async throws {
+        let syncResponse = try JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        )
+        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
+
+        var iterator = try await subject.vaultListPublisher(group: .login, filter: .allVaults).makeAsyncIterator()
+        let items = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+            """
+            - Cipher: Apple
+            - Cipher: Facebook
+            - Cipher: Figma
+            """
+        }
+    }
+
+    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault
+    /// list filtered by the user's vault.
+    func test_vaultListPublisher_forGroup_login_myVault() async throws {
+        let syncResponse = try JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        )
+        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
+
+        var iterator = try await subject.vaultListPublisher(group: .login, filter: .myVault).makeAsyncIterator()
+        let items = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+            """
+            - Cipher: Facebook
+            """
+        }
+    }
+
+    /// `vaultListPublisher(group:)` returns a publisher for a group of login items within the vault
+    /// list filtered by an organization.
+    func test_vaultListPublisher_forGroup_login_organization() async throws {
+        let syncResponse = try JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        )
+        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
+
+        var iterator = try await subject.vaultListPublisher(
+            group: .login,
+            filter: .organization(.fixture(id: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"))
+        ).makeAsyncIterator()
+        let items = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+            """
+            - Cipher: Apple
+            - Cipher: Figma
+            """
+        }
+    }
+
+    /// `vaultListPublisher(group:filter:)` returns a publisher for a group of items in a collection within
+    /// the vault list.
+    func test_vaultListPublisher_forGroup_collection() async throws {
+        let syncResponse = try JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        )
+        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
+
+        var iterator = try await subject.vaultListPublisher(
+            group: .collection(id: "f96de98e-618a-4886-b396-66b92a385325", name: "Engineering"),
+            filter: .allVaults
+        ).makeAsyncIterator()
+        let items = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+            """
+            - Cipher: Apple
+            """
+        }
     }
 
     // MARK: Private
