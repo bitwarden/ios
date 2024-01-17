@@ -1,8 +1,11 @@
 import BitwardenSdk
+import Combine
 
 @testable import BitwardenShared
 
 class MockCollectionService: CollectionService {
+    var collectionsSubject = CurrentValueSubject<[Collection], Error>([])
+
     var fetchAllCollectionsResult: Result<[Collection], Error> = .success([])
     var fetchAllCollectionsIncludeReadOnly: Bool?
 
@@ -17,5 +20,9 @@ class MockCollectionService: CollectionService {
     func replaceCollections(_ collections: [CollectionDetailsResponseModel], userId: String) async throws {
         replaceCollectionsCollections = collections
         replaceCollectionsUserId = userId
+    }
+
+    func collectionsPublisher() async throws -> AnyPublisher<[Collection], Error> {
+        collectionsSubject.eraseToAnyPublisher()
     }
 }

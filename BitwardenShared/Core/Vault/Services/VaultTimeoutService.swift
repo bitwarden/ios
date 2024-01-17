@@ -39,15 +39,6 @@ protocol VaultTimeoutService: AnyObject {
     /// Removes an account id.
     ///
     func remove(userId: String?) async
-
-    // MARK: Publishers
-
-    /// A publisher for the vault timeout functionality.
-    ///     Publishes any time an account is locked, changed, or removed.
-    ///
-    /// - Returns: A bool indicating if decrypted data should be cleared
-    ///
-    func shouldClearDecryptedDataPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
 }
 
 // MARK: - DefaultVaultTimeoutService
@@ -62,18 +53,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     private var stateService: StateService
 
     /// The store of locked status for known accounts
-    var timeoutStore = [String: Bool]() {
-        didSet {
-            shouldClearDataSubject.send(
-                shouldClearData(
-                    activeAccountId: activeAccountIdSubject.value
-                )
-            )
-        }
-    }
-
-    /// A subject containing a `Bool` for whether or not the vault is locked.
-    lazy var shouldClearDataSubject = CurrentValueSubject<Bool, Never>(false)
+    var timeoutStore = [String: Bool]()
 
     /// A String to track the last known active account id.
     var lastKnownActiveAccountId: String?
@@ -86,18 +66,6 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///
     init(stateService: StateService) {
         self.stateService = stateService
-        Task {
-            lastKnownActiveAccountId = try? await stateService.getActiveAccountId()
-            for await activeId in await stateService.activeAccountIdPublisher() {
-                defer { lastKnownActiveAccountId = activeId }
-                if let activeId,
-                   activeId == lastKnownActiveAccountId {
-                    shouldClearDataSubject.send(false)
-                } else {
-                    shouldClearDataSubject.send(true)
-                }
-            }
-        }
     }
 
     func isLocked(userId: String) throws -> Bool {
@@ -105,12 +73,6 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             throw VaultTimeoutServiceError.noAccountFound
         }
         return isLocked
-    }
-
-    func shouldClearDecryptedDataPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
-        shouldClearDataSubject
-            .eraseToAnyPublisher()
-            .values
     }
 
     func lockVault(userId: String?) async {
@@ -128,13 +90,5 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     func remove(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
         timeoutStore = timeoutStore.filter { $0.key != id }
-    }
-
-    private func shouldClearData(activeAccountId: String?) -> Bool {
-        guard let activeAccountId,
-              let isLocked = timeoutStore[activeAccountId] else {
-            return true
-        }
-        return isLocked
     }
 }

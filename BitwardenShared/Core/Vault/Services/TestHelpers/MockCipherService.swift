@@ -4,6 +4,9 @@ import Combine
 @testable import BitwardenShared
 
 class MockCipherService: CipherService {
+    var addCipherWithServerCiphers = [Cipher]()
+    var addCipherWithServerResult: Result<Void, Error> = .success(())
+
     var ciphersSubject = CurrentValueSubject<[Cipher], Error>([])
 
     var fetchCipherId: String?
@@ -12,9 +15,6 @@ class MockCipherService: CipherService {
     var replaceCiphersCiphers: [CipherDetailsResponseModel]?
     var replaceCiphersUserId: String?
 
-    var cipherPublisherUserId: String?
-    var cipherSubject = CurrentValueSubject<[Cipher], Error>([])
-
     var deleteCipherId: String?
     var deleteWithServerResult: Result<Void, Error> = .success(())
 
@@ -22,15 +22,18 @@ class MockCipherService: CipherService {
     var softDeleteCipher: Cipher?
     var softDeleteWithServerResult: Result<Void, Error> = .success(())
 
-    var shareWithServerCiphers = [Cipher]()
-    var shareWithServerResult: Result<Void, Error> = .success(())
+    var shareCipherWithServerCiphers = [Cipher]()
+    var shareCipherWithServerResult: Result<Void, Error> = .success(())
+
+    var updateCipherWithServerCiphers = [Cipher]()
+    var updateCipherWithServerResult: Result<Void, Error> = .success(())
 
     var updateCipherCollectionsWithServerCiphers = [Cipher]()
     var updateCipherCollectionsWithServerResult: Result<Void, Error> = .success(())
 
-    func cipherPublisher(userId: String) -> AnyPublisher<[BitwardenSdk.Cipher], Error> {
-        cipherPublisherUserId = userId
-        return cipherSubject.eraseToAnyPublisher()
+    func addCipherWithServer(_ cipher: Cipher) async throws {
+        addCipherWithServerCiphers.append(cipher)
+        try addCipherWithServerResult.get()
     }
 
     func deleteCipherWithServer(id: String) async throws {
@@ -48,15 +51,20 @@ class MockCipherService: CipherService {
         replaceCiphersUserId = userId
     }
 
-    func shareWithServer(_ cipher: Cipher) async throws {
-        shareWithServerCiphers.append(cipher)
-        try shareWithServerResult.get()
+    func shareCipherWithServer(_ cipher: Cipher) async throws {
+        shareCipherWithServerCiphers.append(cipher)
+        try shareCipherWithServerResult.get()
     }
 
     func softDeleteCipherWithServer(id: String, _ cipher: Cipher) async throws {
         softDeleteCipherId = id
         softDeleteCipher = cipher
         try softDeleteWithServerResult.get()
+    }
+
+    func updateCipherWithServer(_ cipher: Cipher) async throws {
+        updateCipherWithServerCiphers.append(cipher)
+        try updateCipherWithServerResult.get()
     }
 
     func updateCipherCollectionsWithServer(_ cipher: Cipher) async throws {

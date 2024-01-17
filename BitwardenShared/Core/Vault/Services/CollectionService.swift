@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Combine
 
 // MARK: - CollectionService
 
@@ -19,6 +20,14 @@ protocol CollectionService {
     ///   - userId: The user ID associated with the collections.
     ///
     func replaceCollections(_ collections: [CollectionDetailsResponseModel], userId: String) async throws
+
+    // MARK: Publishers
+
+    /// A publisher for the list of collections.
+    ///
+    /// - Returns: The list of encrypted collections.
+    ///
+    func collectionsPublisher() async throws -> AnyPublisher<[Collection], Error>
 }
 
 // MARK: - DefaultCollectionService
@@ -27,10 +36,10 @@ class DefaultCollectionService: CollectionService {
     // MARK: Properties
 
     /// The data store for managing the persisted collections for the user.
-    let collectionDataStore: CollectionDataStore
+    private let collectionDataStore: CollectionDataStore
 
     /// The service used by the application to manage account state.
-    let stateService: StateService
+    private let stateService: StateService
 
     // MARK: Initialization
 
@@ -55,5 +64,10 @@ extension DefaultCollectionService {
 
     func replaceCollections(_ collections: [CollectionDetailsResponseModel], userId: String) async throws {
         try await collectionDataStore.replaceCollections(collections.map(Collection.init), userId: userId)
+    }
+
+    func collectionsPublisher() async throws -> AnyPublisher<[Collection], Error> {
+        let userId = try await stateService.getActiveAccountId()
+        return collectionDataStore.collectionPublisher(userId: userId)
     }
 }
