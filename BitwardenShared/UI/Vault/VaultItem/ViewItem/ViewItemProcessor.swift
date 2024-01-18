@@ -284,7 +284,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.showAlert(alert)
     }
 
-    /// Shows soft delete cipher confirmation alert.
+    /// Shows a soft delete cipher confirmation alert.
     ///
     private func showSoftDeleteConfirmation(_ cipher: CipherView) async {
         let alert = Alert.deleteCipherConfirmation(isSoftDelete: true) { [weak self] in
