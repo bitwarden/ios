@@ -273,7 +273,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.navigate(to: .alert(alert))
     }
 
-    /// Shows permanent delete cipher confirmation alert.
+    /// Shows a permanent delete cipher confirmation alert.
     ///
     private func showPermanentDeleteConfirmation(_ cipher: CipherView) async {
         guard let id = cipher.id else { return }
