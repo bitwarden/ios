@@ -128,7 +128,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
             XCTAssertEqual(
                 error as? IdentityTokenRequestError,
-                .twoFactorRequired(["1": ["Email": "sh***@livefront.com"]])
+                .twoFactorRequired(["1": ["Email": "sh***@example.com"]])
             )
         }
     }

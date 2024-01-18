@@ -52,7 +52,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadSingleSignOnDetails` records an error if the API call failed.
     func test_perform_loadSingleSignOnDetails_error() async throws {
         client.result = .failure(BitwardenTestError.example)
-        stateService.rememberedOrgIdentifier = "TeamLivefront"
+        stateService.rememberedOrgIdentifier = "BestOrganization"
 
         await subject.perform(.loadSingleSignOnDetails)
 
@@ -60,7 +60,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loading))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
 
-        XCTAssertEqual(subject.state.identifierText, "TeamLivefront")
+        XCTAssertEqual(subject.state.identifierText, "BestOrganization")
     }
 
     /// `perform(_:)` with `.loadSingleSignOnDetails` starts the login process if the API call
@@ -100,13 +100,13 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     func test_perform_loginPressed_error() async throws {
         // Set up the mock data.
         authService.generateSingleSignOnUrlResult = .failure(URLError(.timedOut))
-        subject.state.identifierText = "TeamLivefront"
+        subject.state.identifierText = "BestOrganization"
 
         // Attempt to log in.
         await subject.perform(.loginTapped)
 
         // Verify the results.
-        XCTAssertEqual(authService.generateSingleSignOnOrgIdentifier, "TeamLivefront")
+        XCTAssertEqual(authService.generateSingleSignOnOrgIdentifier, "BestOrganization")
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(URLError(.timedOut)) {})
@@ -116,7 +116,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loginPressed` attempts to login.
     func test_perform_loginPressed_success() async throws {
         // Set up the mock data.
-        subject.state.identifierText = "TeamLivefront"
+        subject.state.identifierText = "BestOrganization"
 
         // Attempt to log in.
         await subject.perform(.loginTapped)
@@ -168,7 +168,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         authService.generateSingleSignOnUrlResult = .failure(
             IdentityTokenRequestError.twoFactorRequired(authMethodsData)
         )
-        subject.state.identifierText = "TeamLivefront"
+        subject.state.identifierText = "BestOrganization"
 
         await subject.perform(.loginTapped)
 
@@ -180,7 +180,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     func test_singleSignOnCompleted_vaultLocked() {
         // Set up the mock data.
         authService.loginWithSingleSignOnResult = .success(.fixtureAccountLogin())
-        subject.state.identifierText = "TeamLivefront"
+        subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
         subject.singleSignOnCompleted(code: "super_cool_secret_code")
@@ -188,7 +188,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
         // Verify the results.
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
-        XCTAssertEqual(stateService.rememberedOrgIdentifier, "TeamLivefront")
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.vaultUnlock(.fixtureAccountLogin(), animated: false), .dismiss])
     }
@@ -197,7 +197,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     func test_singleSignOnCompleted_vaultUnlocked() {
         // Set up the mock data.
         authService.loginWithSingleSignOnResult = .success(nil)
-        subject.state.identifierText = "TeamLivefront"
+        subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
         subject.singleSignOnCompleted(code: "super_cool_secret_code")
@@ -205,7 +205,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
         // Verify the results.
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
-        XCTAssertEqual(stateService.rememberedOrgIdentifier, "TeamLivefront")
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.complete, .dismiss])
     }

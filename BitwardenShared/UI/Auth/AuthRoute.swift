@@ -70,7 +70,10 @@ public enum AuthRoute: Equatable {
 
     /// A route to the two-factor authentication view.
     ///
-    /// - Parameter
+    /// - Parameters:
+    ///   - email: The user's email address.
+    ///   - password: The password, if the login method was password.
+    ///   - authMethodsData: The data on the available auth methods.
     ///
     case twoFactor(_ email: String, _ password: String?, _ authMethodsData: [String: [String: String]])
 
