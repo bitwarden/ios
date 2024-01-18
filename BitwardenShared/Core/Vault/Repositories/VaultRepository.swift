@@ -85,6 +85,12 @@ protocol VaultRepository: AnyObject {
     ///
     func remove(userId: String?) async
 
+    /// Restores a cipher from the trash.
+    ///
+    /// - Parameter cipher: The cipher that the user is restoring.
+    ///
+    func restoreCipher(_ cipher: CipherView) async throws
+
     /// A publisher for a user's cipher objects based on the specified search text and filter type.
     ///
     /// - Parameters:
@@ -541,8 +547,18 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
+        // Check if the user has a premium account personally.
         let account = try await stateService.getActiveAccount()
-        return account.profile.hasPremiumPersonally ?? false
+        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+        guard !hasPremiumPersonally else {
+            return true
+        }
+
+        // If not, check if any of their organizations grant them premium access.
+        let organizations = try await organizationService
+            .fetchAllOrganizations()
+            .filter { $0.enabled && $0.usersGetPremium }
+        return !organizations.isEmpty
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {
@@ -579,6 +595,13 @@ extension DefaultVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         await vaultTimeoutService.remove(userId: userId)
+    }
+
+    func restoreCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+        guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        let restoredCipher = cipher.update(deletedDate: nil)
+        let encryptCipher = try await clientVault.ciphers().encrypt(cipherView: restoredCipher)
+        try await cipherService.restoreCipherWithServer(id: id, encryptCipher)
     }
 
     func shareCipher(_ cipher: CipherView) async throws {

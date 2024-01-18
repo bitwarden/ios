@@ -117,6 +117,22 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))
     }
 
+    /// `validate(_:)` with a `400` status code and two-factor error in the response body throws a `.twoFactorRequired`
+    /// error.
+    func test_validate_with400TwoFactorError() {
+        let response = HTTPResponse.failure(
+            statusCode: 400,
+            body: APITestData.identityTokenTwoFactorError.data
+        )
+
+        XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
+            XCTAssertEqual(
+                error as? IdentityTokenRequestError,
+                .twoFactorRequired(["1": ["Email": "sh***@example.com"]])
+            )
+        }
+    }
+
     /// `validate(_:)` with a valid response does not throw a validation error.
     func test_validate_with200() {
         let response = HTTPResponse.success(

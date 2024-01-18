@@ -10,11 +10,13 @@ class MockAppSettingsStore: AppSettingsStore {
     var appTheme: String?
     var biometricAuthenticationEnabled = [String: Bool]()
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
-    var disableWebIcons: Bool = false
+    var disableWebIcons = false
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
+    var lastUserShouldConnectToWatch = false
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
@@ -40,6 +42,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func connectToWatch(userId: String) -> Bool {
+        connectToWatchByUserId[userId] ?? false
     }
 
     func defaultUriMatchType(userId: String) -> UriMatchType? {
@@ -84,6 +90,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String) {
+        connectToWatchByUserId[userId] = connectToWatch
     }
 
     func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String) {
@@ -138,10 +148,8 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId] = options
     }
 
-    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
-        activeIdSubject
-            .eraseToAnyPublisher()
-            .values
+    func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
+        activeIdSubject.eraseToAnyPublisher()
     }
 }
 

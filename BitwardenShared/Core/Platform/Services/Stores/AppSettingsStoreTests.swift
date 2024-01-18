@@ -105,7 +105,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
-    func test_clearClipboardValue_isInitiallyNil() {
+    func test_clearClipboardValue_isInitiallyNever() {
         XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
     }
 
@@ -118,6 +118,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.clearClipboardValue(userId: "2"), .never)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_1"), 10)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
+    }
+
+    /// `connectToWatch(userId:)` returns false if there isn't a previously stored value.
+    func test_connectToWatch_isInitiallyFalse() {
+        XCTAssertFalse(subject.connectToWatch(userId: "0"))
+    }
+
+    /// `connectToWatch(userId:)` can be used to get the connect to watch value for a user.
+    func test_connectToWatch_withValue() {
+        subject.setConnectToWatch(true, userId: "1")
+        subject.setConnectToWatch(false, userId: "2")
+
+        XCTAssertTrue(subject.connectToWatch(userId: "1"))
+        XCTAssertFalse(subject.connectToWatch(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:shouldConnectToWatch_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:shouldConnectToWatch_2"))
     }
 
     /// `defaultUriMatchType(userId:)` returns `nil` if there isn't a previously stored value.
@@ -258,6 +274,20 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertTrue(subject.isBiometricAuthenticationEnabled(userId: "0"))
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "1"))
+    }
+
+    /// `lastUserShouldConnectToWatch` returns `false` if there isn't a previously stored value.
+    func test_lastUserShouldConnectToWatch_isInitiallyFalse() {
+        XCTAssertFalse(subject.lastUserShouldConnectToWatch)
+    }
+
+    /// `lastUserShouldConnectToWatch` can be used to get the last connect to watch value.
+    func test_lastUserShouldConnectToWatch_withValue() {
+        subject.lastUserShouldConnectToWatch = true
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:lastUserShouldConnectToWatch"))
+
+        subject.lastUserShouldConnectToWatch = false
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:lastUserShouldConnectToWatch"))
     }
 
     /// `lastSyncTime(userId:)` returns `nil` if there isn't a previously stored value.

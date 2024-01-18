@@ -2,9 +2,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-// swiftlint:disable file_length
-
-class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class AccountSecurityProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authRepository: MockAuthRepository!

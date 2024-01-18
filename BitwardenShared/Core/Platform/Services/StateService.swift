@@ -86,6 +86,14 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Gets the connect to watch value for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the connect to watch value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: Whether to connect to the watch app.
+    ///
+    func getConnectToWatch(userId: String?) async throws -> Bool
+
     /// Gets the default URI match type value for an account.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -106,6 +114,13 @@ protocol StateService: AnyObject {
     /// - Returns: The user's environment URLs.
     ///
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
+
+    /// The last value of the connect to watch setting, ignoring the user id. Used for
+    /// sending the status to the watch if the user is logged out.
+    ///
+    /// - Returns: The last known value of the `connectToWatch` setting.
+    ///
+    func getLastUserShouldConnectToWatch() async -> Bool
 
     /// Gets the master password hash for a user ID.
     ///
@@ -207,6 +222,14 @@ protocol StateService: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
 
+    /// Sets the connect to watch value for an account.
+    ///
+    /// - Parameters:
+    ///   - connectToWatch: Whether to connect to the watch app.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws
+
     /// Sets the default URI match type value for an account.
     ///
     /// - Parameters:
@@ -295,13 +318,19 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: The userId `String` of the active account
     ///
-    func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>>
+    func activeAccountIdPublisher() async -> AnyPublisher<String?, Never>
 
     /// A publisher for the app theme.
     ///
     /// - Returns: A publisher for the app theme.
     ///
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never>
+
+    /// A publisher for the connect to watch value.
+    ///
+    /// - Returns: A publisher for the connect to watch value.
+    ///
+    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never>
 
     /// A publisher for the last sync time for the active account.
     ///
@@ -313,7 +342,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: A publisher for whether or not to show the web icons.
     ///
-    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>>
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never>
 }
 
 extension StateService {
@@ -339,6 +368,14 @@ extension StateService {
     ///
     func getClearClipboardValue() async throws -> ClearClipboardValue {
         try await getClearClipboardValue(userId: nil)
+    }
+
+    /// Gets the connect to watch value for the active account.
+    ///
+    /// - Returns: Whether to connect to the watch app.
+    ///
+    func getConnectToWatch() async throws -> Bool {
+        try await getConnectToWatch(userId: nil)
     }
 
     /// Gets the default URI match type value for the active account.
@@ -428,6 +465,14 @@ extension StateService {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?) async throws {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
+    }
+
+    /// Sets the connect to watch value for the active account.
+    ///
+    /// - Parameter connectToWatch: Whether to connect to the watch app.
+    ///
+    func setConnectToWatch(_ connectToWatch: Bool) async throws {
+        try await setConnectToWatch(connectToWatch, userId: nil)
     }
 
     /// Sets the default URI match type value the active account.
@@ -533,8 +578,11 @@ actor DefaultStateService: StateService {
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
 
-    /// A subject containing the app theme..
+    /// A subject containing the app theme.
     private var appThemeSubject: CurrentValueSubject<AppTheme, Never>
+
+    /// A subject containing the connect to watch value.
+    private var connectToWatchByUserIdSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
@@ -543,7 +591,7 @@ actor DefaultStateService: StateService {
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     /// A subject containing whether to show the website icons.
-    var showWebIconsSubject: CurrentValueSubject<Bool, Never>
+    private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
 
     // MARK: Initialization
 
@@ -633,6 +681,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getConnectToWatch(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.connectToWatch(userId: userId)
+    }
+
     func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
@@ -646,6 +699,10 @@ actor DefaultStateService: StateService {
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
+    }
+
+    func getLastUserShouldConnectToWatch() async -> Bool {
+        appSettingsStore.lastUserShouldConnectToWatch
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
@@ -728,6 +785,16 @@ actor DefaultStateService: StateService {
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
     }
 
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setConnectToWatch(connectToWatch, userId: userId)
+        connectToWatchByUserIdSubject.value[userId] = connectToWatch
+
+        // Save the value of the connect to watch setting independent of the user id,
+        // in order to be able to send a status to the watch if the user logs out.
+        appSettingsStore.lastUserShouldConnectToWatch = connectToWatch
+    }
+
     func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setDefaultUriMatchType(defaultUriMatchType, userId: userId)
@@ -789,12 +856,27 @@ actor DefaultStateService: StateService {
 
     // MARK: Publishers
 
-    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
+    func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
         appSettingsStore.activeAccountIdPublisher()
     }
 
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
         appThemeSubject.eraseToAnyPublisher()
+    }
+
+    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never> {
+        activeAccountIdPublisher().flatMap { userId in
+            self.connectToWatchByUserIdSubject.map { values in
+                if let userId {
+                    // Get the user's setting, if they're logged in.
+                    values[userId] ?? self.appSettingsStore.connectToWatch(userId: userId)
+                } else {
+                    // Otherwise, use the last known value for the previous user.
+                    self.appSettingsStore.lastUserShouldConnectToWatch
+                }
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
@@ -805,8 +887,8 @@ actor DefaultStateService: StateService {
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
     }
 
-    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
-        showWebIconsSubject.eraseToAnyPublisher().values
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
+        showWebIconsSubject.eraseToAnyPublisher()
     }
 
     // MARK: Private

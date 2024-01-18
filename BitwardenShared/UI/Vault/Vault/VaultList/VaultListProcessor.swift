@@ -64,7 +64,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
-            for await value in await services.stateService.showWebIconsPublisher() {
+            for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
             }
         case .streamVaultList:
@@ -302,6 +302,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
 extension VaultListProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
         state.toast = Toast(text: Localizations.itemSoftDeleted)
+    }
+
+    func itemRestored() {
+        state.toast = Toast(text: Localizations.itemRestored)
     }
 }
 

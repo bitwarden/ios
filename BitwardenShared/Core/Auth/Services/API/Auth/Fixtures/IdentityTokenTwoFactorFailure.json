@@ -1,0 +1,12 @@
+{
+    "error": "invalid_grant",
+    "error_description": "Two-factor required.",
+    "TwoFactorProviders2":
+    {
+        "1":
+        {
+            "Email":
+            "sh***@example.com"
+        }
+    }
+}

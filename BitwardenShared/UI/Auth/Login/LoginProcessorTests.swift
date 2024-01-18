@@ -14,6 +14,7 @@ class LoginProcessorTests: BitwardenTestCase {
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute>!
+    var errorReporter: MockErrorReporter!
     var subject: LoginProcessor!
 
     // MARK: Setup & Teardown
@@ -27,6 +28,7 @@ class LoginProcessorTests: BitwardenTestCase {
         captchaService = MockCaptchaService()
         client = MockHTTPClient()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
 
         subject = LoginProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -35,6 +37,7 @@ class LoginProcessorTests: BitwardenTestCase {
                 authRepository: authRepository,
                 authService: authService,
                 captchaService: captchaService,
+                errorReporter: errorReporter,
                 httpClient: client
             ),
             state: LoginState()
@@ -50,6 +53,7 @@ class LoginProcessorTests: BitwardenTestCase {
         captchaService = nil
         client = nil
         coordinator = nil
+        errorReporter = nil
         subject = nil
     }
 
@@ -57,12 +61,22 @@ class LoginProcessorTests: BitwardenTestCase {
 
     /// `captchaCompleted()` makes the login requests again, this time with a captcha token.
     func test_captchaCompleted() {
+        subject.state.masterPassword = "Test"
         subject.captchaCompleted(token: "token")
         waitFor(!coordinator.routes.isEmpty)
 
         XCTAssertEqual(authService.loginWithMasterPasswordCaptchaToken, "token")
 
         XCTAssertEqual(coordinator.routes.last, .complete)
+    }
+
+    /// `captchaErrored(error:)` records an error.
+    func test_captchaErrored() {
+        subject.captchaErrored(error: BitwardenTestError.example)
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.appeared` and an error occurs does not update the login with button visibility.
@@ -139,10 +153,9 @@ class LoginProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha error occurs navigates to the `.captcha`
     /// route.
     func test_perform_loginWithMasterPasswordPressed_captchaError() async {
-        authService
-            .loginWithMasterPasswordResult = .failure(IdentityTokenRequestError
-                .captchaRequired(hCaptchaSiteCode: "token"))
-        captchaService.generateCaptchaUrlValue = .example
+        subject.state.masterPassword = "Test"
+        authService.loginWithMasterPasswordResult = .failure(IdentityTokenRequestError
+            .captchaRequired(hCaptchaSiteCode: "token"))
 
         await subject.perform(.loginWithMasterPasswordPressed)
 
@@ -150,6 +163,61 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
 
         XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
+    }
+
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha flow error records the error.
+    func test_perform_loginWithMasterPasswordPressed_captchaFlowError() async {
+        subject.state.masterPassword = "Test"
+        authService.loginWithMasterPasswordResult = .failure(IdentityTokenRequestError
+            .captchaRequired(hCaptchaSiteCode: "token"))
+        captchaService.generateCaptchaUrlResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
+        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
+
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` records non captcha errors.
+    func test_perform_loginWithMasterPasswordPressed_error() async throws {
+        subject.state.masterPassword = "Test"
+        authService.loginWithMasterPasswordResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
+
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` shows an alert for empty login text.
+    func test_perform_loginWithMasterPasswordPressed_invalidInput() async throws {
+        await subject.perform(.loginWithMasterPasswordPressed)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .inputValidationAlert(error: InputValidationError(
+                message: Localizations.validationFieldRequired(Localizations.masterPassword)
+            ))
+        )
+    }
+
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` navigates to the `.twoFactor` route
+    /// if two-factor authentication is required.
+    func test_perform_loginWithMasterPasswordPressed_twoFactorError() async {
+        subject.state.masterPassword = "Test"
+        let authMethodsData = [String: [String: String]]()
+        authService.loginWithMasterPasswordResult = .failure(IdentityTokenRequestError
+            .twoFactorRequired(authMethodsData))
+
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .twoFactor("", "Test", authMethodsData))
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
     }

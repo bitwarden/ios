@@ -46,7 +46,7 @@ struct ViewItemView: View {
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 VaultItemManagementMenuView(
-                    isCloneEnabled: true,
+                    isCloneEnabled: store.state.canClone,
                     isCollectionsEnabled: isCollectionsEnabled,
                     isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
                     store: store.child(
@@ -98,8 +98,14 @@ struct ViewItemView: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(Localizations.edit) {
-                    store.send(.editPressed)
+                if state.isSoftDeleted {
+                    AsyncButton(Localizations.restore) {
+                        await store.perform(.restorePressed)
+                    }
+                } else {
+                    Button(Localizations.edit) {
+                        store.send(.editPressed)
+                    }
                 }
             }
         }

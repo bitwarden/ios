@@ -128,6 +128,8 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             )
         case let .switchAccount(userId: userId):
             selectAccount(for: userId)
+        case let .twoFactor(email, password, authMethodsData):
+            showTwoFactorAuth(email: email, password: password, authMethodsData: authMethodsData)
         case let .vaultUnlock(account, animated):
             showVaultUnlock(account: account, animated: animated)
         }
@@ -357,6 +359,27 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         session.start()
     }
 
+    /// Show the two factor authentication view.
+    ///
+    /// - Parameter data: The data required for the two-factor flow.
+    ///
+    private func showTwoFactorAuth(email: String, password: String?, authMethodsData: [String: [String: String]]) {
+        let state = TwoFactorAuthState(
+            authMethodsData: authMethodsData,
+            email: email,
+            password: password
+        )
+        let processor = TwoFactorAuthProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: state
+        )
+        let view = TwoFactorAuthView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
+    }
+
     /// Shows the vault unlock view.
     ///
     /// - Parameters:
@@ -381,4 +404,4 @@ extension AuthCoordinator: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for _: ASWebAuthenticationSession) -> ASPresentationAnchor {
         stackNavigator.rootViewController?.view.window ?? UIWindow()
     }
-}
+} // swiftlint:disable:this file_length

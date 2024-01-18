@@ -6,9 +6,8 @@ class MockCaptchaService: CaptchaService {
     var callbackUrlSchemeValue: String
     var callbackUrlSchemeGets = 0
 
-    var generateCaptchaUrlValue: URL = .example
-    var generateCaptchaUrlError: Error?
     var generateCaptchaSiteKey: String?
+    var generateCaptchaUrlResult: Result<URL, Error> = .success(.example)
 
     var callbackUrlScheme: String {
         callbackUrlSchemeGets += 1
@@ -21,11 +20,6 @@ class MockCaptchaService: CaptchaService {
 
     func generateCaptchaUrl(with siteKey: String) throws -> URL {
         generateCaptchaSiteKey = siteKey
-
-        if let generateCaptchaUrlError {
-            throw generateCaptchaUrlError
-        }
-
-        return generateCaptchaUrlValue
+        return try generateCaptchaUrlResult.get()
     }
 }
