@@ -13,4 +13,7 @@ struct AttachmentsState: Equatable {
 
     /// The name of the selected file.
     var fileName: String?
+
+    /// Whether the user has access to premium features.
+    var hasPremium = false
 }

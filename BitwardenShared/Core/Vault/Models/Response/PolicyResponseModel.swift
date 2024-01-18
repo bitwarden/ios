@@ -5,7 +5,8 @@ import Foundation
 struct PolicyResponseModel: Codable, Equatable {
     // MARK: Properties
 
-    // TODO: BIT-309 Parse `data` field.
+    /// Custom policy key value pairs.
+    let data: [String: AnyCodable]?
 
     /// Whether the policy is enabled.
     let enabled: Bool

@@ -11,6 +11,9 @@ class MockSendService: SendService {
     var addSendSend: Send?
     var addSendResult: Result<Void, Error> = .success(())
 
+    var updateSendSend: Send?
+    var updateSendResult: Result<Void, Error> = .success(())
+
     var replaceSendsSends: [SendResponseModel]?
     var replaceSendsUserId: String?
 
@@ -21,6 +24,11 @@ class MockSendService: SendService {
     func addSend(_ send: Send) async throws {
         addSendSend = send
         try addSendResult.get()
+    }
+
+    func updateSend(_ send: Send) async throws {
+        updateSendSend = send
+        try updateSendResult.get()
     }
 
     func replaceSends(_ sends: [SendResponseModel], userId: String) async throws {

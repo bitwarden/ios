@@ -46,4 +46,100 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(sendView.deletionDate, date)
         XCTAssertEqual(sendView.expirationDate, nil)
     }
+
+    func init_sendView_text() {
+        let sendView = SendView.fixture(
+            id: "ID",
+            accessId: "ACCESS_ID",
+            name: "Name",
+            notes: "Notes",
+            key: "KEY",
+            newPassword: nil,
+            hasPassword: false,
+            type: .text,
+            file: nil,
+            text: .init(text: "Text", hidden: false),
+            maxAccessCount: 420,
+            accessCount: 42,
+            disabled: false,
+            hideEmail: false,
+            revisionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 0),
+            deletionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11),
+            expirationDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
+        )
+        let subject = AddEditSendItemState(sendView: sendView, hasPremium: true)
+        XCTAssertEqual(subject.id, "ID")
+        XCTAssertEqual(subject.accessId, "ACCESS_ID")
+        XCTAssertEqual(subject.name, "Name")
+        XCTAssertEqual(subject.notes, "Notes")
+        XCTAssertEqual(subject.key, "KEY")
+        XCTAssertEqual(subject.password, "")
+        XCTAssertEqual(subject.isPasswordVisible, false)
+        XCTAssertEqual(subject.type, .text)
+        XCTAssertNil(subject.fileData)
+        XCTAssertNil(subject.fileName)
+        XCTAssertNil(subject.fileSize)
+        XCTAssertEqual(subject.text, "Text")
+        XCTAssertEqual(subject.isHideTextByDefaultOn, false)
+        XCTAssertEqual(subject.maximumAccessCount, 420)
+        XCTAssertEqual(subject.currentAccessCount, 42)
+        XCTAssertEqual(subject.isDeactivateThisSendOn, false)
+        XCTAssertEqual(subject.isHideMyEmailOn, false)
+        XCTAssertEqual(
+            subject.customDeletionDate,
+            Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11)
+        )
+        XCTAssertEqual(
+            subject.customExpirationDate,
+            Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
+        )
+    }
+
+    func init_sendView_file() {
+        let sendView = SendView.fixture(
+            id: "ID",
+            accessId: "ACCESS_ID",
+            name: "Name",
+            notes: "Notes",
+            key: "KEY",
+            newPassword: nil,
+            hasPassword: false,
+            type: .file,
+            file: .init(id: "FILE_ID", fileName: "File", size: "420420", sizeName: "420.42 KB"),
+            text: nil,
+            maxAccessCount: 420,
+            accessCount: 42,
+            disabled: false,
+            hideEmail: false,
+            revisionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 0),
+            deletionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11),
+            expirationDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
+        )
+        let subject = AddEditSendItemState(sendView: sendView, hasPremium: true)
+        XCTAssertEqual(subject.id, "ID")
+        XCTAssertEqual(subject.accessId, "ACCESS_ID")
+        XCTAssertEqual(subject.name, "Name")
+        XCTAssertEqual(subject.notes, "Notes")
+        XCTAssertEqual(subject.key, "KEY")
+        XCTAssertEqual(subject.password, "")
+        XCTAssertEqual(subject.isPasswordVisible, false)
+        XCTAssertEqual(subject.type, .text)
+        XCTAssertNil(subject.fileData)
+        XCTAssertEqual(subject.fileName, "File")
+        XCTAssertEqual(subject.fileSize, "420.42 KB")
+        XCTAssertEqual(subject.text, "")
+        XCTAssertEqual(subject.isHideTextByDefaultOn, false)
+        XCTAssertEqual(subject.maximumAccessCount, 420)
+        XCTAssertEqual(subject.currentAccessCount, 42)
+        XCTAssertEqual(subject.isDeactivateThisSendOn, false)
+        XCTAssertEqual(subject.isHideMyEmailOn, false)
+        XCTAssertEqual(
+            subject.customDeletionDate,
+            Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11)
+        )
+        XCTAssertEqual(
+            subject.customExpirationDate,
+            Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
+        )
+    }
 }
