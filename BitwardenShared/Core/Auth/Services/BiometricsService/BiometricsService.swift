@@ -189,7 +189,7 @@ class DefaultBiometricsService: BiometricsService {
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: bundleId,
             kSecAttrAccount: key,
-            kSecValueData: value.data(using: .utf8)!,
+            kSecValueData: Data(value.utf8),
             kSecAttrAccessControl: accessControl as Any,
         ] as CFDictionary
 
