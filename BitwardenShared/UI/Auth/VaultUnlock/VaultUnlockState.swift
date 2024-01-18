@@ -4,22 +4,7 @@ struct VaultUnlockState: Equatable {
     // MARK: Properties
 
     /// The biometric auth status for the user.
-    var biometricAuthStatus: BiometricAuthorizationStatus = .notDetermined
-
-    /// A flag indicating if the user has selected biometric unlock in settings.
-    var biometricUnlockEnabled: Bool = false
-
-    var biometricUnlockString: String? {
-        guard biometricUnlockEnabled else { return nil }
-        switch biometricAuthStatus.biometricAuthenticationType {
-        case .faceID:
-            return Localizations.useFaceIDToUnlock
-        case .touchID:
-            return Localizations.useFingerprintToUnlock
-        case .none:
-            return nil
-        }
-    }
+    var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
 
     /// The user's email for the active account.
     let email: String

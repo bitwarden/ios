@@ -133,6 +133,12 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
+    /// Gets the BiometricIntegrityState for the application.
+    ///
+    /// - Returns:An optional base64 string encoding of the BiometricIntegrityState `Data`.
+    ///
+    func getSystemBiometricIntegrityState() async -> String?
+
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
@@ -252,6 +258,12 @@ protocol StateService: AnyObject {
     /// - Parameter showWebIcons: Whether to show the website icons.
     ///
     func setShowWebIcons(_ showWebIcons: Bool) async
+
+    /// Sets the BiometricIntegrityState for the application.
+    ///
+    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
+    ///
+    func setSystemBiometricIntegrityState(_ base64State: String?) async
 
     /// Sets a new access and refresh token for an account.
     ///
@@ -616,11 +628,6 @@ actor DefaultStateService: StateService {
         AppTheme(appSettingsStore.appTheme)
     }
 
-    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
-    }
-
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -714,11 +721,6 @@ actor DefaultStateService: StateService {
     func setAppTheme(_ appTheme: AppTheme) async {
         appSettingsStore.appTheme = appTheme.value
         appThemeSubject.send(appTheme)
-    }
-
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
@@ -818,5 +820,27 @@ actor DefaultStateService: StateService {
             throw StateServiceError.noActiveAccount
         }
         return activeUserId
+    }
+}
+
+// MARK: Biometrics
+
+extension DefaultStateService {
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
+    }
+
+    func getSystemBiometricIntegrityState() async -> String? {
+        appSettingsStore.systemBiometricIntegrityState
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+
+    func setSystemBiometricIntegrityState(_ base64State: String?) async {
+        appSettingsStore.systemBiometricIntegrityState = base64State
     }
 }

@@ -267,142 +267,63 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.loadData` updates the state.
-    func test_perform_loadData_biometricsDisabled_error() async {
-        struct TestError: Error, Equatable {}
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.activeAccount = .fixture()
-        stateService.getBiometricAuthenticationEnabledResult = .failure(TestError())
-        subject.state.isUnlockWithBiometricsToggleOn = true
+    func test_perform_loadData_biometricsValue() async {
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
+        biometricsService.biometricUnlockStatus = .success(
+            biometricUnlockStatus
+        )
+        subject.state.biometricUnlockStatus = .notAvailable
         await subject.perform(.loadData)
 
-        XCTAssertFalse(subject.state.isUnlockWithBiometricsToggleOn)
-    }
-
-    /// `perform(_:)` with `.loadData` updates the state.
-    func test_perform_loadData_biometricsDisabled_noPreference() async {
-        stateService.activeAccount = .fixture()
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.biometricsEnabled = [:]
-        subject.state.isUnlockWithBiometricsToggleOn = true
-        await subject.perform(.loadData)
-
-        XCTAssertFalse(subject.state.isUnlockWithBiometricsToggleOn)
-    }
-
-    /// `perform(_:)` with `.loadData` updates the state.
-    func test_perform_loadData_biometricsDisabled_success() async {
-        stateService.activeAccount = .fixture()
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.biometricsEnabled = [
-            "1": false,
-        ]
-        subject.state.isUnlockWithBiometricsToggleOn = true
-        await subject.perform(.loadData)
-
-        XCTAssertFalse(subject.state.isUnlockWithBiometricsToggleOn)
-    }
-
-    /// `perform(_:)` with `.loadData` updates the state.
-    func test_perform_loadData_biometricsEnabled_success() async {
-        stateService.activeAccount = .fixture()
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.biometricsEnabled = [
-            "1": true,
-        ]
-        subject.state.isUnlockWithBiometricsToggleOn = true
-        await subject.perform(.loadData)
-
-        XCTAssertTrue(subject.state.isUnlockWithBiometricsToggleOn)
+        XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    func test_perform_toggleUnlockWithBiometrics_deleteFailure() async throws {
+    func test_perform_toggleUnlockWithBiometrics_authRepositoryFailure() async throws {
         struct TestError: Error, Equatable {}
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.activeAccount = .fixture()
-        stateService.setBiometricAuthenticationEnabledResult = .success(())
-        authRepository.deleteUserBiometricAuthKeyError = TestError()
-        subject.state.isUnlockWithBiometricsToggleOn = true
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
+        biometricsService.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: false, hasValidIntegrity: false)
+        )
+
+        authRepository.allowBiometricUnlockResult = .failure(TestError())
+        subject.state.biometricUnlockStatus = biometricUnlockStatus
         await subject.perform(.toggleUnlockWithBiometrics(false))
 
         let error = try XCTUnwrap(errorReporter.errors.first as? TestError)
         XCTAssertEqual(error, TestError())
-        XCTAssertTrue(subject.state.isUnlockWithBiometricsToggleOn)
+        XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    func test_perform_toggleUnlockWithBiometrics_deleteSuccess() async {
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.activeAccount = .fixture()
-        stateService.getBiometricAuthenticationEnabledResult = .success(())
-        authRepository.deleteUserBiometricAuthKeyError = nil
-        subject.state.isUnlockWithBiometricsToggleOn = true
-        await subject.perform(.toggleUnlockWithBiometrics(false))
-
-        XCTAssertFalse(subject.state.isUnlockWithBiometricsToggleOn)
-    }
-
-    /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    func test_perform_toggleUnlockWithBiometrics_setFailure() async throws {
+    func test_perform_toggleUnlockWithBiometrics_biometricsServiceFailure() async throws {
         struct TestError: Error, Equatable {}
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.activeAccount = .fixture()
-        stateService.setBiometricAuthenticationEnabledResult = .failure(TestError())
-        authRepository.deleteUserBiometricAuthKeyError = nil
-        subject.state.isUnlockWithBiometricsToggleOn = true
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
+        biometricsService.biometricUnlockStatus = .failure(TestError())
+
+        authRepository.allowBiometricUnlockResult = .success(())
+        subject.state.biometricUnlockStatus = biometricUnlockStatus
         await subject.perform(.toggleUnlockWithBiometrics(false))
 
         let error = try XCTUnwrap(errorReporter.errors.first as? TestError)
         XCTAssertEqual(error, TestError())
-        XCTAssertTrue(subject.state.isUnlockWithBiometricsToggleOn)
+        XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    func test_perform_toggleUnlockWithBiometrics_failure_shouldDisableBiometricsPreference() async throws {
-        biometricsService.biometricAuthStatus = .denied(.faceID)
-        stateService.activeAccount = .fixture()
-        stateService.biometricsEnabled = [
-            "1": false,
-        ]
-        stateService.getBiometricAuthenticationEnabledResult = .success(())
-        authRepository.storeUserBiometricAuthKeyError = nil
-        subject.state.isUnlockWithBiometricsToggleOn = false
-        await subject.perform(.toggleUnlockWithBiometrics(true))
+    func test_perform_toggleUnlockWithBiometrics_success() async {
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: true)
+        biometricsService.biometricUnlockStatus = .success(
+            biometricUnlockStatus
+        )
+        authRepository.allowBiometricUnlockResult = .success(())
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        await subject.perform(.toggleUnlockWithBiometrics(false))
 
-        XCTAssertFalse(subject.state.isUnlockWithBiometricsToggleOn)
-    }
-
-    /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    func test_perform_toggleUnlockWithBiometrics_failure_storeError() async throws {
-        struct TestError: Error, Equatable {}
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.activeAccount = .fixture()
-        stateService.biometricsEnabled = [
-            "1": false,
-        ]
-        stateService.getBiometricAuthenticationEnabledResult = .success(())
-        authRepository.storeUserBiometricAuthKeyError = TestError()
-        subject.state.isUnlockWithBiometricsToggleOn = false
-        await subject.perform(.toggleUnlockWithBiometrics(true))
-
-        let error = try XCTUnwrap(errorReporter.errors.first as? TestError)
-        XCTAssertEqual(error, TestError())
-        XCTAssertFalse(subject.state.isUnlockWithBiometricsToggleOn)
-    }
-
-    /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    func test_perform_toggleUnlockWithBiometrics_storeSuccess() async {
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.activeAccount = .fixture()
-        stateService.biometricsEnabled = [
-            "1": false,
-        ]
-        stateService.getBiometricAuthenticationEnabledResult = .success(())
-        authRepository.storeUserBiometricAuthKeyError = nil
-        subject.state.isUnlockWithBiometricsToggleOn = false
-        await subject.perform(.toggleUnlockWithBiometrics(true))
-
-        XCTAssertTrue(subject.state.isUnlockWithBiometricsToggleOn)
+        XCTAssertEqual(
+            subject.state.biometricUnlockStatus,
+            biometricUnlockStatus
+        )
     }
 
     /// `receive(_:)` with `.twoStepLoginPressed` shows the two step login alert.

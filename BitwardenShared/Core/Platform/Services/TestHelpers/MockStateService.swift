@@ -30,6 +30,7 @@ class MockStateService: StateService {
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
+    var systemBiometricIntegrityState: String?
     var rememberedOrgIdentifier: String?
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
@@ -148,6 +149,10 @@ class MockStateService: StateService {
         showWebIcons
     }
 
+    func getSystemBiometricIntegrityState() async -> String? {
+        systemBiometricIntegrityState
+    }
+
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccount().profile.userId
         return unsuccessfulUnlockAttempts[userId] ?? 0
@@ -227,6 +232,10 @@ class MockStateService: StateService {
 
     func setShowWebIcons(_ showWebIcons: Bool) async {
         self.showWebIcons = showWebIcons
+    }
+
+    func setSystemBiometricIntegrityState(_ base64State: String?) async {
+        systemBiometricIntegrityState = base64State
     }
 
     func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {

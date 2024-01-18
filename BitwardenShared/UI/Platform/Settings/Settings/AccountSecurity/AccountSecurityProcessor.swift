@@ -42,9 +42,6 @@ final class AccountSecurityProcessor: StateProcessor<
         services: Services,
         state: AccountSecurityState
     ) {
-        var state = state
-        state.biometricAuthStatus = services.biometricsService.getBiometricAuthStatus()
-
         self.coordinator = coordinator
         self.services = services
         super.init(state: state)
@@ -95,27 +92,21 @@ final class AccountSecurityProcessor: StateProcessor<
     /// Loads async data to the state.
     ///
     private func loadData() async {
-        state.isUnlockWithBiometricsToggleOn = await (try? loadBiometricUnlockPreferenceAndUpdateIfNeeded())
-            ?? false
+        state.biometricUnlockStatus = await loadBiometricUnlockPreference()
     }
 
     /// Loads the state of the user's biometric unlock preferences.
     ///
-    /// - Returns: A bool indicating if the state of `isUnlockWithBiometricsToggleOn`.
+    /// - Returns: The `BiometricsUnlockStatus` for the user.
     ///
-    private func loadBiometricUnlockPreferenceAndUpdateIfNeeded() async throws -> Bool {
-        let userId = try await services.stateService.getActiveAccountId()
-        let hasRequestedBiometricUnlock = try await services.stateService
-            .getBiometricAuthenticationEnabled(userId: userId)
-        let biometricsStatus = services.biometricsService.getBiometricAuthStatus()
-        guard hasRequestedBiometricUnlock,
-              biometricsStatus.shouldDisplayiometricsToggle else {
-            try await services.biometricsService.deleteUserAuthKey(for: userId)
-            try await services.stateService.setBiometricAuthenticationEnabled(false, userId: userId)
-            return false
+    private func loadBiometricUnlockPreference() async -> BiometricsUnlockStatus {
+        do {
+            let biometricsStatus = try await services.biometricsService.getBiometricUnlockStatus()
+            return biometricsStatus
+        } catch {
+            Logger.application.debug("Error loading biometric preferences: \(error)")
+            return .notAvailable
         }
-
-        return hasRequestedBiometricUnlock
     }
 
     /// Locks the user's vault
@@ -193,19 +184,9 @@ final class AccountSecurityProcessor: StateProcessor<
     /// - Parameter enabled: Whether or not the the user wants biometric auth enabled.
     ///
     private func setBioMetricAuth(_ enabled: Bool) async {
-        let status = services.biometricsService.getBiometricAuthStatus()
-        let bioMetricsEnabled = (status.shouldDisplayiometricsToggle)
-            ? enabled
-            : false
         do {
-            try await services.stateService
-                .setBiometricAuthenticationEnabled(bioMetricsEnabled, userId: nil)
-            let shouldUseBiometricUnlock = try await services.stateService
-                .getBiometricAuthenticationEnabled(userId: nil)
-            shouldUseBiometricUnlock
-                ? try await services.authRepository.storeUserBiometricAuthKey()
-                : try await services.authRepository.deleteUserBiometricAuthKey()
-            state.isUnlockWithBiometricsToggleOn = shouldUseBiometricUnlock
+            try await services.authRepository.allowBioMetricUnlock(enabled, userId: nil)
+            state.biometricUnlockStatus = try await services.biometricsService.getBiometricUnlockStatus()
         } catch {
             services.errorReporter.log(error: error)
         }

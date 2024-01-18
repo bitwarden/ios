@@ -156,17 +156,7 @@ struct AccountSecurityView: View {
             SectionHeaderView(Localizations.unlockOptions)
 
             VStack(spacing: 24) {
-                if store.state.biometricAuthStatus
-                    .shouldDisplayiometricsToggle {
-                    Toggle(isOn: store.bindingAsync(
-                        get: \.isUnlockWithBiometricsToggleOn,
-                        perform: AccountSecurityEffect.toggleUnlockWithBiometrics
-                    )) {
-                        Text(store.state.biometricsToggleText)
-                    }
-                    .accessibilityLabel(store.state.biometricsToggleText)
-                    .toggleStyle(.bitwarden)
-                }
+                biometricsSetting
 
                 Toggle(isOn: store.binding(
                     get: \.isUnlockWithPINCodeOn,
@@ -176,6 +166,41 @@ struct AccountSecurityView: View {
                 }
                 .toggleStyle(.bitwarden)
             }
+        }
+    }
+
+    /// A view for the user's biometrics setting
+    ///
+    @ViewBuilder private var biometricsSetting: some View {
+        switch store.state.biometricUnlockStatus {
+        case let .available(type, enabled: enabled, _):
+            biometricUnlockToggle(enabled: enabled, type: type)
+        default:
+            EmptyView()
+        }
+    }
+
+    /// A toggle for the user's biometric unlock preference.
+    ///
+    @ViewBuilder
+    private func biometricUnlockToggle(enabled: Bool, type: BiometricAuthenticationType) -> some View {
+        let toggleText = biometricsToggleText(type)
+        Toggle(isOn: store.bindingAsync(
+            get: { _ in enabled },
+            perform: AccountSecurityEffect.toggleUnlockWithBiometrics
+        )) {
+            Text(toggleText)
+        }
+        .accessibilityLabel(toggleText)
+        .toggleStyle(.bitwarden)
+    }
+
+    private func biometricsToggleText(_ biometryType: BiometricAuthenticationType) -> String {
+        switch biometryType {
+        case .faceID:
+            return Localizations.unlockWith(Localizations.faceID)
+        case .touchID:
+            return Localizations.unlockWith(Localizations.touchID)
         }
     }
 }

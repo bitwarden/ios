@@ -180,10 +180,11 @@ public class ServiceContainer: Services {
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
 
-        let biometricsService = DefaultBiometricsService()
-        let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+
+        let biometricsService = DefaultBiometricsService(stateService: stateService)
+        let clientService = DefaultClientService()
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)

@@ -27,6 +27,8 @@ class MockAppSettingsStore: AppSettingsStore {
         }
     }
 
+    var systemBiometricIntegrityState: String?
+
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 

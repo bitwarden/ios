@@ -50,27 +50,44 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     // MARK: Tests
 
-    /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
-    func test_perform_appeared_profiles_single_active() async {
-        let profile = ProfileSwitcherItem()
-        authRepository.accountsResult = .success([profile])
-        authRepository.activeAccountResult = .success(profile)
+    /// `perform(.appeared)` with a biometrics status error yields `BiometricUnlockStatus.unavailable`.
+    func test_perform_appeared_biometricUnlockStatus_error() async {
         stateService.activeAccount = .fixture()
         struct FetchError: Error {}
-        stateService.getBiometricAuthenticationEnabledResult = .failure(FetchError())
-        await stateService.setUnsuccessfulUnlockAttempts(3)
+        biometricsService.biometricUnlockStatus = .failure(FetchError())
         await subject.perform(.appeared)
 
         XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
-        XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
         XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
-        XCTAssertEqual(3, subject.state.unsuccessfulUnlockAttemptsCount)
-        XCTAssertFalse(subject.state.biometricUnlockEnabled)
+        XCTAssertEqual(subject.state.biometricUnlockStatus, .notAvailable)
+    }
+
+    /// `perform(.appeared)` with a biometrics status error yields `BiometricUnlockStatus.unavailable`.
+    func test_perform_appeared_biometricUnlockStatus_success() async {
+        stateService.activeAccount = .fixture()
+        struct FetchError: Error {}
+        let expectedStatus = BiometricsUnlockStatus.available(.touchID, enabled: true, hasValidIntegrity: false)
+        biometricsService.biometricUnlockStatus = .success(expectedStatus)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
+        XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
+        XCTAssertEqual(subject.state.biometricUnlockStatus, expectedStatus)
+    }
+
+    /// `perform(.appeared)` without profiles for the profile switcher.
+    func test_perform_appeared_empty() async {
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(
+            subject.state.profileSwitcherState,
+            ProfileSwitcherState.empty()
+        )
     }
 
     /// `perform(.appeared)`
     ///  Mismatched active account and accounts should yield an empty profile switcher state.
-    func test_perform_appeared_mismatch() async {
+    func test_perform_appeared_profiles_mismatch() async {
         let profile = ProfileSwitcherItem()
         authRepository.accountsResult = .success([])
         authRepository.activeAccountResult = .success(profile)
@@ -82,14 +99,16 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
-    /// `perform(.appeared)` without profiles for the profile switcher.
-    func test_perform_appeared_empty() async {
+    /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
+    func test_perform_appeared_profiles_single_active() async {
+        let profile = ProfileSwitcherItem()
+        authRepository.accountsResult = .success([profile])
+        authRepository.activeAccountResult = .success(profile)
         await subject.perform(.appeared)
 
-        XCTAssertEqual(
-            subject.state.profileSwitcherState,
-            ProfileSwitcherState.empty()
-        )
+        XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
+        XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
+        XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
     }
 
     /// `perform(.appeared)` refreshes the profile switcher and disables add account when running
@@ -112,84 +131,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
-    /// `perform(.appeared)` configures state for biometrics.
-    func test_perform_appeared_biometrics() async {
-        stateService.activeAccount = .fixture()
-        stateService.biometricsEnabled = [
-            "1": true,
-        ]
-        biometricsService.biometricAuthStatus = .authorized(.touchID)
-        await subject.perform(.appeared)
-
-        XCTAssertTrue(subject.state.biometricUnlockEnabled)
-        XCTAssertEqual(subject.state.biometricAuthStatus, .authorized(.touchID))
-    }
-
-    /// `perform(.appeared)` configures state for biometrics.
-    func test_perform_appeared_biometrics_locked() async throws {
-        stateService.activeAccount = .fixture()
-        stateService.biometricsEnabled = [
-            "1": true,
-        ]
-        biometricsService.biometricAuthStatus = .lockedOut(.touchID)
-        await subject.perform(.appeared)
-
-        let route = try XCTUnwrap(coordinator.routes.last)
-        XCTAssertEqual(route, .landing)
-    }
-
-    /// `perform(.appeared)` configures state for biometrics.
-    func test_perform_appeared_biometrics_lockedError() throws {
-        stateService.activeAccount = .fixture()
-        stateService.biometricsEnabled = [
-            "1": true,
-        ]
-        biometricsService.biometricAuthStatus = .lockedOut(.touchID)
-        struct LogoutError: Error, Equatable {}
-        authRepository.logoutResult = .failure(LogoutError())
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        waitFor(!errorReporter.errors.isEmpty)
-        task.cancel()
-        let route = try XCTUnwrap(coordinator.routes.last)
-        XCTAssertEqual(route, .landing)
-        let nsError = errorReporter.errors.last as? NSError
-        let error = try XCTUnwrap(nsError?.userInfo[NSUnderlyingErrorKey]) as? LogoutError
-        XCTAssertEqual(error, LogoutError())
-    }
-
-    /// `perform(.appeared)` configures state for biometrics.
-    func test_perform_appeared_biometrics_maxAttempts() async throws {
-        stateService.activeAccount = .fixture()
-        subject.state.unsuccessfulUnlockAttemptsCount = 4
-        await stateService.setUnsuccessfulUnlockAttempts(5)
-        var attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        subject.state.unsuccessfulUnlockAttemptsCount = attemptsInUserDefaults
-        stateService.biometricsEnabled = [
-            "1": true,
-        ]
-        struct KeyError: Error, Equatable {}
-        biometricsService.biometricAuthStatus = .authorized(.touchID)
-        authRepository.unlockVaultWithBiometricsResult = .failure(KeyError())
-        await subject.perform(.unlockVaultWithBiometrics)
-
-        XCTAssertTrue(authRepository.logoutCalled)
-        XCTAssertEqual(coordinator.routes.last, .landing)
-    }
-
-    /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
-    func test_perform_appeared_single_active() async {
-        let profile = ProfileSwitcherItem()
-        authRepository.accountsResult = .success([profile])
-        authRepository.activeAccountResult = .success(profile)
-        await subject.perform(.appeared)
-
-        XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
-        XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
-        XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
-    }
-
     /// `perform(.appeared)` sets the state property for whether the app is running in an extension.
     func test_perform_appeared_setsIsInAppExtension() async {
         appExtensionDelegate.isInAppExtension = true
@@ -199,6 +140,15 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         appExtensionDelegate.isInAppExtension = false
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isInAppExtension)
+    }
+
+    /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
+    func test_perform_appeared_unlockAttempts() async {
+        stateService.activeAccount = .fixture()
+        await stateService.setUnsuccessfulUnlockAttempts(3)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(3, subject.state.unsuccessfulUnlockAttemptsCount)
     }
 
     /// `perform(.appeared)`
@@ -429,84 +379,102 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
-    func test_perform_unlockWithBiometrics_noSetPreference() async throws {
-        stateService.activeAccount = .fixture()
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.biometricsEnabled = [:]
-        authRepository.unlockVaultWithBiometricsResult = .success(true)
+    func test_perform_unlockWithBiometrics_noAccount() async throws {
+        biometricsService.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .failure(StateServiceError.noActiveAccount)
+        subject.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
 
         await subject.perform(.unlockVaultWithBiometrics)
-        XCTAssertNil(coordinator.routes.last)
+        let route = try XCTUnwrap(coordinator.routes.last)
+        XCTAssertEqual(route, .landing)
     }
 
-    /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
-    func test_perform_unlockWithBiometrics_biometricsError() async throws {
-        stateService.activeAccount = .fixture()
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.biometricsEnabled = [
-            "1": true,
-        ]
-        struct BiometricsError: Error {}
-        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsError())
-
-        await subject.perform(.unlockVaultWithBiometrics)
-        XCTAssertNil(coordinator.routes.last)
-    }
-
-    /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
-    func test_perform_unlockWithBiometrics_biometricsFailure() async throws {
-        stateService.activeAccount = .fixture()
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.biometricsEnabled = [
-            "1": true,
-        ]
-        authRepository.unlockVaultWithBiometricsResult = .success(false)
+    /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
+    func test_perform_unlockWithBiometrics_notAvailable() async throws {
+        biometricsService.biometricUnlockStatus = .success(.notAvailable)
+        authRepository.unlockVaultWithBiometricsResult = .success(())
+        subject.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
 
         await subject.perform(.unlockVaultWithBiometrics)
         XCTAssertNil(coordinator.routes.last)
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
-    func test_perform_unlockWithBiometrics_noSetPreference_error() async throws {
-        stateService.activeAccount = .fixture()
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        struct GetPreferenceError: Error {}
-        stateService.getBiometricAuthenticationEnabledResult = .failure(GetPreferenceError())
-        authRepository.unlockVaultWithBiometricsResult = .success(true)
+    func test_perform_unlockWithBiometrics_notEnabled() async throws {
+        biometricsService.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: false, hasValidIntegrity: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .success(())
+        subject.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
 
         await subject.perform(.unlockVaultWithBiometrics)
         XCTAssertNil(coordinator.routes.last)
     }
 
-    /// `perform(_:)` with `.unlockWithBiometrics` requires an authorized status.
-    func test_perform_unlockWithBiometrics_unauthorized() async throws {
-        stateService.activeAccount = .fixture()
-        biometricsService.biometricAuthStatus = .denied(.faceID)
+    /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
+    func test_perform_unlockWithBiometrics_invalidIntegrity() async throws {
+        biometricsService.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true, hasValidIntegrity: false)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .success(())
+        subject.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
 
         await subject.perform(.unlockVaultWithBiometrics)
         XCTAssertNil(coordinator.routes.last)
     }
 
-    /// `perform(_:)` with `.unlockWithBiometrics` can logout the user after repeated failed attempts.
-    func test_perform_unlockWithBiometrics_locked() async throws {
+    /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    func test_perform_unlockWithBiometrics_authRepoError() async throws {
         stateService.activeAccount = .fixture()
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        authRepository.unlockVaultWithBiometricsResult = .success(false)
+        biometricsService.biometricUnlockStatus = .success(.available(.touchID, enabled: true, hasValidIntegrity: true))
+        struct BiometricsError: Error {}
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsError())
+
         await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertNil(coordinator.routes.last)
+        XCTAssertEqual(1, subject.state.unsuccessfulUnlockAttemptsCount)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    func test_perform_unlockWithBiometrics_authRepoError_maxAttempts() async throws {
+        stateService.activeAccount = .fixture()
+        subject.state.unsuccessfulUnlockAttemptsCount = 4
+        biometricsService.biometricUnlockStatus = .success(.available(.touchID, enabled: true, hasValidIntegrity: true))
+        struct BiometricsError: Error {}
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsError())
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertEqual(0, subject.state.unsuccessfulUnlockAttemptsCount)
+        XCTAssertTrue(authRepository.logoutCalled)
+        let route = try XCTUnwrap(coordinator.routes.last)
+        XCTAssertEqual(route, .landing)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed() async throws {
+        biometricsService.biometricUnlockStatus = .success(.available(.touchID, enabled: true, hasValidIntegrity: true))
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
+        authRepository.allowBiometricUnlockResult = .success(())
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertEqual(authRepository.allowBiometricUnlock, false)
         XCTAssertNil(coordinator.routes.last)
     }
 
-    /// `perform(_:)` with `.unlockWithBiometrics` unlocks the vault successfully.
-    func test_perform_unlockWithBiometrics_validBiometrics() async throws {
-        stateService.activeAccount = .fixture()
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        stateService.biometricsEnabled = [
-            "1": true,
-        ]
-        authRepository.unlockVaultWithBiometricsResult = .success(true)
+    /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    func test_perform_unlockWithBiometrics_success() async throws {
+        subject.state.unsuccessfulUnlockAttemptsCount = 3
+        biometricsService.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .success(())
 
         await subject.perform(.unlockVaultWithBiometrics)
-        XCTAssertEqual(coordinator.routes.last, .complete)
+        let route = try XCTUnwrap(coordinator.routes.last)
+        XCTAssertEqual(route, .complete)
+        XCTAssertEqual(0, subject.state.unsuccessfulUnlockAttemptsCount)
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.

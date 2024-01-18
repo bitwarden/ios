@@ -8,7 +8,7 @@ extension ServiceContainer {
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         authRepository: AuthRepository = MockAuthRepository(),
         authService: AuthService = MockAuthService(),
-        biometricsService: BiometricsService = DefaultBiometricsService(),
+        biometricsService: BiometricsService = MockBiometricsService(),
         captchaService: CaptchaService = MockCaptchaService(),
         cameraService: CameraService = MockCameraService(),
         clientService: ClientService = MockClientService(),

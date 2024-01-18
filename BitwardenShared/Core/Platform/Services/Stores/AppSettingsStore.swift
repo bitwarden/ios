@@ -33,6 +33,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's account state.
     var state: State? { get set }
 
+    /// The system biometric integrity state `Data`, base64 encoded.
+    var systemBiometricIntegrityState: String? { get set }
+
     /// Whether the vault should sync on refreshing.
     ///
     /// - Parameter userId: The user ID associated with the sync on refresh setting.
@@ -355,6 +358,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case rememberedEmail
         case rememberedOrgIdentifier
         case state
+        case systemBiometricIntegrityState
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
 
@@ -398,6 +402,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedOrgIdentifier"
             case .state:
                 key = "state"
+            case .systemBiometricIntegrityState:
+                key = "biometricIntegritySource"
             case let .unsuccessfulUnlockAttempts(userId):
                 key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
@@ -448,6 +454,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             activeAccountIdSubject.send(newValue?.activeUserId)
             return store(newValue, for: .state)
         }
+    }
+
+    var systemBiometricIntegrityState: String? {
+        get { fetch(for: .systemBiometricIntegrityState) }
+        set { store(newValue, for: .systemBiometricIntegrityState) }
     }
 
     func allowSyncOnRefresh(userId: String) -> Bool {

@@ -107,14 +107,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     /// Loads the async state data for the view
     ///
     private func loadData() async {
-        state.biometricUnlockEnabled = await (try? services.stateService
-            .getBiometricAuthenticationEnabled(userId: nil)) ?? false
-        let biometricsStatus = services.biometricsService.getBiometricAuthStatus()
-        if case .lockedOut = biometricsStatus {
-            await logoutUser()
-            return
-        }
-        state.biometricAuthStatus = biometricsStatus
+        state.biometricUnlockStatus = await (try? services.biometricsService.getBiometricUnlockStatus())
+            ?? .notAvailable
         state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
         state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
         await refreshProfileState()
@@ -173,25 +167,36 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     /// Attempts to unlock the vault with the user's biometrics
     ///
     private func unlockWithBiometrics() async {
-        let status = services.biometricsService.getBiometricAuthStatus()
-        guard case .authorized = status else { return }
+        let status = try? await services.biometricsService.getBiometricUnlockStatus()
+        guard case let .available(_, enabled: enabled, hasValidIntegrity) = status,
+              enabled,
+              hasValidIntegrity else {
+            await loadData()
+            return
+        }
 
         do {
-            guard try await services.stateService.getBiometricAuthenticationEnabled(userId: nil),
-                  try await services.authRepository.unlockVaultWithBiometrics() else {
-                await loadData()
-                return
-            }
+            try await services.authRepository.unlockVaultWithBiometrics()
             coordinator.navigate(to: .complete)
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
+        } catch let error as BiometricsServiceError {
+            Logger.processor.error("BiometricsServiceError unlocking vault with biometrics: \(error)")
+            // There is no biometric auth key stored, set user preference to false.
+            if case .getAuthKeyFailed = error {
+                try? await services.authRepository.allowBioMetricUnlock(false, userId: nil)
+            }
+            await loadData()
         } catch let error as StateServiceError {
             // If there is no active account, don't add to the unsuccessful count.
-            Logger.processor.error("Error unlocking vault with biometrics: \(error)")
-            await loadData()
+            Logger.processor.error("StateServiceError unlocking vault with biometrics: \(error)")
+            // Just send the user back to landing.
+            coordinator.navigate(to: .landing)
         } catch {
             Logger.processor.error("Error unlocking vault with biometrics: \(error)")
             state.unsuccessfulUnlockAttemptsCount += 1
+            await services.stateService
+                .setUnsuccessfulUnlockAttempts(state.unsuccessfulUnlockAttemptsCount)
             if state.unsuccessfulUnlockAttemptsCount >= 5 {
                 await logoutUser(resetAttempts: true)
                 return

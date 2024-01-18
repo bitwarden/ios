@@ -3,9 +3,10 @@
 class MockAuthRepository: AuthRepository {
     var accountsResult: Result<[ProfileSwitcherItem], Error> = .failure(StateServiceError.noAccounts)
     var activeAccountResult: Result<ProfileSwitcherItem, Error> = .failure(StateServiceError.noActiveAccount)
+    var allowBiometricUnlock: Bool?
+    var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var deleteAccountCalled = false
-    var deleteUserBiometricAuthKeyError: Error?
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
     var logoutCalled = false
     var logoutResult: Result<Void, Error> = .success(())
@@ -13,10 +14,9 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
-    var storeUserBiometricAuthKeyError: Error?
     var unlockVaultPassword: String?
     var unlockVaultResult: Result<Void, Error> = .success(())
-    var unlockVaultWithBiometricsResult: Result<Bool, Error> = .success(true)
+    var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
 
     func deleteAccount(passwordText: String) async throws {
         deleteAccountCalled = true
@@ -53,28 +53,17 @@ class MockAuthRepository: AuthRepository {
         try setActiveAccountResult.get()
     }
 
+    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws {
+        allowBiometricUnlock = enabled
+        try allowBiometricUnlockResult.get()
+    }
+
     func unlockVault(password: String) async throws {
         unlockVaultPassword = password
         try unlockVaultResult.get()
     }
-}
 
-// MARK: Biometrics
-
-extension MockAuthRepository {
-    func deleteUserBiometricAuthKey() async throws {
-        if let deleteUserBiometricAuthKeyError {
-            throw deleteUserBiometricAuthKeyError
-        }
-    }
-
-    func unlockVaultWithBiometrics() async throws -> Bool {
+    func unlockVaultWithBiometrics() async throws {
         try unlockVaultWithBiometricsResult.get()
-    }
-
-    func storeUserBiometricAuthKey() async throws {
-        if let storeUserBiometricAuthKeyError {
-            throw storeUserBiometricAuthKeyError
-        }
     }
 }

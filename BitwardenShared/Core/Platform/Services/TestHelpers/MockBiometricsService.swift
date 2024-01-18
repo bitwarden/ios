@@ -1,13 +1,18 @@
 @testable import BitwardenShared
 
 class MockBiometricsService: BiometricsService {
-    var biometricAuthStatus: BiometricAuthorizationStatus = .noBiometrics
+    var biometricUnlockStatus: Result<BiometricsUnlockStatus, Error> = .success(.notAvailable)
     var capturedUserAuthKey: String?
     var capturedUserID: String?
     var deleteResult: Result<Void, Error> = .success(())
+    var didConfigureBiometricIntegrity = false
     var didDeleteKey: Bool = false
-    var retrieveUserAuthKeyResult: Result<String, Error> = .success("UserAuthKey")
-    var setUserAuthKeyError: Error?
+    var getUserAuthKeyResult: Result<String, Error> = .success("UserAuthKey")
+    var setBiometricUnlockKeyError: Error?
+
+    func configureBiometricIntegrity() async {
+        didConfigureBiometricIntegrity = true
+    }
 
     func deleteUserAuthKey(for userId: String) async throws {
         capturedUserID = userId
@@ -15,20 +20,20 @@ class MockBiometricsService: BiometricsService {
         didDeleteKey = true
     }
 
-    func getBiometricAuthStatus() -> BitwardenShared.BiometricAuthorizationStatus {
-        biometricAuthStatus
+    func getBiometricUnlockStatus() async throws -> BitwardenShared.BiometricsUnlockStatus {
+        try biometricUnlockStatus.get()
     }
 
-    func retrieveUserAuthKey(for userId: String) async throws -> String? {
+    func getUserAuthKey(for userId: String?) async throws -> String {
         capturedUserID = userId
-        return try retrieveUserAuthKeyResult.get()
+        return try getUserAuthKeyResult.get()
     }
 
-    func setUserAuthKey(value: String, for userId: String) async throws {
-        capturedUserAuthKey = value
+    func setBiometricUnlockKey(authKey: String?, for userId: String?) async throws {
+        capturedUserAuthKey = authKey
         capturedUserID = userId
-        if let setUserAuthKeyError {
-            throw setUserAuthKeyError
+        if let setBiometricUnlockKeyError {
+            throw setBiometricUnlockKeyError
         }
     }
 }

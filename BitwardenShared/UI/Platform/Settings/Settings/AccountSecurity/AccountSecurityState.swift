@@ -105,19 +105,7 @@ public enum SessionTimeoutAction: CaseIterable, Equatable, Menuable {
 ///
 struct AccountSecurityState: Equatable {
     /// The biometric auth status for the user.
-    var biometricAuthStatus: BiometricAuthorizationStatus = .notDetermined
-
-    /// The text for the biometrics toggle.
-    var biometricsToggleText: String {
-        switch biometricAuthStatus.biometricAuthenticationType {
-        case .faceID:
-            return Localizations.unlockWith(Localizations.faceID)
-        case .touchID:
-            return Localizations.unlockWith(Localizations.touchID)
-        case .none:
-            return ""
-        }
-    }
+    var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
 
     /// The accessibility label used for the custom timeout value.
     var customTimeoutAccessibilityLabel: String {
@@ -145,9 +133,6 @@ struct AccountSecurityState: Equatable {
 
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
-
-    /// Whether the unlock with Biometric Auth toggle is on.
-    var isUnlockWithBiometricsToggleOn: Bool = false
 
     /// The action taken when a session timeout occurs.
     var sessionTimeoutAction: SessionTimeoutAction = .lock
