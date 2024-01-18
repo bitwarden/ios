@@ -172,23 +172,19 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     /// Shows the vault list screen.
     ///
     private func showList() {
-        if stackNavigator.isPresenting {
-            stackNavigator.dismiss()
-        } else {
-            let processor = VaultListProcessor(
-                coordinator: asAnyCoordinator(),
-                services: services,
-                state: VaultListState(
-                    iconBaseURL: services.environmentService.iconsURL
-                )
+        let processor = VaultListProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultListState(
+                iconBaseURL: services.environmentService.iconsURL
             )
-            let store = Store(processor: processor)
-            let view = VaultListView(
-                store: store,
-                timeProvider: services.timeProvider
-            )
-            stackNavigator.replace(view, animated: false)
-        }
+        )
+        let store = Store(processor: processor)
+        let view = VaultListView(
+            store: store,
+            timeProvider: services.timeProvider
+        )
+        stackNavigator.replace(view, animated: false)
     }
 
     /// Presents a vault item coordinator, which will navigate to the provided route.

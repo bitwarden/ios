@@ -102,8 +102,8 @@ struct TwoFactorAuthView: View {
     /// The resend email button for the email authentication option.
     @ViewBuilder private var resendEmailButton: some View {
         if store.state.authMethod == .email {
-            Button(Localizations.sendVerificationCodeAgain) {
-                store.send(.resendEmailTapped)
+            AsyncButton(Localizations.sendVerificationCodeAgain) {
+                await store.perform(.resendEmailTapped)
             }
             .buttonStyle(.tertiary())
         }

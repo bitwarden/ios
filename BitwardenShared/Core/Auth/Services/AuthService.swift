@@ -7,11 +7,20 @@ import Foundation
 /// A set of errors that could occur during authentication.
 ///
 enum AuthError: Error {
+    /// The request that should have been cached for the two-factor authentication method was missing.
+    case missingTwoFactorRequest
+
     /// There was a problem extracting the code from the single sign on WebAuth response.
     case unableToDecodeSSOResponse
 
     /// There was a problem generating the single sign on url.
     case unableToGenerateSSOUrl
+
+    /// There was a problem generating the identity token request.
+    case unableToGenerateRequest
+
+    /// There was a problem generating the request to resend the email.
+    case unableToResendEmail
 }
 
 // MARK: - AuthService
@@ -37,7 +46,8 @@ protocol AuthService {
     ///   - password: The password text to hash.
     ///   - purpose: The purpose of the hash.
     ///
-    /// - Returns: A hash value of the password .
+    /// - Returns: A hash value of the password.
+    ///
     func hashPassword(password: String, purpose: HashPurpose) async throws -> String
 
     /// Login with the master password.
@@ -51,10 +61,35 @@ protocol AuthService {
 
     /// Login with the single sign on code.
     ///
-    /// - Parameter code: The code received from the single sign on WebAuth flow.
-    /// - Returns: An account for which to unlock the vault, or nil if the vault does not need to be unlocked.
+    /// - Parameters:
+    ///   - code: The code received from the single sign on WebAuth flow.
+    ///   - email: The user's email address.
     ///
-    func loginWithSingleSignOn(code: String) async throws -> Account?
+    /// - Returns: The account to unlock the vault for, or nil if the vault does not need to be unlocked.
+    ///
+    func loginWithSingleSignOn(code: String, email: String) async throws -> Account?
+
+    /// Continue the previous login attempt with the addition of the two-factor information.
+    ///
+    /// - Parameters:
+    ///   - email: The user's email, used to cache the token if remember is true.
+    ///   - code: The two-factor authentication code.
+    ///   - method: The two-factor authentication method.
+    ///   - remember: Whether to remember the two-factor code.
+    ///   - captchaToken:  An optional captcha token value to add to the token request.
+    ///
+    /// - Returns: The account to unlock the vault for.
+    ///
+    func loginWithTwoFactorCode(
+        email: String,
+        code: String,
+        method: TwoFactorAuthMethod,
+        remember: Bool,
+        captchaToken: String?
+    ) async throws -> Account
+
+    /// Resend the email with the user's verification code.
+    func resendVerificationCodeEmail() async throws
 }
 
 // MARK: - DefaultAuthService
@@ -88,6 +123,9 @@ class DefaultAuthService: AuthService {
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
+    /// The request model to resend the email with the two-factor verification code.
+    private var resendEmailModel: ResendEmailCodeRequestModel?
+
     /// The single sign on callback url for this application.
     private var singleSignOnCallbackUrl: String { "\(callbackUrlScheme)://sso-callback" }
 
@@ -96,6 +134,10 @@ class DefaultAuthService: AuthService {
 
     /// The object used by the application to retrieve information about this device.
     private let systemDevice: SystemDevice
+
+    /// The two-factor request, which is cached after the original login request fails and then
+    /// reused with the code once the user has entered it.
+    private var twoFactorRequest: IdentityTokenRequestModel?
 
     // MARK: Initialization
 
@@ -196,6 +238,7 @@ class DefaultAuthService: AuthService {
                 username: username,
                 password: hashedPassword
             ),
+            email: username,
             captchaToken: captchaToken
         )
 
@@ -216,19 +259,53 @@ class DefaultAuthService: AuthService {
         )
     }
 
-    func loginWithSingleSignOn(code: String) async throws -> Account? {
+    func loginWithSingleSignOn(code: String, email: String) async throws -> Account? {
         // Get the identity token to log in to Bitwarden.
         try await getIdentityTokenResponse(
             authenticationMethod: .authorizationCode(
                 code: code,
                 codeVerifier: codeVerifier,
                 redirectUri: singleSignOnCallbackUrl
-            )
+            ),
+            email: email
         )
 
         // Return the account if the vault still needs to be unlocked and nil otherwise.
         // TODO: BIT-1392 Wait for SDK to support unlocking vault for TDE accounts.
         return try await stateService.getActiveAccount()
+    }
+
+    func loginWithTwoFactorCode(
+        email: String,
+        code: String,
+        method: TwoFactorAuthMethod,
+        remember: Bool,
+        captchaToken: String? = nil
+    ) async throws -> Account {
+        guard var twoFactorRequest else { throw AuthError.missingTwoFactorRequest }
+
+        // Add the two factor information to the request.
+        twoFactorRequest.twoFactorCode = code
+        twoFactorRequest.twoFactorMethod = method
+        twoFactorRequest.twoFactorRemember = remember
+
+        // Add the captcha result, if applicable.
+        twoFactorRequest.captchaToken = captchaToken
+
+        // Get the identity token to log in to Bitwarden.
+        try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
+
+        // Remove the cached request after successfully logging in.
+        self.twoFactorRequest = nil
+        resendEmailModel = nil
+
+        // Return the account if the vault still needs to be unlocked.
+        return try await stateService.getActiveAccount()
+    }
+
+    func resendVerificationCodeEmail() async throws {
+        guard let resendEmailModel else { throw AuthError.unableToResendEmail }
+        try await authAPIService.resendEmailCode(resendEmailModel)
     }
 
     // MARK: Private Methods
@@ -237,33 +314,79 @@ class DefaultAuthService: AuthService {
     ///
     /// - Parameters:
     ///   - authenticationMethod: The authentication method to use.
+    ///   - email: The user's email address.
     ///   - captchaToken: The optional captcha token. Defaults to `nil`.
     ///
     private func getIdentityTokenResponse(
-        authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod,
-        captchaToken: String? = nil
+        authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod? = nil,
+        email: String,
+        captchaToken: String? = nil,
+        request: IdentityTokenRequestModel? = nil
     ) async throws {
         // Get the app's id.
         let appID = await appIdService.getOrCreateAppId()
 
-        // Get the identity token from Bitwarden.
-        let identityTokenRequest = IdentityTokenRequestModel(
-            authenticationMethod: authenticationMethod,
-            captchaToken: captchaToken,
-            deviceInfo: DeviceInfo(
-                identifier: appID,
-                name: systemDevice.modelIdentifier
+        var request = request
+        if let authenticationMethod {
+            // Use the cached two-factor data, if available.
+            let savedTwoFactorToken = await stateService.getTwoFactorToken(email: email)
+            let method: TwoFactorAuthMethod? = (savedTwoFactorToken != nil) ? .remember : nil
+            let remember: Bool? = (savedTwoFactorToken != nil) ? false : nil
+
+            // Form the token request.
+            request = IdentityTokenRequestModel(
+                authenticationMethod: authenticationMethod,
+                captchaToken: captchaToken,
+                deviceInfo: DeviceInfo(
+                    identifier: appID,
+                    name: systemDevice.modelIdentifier
+                ),
+                twoFactorCode: savedTwoFactorToken,
+                twoFactorMethod: method,
+                twoFactorRemember: remember
             )
-        )
-        let identityTokenResponse = try await authAPIService.getIdentityToken(identityTokenRequest)
+        }
+        do {
+            // Get the identity token from Bitwarden.
+            guard let request else { throw AuthError.unableToGenerateRequest }
+            let identityTokenResponse = try await authAPIService.getIdentityToken(request)
 
-        // Create the account.
-        let urls = await stateService.getPreAuthEnvironmentUrls()
-        let account = try Account(identityTokenResponseModel: identityTokenResponse, environmentUrls: urls)
-        await stateService.addAccount(account)
+            // If the user just authenticated with a two-factor code and selected
+            // the option to remember, then the API response will return a token
+            // that be used in place of the two-factor code on the next login attempt.
+            if let twoFactorToken = identityTokenResponse.twoFactorToken {
+                await stateService.setTwoFactorToken(twoFactorToken, email: email)
+            }
 
-        // Save the encryption keys.
-        let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
-        try await stateService.setAccountEncryptionKeys(encryptionKeys)
+            // Create the account.
+            let urls = await stateService.getPreAuthEnvironmentUrls()
+            let account = try Account(identityTokenResponseModel: identityTokenResponse, environmentUrls: urls)
+            await stateService.addAccount(account)
+
+            // Save the encryption keys.
+            let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
+            try await stateService.setAccountEncryptionKeys(encryptionKeys)
+        } catch let error as IdentityTokenRequestError {
+            if case let .twoFactorRequired(_, ssoToken) = error {
+                // If the token request require two-factor authentication, cache the request so that
+                // the token information can be added once the user inputs the code.
+                twoFactorRequest = request
+
+                // Form the resend email request in case the user needs to resend the verification code email.
+                var passwordHash: String?
+                if case let .password(_, password) = authenticationMethod { passwordHash = password }
+                resendEmailModel = .init(
+                    deviceIdentifier: appID,
+                    email: email,
+                    masterPasswordHash: passwordHash,
+                    ssoEmail2FaSessionToken: ssoToken
+                )
+
+                // If this error was thrown, it also means any cached two-factor token is not valid.
+                await stateService.setTwoFactorToken(nil, email: email)
+            }
+            // Re-throw the error.
+            throw error
+        }
     }
 }

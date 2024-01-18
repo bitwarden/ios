@@ -130,15 +130,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is VaultListView)
     }
 
-    /// `.navigate(to:)` with `.list` while presenting a screen modally dismisses the modal screen.
-    func test_navigateTo_list_whilePresenting() throws {
-        stackNavigator.present(EmptyView(), animated: false, overFullscreen: false)
-        subject.navigate(to: .list)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .dismissed)
-    }
-
     /// `navigate(to:)` with `.switchAccount(userId:, isUnlocked: isUnlocked)`calls the associated delegate method.
     func test_navigateTo_switchAccount() throws {
         subject.navigate(to: .switchAccount(userId: "123"))

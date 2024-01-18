@@ -30,6 +30,12 @@ protocol AuthAPIService {
     /// - Returns: The identity token refresh response containing a new access token.
     ///
     func refreshIdentityToken(refreshToken: String) async throws -> IdentityTokenRefreshResponseModel
+
+    /// Sends the request to email the user another verification code.
+    ///
+    /// - Parameter model: The data needed to send the request.
+    ///
+    func resendEmailCode(_ model: ResendEmailCodeRequestModel) async throws
 }
 
 extension APIService: AuthAPIService {
@@ -48,5 +54,9 @@ extension APIService: AuthAPIService {
 
     func refreshIdentityToken(refreshToken: String) async throws -> IdentityTokenRefreshResponseModel {
         try await identityService.send(IdentityTokenRefreshRequest(refreshToken: refreshToken))
+    }
+
+    func resendEmailCode(_ model: ResendEmailCodeRequestModel) async throws {
+        _ = try await apiUnauthenticatedService.send(ResendEmailCodeRequest(model: model))
     }
 }

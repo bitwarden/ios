@@ -85,7 +85,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) {
         coordinator.hideLoadingOverlay()
         if case ASWebAuthenticationSessionError.canceledLogin = error { return }
-        if case let .twoFactorRequired(authMethodsData) = error as? IdentityTokenRequestError {
+        if case let .twoFactorRequired(authMethodsData, _) = error as? IdentityTokenRequestError {
             return coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData))
         }
         coordinator.showAlert(.networkResponseError(error, tryAgain))
@@ -153,7 +153,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
         Task {
             do {
                 // Use the code to authenticate the user with Bitwarden.
-                let account = try await self.services.authService.loginWithSingleSignOn(code: code)
+                let account = try await self.services.authService.loginWithSingleSignOn(code: code, email: state.email)
 
                 // Remember the organization identifier after successfully logging on.
                 services.stateService.rememberedOrgIdentifier = state.identifierText

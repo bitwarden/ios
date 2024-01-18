@@ -64,11 +64,11 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .rememberMeToggleChanged(true))
     }
 
-    /// Tapping the resend email button dispatches the `.resendEmailTapped` action.
-    func test_resendEmailButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.sendVerificationCodeAgain)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .resendEmailTapped)
+    /// Tapping the resend email button performs the `.resendEmailTapped` effect.
+    func test_resendEmailButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.sendVerificationCodeAgain)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .resendEmailTapped)
     }
 
     /// Updating the value in the verification code text field dispatches the `.verificationCodeChanged(_)` action.
