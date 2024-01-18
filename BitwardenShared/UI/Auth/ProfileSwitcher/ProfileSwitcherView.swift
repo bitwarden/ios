@@ -99,8 +99,13 @@ struct ProfileSwitcherView: View {
                     )
                 )
             },
-            mapAction: { _ in
-                .accountPressed(store.state.activeAccountProfile ?? ProfileSwitcherItem())
+            mapAction: { action in
+                switch action {
+                case .longPressed:
+                    .accountLongPressed(store.state.activeAccountProfile ?? ProfileSwitcherItem())
+                case .pressed:
+                    .accountPressed(store.state.activeAccountProfile ?? ProfileSwitcherItem())
+                }
             },
             mapEffect: nil
         ))
@@ -124,7 +129,14 @@ struct ProfileSwitcherView: View {
                         rowType: .alternate(accountProfile)
                     )
                 },
-                mapAction: { _ in .accountPressed(accountProfile) },
+                mapAction: { action in
+                    switch action {
+                    case .longPressed:
+                        .accountLongPressed(accountProfile)
+                    case .pressed:
+                        .accountPressed(accountProfile)
+                    }
+                },
                 mapEffect: nil
             )
         )

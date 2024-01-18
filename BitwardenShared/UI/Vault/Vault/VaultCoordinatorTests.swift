@@ -130,13 +130,18 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is VaultListView)
     }
 
-    /// `.navigate(to:)` with `.list` while presenting a screen modally dismisses the modal screen.
-    func test_navigateTo_list_whilePresenting() throws {
-        stackNavigator.present(EmptyView(), animated: false, overFullscreen: false)
-        subject.navigate(to: .list)
+    /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
+    func test_navigateTo_lockVault() throws {
+        subject.navigate(to: .lockVault(account: .fixture()))
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .dismissed)
+        XCTAssertEqual(delegate.lockVaultAccount, .fixture())
+    }
+
+    /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
+    func test_navigateTo_logout() throws {
+        subject.navigate(to: .logout)
+
+        XCTAssertTrue(delegate.logoutTapped)
     }
 
     /// `navigate(to:)` with `.switchAccount(userId:, isUnlocked: isUnlocked)`calls the associated delegate method.
@@ -182,6 +187,16 @@ class VaultCoordinatorTests: BitwardenTestCase {
 class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var addAccountTapped = false
     var accountTapped = [String]()
+    var lockVaultAccount: Account?
+    var logoutTapped = false
+
+    func didLockVault(account: Account) {
+        lockVaultAccount = account
+    }
+
+    func didLogout() {
+        logoutTapped = true
+    }
 
     func didTapAddAccount() {
         addAccountTapped = true
