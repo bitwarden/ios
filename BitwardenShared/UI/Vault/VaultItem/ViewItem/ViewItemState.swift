@@ -7,7 +7,7 @@ import Foundation
 struct ViewItemState: Equatable {
     // MARK: Properties
 
-    /// A flag indicating if current cipher can be cloned.
+    /// A flag indicating if the current cipher can be cloned.
     var canClone: Bool {
         switch loadingState {
         case let .data(state):
