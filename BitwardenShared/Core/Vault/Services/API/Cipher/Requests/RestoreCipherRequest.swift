@@ -23,7 +23,7 @@ struct RestoreCipherRequest: Request {
 
     /// Initialize a `RestoreCipherRequest` for a `Cipher`.
     ///
-    /// - Parameter id: The id of `Cipher` to be restored from the trash.
+    /// - Parameter id: The id of the `Cipher` to be restored from the trash.
     ///
     init(id: String) throws {
         guard !id.isEmpty else { throw CipherAPIServiceError.updateMissingId }
