@@ -15,6 +15,12 @@ protocol SendRepository: AnyObject {
     ///
     func addSend(_ sendView: SendView) async throws
 
+    /// Updates an existing Send in the repository.
+    ///
+    /// - Parameter sendView: The send to update in the repository.
+    ///
+    func updateSend(_ sendView: SendView) async throws
+
     /// Validates the user's active account has access to premium features.
     ///
     /// - Returns: Whether the active account has premium.
@@ -104,6 +110,11 @@ class DefaultSendRepository: SendRepository {
     func addSend(_ sendView: SendView) async throws {
         let send = try await clientVault.sends().encrypt(send: sendView)
         try await sendService.addSend(send)
+    }
+
+    func updateSend(_ sendView: SendView) async throws {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        try await sendService.updateSend(send)
     }
 
     // MARK: API Methods

@@ -14,7 +14,7 @@ extension Send {
         expirationDate: Date? = nil,
         file: SendFileModel? = nil,
         hideEmail: Bool = false,
-        id: String = "1",
+        id: String? = "1",
         key: String = "KEY",
         maxAccessCount: UInt32? = nil,
         name: String = "Test Send",
