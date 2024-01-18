@@ -17,10 +17,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
+    var now: Date!
     var organizationService: MockOrganizationService!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
     var syncService: MockSyncService!
+    var timeProvider: MockTimeProvider!
     var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
@@ -38,8 +40,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         folderService = MockFolderService()
+        now = Date(year: 2024, month: 1, day: 18)
         organizationService = MockOrganizationService()
         syncService = MockSyncService()
+        timeProvider = MockTimeProvider(.mockTime(now))
         vaultTimeoutService = MockVaultTimeoutService()
         clientVault.clientCiphers = clientCiphers
         stateService = MockStateService()
@@ -57,6 +61,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             organizationService: organizationService,
             stateService: stateService,
             syncService: syncService,
+            timeProvider: timeProvider,
             vaultTimeoutService: vaultTimeoutService
         )
     }
@@ -75,8 +80,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         errorReporter = nil
         folderService = nil
         organizationService = nil
+        now = nil
         stateService = nil
         subject = nil
+        timeProvider = nil
         vaultTimeoutService = nil
     }
 
@@ -345,7 +352,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_noKey() async throws {
         let newCode = "999232"
-        clientVault.totpCode = newCode
+        clientVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
             loginView: .fixture(),
@@ -364,7 +371,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_nonTOTP() async throws {
         let newCode = "999232"
-        clientVault.totpCode = newCode
+        clientVault.generateTOTPCodeResult = .success(newCode)
         let item: VaultListItem = .fixture()
         let newItems = try await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
@@ -374,7 +381,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should update correctly
     func test_refreshTOTPCodes_valid() async throws {
         let newCode = "999232"
-        clientVault.totpCode = newCode
+        clientVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
             loginView: .fixture(totp: .base32Key),
@@ -774,6 +781,20 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         } else {
             XCTFail("Totp item not found")
         }
+    }
+
+    /// `vaultListPublisher(group:filter:)` filters out TOTP items with keys that
+    ///      the SDK cannot parse into TOTP codes.
+    func test_vaultListPublisher_groups_totp_invalidCode() async throws {
+        let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
+        struct InvalidCodeError: Error, Equatable {}
+        clientVault.generateTOTPCodeResult = .failure(InvalidCodeError())
+        cipherService.ciphersSubject.send([cipher])
+
+        var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
+        let vaultListItems = try await iterator.next()
+
+        XCTAssertNil(vaultListItems?.last?.itemType)
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.

@@ -316,6 +316,7 @@ public class ServiceContainer: Services {
             organizationService: organizationService,
             stateService: stateService,
             syncService: syncService,
+            timeProvider: timeProvider,
             vaultTimeoutService: vaultTimeoutService
         )
 

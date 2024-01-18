@@ -232,6 +232,9 @@ class DefaultVaultRepository {
     /// The service used to handle syncing vault data with the API.
     private let syncService: SyncService
 
+    /// The service used to get the present time.
+    private let timeProvider: TimeProvider
+
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
 
@@ -252,6 +255,7 @@ class DefaultVaultRepository {
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
+    ///   - timeProvider: The service used to get the present time.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
@@ -267,6 +271,7 @@ class DefaultVaultRepository {
         organizationService: OrganizationService,
         stateService: StateService,
         syncService: SyncService,
+        timeProvider: TimeProvider,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.cipherAPIService = cipherAPIService
@@ -281,6 +286,7 @@ class DefaultVaultRepository {
         self.organizationService = organizationService
         self.stateService = stateService
         self.syncService = syncService
+        self.timeProvider = timeProvider
         self.vaultTimeoutService = vaultTimeoutService
     }
 
@@ -312,14 +318,14 @@ class DefaultVaultRepository {
             guard let self,
                   let id = cipherView.id,
                   let login = cipherView.login,
-                  let key = login.totp else {
+                  let key = login.totp,
+                  let code = try? await clientVault.generateTOTPCode(
+                      for: key,
+                      date: timeProvider.presentTime
+                  ) else {
                 return nil
             }
 
-            let code = try await clientVault.generateTOTPCode(
-                for: key,
-                date: Date()
-            )
             let listModel = VaultListTOTP(
                 id: id,
                 loginView: login,
