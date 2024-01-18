@@ -58,7 +58,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.premiumRequired))
     }
 
-    /// `perform(_:)` with `.loadPremiumStatus` records any errors
+    /// `perform(_:)` with `.loadPremiumStatus` records any errors.
     func test_perform_loadPremiumStatus_error() async throws {
         vaultRepository.doesActiveAccountHavePremiumResult = .failure(BitwardenTestError.example)
 
