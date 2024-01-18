@@ -490,7 +490,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: false) {})
     }
 
-    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before soft delete the item.
+    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before soft deleting the item.
     func test_perform_deletePressed_showsSoftDeleteConfirmationAlert() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(id: "123"),
