@@ -85,7 +85,7 @@ protocol VaultRepository: AnyObject {
     ///
     func remove(userId: String?) async
 
-    /// Restores a cipher from trash.
+    /// Restores a cipher from the trash.
     ///
     /// - Parameter cipher: The cipher that the user is restoring.
     ///
