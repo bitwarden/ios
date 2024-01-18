@@ -137,6 +137,18 @@ class CipherAPIServiceTests: XCTestCase {
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
     }
 
+    /// `restoreCipher()` performs the restore cipher request.
+    func test_restoreCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+
+        _ = try await subject.restoreCipher(withID: "123")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .put)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/restore")
+    }
+
     /// `shareCipher()` performs the share cipher request and decodes the response.
     func test_shareCipher() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)

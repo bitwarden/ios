@@ -85,6 +85,12 @@ protocol VaultRepository: AnyObject {
     ///
     func remove(userId: String?) async
 
+    /// Restores a cipher from the trash.
+    ///
+    /// - Parameter cipher: The cipher that the user is restoring.
+    ///
+    func restoreCipher(_ cipher: CipherView) async throws
+
     /// A publisher for a user's cipher objects based on the specified search text and filter type.
     ///
     /// - Parameters:
@@ -589,6 +595,13 @@ extension DefaultVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         await vaultTimeoutService.remove(userId: userId)
+    }
+
+    func restoreCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+        guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        let restoredCipher = cipher.update(deletedDate: nil)
+        let encryptCipher = try await clientVault.ciphers().encrypt(cipherView: restoredCipher)
+        try await cipherService.restoreCipherWithServer(id: id, encryptCipher)
     }
 
     func shareCipher(_ cipher: CipherView) async throws {

@@ -214,6 +214,13 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
         state.toast = Toast(text: Localizations.itemSoftDeleted)
     }
+
+    func itemRestored() {
+        state.toast = Toast(text: Localizations.itemRestored)
+        Task {
+            await perform(.refresh)
+        }
+    }
 }
 
 /// A class to manage TOTP code expirations for the VaultGroupProcessor and batch refresh calls.

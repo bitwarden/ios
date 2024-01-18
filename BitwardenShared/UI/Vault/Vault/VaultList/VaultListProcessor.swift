@@ -303,6 +303,10 @@ extension VaultListProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
         state.toast = Toast(text: Localizations.itemSoftDeleted)
     }
+
+    func itemRestored() {
+        state.toast = Toast(text: Localizations.itemRestored)
+    }
 }
 
 // MARK: - MoreOptionsAction

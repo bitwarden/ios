@@ -274,6 +274,10 @@ struct CipherItemState: Equatable {
 extension CipherItemState: AddEditItemState {}
 
 extension CipherItemState: ViewVaultItemState {
+    var isSoftDeleted: Bool {
+        cipher.deletedDate != nil
+    }
+
     var cardItemViewState: any ViewCardItemState {
         cardItemState
     }
