@@ -86,7 +86,7 @@ class SendAPIServiceTests: BitwardenTestCase {
                 expirationDate: nil,
                 file: nil,
                 hideEmail: false,
-                id: "ID",
+                id: "fc483c22-443c-11ee-be56-0242ac120002",
                 key: "encrypted key",
                 maxAccessCount: nil,
                 name: "encrypted name",
