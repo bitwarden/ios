@@ -21,6 +21,10 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
+    /// The last value of the connect to watch setting, ignoring the user id. Used for
+    /// sending the status to the watch if the user is logged out.
+    var lastUserShouldConnectToWatch: Bool { get set }
+
     /// The environment URLs used prior to user authentication.
     var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
 
@@ -48,6 +52,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The time after which the clipboard should be cleared.
     ///
     func clearClipboardValue(userId: String) -> ClearClipboardValue
+
+    /// Gets the connect to watch setting for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the connect to watch value.
+    ///
+    /// - Returns: Whether to connect to the watch app.
+    ///
+    func connectToWatch(userId: String) -> Bool
 
     /// Gets the default URI match type.
     ///
@@ -125,6 +137,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The time after which the clipboard should be cleared.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
+
+    /// Sets the connect to watch setting for the user.
+    ///
+    /// - Parameters:
+    ///   - connectToWatch: Whether to connect to the watch app.
+    ///   - userId: The user ID associated with the connect to watch value.
+    ///
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String)
 
     /// Sets the default URI match type.
     ///
@@ -204,7 +224,7 @@ protocol AppSettingsStore: AnyObject {
     ///
     /// - Returns: The userId `String` of the active account
     ///
-    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>>
+    func activeAccountIdPublisher() -> AnyPublisher<String?, Never>
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -322,11 +342,13 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appLocale
         case appTheme
         case clearClipboardValue(userId: String)
+        case connectToWatch(userId: String)
         case defaultUriMatch(userId: String)
+        case disableAutoTotpCopy(userId: String)
         case disableWebIcons
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
-        case disableAutoTotpCopy(userId: String)
+        case lastUserShouldConnectToWatch
         case lastSync(userId: String)
         case masterPasswordHash(userId: String)
         case passwordGenerationOptions(userId: String)
@@ -351,16 +373,20 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "theme"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
+            case let .connectToWatch(userId):
+                key = "shouldConnectToWatch_\(userId)"
             case let .defaultUriMatch(userId):
                 key = "defaultUriMatch_\(userId)"
+            case let .disableAutoTotpCopy(userId):
+                key = "disableAutoTotpCopy_\(userId)"
             case .disableWebIcons:
                 key = "disableFavicon"
             case let .encryptedUserKey(userId):
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
                 key = "encPrivateKey_\(userId)"
-            case let .disableAutoTotpCopy(userId):
-                key = "disableAutoTotpCopy_\(userId)"
+            case .lastUserShouldConnectToWatch:
+                key = "lastUserShouldConnectToWatch"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
             case let .masterPasswordHash(userId):
@@ -404,6 +430,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .disableWebIcons) }
     }
 
+    var lastUserShouldConnectToWatch: Bool {
+        get { fetch(for: .lastUserShouldConnectToWatch) }
+        set { store(newValue, for: .lastUserShouldConnectToWatch) }
+    }
+
     var preAuthEnvironmentUrls: EnvironmentUrlData? {
         get { fetch(for: .preAuthEnvironmentUrls) }
         set { store(newValue, for: .preAuthEnvironmentUrls) }
@@ -437,6 +468,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             return value
         }
         return .never
+    }
+
+    func connectToWatch(userId: String) -> Bool {
+        fetch(for: .connectToWatch(userId: userId))
     }
 
     func encryptedPrivateKey(userId: String) -> String? {
@@ -483,8 +518,16 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
     }
 
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String) {
+        store(connectToWatch, for: .connectToWatch(userId: userId))
+    }
+
     func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String) {
         store(uriMatchType, for: .defaultUriMatch(userId: userId))
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
+        store(disableAutoTotpCopy, for: .disableAutoTotpCopy(userId: userId))
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {
@@ -493,10 +536,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setEncryptedUserKey(key: String?, userId: String) {
         store(key, for: .encryptedUserKey(userId: userId))
-    }
-
-    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
-        store(disableAutoTotpCopy, for: .disableAutoTotpCopy(userId: userId))
     }
 
     func setLastSyncTime(_ date: Date?, userId: String) {
@@ -519,9 +558,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(attempts, for: .unsuccessfulUnlockAttempts(userId: userId))
     }
 
-    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
-        activeAccountIdSubject
-            .eraseToAnyPublisher()
-            .values
+    func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
+        activeAccountIdSubject.eraseToAnyPublisher()
     }
 }

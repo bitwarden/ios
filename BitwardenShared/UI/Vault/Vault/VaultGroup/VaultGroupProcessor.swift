@@ -67,7 +67,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         case .refresh:
             await refreshVaultGroup()
         case .streamShowWebIcons:
-            for await value in await services.stateService.showWebIconsPublisher() {
+            for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
             }
         }
@@ -220,6 +220,13 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
 
     func itemSoftDeleted() {
         state.toast = Toast(text: Localizations.itemSoftDeleted)
+        Task {
+            await perform(.refresh)
+        }
+    }
+
+    func itemRestored() {
+        state.toast = Toast(text: Localizations.itemRestored)
         Task {
             await perform(.refresh)
         }

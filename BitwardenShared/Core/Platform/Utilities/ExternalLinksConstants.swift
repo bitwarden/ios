@@ -24,10 +24,11 @@ enum ExternalLinksConstants {
         string: "https://bitwarden.com/help/managing-items/#protect-individual-items"
     )!
 
+    /// A link to Bitwarden's recovery code help page.
+    static let recoveryCode = URL(string: "https://bitwarden.com/help/lost-two-step-device/")!
+
     /// A link to Bitwarden's product page for Sends.
-    static let sendInfo = URL(
-        string: "https://bitwarden.com/products/send/"
-    )!
+    static let sendInfo = URL(string: "https://bitwarden.com/products/send/")!
 
     /// A markdown link to Bitwarden's terms of service.
     static let termsOfService = URL(string: "https://bitwarden.com/terms/")!

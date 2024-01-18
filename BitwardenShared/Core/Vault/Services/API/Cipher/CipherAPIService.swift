@@ -37,6 +37,13 @@ protocol CipherAPIService {
     ///
     func deleteCipher(withID id: String) async throws -> EmptyResponse
 
+    /// Performs an API request to restore a cipher in the user's trash.
+    ///
+    /// - Parameter id: The cipher id that to be restored.
+    /// - Returns: The `EmptyResponse`.
+    ///
+    func restoreCipher(withID id: String) async throws -> EmptyResponse
+
     /// Performs an API request to share a cipher with an organization.
     ///
     /// - Parameter cipher: The cipher to share.
@@ -76,6 +83,10 @@ extension APIService: CipherAPIService {
 
     func deleteCipher(withID id: String) async throws -> EmptyResponse {
         try await apiService.send(DeleteCipherRequest(id: id))
+    }
+
+    func restoreCipher(withID id: String) async throws -> EmptyResponse {
+        try await apiService.send(RestoreCipherRequest(id: id))
     }
 
     func shareCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {

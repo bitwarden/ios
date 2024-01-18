@@ -9,6 +9,9 @@ protocol CipherItemOperationDelegate: AnyObject {
     /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
 
+    /// Called when the cipher item has been successfully restored.
+    func itemRestored()
+
     /// Called when the cipher item has been successfully soft deleted.
     func itemSoftDeleted()
 }

@@ -74,31 +74,31 @@ class DefaultAuthRepository {
     // MARK: Properties
 
     /// The services used by the application to make account related API requests.
-    let accountAPIService: AccountAPIService
+    private let accountAPIService: AccountAPIService
 
     /// The service used that handles some of the auth logic.
-    let authService: AuthService
+    private let authService: AuthService
 
     /// The client used by the application to handle auth related encryption and decryption tasks.
-    let clientAuth: ClientAuthProtocol
+    private let clientAuth: ClientAuthProtocol
 
     /// The client used by the application to handle encryption and decryption setup tasks.
-    let clientCrypto: ClientCryptoProtocol
+    private let clientCrypto: ClientCryptoProtocol
 
     /// The client used by the application to handle account fingerprint phrase generation.
     let clientPlatform: ClientPlatformProtocol
 
     /// The service used by the application to manage the environment settings.
-    let environmentService: EnvironmentService
+    private let environmentService: EnvironmentService
 
     /// The service used to manage syncing and updates to the user's organizations.
-    let organizationService: OrganizationService
+    private let organizationService: OrganizationService
 
     /// The service used by the application to manage account state.
-    let stateService: StateService
+    private let stateService: StateService
 
     /// The service used by the application to manage vault access.
-    let vaultTimeoutService: VaultTimeoutService
+    private let vaultTimeoutService: VaultTimeoutService
 
     // MARK: Initialization
 
