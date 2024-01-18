@@ -42,8 +42,10 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
     override func perform(_ effect: AttachmentsEffect) async {
         switch effect {
+        case .loadPremiumStatus:
+            await loadPremiumStatus()
         case .save:
-            break
+            await save()
         }
     }
 
@@ -58,14 +60,55 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
     // MARK: Private Methods
 
+    /// Load the user's premium status and display an alert if they do not have access to premium features.
+    private func loadPremiumStatus() async {
+        do {
+            // Fetch the user's premium status.
+            state.hasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
+
+            // If the user does not have access to premium features, show an alert.
+            coordinator.showAlert(.defaultAlert(title: Localizations.premiumRequired))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Presents the file selection alert.
-    ///
     private func presentFileSelectionAlert() {
         let alert = Alert.fileSelectionOptions { [weak self] route in
             guard let self else { return }
             coordinator.navigate(to: .fileSelection(route), context: self)
         }
         coordinator.showAlert(alert)
+    }
+
+    /// Attempt to save the attachment, or show an alert if the user doesn't have access to premium features.
+    private func save() async {
+        do {
+            // Ensure the user has selected a file to save.
+            try EmptyInputValidator(fieldName: Localizations.file)
+                .validate(input: state.fileName)
+
+            // Display an alert and don't allow the user to continue if
+            // they don't have access to premium features.
+            guard state.hasPremium else {
+                return coordinator.showAlert(.defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.premiumRequired
+                ))
+            }
+
+            // Save the attachment.
+            coordinator.showLoadingOverlay(title: Localizations.saving)
+            // TODO: BIT-1464
+            // TODO: BIT-1465
+        } catch let error as InputValidationError {
+            coordinator.showAlert(.inputValidationAlert(error: error))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
     }
 }
 

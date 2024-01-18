@@ -7,6 +7,16 @@ import Foundation
 struct ViewItemState: Equatable {
     // MARK: Properties
 
+    /// A flag indicating if the current cipher can be cloned.
+    var canClone: Bool {
+        switch loadingState {
+        case let .data(state):
+            state.cipher.organizationId == nil
+        case .loading:
+            false
+        }
+    }
+
     /// The current state. If this state is not `.loading`, this value will contain an associated value with the
     /// appropriate internal state.
     var loadingState: LoadingState<CipherItemState> = .loading

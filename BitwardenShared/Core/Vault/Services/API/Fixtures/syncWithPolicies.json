@@ -1,0 +1,53 @@
+{
+  "profile": null,
+  "folders": [],
+  "collections": [],
+  "ciphers": [],
+  "domains": null,
+  "policies": [
+    {
+      "id": "policy-0",
+      "organizationId": "org-1",
+      "type": 0,
+      "data": null,
+      "enabled": false,
+      "object": "policy"
+    },
+    {
+      "id": "policy-1",
+      "organizationId": "org-1",
+      "type": 1,
+      "data": {
+        "minComplexity": null,
+        "minLength": 12,
+        "requireUpper": true,
+        "requireLower": true,
+        "requireNumbers": true,
+        "requireSpecial": false,
+        "enforceOnLogin": false
+      },
+      "enabled": true,
+      "object": "policy"
+    },
+    {
+      "id": "policy-3",
+      "organizationId": "org-1",
+      "type": 3,
+      "data": null,
+      "enabled": false,
+      "object": "policy"
+    },
+    {
+      "id": "policy-8",
+      "organizationId": "org-1",
+      "type": 8,
+      "data": {
+        "autoEnrollEnabled": false
+      },
+      "enabled": true,
+      "object": "policy"
+    }
+  ],
+  "sends": [],
+  "object": "sync"
+}

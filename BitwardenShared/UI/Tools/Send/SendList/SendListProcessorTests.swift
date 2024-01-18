@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -111,9 +112,18 @@ class SendListProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the edit send route.
-    func test_receive_sendListItemRow_sendListItemPressed() {
-        subject.receive(.sendListItemRow(.sendListItemPressed(.fixture())))
+    func test_receive_sendListItemRow_sendListItemPressed_withSendView() {
+        let sendView = SendView.fixture()
+        let item = SendListItem(sendView: sendView)!
+        subject.receive(.sendListItemRow(.sendListItemPressed(item)))
 
-        // TODO: BIT-1389 Assert navigation to edit send route
+        XCTAssertEqual(coordinator.routes.last, .edit(sendView))
+    }
+
+    func test_receive_sendListItemRow_sendListItemPressed_withGroup() {
+        let item = SendListItem.groupFixture()
+        subject.receive(.sendListItemRow(.sendListItemPressed(item)))
+
+        // TODO: BIT-1412 Assert navigation to group send route
     }
 }

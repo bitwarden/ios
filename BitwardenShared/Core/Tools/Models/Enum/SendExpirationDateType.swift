@@ -52,7 +52,7 @@ enum SendExpirationDateType: CaseIterable, Menuable {
     ///   - originDate: The date that this calculation should be based on. Defaults to `Date()`.
     ///   - customValue: This value will be used when this value is `.custom`.
     ///
-    func calculateDate(from originDate: Date = Date(), customValue: Date) -> Date? {
+    func calculateDate(from originDate: Date = Date(), customValue: Date?) -> Date? {
         switch self {
         case .never:
             nil

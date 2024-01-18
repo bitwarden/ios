@@ -64,8 +64,13 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         case let .sendListItemRow(rowAction):
             switch rowAction {
             case let .sendListItemPressed(item):
-                // TODO: BIT-1389 Navigate to the Edit Send route
-                print("tapped: \(item.id)")
+                switch item.itemType {
+                case let .send(sendView):
+                    coordinator.navigate(to: .edit(sendView))
+                case .group:
+                    // TODO: BIT-1412 Navigate to the group list screen
+                    break
+                }
             }
         }
     }

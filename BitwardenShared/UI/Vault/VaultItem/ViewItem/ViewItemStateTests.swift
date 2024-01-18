@@ -7,6 +7,41 @@ import XCTest
 class ViewItemStateTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `canClone` is true when the cipher belongs to user but not organization.
+    func test_canClone() {
+        let subject = ViewItemState(
+            loadingState: .data(
+                CipherItemState(
+                    existing: .fixture(
+                        id: "id",
+                        reprompt: .password
+                    ),
+                    hasPremium: true
+                )!
+            ),
+            hasVerifiedMasterPassword: false
+        )
+        XCTAssertTrue(subject.canClone)
+    }
+
+    /// `canClone` is false when the cipher belongs to an organization.
+    func test_canClone_cipher_belongToOrg() {
+        let subject = ViewItemState(
+            loadingState: .data(
+                CipherItemState(
+                    existing: .fixture(
+                        id: "id",
+                        organizationId: "1234123",
+                        reprompt: .password
+                    ),
+                    hasPremium: true
+                )!
+            ),
+            hasVerifiedMasterPassword: false
+        )
+        XCTAssertFalse(subject.canClone)
+    }
+
     /// `isMasterPasswordRequired` is true when the reprompt is on and the master password has not
     /// been verified yet.
     func test_isMasterPasswordRequired_repromptOn_unverifiedPassword() {

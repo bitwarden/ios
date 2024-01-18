@@ -15,6 +15,12 @@ protocol SendRepository: AnyObject {
     ///
     func addSend(_ sendView: SendView) async throws
 
+    /// Updates an existing Send in the repository.
+    ///
+    /// - Parameter sendView: The send to update in the repository.
+    ///
+    func updateSend(_ sendView: SendView) async throws
+
     /// Validates the user's active account has access to premium features.
     ///
     /// - Returns: Whether the active account has premium.
@@ -106,6 +112,11 @@ class DefaultSendRepository: SendRepository {
         try await sendService.addSend(send)
     }
 
+    func updateSend(_ sendView: SendView) async throws {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        try await sendService.updateSend(send)
+    }
+
     // MARK: API Methods
 
     func fetchSync(isManualRefresh: Bool) async throws {
@@ -137,6 +148,10 @@ class DefaultSendRepository: SendRepository {
         let sends = try await sends
             .asyncMap { try await clientVault.sends().decrypt(send: $0) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        guard !sends.isEmpty else {
+            return []
+        }
 
         let fileSendsCount = sends
             .filter { $0.type == .file }
