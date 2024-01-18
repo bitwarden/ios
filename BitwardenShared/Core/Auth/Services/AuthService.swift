@@ -316,6 +316,7 @@ class DefaultAuthService: AuthService {
     ///   - authenticationMethod: The authentication method to use.
     ///   - email: The user's email address.
     ///   - captchaToken: The optional captcha token. Defaults to `nil`.
+    ///   - request: The cached request, if resending a login request with two-factor codes. Defaults to `nil`.
     ///
     private func getIdentityTokenResponse(
         authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod? = nil,
