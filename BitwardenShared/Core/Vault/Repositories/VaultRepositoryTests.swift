@@ -624,7 +624,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
-    /// `restoreCipher()` restores cipher from back end and local storage.
+    /// `restoreCipher()` restores cipher for the back end and in local storage.
     func test_restoreCipher() async throws {
         client.result = .httpSuccess(testData: APITestData(data: Data()))
         stateService.accounts = [.fixtureAccountLogin()]
