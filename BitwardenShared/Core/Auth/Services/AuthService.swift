@@ -290,7 +290,7 @@ class DefaultAuthService: AuthService {
         twoFactorRequest.twoFactorRemember = remember
 
         // Add the captcha result, if applicable.
-        twoFactorRequest.captchaToken = captchaToken
+        if let captchaToken { twoFactorRequest.captchaToken = captchaToken }
 
         // Get the identity token to log in to Bitwarden.
         try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
