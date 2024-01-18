@@ -79,7 +79,7 @@ protocol AppSettingsStore: AnyObject {
 
     /// Get the user's Biometric Authentication Preference.
     ///
-    /// - Parameter userId: The user ID associated with the encrypted user key.
+    /// - Parameter userId: The user ID associated with the biometric authentication preference.
     ///
     /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
     ///     If `true`, the device should attempt biometric authentication for authorization events.
@@ -177,7 +177,7 @@ protocol AppSettingsStore: AnyObject {
     ///   - isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
     ///     If `true`, the device should attempt biometric authentication for authorization events.
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
-    ///   - userId: The user ID associated with the encrypted user key.
+    ///   - userId: The user ID associated with the biometric authentication preference.
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool, for userId: String)
 

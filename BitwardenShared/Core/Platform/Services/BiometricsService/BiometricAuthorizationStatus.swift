@@ -1,6 +1,6 @@
 // MARK: - BiometricAuthorizationType
 
-/// The enumeration biometric authentication authorization.
+/// The enumeration of biometric authentication authorization.
 ///
 enum BiometricAuthorizationStatus: Equatable {
     /// BiometricAuth access has been authorized or may be authorized pending a system permissions alert.

@@ -70,7 +70,7 @@ protocol StateService: AnyObject {
 
     /// Get the user's Biometric Authentication Preference.
     ///
-    /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
+    /// - Parameter userId: The user ID associated with the biometric preference. Defaults to the active
     ///   account if `nil`
     /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
     ///     If `true`, the device should attempt biometric authentication for authorization events.
@@ -195,7 +195,7 @@ protocol StateService: AnyObject {
     ///   - isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
     ///     If `true`, the device should attempt biometric authentication for authorization events.
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
-    ///   - userId: The user ID of the account to log out of. Defaults to the active
+    ///   - userId: The user ID of the account to get the preferences for. Defaults to the active
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool, userId: String?) async throws
 
