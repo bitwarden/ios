@@ -182,6 +182,20 @@ class SendRepositoryTests: BitwardenTestCase {
 
     /// `sendListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the sends tab.
+    func test_sendListPublisher_withoutValues() async throws {
+        sendService.sendsSubject.send([])
+
+        var iterator = try await subject.sendListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            """
+        }
+    }
+
+    /// `sendListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the sends tab.
     func test_sendListPublisher_withValues() async throws {
         sendService.sendsSubject.send([
             .fixture(

@@ -138,6 +138,10 @@ class DefaultSendRepository: SendRepository {
             .asyncMap { try await clientVault.sends().decrypt(send: $0) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
+        guard !sends.isEmpty else {
+            return []
+        }
+
         let fileSendsCount = sends
             .filter { $0.type == .file }
             .count
