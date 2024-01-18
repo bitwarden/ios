@@ -298,7 +298,9 @@ extension DefaultAuthRepository: AuthRepository {
             )
             try await stateService.setMasterPasswordHash(hashedPassword)
         case .pin:
-            guard let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() else { return }
+            guard let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() else {
+                throw StateServiceError.noPinKeyEncryptedUserKey
+            }
             try await clientCrypto.initializeUserCrypto(
                 req: InitUserCryptoRequest(
                     kdfParams: account.kdf.sdkKdf,
