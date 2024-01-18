@@ -68,15 +68,13 @@ protocol StateService: AnyObject {
     ///
     func getAppTheme() async -> AppTheme
 
-    /// Get the user's Biometric Authentication Preference.
+    /// Get the active user's Biometric Authentication Preference.
     ///
-    /// - Parameter userId: The user ID associated with the biometric preference. Defaults to the active
-    ///   account if `nil`
     /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
     ///     If `true`, the device should attempt biometric authentication for authorization events.
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
     ///
-    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool
+    func getBiometricAuthenticationEnabled() async throws -> Bool
 
     /// Gets the clear clipboard value for an account.
     ///
@@ -148,11 +146,11 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
-    /// Gets the BiometricIntegrityState for the application.
+    /// Gets the BiometricIntegrityState for the active user.
     ///
-    /// - Returns:An optional base64 string encoding of the BiometricIntegrityState `Data`.
+    /// - Returns:An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
     ///
-    func getSystemBiometricIntegrityState() async -> String?
+    func getBiometricIntegrityState() async throws -> String?
 
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
@@ -206,13 +204,17 @@ protocol StateService: AnyObject {
 
     /// Sets the user's Biometric Authentication Preference.
     ///
-    /// - Parameters
-    ///   - isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
     ///     If `true`, the device should attempt biometric authentication for authorization events.
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
-    ///   - userId: The user ID of the account to get the preferences for. Defaults to the active
     ///
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, userId: String?) async throws
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool) async throws
+
+    /// Sets the BiometricIntegrityState for the active user.
+    ///
+    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
+    ///
+    func setBiometricIntegrityState(_ base64State: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -281,12 +283,6 @@ protocol StateService: AnyObject {
     /// - Parameter showWebIcons: Whether to show the website icons.
     ///
     func setShowWebIcons(_ showWebIcons: Bool) async
-
-    /// Sets the BiometricIntegrityState for the application.
-    ///
-    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
-    ///
-    func setSystemBiometricIntegrityState(_ base64State: String?) async
 
     /// Sets a new access and refresh token for an account.
     ///
@@ -908,21 +904,23 @@ actor DefaultStateService: StateService {
 // MARK: Biometrics
 
 extension DefaultStateService {
-    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
+    func getBiometricAuthenticationEnabled() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
         return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
     }
 
-    func getSystemBiometricIntegrityState() async -> String? {
-        appSettingsStore.systemBiometricIntegrityState
+    func getBiometricIntegrityState() async throws -> String? {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.biometricIntegrityState(userId: userId)
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool) async throws {
+        let userId = try getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
     }
 
-    func setSystemBiometricIntegrityState(_ base64State: String?) async {
-        appSettingsStore.systemBiometricIntegrityState = base64State
+    func setBiometricIntegrityState(_ base64State: String?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricIntegrityState(base64State, userId: userId)
     }
 }

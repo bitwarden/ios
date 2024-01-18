@@ -262,7 +262,7 @@ extension DefaultAuthRepository: AuthRepository {
             let biometricUnlockStatus = try? await biometricsService.getBiometricUnlockStatus()
             switch biometricUnlockStatus {
             case .available(_, true, false):
-                await biometricsService.configureBiometricIntegrity()
+                try await biometricsService.configureBiometricIntegrity()
             default:
                 break
             }

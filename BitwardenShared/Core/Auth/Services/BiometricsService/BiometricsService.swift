@@ -28,7 +28,7 @@ enum BiometricsUnlockStatus: Equatable {
 protocol BiometricsService: AnyObject {
     /// Configures the device Biometric Integrity state.
     ///     Should be called following a successful launch when biometric unlock is enabled.
-    func configureBiometricIntegrity() async
+    func configureBiometricIntegrity() async throws
 
     /// Returns the status for user BiometricAuthentication.
     ///
@@ -73,16 +73,16 @@ class DefaultBiometricsService: BiometricsService {
         self.stateService = stateService
     }
 
-    func configureBiometricIntegrity() async {
+    func configureBiometricIntegrity() async throws {
         if let state = getBiometricInegrityState() {
             let base64State = state.base64EncodedString()
-            await stateService.setSystemBiometricIntegrityState(base64State)
+            try await stateService.setBiometricIntegrityState(base64State)
         }
     }
 
     func getBiometricUnlockStatus() async throws -> BiometricsUnlockStatus {
         let biometryStatus = getBiometricAuthStatus()
-        let hasEnabledBiometricUnlock = try await stateService.getBiometricAuthenticationEnabled(userId: nil)
+        let hasEnabledBiometricUnlock = try await stateService.getBiometricAuthenticationEnabled()
         let hasValidIntegrityState = await isBiometricIntegrityValid()
         switch biometryStatus {
         case let .authorized(type):
@@ -103,13 +103,13 @@ class DefaultBiometricsService: BiometricsService {
 
     func setBiometricUnlockKey(authKey: String?, for userId: String? = nil) async throws {
         guard let authKey else {
-            try await stateService.setBiometricAuthenticationEnabled(false, userId: userId)
+            try await stateService.setBiometricAuthenticationEnabled(false)
             try? await deleteUserAuthKey(for: userId)
             return
         }
 
         try await setUserAuthKey(value: authKey, for: userId)
-        try await stateService.setBiometricAuthenticationEnabled(true, userId: userId)
+        try await stateService.setBiometricAuthenticationEnabled(true)
     }
 
     /// Attempts to retrieve a userAuthKey from the keychain with biometrics.
@@ -153,7 +153,7 @@ class DefaultBiometricsService: BiometricsService {
             }
             if let state = context.evaluatedPolicyDomainState {
                 let base64State = state.base64EncodedString()
-                await stateService.setSystemBiometricIntegrityState(base64State)
+                try await stateService.setBiometricIntegrityState(base64State)
             }
             return string
         }
@@ -339,7 +339,7 @@ extension DefaultBiometricsService {
             // Fallback for devices unable to retrieve integrity state.
             return true
         }
-        let integrityString: String? = await stateService.getSystemBiometricIntegrityState()
+        let integrityString: String? = try? await stateService.getBiometricIntegrityState()
         return data.base64EncodedString() == integrityString
     }
 }
