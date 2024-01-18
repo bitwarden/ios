@@ -2,14 +2,6 @@ import BitwardenSdk
 import Foundation
 import Networking
 
-// MARK: - UpdateSendRequestError
-
-/// Errors that can be encountered with an `UpdateSendRequest`.
-enum UpdateSendRequestError: Error {
-    /// The send provided does not have an id.
-    case noSendId
-}
-
 // MARK: - UpdateSendRequest
 
 /// A request model for updating an existing send.
@@ -45,7 +37,7 @@ struct UpdateSendRequest: Request {
     ///
     init(send: Send) throws {
         guard let id = send.id else {
-            throw UpdateSendRequestError.noSendId
+            throw BitwardenError.dataError("Received a send from the API with a missing ID.")
         }
         requestModel = SendRequestModel(
             deletionDate: send.deletionDate,

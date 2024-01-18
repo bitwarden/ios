@@ -22,7 +22,10 @@ class UpdateSendRequestTests: BitwardenTestCase {
     func test_init_send_withoutId() {
         let send = Send.fixture(id: nil)
         XCTAssertThrowsError(try UpdateSendRequest(send: send)) { error in
-            XCTAssertEqual(error as? UpdateSendRequestError, .noSendId)
+            XCTAssertEqual(
+                error as NSError,
+                BitwardenError.dataError("Received a send from the API with a missing ID.")
+            )
         }
     }
 }
