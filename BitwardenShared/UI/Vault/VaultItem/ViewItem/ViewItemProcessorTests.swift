@@ -441,8 +441,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
-    /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
-    /// generic error alert if permanent deleting fails.
+    /// `perform(_:)` with `.deletePressed` presents a confirmation alert before deleting the item.
+    /// On failure, a generic error alert is displayed.
     func test_perform_deletePressed_genericError_permanentDelete() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
