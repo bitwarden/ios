@@ -54,13 +54,14 @@ class AddItemStateTests: XCTestCase {
     }
 
     /// `cipher` returns a `CipherView` for a login with all fields entered.
-    func test_cipher_login_filled() {
+    func test_cipher_login_filled() { // swiftlint:disable:this function_body_length
         var subject = CipherItemState(hasPremium: true)
         subject.isFavoriteOn = true
         subject.isMasterPasswordRePromptOn = true
         subject.name = "Bitwarden"
-        subject.loginState.password = "top secret!"
         subject.notes = "Bitwarden Login"
+        subject.loginState.password = "top secret!"
+        subject.loginState.uris = [.init(uri: "https://example.com")]
         subject.loginState.username = "user@bitwarden.com"
 
         assertInlineSnapshot(of: subject.newCipherView(creationDate: Date(year: 2023, month: 9, day: 1)), as: .dump) {
@@ -86,7 +87,12 @@ class AddItemStateTests: XCTestCase {
                     - some: "top secret!"
                   - passwordRevisionDate: Optional<Date>.none
                   - totp: Optional<String>.none
-                  - uris: Optional<Array<LoginUriView>>.none
+                  ▿ uris: Optional<Array<LoginUriView>>
+                    ▿ some: 1 element
+                      ▿ LoginUriView
+                        - match: Optional<UriMatchType>.none
+                        ▿ uri: Optional<String>
+                          - some: "https://example.com"
                   ▿ username: Optional<String>
                     - some: "user@bitwarden.com"
               - name: "Bitwarden"

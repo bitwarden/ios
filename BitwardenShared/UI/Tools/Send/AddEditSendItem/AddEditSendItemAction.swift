@@ -5,11 +5,17 @@ import Foundation
 /// Actions that can be processed by a `AddEditSendItemProcessor`.
 ///
 enum AddEditSendItemAction: Equatable {
+    /// The choose file button was pressed.
+    case chooseFilePressed
+
+    /// The clear expiration date button was pressed.
+    case clearExpirationDatePressed
+
     /// The custom deletion date was changed.
     case customDeletionDateChanged(Date)
 
     /// The custom expiration date was changed.
-    case customExpirationDateChanged(Date)
+    case customExpirationDateChanged(Date?)
 
     /// The deactivate this send toggle was changed.
     case deactivateThisSendChanged(Bool)
@@ -45,7 +51,7 @@ enum AddEditSendItemAction: Equatable {
     case passwordChanged(String)
 
     /// The password visibility was changed.
-    case passwordVisibileChanged(Bool)
+    case passwordVisibleChanged(Bool)
 
     /// The share on save toggle was changed.
     case shareOnSaveChanged(Bool)

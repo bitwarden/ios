@@ -5,10 +5,17 @@ import Foundation
 /// The processor used to manage state and handle actions for the add/edit send item screen.
 ///
 class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect> {
+    // MARK: Types
+
+    typealias Services = HasSendRepository
+
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation for this processor.
     let coordinator: any Coordinator<SendRoute>
+
+    /// The services required by this processor.
+    let services: Services
 
     // MARK: Initialization
 
@@ -16,13 +23,16 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation for this processor.
+    ///   - services: The services required by this processor.
     ///   - state: The initial state of this processor.
     ///
     init(
         coordinator: any Coordinator<SendRoute>,
+        services: Services,
         state: AddEditSendItemState
     ) {
         self.coordinator = coordinator
+        self.services = services
         super.init(state: state)
     }
 
@@ -37,6 +47,10 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
 
     override func receive(_ action: AddEditSendItemAction) {
         switch action {
+        case .chooseFilePressed:
+            presentFileSelectionAlert()
+        case .clearExpirationDatePressed:
+            state.customExpirationDate = nil
         case let .customDeletionDateChanged(newValue):
             state.customDeletionDate = newValue
         case let .customExpirationDateChanged(newValue):
@@ -57,7 +71,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.isOptionsExpanded.toggle()
         case let .passwordChanged(newValue):
             state.password = newValue
-        case let .passwordVisibileChanged(newValue):
+        case let .passwordVisibleChanged(newValue):
             state.isPasswordVisible = newValue
         case let .maximumAccessCountChanged(newValue):
             state.maximumAccessCount = newValue
@@ -70,18 +84,71 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         case let .textChanged(newValue):
             state.text = newValue
         case let .typeChanged(newValue):
-            state.type = newValue
+            updateType(newValue)
         }
     }
 
     // MARK: Private Methods
 
+    /// Presents the file selection alert.
+    ///
+    private func presentFileSelectionAlert() {
+        let alert = Alert.fileSelectionOptions { [weak self] route in
+            guard let self else { return }
+            coordinator.navigate(to: .fileSelection(route), context: self)
+        }
+        coordinator.showAlert(alert)
+    }
+
     /// Saves the current send item.
     ///
     private func saveSendItem() async {
+        guard !state.name.isEmpty else {
+            let alert = Alert.validationFieldRequired(fieldName: Localizations.name)
+            coordinator.showAlert(alert)
+            return
+        }
+
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.saving))
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
-        coordinator.hideLoadingOverlay()
-        coordinator.navigate(to: .dismiss)
+        defer { coordinator.hideLoadingOverlay() }
+
+        let sendView = state.newSendView()
+        do {
+            switch state.mode {
+            case .add:
+                try await services.sendRepository.addSend(sendView)
+            case .edit:
+                try await services.sendRepository.updateSend(sendView)
+            }
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            coordinator.showAlert(.networkResponseError(error) { [weak self] in
+                await self?.saveSendItem()
+            })
+        }
+    }
+
+    /// Attempts to update the send type. If the new value requires premium access and the active
+    /// account does not have premium access, this method will display an alert informing the user
+    /// that they do not have access to this feature.
+    ///
+    /// - Parameter newValue: The new value for the Send's type that will be attempted to be set.
+    ///
+    private func updateType(_ newValue: SendType) {
+        guard !newValue.requiresPremium || state.hasPremium else {
+            coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
+            return
+        }
+        state.type = newValue
+    }
+}
+
+// MARK: - AddEditSendItemProcessor:FileSelectionDelegate
+
+extension AddEditSendItemProcessor: FileSelectionDelegate {
+    func fileSelectionCompleted(fileName: String, data: Data) {
+        state.fileName = fileName
+        state.fileData = data
     }
 }

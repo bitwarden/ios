@@ -5,15 +5,20 @@
 class MockAppModule:
     AppModule,
     AuthModule,
+    FileSelectionModule,
     GeneratorModule,
     TabModule,
+    PasswordHistoryModule,
     SendModule,
     SettingsModule,
     VaultModule,
     VaultItemModule {
     var appCoordinator = MockCoordinator<AppRoute>()
     var authCoordinator = MockCoordinator<AuthRoute>()
+    var fileSelectionDelegate: FileSelectionDelegate?
+    var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute>()
+    var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute>()
     var sendCoordinator = MockCoordinator<SendRoute>()
     var settingsCoordinator = MockCoordinator<SettingsRoute>()
     var tabCoordinator = MockCoordinator<TabRoute>()
@@ -21,58 +26,72 @@ class MockAppModule:
     var vaultItemCoordinator = MockCoordinator<VaultItemRoute>()
 
     func makeAppCoordinator(
-        appContext: AppContext,
-        navigator: RootNavigator
+        appContext _: AppContext,
+        navigator _: RootNavigator
     ) -> AnyCoordinator<AppRoute> {
         appCoordinator.asAnyCoordinator()
     }
 
     func makeAuthCoordinator(
-        delegate: AuthCoordinatorDelegate,
-        rootNavigator: RootNavigator,
-        stackNavigator: StackNavigator
+        delegate _: AuthCoordinatorDelegate,
+        rootNavigator _: RootNavigator,
+        stackNavigator _: StackNavigator
     ) -> AnyCoordinator<AuthRoute> {
         authCoordinator.asAnyCoordinator()
     }
 
-    func makeGeneratorCoordinator(
-        delegate: GeneratorCoordinatorDelegate?,
+    func makeFileSelectionCoordinator(
+        delegate: FileSelectionDelegate,
         stackNavigator: StackNavigator
+    ) -> AnyCoordinator<FileSelectionRoute> {
+        fileSelectionDelegate = delegate
+        return fileSelectionCoordinator.asAnyCoordinator()
+    }
+
+    func makeGeneratorCoordinator(
+        delegate _: GeneratorCoordinatorDelegate?,
+        stackNavigator _: StackNavigator
     ) -> AnyCoordinator<GeneratorRoute> {
         generatorCoordinator.asAnyCoordinator()
     }
 
+    func makePasswordHistoryCoordinator(
+        stackNavigator _: StackNavigator
+    ) -> AnyCoordinator<PasswordHistoryRoute> {
+        passwordHistoryCoordinator.asAnyCoordinator()
+    }
+
     func makeSendCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator _: StackNavigator
     ) -> AnyCoordinator<SendRoute> {
         sendCoordinator.asAnyCoordinator()
     }
 
     func makeSettingsCoordinator(
-        delegate: SettingsCoordinatorDelegate,
-        stackNavigator: StackNavigator
+        delegate _: SettingsCoordinatorDelegate,
+        stackNavigator _: StackNavigator
     ) -> AnyCoordinator<SettingsRoute> {
         settingsCoordinator.asAnyCoordinator()
     }
 
     func makeTabCoordinator(
-        rootNavigator: BitwardenShared.RootNavigator,
-        settingsDelegate: BitwardenShared.SettingsCoordinatorDelegate,
-        tabNavigator: BitwardenShared.TabNavigator,
-        vaultDelegate: BitwardenShared.VaultCoordinatorDelegate
+        rootNavigator _: BitwardenShared.RootNavigator,
+        settingsDelegate _: BitwardenShared.SettingsCoordinatorDelegate,
+        tabNavigator _: BitwardenShared.TabNavigator,
+        vaultDelegate _: BitwardenShared.VaultCoordinatorDelegate
     ) -> BitwardenShared.AnyCoordinator<BitwardenShared.TabRoute> {
         tabCoordinator.asAnyCoordinator()
     }
 
     func makeVaultCoordinator(
-        delegate: BitwardenShared.VaultCoordinatorDelegate,
-        stackNavigator: BitwardenShared.StackNavigator
+        delegate _: BitwardenShared.VaultCoordinatorDelegate,
+        stackNavigator _: BitwardenShared.StackNavigator
     ) -> BitwardenShared.AnyCoordinator<BitwardenShared.VaultRoute> {
         vaultCoordinator.asAnyCoordinator()
     }
 
     func makeVaultItemCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator _: StackNavigator
     ) -> AnyCoordinator<VaultItemRoute> {
         vaultItemCoordinator.asAnyCoordinator()
     }

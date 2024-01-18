@@ -72,6 +72,7 @@ extension View {
 
 // MARK: - Previews
 
+#if DEBUG
 struct ToastView_Previews: PreviewProvider {
     static var previews: some View {
         ToastView(toast: .constant(Toast(text: "Toast!")))
@@ -84,3 +85,4 @@ struct ToastView_Previews: PreviewProvider {
         .previewDisplayName("Overlay")
     }
 }
+#endif

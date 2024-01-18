@@ -5,6 +5,9 @@ import Foundation
 /// Actions handled by the `AccountSecurityProcessor`.
 ///
 enum AccountSecurityAction {
+    /// Clears the account fingerprint phrase URL after the web app has been opened.
+    case clearFingerprintPhraseUrl
+
     /// Clears the two step login URL after the web app has been opened.
     case clearTwoStepLoginUrl
 

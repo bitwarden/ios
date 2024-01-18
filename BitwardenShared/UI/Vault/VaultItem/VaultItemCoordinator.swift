@@ -5,18 +5,26 @@ import SwiftUI
 
 /// A coordinator that manages navigation for displaying, editing, and adding individual vault items.
 ///
-class VaultItemCoordinator: Coordinator, HasStackNavigator {
+class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
-    typealias Module = GeneratorModule
+    typealias Module = FileSelectionModule
+        & GeneratorModule
+        & PasswordHistoryModule
         & VaultItemModule
 
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
+        & HasAPIService
         & HasTOTPService
+        & HasTimeProvider
         & HasVaultRepository
 
     // MARK: - Private Properties
+
+    /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
+    /// coordinator in memory.
+    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute>?
 
     /// The module used by this coordinator to create child coordinators.
     private let module: Module
@@ -60,6 +68,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             )
         case let .alert(alert):
             stackNavigator.present(alert)
+        case .attachments:
+            showAttachments()
+        case let .cloneItem(cipher):
+            showCloneItem(for: cipher, delegate: context as? CipherItemOperationDelegate)
         case let .dismiss(onDismiss):
             stackNavigator.dismiss(animated: true, completion: {
                 onDismiss?.action()
@@ -68,11 +80,16 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             showEditCollections(cipher: cipher, delegate: context as? EditCollectionsProcessorDelegate)
         case let .editItem(cipher, hasPremium):
             showEditItem(for: cipher, hasPremium: hasPremium, delegate: context as? CipherItemOperationDelegate)
+        case let .fileSelection(route):
+            guard let delegate = context as? FileSelectionDelegate else { return }
+            showFileSelection(route: route, delegate: delegate)
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
         case let .moveToOrganization(cipher):
             showMoveToOrganization(cipher: cipher, delegate: context as? MoveToOrganizationProcessorDelegate)
+        case let .passwordHistory(passwordHistory):
+            showPasswordHistory(passwordHistory)
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
@@ -148,6 +165,65 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.replace(view)
     }
 
+    /// Shows the attachments screen.
+    ///
+    private func showAttachments() {
+        let processor = AttachmentsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AttachmentsState()
+        )
+        let view = AttachmentsView(store: Store(processor: processor))
+        let hostingController = UIHostingController(rootView: view)
+        stackNavigator.present(UINavigationController(rootViewController: hostingController))
+    }
+
+    /// Shows the totp camera setup screen.
+    ///
+    private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
+        let navigationController = UINavigationController()
+        let coordinator = AuthenticatorKeyCaptureCoordinator(
+            delegate: delegate,
+            services: services,
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        await coordinator.navigate(asyncTo: .scanCode)
+        stackNavigator.present(navigationController, overFullscreen: true)
+    }
+
+    /// Shows the clone item screen.
+    ///
+    /// - Parameters:
+    ///   - cipherView: A `CipherView` to initialize this view with.
+    ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
+    ///    in the add/edit/delete item view have occurred.
+    ///
+    private func showCloneItem(for cipherView: CipherView, delegate: CipherItemOperationDelegate?) {
+        Task {
+            let hasPremium = await (
+                try? services.vaultRepository.doesActiveAccountHavePremium()
+            ) ?? false
+            let state = CipherItemState(
+                cloneItem: cipherView,
+                hasPremium: hasPremium
+            )
+            if stackNavigator.isEmpty {
+                let processor = AddEditItemProcessor(
+                    coordinator: asAnyCoordinator(),
+                    delegate: delegate,
+                    services: services,
+                    state: state
+                )
+                let store = Store(processor: processor)
+                let view = AddEditItemView(store: store)
+                stackNavigator.replace(view)
+            } else {
+                presentChildVaultItemCoordinator(route: .cloneItem(cipher: cipherView), context: delegate)
+            }
+        }
+    }
+
     /// Shows the move to organization screen.
     ///
     private func showEditCollections(cipher: CipherView, delegate: EditCollectionsProcessorDelegate?) {
@@ -171,7 +247,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
     ///
     private func showEditItem(for cipherView: CipherView, hasPremium: Bool, delegate: CipherItemOperationDelegate?) {
         if stackNavigator.isEmpty {
-            guard let state = CipherItemState(existing: cipherView, hasPremium: hasPremium) else { return }
+            guard let state = CipherItemState(
+                existing: cipherView,
+                hasPremium: hasPremium
+            ) else { return }
 
             let processor = AddEditItemProcessor(
                 coordinator: asAnyCoordinator(),
@@ -187,18 +266,45 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         }
     }
 
-    /// Shows the totp camera setup screen.
+    /// Navigates to the specified `FileSelectionRoute`.
     ///
-    private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
-        let navigationController = UINavigationController()
-        let coordinator = AuthenticatorKeyCaptureCoordinator(
+    /// - Parameters:
+    ///   - route: The route to navigate to.
+    ///   - delegate: The `FileSelectionDelegate` for this navigation.
+    ///
+    private func showFileSelection(
+        route: FileSelectionRoute,
+        delegate: FileSelectionDelegate
+    ) {
+        let coordinator = module.makeFileSelectionCoordinator(
             delegate: delegate,
-            services: services,
-            stackNavigator: navigationController
+            stackNavigator: stackNavigator
         )
         coordinator.start()
-        await coordinator.navigate(asyncTo: .scanCode)
-        stackNavigator.present(navigationController, overFullscreen: true)
+        coordinator.navigate(to: route)
+        fileSelectionCoordinator = coordinator
+    }
+
+    /// Shows the generator screen for the the specified type.
+    ///
+    /// - Parameters:
+    ///   - type: The type to generate.
+    ///   - emailWebsite: An optional website host used to generate usernames.
+    ///   - delegate: The delegate for this generator flow.
+    ///
+    private func showGenerator(
+        for type: GeneratorType,
+        emailWebsite: String?,
+        delegate: GeneratorCoordinatorDelegate
+    ) {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeGeneratorCoordinator(
+            delegate: delegate,
+            stackNavigator: navigationController
+        ).asAnyCoordinator()
+        coordinator.start()
+        coordinator.navigate(to: .generator(staticType: type, emailWebsite: emailWebsite))
+        stackNavigator.present(navigationController)
     }
 
     /// Shows the totp manual setup screen.
@@ -229,25 +335,15 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.present(UINavigationController(rootViewController: hostingController))
     }
 
-    /// Shows the generator screen for the the specified type.
+    /// A route to view the password history view.
     ///
-    /// - Parameters:
-    ///   - type: The type to generate.
-    ///   - emailWebsite: An optional website host used to generate usernames.
-    ///   - delegate: The delegate for this generator flow.
+    /// - Parameter passwordHistory: The password history to view.
     ///
-    private func showGenerator(
-        for type: GeneratorType,
-        emailWebsite: String?,
-        delegate: GeneratorCoordinatorDelegate
-    ) {
+    private func showPasswordHistory(_ passwordHistory: [PasswordHistoryView]) {
         let navigationController = UINavigationController()
-        let coordinator = module.makeGeneratorCoordinator(
-            delegate: delegate,
-            stackNavigator: navigationController
-        ).asAnyCoordinator()
+        let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: .generator(staticType: type, emailWebsite: emailWebsite))
+        coordinator.navigate(to: .passwordHistoryList(.item(passwordHistory)))
         stackNavigator.present(navigationController)
     }
 
@@ -266,7 +362,10 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator {
             state: ViewItemState()
         )
         let store = Store(processor: processor)
-        let view = ViewItemView(store: store)
+        let view = ViewItemView(
+            store: store,
+            timeProvider: services.timeProvider
+        )
         stackNavigator.replace(view)
     }
 }

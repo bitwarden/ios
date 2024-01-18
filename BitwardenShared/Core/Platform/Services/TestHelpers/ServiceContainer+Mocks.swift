@@ -24,11 +24,13 @@ extension ServiceContainer {
         stateService: StateService = MockStateService(),
         syncService: SyncService = MockSyncService(),
         systemDevice: SystemDevice = MockSystemDevice(),
+        timeProvider: TimeProvider = MockTimeProvider(.currentTime),
         tokenService: TokenService = MockTokenService(),
         totpService: TOTPService = MockTOTPService(),
         twoStepLoginService: TwoStepLoginService = MockTwoStepLoginService(),
         vaultRepository: VaultRepository = MockVaultRepository(),
-        vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService()
+        vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService(),
+        watchService: WatchService = MockWatchService()
     ) -> ServiceContainer {
         ServiceContainer(
             apiService: APIService(
@@ -54,11 +56,13 @@ extension ServiceContainer {
             stateService: stateService,
             syncService: syncService,
             systemDevice: systemDevice,
+            timeProvider: timeProvider,
             tokenService: tokenService,
             totpService: totpService,
             twoStepLoginService: twoStepLoginService,
             vaultRepository: vaultRepository,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
+            watchService: watchService
         )
     }
 }

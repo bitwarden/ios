@@ -4,7 +4,7 @@ import Foundation
 extension CipherView {
     // MARK: Properties
 
-    /// A coputed array of `CustomFieldState`, representing the custom fields of the cipher.
+    /// A computed array of `CustomFieldState`, representing the custom fields of the cipher.
     ///
     var customFields: [CustomFieldState] {
         fields?.map(CustomFieldState.init) ?? []
@@ -91,16 +91,18 @@ extension CipherView {
     /// - Parameters:
     ///   - showPassword: A Boolean value indicating whether the password should be visible.
     ///   - showTOTP: A Boolean value indicating whether TOTP should be visible.
+    ///
     /// - Returns: A `LoginItemState` representing the login information of the cipher.
     ///
     func loginItemState(showPassword: Bool = false, showTOTP: Bool) -> LoginItemState {
-        .init(
+        LoginItemState(
             canViewPassword: viewPassword,
             isPasswordVisible: showPassword,
             isTOTPAvailable: showTOTP,
             password: login?.password ?? "",
+            passwordHistoryCount: passwordHistory?.count,
             passwordUpdatedDate: login?.passwordRevisionDate,
-            totpKey: .init(authenticatorKey: login?.totp ?? ""),
+            totpState: .init(login?.totp),
             uris: login?.uris?.map(UriState.init) ?? [],
             username: login?.username ?? ""
         )
@@ -112,12 +114,30 @@ extension CipherView {
     /// - Returns: An updated `CipherView` reflecting the changes from the `AddEditItemState`.
     ///
     func updatedView(with addEditState: AddEditItemState) -> CipherView {
-        CipherView(
+        // Update the password history if the password has changed.
+        var passwordHistory = passwordHistory
+        if addEditState.type == .login,
+           let previousPassword = login?.password,
+           addEditState.loginState.password != previousPassword {
+            // Update the password history list.
+            let newPasswordHistoryView = PasswordHistoryView(password: previousPassword, lastUsedDate: Date())
+            if passwordHistory == nil {
+                passwordHistory = [newPasswordHistoryView]
+            } else {
+                passwordHistory!.append(newPasswordHistoryView)
+            }
+
+            // Cap the size of the password history list to 5.
+            passwordHistory = passwordHistory?.suffix(5)
+        }
+
+        // Return the updated cipher.
+        return CipherView(
             id: id,
             organizationId: organizationId,
             folderId: addEditState.folderId,
             collectionIds: collectionIds,
-            key: addEditState.configuration.existingCipherView?.key,
+            key: key,
             name: addEditState.name,
             notes: addEditState.notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(addEditState.type),
@@ -127,15 +147,15 @@ extension CipherView {
             secureNote: (addEditState.type == .secureNote) ? secureNote : nil,
             favorite: addEditState.isFavoriteOn,
             reprompt: addEditState.isMasterPasswordRePromptOn ? .password : .none,
-            organizationUseTotp: false,
-            edit: true,
-            viewPassword: true,
+            organizationUseTotp: organizationUseTotp,
+            edit: edit,
+            viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
             fields: fields,
             passwordHistory: passwordHistory,
             creationDate: creationDate,
-            deletedDate: nil,
+            deletedDate: deletedDate,
             revisionDate: revisionDate
         )
     }

@@ -15,11 +15,17 @@ class MockStateService: StateService {
     var appTheme: AppTheme?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var connectToWatchByUserId = [String: Bool]()
+    var connectToWatchResult: Result<Void, Error> = .success(())
+    var connectToWatchSubject = CurrentValueSubject<Bool, Never>(false)
     var dateProvider = MockDateProvider()
+    var defaultUriMatchTypeByUserId = [String: UriMatchType]()
+    var disableAutoTotpCopyByUserId = [String: Bool]()
     var environmentUrls = [String: EnvironmentUrlData]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
+    var lastUserShouldConnectToWatch = false
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
@@ -27,6 +33,7 @@ class MockStateService: StateService {
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var timeoutAction = [String: SessionTimeoutAction]()
+    var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var vaultTimeout = [String: Int]()
 
@@ -96,6 +103,22 @@ class MockStateService: StateService {
         return clearClipboardValues[userId] ?? .never
     }
 
+    func getConnectToWatch(userId: String?) async throws -> Bool {
+        try connectToWatchResult.get()
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return connectToWatchByUserId[userId] ?? false
+    }
+
+    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return defaultUriMatchTypeByUserId[userId] ?? .domain
+    }
+
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return disableAutoTotpCopyByUserId[userId] ?? false
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return environmentUrls[userId]
@@ -127,6 +150,11 @@ class MockStateService: StateService {
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return timeoutAction[userId] ?? .lock
+    }
+
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return unsuccessfulUnlockAttempts[userId] ?? 0
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
@@ -172,6 +200,22 @@ class MockStateService: StateService {
         clearClipboardValues[userId] = clearClipboardValue
     }
 
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {
+        try connectToWatchResult.get()
+        let userId = try userId ?? getActiveAccount().profile.userId
+        connectToWatchByUserId[userId] = connectToWatch
+    }
+
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        defaultUriMatchTypeByUserId[userId] = defaultUriMatchType
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
+    }
+
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         self.environmentUrls[userId] = environmentUrls
@@ -185,6 +229,10 @@ class MockStateService: StateService {
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         lastSyncTimeByUserId[userId] = date
+    }
+
+    func getLastUserShouldConnectToWatch() async -> Bool {
+        lastUserShouldConnectToWatch
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
@@ -214,6 +262,11 @@ class MockStateService: StateService {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
 
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        unsuccessfulUnlockAttempts[userId] = attempts
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         usernameGenerationOptions[userId] = options
@@ -224,19 +277,23 @@ class MockStateService: StateService {
         vaultTimeout[userId] = value
     }
 
-    func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>> {
-        activeIdSubject.eraseToAnyPublisher().values
+    func activeAccountIdPublisher() async -> AnyPublisher<String?, Never> {
+        activeIdSubject.eraseToAnyPublisher()
     }
 
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
         appThemeSubject.eraseToAnyPublisher()
     }
 
+    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never> {
+        connectToWatchSubject.eraseToAnyPublisher()
+    }
+
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
         lastSyncTimeSubject.eraseToAnyPublisher()
     }
 
-    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
-        showWebIconsSubject.eraseToAnyPublisher().values
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
+        showWebIconsSubject.eraseToAnyPublisher()
     }
 }

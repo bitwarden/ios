@@ -4,7 +4,7 @@ import XCTest
 @testable import BitwardenShared
 
 final class CipherViewUpdateTests: BitwardenTestCase {
-    // MARK: Propteries
+    // MARK: Properties
 
     var cipherItemState: CipherItemState!
     var subject: BitwardenSdk.CipherView!
@@ -75,7 +75,12 @@ final class CipherViewUpdateTests: BitwardenTestCase {
 
     /// Tests that the update succeeds with matching properties.
     func test_update_identity_succeeds() throws {
-        var editState = try XCTUnwrap(CipherItemState(existing: subject, hasPremium: true))
+        var editState = try XCTUnwrap(
+            CipherItemState(
+                existing: subject,
+                hasPremium: true
+            )
+        )
         editState.type = .identity
         editState.identityState = .fixture(
             title: .custom(.mx),
@@ -113,14 +118,22 @@ final class CipherViewUpdateTests: BitwardenTestCase {
 
     /// Tests that the update succeeds with new properties.
     func test_update_noEdits_succeeds() {
-        let editState = CipherItemState(existing: subject, hasPremium: true)!
+        let editState = CipherItemState(
+            existing: subject,
+            hasPremium: true
+        )!
         let comparison = subject.updatedView(with: editState)
         XCTAssertEqual(subject, comparison)
     }
 
     /// Tests that the update succeeds with new properties.
     func test_update_login_noEdits_succeeds() throws {
-        let editState = try XCTUnwrap(CipherItemState(existing: subject, hasPremium: true))
+        let editState = try XCTUnwrap(
+            CipherItemState(
+                existing: subject,
+                hasPremium: true
+            )
+        )
         let comparison = subject.updatedView(with: editState)
         XCTAssertEqual(subject, comparison)
     }
@@ -166,7 +179,24 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         XCTAssertEqual(comparison.revisionDate, subject.revisionDate)
     }
 
-    /// Tests that the update succeeds with udpated properties.
+    /// Tests that the update succeeds with a new password updating the password history.
+    func test_update_login_passwordHistory_succeeds() {
+        subject = CipherView.loginFixture(login: .fixture(password: "Old password"))
+        cipherItemState.loginState.password = "New password"
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        let newPasswordHistory = comparison.passwordHistory
+
+        XCTAssertEqual(newPasswordHistory?.last?.password, "Old password")
+
+        cipherItemState.loginState.password = "Extra newer password"
+        let secondComparison = comparison.updatedView(with: cipherItemState)
+        let newerPasswordHistory = secondComparison.passwordHistory
+
+        XCTAssertEqual(newerPasswordHistory?.last?.password, "New password")
+    }
+
+    /// Tests that the update succeeds with updated properties.
     func test_update_secureNote_succeeds() {
         cipherItemState.type = .secureNote
         let comparison = subject.updatedView(with: cipherItemState)
@@ -178,7 +208,10 @@ final class CipherViewUpdateTests: BitwardenTestCase {
 
     /// Tests that the update succeeds with new properties.
     func test_update_identity_edits_nilValues() throws {
-        let state = CipherItemState(existing: subject, hasPremium: true)
+        let state = CipherItemState(
+            existing: subject,
+            hasPremium: true
+        )
         var editState = try XCTUnwrap(state)
         editState.type = .identity
         editState.identityState = .fixture(

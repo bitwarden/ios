@@ -152,5 +152,5 @@ struct VaultListTOTP: Equatable {
 
     /// The current TOTP code for the cipher.
     ///
-    var totpCode: TOTPCode
+    var totpCode: TOTPCodeModel
 }

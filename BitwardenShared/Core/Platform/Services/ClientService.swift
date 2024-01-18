@@ -16,6 +16,10 @@ protocol ClientService {
     ///
     func clientGenerator() -> ClientGeneratorsProtocol
 
+    /// Returns a `ClientPlatformProtocol` for client platform tasks.
+    ///
+    func clientPlatform() -> ClientPlatformProtocol
+
     /// Returns a `ClientVaultService` for vault data tasks.
     ///
     func clientVault() -> ClientVaultService
@@ -54,6 +58,10 @@ class DefaultClientService: ClientService {
 
     func clientGenerator() -> ClientGeneratorsProtocol {
         client.generators()
+    }
+
+    func clientPlatform() -> ClientPlatformProtocol {
+        client.platform()
     }
 
     func clientVault() -> ClientVaultService {

@@ -5,7 +5,9 @@ class MockAuthRepository: AuthRepository {
     var activeAccountResult: Result<ProfileSwitcherItem, Error> = .failure(StateServiceError.noActiveAccount)
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var deleteAccountCalled = false
+    var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
     var logoutCalled = false
+    var logoutResult: Result<Void, Error> = .success(())
     var passwordStrengthEmail: String?
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
@@ -29,6 +31,10 @@ class MockAuthRepository: AuthRepository {
         try accountForItemResult.get()
     }
 
+    func getFingerprintPhrase(userId: String?) async throws -> String {
+        try fingerprintPhraseResult.get()
+    }
+
     func passwordStrength(email: String, password: String) async -> UInt8 {
         passwordStrengthEmail = email
         passwordStrengthPassword = password
@@ -37,6 +43,7 @@ class MockAuthRepository: AuthRepository {
 
     func logout() async throws {
         logoutCalled = true
+        try logoutResult.get()
     }
 
     func setActiveAccount(userId: String) async throws -> Account {

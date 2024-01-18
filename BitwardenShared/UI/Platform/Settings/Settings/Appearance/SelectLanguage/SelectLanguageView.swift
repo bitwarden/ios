@@ -13,7 +13,7 @@ struct SelectLanguageView: View {
     // MARK: View
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             ForEach(LanguageOption.allCases) { languageOption in
                 languageOptionRow(languageOption)
             }

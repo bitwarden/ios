@@ -107,7 +107,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
-    func test_clearClipboardValue_isInitiallyNil() {
+    func test_clearClipboardValue_isInitiallyNever() {
         XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
     }
 
@@ -120,6 +120,54 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.clearClipboardValue(userId: "2"), .never)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_1"), 10)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
+    }
+
+    /// `connectToWatch(userId:)` returns false if there isn't a previously stored value.
+    func test_connectToWatch_isInitiallyFalse() {
+        XCTAssertFalse(subject.connectToWatch(userId: "0"))
+    }
+
+    /// `connectToWatch(userId:)` can be used to get the connect to watch value for a user.
+    func test_connectToWatch_withValue() {
+        subject.setConnectToWatch(true, userId: "1")
+        subject.setConnectToWatch(false, userId: "2")
+
+        XCTAssertTrue(subject.connectToWatch(userId: "1"))
+        XCTAssertFalse(subject.connectToWatch(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:shouldConnectToWatch_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:shouldConnectToWatch_2"))
+    }
+
+    /// `defaultUriMatchType(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_defaultUriMatchType_isInitiallyNil() {
+        XCTAssertNil(subject.defaultUriMatchType(userId: "-1"))
+    }
+
+    /// `defaultUriMatchType(userId:)` can be used to get the default URI match type value for a user.
+    func test_defaultUriMatchType_withValue() {
+        subject.setDefaultUriMatchType(.exact, userId: "1")
+        subject.setDefaultUriMatchType(.host, userId: "2")
+
+        XCTAssertEqual(subject.defaultUriMatchType(userId: "1"), .exact)
+        XCTAssertEqual(subject.defaultUriMatchType(userId: "2"), .host)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:defaultUriMatch_1"), 3)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:defaultUriMatch_2"), 1)
+    }
+
+    /// `disableAutoTotpCopy(userId:)` returns `false` if there isn't a previously stored value.
+    func test_disableAutoTotpCopy_isInitiallyNil() {
+        XCTAssertFalse(subject.disableAutoTotpCopy(userId: "-1"))
+    }
+
+    /// `disableAutoTotpCopy(userId:)` can be used to get the disable auto-copy TOTP value for a user.
+    func test_disableAutoTotpCopy_withValue() {
+        subject.setDisableAutoTotpCopy(true, userId: "1")
+        subject.setDisableAutoTotpCopy(false, userId: "2")
+
+        XCTAssertTrue(subject.disableAutoTotpCopy(userId: "1"))
+        XCTAssertFalse(subject.disableAutoTotpCopy(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:disableAutoTotpCopy_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:disableAutoTotpCopy_2"))
     }
 
     /// `disableWebIcons` returns `false` if there isn't a previously stored value.
@@ -217,6 +265,20 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(subject.lastActiveTime(userId: "1"), date1)
         XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastActiveTime_1"), 723_081_600.0)
+    }
+
+    /// `lastUserShouldConnectToWatch` returns `false` if there isn't a previously stored value.
+    func test_lastUserShouldConnectToWatch_isInitiallyFalse() {
+        XCTAssertFalse(subject.lastUserShouldConnectToWatch)
+    }
+
+    /// `lastUserShouldConnectToWatch` can be used to get the last connect to watch value.
+    func test_lastUserShouldConnectToWatch_withValue() {
+        subject.lastUserShouldConnectToWatch = true
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:lastUserShouldConnectToWatch"))
+
+        subject.lastUserShouldConnectToWatch = false
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:lastUserShouldConnectToWatch"))
     }
 
     /// `lastSyncTime(userId:)` returns `nil` if there isn't a previously stored value.
@@ -347,6 +409,23 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
             .defaultEU
         )
+    }
+
+    /// `unsuccessfulUnlockAttempts` returns `0` if there isn't a previously stored value.
+    func test_unsuccessfulUnlockAttempts_isInitially0() {
+        XCTAssertEqual(0, subject.unsuccessfulUnlockAttempts(userId: "1"))
+    }
+
+    /// `unsuccessfulUnlockAttempts(userId:)`can be used to get the unsuccessful unlock attempts  for a user.
+    func test_unsuccessfulUnlockAttempts_withValue() {
+        subject.setUnsuccessfulUnlockAttempts(4, userId: "1")
+        subject.setUnsuccessfulUnlockAttempts(1, userId: "3")
+
+        XCTAssertEqual(subject.unsuccessfulUnlockAttempts(userId: "1"), 4)
+        XCTAssertEqual(subject.unsuccessfulUnlockAttempts(userId: "3"), 1)
+
+        XCTAssertEqual(4, userDefaults.integer(forKey: "bwPreferencesStorage:invalidUnlockAttempts_1"))
+        XCTAssertEqual(1, userDefaults.integer(forKey: "bwPreferencesStorage:invalidUnlockAttempts_3"))
     }
 
     /// `usernameGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.

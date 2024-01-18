@@ -20,6 +20,7 @@ struct ProfileSwitcherRow: View {
             .onChange(of: store.state.shouldTakeAccessibilityFocus) { shouldTakeFocus in
                 updateFocusIfNeeded(shouldTakeFocus: shouldTakeFocus)
             }
+            .accessibilityIdentifier("//XCUIElementTypeTable/XCUIElementTypeCell")
     }
 
     // MARK: Private Properties
@@ -171,6 +172,7 @@ struct ProfileSwitcherRow: View {
     }
 }
 
+#if DEBUG
 struct ProfileSwitcherRow_Previews: PreviewProvider {
     static var unlockedAccount = ProfileSwitcherItem(
         color: .purple,
@@ -273,3 +275,4 @@ struct ProfileSwitcherRow_Previews: PreviewProvider {
         .previewDisplayName("Add Account")
     }
 }
+#endif

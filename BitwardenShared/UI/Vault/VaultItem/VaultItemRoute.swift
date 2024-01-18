@@ -26,6 +26,15 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case alert(_ alert: Alert)
 
+    /// A route to view the attachments.
+    case attachments
+
+    /// A route to the clone item screen.
+    ///
+    /// - Parameter cipher: A  `CipherView` to be cloned
+    ///
+    case cloneItem(cipher: CipherView)
+
     /// A route to dismiss the screen currently presented modally.
     ///
     /// - Parameter action: The action to perform on dismiss.
@@ -43,6 +52,12 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case editItem(_ cipher: CipherView, _ hasPremium: Bool)
 
+    /// A route to a file selection route.
+    ///
+    /// - Parameter route: The file selection route to follow.
+    ///
+    case fileSelection(_ route: FileSelectionRoute)
+
     /// A route to the username/password generator screen.
     ///
     /// - Parameters:
@@ -54,12 +69,16 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to the move to organization screen.
     case moveToOrganization(CipherView)
 
-    /// A route to the manual totp screen for setting up TOTP.
+    /// A route to the password history view.
     ///
+    /// - Parameter passwordHistory: The password history to display.
+    ///
+    case passwordHistory(_ passwordHistory: [PasswordHistoryView])
+
+    /// A route to the manual totp screen for setting up TOTP.
     case setupTotpManual
 
     /// A route to the scan code screen. Defaults to `.setupTotpManual` if camera is unavailable.
-    ///
     case scanCode
 
     /// A route to the view item screen.

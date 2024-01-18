@@ -75,6 +75,9 @@ public class ServiceContainer: Services {
     /// The object used by the application to retrieve information about this device.
     let systemDevice: SystemDevice
 
+    /// Provides the present time for TOTP Code Calculation.
+    let timeProvider: TimeProvider
+
     /// The service used by the application to manage account access tokens.
     let tokenService: TokenService
 
@@ -89,6 +92,9 @@ public class ServiceContainer: Services {
 
     /// The service used by the application to manage vault access.
     let vaultTimeoutService: VaultTimeoutService
+
+    /// The service used by the application to connect to and communicate with the watch app.
+    let watchService: WatchService
 
     // MARK: Initialization
 
@@ -116,11 +122,13 @@ public class ServiceContainer: Services {
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
+    ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - tokenService: The service used by the application to manage account access tokens.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///   - twoStepLoginService: The service used by the application to generate a two step login URL.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
+    ///   - watchService: The service used by the application to connect to and communicate with the watch app.
     ///
     init(
         apiService: APIService,
@@ -143,11 +151,13 @@ public class ServiceContainer: Services {
         stateService: StateService,
         syncService: SyncService,
         systemDevice: SystemDevice,
+        timeProvider: TimeProvider,
         tokenService: TokenService,
         totpService: TOTPService,
         twoStepLoginService: TwoStepLoginService,
         vaultRepository: VaultRepository,
-        vaultTimeoutService: VaultTimeoutService
+        vaultTimeoutService: VaultTimeoutService,
+        watchService: WatchService
     ) {
         self.apiService = apiService
         self.appIdService = appIdService
@@ -169,11 +179,13 @@ public class ServiceContainer: Services {
         self.stateService = stateService
         self.syncService = syncService
         self.systemDevice = systemDevice
+        self.timeProvider = timeProvider
         self.tokenService = tokenService
         self.totpService = totpService
         self.twoStepLoginService = twoStepLoginService
         self.vaultRepository = vaultRepository
         self.vaultTimeoutService = vaultTimeoutService
+        self.watchService = watchService
     }
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
@@ -197,9 +209,10 @@ public class ServiceContainer: Services {
         )
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
-        let sendService = DefaultSendService(sendDataStore: dataStore, stateService: stateService)
+        let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
+        let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
         let notificationCenterService = DefaultNotificationCenterService()
 
         let cipherService = DefaultCipherService(
@@ -213,10 +226,26 @@ public class ServiceContainer: Services {
             folderDataStore: dataStore,
             stateService: stateService
         )
+
         let organizationService = DefaultOrganizationService(
             clientCrypto: clientService.clientCrypto(),
             errorReporter: errorReporter,
             organizationDataStore: dataStore,
+            stateService: stateService
+        )
+
+        let sendService = DefaultSendService(
+            sendAPIService: apiService,
+            sendDataStore: dataStore,
+            stateService: stateService
+        )
+
+        let watchService = DefaultWatchService(
+            cipherService: cipherService,
+            clientVault: clientService.clientVault(),
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            organizationService: organizationService,
             stateService: stateService
         )
 
@@ -226,6 +255,7 @@ public class ServiceContainer: Services {
             folderService: folderService,
             organizationService: organizationService,
             sendService: sendService,
+            settingsService: settingsService,
             stateService: stateService,
             syncAPIService: apiService
         )
@@ -256,6 +286,7 @@ public class ServiceContainer: Services {
             authService: authService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
+            clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
             organizationService: organizationService,
             stateService: stateService,
@@ -271,11 +302,14 @@ public class ServiceContainer: Services {
 
         let sendRepository = DefaultSendRepository(
             clientVault: clientService.clientVault(),
+            organizationService: organizationService,
+            sendService: sendService,
             stateService: stateService,
             syncService: syncService
         )
 
         let settingsRepository = DefaultSettingsRepository(
+            clientAuth: clientService.clientAuth(),
             clientVault: clientService.clientVault(),
             folderService: folderService,
             pasteboardService: pasteboardService,
@@ -283,6 +317,8 @@ public class ServiceContainer: Services {
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
+
+        let timeProvider = CurrentTime()
 
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
@@ -307,7 +343,7 @@ public class ServiceContainer: Services {
             authRepository: authRepository,
             authService: authService,
             biometricsService: biometricsService,
-            captchaService: DefaultCaptchaService(environmentService: environmentService),
+            captchaService: captchaService,
             cameraService: DefaultCameraService(),
             clientService: clientService,
             dateProvider: dateProvider,
@@ -321,11 +357,13 @@ public class ServiceContainer: Services {
             stateService: stateService,
             syncService: syncService,
             systemDevice: UIDevice.current,
+            timeProvider: timeProvider,
             tokenService: tokenService,
             totpService: totpService,
             twoStepLoginService: twoStepLoginService,
             vaultRepository: vaultRepository,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
+            watchService: watchService
         )
     }
 }
@@ -349,5 +387,9 @@ extension ServiceContainer {
 
     var clientCrypto: ClientCryptoProtocol {
         clientService.clientCrypto()
+    }
+
+    var clientPlatform: ClientPlatformProtocol {
+        clientService.clientPlatform()
     }
 }

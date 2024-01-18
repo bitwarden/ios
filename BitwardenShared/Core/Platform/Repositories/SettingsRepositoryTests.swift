@@ -6,6 +6,7 @@ import XCTest
 class SettingsRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
+    var clientAuth: MockClientAuth!
     var clientVault: MockClientVaultService!
     var folderService: MockFolderService!
     var pasteboardService: MockPasteboardService!
@@ -19,6 +20,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        clientAuth = MockClientAuth()
         clientVault = MockClientVaultService()
         folderService = MockFolderService()
         pasteboardService = MockPasteboardService()
@@ -27,6 +29,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultSettingsRepository(
+            clientAuth: clientAuth,
             clientVault: clientVault,
             folderService: folderService,
             pasteboardService: pasteboardService,
@@ -39,6 +42,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        clientAuth = nil
         clientVault = nil
         folderService = nil
         pasteboardService = nil
@@ -100,12 +104,48 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(value)
     }
 
+    /// `getConnectToWatch()` returns the expected value.
+    func test_getConnectToWatch() async throws {
+        stateService.activeAccount = .fixture()
+
+        // Defaults to false if no value is set.
+        var value = try await subject.getConnectToWatch()
+        XCTAssertFalse(value)
+
+        stateService.connectToWatchByUserId["1"] = true
+        value = try await subject.getConnectToWatch()
+        XCTAssertTrue(value)
+    }
+
+    /// `getDefaultUriMatchType()` returns the default URI match type value.
+    func test_getDefaultUriMatchType() async throws {
+        stateService.activeAccount = .fixture()
+
+        let initialValue = try await subject.getDefaultUriMatchType()
+        XCTAssertEqual(initialValue, .domain)
+
+        stateService.defaultUriMatchTypeByUserId["1"] = .never
+        let value = try await subject.getDefaultUriMatchType()
+        XCTAssertEqual(value, .never)
+    }
+
+    /// `getDisableAutoTotpCopy()` returns the disable auto-copy TOTP value.
+    func test_getDisableAutoTotpCopy() async throws {
+        stateService.activeAccount = .fixture()
+
+        let initialValue = try await subject.getDisableAutoTotpCopy()
+        XCTAssertFalse(initialValue)
+
+        stateService.disableAutoTotpCopyByUserId["1"] = true
+        let value = try await subject.getDisableAutoTotpCopy()
+        XCTAssertTrue(value)
+    }
+
     /// `fetchSync()` throws an error if syncing fails.
     func test_fetchSync_error() async throws {
-        struct SyncError: Error, Equatable {}
-        syncService.fetchSyncResult = .failure(SyncError())
+        syncService.fetchSyncResult = .failure(BitwardenTestError.example)
 
-        await assertAsyncThrows(error: SyncError()) {
+        await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.fetchSync()
         }
     }
@@ -197,7 +237,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(vaultTimeoutService.unlockedIds, ["123"])
     }
 
-    /// `updateAllowSyncOnRefresh(_:)` updates the value in the app settings store.
+    /// `updateAllowSyncOnRefresh()` updates the value in the state service.
     func test_updateAllowSyncOnRefresh() async throws {
         stateService.activeAccount = .fixture()
 
@@ -209,5 +249,70 @@ class SettingsRepositoryTests: BitwardenTestCase {
         try await subject.updateAllowSyncOnRefresh(true)
         value = try await stateService.getAllowSyncOnRefresh()
         XCTAssertTrue(value)
+    }
+
+    /// `updateConnectToWatch()` updates the value in the state service.
+    func test_updateConnectToWatch() async throws {
+        stateService.activeAccount = .fixture()
+
+        // The value should start off with a default of false.
+        var value = try await stateService.getConnectToWatch()
+        XCTAssertFalse(value)
+
+        // Set the value and ensure it updates.
+        try await subject.updateConnectToWatch(true)
+        value = try await stateService.getConnectToWatch()
+        XCTAssertTrue(value)
+    }
+
+    /// `updateDefaultUriMatchType(_:)` updates the state service's default URI match type value.
+    func test_updateDefaultUriMatchType() async throws {
+        stateService.activeAccount = .fixture()
+
+        try await subject.updateDefaultUriMatchType(.exact)
+
+        XCTAssertEqual(stateService.defaultUriMatchTypeByUserId["1"], .exact)
+    }
+
+    /// `updateDisableAutoTotpCopy(_:)` updates the state service's disable auto-copy TOTP value.
+    func test_updateDisableAutoTotpCopy() async throws {
+        stateService.activeAccount = .fixture()
+
+        try await subject.updateDisableAutoTotpCopy(true)
+
+        try XCTAssertTrue(XCTUnwrap(stateService.disableAutoTotpCopyByUserId["1"]))
+    }
+
+    /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.
+    func test_validatePassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.masterPasswordHashes["1"] = "wxyz4321"
+        clientAuth.validatePasswordResult = true
+
+        let isValid = try await subject.validatePassword("test1234")
+
+        XCTAssertTrue(isValid)
+        XCTAssertEqual(clientAuth.validatePasswordPassword, "test1234")
+        XCTAssertEqual(clientAuth.validatePasswordPasswordHash, "wxyz4321")
+    }
+
+    /// `validatePassword(_:)` returns `false` if there's no stored password hash.
+    func test_validatePassword_noPasswordHash() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        let isValid = try await subject.validatePassword("not the password")
+
+        XCTAssertFalse(isValid)
+    }
+
+    /// `validatePassword(_:)` returns `false` if the master password doesn't match the stored password hash.
+    func test_validatePassword_notValid() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.masterPasswordHashes["1"] = "wxyz4321"
+        clientAuth.validatePasswordResult = false
+
+        let isValid = try await subject.validatePassword("not the password")
+
+        XCTAssertFalse(isValid)
     }
 }

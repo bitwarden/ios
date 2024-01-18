@@ -7,19 +7,26 @@ import XCTest
 class CaptchaServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var stateService: MockStateService!
     var subject: DefaultCaptchaService!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
+
+        stateService = MockStateService()
+
         subject = DefaultCaptchaService(
-            environmentService: MockEnvironmentService()
+            environmentService: MockEnvironmentService(),
+            stateService: stateService
         )
     }
 
     override func tearDown() {
         super.tearDown()
+
+        stateService = nil
         subject = nil
     }
 
@@ -30,6 +37,8 @@ class CaptchaServiceTests: BitwardenTestCase {
     }
 
     func test_generateCaptchaUrl() throws {
+        stateService.appLanguage = .custom(languageCode: "en")
+
         CaptchaRequestModel.encoder.outputFormatting = .sortedKeys
         let url = try subject.generateCaptchaUrl(with: "12345")
 

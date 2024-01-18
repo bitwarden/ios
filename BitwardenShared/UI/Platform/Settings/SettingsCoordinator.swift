@@ -208,6 +208,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     private func showAutoFill() {
         let processor = AutoFillProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: AutoFillState()
         )
         let view = AutoFillView(store: Store(processor: processor))

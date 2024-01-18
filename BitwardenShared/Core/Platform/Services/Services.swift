@@ -24,9 +24,11 @@ typealias Services = HasAPIService
     & HasStateService
     & HasSystemDevice
     & HasTOTPService
+    & HasTimeProvider
     & HasTwoStepLoginService
     & HasVaultRepository
     & HasVaultTimeoutService
+    & HasWatchService
 
 /// Protocol for an object that provides an `AccountAPIService`.
 ///
@@ -181,6 +183,13 @@ protocol HasSystemDevice {
     var systemDevice: SystemDevice { get }
 }
 
+/// Protocol for an object that provides a `TimeProvider`.
+///
+protocol HasTimeProvider {
+    /// Provides the present time for TOTP Code Calculation.
+    var timeProvider: TimeProvider { get }
+}
+
 /// Protocol for an object that provides a `TOTPService`.
 ///
 protocol HasTOTPService {
@@ -207,4 +216,11 @@ protocol HasVaultRepository {
 protocol HasVaultTimeoutService {
     /// The repository used by the application to manage timeouts for vault access for all accounts.
     var vaultTimeoutService: VaultTimeoutService { get }
+}
+
+/// Protocol for an object that provides a `WatchService`.
+///
+protocol HasWatchService {
+    /// The service used by the application to connect to and communicate with the watch app.
+    var watchService: WatchService { get }
 }

@@ -48,11 +48,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     /// `cipherTapped(_:)` has the autofill helper handle autofill for the cipher and completes the
     /// autofill request.
     func test_perform_cipherTapped() async {
-        vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com")
-        ))
-
-        let cipher = CipherListView.fixture()
+        let cipher = CipherView.fixture(login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"))
         await subject.perform(.cipherTapped(cipher))
 
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.username, "user@bitwarden.com")
@@ -62,11 +58,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     /// `cipherTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast
     /// if a cipher value was copied instead of autofilled.
     func test_perform_cipherTapped_showToast() async throws {
-        vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: "PASSWORD", username: nil)
-        ))
-
-        let cipher = CipherListView.fixture()
+        let cipher = CipherView.fixture(login: .fixture(password: "PASSWORD", username: nil))
         await subject.perform(.cipherTapped(cipher))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)

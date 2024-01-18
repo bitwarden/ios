@@ -6,6 +6,8 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute>!
+    var errorReporter: MockErrorReporter!
+    var settingsRepository: MockSettingsRepository!
     var subject: ExportVaultProcessor!
 
     // MARK: Setup and Teardown
@@ -14,9 +16,16 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator<SettingsRoute>()
+        errorReporter = MockErrorReporter()
+        settingsRepository = MockSettingsRepository()
+        let services = ServiceContainer.withMocks(
+            errorReporter: errorReporter,
+            settingsRepository: settingsRepository
+        )
+
         subject = ExportVaultProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks()
+            services: services
         )
     }
 
@@ -24,10 +33,34 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        errorReporter = nil
+        settingsRepository = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// Test that an alert is displayed if the user tries to export with an invalid password.
+    func test_invalidPassword() async throws {
+        settingsRepository.validatePasswordResult = .success(false)
+
+        subject.receive(.exportVaultTapped)
+        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await exportAction.handler?(exportAction, [])
+
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
+    /// Test that an error is recorded if there was an error validating the password.
+    func test_invalidPassword_error() async throws {
+        settingsRepository.validatePasswordResult = .failure(BitwardenTestError.example)
+
+        subject.receive(.exportVaultTapped)
+        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await exportAction.handler?(exportAction, [])
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
 
     /// `.receive()` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {

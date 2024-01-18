@@ -9,11 +9,15 @@ class MockAppSettingsStore: AppSettingsStore {
     var appLocale: String?
     var appTheme: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var connectToWatchByUserId = [String: Bool]()
+    var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var dateProvider = MockDateProvider()
-    var disableWebIcons: Bool = false
+    var disableAutoTotpCopyByUserId = [String: Bool]()
+    var disableWebIcons = false
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var lastActiveTime = [String: Date]()
+    var lastUserShouldConnectToWatch = false
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
@@ -28,6 +32,7 @@ class MockAppSettingsStore: AppSettingsStore {
         }
     }
 
+    var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
@@ -38,6 +43,18 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func connectToWatch(userId: String) -> Bool {
+        connectToWatchByUserId[userId] ?? false
+    }
+
+    func defaultUriMatchType(userId: String) -> UriMatchType? {
+        defaultUriMatchTypeByUserId[userId]
+    }
+
+    func disableAutoTotpCopy(userId: String) -> Bool {
+        disableAutoTotpCopyByUserId[userId] ?? false
     }
 
     func encryptedPrivateKey(userId: String) -> String? {
@@ -70,6 +87,18 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String) {
+        connectToWatchByUserId[userId] = connectToWatch
+    }
+
+    func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String) {
+        defaultUriMatchTypeByUserId[userId] = uriMatchType
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
+        disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {
@@ -116,6 +145,10 @@ class MockAppSettingsStore: AppSettingsStore {
         timeoutAction[userId] = key.rawValue
     }
 
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
+        unsuccessfulUnlockAttempts[userId] = attempts
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         guard let options else {
             usernameGenerationOptions.removeValue(forKey: userId)
@@ -128,6 +161,10 @@ class MockAppSettingsStore: AppSettingsStore {
         timeoutAction[userId]
     }
 
+    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+        unsuccessfulUnlockAttempts[userId]
+    }
+
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         usernameGenerationOptions[userId]
     }
@@ -136,9 +173,7 @@ class MockAppSettingsStore: AppSettingsStore {
         vaultTimeout[userId] ?? 0
     }
 
-    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
-        activeIdSubject
-            .eraseToAnyPublisher()
-            .values
+    func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
+        activeIdSubject.eraseToAnyPublisher()
     }
 }

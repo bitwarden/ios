@@ -65,6 +65,57 @@ class SyncAPIServiceTests: BitwardenTestCase {
         )
     }
 
+    /// `getSync()` successfully decodes a response with policies.
+    func test_sync_withPolicies() async throws {
+        client.result = .httpSuccess(testData: .syncWithPolicies)
+
+        let response = try await subject.getSync()
+
+        XCTAssertEqual(
+            response,
+            .fixture(
+                policies: [
+                    PolicyResponseModel(
+                        data: nil,
+                        enabled: false,
+                        id: "policy-0",
+                        organizationId: "org-1",
+                        type: .twoFactorAuthentication
+                    ),
+                    PolicyResponseModel(
+                        data: [
+                            "minComplexity": .null,
+                            "minLength": .int(12),
+                            "requireUpper": .bool(true),
+                            "requireLower": .bool(true),
+                            "requireNumbers": .bool(true),
+                            "requireSpecial": .bool(false),
+                            "enforceOnLogin": .bool(false),
+                        ],
+                        enabled: true,
+                        id: "policy-1",
+                        organizationId: "org-1",
+                        type: .masterPassword
+                    ),
+                    PolicyResponseModel(
+                        data: nil,
+                        enabled: false,
+                        id: "policy-3",
+                        organizationId: "org-1",
+                        type: .onlyOrg
+                    ),
+                    PolicyResponseModel(
+                        data: ["autoEnrollEnabled": .bool(false)],
+                        enabled: true,
+                        id: "policy-8",
+                        organizationId: "org-1",
+                        type: .resetPassword
+                    ),
+                ]
+            )
+        )
+    }
+
     /// `getSync()` successfully decodes a response with a profile.
     func test_sync_withProfile() async throws {
         client.result = .httpSuccess(testData: .syncWithProfile)

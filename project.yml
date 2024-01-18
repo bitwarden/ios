@@ -7,6 +7,7 @@ options:
   createIntermediateGroups: true
   deploymentTarget:
     iOS: 15.0
+    watchOS: 8.0
   groupSortPosition: top
   usesTabs: false
   indentWidth: 4
@@ -100,6 +101,10 @@ schemes:
       gatherCoverageData: true
       targets:
         - BitwardenSharedTests
+  BitwardenWatchApp:
+    build:
+      targets:
+        BitwardenWatchApp: all
 targets:
   Bitwarden:
     type: application
@@ -135,6 +140,7 @@ targets:
       - target: BitwardenActionExtension
       - target: BitwardenAutoFillExtension
       - target: BitwardenShareExtension
+      - target: BitwardenWatchApp
       - package: Firebase
         product: FirebaseCrashlytics
     preBuildScripts:
@@ -317,6 +323,7 @@ targets:
         optional: true
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
+      - path: BitwardenWatchShared
     dependencies:
       - package: BitwardenSdk
       - package: Networking
@@ -351,3 +358,22 @@ targets:
         product: InlineSnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
+
+  BitwardenWatchApp:
+    type: application
+    platform: watchOS
+    configFiles:
+      Debug: Configs/BitwardenWatchApp-Debug.xcconfig
+      Release: Configs/BitwardenWatchApp-Release.xcconfig
+      Release-Beta: Configs/BitwardenWatchApp-Release-Beta.xcconfig
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenWatchApp/Info.plist
+    sources:
+      - path: BitwardenWatchApp
+      - path: BitwardenWatchShared
+      - path: BitwardenWatchApp/GoogleService-Info.plist
+        buildPhase: resources
+    dependencies:
+      - package: Firebase
+        product: FirebaseCrashlytics

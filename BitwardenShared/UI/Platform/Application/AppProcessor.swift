@@ -78,13 +78,6 @@ public class AppProcessor {
             await services.environmentService.loadURLsForActiveAccount()
         }
 
-        Task {
-            for await shouldClearData in services.vaultTimeoutService.shouldClearDecryptedDataPublisher() {
-                guard shouldClearData else { continue }
-                services.syncService.clearCachedData()
-            }
-        }
-
         if let activeAccount = services.appSettingsStore.state?.activeAccount {
             let vaultTimeout = services.appSettingsStore.vaultTimeout(userId: activeAccount.profile.userId)
             if vaultTimeout == -1 {

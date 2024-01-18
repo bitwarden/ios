@@ -39,6 +39,31 @@ extension Alert {
         )
     }
 
+    /// An alert that notifies the user whether or not their password has been found in a data breach.
+    ///
+    /// - Parameter count: The number of times their password has been found in a data breach.
+    /// - Returns: An alert notifying the user whether or not their password has been found in a data breach.
+    ///
+    static func dataBreachesCountAlert(count: Int) -> Alert {
+        if count >= 1 {
+            Alert(
+                title: Localizations.passwordExposed(count),
+                message: nil,
+                alertActions: [
+                    AlertAction(title: Localizations.ok, style: .default),
+                ]
+            )
+        } else {
+            Alert(
+                title: Localizations.passwordSafe,
+                message: nil,
+                alertActions: [
+                    AlertAction(title: Localizations.ok, style: .default),
+                ]
+            )
+        }
+    }
+
     /// An alert to show when a required field was left empty.
     ///
     /// - Parameter fieldName: The name of the field that was left empty.
@@ -74,6 +99,23 @@ extension Alert {
                     }
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
+    /// An alert to show when the user enters invalid master password to unlock the vault.
+    ///
+    /// - Parameter completion: A block that is executed when the user interacts with the "ok" button.
+    ///
+    static func invalidMasterPassword() -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.invalidMasterPassword,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.ok,
+                    style: .default
+                ),
             ]
         )
     }

@@ -34,9 +34,6 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
         self.coordinator = coordinator
         self.services = services
 
-        var state = state
-        state.clearClipboardValue = self.services.settingsRepository.clearClipboardValue
-
         super.init(state: state)
     }
 
@@ -45,7 +42,7 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
     override func perform(_ effect: OtherSettingsEffect) async {
         switch effect {
         case .loadInitialValues:
-            await getAllowSyncOnRefresh()
+            await loadInitialValues()
         case .streamLastSyncTime:
             await streamLastSyncTime()
         case .syncNow:
@@ -61,19 +58,20 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleAllowSyncOnRefresh(isOn):
-            state.isAllowSyncOnRefreshToggleOn = isOn
             updateAllowSyncOnRefresh(isOn)
         case let .toggleConnectToWatch(isOn):
-            state.isConnectToWatchToggleOn = isOn
+            updateConnectToWatch(isOn)
         }
     }
 
     // MARK: Private
 
-    /// Get the value of allowing sync on refresh.
-    private func getAllowSyncOnRefresh() async {
+    /// Load the initial values for the toggles on the view.
+    private func loadInitialValues() async {
         do {
+            state.clearClipboardValue = services.settingsRepository.clearClipboardValue
             state.isAllowSyncOnRefreshToggleOn = try await services.settingsRepository.getAllowSyncOnRefresh()
+            state.isConnectToWatchToggleOn = try await services.settingsRepository.getConnectToWatch()
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -113,6 +111,19 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
         Task {
             do {
                 try await services.settingsRepository.updateAllowSyncOnRefresh(newValue)
+                state.isAllowSyncOnRefreshToggleOn = newValue
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+    }
+
+    /// Update the value of the connect to watch setting.
+    private func updateConnectToWatch(_ newValue: Bool) {
+        Task {
+            do {
+                try await services.settingsRepository.updateConnectToWatch(newValue)
+                state.isConnectToWatchToggleOn = newValue
             } catch {
                 services.errorReporter.log(error: error)
             }

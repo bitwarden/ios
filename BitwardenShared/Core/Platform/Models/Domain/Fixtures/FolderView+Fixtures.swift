@@ -15,7 +15,7 @@ extension FolderView {
 
 extension Folder {
     static func fixture(
-        id: Uuid = "",
+        id: Uuid? = "",
         name: String = "",
         revisionDate: Date = Date.now
     ) -> Folder {

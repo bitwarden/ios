@@ -21,6 +21,10 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
+    /// The last value of the connect to watch setting, ignoring the user id. Used for
+    /// sending the status to the watch if the user is logged out.
+    var lastUserShouldConnectToWatch: Bool { get set }
+
     /// The environment URLs used prior to user authentication.
     var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
 
@@ -48,6 +52,27 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The time after which the clipboard should be cleared.
     ///
     func clearClipboardValue(userId: String) -> ClearClipboardValue
+
+    /// Gets the connect to watch setting for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the connect to watch value.
+    ///
+    /// - Returns: Whether to connect to the watch app.
+    ///
+    func connectToWatch(userId: String) -> Bool
+
+    /// Gets the default URI match type.
+    ///
+    /// - Parameter userId: The user ID associated with the default URI match type.
+    /// - Returns: The default URI match type.
+    ///
+    func defaultUriMatchType(userId: String) -> UriMatchType?
+
+    /// Gets the disable auto-copy TOTP value for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the disable auto-copy TOTP value.
+    ///
+    func disableAutoTotpCopy(userId: String) -> Bool
 
     /// Gets the encrypted private key for the user ID.
     ///
@@ -106,6 +131,30 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
 
+    /// Sets the connect to watch setting for the user.
+    ///
+    /// - Parameters:
+    ///   - connectToWatch: Whether to connect to the watch app.
+    ///   - userId: The user ID associated with the connect to watch value.
+    ///
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String)
+
+    /// Sets the default URI match type.
+    ///
+    /// - Parameters:
+    ///   - uriMatchType: The default URI match type.
+    ///   - userId: The user ID associated with the default URI match type.
+    ///
+    func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String)
+
+    /// Sets the disable auto-copy TOTP value for a user ID.
+    ///
+    /// - Parameters:
+    ///   - disableAutoTotpCopy: The user's disable auto-copy TOTP value.
+    ///   - userId: The user ID associated with the disable auto-copy TOTP value.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String)
+
     /// Sets the encrypted private key for a user ID.
     ///
     /// - Parameters:
@@ -162,6 +211,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setTimeoutAction(key: SessionTimeoutAction, userId: String)
 
+    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameters:
+    ///  -  attempts: The number of unsuccessful unlock attempts..
+    ///  -  userId: The user ID associated with the unsuccessful unlock attempts.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
+
     /// Sets the user's session timeout date.
     ///
     /// - Parameters:
@@ -185,13 +242,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func timeoutAction(userId: String) -> Int?
 
-    /// Returns the session timeout date.
-    ///
-    /// - Parameter userId: The user ID associated with the session timeout date.
-    /// - Returns: The user's session timeout date.
-    ///
-    func vaultTimeout(userId: String) -> Int?
-
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -199,13 +249,27 @@ protocol AppSettingsStore: AnyObject {
     ///
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
 
+    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    ///
+    func unsuccessfulUnlockAttempts(userId: String) -> Int?
+
+    /// Returns the session timeout date.
+    ///
+    /// - Parameter userId: The user ID associated with the session timeout date.
+    /// - Returns: The user's session timeout date.
+    ///
+    func vaultTimeout(userId: String) -> Int?
+
     // MARK: Publishers
 
     /// A publisher for the active account id
     ///
     /// - Returns: The userId `String` of the active account
     ///
-    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>>
+    func activeAccountIdPublisher() -> AnyPublisher<String?, Never>
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -323,17 +387,22 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appLocale
         case appTheme
         case clearClipboardValue(userId: String)
+        case connectToWatch(userId: String)
+        case defaultUriMatch(userId: String)
+        case disableAutoTotpCopy(userId: String)
         case disableWebIcons
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case lastActiveTime(userId: String)
         case lastSync(userId: String)
+        case lastUserShouldConnectToWatch
         case masterPasswordHash(userId: String)
         case passwordGenerationOptions(userId: String)
         case preAuthEnvironmentUrls
         case rememberedEmail
         case rememberedOrgIdentifier
         case state
+        case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
         case vaultTimeout(userId: String)
         case vaultTimeoutAction(userId: String)
@@ -352,6 +421,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "theme"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
+            case let .connectToWatch(userId):
+                key = "shouldConnectToWatch_\(userId)"
+            case let .defaultUriMatch(userId):
+                key = "defaultUriMatch_\(userId)"
+            case let .disableAutoTotpCopy(userId):
+                key = "disableAutoTotpCopy_\(userId)"
             case .disableWebIcons:
                 key = "disableFavicon"
             case let .encryptedUserKey(userId):
@@ -362,6 +437,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
+            case .lastUserShouldConnectToWatch:
+                key = "lastUserShouldConnectToWatch"
             case let .masterPasswordHash(userId):
                 key = "keyHash_\(userId)"
             case let .passwordGenerationOptions(userId):
@@ -374,6 +451,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedOrgIdentifier"
             case .state:
                 key = "state"
+            case let .unsuccessfulUnlockAttempts(userId):
+                key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
             case let .vaultTimeout(userId):
@@ -403,6 +482,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var disableWebIcons: Bool {
         get { fetch(for: .disableWebIcons) }
         set { store(newValue, for: .disableWebIcons) }
+    }
+
+    var lastUserShouldConnectToWatch: Bool {
+        get { fetch(for: .lastUserShouldConnectToWatch) }
+        set { store(newValue, for: .lastUserShouldConnectToWatch) }
     }
 
     var preAuthEnvironmentUrls: EnvironmentUrlData? {
@@ -440,6 +524,18 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         return .never
     }
 
+    func connectToWatch(userId: String) -> Bool {
+        fetch(for: .connectToWatch(userId: userId))
+    }
+
+    func defaultUriMatchType(userId: String) -> UriMatchType? {
+        fetch(for: .defaultUriMatch(userId: userId))
+    }
+
+    func disableAutoTotpCopy(userId: String) -> Bool {
+        fetch(for: .disableAutoTotpCopy(userId: userId))
+    }
+
     func encryptedPrivateKey(userId: String) -> String? {
         fetch(for: .encryptedPrivateKey(userId: userId))
     }
@@ -470,6 +566,18 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
+    }
+
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String) {
+        store(connectToWatch, for: .connectToWatch(userId: userId))
+    }
+
+    func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String) {
+        store(uriMatchType, for: .defaultUriMatch(userId: userId))
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
+        store(disableAutoTotpCopy, for: .disableAutoTotpCopy(userId: userId))
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {
@@ -516,13 +624,19 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .vaultTimeout(userId: userId))
     }
 
+    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+        fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
+    }
+
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
     }
 
-    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
-        activeAccountIdSubject
-            .eraseToAnyPublisher()
-            .values
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
+        store(attempts, for: .unsuccessfulUnlockAttempts(userId: userId))
+    }
+
+    func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
+        activeAccountIdSubject.eraseToAnyPublisher()
     }
 }

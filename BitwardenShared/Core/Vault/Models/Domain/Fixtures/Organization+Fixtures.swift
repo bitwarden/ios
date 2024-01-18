@@ -8,14 +8,16 @@ extension Organization {
         id: String = "organization-1",
         key: String? = nil,
         name: String = "",
-        status: OrganizationUserStatusType = .confirmed
+        status: OrganizationUserStatusType = .confirmed,
+        usersGetPremium: Bool = false
     ) -> Organization {
         Organization(
             enabled: enabled,
             id: id,
             key: key,
             name: name,
-            status: status
+            status: status,
+            usersGetPremium: usersGetPremium
         )
     }
 }

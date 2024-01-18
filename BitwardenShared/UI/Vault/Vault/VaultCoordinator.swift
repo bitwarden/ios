@@ -33,6 +33,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
+        & HasTimeProvider
         & HasVaultRepository
         & VaultItemCoordinator.Services
 
@@ -114,8 +115,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             }
         case .dismiss:
             stackNavigator.dismiss()
-        case let .group(group):
-            showGroup(group)
+        case let .group(group, filter):
+            showGroup(group, filter: filter)
         case .list:
             showList()
         case let .viewItem(id):
@@ -144,17 +145,21 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the vault group screen.
     ///
-    private func showGroup(_ group: VaultListGroup) {
+    private func showGroup(_ group: VaultListGroup, filter: VaultFilterType) {
         let processor = VaultGroupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultGroupState(
                 group: group,
-                iconBaseURL: services.environmentService.iconsURL
+                iconBaseURL: services.environmentService.iconsURL,
+                vaultFilterType: filter
             )
         )
         let store = Store(processor: processor)
-        let view = VaultGroupView(store: store)
+        let view = VaultGroupView(
+            store: store,
+            timeProvider: services.timeProvider
+        )
         let viewController = UIHostingController(rootView: view)
 
         stackNavigator.push(
@@ -178,7 +183,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 )
             )
             let store = Store(processor: processor)
-            let view = VaultListView(store: store)
+            let view = VaultListView(
+                store: store,
+                timeProvider: services.timeProvider
+            )
             stackNavigator.replace(view, animated: false)
         }
     }

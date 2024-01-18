@@ -10,7 +10,7 @@ extension Cipher {
         attachments: [Attachment]? = nil,
         card: Card? = nil,
         collectionIds: [String] = [],
-        creationDate: DateTime = Date(),
+        creationDate: DateTime = Date(year: 2024, month: 1, day: 1),
         deletedDate: Date? = nil,
         edit: Bool = true,
         favorite: Bool = false,
@@ -27,7 +27,7 @@ extension Cipher {
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistory]? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
-        revisionDate: Date = Date(),
+        revisionDate: Date = Date(year: 2024, month: 1, day: 1),
         secureNote: SecureNote? = nil,
         type: BitwardenSdk.CipherType = .login,
         viewPassword: Bool = true
@@ -219,7 +219,7 @@ extension CipherView {
 
 extension Collection {
     static func fixture(
-        id: String = "",
+        id: String? = "",
         organizationId: String = "",
         name: String = "",
         externalId: String = "",
@@ -277,6 +277,26 @@ extension CollectionView {
     }
 }
 
+extension BitwardenSdk.Login {
+    static func fixture(
+        autofillOnPageLoad: Bool? = nil,
+        password: String? = nil,
+        passwordRevisionDate: Date? = nil,
+        uris: [LoginUri]? = nil,
+        username: String? = nil,
+        totp: String? = nil
+    ) -> BitwardenSdk.Login {
+        BitwardenSdk.Login(
+            username: username,
+            password: password,
+            passwordRevisionDate: passwordRevisionDate,
+            uris: uris,
+            totp: totp,
+            autofillOnPageLoad: autofillOnPageLoad
+        )
+    }
+}
+
 extension BitwardenSdk.LoginView {
     static func fixture(
         password: String? = nil,
@@ -300,7 +320,7 @@ extension BitwardenSdk.LoginView {
 extension PasswordHistoryView {
     static func fixture(
         password: String = "",
-        lastUsedDate: Date = Date()
+        lastUsedDate: Date = Date(year: 2024, month: 1, day: 1)
     ) -> PasswordHistoryView {
         PasswordHistoryView(
             password: password,

@@ -378,3 +378,46 @@ extension SendView {
         )
     }
 }
+
+extension SendFile {
+    init(sendFileView: SendFileView) {
+        self.init(
+            id: sendFileView.id,
+            fileName: sendFileView.fileName,
+            size: sendFileView.size,
+            sizeName: sendFileView.sizeName
+        )
+    }
+}
+
+extension SendText {
+    init(sendTextView: SendTextView) {
+        self.init(
+            text: sendTextView.text,
+            hidden: sendTextView.hidden
+        )
+    }
+}
+
+extension Send {
+    init(sendView: SendView) {
+        self.init(
+            id: sendView.id,
+            accessId: sendView.accessId,
+            name: sendView.name,
+            notes: sendView.notes,
+            key: sendView.key ?? "",
+            password: sendView.newPassword,
+            type: sendView.type,
+            file: sendView.file.map(SendFile.init),
+            text: sendView.text.map(SendText.init),
+            maxAccessCount: sendView.maxAccessCount,
+            accessCount: sendView.accessCount,
+            disabled: sendView.disabled,
+            hideEmail: sendView.hideEmail,
+            revisionDate: sendView.revisionDate,
+            deletionDate: sendView.deletionDate,
+            expirationDate: sendView.expirationDate
+        )
+    }
+} // swiftlint:disable:this file_length

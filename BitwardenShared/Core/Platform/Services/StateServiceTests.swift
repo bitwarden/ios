@@ -154,6 +154,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
+    /// `getAccountEncryptionKeys(_:)` throws an error if applicable.
+    func test_getAccountEncryptionKeys_error() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountEncryptionKeys()
+        }
+    }
+
     /// `getActiveAccount()` returns the active account.
     func test_getActiveAccount() async throws {
         let account = Account.fixture(profile: .fixture(userId: "2"))
@@ -272,11 +281,40 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, .twoMinutes)
     }
 
+    /// `getConnectToWatch()` returns the connect to watch value for the active account.
+    func test_getConnectToWatch() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.connectToWatchByUserId["1"] = true
+        let value = try await subject.getConnectToWatch()
+        XCTAssertTrue(value)
+    }
+
     /// `getClearClipboardValue()` returns `.never` if the active account doesn't have a value set.
     func test_getClearClipboardValue_notSet() async throws {
         await subject.addAccount(.fixture())
         let value = try await subject.getClearClipboardValue()
         XCTAssertEqual(value, .never)
+    }
+
+    /// `getDefaultUriMatchType()` returns the default URI match type value for the active account.
+    func test_getDefaultUriMatchType() async throws {
+        await subject.addAccount(.fixture())
+
+        let initialValue = try await subject.getDefaultUriMatchType()
+        XCTAssertEqual(initialValue, .domain)
+
+        appSettingsStore.defaultUriMatchTypeByUserId["1"] = .exact
+        let value = try await subject.getDefaultUriMatchType()
+        XCTAssertEqual(value, .exact)
+    }
+
+    /// `getDisableAutoTotpCopy()` returns the disable auto-copy TOTP value for the active account.
+    func test_getDisableAutoTotpCopy() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.disableAutoTotpCopyByUserId["1"] = true
+
+        let value = try await subject.getDisableAutoTotpCopy()
+        XCTAssertTrue(value)
     }
 
     /// `getEnvironmentUrls()` returns the environment URLs for the active account.
@@ -391,6 +429,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(action, .logout)
     }
 
+    /// `getUnsuccessfulUnlockAttempts(userId:)` gets the unsuccessful unlock attempts for the account.
+    func test_getUnsuccessfulUnlockAttempts() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        appSettingsStore.unsuccessfulUnlockAttempts["1"] = 4
+
+        let unsuccessfulUnlockAttempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
+        XCTAssertEqual(unsuccessfulUnlockAttempts, 4)
+    }
+
     /// `getUsernameGenerationOptions()` gets the saved username generation options for the account.
     func test_getUsernameGenerationOptions() async throws {
         let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
@@ -461,6 +509,65 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(publishedValues, [initialSync, updatedSync])
     }
 
+    /// `connectToWatchPublisher()` returns a publisher for the user's connect to watch settings.
+    func test_connectToWatchPublisher() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var publishedValues = [Bool]()
+        let publisher = await subject.connectToWatchPublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        try await subject.setConnectToWatch(true)
+
+        XCTAssertEqual(publishedValues, [false, true])
+    }
+
+    /// `connectToWatchPublisher()` gets the initial stored value if a cached value doesn't exist.
+    func test_connectToWatchPublisher_fetchesInitialValue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        appSettingsStore.connectToWatchByUserId["1"] = true
+
+        var publishedValues = [Bool]()
+        let publisher = await subject.connectToWatchPublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        try await subject.setConnectToWatch(false)
+
+        XCTAssertEqual(publishedValues, [true, false])
+    }
+
+    /// `connectToWatchPublisher()` uses the last connect to watch value if the user is not logged in.
+    func test_connectToWatchPublisher_notLoggedIn() async throws {
+        appSettingsStore.lastUserShouldConnectToWatch = true
+
+        var publishedValues = [Bool]()
+        let publisher = await subject.connectToWatchPublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        XCTAssertEqual(publishedValues, [true])
+    }
+
+    /// `getLastUserShouldConnectToWatch()` returns the value in the app settings store.
+    func test_getLastUserShouldConnectToWatch() async {
+        var value = await subject.getLastUserShouldConnectToWatch()
+        XCTAssertFalse(value)
+
+        appSettingsStore.lastUserShouldConnectToWatch = true
+
+        value = await subject.getLastUserShouldConnectToWatch()
+        XCTAssertTrue(value)
+    }
+
     /// `logoutAccount()` clears any account data.
     func test_logoutAccount_clearAccountData() async throws {
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -469,6 +576,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY"
         ))
+        try await subject.setDefaultUriMatchType(.never)
+        try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
         try await dataStore.insertPasswordHistory(
             userId: "1",
@@ -478,6 +587,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             let context = self.dataStore.persistentContainer.viewContext
             _ = try CipherData(context: context, userId: "1", cipher: .fixture(id: UUID().uuidString))
             _ = try CollectionData(context: context, userId: "1", collection: .fixture())
+            _ = try DomainData(
+                context: context,
+                userId: "1",
+                domains: DomainsResponseModel(
+                    equivalentDomains: nil,
+                    globalEquivalentDomains: nil
+                )
+            )
             _ = FolderData(
                 context: context,
                 userId: "1",
@@ -491,11 +608,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
+        XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
+        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
 
         let context = dataStore.persistentContainer.viewContext
         try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: CollectionData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: DomainData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: FolderData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: OrganizationData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)
@@ -706,6 +826,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.clearClipboardValues["1"], .thirtySeconds)
     }
 
+    /// `setConnectToWatch(_:userId:)` sets the connect to watch value for a user.
+    func test_setConnectToWatch() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setConnectToWatch(true)
+        XCTAssertTrue(appSettingsStore.connectToWatch(userId: "1"))
+        XCTAssertTrue(appSettingsStore.lastUserShouldConnectToWatch)
+    }
+
     /// `setLastSyncTime(_:userId:)` sets the last sync time for a user.
     func test_setLastSyncTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -717,6 +846,28 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let date2 = Date(year: 2023, month: 12, day: 2)
         try await subject.setLastSyncTime(date2, userId: "1")
         XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
+    }
+
+    /// `setDefaultUriMatchType(_:userId:)` sets the default URI match type value for a user.
+    func test_setDefaultUriMatchType() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setDefaultUriMatchType(.startsWith, userId: "1")
+        XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId["1"], .startsWith)
+
+        try await subject.setDefaultUriMatchType(.regularExpression, userId: "1")
+        XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId["1"], .regularExpression)
+    }
+
+    /// `setDisableAutoTotpCopy(_:userId:)` sets the disable auto-copy TOTP value for a user.
+    func test_setDisableAutoTotpCopy() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setDisableAutoTotpCopy(true, userId: "1")
+        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId["1"], true)
+
+        try await subject.setDisableAutoTotpCopy(false, userId: "1")
+        XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId["1"], false)
     }
 
     /// `setActiveAccount(userId: )` succeeds if there is a matching account
@@ -778,6 +929,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appSettingsStore.disableWebIcons)
     }
 
+    /// `setUnsuccessfulUnlockAttempts(userId:)` sets the unsuccessful unlock attempts for the account.
+    func test_setUnsuccessfulUnlockAttempts() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setUnsuccessfulUnlockAttempts(3, userId: "1")
+
+        XCTAssertEqual(appSettingsStore.unsuccessfulUnlockAttempts["1"], 3)
+    }
+
     /// `setUsernameGenerationOptions` sets the username generation options for an account.
     func test_setUsernameGenerationOptions() async throws {
         let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
@@ -815,5 +975,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setVaultTimeout(value: 20, userId: "1")
         XCTAssertEqual(appSettingsStore.vaultTimeout["1"], 20)
+    }
+
+    /// `showWebIconsPublisher()` returns a publisher for the show web icons value.
+    func test_showWebIconsPublisher() async {
+        var publishedValues = [Bool]()
+        let publisher = await subject.showWebIconsPublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        await subject.setShowWebIcons(false)
+
+        XCTAssertEqual(publishedValues, [true, false])
     }
 } // swiftlint:disable:this file_length

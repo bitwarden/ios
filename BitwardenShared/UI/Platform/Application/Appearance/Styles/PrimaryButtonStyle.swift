@@ -60,6 +60,7 @@ extension ButtonStyle where Self == PrimaryButtonStyle {
 
 // MARK: Previews
 
+#if DEBUG
 struct PrimaryButtonStyle_Previews: PreviewProvider {
     static var previews: some View {
         Button("Hello World!") {}
@@ -76,3 +77,4 @@ struct PrimaryButtonStyle_Previews: PreviewProvider {
             .previewDisplayName("Destructive")
     }
 }
+#endif

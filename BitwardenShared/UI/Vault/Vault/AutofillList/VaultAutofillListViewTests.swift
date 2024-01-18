@@ -56,9 +56,9 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     /// The populated view renders correctly.
     func test_snapshot_vaultAutofillList_populated() {
         processor.state.ciphersForAutofill = [
-            .fixture(id: "1", name: "Apple", subTitle: "user@bitwarden.com"),
-            .fixture(id: "2", name: "Bitwarden", subTitle: "user@bitwarden.com"),
-            .fixture(id: "3", name: "Company XYZ", subTitle: ""),
+            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Apple"),
+            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Bitwarden"),
+            .fixture(id: "3", login: .fixture(username: ""), name: "Company XYZ"),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,

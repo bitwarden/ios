@@ -77,6 +77,28 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Gets the connect to watch value for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the connect to watch value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: Whether to connect to the watch app.
+    ///
+    func getConnectToWatch(userId: String?) async throws -> Bool
+
+    /// Gets the default URI match type value for an account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The default URI match type value.
+    ///
+    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType
+
+    /// Gets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The disable auto-copy TOTP value.
+    ///
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool
+
     /// Gets the environment URLs for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the environment URLs.
@@ -91,6 +113,13 @@ protocol StateService: AnyObject {
     /// - Returns: The date of the last active time.
     ///
     func getLastActiveTime(userId: String?) async throws -> Date?
+
+    /// The last value of the connect to watch setting, ignoring the user id. Used for
+    /// sending the status to the watch if the user is logged out.
+    ///
+    /// - Returns: The last known value of the `connectToWatch` setting.
+    ///
+    func getLastUserShouldConnectToWatch() async -> Bool
 
     /// Gets the master password hash for a user ID.
     ///
@@ -124,6 +153,14 @@ protocol StateService: AnyObject {
     /// - Returns: The action to perform when a session timeout occurs.
     ///
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction?
+
+    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
+    /// if `nil` defaults to currently active user.
+    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    ///
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int
 
     /// Gets the username generation options for a user ID.
     ///
@@ -181,6 +218,30 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the connect to watch value for an account.
+    ///
+    /// - Parameters:
+    ///   - connectToWatch: Whether to connect to the watch app.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws
+
+    /// Sets the default URI match type value for an account.
+    ///
+    /// - Parameters:
+    ///   - defaultUriMatchType: The default URI match type.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws
+
+    /// Sets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameters:
+    ///   - disableAutoTotpCopy: Whether the TOTP for a cipher should be auto-copied.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws
 
     /// Sets the last active time within the app.
     ///
@@ -243,6 +304,13 @@ protocol StateService: AnyObject {
     ///
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
 
+    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// if `nil` defaults to currently active user.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws
+
     /// Sets the username generation options for a user ID.
     ///
     /// - Parameters:
@@ -265,13 +333,19 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: The userId `String` of the active account
     ///
-    func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>>
+    func activeAccountIdPublisher() async -> AnyPublisher<String?, Never>
 
     /// A publisher for the app theme.
     ///
     /// - Returns: A publisher for the app theme.
     ///
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never>
+
+    /// A publisher for the connect to watch value.
+    ///
+    /// - Returns: A publisher for the connect to watch value.
+    ///
+    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never>
 
     /// A publisher for the last sync time for the active account.
     ///
@@ -283,7 +357,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: A publisher for whether or not to show the web icons.
     ///
-    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>>
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never>
 }
 
 extension StateService {
@@ -309,6 +383,30 @@ extension StateService {
     ///
     func getClearClipboardValue() async throws -> ClearClipboardValue {
         try await getClearClipboardValue(userId: nil)
+    }
+
+    /// Gets the connect to watch value for the active account.
+    ///
+    /// - Returns: Whether to connect to the watch app.
+    ///
+    func getConnectToWatch() async throws -> Bool {
+        try await getConnectToWatch(userId: nil)
+    }
+
+    /// Gets the default URI match type value for the active account.
+    ///
+    /// - Returns: The default URI match type value.
+    ///
+    func getDefaultUriMatchType() async throws -> UriMatchType {
+        try await getDefaultUriMatchType(userId: nil)
+    }
+
+    /// Gets the disable auto-copy TOTP value for the active account.
+    ///
+    /// - Returns: The disable auto-copy TOTP value.
+    ///
+    func getDisableAutoTotpCopy() async throws -> Bool {
+        try await getDisableAutoTotpCopy(userId: nil)
     }
 
     /// Gets the environment URLs for the active account.
@@ -350,6 +448,17 @@ extension StateService {
     ///
     func getTimeoutAction() async throws -> SessionTimeoutAction? {
         try await getTimeoutAction(userId: nil)
+    }
+
+    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
+    ///
+    /// - Returns: The number of unsuccessful unlock attempts for the active account.
+    ///
+    func getUnsuccessfulUnlockAttempts() async -> Int {
+        if let attempts = try? await getUnsuccessfulUnlockAttempts(userId: nil) {
+            return attempts
+        }
+        return 0
     }
 
     /// Gets the username generation options for the active account.
@@ -396,6 +505,30 @@ extension StateService {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?) async throws {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
+    }
+
+    /// Sets the connect to watch value for the active account.
+    ///
+    /// - Parameter connectToWatch: Whether to connect to the watch app.
+    ///
+    func setConnectToWatch(_ connectToWatch: Bool) async throws {
+        try await setConnectToWatch(connectToWatch, userId: nil)
+    }
+
+    /// Sets the default URI match type value the active account.
+    ///
+    /// - Parameter defaultUriMatchType: The default URI match type.
+    ///
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?) async throws {
+        try await setDefaultUriMatchType(defaultUriMatchType, userId: nil)
+    }
+
+    /// Sets the disable auto-copy TOTP value for an account.
+    ///
+    /// - Parameter disableAutoTotpCopy: Whether the TOTP for a cipher should be auto-copied.
+    ///
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
+        try await setDisableAutoTotpCopy(disableAutoTotpCopy, userId: nil)
     }
 
     /// Sets the last active time within the app.
@@ -448,6 +581,14 @@ extension StateService {
         try await setTokens(accessToken: accessToken, refreshToken: refreshToken, userId: nil)
     }
 
+    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
+    ///
+    /// - Parameter attempts: The number of unsuccessful unlock attempts.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int) async {
+        try? await setUnsuccessfulUnlockAttempts(attempts, userId: nil)
+    }
+
     /// Sets the username generation options for the active account.
     ///
     /// - Parameter options: The user's username generation options.
@@ -481,7 +622,7 @@ enum StateServiceError: Error {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService {
+actor DefaultStateService: StateService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -501,8 +642,11 @@ actor DefaultStateService: StateService {
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
 
-    /// A subject containing the app theme..
+    /// A subject containing the app theme.
     private var appThemeSubject: CurrentValueSubject<AppTheme, Never>
+
+    /// A subject containing the connect to watch value.
+    private var connectToWatchByUserIdSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
@@ -514,7 +658,7 @@ actor DefaultStateService: StateService {
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     /// A subject containing whether to show the website icons.
-    var showWebIconsSubject: CurrentValueSubject<Bool, Never>
+    private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
 
     // MARK: Initialization
 
@@ -610,6 +754,21 @@ actor DefaultStateService: StateService {
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getConnectToWatch(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.connectToWatch(userId: userId)
+    }
+
+    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
+    }
+
+    func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.disableAutoTotpCopy(userId: userId)
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
@@ -618,6 +777,10 @@ actor DefaultStateService: StateService {
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.lastActiveTime(userId: userId)
+    }
+
+    func getLastUserShouldConnectToWatch() async -> Bool {
+        appSettingsStore.lastUserShouldConnectToWatch
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
@@ -644,6 +807,11 @@ actor DefaultStateService: StateService {
         return SessionTimeoutAction(rawValue: rawValue)
     }
 
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId) ?? 0
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.usernameGenerationOptions(userId: userId)
@@ -665,6 +833,8 @@ actor DefaultStateService: StateService {
             state.activeUserId = state.accounts.first?.key
         }
 
+        appSettingsStore.setDefaultUriMatchType(nil, userId: userId)
+        appSettingsStore.setDisableAutoTotpCopy(nil, userId: userId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
         appSettingsStore.setLastSyncTime(nil, userId: userId)
@@ -702,6 +872,26 @@ actor DefaultStateService: StateService {
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setConnectToWatch(connectToWatch, userId: userId)
+        connectToWatchByUserIdSubject.value[userId] = connectToWatch
+
+        // Save the value of the connect to watch setting independent of the user id,
+        // in order to be able to send a status to the watch if the user logs out.
+        appSettingsStore.lastUserShouldConnectToWatch = connectToWatch
+    }
+
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setDefaultUriMatchType(defaultUriMatchType, userId: userId)
+    }
+
+    func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setDisableAutoTotpCopy(disableAutoTotpCopy, userId: userId)
     }
 
     func setLastActiveTime(userId: String?) async throws {
@@ -753,6 +943,11 @@ actor DefaultStateService: StateService {
         appSettingsStore.state = state
     }
 
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
@@ -765,12 +960,27 @@ actor DefaultStateService: StateService {
 
     // MARK: Publishers
 
-    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
+    func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
         appSettingsStore.activeAccountIdPublisher()
     }
 
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
         appThemeSubject.eraseToAnyPublisher()
+    }
+
+    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never> {
+        activeAccountIdPublisher().flatMap { userId in
+            self.connectToWatchByUserIdSubject.map { values in
+                if let userId {
+                    // Get the user's setting, if they're logged in.
+                    values[userId] ?? self.appSettingsStore.connectToWatch(userId: userId)
+                } else {
+                    // Otherwise, use the last known value for the previous user.
+                    self.appSettingsStore.lastUserShouldConnectToWatch
+                }
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
@@ -781,8 +991,8 @@ actor DefaultStateService: StateService {
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
     }
 
-    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
-        showWebIconsSubject.eraseToAnyPublisher().values
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
+        showWebIconsSubject.eraseToAnyPublisher()
     }
 
     // MARK: Private

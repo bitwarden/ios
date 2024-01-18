@@ -121,6 +121,9 @@ struct AccountSecurityState: Equatable {
         customTimeoutValue.timeInHoursMinutes()
     }
 
+    /// The URL for account fingerprint phrase external link.
+    var fingerprintPhraseUrl: URL?
+
     /// Whether the approve login requests toggle is on.
     var isApproveLoginRequestsToggleOn: Bool = false
 
