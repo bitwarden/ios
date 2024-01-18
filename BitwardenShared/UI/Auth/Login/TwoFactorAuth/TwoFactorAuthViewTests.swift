@@ -64,7 +64,7 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .rememberMeToggleChanged(true))
     }
 
-    /// Tapping the resend email button dispatches the `.continueTapped` action.
+    /// Tapping the resend email button dispatches the `.resendEmailTapped` action.
     func test_resendEmailButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.sendVerificationCodeAgain)
         try button.tap()
