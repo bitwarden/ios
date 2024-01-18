@@ -363,16 +363,11 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     ///   - animated: Whether to animate the transition.
     ///
     private func showVaultUnlock(account: Account, animated: Bool = true) {
-        var unlockMethod: VaultUnlockState.UnlockMethod = .password
-        if services.appSettingsStore.pinKeyEncryptedUserKey(userId: account.profile.userId) != nil {
-            unlockMethod = .pin
-        }
-
         let processor = VaultUnlockProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultUnlockState(account: account, unlockMethod: unlockMethod)
+            state: VaultUnlockState(account: account)
         )
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator.replace(view, animated: animated)

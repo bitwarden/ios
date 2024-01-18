@@ -39,7 +39,7 @@ struct VaultUnlockState: Equatable {
     var profileSwitcherState: ProfileSwitcherState
 
     /// The user information used to unlock the vault.
-    var unlockMethod: UnlockMethod
+    var unlockMethod: UnlockMethod = .password
 
     /// Keeps track of the number of unsuccessful attempts to unlock the vault.
     var unsuccessfulUnlockAttemptsCount: Int = 0
@@ -56,17 +56,14 @@ extension VaultUnlockState {
     /// - Parameters:
     ///   - account: The active account.
     ///   - profileSwitcherState: State for the profile switcher.
-    ///   - unlockMethod: The vault unlocking method.
     ///
     init(
         account: Account,
-        profileSwitcherState: ProfileSwitcherState = .empty(),
-        unlockMethod: UnlockMethod
+        profileSwitcherState: ProfileSwitcherState = .empty()
     ) {
         self.init(
             email: account.profile.email,
             profileSwitcherState: profileSwitcherState,
-            unlockMethod: unlockMethod,
             webVaultHost: account.settings.environmentUrls?.webVaultHost ?? Constants.defaultWebVaultHost
         )
     }

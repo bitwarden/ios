@@ -50,6 +50,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
             state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
             await refreshProfileState()
+            await checkIfPinUnlockIsAvailable()
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -107,6 +108,16 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     }
 
     // MARK: Private
+
+    private func checkIfPinUnlockIsAvailable() async {
+        do {
+            if try await services.authRepository.isPinUnlockAvailable() {
+                state.unlockMethod = .pin
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Shows an alert asking the user to confirm that they want to logout.
     ///

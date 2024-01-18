@@ -792,7 +792,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
-        return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedUserKey(userId: userId)
+        return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedKey(userId: userId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {

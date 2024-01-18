@@ -108,12 +108,17 @@ protocol AppSettingsStore: AnyObject {
 
     /// The user's pin protected user key.
     ///
-    /// - Parameter userId: The user ID associated with the pin protected user key.
+    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
     /// - Returns: The pin protected user key.
     ///
     func pinKeyEncryptedUserKey(userId: String) -> String?
 
-    func pinProtectedUserKey(userId: String) -> String?
+    /// The pin protected user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key.
+    /// - Returns: The pin protected user key.
+    ///
+    func pinProtectedKey(userId: String) -> String?
 
     /// Gets the username generation options for a user ID.
     ///
@@ -531,7 +536,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .pinKeyEncryptedUserKey(userId: userId))
     }
 
-    func pinProtectedUserKey(userId: String) -> String? {
+    func pinProtectedKey(userId: String) -> String? {
         fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
