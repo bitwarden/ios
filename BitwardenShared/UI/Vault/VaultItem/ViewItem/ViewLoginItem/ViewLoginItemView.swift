@@ -43,8 +43,8 @@ struct ViewLoginItemView: View {
                         store.send(.passwordVisibilityPressed)
                     }
 
-                    Button {
-                        store.send(.checkPasswordPressed)
+                    AsyncButton {
+                        await store.perform(.checkPasswordPressed)
                     } label: {
                         Asset.Images.roundCheck.swiftUIImage
                             .resizable()

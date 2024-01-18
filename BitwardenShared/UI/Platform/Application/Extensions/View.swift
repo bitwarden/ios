@@ -27,6 +27,16 @@ extension View {
         }
     }
 
+    /// On iOS 16+, configures the scroll view to dismiss the keyboard interactively.
+    ///
+    func dismissKeyboardInteractively() -> some View {
+        if #available(iOSApplicationExtension 16, *) {
+            return self.scrollDismissesKeyboard(.interactively)
+        } else {
+            return self
+        }
+    }
+
     /// Focuses next field in sequence, from the given `FocusState`.
     /// Requires a currently active focus state and a next field available in the sequence.
     /// (https://stackoverflow.com/a/71531523)

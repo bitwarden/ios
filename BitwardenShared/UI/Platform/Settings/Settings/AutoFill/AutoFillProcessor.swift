@@ -48,6 +48,11 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         switch action {
         case .appExtensionTapped:
             coordinator.navigate(to: .appExtension)
+        case let .defaultUriMatchTypeChanged(newValue):
+            state.defaultUriMatchType = newValue
+            Task {
+                await updateDefaultUriMatchType(newValue)
+            }
         case .passwordAutoFillTapped:
             coordinator.navigate(to: .passwordAutoFill)
         case let .toggleCopyTOTPToggle(isOn):
@@ -64,7 +69,21 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     ///
     private func fetchSettingValues() async {
         do {
+            state.defaultUriMatchType = try await services.settingsRepository.getDefaultUriMatchType()
             state.isCopyTOTPToggleOn = try await !services.settingsRepository.getDisableAutoTotpCopy()
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Updates the default URI match type value for the user.
+    ///
+    /// - Parameter defaultUriMatchType: The default URI match type.
+    ///
+    private func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async {
+        do {
+            try await services.settingsRepository.updateDefaultUriMatchType(defaultUriMatchType)
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)

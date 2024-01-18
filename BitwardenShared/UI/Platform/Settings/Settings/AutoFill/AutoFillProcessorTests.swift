@@ -42,12 +42,16 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.fetchSettingValues` fetches the setting values to display and updates the state.
     func test_perform_fetchSettingValues() async {
+        settingsRepository.getDefaultUriMatchTypeResult = .success(.exact)
         settingsRepository.getDisableAutoTotpCopyResult = .success(false)
         await subject.perform(.fetchSettingValues)
+        XCTAssertEqual(subject.state.defaultUriMatchType, .exact)
         XCTAssertTrue(subject.state.isCopyTOTPToggleOn)
 
+        settingsRepository.getDefaultUriMatchTypeResult = .success(.regularExpression)
         settingsRepository.getDisableAutoTotpCopyResult = .success(true)
         await subject.perform(.fetchSettingValues)
+        XCTAssertEqual(subject.state.defaultUriMatchType, .regularExpression)
         XCTAssertFalse(subject.state.isCopyTOTPToggleOn)
     }
 
@@ -67,6 +71,15 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .appExtension)
     }
 
+    /// `.receive(_:)` with `.defaultUriMatchTypeChanged` updates the state's default URI match type value.
+    func test_receive_defaultUriMatchTypeChanged() {
+        subject.receive(.defaultUriMatchTypeChanged(.host))
+
+        XCTAssertEqual(subject.state.defaultUriMatchType, .host)
+        waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .host)
+        XCTAssertEqual(settingsRepository.updateDefaultUriMatchTypeValue, .host)
+    }
+
     /// `.receive(_:)` with `.passwordAutoFillTapped` navigates to the password autofill view.
     func test_receive_passwordAutoFillTapped() {
         subject.receive(.passwordAutoFillTapped)
@@ -81,6 +94,17 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isCopyTOTPToggleOn)
         waitFor(settingsRepository.updateDisableAutoTotpCopyValue == false)
         try XCTAssertFalse(XCTUnwrap(settingsRepository.updateDisableAutoTotpCopyValue))
+    }
+
+    /// Updating the default URI match type value logs an error and shows an alert if it fails.
+    func test_updateDefaultUriMatchType_error() {
+        settingsRepository.updateDefaultUriMatchTypeResult = .failure(StateServiceError.noActiveAccount)
+
+        subject.receive(.defaultUriMatchTypeChanged(.exact))
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, StateServiceError.noActiveAccount)
     }
 
     /// Updating the disable auto-copy TOTP value logs an error and shows an alert if it fails.

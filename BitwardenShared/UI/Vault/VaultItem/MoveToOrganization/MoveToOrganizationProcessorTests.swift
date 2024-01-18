@@ -80,8 +80,8 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
 
         await subject.perform(.moveCipher)
 
-        XCTAssertEqual(vaultRepository.sharedCiphers, [subject.state.updatedCipher])
-        let sharedCipher = vaultRepository.sharedCiphers[0]
+        XCTAssertEqual(vaultRepository.shareCipherCiphers, [subject.state.updatedCipher])
+        let sharedCipher = vaultRepository.shareCipherCiphers[0]
         XCTAssertEqual(sharedCipher.collectionIds, ["1"])
         XCTAssertEqual(sharedCipher.organizationId, "123")
 

@@ -186,6 +186,7 @@ public class ServiceContainer: Services {
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
+        let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
         let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
@@ -221,6 +222,7 @@ public class ServiceContainer: Services {
             folderService: folderService,
             organizationService: organizationService,
             sendService: sendService,
+            settingsService: settingsService,
             stateService: stateService,
             syncAPIService: apiService
         )

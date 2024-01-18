@@ -18,7 +18,10 @@ public enum SendRoute: Equatable {
     case edit(_ sendView: SendView)
 
     /// A route to a file selection route.
-    case fileSelection(FileSelectionRoute)
+    ///
+    /// - Parameter route: The file selection route to follow.
+    ///
+    case fileSelection(_ route: FileSelectionRoute)
 
     /// A route to the send screen.
     case list

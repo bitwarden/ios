@@ -82,6 +82,18 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertEqual(sendDataStore.replaceSendsUserId, "1")
     }
 
+    /// `sendsPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the sends tab.
+    func test_sendsPublisher_withValues() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        sendDataStore.sendSubject.send([.fixture()])
+
+        var iterator = try await subject.sendsPublisher().values.makeAsyncIterator()
+        let publisherValue = try await iterator.next()
+
+        try XCTAssertEqual(XCTUnwrap(publisherValue), [.fixture()])
+    }
+
     /// `updateSend()` with a successful response uses the api service to send an update send
     /// request and save the result in the database.
     func test_updateSend_success() async throws {

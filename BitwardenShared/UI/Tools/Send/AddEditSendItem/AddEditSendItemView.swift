@@ -13,7 +13,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 16) {
                 nameField
 
                 if store.state.mode == .add {
@@ -37,6 +37,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             }
             .padding(16)
         }
+        .dismissKeyboardInteractively()
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationBar(
             title: store.state.mode.navigationTitle,
@@ -289,12 +290,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             footer: Localizations.passwordInfo,
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
-                send: AddEditSendItemAction.passwordVisibileChanged
+                send: AddEditSendItemAction.passwordVisibleChanged
             )
         )
         .textFieldConfiguration(.password)
 
-        BitwardenTextField(
+        BitwardenMultilineTextField(
             title: Localizations.notes,
             text: store.binding(
                 get: \.notes,
@@ -345,7 +346,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
-        BitwardenTextField(
+        BitwardenMultilineTextField(
             title: Localizations.text,
             text: store.binding(
                 get: \.text,

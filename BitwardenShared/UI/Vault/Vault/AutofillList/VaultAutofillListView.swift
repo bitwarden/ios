@@ -65,7 +65,7 @@ struct VaultAutofillListView: View {
 
     /// Returns the view for displaying a cipher in a row in a list.
     @ViewBuilder
-    private func cipherRowView(_ cipher: CipherListView, hasDivider: Bool) -> some View {
+    private func cipherRowView(_ cipher: CipherView, hasDivider: Bool) -> some View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
                 Text(cipher.name)
@@ -73,8 +73,8 @@ struct VaultAutofillListView: View {
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.body)
 
-                if !cipher.subTitle.isEmpty {
-                    Text(cipher.subTitle)
+                if let username = cipher.login?.username, !username.isEmpty {
+                    Text(username)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                         .styleGuide(.subheadline)
@@ -108,53 +108,94 @@ struct VaultAutofillListView: View {
                 processor: StateProcessor(
                     state: VaultAutofillListState(
                         ciphersForAutofill: [
-                            CipherListView(
+                            CipherView(
                                 id: "1",
                                 organizationId: nil,
                                 folderId: nil,
                                 collectionIds: [],
+                                key: nil,
                                 name: "Apple",
-                                subTitle: "user@bitwarden.com",
+                                notes: nil,
                                 type: .login,
+                                login: BitwardenSdk.LoginView(
+                                    username: "user@bitwarden.com",
+                                    password: nil,
+                                    passwordRevisionDate: nil,
+                                    uris: nil,
+                                    totp: nil,
+                                    autofillOnPageLoad: nil
+                                ),
+                                identity: nil,
+                                card: nil,
+                                secureNote: nil,
                                 favorite: false,
                                 reprompt: .none,
+                                organizationUseTotp: false,
                                 edit: true,
                                 viewPassword: true,
-                                attachments: 0,
+                                localData: nil,
+                                attachments: nil,
+                                fields: nil,
+                                passwordHistory: nil,
                                 creationDate: Date(),
                                 deletedDate: nil,
                                 revisionDate: Date()
                             ),
-                            CipherListView(
+                            CipherView(
                                 id: "2",
                                 organizationId: nil,
                                 folderId: nil,
                                 collectionIds: [],
+                                key: nil,
                                 name: "Bitwarden",
-                                subTitle: "user@bitwarden.com",
+                                notes: nil,
                                 type: .login,
+                                login: BitwardenSdk.LoginView(
+                                    username: "user@bitwarden.com",
+                                    password: nil,
+                                    passwordRevisionDate: nil,
+                                    uris: nil,
+                                    totp: nil,
+                                    autofillOnPageLoad: nil
+                                ),
+                                identity: nil,
+                                card: nil,
+                                secureNote: nil,
                                 favorite: false,
                                 reprompt: .none,
+                                organizationUseTotp: false,
                                 edit: true,
                                 viewPassword: true,
-                                attachments: 0,
+                                localData: nil,
+                                attachments: nil,
+                                fields: nil,
+                                passwordHistory: nil,
                                 creationDate: Date(),
                                 deletedDate: nil,
                                 revisionDate: Date()
                             ),
-                            CipherListView(
+                            CipherView(
                                 id: "3",
                                 organizationId: nil,
                                 folderId: nil,
                                 collectionIds: [],
+                                key: nil,
                                 name: "Company XYZ",
-                                subTitle: "",
+                                notes: nil,
                                 type: .login,
+                                login: nil,
+                                identity: nil,
+                                card: nil,
+                                secureNote: nil,
                                 favorite: false,
                                 reprompt: .none,
+                                organizationUseTotp: false,
                                 edit: true,
                                 viewPassword: true,
-                                attachments: 0,
+                                localData: nil,
+                                attachments: nil,
+                                fields: nil,
+                                passwordHistory: nil,
                                 creationDate: Date(),
                                 deletedDate: nil,
                                 revisionDate: Date()

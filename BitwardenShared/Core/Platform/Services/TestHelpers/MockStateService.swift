@@ -16,6 +16,7 @@ class MockStateService: StateService {
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
     var environmentUrls = [String: EnvironmentUrlData]()
+    var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
@@ -94,6 +95,11 @@ class MockStateService: StateService {
         return clearClipboardValues[userId] ?? .never
     }
 
+    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return defaultUriMatchTypeByUserId[userId] ?? .domain
+    }
+
     func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccount().profile.userId
         return disableAutoTotpCopyByUserId[userId] ?? false
@@ -163,6 +169,11 @@ class MockStateService: StateService {
         try clearClipboardResult.get()
         let userId = try userId ?? getActiveAccount().profile.userId
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        defaultUriMatchTypeByUserId[userId] = defaultUriMatchType
     }
 
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {

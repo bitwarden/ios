@@ -76,6 +76,13 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Gets the default URI match type value for an account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The default URI match type value.
+    ///
+    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType
+
     /// Gets the disable auto-copy TOTP value for an account.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -173,6 +180,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the default URI match type value for an account.
+    ///
+    /// - Parameters:
+    ///   - defaultUriMatchType: The default URI match type.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws
 
     /// Sets the disable auto-copy TOTP value for an account.
     ///
@@ -294,6 +309,14 @@ extension StateService {
         try await getClearClipboardValue(userId: nil)
     }
 
+    /// Gets the default URI match type value for the active account.
+    ///
+    /// - Returns: The default URI match type value.
+    ///
+    func getDefaultUriMatchType() async throws -> UriMatchType {
+        try await getDefaultUriMatchType(userId: nil)
+    }
+
     /// Gets the disable auto-copy TOTP value for the active account.
     ///
     /// - Returns: The disable auto-copy TOTP value.
@@ -373,6 +396,14 @@ extension StateService {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?) async throws {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
+    }
+
+    /// Sets the default URI match type value the active account.
+    ///
+    /// - Parameter defaultUriMatchType: The default URI match type.
+    ///
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?) async throws {
+        try await setDefaultUriMatchType(defaultUriMatchType, userId: nil)
     }
 
     /// Sets the disable auto-copy TOTP value for an account.
@@ -570,6 +601,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
+    }
+
     func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.disableAutoTotpCopy(userId: userId)
@@ -619,6 +655,7 @@ actor DefaultStateService: StateService {
             state.activeUserId = state.accounts.first?.key
         }
 
+        appSettingsStore.setDefaultUriMatchType(nil, userId: userId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: userId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
@@ -657,6 +694,11 @@ actor DefaultStateService: StateService {
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setDefaultUriMatchType(defaultUriMatchType, userId: userId)
     }
 
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {

@@ -294,10 +294,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.password, "password")
     }
 
-    /// `receive(_:)` with `.passwordVisibileChanged` updates the password visibility.
+    /// `receive(_:)` with `.passwordVisibleChanged` updates the password visibility.
     func test_receive_passwordVisibleChanged() {
         subject.state.isPasswordVisible = false
-        subject.receive(.passwordVisibileChanged(true))
+        subject.receive(.passwordVisibleChanged(true))
 
         XCTAssertTrue(subject.state.isPasswordVisible)
     }

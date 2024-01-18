@@ -7,26 +7,40 @@ import Foundation
 class MockVaultRepository: VaultRepository {
     // MARK: Properties
 
-    var addCipherCiphers = [BitwardenSdk.CipherView]()
+    var addCipherCiphers = [CipherView]()
     var addCipherResult: Result<Void, Error> = .success(())
+
     var ciphersSubject = CurrentValueSubject<[CipherListView], Error>([])
-    var cipherDetailsSubject = CurrentValueSubject<BitwardenSdk.CipherView, Never>(.fixture())
+    var ciphersAutofillSubject = CurrentValueSubject<[CipherView], Error>([])
+    var cipherDetailsSubject = CurrentValueSubject<CipherView?, Error>(.fixture())
+
     var deletedCipher = [String]()
     var deleteCipherResult: Result<Void, Error> = .success(())
+
     var doesActiveAccountHavePremiumCalled = false
+    var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
+
     var fetchCipherId: String?
     var fetchCipherResult: Result<CipherView?, Error> = .success(nil)
+
     var fetchCipherOwnershipOptionsIncludePersonal: Bool? // swiftlint:disable:this identifier_name
     var fetchCipherOwnershipOptions = [CipherOwner]()
+
     var fetchCollectionsIncludeReadOnly: Bool?
     var fetchCollectionsResult: Result<[CollectionView], Error> = .success([])
+
+    var fetchFoldersCalled = false
     var fetchFoldersResult: Result<[FolderView], Error> = .success([])
+
     var fetchSyncCalled = false
     var fetchSyncResult: Result<Void, Error> = .success(())
+
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
+
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
-    var hasPremiumResult: Result<Bool, Error> = .success(true)
+
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
+
     var refreshTOTPCodesResult: Result<[VaultListItem], Error> = .success([])
     var refreshedTOTPTime: Date?
     var refreshedTOTPCodes: [VaultListItem] = []
@@ -36,21 +50,30 @@ class MockVaultRepository: VaultRepository {
         )
     )
     var refreshedTOTPKeyConfig: TOTPKeyModel?
+
     var removeAccountIds = [String?]()
+
     var searchCipherSubject = CurrentValueSubject<[VaultListItem], Error>([])
+
+    var shareCipherCiphers = [CipherView]()
     var shareCipherResult: Result<Void, Error> = .success(())
-    var sharedCiphers = [CipherView]()
+
     var softDeletedCipher = [CipherView]()
     var softDeleteCipherResult: Result<Void, Error> = .success(())
+
     var timeProvider: TimeProvider = MockTimeProvider(.currentTime)
+
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
+
     var updateCipherCollectionsCiphers = [CipherView]()
     var updateCipherCollectionsResult: Result<Void, Error> = .success(())
+
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
-    var vaultListSubject = CurrentValueSubject<[VaultListSection], Never>([])
-    var vaultListGroupSubject = CurrentValueSubject<[VaultListItem], Never>([])
+
+    var vaultListSubject = CurrentValueSubject<[VaultListSection], Error>([])
+    var vaultListGroupSubject = CurrentValueSubject<[VaultListItem], Error>([])
     var vaultListFilter: VaultFilterType?
 
     // MARK: Computed Properties
@@ -70,8 +93,14 @@ class MockVaultRepository: VaultRepository {
         ciphersSubject.eraseToAnyPublisher().values
     }
 
-    func cipherDetailsPublisher(id _: String) -> AsyncPublisher<AnyPublisher<BitwardenSdk.CipherView, Never>> {
+    func cipherDetailsPublisher(id _: String) async throws -> AsyncThrowingPublisher<AnyPublisher<CipherView?, Error>> {
         cipherDetailsSubject.eraseToAnyPublisher().values
+    }
+
+    func ciphersAutofillPublisher(
+        uri _: String?
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
+        ciphersAutofillSubject.eraseToAnyPublisher().values
     }
 
     func deleteCipher(_ id: String) async throws {
@@ -81,7 +110,7 @@ class MockVaultRepository: VaultRepository {
 
     func doesActiveAccountHavePremium() async throws -> Bool {
         doesActiveAccountHavePremiumCalled = true
-        return try hasPremiumResult.get()
+        return try doesActiveAccountHavePremiumResult.get()
     }
 
     func fetchCipher(withId id: String) async throws -> CipherView? {
@@ -100,7 +129,8 @@ class MockVaultRepository: VaultRepository {
     }
 
     func fetchFolders() async throws -> [FolderView] {
-        try fetchFoldersResult.get()
+        fetchFoldersCalled = true
+        return try fetchFoldersResult.get()
     }
 
     func fetchSync(isManualRefresh _: Bool) async throws {
@@ -132,14 +162,14 @@ class MockVaultRepository: VaultRepository {
     }
 
     func searchCipherPublisher(
-        searchText: String,
-        filterType: VaultFilterType
+        searchText _: String,
+        filterType _: VaultFilterType
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
         searchCipherSubject.eraseToAnyPublisher().values
     }
 
     func shareCipher(_ cipher: CipherView) async throws {
-        sharedCiphers.append(cipher)
+        shareCipherCiphers.append(cipher)
         try shareCipherResult.get()
     }
 
@@ -165,15 +195,15 @@ class MockVaultRepository: VaultRepository {
 
     func vaultListPublisher(
         filter: VaultFilterType
-    ) -> AsyncPublisher<AnyPublisher<[BitwardenShared.VaultListSection], Never>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
         vaultListFilter = filter
         return vaultListSubject.eraseToAnyPublisher().values
     }
 
     func vaultListPublisher(
         group _: BitwardenShared.VaultListGroup,
-        filter: VaultFilterType
-    ) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
+        filter _: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
         vaultListGroupSubject.eraseToAnyPublisher().values
     }
 }
@@ -203,7 +233,7 @@ class MockTimeProvider {
 }
 
 extension MockTimeProvider: Equatable {
-    static func == (lhs: MockTimeProvider, rhs: MockTimeProvider) -> Bool {
+    static func == (_: MockTimeProvider, _: MockTimeProvider) -> Bool {
         true
     }
 }
