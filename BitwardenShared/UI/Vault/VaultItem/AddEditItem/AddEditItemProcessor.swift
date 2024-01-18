@@ -365,7 +365,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         }
     }
 
-    /// Shows soft delete cipher confirmation alert.
+    /// Shows a soft delete cipher confirmation alert.
     ///
     private func showSoftDeleteConfirmation() async {
         let alert = Alert.deleteCipherConfirmation(isSoftDelete: true) { [weak self] in
