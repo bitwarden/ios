@@ -13,8 +13,8 @@ struct VaultUnlockView: View {
     var footerText: String {
         """
         \(store.state.unlockMethod == .pin
-        ? Localizations.vaultLockedMasterPassword
-        : Localizations.vaultLockedMasterPassword)
+            ? Localizations.vaultLockedMasterPassword
+            : Localizations.vaultLockedMasterPassword)
         \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
         """
     }

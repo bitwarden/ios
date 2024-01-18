@@ -4,9 +4,11 @@ import BitwardenSdk
 
 class MockClientCrypto: ClientCryptoProtocol {
     var derivePinKeyPin: String?
+    var derivePinUserKey: String?
     var derivePinKeyResult: Result<DerivePinKeyResponse, Error> = .success(
         DerivePinKeyResponse(pinProtectedUserKey: "", encryptedPin: "")
     )
+    var derivePinUserKeyResult: Result<String, Error> = .success("pinUserKey")
 
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
 
@@ -19,6 +21,10 @@ class MockClientCrypto: ClientCryptoProtocol {
     func derivePinKey(pin: String) async throws -> DerivePinKeyResponse {
         derivePinKeyPin = pin
         return try derivePinKeyResult.get()
+    }
+
+    func derivePinUserKey(encryptedPin: EncString) async throws -> EncString {
+        return try derivePinUserKeyResult.get()
     }
 
     func getUserEncryptionKey() async throws -> String {

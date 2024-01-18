@@ -69,7 +69,7 @@ class AlertSettingsTests: BitwardenTestCase {
 
     /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons.
     func test_unlockWithPINAlert() {
-        let subject = Alert.unlockWithPINCodeAlert {}
+        let subject = Alert.unlockWithPINCodeAlert { _ in }
 
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.preferredStyle, .alert)

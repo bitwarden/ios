@@ -30,6 +30,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         subject = AccountSecurityProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                authRepository: authRepository,
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
                 stateService: stateService,
@@ -56,7 +57,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
     func test_appeared() async {
         let account: Account = .fixtureAccountLogin()
         stateService.activeAccount = account
-        stateService.pinProtectedUserKey[account.profile.userId] = "123"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
 
         await subject.perform(.appeared)
 
@@ -287,20 +288,18 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }
 
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` turns the toggle off and sets the `pinProtectedUserKey` to nil.
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` turns the toggle off and clears the user's pins.
     func test_receive_toggleUnlockWithPINCode_off() {
         let account: Account = .fixture()
         stateService.activeAccount = account
-        stateService.pinProtectedUserKey[account.profile.userId] = "123"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
 
         subject.state.isUnlockWithPINCodeOn = true
         let task = Task {
             subject.receive(.toggleUnlockWithPINCode(false))
         }
         waitFor(!subject.state.isUnlockWithPINCodeOn)
-        task.cancel()
-        let pin = stateService.pinProtectedUserKey[account.profile.userId] ?? nil
-        XCTAssertNil(pin)
+        XCTAssertTrue(authRepository.clearPinsCalled)
     }
 
     /// `receive(_:)` with `.toggleUnlockWithTouchID` updates the state.

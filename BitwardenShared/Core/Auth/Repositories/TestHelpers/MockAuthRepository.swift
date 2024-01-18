@@ -4,8 +4,11 @@ class MockAuthRepository: AuthRepository {
     var accountsResult: Result<[ProfileSwitcherItem], Error> = .failure(StateServiceError.noAccounts)
     var activeAccountResult: Result<ProfileSwitcherItem, Error> = .failure(StateServiceError.noActiveAccount)
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var clearPinsCalled = false
     var deleteAccountCalled = false
+    var encryptedPin: String = "123"
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
+    var isPinUnlockAvailable = false
     var logoutCalled = false
     var logoutResult: Result<Void, Error> = .success(())
     var passwordStrengthEmail: String?
@@ -13,11 +16,14 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
-    var unlockWithPINCalled = false
     var unlockVaultPassword: String?
     var unlockVaultPIN: String?
-    var unlockVaultResult: Result<Void, Error> = .success(())
+    var unlockWithPasswordResult: Result<Void, Error> = .success(())
     var unlockWithPINResult: Result<Void, Error> = .success(())
+
+    func clearPins() async throws {
+        clearPinsCalled = true
+    }
 
     func deleteAccount(passwordText: String) async throws {
         deleteAccountCalled = true
@@ -39,6 +45,10 @@ class MockAuthRepository: AuthRepository {
         try fingerprintPhraseResult.get()
     }
 
+    func isPinUnlockAvailable() async throws -> Bool {
+        isPinUnlockAvailable
+    }
+
     func passwordStrength(email: String, password: String) async -> UInt8 {
         passwordStrengthEmail = email
         passwordStrengthPassword = password
@@ -54,7 +64,8 @@ class MockAuthRepository: AuthRepository {
         try setActiveAccountResult.get()
     }
 
-    func setPin(_ pin: String) async throws {
+    func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
+        encryptedPin = pin
         pinProtectedUserKey = pin
     }
 
@@ -65,6 +76,6 @@ class MockAuthRepository: AuthRepository {
 
     func unlockVaultWithPassword(password: String) async throws {
         unlockVaultPassword = password
-        try unlockVaultResult.get()
+        try unlockWithPasswordResult.get()
     }
 }

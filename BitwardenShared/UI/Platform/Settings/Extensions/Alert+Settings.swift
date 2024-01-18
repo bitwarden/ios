@@ -148,14 +148,16 @@ extension Alert {
     /// - Parameter action: The action to occur if `Yes` is tapped.
     /// - Returns: An alert asking if the user wants to login with their PIN upon app restart.
     ///
-    static func unlockWithPINCodeAlert(action: @escaping () async -> Void) -> Alert {
+    static func unlockWithPINCodeAlert(action: @escaping (Bool) async -> Void) -> Alert {
         Alert(
             title: Localizations.unlockWithPIN,
             message: Localizations.pinRequireMasterPasswordRestart,
             alertActions: [
-                AlertAction(title: Localizations.no, style: .cancel),
+                AlertAction(title: Localizations.no, style: .cancel) { _ in
+                    await action(false)
+                },
                 AlertAction(title: Localizations.yes, style: .default) { _ in
-                    await action()
+                    await action(true)
                 },
             ]
         )

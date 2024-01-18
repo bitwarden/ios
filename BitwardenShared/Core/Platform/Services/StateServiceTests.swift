@@ -95,6 +95,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(publishedValues, [.default, .dark])
     }
 
+    /// `clearPins()` clears the user's pins.
+    func test_clearPins() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        try await subject.clearPins()
+        let pinProtectedUserKey = try await subject.pinProtectedUserKey()
+        let pinKeyEncryptedUserKey = try await subject.pinKeyEncryptedUserKey()
+
+        XCTAssertNil(pinProtectedUserKey)
+        XCTAssertNil(pinKeyEncryptedUserKey)
+    }
+
     /// `.deleteAccount()` deletes the active user's account, removing it from the state.
     func test_deleteAccount() async throws {
         let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -596,6 +609,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
     }
 
+    /// `pinKeyEncryptedUserKey()` returns the pin key encrypted user key.
+    func test_pinKeyEncryptedUserKey() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        try await subject.setPinKeys(
+            encryptedPin: "123",
+            pinProtectedUserKey: "123",
+            requirePasswordAfterRestart: false
+        )
+
+        let pinKeyEncryptedUserKey = try await subject.pinKeyEncryptedUserKey()
+        XCTAssertEqual(pinKeyEncryptedUserKey, "123")
+    }
+
     /// `pinProtectedUserKey(userId:)` returns the pin protected user key.
     func test_pinProtectedUserKey() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -802,12 +830,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["2"], options2)
     }
 
-    /// `setPinProtectedUserKey(_:)` sets the pin protected user key for an account.
-    func test_setPinProtectedUserKey() async throws {
+    /// `setPinKeys(encryptedPin:pinProtectedUserKey:requirePasswordAfterRestart:)` sets pin keys for an account.
+    func test_setPinKeys() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        try await subject.setPinProtectedUserKey("123", userId: "1")
+        try await subject.setPinKeys(
+            encryptedPin: "123",
+            pinProtectedUserKey: "123",
+            requirePasswordAfterRestart: false
+        )
         XCTAssertEqual(appSettingsStore.pinProtectedUserKey["1"], "123")
+        XCTAssertEqual(appSettingsStore.pinKeyEncryptedUserKey["1"], "123")
     }
 
     /// `setPreAuthEnvironmentUrls` saves the pre-auth URLs.

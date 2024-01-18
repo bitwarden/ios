@@ -6,6 +6,7 @@ import Foundation
 class MockStateService: StateService {
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountTokens: Account.AccountTokens?
+    var accountVolatileData: [String: AccountVolatileData] = [:]
     var accountsAdded = [Account]()
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
@@ -15,6 +16,7 @@ class MockStateService: StateService {
     var appTheme: AppTheme?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var pinKeyEncryptedUserKeyValue = [String: String]()
     var environmentUrls = [String: EnvironmentUrlData]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
@@ -22,7 +24,7 @@ class MockStateService: StateService {
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
-    var pinProtectedUserKey = [String: String?]()
+    var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
@@ -36,6 +38,13 @@ class MockStateService: StateService {
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
         activeAccount = account
+    }
+
+    func clearPins() async throws {
+        let userId = try getActiveAccount().profile.userId
+        accountVolatileData.removeValue(forKey: userId)
+        pinProtectedUserKeyValue[userId] = nil
+        pinKeyEncryptedUserKeyValue[userId] = nil
     }
 
     func deleteAccount() async throws {
@@ -144,9 +153,14 @@ class MockStateService: StateService {
         accountsLoggedOut.append(userId)
     }
 
+    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return pinKeyEncryptedUserKeyValue[userId] ?? nil
+    }
+
     func pinProtectedUserKey(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccount().profile.userId
-        return pinProtectedUserKey[userId] ?? nil
+        return pinProtectedUserKeyValue[userId] ?? nil
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
@@ -187,6 +201,11 @@ class MockStateService: StateService {
         disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
     }
 
+    func setEncryptedPin(_ pin: String) async throws {
+        let userId = try getActiveAccount().profile.userId
+        accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = pin
+    }
+
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         self.environmentUrls[userId] = environmentUrls
@@ -207,9 +226,17 @@ class MockStateService: StateService {
         passwordGenerationOptions[userId] = options
     }
 
-    func setPinProtectedUserKey(_ key: String?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
-        pinProtectedUserKey[userId] = key
+    func setPinKeys(encryptedPin: String, pinProtectedUserKey: String, requirePasswordAfterRestart: Bool) async throws {
+        let userId = try getActiveAccount().profile.userId
+        pinProtectedUserKeyValue[userId] = pinProtectedUserKey
+        pinKeyEncryptedUserKeyValue[userId] = encryptedPin
+
+        if requirePasswordAfterRestart {
+            accountVolatileData[
+                userId,
+                default: AccountVolatileData()
+            ].pinProtectedUserKey = pinProtectedUserKey
+        }
     }
 
     func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {

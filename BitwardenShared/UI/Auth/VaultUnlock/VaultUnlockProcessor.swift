@@ -50,16 +50,6 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
             state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
             await refreshProfileState()
-
-            do {
-                if try await services.stateService.pinProtectedKey() != nil {
-                    // show unlock with pin
-                } else {
-                    if try await services.stateService.pinKeyEncryptedUserKey() != nil {
-                        // unlock with password
-                    }
-                }
-            } catch {}
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -70,6 +60,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             }
         case .unlockVault:
             await unlockVault()
+            await setPins()
         }
     }
 
@@ -145,13 +136,10 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                     .validate(input: state.pin)
                 try await services.authRepository.unlockVaultWithPIN(pin: state.pin)
             }
+
             coordinator.navigate(to: .complete)
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
-
-            if let encryptedPin = try await services.stateService.pinKeyEncryptedUserKey() {
-                try await services.authRepository.setPinProtectedKeyInMemory(encryptedPin)
-            }
         } catch let error as InputValidationError {
             coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))
         } catch {
@@ -202,6 +190,18 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             )
         } catch {
             state.profileSwitcherState = .empty()
+        }
+    }
+
+    /// Sets the user's pins if a pin protected user key exists.
+    ///
+    private func setPins() async {
+        do {
+            if let pin = try await services.stateService.pinProtectedUserKey() {
+                try await services.authRepository.setPins(pin, requirePasswordAfterRestart: true)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 }

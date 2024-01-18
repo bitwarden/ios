@@ -98,7 +98,7 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func appeared() async {
         do {
-            if try await services.stateService.pinKeyEncryptedUserKey() != nil {
+            if try await services.stateService.pinProtectedUserKey() != nil {
                 state.isUnlockWithPINCodeOn = true
             }
         } catch {
@@ -183,26 +183,24 @@ final class AccountSecurityProcessor: StateProcessor<
     private func toggleUnlockWithPIN(_ isOn: Bool) {
         if isOn {
             coordinator.navigate(to: .alert(.enterPINCode(completion: { pin in
-                do {
-                    try await self.services.authRepository.setPinKeyEncryptedUserKey(pin)
-                    try await self.services.authRepository.setPinProtectedKey(pin)
-                    self.state.isUnlockWithPINCodeOn = isOn
-                } catch {
-                    self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
-                }
-                self.coordinator.navigate(to: .alert(.unlockWithPINCodeAlert {
+                self.coordinator.navigate(to: .alert(.unlockWithPINCodeAlert { requirePassword in
                     do {
-                        try await self.services.authRepository.setPinKeyEncryptedUserKey(pin)
-                        try await self.services.authRepository.setPinProtectedKeyInMemory(pin)
+                        try await self.services.authRepository.setPins(
+                            pin,
+                            requirePasswordAfterRestart: requirePassword
+                        )
+                        self.state.isUnlockWithPINCodeOn = isOn
                     } catch {
-                        self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+                        self.coordinator.navigate(to: .alert(.defaultAlert(
+                            title: Localizations.anErrorHasOccurred)
+                        ))
                     }
                 }))
             })))
         } else {
             Task {
                 do {
-                    try await self.services.stateService.setPinKeyEncryptedUserKey(nil)
+                    try await self.services.authRepository.clearPins()
                     state.isUnlockWithPINCodeOn = isOn
                 } catch {
                     self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))

@@ -6,14 +6,16 @@ import Foundation
 protocol AuthRepository: AnyObject {
     // MARK: Methods
 
+    /// Clears the pins stored on device and in memory.
+    ///
+    func clearPins() async throws
+
     /// Deletes the user's account.
     ///
     /// - Parameter passwordText: The password entered by the user, which is used to verify
     /// their identify before deleting the account.
     ///
     func deleteAccount(passwordText: String) async throws
-
-    func derivePinUserKey(_ encryptedPin: String) async throws
 
     /// Gets all accounts.
     ///
@@ -41,6 +43,12 @@ protocol AuthRepository: AnyObject {
     ///
     func getFingerprintPhrase(userId: String?) async throws -> String
 
+    /// Whether pin unlock is available.
+    ///
+    /// - Returns: Whether pin unlock is available.
+    ///
+    func isPinUnlockAvailable() async throws -> Bool
+
     /// Logs the user out of the active account.
     ///
     func logout() async throws
@@ -54,9 +62,13 @@ protocol AuthRepository: AnyObject {
     ///
     func passwordStrength(email: String, password: String) async -> UInt8
 
-    func setPinProtectedKey(_ pin: String) async throws
-
-    func setPinProtectedKeyInMemory(_ pin: String) async throws
+    /// Sets the encrypted pin and the pin protected user key.
+    ///
+    /// - Parameters:
+    ///   - pin: The user's pin.
+    ///   - requirePasswordAfterRestart: Whether to require the password after an app restart.
+    ///
+    func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws
 
     /// Sets the active account by User Id.
     ///
@@ -64,12 +76,6 @@ protocol AuthRepository: AnyObject {
     /// - Returns: The new active account.
     ///
     func setActiveAccount(userId: String) async throws -> Account
-
-    /// Sets the pin protected user key.
-    ///
-    /// - Parameter pin: The user's PIN.
-    ///
-    func setPinKeyEncryptedUserKey(_ pin: String) async throws
 
     /// Attempts to unlock the user's vault with their master password.
     ///
@@ -159,9 +165,8 @@ class DefaultAuthRepository {
 // MARK: - AuthRepository
 
 extension DefaultAuthRepository: AuthRepository {
-    func getFingerprintPhrase(userId: String?) async throws -> String {
-        let account = try await stateService.getActiveAccount()
-        return try await clientPlatform.userFingerprint(fingerprintMaterial: account.profile.userId)
+    func clearPins() async throws {
+        try await stateService.clearPins()
     }
 
     func deleteAccount(passwordText: String) async throws {
@@ -173,11 +178,6 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.deleteAccount()
         await vaultTimeoutService.remove(userId: nil)
-    }
-
-    func derivePinUserKey(_ encryptedPin: String) async throws {
-        let pinProtectedUserKey = try await clientCrypto.derivePinUserKey(encryptedPin: encryptedPin)
-        try await stateService.setPinProtectedKeyInMemory(pinProtectedUserKey)
     }
 
     func getAccounts() async throws -> [ProfileSwitcherItem] {
@@ -202,6 +202,15 @@ extension DefaultAuthRepository: AuthRepository {
         return match
     }
 
+    func getFingerprintPhrase(userId: String?) async throws -> String {
+        let account = try await stateService.getActiveAccount()
+        return try await clientPlatform.userFingerprint(fingerprintMaterial: account.profile.userId)
+    }
+
+    func isPinUnlockAvailable() async throws -> Bool {
+        try await stateService.pinProtectedUserKey() != nil
+    }
+
     func logout() async throws {
         await vaultTimeoutService.remove(userId: nil)
         try await stateService.logoutAccount()
@@ -211,25 +220,19 @@ extension DefaultAuthRepository: AuthRepository {
         await clientAuth.passwordStrength(password: password, email: email, additionalInputs: [])
     }
 
-    func setPinProtectedKey(_ pin: String) async throws {
-        let key = try await clientCrypto.derivePinKey(pin: pin)
-        try await stateService.setPinProtectedKey(key.encryptedPin)
-    }
-
-    func setPinProtectedKeyInMemory(_ encryptedPin: String) async throws {
-        let key = try await clientCrypto.derivePinUserKey(encryptedPin: encryptedPin)
-        try await stateService.setPinProtectedKeyInMemory(key)
-    }
-
     func setActiveAccount(userId: String) async throws -> Account {
         try await stateService.setActiveAccount(userId: userId)
         await environmentService.loadURLsForActiveAccount()
         return try await stateService.getActiveAccount()
     }
 
-    func setPinKeyEncryptedUserKey(_ pin: String) async throws {
-        let key = try await clientCrypto.derivePinKey(pin: pin)
-        try await stateService.setPinKeyEncryptedUserKey(key.encryptedPin)
+    func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
+        let pinKey = try await clientCrypto.derivePinKey(pin: pin)
+        try await stateService.setPinKeys(
+            encryptedPin: pinKey.encryptedPin,
+            pinProtectedUserKey: pinKey.pinProtectedUserKey,
+            requirePasswordAfterRestart: requirePasswordAfterRestart
+        )
     }
 
     func unlockVaultWithPassword(password: String) async throws {
@@ -242,6 +245,36 @@ extension DefaultAuthRepository: AuthRepository {
 
     // MARK: Private
 
+    /// A function to convert an `Account` to a `ProfileSwitcherItem`
+    ///
+    ///   - Parameter account: The account to convert.
+    ///   - Returns: The `ProfileSwitcherItem` representing the account.
+    ///
+    private func profileItem(from account: Account) async -> ProfileSwitcherItem {
+        var profile = ProfileSwitcherItem(
+            email: account.profile.email,
+            userId: account.profile.userId,
+            userInitials: account.initials()
+                ?? ".."
+        )
+        do {
+            let isUnlocked = try !vaultTimeoutService.isLocked(userId: account.profile.userId)
+            profile.isUnlocked = isUnlocked
+            return profile
+        } catch {
+            profile.isUnlocked = false
+            let userId = profile.userId
+            await vaultTimeoutService.lockVault(userId: userId)
+            return profile
+        }
+    }
+
+    /// Unlocks the vault with the pin or password.
+    ///
+    /// - Parameters:
+    ///   - passwordOrPin: The user's password or pin.
+    ///   - method: The unlocking method, which is either password or pin.
+    ///
     private func unlockVault(_ passwordOrPin: String, method: UnlockMethod) async throws {
         let account = try await stateService.getActiveAccount()
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
@@ -266,7 +299,6 @@ extension DefaultAuthRepository: AuthRepository {
             try await stateService.setMasterPasswordHash(hashedPassword)
         case .pin:
             guard let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() else { return }
-
             try await clientCrypto.initializeUserCrypto(
                 req: InitUserCryptoRequest(
                     kdfParams: account.kdf.sdkKdf,
@@ -279,32 +311,7 @@ extension DefaultAuthRepository: AuthRepository {
                 )
             )
         }
-
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()
-    }
-
-    /// A function to convert an `Account` to a `ProfileSwitcherItem`
-    ///
-    ///   - Parameter account: The account to convert.
-    ///   - Returns: The `ProfileSwitcherItem` representing the account.
-    ///
-    private func profileItem(from account: Account) async -> ProfileSwitcherItem {
-        var profile = ProfileSwitcherItem(
-            email: account.profile.email,
-            userId: account.profile.userId,
-            userInitials: account.initials()
-                ?? ".."
-        )
-        do {
-            let isUnlocked = try !vaultTimeoutService.isLocked(userId: account.profile.userId)
-            profile.isUnlocked = isUnlocked
-            return profile
-        } catch {
-            profile.isUnlocked = false
-            let userId = profile.userId
-            await vaultTimeoutService.lockVault(userId: userId)
-            return profile
-        }
     }
 }

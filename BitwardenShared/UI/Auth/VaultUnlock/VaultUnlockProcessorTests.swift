@@ -31,7 +31,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
                 errorReporter: errorReporter,
                 stateService: stateService
             ),
-            state: VaultUnlockState(account: .fixture())
+            state: VaultUnlockState(account: .fixture(), unlockMethod: .password)
         )
     }
 
@@ -210,10 +210,15 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `perform(_:)` with `.unlockVault` attempts to unlock the vault with the entered password.
     func test_perform_unlockVault() async throws {
+        stateService.activeAccount = Account.fixture()
+        stateService.pinProtectedUserKeyValue["1"] = "123"
+        stateService.pinKeyEncryptedUserKeyValue["1"] = "123"
         subject.state.masterPassword = "password"
 
         await subject.perform(.unlockVault)
 
+        XCTAssertEqual(authRepository.pinProtectedUserKey, "123")
+        XCTAssertEqual(authRepository.encryptedPin, "123")
         XCTAssertEqual(authRepository.unlockVaultPassword, "password")
         XCTAssertEqual(coordinator.routes.last, .complete)
     }
@@ -251,7 +256,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.masterPassword = "password"
 
         struct VaultUnlockError: Error {}
-        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+        authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
 
         await subject.perform(.unlockVault)
 
@@ -267,7 +272,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         stateService.activeAccount = .fixture()
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
         struct VaultUnlockError: Error {}
-        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+        authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
 
         // 1st unsuccessful attempt
         await subject.perform(.unlockVault)
@@ -332,7 +337,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         await stateService.setUnsuccessfulUnlockAttempts(5)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 4)
         struct VaultUnlockError: Error {}
-        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+        authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
         struct LogoutError: Error, Equatable {}
         authRepository.logoutResult = .failure(LogoutError())
 
@@ -349,7 +354,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.masterPassword = "password"
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
         struct VaultUnlockError: Error {}
-        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+        authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
         stateService.activeAccount = .fixture()
         var attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
         XCTAssertEqual(attemptsInUserDefaults, 0)
@@ -363,7 +368,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
         XCTAssertEqual(attemptsInUserDefaults, 2)
 
-        authRepository.unlockVaultResult = .success(())
+        authRepository.unlockWithPasswordResult = .success(())
         await subject.perform(.unlockVault)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
         attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
