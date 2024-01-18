@@ -89,6 +89,31 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the base
+    /// domain match type using the Bitwarden iOS app scheme.
+    func test_ciphersMatching_baseDomain_appScheme() async {
+        settingsService.fetchEquivalentDomainsResult = .success([["google.com", "youtube.com"]])
+        let ciphers = ciphersForUris(
+            [
+                ("Example", "https://example.com"),
+                ("Example App Scheme", "iosapp://example.com"),
+                ("Other", "https://other.com"),
+            ],
+            matchType: .domain
+        )
+
+        let matchingCiphers = await subject.ciphersMatching(uri: "iosapp://example.com", ciphers: ciphers)
+        assertInlineSnapshot(
+            of: dumpMatchingCiphers(matchingCiphers),
+            as: .lines
+        ) {
+            """
+            Example App Scheme
+            Example
+            """
+        }
+    }
+
+    /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the base
     /// domain match type using an equivalent domain.
     func test_ciphersMatching_baseDomain_equivalentDomains() async {
         settingsService.fetchEquivalentDomainsResult = .success([["google.com", "youtube.com"]])

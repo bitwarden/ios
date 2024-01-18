@@ -5,6 +5,13 @@ import XCTest
 class URLTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `appWebURL` returns the app's web URL after the Bitwarden `iosapp://` URL scheme.
+    func test_appWebURL() {
+        XCTAssertEqual(URL(string: "iosapp://example.com")?.appWebURL, URL(string: "https://example.com"))
+
+        XCTAssertNil(URL(string: "https://example.com")?.appWebURL)
+    }
+
     /// `domain` returns the URL's domain constructed from the top-level and second-level domain.
     func test_domain() {
         XCTAssertEqual(URL(string: "https://localhost")?.domain, "localhost")
@@ -46,6 +53,13 @@ class URLTests: BitwardenTestCase {
         XCTAssertEqual(URL(string: "https://test.example.com")?.hostWithPort, "test.example.com")
         XCTAssertEqual(URL(string: "https://test.example.com:8080")?.hostWithPort, "test.example.com:8080")
         XCTAssertNil(URL(string: "example.com")?.hostWithPort)
+    }
+
+    /// `isApp` returns whether the URL is an app URL using the Bitwarden `iosapp://` URL scheme.
+    func test_isApp() throws {
+        try XCTAssertTrue(XCTUnwrap(URL(string: "iosapp://example.com")).isApp)
+
+        try XCTAssertFalse(XCTUnwrap(URL(string: "https://example.com")).isApp)
     }
 
     /// `sanitized` prepends a https scheme if the URL is missing a scheme.
