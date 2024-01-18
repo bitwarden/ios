@@ -23,18 +23,4 @@ enum BiometricAuthorizationStatus: Equatable {
 
     /// An unknown error case
     case unknownError(String, BiometricAuthenticationType)
-
-    var shouldDisplayiometricsToggle: Bool {
-        switch self {
-        case .authorized,
-             .lockedOut:
-            return true
-        case .denied,
-             .noBiometrics,
-             .notDetermined,
-             .notEnrolled,
-             .unknownError:
-            return false
-        }
-    }
 }
