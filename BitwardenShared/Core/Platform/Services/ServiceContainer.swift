@@ -87,6 +87,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to manage vault access.
     let vaultTimeoutService: VaultTimeoutService
 
+    /// The service used by the application to connect to and communicate with the watch app.
+    let watchService: WatchService
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -117,6 +120,7 @@ public class ServiceContainer: Services {
     ///   - twoStepLoginService: The service used by the application to generate a two step login URL.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
+    ///   - watchService: The service used by the application to connect to and communicate with the watch app.
     ///
     init(
         apiService: APIService,
@@ -142,7 +146,8 @@ public class ServiceContainer: Services {
         totpService: TOTPService,
         twoStepLoginService: TwoStepLoginService,
         vaultRepository: VaultRepository,
-        vaultTimeoutService: VaultTimeoutService
+        vaultTimeoutService: VaultTimeoutService,
+        watchService: WatchService
     ) {
         self.apiService = apiService
         self.appIdService = appIdService
@@ -168,6 +173,7 @@ public class ServiceContainer: Services {
         self.twoStepLoginService = twoStepLoginService
         self.vaultRepository = vaultRepository
         self.vaultTimeoutService = vaultTimeoutService
+        self.watchService = watchService
     }
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
@@ -213,6 +219,15 @@ public class ServiceContainer: Services {
         let sendService = DefaultSendService(
             sendAPIService: apiService,
             sendDataStore: dataStore,
+            stateService: stateService
+        )
+
+        let watchService = DefaultWatchService(
+            cipherService: cipherService,
+            clientVault: clientService.clientVault(),
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            organizationService: organizationService,
             stateService: stateService
         )
 
@@ -328,7 +343,8 @@ public class ServiceContainer: Services {
             totpService: totpService,
             twoStepLoginService: twoStepLoginService,
             vaultRepository: vaultRepository,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
+            watchService: watchService
         )
     }
 }

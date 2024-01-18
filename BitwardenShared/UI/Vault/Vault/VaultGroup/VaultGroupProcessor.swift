@@ -67,7 +67,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         case .refresh:
             await refreshVaultGroup()
         case .streamShowWebIcons:
-            for await value in await services.stateService.showWebIconsPublisher() {
+            for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
             }
         }
