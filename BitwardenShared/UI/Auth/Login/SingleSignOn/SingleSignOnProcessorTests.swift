@@ -172,7 +172,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         await subject.perform(.loginTapped)
 
         // Verify the results.
-        XCTAssertEqual(coordinator.routes.last, .twoFactor("", nil, authMethodsData))
+        XCTAssertEqual(coordinator.routes.last, .twoFactor("", nil, AuthMethodsData()))
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the vault unlock view if the vault is still locked.
