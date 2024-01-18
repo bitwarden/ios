@@ -36,6 +36,10 @@ class DefaultWatchService: NSObject, WatchService {
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
+    /// Keep a reference to the task used to sync the watch when the ciphers change, so that
+    /// it can be cancelled and recreated when the user changes.
+    private var syncCiphersTask: Task<Void, Never>?
+
     // MARK: Initialization
 
     /// Initialize a `DefaultWatchService`.
@@ -80,7 +84,7 @@ class DefaultWatchService: NSObject, WatchService {
 
     // MARK: Private Methods
 
-    /// Take a list of encrypted ciphers, decrypt them,  filter for only active ciphers with a totp code, then
+    /// Take a list of encrypted ciphers, decrypt them, filter for only active ciphers with a totp code, then
     /// convert the list to the simple cipher objects used to communicate with the watch.
     ///
     /// - Parameter ciphers: The encrypted `Cipher` objects.
@@ -209,7 +213,11 @@ class DefaultWatchService: NSObject, WatchService {
     ///   - shouldConnect: Whether the user has toggled on the connect to watch setting.
     ///
     private func syncWithWatch(userId: String?, shouldConnect: Bool) {
-        Task {
+        // This method will be called whenever the connect value or the account value changes,
+        // so the task listening to the cipher updates will need to be cancelled and recreated
+        // each time.
+        syncCiphersTask?.cancel()
+        syncCiphersTask = Task {
             do {
                 // If the user isn't logged in, sync the watch with an empty list of ciphers.
                 guard userId != nil else {

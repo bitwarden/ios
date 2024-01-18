@@ -833,18 +833,18 @@ actor DefaultStateService: StateService {
     }
 
     func connectToWatchPublisher() async -> AnyPublisher<Bool, Never> {
-        // Use a fail-able try to check for an active account, because if there's no active
-        // account, the phone will still sync with the watch to tell the user to login.
-        if let userId = try? getActiveAccountUserId() {
-            if connectToWatchByUserIdSubject.value[userId] == nil {
-                connectToWatchByUserIdSubject.value[userId] = appSettingsStore.connectToWatch(userId: userId)
+        activeAccountIdPublisher().flatMap { userId in
+            self.connectToWatchByUserIdSubject.map { values in
+                if let userId {
+                    // Get the user's setting, if they're logged in.
+                    values[userId] ?? self.appSettingsStore.connectToWatch(userId: userId)
+                } else {
+                    // Otherwise, use the last known value for the previous user.
+                    self.appSettingsStore.lastUserShouldConnectToWatch
+                }
             }
-            return connectToWatchByUserIdSubject.map { $0[userId] ?? false }.eraseToAnyPublisher()
-        } else {
-            return connectToWatchByUserIdSubject
-                .map { _ in self.appSettingsStore.lastUserShouldConnectToWatch }
-                .eraseToAnyPublisher()
         }
+        .eraseToAnyPublisher()
     }
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
