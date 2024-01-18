@@ -83,6 +83,20 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.appeared` records any errors.
+    func test_perform_appeared_error() {
+        vaultRepository.vaultListGroupSubject.send(completion: .failure(BitwardenTestError.example))
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
     func test_perform_refreshed() async {
         await subject.perform(.refresh)

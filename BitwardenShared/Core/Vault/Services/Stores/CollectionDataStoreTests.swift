@@ -31,6 +31,25 @@ class CollectionDataStoreTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `collectionPublisher(userId:)` returns a publisher for a user's collection objects.
+    func test_collectionPublisher() async throws {
+        var publishedValues = [[Collection]]()
+        let publisher = subject.collectionPublisher(userId: "1")
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { values in
+                    publishedValues.append(values)
+                }
+            )
+        defer { publisher.cancel() }
+
+        try await subject.replaceCollections(collections, userId: "1")
+
+        waitFor { publishedValues.count == 2 }
+        XCTAssertTrue(publishedValues[0].isEmpty)
+        XCTAssertEqual(publishedValues[1], collections)
+    }
+
     /// `deleteAllCollections(user:)` removes all objects for the user.
     func test_deleteAllCollections() async throws {
         try await insertCollections(collections, userId: "1")
@@ -52,25 +71,6 @@ class CollectionDataStoreTests: BitwardenTestCase {
             fetchCollections(userId: "1"),
             collections.filter { $0.id != "2" }
         )
-    }
-
-    /// `collectionPublisher(userId:)` returns a publisher for a user's collection objects.
-    func test_collectionPublisher() async throws {
-        var publishedValues = [[Collection]]()
-        let publisher = subject.collectionPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                }
-            )
-        defer { publisher.cancel() }
-
-        try await subject.replaceCollections(collections, userId: "1")
-
-        waitFor { publishedValues.count == 2 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], collections)
     }
 
     /// `fetchAllCollections(userId:)` fetches all collections for a user.

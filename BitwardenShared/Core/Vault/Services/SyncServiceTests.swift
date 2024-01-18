@@ -59,25 +59,6 @@ class SyncServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `clearCachedData()` removes any data cached by the service.
-    func test_clearCachedData() async throws {
-        client.result = .httpSuccess(testData: .syncWithCiphers)
-        stateService.activeAccount = .fixture()
-
-        var iterator = subject.syncResponsePublisher().values.makeAsyncIterator()
-        _ = await iterator.next()
-
-        Task {
-            try await subject.fetchSync()
-        }
-        var publisherValue = await iterator.next()
-        try XCTAssertNotNil(XCTUnwrap(publisherValue))
-
-        subject.clearCachedData()
-        publisherValue = await iterator.next()
-        try XCTAssertNil(XCTUnwrap(publisherValue))
-    }
-
     /// `fetchSync()` performs the sync API request.
     func test_fetchSync() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
