@@ -21,7 +21,7 @@ struct RestoreCipherRequest: Request {
 
     // MARK: Initialization
 
-    /// Initialize an `RestoreCipherRequest` for a `Cipher`.
+    /// Initialize a `RestoreCipherRequest` for a `Cipher`.
     ///
     /// - Parameter id: The id of `Cipher` to be restored from the trash.
     ///
