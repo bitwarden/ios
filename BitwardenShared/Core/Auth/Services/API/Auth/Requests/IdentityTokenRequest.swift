@@ -8,7 +8,14 @@ enum IdentityTokenRequestError: Error, Equatable {
     /// Captcha is required for this login attempt.
     ///
     /// - Parameter hCaptchaSiteCode: The site code to use when authenticating with hCaptcha.
+    ///
     case captchaRequired(hCaptchaSiteCode: String)
+
+    /// Two-factor authentication is required for this login attempt.
+    ///
+    /// - Parameter authMethodsData: The information about the available auth methods.
+    ///
+    case twoFactorRequired(_ authMethodsData: [String: [String: String]])
 }
 
 // MARK: - IdentityTokenRequest
@@ -59,13 +66,14 @@ struct IdentityTokenRequest: Request {
     func validate(_ response: HTTPResponse) throws {
         switch response.statusCode {
         case 400:
-            guard let object = try? JSONSerialization.jsonObject(with: response.body) as? [String: Any],
-                  let siteCode = object["HCaptcha_SiteKey"] as? String
-            else { return }
+            guard let object = try? JSONSerialization.jsonObject(with: response.body) as? [String: Any] else { return }
 
-            // Only throw the captcha error if the captcha site key can be found. Otherwise, this must be
-            // some other type of error.
-            throw IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
+            if let providersData = object["TwoFactorProviders2"] as? [String: [String: String]] {
+                throw IdentityTokenRequestError.twoFactorRequired(providersData)
+            } else if let siteCode = object["HCaptcha_SiteKey"] as? String {
+                // Throw the captcha error if the captcha site key can be found.
+                throw IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
+            }
         default:
             return
         }
