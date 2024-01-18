@@ -1,6 +1,11 @@
 import Foundation
 import Networking
 
+// MARK: - AuthMethodsData
+
+/// The structure of the data returned in the two-factor authentication error.
+public typealias AuthMethodsData = [String: [String: String?]?]
+
 // MARK: - IdentityTokenRequestError
 
 /// Errors that can occur when sending an `IdentityTokenRequest`.
@@ -68,7 +73,7 @@ struct IdentityTokenRequest: Request {
         case 400:
             guard let object = try? JSONSerialization.jsonObject(with: response.body) as? [String: Any] else { return }
 
-            if let providersData = object["TwoFactorProviders2"] as? [String: [String: String]] {
+            if let providersData = object["TwoFactorProviders2"] as? [String: [String: String?]?] {
                 let ssoToken = object["SsoEmail2faSessionToken"] as? String
                 throw IdentityTokenRequestError.twoFactorRequired(providersData, ssoToken)
             } else if let siteCode = object["HCaptcha_SiteKey"] as? String {

@@ -164,9 +164,8 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     /// `singleSignOnCompleted(code:)` navigates to the two-factor view if two-factor authentication is needed.
     func test_singleSignOnCompleted_twoFactorError() async throws {
         // Set up the mock data.
-        let authMethodsData = [String: [String: String]]()
         authService.generateSingleSignOnUrlResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(authMethodsData, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil)
         )
         subject.state.identifierText = "BestOrganization"
 
