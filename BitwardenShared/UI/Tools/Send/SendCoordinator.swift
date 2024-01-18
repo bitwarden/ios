@@ -1,3 +1,4 @@
+import BitwardenSdk
 import OSLog
 import Photos
 import PhotosUI
@@ -57,6 +58,8 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addItem:
             showAddItem()
+        case let .edit(sendView):
+            showEditItem(for: sendView)
         case let .fileSelection(route):
             guard let delegate = context as? FileSelectionDelegate else { return }
             showFileSelection(route: route, delegate: delegate)
@@ -79,6 +82,29 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         Task {
             let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
             let state = AddEditSendItemState(
+                hasPremium: hasPremium ?? false
+            )
+            let processor = AddEditSendItemProcessor(
+                coordinator: self,
+                services: services,
+                state: state
+            )
+            let view = AddEditSendItemView(store: Store(processor: processor))
+            let viewController = UIHostingController(rootView: view)
+            let navigationController = UINavigationController(rootViewController: viewController)
+            stackNavigator.present(navigationController)
+        }
+    }
+
+    /// Shows the edit item screen.
+    ///
+    /// - Parameter sendView: The send to edit.
+    ///
+    private func showEditItem(for sendView: SendView) {
+        Task {
+            let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
+            let state = AddEditSendItemState(
+                sendView: sendView,
                 hasPremium: hasPremium ?? false
             )
             let processor = AddEditSendItemProcessor(

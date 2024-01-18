@@ -7,6 +7,13 @@ import CoreData
 /// A protocol for a data store that handles performing data requests for collections.
 ///
 protocol CollectionDataStore: AnyObject {
+    /// A publisher for a user's collection objects.
+    ///
+    /// - Parameter userId: The ID of the user associated with the objects to fetch.
+    /// - Returns: A publisher for the user's collections.
+    ///
+    func collectionPublisher(userId: String) -> AnyPublisher<[Collection], Error>
+
     /// Deletes all `Collection` objects for a specific user.
     ///
     /// - Parameter userId: The user ID of the user associated with the objects to delete.
@@ -20,13 +27,6 @@ protocol CollectionDataStore: AnyObject {
     ///   - userId: The user ID of the user associated with the object to delete.
     ///
     func deleteCollection(id: String, userId: String) async throws
-
-    /// A publisher for a user's collection objects.
-    ///
-    /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
-    /// - Returns: A publisher for the user's collections.
-    ///
-    func collectionPublisher(userId: String) -> AnyPublisher<[Collection], Error>
 
     /// Fetches the collections that are available to the user.
     ///
@@ -53,6 +53,18 @@ protocol CollectionDataStore: AnyObject {
 }
 
 extension DataStore: CollectionDataStore {
+    func collectionPublisher(userId: String) -> AnyPublisher<[Collection], Error> {
+        let fetchRequest = CollectionData.fetchByUserIdRequest(userId: userId)
+        // A sort descriptor is needed by `NSFetchedResultsController`.
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CollectionData.id, ascending: true)]
+        return FetchedResultsPublisher(
+            context: persistentContainer.viewContext,
+            request: fetchRequest
+        )
+        .tryMap { try $0.map(Collection.init) }
+        .eraseToAnyPublisher()
+    }
+
     func deleteAllCollections(userId: String) async throws {
         try await executeBatchDelete(CollectionData.deleteByUserIdRequest(userId: userId))
     }
@@ -64,18 +76,6 @@ extension DataStore: CollectionDataStore {
                 self.backgroundContext.delete(result)
             }
         }
-    }
-
-    func collectionPublisher(userId: String) -> AnyPublisher<[Collection], Error> {
-        let fetchRequest = CollectionData.fetchByUserIdRequest(userId: userId)
-        // A sort descriptor is needed by `NSFetchedResultsController`.
-        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CollectionData.id, ascending: true)]
-        return FetchedResultsPublisher(
-            context: persistentContainer.viewContext,
-            request: fetchRequest
-        )
-        .tryMap { try $0.map(Collection.init) }
-        .eraseToAnyPublisher()
     }
 
     func fetchAllCollections(userId: String) async throws -> [Collection] {

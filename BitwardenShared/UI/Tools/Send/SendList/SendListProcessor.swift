@@ -5,7 +5,8 @@
 final class SendListProcessor: StateProcessor<SendListState, SendListAction, SendListEffect> {
     // MARK: Types
 
-    typealias Services = HasSendRepository
+    typealias Services = HasErrorReporter
+        & HasSendRepository
 
     // MARK: Private properties
 
@@ -39,9 +40,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     override func perform(_ effect: SendListEffect) async {
         switch effect {
         case .appeared:
-            for await sections in services.sendRepository.sendListPublisher() {
-                state.sections = sections
-            }
+            await streamSendList()
         case .refresh:
             do {
                 try await services.sendRepository.fetchSync(isManualRefresh: true)
@@ -65,9 +64,27 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         case let .sendListItemRow(rowAction):
             switch rowAction {
             case let .sendListItemPressed(item):
-                // TODO: BIT-1389 Navigate to the Edit Send route
-                print("tapped: \(item.id)")
+                switch item.itemType {
+                case let .send(sendView):
+                    coordinator.navigate(to: .edit(sendView))
+                case .group:
+                    // TODO: BIT-1412 Navigate to the group list screen
+                    break
+                }
             }
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// Stream the list of sends.
+    private func streamSendList() async {
+        do {
+            for try await sections in try await services.sendRepository.sendListPublisher() {
+                state.sections = sections
+            }
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 }

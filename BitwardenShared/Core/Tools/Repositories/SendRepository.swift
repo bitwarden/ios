@@ -15,6 +15,12 @@ protocol SendRepository: AnyObject {
     ///
     func addSend(_ sendView: SendView) async throws
 
+    /// Updates an existing Send in the repository.
+    ///
+    /// - Parameter sendView: The send to update in the repository.
+    ///
+    func updateSend(_ sendView: SendView) async throws
+
     /// Validates the user's active account has access to premium features.
     ///
     /// - Returns: Whether the active account has premium.
@@ -36,7 +42,7 @@ protocol SendRepository: AnyObject {
     ///
     /// - Returns: A publisher for the list of sends in the user's account.
     ///
-    func sendListPublisher() -> AsyncPublisher<AnyPublisher<[SendListSection], Never>>
+    func sendListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>>
 }
 
 // MARK: - DefaultSendRepository
@@ -106,6 +112,11 @@ class DefaultSendRepository: SendRepository {
         try await sendService.addSend(send)
     }
 
+    func updateSend(_ sendView: SendView) async throws {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        try await sendService.updateSend(send)
+    }
+
     // MARK: API Methods
 
     func fetchSync(isManualRefresh: Bool) async throws {
@@ -117,11 +128,10 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: Publishers
 
-    func sendListPublisher() -> AsyncPublisher<AnyPublisher<[SendListSection], Never>> {
-        syncService.syncResponsePublisher()
-            .asyncCompactMap { response in
-                guard let response else { return nil }
-                return try? await self.sendListSections(from: response)
+    func sendListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
+        try await sendService.sendsPublisher()
+            .asyncTryMap { sends in
+                try await self.sendListSections(from: sends)
             }
             .eraseToAnyPublisher()
             .values
@@ -131,14 +141,17 @@ class DefaultSendRepository: SendRepository {
 
     /// Returns a list of the sections in the vault list from a sync response.
     ///
-    /// - Parameter response: The sync response used to build the list of sections.
+    /// - Parameter sends: The sends used to build the list of sections.
     /// - Returns: A list of the sections to display in the vault list.
     ///
-    private func sendListSections(from response: SyncResponseModel) async throws -> [SendListSection] {
-        let sends = try await response.sends
-            .map(Send.init)
+    private func sendListSections(from sends: [Send]) async throws -> [SendListSection] {
+        let sends = try await sends
             .asyncMap { try await clientVault.sends().decrypt(send: $0) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        guard !sends.isEmpty else {
+            return []
+        }
 
         let fileSendsCount = sends
             .filter { $0.type == .file }

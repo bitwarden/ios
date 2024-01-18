@@ -112,7 +112,7 @@ protocol VaultRepository: AnyObject {
     ///
     /// - Parameter cipher: The cipher that the user is updating.
     ///
-    func updateCipher(_ cipher: CipherView) async throws
+    func updateCipher(_ cipherView: CipherView) async throws
 
     /// Validates the user's entered master password to determine if it matches the stored hash.
     ///
@@ -129,7 +129,9 @@ protocol VaultRepository: AnyObject {
     /// - Returns: A publisher for the details of a cipher which will be notified as the details of
     ///     the cipher change.
     ///
-    func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>>
+    func cipherDetailsPublisher(
+        id: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<CipherView?, Error>>
 
     /// A publisher for the list of a user's ciphers.
     ///
@@ -165,7 +167,9 @@ protocol VaultRepository: AnyObject {
     /// - Returns: A publisher for the sections of the vault list which will be notified as the
     ///     data changes.
     ///
-    func vaultListPublisher(filter: VaultFilterType) -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>>
+    func vaultListPublisher(
+        filter: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
 
     /// A publisher for a group of items within the vault list.
     ///
@@ -178,7 +182,7 @@ protocol VaultRepository: AnyObject {
     func vaultListPublisher(
         group: VaultListGroup,
         filter: VaultFilterType
-    ) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>>
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>>
 }
 
 /// A default implementation of a `VaultRepository`.
@@ -187,43 +191,43 @@ class DefaultVaultRepository {
     // MARK: Properties
 
     /// The API service used to perform API requests for the ciphers in a user's vault.
-    let cipherAPIService: CipherAPIService
+    private let cipherAPIService: CipherAPIService
 
     /// The service used to manage syncing and updates to the user's ciphers.
-    let cipherService: CipherService
+    private let cipherService: CipherService
 
     /// The client used by the application to handle auth related encryption and decryption tasks.
-    let clientAuth: ClientAuthProtocol
+    private let clientAuth: ClientAuthProtocol
 
     /// The client used by the application to handle encryption and decryption setup tasks.
-    let clientCrypto: ClientCryptoProtocol
+    private let clientCrypto: ClientCryptoProtocol
 
     /// The client used by the application to handle vault encryption and decryption tasks.
-    let clientVault: ClientVaultService
+    private let clientVault: ClientVaultService
 
     /// The service for managing the collections for the user.
-    let collectionService: CollectionService
+    private let collectionService: CollectionService
 
     /// The service used by the application to manage the environment settings.
-    let environmentService: EnvironmentService
+    private let environmentService: EnvironmentService
 
     /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
+    private let errorReporter: ErrorReporter
 
     /// The service used to manage syncing and updates to the user's folders.
-    let folderService: FolderService
+    private let folderService: FolderService
 
     /// The service used to manage syncing and updates to the user's organizations.
-    let organizationService: OrganizationService
+    private let organizationService: OrganizationService
 
     /// The service used by the application to manage account state.
-    let stateService: StateService
+    private let stateService: StateService
 
     /// The service used to handle syncing vault data with the API.
-    let syncService: SyncService
+    private let syncService: SyncService
 
     /// The service used by the application to manage vault access.
-    let vaultTimeoutService: VaultTimeoutService
+    private let vaultTimeoutService: VaultTimeoutService
 
     // MARK: Initialization
 
@@ -278,28 +282,24 @@ class DefaultVaultRepository {
 
     /// Returns a list of TOTP type items from a SyncResponseModel.
     ///
-    /// - Parameters
-    ///   - response: The SyncResponseModel providing the list of TOTP keys.
+    /// - Parameters:
+    ///   - ciphers: The ciphers containing the list of TOTP keys.
     ///   - filter: The filter applied to the response.
     /// - Returns: A list of totpKey type items in the vault list.
     ///
     private func totpListItems(
-        from response: SyncResponseModel,
+        from ciphers: [CipherView],
         filter: VaultFilterType?
     ) async throws -> [VaultListItem] {
-        let responseCiphers = response.ciphers.map(Cipher.init)
-
-        // Decode the response into CipherViews, then filter and sort the list.
-        let activeCiphers = try await responseCiphers.asyncMap { cipher in
-            try await self.clientVault.ciphers().decrypt(cipher: cipher)
-        }
-        .filter(filter?.cipherFilter(_:) ?? { _ in true })
-        .filter { cipher in
-            cipher.deletedDate == nil
-                && cipher.type == .login
-                && cipher.login?.totp != nil
-        }
-        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        // Filter and sort the list.
+        let activeCiphers = ciphers
+            .filter(filter?.cipherFilter(_:) ?? { _ in true })
+            .filter { cipher in
+                cipher.deletedDate == nil
+                    && cipher.type == .login
+                    && cipher.login?.totp != nil
+            }
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         // A transform to convert a `CipherListView` into a `VaultListItem`.
         let listItemTransform: (CipherView) async throws -> VaultListItem? = { [weak self] cipherView in
@@ -336,21 +336,20 @@ class DefaultVaultRepository {
         return totpItems
     }
 
-    /// Returns a list of items that are grouped together in the vault list from a sync response.
+    /// Returns a list of items that are grouped together in the vault list from a list of encrypted ciphers.
     ///
     /// - Parameters:
     ///   - group: The group of items to get.
     ///   - filter: A filter to apply to the vault items.
-    ///   - response: The sync response used to build the list of items.
+    ///   - ciphers: The ciphers to build the list of items.
     /// - Returns: A list of items for the group in the vault list.
     ///
     private func vaultListItems(
         group: VaultListGroup,
         filter: VaultFilterType,
-        from response: SyncResponseModel
+        from ciphers: [Cipher]
     ) async throws -> [VaultListItem] {
-        let responseCiphers = response.ciphers.map(Cipher.init)
-        let ciphers = try await responseCiphers.asyncMap { cipher in
+        let ciphers = try await ciphers.asyncMap { cipher in
             try await self.clientVault.ciphers().decrypt(cipher: cipher)
         }
         .filter(filter.cipherFilter)
@@ -360,23 +359,20 @@ class DefaultVaultRepository {
         let deletedCiphers = ciphers.filter { $0.deletedDate != nil }
 
         switch group {
-        case .login:
-            return activeCiphers.filter { $0.type == .login }.compactMap(VaultListItem.init)
         case .card:
             return activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
         case let .collection(id, _):
             return activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
-        case .identity:
-            return activeCiphers.filter { $0.type == .identity }.compactMap(VaultListItem.init)
-        case .secureNote:
-            return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case let .folder(id, _):
             return activeCiphers.filter { $0.folderId == id }.compactMap(VaultListItem.init)
+        case .identity:
+            return activeCiphers.filter { $0.type == .identity }.compactMap(VaultListItem.init)
+        case .login:
+            return activeCiphers.filter { $0.type == .login }.compactMap(VaultListItem.init)
+        case .secureNote:
+            return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case .totp:
-            return try await totpListItems(
-                from: response,
-                filter: filter
-            )
+            return try await totpListItems(from: ciphers, filter: filter)
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
         }
@@ -385,29 +381,31 @@ class DefaultVaultRepository {
     /// Returns a list of the sections in the vault list from a sync response.
     ///
     /// - Parameters:
-    ///   - response: The sync response used to build the list of sections.
+    ///   - ciphers: The ciphers used to build the list of sections.
+    ///   - collections: The collections used to build the list of sections.
+    ///   - folders: The folders used to build the list of sections.
     ///   - filter: A filter to apply to the vault items.
     /// - Returns: A list of the sections to display in the vault list.
     ///
     private func vaultListSections( // swiftlint:disable:this function_body_length
-        from response: SyncResponseModel,
+        from ciphers: [Cipher],
+        collections: [Collection],
+        folders: [Folder],
         filter: VaultFilterType
     ) async throws -> [VaultListSection] {
-        let responseCiphers: [Cipher] = response.ciphers.map(Cipher.init)
-
-        let ciphers = try await responseCiphers.asyncMap { cipher in
+        let ciphers = try await ciphers.asyncMap { cipher in
             try await self.clientVault.ciphers().decrypt(cipher: cipher)
         }
         .filter(filter.cipherFilter)
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let folders = try await clientVault.folders()
-            .decryptList(folders: response.folders.map(Folder.init))
+            .decryptList(folders: folders)
             .filter(filter.folderFilter)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let collections = try await clientVault.collections()
-            .decryptList(collections: response.collections.map(Collection.init))
+            .decryptList(collections: collections)
             .filter(filter.collectionFilter)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
@@ -421,10 +419,7 @@ class DefaultVaultRepository {
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
-        let oneTimePasswordCount: Int = try await totpListItems(
-            from: response,
-            filter: filter
-        ).count
+        let oneTimePasswordCount: Int = try await totpListItems(from: ciphers, filter: filter).count
 
         let totpItems = (oneTimePasswordCount > 0) ? [
             VaultListItem(
@@ -484,8 +479,7 @@ class DefaultVaultRepository {
             VaultListSection(id: "NoFolder", items: ciphersNoFolder, name: Localizations.folderNone),
             VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections),
             VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash),
-        ]
-        .filter { !$0.items.isEmpty }
+        ].filter { !$0.items.isEmpty }
     }
 }
 
@@ -503,13 +497,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func addCipher(_ cipher: CipherView) async throws {
         let cipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
-        if cipher.collectionIds.isEmpty {
-            _ = try await cipherAPIService.addCipher(cipher)
-        } else {
-            _ = try await cipherAPIService.addCipherWithCollections(cipher)
-        }
-        // TODO: BIT-92 Insert response into database instead of fetching sync.
-        try await fetchSync(isManualRefresh: false)
+        try await cipherService.addCipherWithServer(cipher)
     }
 
     func fetchCipher(withId id: String) async throws -> CipherView? {
@@ -553,8 +541,18 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
+        // Check if the user has a premium account personally.
         let account = try await stateService.getActiveAccount()
-        return account.profile.hasPremiumPersonally ?? false
+        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+        guard !hasPremiumPersonally else {
+            return true
+        }
+
+        // If not, check if any of their organizations grant them premium access.
+        let organizations = try await organizationService
+            .fetchAllOrganizations()
+            .filter { $0.enabled && $0.usersGetPremium }
+        return !organizations.isEmpty
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {
@@ -595,21 +593,18 @@ extension DefaultVaultRepository: VaultRepository {
 
     func shareCipher(_ cipher: CipherView) async throws {
         let encryptedCipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
-        try await cipherService.shareWithServer(encryptedCipher)
-        // TODO: BIT-92 Insert response into database instead of fetching sync.
-        try await fetchSync(isManualRefresh: false)
+        try await cipherService.shareCipherWithServer(encryptedCipher)
     }
 
     func searchCipherPublisher(
         searchText: String,
         filterType: VaultFilterType
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
-        let userId = try await stateService.getActiveAccountId()
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased()
             .folding(options: .diacriticInsensitive, locale: .current)
 
-        return cipherService.cipherPublisher(userId: userId).asyncTryMap { ciphers -> [VaultListItem] in
+        return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [VaultListItem] in
             // Convert the Ciphers to CipherViews and filter appropriately.
             let activeCiphers = try await ciphers.asyncMap { cipher in
                 try await self.clientVault.ciphers().decrypt(cipher: cipher)
@@ -648,18 +643,14 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.softDeleteCipherWithServer(id: id, encryptCipher)
     }
 
-    func updateCipher(_ updatedCipherView: CipherView) async throws {
-        let updatedCipher = try await clientVault.ciphers().encrypt(cipherView: updatedCipherView)
-        _ = try await cipherAPIService.updateCipher(updatedCipher)
-        // TODO: BIT-92 Insert response into database instead of fetching sync.
-        try await fetchSync(isManualRefresh: false)
+    func updateCipher(_ cipherView: CipherView) async throws {
+        let cipher = try await clientVault.ciphers().encrypt(cipherView: cipherView)
+        try await cipherService.updateCipherWithServer(cipher)
     }
 
-    func updateCipherCollections(_ cipher: CipherView) async throws {
-        let encryptedCipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
-        try await cipherService.updateCipherCollectionsWithServer(encryptedCipher)
-        // TODO: BIT-92 Insert response into database instead of fetching sync.
-        try await fetchSync(isManualRefresh: false)
+    func updateCipherCollections(_ cipherView: CipherView) async throws {
+        let cipher = try await clientVault.ciphers().encrypt(cipherView: cipherView)
+        try await cipherService.updateCipherCollectionsWithServer(cipher)
     }
 
     func validatePassword(_ password: String) async throws -> Bool {
@@ -679,13 +670,11 @@ extension DefaultVaultRepository: VaultRepository {
             .values
     }
 
-    func cipherDetailsPublisher(id: String) -> AsyncPublisher<AnyPublisher<CipherView, Never>> {
-        syncService.syncResponsePublisher()
-            .asyncCompactMap { response in
-                guard let cipher = response?.ciphers.first(where: { $0.id == id }) else {
-                    return nil
-                }
-                return try? await self.clientVault.ciphers().decrypt(cipher: Cipher(responseModel: cipher))
+    func cipherDetailsPublisher(id: String) async throws -> AsyncThrowingPublisher<AnyPublisher<CipherView?, Error>> {
+        try await cipherService.ciphersPublisher()
+            .asyncTryMap { ciphers -> CipherView? in
+                guard let cipher = ciphers.first(where: { $0.id == id }) else { return nil }
+                return try await self.clientVault.ciphers().decrypt(cipher: cipher)
             }
             .eraseToAnyPublisher()
             .values
@@ -711,24 +700,28 @@ extension DefaultVaultRepository: VaultRepository {
         try await organizationService.organizationsPublisher().eraseToAnyPublisher().values
     }
 
-    func vaultListPublisher(filter: VaultFilterType) -> AsyncPublisher<AnyPublisher<[VaultListSection], Never>> {
-        syncService.syncResponsePublisher()
-            .asyncCompactMap { response in
-                guard let response else { return nil }
-                return try? await self.vaultListSections(from: response, filter: filter)
-            }
-            .eraseToAnyPublisher()
-            .values
+    func vaultListPublisher(
+        filter: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+        try await Publishers.CombineLatest3(
+            cipherService.ciphersPublisher(),
+            collectionService.collectionsPublisher(),
+            folderService.foldersPublisher()
+        )
+        .asyncTryMap { ciphers, collections, folders in
+            try await self.vaultListSections(from: ciphers, collections: collections, folders: folders, filter: filter)
+        }
+        .eraseToAnyPublisher()
+        .values
     }
 
     func vaultListPublisher(
         group: VaultListGroup,
         filter: VaultFilterType
-    ) -> AsyncPublisher<AnyPublisher<[VaultListItem], Never>> {
-        syncService.syncResponsePublisher()
-            .asyncCompactMap { response in
-                guard let response else { return nil }
-                return try? await self.vaultListItems(group: group, filter: filter, from: response)
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
+        try await cipherService.ciphersPublisher()
+            .asyncTryMap { ciphers in
+                try await self.vaultListItems(group: group, filter: filter, from: ciphers)
             }
             .eraseToAnyPublisher()
             .values

@@ -70,25 +70,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     override func perform(_ effect: ViewItemEffect) async {
         switch effect {
         case .appeared:
-            for await value in services.vaultRepository.cipherDetailsPublisher(id: itemId) {
-                let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
-                    ?? false
-                var totpState = LoginTOTPState(value.login?.totp)
-                if let key = totpState.authKeyModel,
-                   let updatedState = try? await services.vaultRepository.refreshTOTPCode(for: key) {
-                    totpState = updatedState
-                }
-                guard var newState = ViewItemState(
-                    cipherView: value,
-                    hasPremium: hasPremium
-                ) else { continue }
-                if case var .data(itemState) = newState.loadingState {
-                    itemState.loginState.totpState = totpState
-                    newState.loadingState = .data(itemState)
-                }
-                newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
-                state = newState
-            }
+            await streamCipherDetails()
         case .checkPasswordPressed:
             do {
                 guard let password = state.loadingState.data?.cipher.login?.password else { return }
@@ -100,7 +82,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .deletePressed:
             await showDeleteConfirmation()
         case .totpCodeExpired:
-            guard state.hasPremiumFeatures else { return }
             await updateTOTPCode()
         }
     }
@@ -270,7 +251,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     }
 
     /// Shows delete cipher confirmation alert.
-    ///
     private func showDeleteConfirmation() async {
         guard case let .data(cipherState) = state.loadingState else { return }
         let alert = Alert.deleteCipherConfirmation { [weak self] in
@@ -280,12 +260,41 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.showAlert(alert)
     }
 
-    /// Updates the TOTP Code for the view.
-    ///
+    /// Stream the cipher details.
+    private func streamCipherDetails() async {
+        do {
+            for try await cipher in try await services.vaultRepository.cipherDetailsPublisher(id: itemId) {
+                guard let cipher else { continue }
+
+                let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
+                    ?? false
+
+                var totpState = LoginTOTPState(cipher.login?.totp)
+                if let key = totpState.authKeyModel,
+                   let updatedState = try? await services.vaultRepository.refreshTOTPCode(for: key) {
+                    totpState = updatedState
+                }
+
+                guard var newState = ViewItemState(cipherView: cipher, hasPremium: hasPremium) else { continue }
+                if case var .data(itemState) = newState.loadingState {
+                    itemState.loginState.totpState = totpState
+                    newState.loadingState = .data(itemState)
+                }
+                newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
+                state = newState
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Updates the TOTP code for the view.
     private func updateTOTPCode() async {
-        // Only update the code if there is a valid TOTP key model.
-        guard case let .data(cipherItemState) = state.loadingState,
-              let calculationKey = cipherItemState.loginState.totpState.authKeyModel else { return }
+        // Only update the code if the user has premium and there is a valid TOTP key model.
+        guard state.hasPremiumFeatures,
+              case let .data(cipherItemState) = state.loadingState,
+              let calculationKey = cipherItemState.loginState.totpState.authKeyModel
+        else { return }
         do {
             // Get an updated TOTP code for the present key model.
             let newLoginTOTP = try await services.vaultRepository.refreshTOTPCode(for: calculationKey)

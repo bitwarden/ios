@@ -64,13 +64,11 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
-            for await value in await services.stateService.showWebIconsPublisher() {
+            for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
             }
         case .streamVaultList:
-            for await value in services.vaultRepository.vaultListPublisher(filter: state.vaultFilterType) {
-                state.loadingState = .data(value)
-            }
+            await streamVaultList()
         }
     }
 
@@ -127,12 +125,12 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     // MARK: - Private Methods
 
     /// Navigates to login to initiate the add account flow.
-    ///
     private func addAccount() {
         coordinator.navigate(to: .addAccount)
     }
 
-    /// Handles a tap of an account in the profile switcher
+    /// Handles a tap of an account in the profile switcher.
+    ///
     /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
     ///
     private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
@@ -211,11 +209,22 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     }
 
     /// Streams the user's organizations.
-    ///
     private func streamOrganizations() async {
         do {
             for try await organizations in try await services.vaultRepository.organizationsPublisher() {
                 state.organizations = organizations
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams the user's vault list.
+    private func streamVaultList() async {
+        do {
+            for try await value in try await services.vaultRepository
+                .vaultListPublisher(filter: state.vaultFilterType) {
+                state.loadingState = .data(value)
             }
         } catch {
             services.errorReporter.log(error: error)

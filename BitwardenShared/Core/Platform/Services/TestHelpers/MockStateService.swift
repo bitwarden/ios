@@ -16,14 +16,18 @@ class MockStateService: StateService {
     var appTheme: AppTheme?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
-    var pinKeyEncryptedUserKeyValue = [String: String]()
+    var connectToWatchByUserId = [String: Bool]()
+    var connectToWatchResult: Result<Void, Error> = .success(())
+    var connectToWatchSubject = CurrentValueSubject<Bool, Never>(false)
     var environmentUrls = [String: EnvironmentUrlData]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
+    var lastUserShouldConnectToWatch = false
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pinKeyEncryptedUserKeyValue = [String: String]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var showWebIcons = true
@@ -103,6 +107,12 @@ class MockStateService: StateService {
         try clearClipboardResult.get()
         let userId = try userId ?? getActiveAccount().profile.userId
         return clearClipboardValues[userId] ?? .never
+    }
+
+    func getConnectToWatch(userId: String?) async throws -> Bool {
+        try connectToWatchResult.get()
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return connectToWatchByUserId[userId] ?? false
     }
 
     func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
@@ -191,6 +201,12 @@ class MockStateService: StateService {
         clearClipboardValues[userId] = clearClipboardValue
     }
 
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {
+        try connectToWatchResult.get()
+        let userId = try userId ?? getActiveAccount().profile.userId
+        connectToWatchByUserId[userId] = connectToWatch
+    }
+
     func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         defaultUriMatchTypeByUserId[userId] = defaultUriMatchType
@@ -214,6 +230,10 @@ class MockStateService: StateService {
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         lastSyncTimeByUserId[userId] = date
+    }
+
+    func getLastUserShouldConnectToWatch() async -> Bool {
+        lastUserShouldConnectToWatch
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
@@ -261,19 +281,23 @@ class MockStateService: StateService {
         usernameGenerationOptions[userId] = options
     }
 
-    func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>> {
-        activeIdSubject.eraseToAnyPublisher().values
+    func activeAccountIdPublisher() async -> AnyPublisher<String?, Never> {
+        activeIdSubject.eraseToAnyPublisher()
     }
 
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
         appThemeSubject.eraseToAnyPublisher()
     }
 
+    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never> {
+        connectToWatchSubject.eraseToAnyPublisher()
+    }
+
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
         lastSyncTimeSubject.eraseToAnyPublisher()
     }
 
-    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
-        showWebIconsSubject.eraseToAnyPublisher().values
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
+        showWebIconsSubject.eraseToAnyPublisher()
     }
 }

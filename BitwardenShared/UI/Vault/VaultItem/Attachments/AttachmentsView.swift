@@ -27,6 +27,9 @@ struct AttachmentsView: View {
                 store.send(.dismissPressed)
             }
         }
+        .task {
+            await store.perform(.loadPremiumStatus)
+        }
     }
 
     // MARK: Private Views

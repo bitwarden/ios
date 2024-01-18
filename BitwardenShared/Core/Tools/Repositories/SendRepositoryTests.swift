@@ -182,14 +182,36 @@ class SendRepositoryTests: BitwardenTestCase {
 
     /// `sendListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the sends tab.
-    func test_sendListPublisher_withValues() async throws {
-        try syncService.syncSubject.send(JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithSends.data
-        ))
+    func test_sendListPublisher_withoutValues() async throws {
+        sendService.sendsSubject.send([])
 
-        var iterator = subject.sendListPublisher().makeAsyncIterator()
-        let sections = await iterator.next()
+        var iterator = try await subject.sendListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            """
+        }
+    }
+
+    /// `sendListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the sends tab.
+    func test_sendListPublisher_withValues() async throws {
+        sendService.sendsSubject.send([
+            .fixture(
+                name: "encrypted name",
+                text: .init(hidden: false, text: "encrypted text"),
+                type: .text
+            ),
+            .fixture(
+                file: .init(fileName: "test.txt", id: "1", size: "123", sizeName: "123 KB"),
+                name: "encrypted name",
+                type: .file
+            ),
+        ])
+
+        var iterator = try await subject.sendListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
 
         try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
             """
@@ -201,6 +223,15 @@ class SendRepositoryTests: BitwardenTestCase {
               - Send: encrypted name
             """
         }
+    }
+
+    /// `updateSend()` successfully encrypts the send view and uses the send service to update it.
+    func test_updateSend() async throws {
+        let sendView = SendView.fixture()
+        try await subject.updateSend(sendView)
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendService.updateSendSend, Send(sendView: sendView))
     }
 
     // MARK: Private Methods

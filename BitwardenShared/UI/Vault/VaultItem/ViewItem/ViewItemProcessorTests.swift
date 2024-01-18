@@ -76,7 +76,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     func test_perform_appeared() {
-        vaultRepository.hasPremiumResult = .success(true)
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
         let cipherItem = CipherView.fixture(
             id: "id",
             login: LoginView(
@@ -110,6 +110,20 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.appeared` records any errors.
+    func test_perform_appeared_errors() {
+        vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     func test_perform_appeared_invalidFixture() {
         let cipherItem = CipherView.fixture(id: nil)
@@ -133,7 +147,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let cipherItem = CipherView.loginFixture(
             id: "id"
         )
-        vaultRepository.hasPremiumResult = .success(false)
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
         vaultRepository.cipherDetailsSubject.send(cipherItem)
 
         let task = Task {
@@ -157,8 +171,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let cipherItem = CipherView.loginFixture(
             id: "id"
         )
-        struct TestError: Error, Equatable {}
-        vaultRepository.hasPremiumResult = .failure(TestError())
+        vaultRepository.doesActiveAccountHavePremiumResult = .failure(BitwardenTestError.example)
         vaultRepository.cipherDetailsSubject.send(cipherItem)
 
         let task = Task {
@@ -175,6 +188,17 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform` with `.checkPasswordPressed` records any errors.
+    func test_perform_checkPasswordPressed_error() async throws {
+        let cipher = CipherView.loginFixture(login: .fixture(password: "password1234"))
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
+        client.result = .httpFailure(BitwardenTestError.example)
+
+        await subject.perform(.checkPasswordPressed)
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform` with `.checkPasswordPressed` shows an alert if the password has been exposed.

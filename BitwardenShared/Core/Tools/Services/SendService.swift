@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Combine
 
 // MARK: - SendService
 
@@ -11,6 +12,12 @@ protocol SendService {
     ///
     func addSend(_ send: Send) async throws
 
+    /// Updates an existing Send for the current user in both the backend and in local storage.
+    ///
+    /// - Parameter send: The send to update.
+    ///
+    func updateSend(_ send: Send) async throws
+
     /// Replaces the persisted list of sends for the user.
     ///
     /// - Parameters:
@@ -18,6 +25,14 @@ protocol SendService {
     ///   - userId: The user ID associated with the sends.
     ///
     func replaceSends(_ sends: [SendResponseModel], userId: String) async throws
+
+    // MARK: Publishers
+
+    /// A publisher for the list of sends.
+    ///
+    /// - Returns: The list of encrypted sends.
+    ///
+    func sendsPublisher() async throws -> AnyPublisher<[Send], Error>
 }
 
 // MARK: - DefaultSendService
@@ -26,13 +41,13 @@ class DefaultSendService: SendService {
     // MARK: Properties
 
     /// The service used to make cipher related API requests.
-    let sendAPIService: SendAPIService
+    private let sendAPIService: SendAPIService
 
     /// The data store for managing the persisted sends for the user.
-    let sendDataStore: SendDataStore
+    private let sendDataStore: SendDataStore
 
     /// The service used by the application to manage account state.
-    let stateService: StateService
+    private let stateService: StateService
 
     // MARK: Initialization
 
@@ -62,7 +77,20 @@ extension DefaultSendService {
         try await sendDataStore.upsertSend(newSend, userId: userId)
     }
 
+    func updateSend(_ send: Send) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        let response = try await sendAPIService.updateSend(send)
+
+        let newSend = Send(sendResponseModel: response)
+        try await sendDataStore.upsertSend(newSend, userId: userId)
+    }
+
     func replaceSends(_ sends: [SendResponseModel], userId: String) async throws {
         try await sendDataStore.replaceSends(sends.map(Send.init), userId: userId)
+    }
+
+    func sendsPublisher() async throws -> AnyPublisher<[Send], Error> {
+        let userId = try await stateService.getActiveAccountId()
+        return sendDataStore.sendPublisher(userId: userId)
     }
 }
