@@ -18,6 +18,9 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<AuthRoute>
 
+    /// A flag indicating if the processor should attempt automatic biometric unlock
+    var shouldAttemptAutomaticBiometricUnlock = false
+
     /// The services used by this processor.
     private var services: Services
 
@@ -112,6 +115,14 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
         state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
         state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
         await refreshProfileState()
+        // If biometric unlock is available, enabled,
+        // and the user's biometric integrity state is valid;
+        // attempt to unlock the vault with biometrics once.
+        if case .available(_, true, true) = state.biometricUnlockStatus,
+           shouldAttemptAutomaticBiometricUnlock {
+            shouldAttemptAutomaticBiometricUnlock = false
+            await unlockWithBiometrics()
+        }
     }
 
     /// Log out the present user.
@@ -182,6 +193,11 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
         } catch let error as BiometricsServiceError {
             Logger.processor.error("BiometricsServiceError unlocking vault with biometrics: \(error)")
+            // If the user has locked biometry, logout immediately.
+            if case .biometryLocked = error {
+                await logoutUser()
+                return
+            }
             // There is no biometric auth key stored, set user preference to false.
             if case .getAuthKeyFailed = error {
                 try? await services.authRepository.allowBioMetricUnlock(false, userId: nil)

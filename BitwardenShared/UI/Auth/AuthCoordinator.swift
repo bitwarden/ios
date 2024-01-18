@@ -83,7 +83,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
 
     // MARK: Methods
 
-    func navigate(to route: AuthRoute, context: AnyObject?) {
+    func navigate(to route: AuthRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case let .alert(alert):
             showAlert(alert)
@@ -130,8 +130,12 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             selectAccount(for: userId)
         case let .twoFactor(email, password, authMethodsData):
             showTwoFactorAuth(email: email, password: password, authMethodsData: authMethodsData)
-        case let .vaultUnlock(account, animated):
-            showVaultUnlock(account: account, animated: animated)
+        case let .vaultUnlock(account, animated, attemptAutomaticBiometricUnlock):
+            showVaultUnlock(
+                account: account,
+                animated: animated,
+                attemptAutmaticBiometricUnlock: attemptAutomaticBiometricUnlock
+            )
         }
     }
 
@@ -150,7 +154,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
                 let account = try await services.authRepository.setActiveAccount(userId: userId)
                 let isLocked = try services.vaultTimeoutService.isLocked(userId: userId)
                 if isLocked {
-                    showVaultUnlock(account: account)
+                    showVaultUnlock(account: account, attemptAutmaticBiometricUnlock: true)
                 } else {
                     delegate?.didCompleteAuth()
                 }
@@ -385,14 +389,20 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     /// - Parameters:
     ///   - account: The active account.
     ///   - animated: Whether to animate the transition.
+    ///   - attemptAutmaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
     ///
-    private func showVaultUnlock(account: Account, animated: Bool = true) {
+    private func showVaultUnlock(
+        account: Account,
+        animated: Bool = true,
+        attemptAutmaticBiometricUnlock: Bool = false
+    ) {
         let processor = VaultUnlockProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultUnlockState(account: account)
         )
+        processor.shouldAttemptAutomaticBiometricUnlock = attemptAutmaticBiometricUnlock
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator.replace(view, animated: animated)
     }

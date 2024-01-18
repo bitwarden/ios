@@ -10,15 +10,6 @@ enum BiometricsUnlockStatus: Equatable {
 
     /// Biometric Unlock is not available.
     case notAvailable
-
-    var biometricAuthenticationType: BiometricAuthenticationType? {
-        switch self {
-        case let .available(type, _, _):
-            return type
-        case .notAvailable:
-            return nil
-        }
-    }
 }
 
 // MARK: - BiometricsService
@@ -82,6 +73,9 @@ class DefaultBiometricsService: BiometricsService {
 
     func getBiometricUnlockStatus() async throws -> BiometricsUnlockStatus {
         let biometryStatus = getBiometricAuthStatus()
+        if case .lockedOut = biometryStatus {
+            throw BiometricsServiceError.deleteAuthKeyFailed
+        }
         let hasEnabledBiometricUnlock = try await stateService.getBiometricAuthenticationEnabled()
         let hasValidIntegrityState = await isBiometricIntegrityValid()
         switch biometryStatus {
@@ -112,11 +106,6 @@ class DefaultBiometricsService: BiometricsService {
         try await stateService.setBiometricAuthenticationEnabled(true)
     }
 
-    /// Attempts to retrieve a userAuthKey from the keychain with biometrics.
-    ///
-    /// - Parameter userId: The userId for the key to be retrieved.
-    /// - Returns: The user auth key.
-    ///
     func getUserAuthKey(for userId: String? = nil) async throws -> String {
         let context = LAContext()
         guard let bundleId = Bundle.main.bundleIdentifier,
