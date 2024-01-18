@@ -19,11 +19,19 @@ class MockSendRepository: SendRepository {
     var addSendResult: Result<Void, Error> = .success(())
     var addSendSendView: SendView?
 
+    var updateSendResult: Result<Void, Error> = .success(())
+    var updateSendSendView: SendView?
+
     // MARK: Methods
 
     func addSend(_ sendView: SendView) async throws {
         addSendSendView = sendView
         try addSendResult.get()
+    }
+
+    func updateSend(_ sendView: SendView) async throws {
+        updateSendSendView = sendView
+        try updateSendResult.get()
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {

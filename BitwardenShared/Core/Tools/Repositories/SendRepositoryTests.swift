@@ -211,6 +211,15 @@ class SendRepositoryTests: BitwardenTestCase {
         }
     }
 
+    /// `updateSend()` successfully encrypts the send view and uses the send service to update it.
+    func test_updateSend() async throws {
+        let sendView = SendView.fixture()
+        try await subject.updateSend(sendView)
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendService.updateSendSend, Send(sendView: sendView))
+    }
+
     // MARK: Private Methods
 
     /// Returns a string containing a description of the send list items.
