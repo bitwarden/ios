@@ -33,7 +33,7 @@ protocol CipherService {
     ///
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws
 
-    /// Restores a cipher from trash both in the backend and in local storage...
+    /// Restores a cipher from trash both in the backend and in local storage.
     ///
     /// - Parameters:
     ///  - id: The id of the cipher to be restored.
