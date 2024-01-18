@@ -541,8 +541,18 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
+        // Check if the user has a premium account personally.
         let account = try await stateService.getActiveAccount()
-        return account.profile.hasPremiumPersonally ?? false
+        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+        guard !hasPremiumPersonally else {
+            return true
+        }
+
+        // If not, check if any of their organizations grant them premium access.
+        let organizations = try await organizationService
+            .fetchAllOrganizations()
+            .filter { $0.enabled && $0.usersGetPremium }
+        return !organizations.isEmpty
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {

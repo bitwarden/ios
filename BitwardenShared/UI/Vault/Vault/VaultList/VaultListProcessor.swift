@@ -64,7 +64,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
-            for await value in await services.stateService.showWebIconsPublisher() {
+            for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
             }
         case .streamVaultList:

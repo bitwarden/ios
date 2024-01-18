@@ -27,7 +27,8 @@ extension ServiceContainer {
         totpService: TOTPService = MockTOTPService(),
         twoStepLoginService: TwoStepLoginService = MockTwoStepLoginService(),
         vaultRepository: VaultRepository = MockVaultRepository(),
-        vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService()
+        vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService(),
+        watchService: WatchService = MockWatchService()
     ) -> ServiceContainer {
         ServiceContainer(
             apiService: APIService(
@@ -56,7 +57,8 @@ extension ServiceContainer {
             totpService: totpService,
             twoStepLoginService: twoStepLoginService,
             vaultRepository: vaultRepository,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
+            watchService: watchService
         )
     }
 }

@@ -35,6 +35,9 @@ protocol SettingsRepository: AnyObject {
     /// Get the current value of the allow sync on refresh value.
     func getAllowSyncOnRefresh() async throws -> Bool
 
+    /// Get the current value of the connect to watch setting.
+    func getConnectToWatch() async throws -> Bool
+
     /// Gets the default URI match type setting for the current user.
     ///
     func getDefaultUriMatchType() async throws -> UriMatchType
@@ -72,6 +75,12 @@ protocol SettingsRepository: AnyObject {
     /// - Parameter allowSyncOnRefresh: Whether the vault should sync on refreshing.
     ///
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws
+
+    /// Update the cached value of the connect to watch setting.
+    ///
+    /// - Parameter connectToWatch: Whether to connect to the watch app.
+    ///
+    func updateConnectToWatch(_ connectToWatch: Bool) async throws
 
     /// Update the cached value of the default URI match type setting.
     ///
@@ -191,6 +200,10 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.getAllowSyncOnRefresh()
     }
 
+    func getConnectToWatch() async throws -> Bool {
+        try await stateService.getConnectToWatch()
+    }
+
     func getDefaultUriMatchType() async throws -> UriMatchType {
         try await stateService.getDefaultUriMatchType()
     }
@@ -217,6 +230,10 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await stateService.setAllowSyncOnRefresh(allowSyncOnRefresh)
+    }
+
+    func updateConnectToWatch(_ connectToWatch: Bool) async throws {
+        try await stateService.setConnectToWatch(connectToWatch)
     }
 
     func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async throws {
