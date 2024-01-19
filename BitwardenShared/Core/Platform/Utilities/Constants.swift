@@ -25,6 +25,9 @@ enum Constants {
     /// The length of a masked password.
     static let hiddenPasswordLength = 8
 
+    /// A custom URL scheme to support action extension autofill from other apps.
+    static let iOSAppProtocol = "iosapp://"
+
     /// A default value for the argon memory argument in the KDF algorithm.
     static let kdfArgonMemory = 64
 
