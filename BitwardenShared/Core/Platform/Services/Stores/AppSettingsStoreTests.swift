@@ -420,6 +420,29 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.
+    func test_twoFactorToken_isInitiallyNil() {
+        XCTAssertNil(subject.twoFactorToken(email: "anything@email.com"))
+    }
+
+    /// `twoFactorToken(email:)` can be used to get and set the persisted value in user defaults.
+    func test_twoFactorToken_withValue() {
+        subject.setTwoFactorToken("tests_that_work", email: "lucky@gmail.com")
+        subject.setTwoFactorToken("tests_are_great", email: "happy@gmail.com")
+
+        XCTAssertEqual(subject.twoFactorToken(email: "lucky@gmail.com"), "tests_that_work")
+        XCTAssertEqual(subject.twoFactorToken(email: "happy@gmail.com"), "tests_are_great")
+
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:twoFactorToken_lucky@gmail.com"),
+            "tests_that_work"
+        )
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:twoFactorToken_happy@gmail.com"),
+            "tests_are_great"
+        )
+    }
+
     /// `unsuccessfulUnlockAttempts` returns `0` if there isn't a previously stored value.
     func test_unsuccessfulUnlockAttempts_isInitially0() {
         XCTAssertEqual(0, subject.unsuccessfulUnlockAttempts(userId: "1"))

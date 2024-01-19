@@ -50,8 +50,7 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to the login screen after the vault has been locked.
     ///
-    /// - Parameters:
-    ///   - account: The user's account
+    /// - Parameter account: The user's account
     ///
     case lockVault(account: Account)
 

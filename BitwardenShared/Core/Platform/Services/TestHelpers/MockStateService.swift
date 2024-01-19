@@ -37,8 +37,8 @@ class MockStateService: StateService {
     var setBiometricIntegrityStateError: Error?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
-    var systemBiometricIntegrityState: String?
     var rememberedOrgIdentifier: String?
+    var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
@@ -150,8 +150,8 @@ class MockStateService: StateService {
         showWebIcons
     }
 
-    func getSystemBiometricIntegrityState() async -> String? {
-        systemBiometricIntegrityState
+    func getTwoFactorToken(email: String) async -> String? {
+        twoFactorTokens[email]
     }
 
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
@@ -247,6 +247,10 @@ class MockStateService: StateService {
 
     func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
+    }
+
+    func setTwoFactorToken(_ token: String?, email: String) async {
+        twoFactorTokens[email] = token
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {

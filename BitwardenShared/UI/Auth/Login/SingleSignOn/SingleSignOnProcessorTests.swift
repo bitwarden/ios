@@ -166,7 +166,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         // Set up the mock data.
         let authMethodsData = [String: [String: String]]()
         authService.generateSingleSignOnUrlResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(authMethodsData)
+            IdentityTokenRequestError.twoFactorRequired(authMethodsData, nil)
         )
         subject.state.identifierText = "BestOrganization"
 

@@ -35,7 +35,7 @@ struct OffsetObservingScrollView<Content: View>: View {
         .coordinateSpace(name: coordinateSpaceName)
     }
 
-    // MARK: Initilization
+    // MARK: Initialization
 
     /// Initializes an OffsetObservingScrollView
     ///

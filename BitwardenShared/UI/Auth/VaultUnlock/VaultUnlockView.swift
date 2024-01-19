@@ -46,6 +46,10 @@ struct VaultUnlockView: View {
         .task {
             await store.perform(.appeared)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultUnlockAction.toastShown
+        ))
     }
 
     /// the scrollable content of the view.

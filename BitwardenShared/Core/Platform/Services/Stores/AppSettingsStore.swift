@@ -124,6 +124,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions?
 
+    /// Get the two-factor token associated with a user's email..
+    ///
+    /// - Parameter email: The user's email.
+    /// - Returns: The two-factor token.
+    ///
+    func twoFactorToken(email: String) -> String?
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -237,6 +244,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
+
+    /// Sets the two-factor token.
+    ///
+    /// - Parameters:
+    ///   - token: The two-factor token.
+    ///   - email: The user's email address.
+    ///
+    func setTwoFactorToken(_ token: String?, email: String)
 
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
@@ -394,6 +409,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case rememberedEmail
         case rememberedOrgIdentifier
         case state
+        case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
 
@@ -443,6 +459,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedOrgIdentifier"
             case .state:
                 key = "state"
+            case let .twoFactorToken(email):
+                key = "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
                 key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
@@ -552,6 +570,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
 
+    func twoFactorToken(email: String) -> String? {
+        fetch(for: .twoFactorToken(email: email))
+    }
+
     func unsuccessfulUnlockAttempts(userId: String) -> Int? {
         fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
     }
@@ -606,6 +628,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         store(options, for: .passwordGenerationOptions(userId: userId))
+    }
+
+    func setTwoFactorToken(_ token: String?, email: String) {
+        store(token, for: .twoFactorToken(email: email))
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {

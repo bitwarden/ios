@@ -49,9 +49,18 @@ protocol AuthRepository: AnyObject {
     ///
     func getFingerprintPhrase(userId: String?) async throws -> String
 
-    /// Logs the user out of the active account.
+    /// Locks the user's vault and clears decrypted data from memory.
     ///
-    func logout() async throws
+    ///  - Parameter userId: The userId of the account to lock.
+    ///     Defaults to active account if nil.
+    ///
+    func lockVault(userId: String?) async
+
+    /// Logs the user out of the specified account.
+    ///
+    /// - Parameter userId: The user ID of the account to log out of.
+    ///
+    func logout(userId: String?) async throws
 
     /// Calculates the password strength of a password.
     ///
@@ -80,6 +89,14 @@ protocol AuthRepository: AnyObject {
     func unlockVaultWithBiometrics() async throws
 }
 
+extension AuthRepository {
+    /// Logs the user out of the active account.
+    ///
+    func logout() async throws {
+        try await logout(userId: nil)
+    }
+}
+
 // MARK: - DefaultAuthRepository
 
 /// A default implementation of an `AuthRepository`.
@@ -103,7 +120,7 @@ class DefaultAuthRepository {
     private let clientCrypto: ClientCryptoProtocol
 
     /// The client used by the application to handle account fingerprint phrase generation.
-    let clientPlatform: ClientPlatformProtocol
+    private let clientPlatform: ClientPlatformProtocol
 
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
@@ -201,14 +218,18 @@ extension DefaultAuthRepository: AuthRepository {
         return match
     }
 
-    func getFingerprintPhrase(userId: String?) async throws -> String {
+    func getFingerprintPhrase(userId _: String?) async throws -> String {
         let account = try await stateService.getActiveAccount()
         return try await clientPlatform.userFingerprint(fingerprintMaterial: account.profile.userId)
     }
 
-    func logout() async throws {
-        await vaultTimeoutService.remove(userId: nil)
-        try await stateService.logoutAccount()
+    func lockVault(userId: String?) async {
+        await vaultTimeoutService.lockVault(userId: userId)
+    }
+
+    func logout(userId: String?) async throws {
+        await vaultTimeoutService.remove(userId: userId)
+        try await stateService.logoutAccount(userId: userId)
     }
 
     func passwordStrength(email: String, password: String) async -> UInt8 {

@@ -152,6 +152,13 @@ protocol StateService: AnyObject {
     ///
     func getBiometricIntegrityState() async throws -> String?
 
+    /// Get the two-factor token (non-nil if the user selected the "remember me" option).
+    ///
+    /// - Parameter email: The user's email address.
+    /// - Returns: The two-factor token.
+    ///
+    func getTwoFactorToken(email: String) async -> String?
+
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
@@ -292,6 +299,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
+
+    /// Sets the user's two-factor token.
+    ///
+    /// - Parameters:
+    ///   - token: The two-factor token.
+    ///   - email: The user's email address.
+    ///
+    func setTwoFactorToken(_ token: String?, email: String) async
 
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
@@ -554,7 +569,7 @@ enum StateServiceError: Error {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService {
+actor DefaultStateService: StateService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -719,6 +734,10 @@ actor DefaultStateService: StateService {
         !appSettingsStore.disableWebIcons
     }
 
+    func getTwoFactorToken(email: String) async -> String? {
+        appSettingsStore.twoFactorToken(email: email)
+    }
+
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId) ?? 0
@@ -838,6 +857,10 @@ actor DefaultStateService: StateService {
             refreshToken: refreshToken
         )
         appSettingsStore.state = state
+    }
+
+    func setTwoFactorToken(_ token: String?, email: String) async {
+        appSettingsStore.setTwoFactorToken(token, email: email)
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {

@@ -454,6 +454,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(value)
     }
 
+    /// `getTwoFactorToken(email:)` gets the two-factor code associated with the email.
+    func test_getTwoFactorToken() async {
+        appSettingsStore.setTwoFactorToken("yay_you_win!", email: "winner@email.com")
+
+        let value = await subject.getTwoFactorToken(email: "winner@email.com")
+        XCTAssertEqual(value, "yay_you_win!")
+    }
+
     /// `getUnsuccessfulUnlockAttempts(userId:)` gets the unsuccessful unlock attempts for the account.
     func test_getUnsuccessfulUnlockAttempts() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -974,6 +982,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setShowWebIcons() async {
         await subject.setShowWebIcons(false)
         XCTAssertTrue(appSettingsStore.disableWebIcons)
+    }
+
+    /// `setTwoFactorToken(_:email:)` sets the two-factor code for the email.
+    func test_setTwoFactorToken() async {
+        await subject.setTwoFactorToken("yay_you_win!", email: "winner@email.com")
+        XCTAssertEqual(appSettingsStore.twoFactorToken(email: "winner@email.com"), "yay_you_win!")
     }
 
     /// `setUnsuccessfulUnlockAttempts(userId:)` sets the unsuccessful unlock attempts for the account.

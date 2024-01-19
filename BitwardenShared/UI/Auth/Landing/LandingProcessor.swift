@@ -49,26 +49,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     // MARK: Methods
 
-    /// Configures a profile switcher state with the current account and alternates.
-    ///
-    private func refreshProfileState() async {
-        var accounts = [ProfileSwitcherItem]()
-        var activeAccount: ProfileSwitcherItem?
-        do {
-            accounts = try await services.authRepository.getAccounts()
-            guard !accounts.isEmpty else { return }
-            activeAccount = try? await services.authRepository.getActiveAccount()
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: accounts,
-                activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible,
-                shouldAlwaysHideAddAccount: true
-            )
-        } catch {
-            state.profileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
-        }
-    }
-
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
@@ -96,6 +76,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             state.email = newValue
         case let .profileSwitcherAction(profileAction):
             switch profileAction {
+            case let .accountLongPressed(account):
+                didLongPressProfileSwitcherItem(account)
             case let .accountPressed(account):
                 didTapProfileSwitcherItem(account)
             case .addAccountPressed:
@@ -114,10 +96,54 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             if !newValue {
                 updateRememberedEmail()
             }
+        case let .toastShown(toast):
+            state.toast = toast
         }
     }
 
     // MARK: Private Methods
+
+    /// Handles a long press of an account in the profile switcher.
+    ///
+    /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
+    ///
+    private func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) {
+        state.profileSwitcherState.isVisible = false
+        coordinator.showAlert(.accountOptions(account, lockAction: {
+            do {
+                // Lock the vault of the selected account.
+                let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
+                await self.services.authRepository.lockVault(userId: account.userId)
+
+                // No navigation is necessary, since the user is already on the landing view
+                // view, but if it was the non-active account, display a success toast
+                // and update the profile switcher view.
+                if account.userId != activeAccountId {
+                    self.state.toast = Toast(text: Localizations.accountLockedSuccessfully)
+                    await self.refreshProfileState()
+                }
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
+        }, logoutAction: {
+            // Confirm logging out.
+            self.coordinator.showAlert(.logoutConfirmation {
+                do {
+                    let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
+                    try await self.services.authRepository.logout(userId: account.userId)
+
+                    // No navigation is necessary, since the user is already on the landing view, but if it was the
+                    // non-active account, display a success toast and update the profile switcher view.
+                    if activeAccountId != account.userId {
+                        self.state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
+                        await self.refreshProfileState()
+                    }
+                } catch {
+                    self.services.errorReporter.log(error: error)
+                }
+            })
+        }))
+    }
 
     /// Handles a tap of an account in the profile switcher
     /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
@@ -143,6 +169,26 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             await setRegion(.europe, urls: urls)
         } else {
             await setRegion(.selfHosted, urls: urls)
+        }
+    }
+
+    /// Configures a profile switcher state with the current account and alternates.
+    ///
+    private func refreshProfileState() async {
+        var accounts = [ProfileSwitcherItem]()
+        var activeAccount: ProfileSwitcherItem?
+        do {
+            accounts = try await services.authRepository.getAccounts()
+            guard !accounts.isEmpty else { return }
+            activeAccount = try? await services.authRepository.getActiveAccount()
+            state.profileSwitcherState = ProfileSwitcherState(
+                accounts: accounts,
+                activeAccountId: activeAccount?.userId,
+                isVisible: state.profileSwitcherState.isVisible,
+                shouldAlwaysHideAddAccount: true
+            )
+        } catch {
+            state.profileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
         }
     }
 
