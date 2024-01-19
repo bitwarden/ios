@@ -59,6 +59,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             errorReporter: errorReporter,
             folderService: folderService,
             organizationService: organizationService,
+            settingsService: MockSettingsService(),
             stateService: stateService,
             syncService: syncService,
             timeProvider: timeProvider,
