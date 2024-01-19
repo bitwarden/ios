@@ -11,6 +11,7 @@ extension IdentityTokenResponseModel {
         masterPasswordPolicy: MasterPasswordPolicyResponseModel? = nil,
         privateKey: String = "PRIVATE_KEY",
         resetMasterPassword: Bool = false,
+        twoFactorToken: String? = nil,
         userDecryptionOptions: UserDecryptionOptions? = UserDecryptionOptions(
             hasMasterPassword: true,
             keyConnectorOption: nil,
@@ -32,6 +33,7 @@ extension IdentityTokenResponseModel {
             masterPasswordPolicy: masterPasswordPolicy,
             privateKey: privateKey,
             resetMasterPassword: resetMasterPassword,
+            twoFactorToken: twoFactorToken,
             userDecryptionOptions: userDecryptionOptions,
             accessToken: accessToken,
             expiresIn: expiresIn,

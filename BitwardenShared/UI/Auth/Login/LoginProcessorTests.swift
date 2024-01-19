@@ -154,8 +154,9 @@ class LoginProcessorTests: BitwardenTestCase {
     /// route.
     func test_perform_loginWithMasterPasswordPressed_captchaError() async {
         subject.state.masterPassword = "Test"
-        authService.loginWithMasterPasswordResult = .failure(IdentityTokenRequestError
-            .captchaRequired(hCaptchaSiteCode: "token"))
+        authService.loginWithMasterPasswordResult = .failure(
+            IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "token")
+        )
 
         await subject.perform(.loginWithMasterPasswordPressed)
 
@@ -170,8 +171,9 @@ class LoginProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha flow error records the error.
     func test_perform_loginWithMasterPasswordPressed_captchaFlowError() async {
         subject.state.masterPassword = "Test"
-        authService.loginWithMasterPasswordResult = .failure(IdentityTokenRequestError
-            .captchaRequired(hCaptchaSiteCode: "token"))
+        authService.loginWithMasterPasswordResult = .failure(
+            IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "token")
+        )
         captchaService.generateCaptchaUrlResult = .failure(BitwardenTestError.example)
 
         await subject.perform(.loginWithMasterPasswordPressed)
@@ -212,8 +214,9 @@ class LoginProcessorTests: BitwardenTestCase {
     func test_perform_loginWithMasterPasswordPressed_twoFactorError() async {
         subject.state.masterPassword = "Test"
         let authMethodsData = [String: [String: String]]()
-        authService.loginWithMasterPasswordResult = .failure(IdentityTokenRequestError
-            .twoFactorRequired(authMethodsData))
+        authService.loginWithMasterPasswordResult = .failure(
+            IdentityTokenRequestError.twoFactorRequired(authMethodsData, nil)
+        )
 
         await subject.perform(.loginWithMasterPasswordPressed)
 

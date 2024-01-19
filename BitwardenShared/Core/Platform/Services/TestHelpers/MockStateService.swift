@@ -30,6 +30,7 @@ class MockStateService: StateService {
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var rememberedOrgIdentifier: String?
+    var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
@@ -138,6 +139,10 @@ class MockStateService: StateService {
         showWebIcons
     }
 
+    func getTwoFactorToken(email: String) async -> String? {
+        twoFactorTokens[email]
+    }
+
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccount().profile.userId
         return unsuccessfulUnlockAttempts[userId] ?? 0
@@ -231,6 +236,10 @@ class MockStateService: StateService {
 
     func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
+    }
+
+    func setTwoFactorToken(_ token: String?, email: String) async {
+        twoFactorTokens[email] = token
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {

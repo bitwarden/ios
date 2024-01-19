@@ -21,10 +21,19 @@ struct IdentityTokenRequestModel {
     let authenticationMethod: AuthenticationMethod
 
     /// The response token returned from the captcha provider.
-    let captchaToken: String?
+    var captchaToken: String?
 
     /// The device's details.
     let deviceInfo: DeviceInfo
+
+    /// The two-factor authentication code.
+    var twoFactorCode: String?
+
+    /// The two-factor authentication method.
+    var twoFactorMethod: TwoFactorAuthMethod?
+
+    /// The two-factor authentication remember setting.
+    var twoFactorRemember: Bool?
 }
 
 extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
@@ -58,6 +67,14 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
 
         if let captchaToken {
             queryItems.append(URLQueryItem(name: "captchaResponse", value: captchaToken))
+        }
+
+        if let twoFactorCode, let twoFactorMethod, let twoFactorRemember {
+            queryItems.append(contentsOf: [
+                URLQueryItem(name: "twoFactorToken", value: twoFactorCode),
+                URLQueryItem(name: "twoFactorProvider", value: "\(twoFactorMethod.rawValue)"),
+                URLQueryItem(name: "twoFactorRemember", value: twoFactorRemember ? "1" : "0"),
+            ])
         }
 
         return queryItems

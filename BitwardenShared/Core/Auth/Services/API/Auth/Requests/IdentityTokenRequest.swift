@@ -15,7 +15,7 @@ enum IdentityTokenRequestError: Error, Equatable {
     ///
     /// - Parameter authMethodsData: The information about the available auth methods.
     ///
-    case twoFactorRequired(_ authMethodsData: [String: [String: String]])
+    case twoFactorRequired(_ authMethodsData: [String: [String: String]], _ ssoToken: String?)
 }
 
 // MARK: - IdentityTokenRequest
@@ -69,7 +69,8 @@ struct IdentityTokenRequest: Request {
             guard let object = try? JSONSerialization.jsonObject(with: response.body) as? [String: Any] else { return }
 
             if let providersData = object["TwoFactorProviders2"] as? [String: [String: String]] {
-                throw IdentityTokenRequestError.twoFactorRequired(providersData)
+                let ssoToken = object["SsoEmail2faSessionToken"] as? String
+                throw IdentityTokenRequestError.twoFactorRequired(providersData, ssoToken)
             } else if let siteCode = object["HCaptcha_SiteKey"] as? String {
                 // Throw the captcha error if the captcha site key can be found.
                 throw IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: siteCode)

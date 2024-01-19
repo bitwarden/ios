@@ -14,9 +14,6 @@ enum TwoFactorAuthAction: Equatable {
     /// The remember option was toggled.
     case rememberMeToggleChanged(Bool)
 
-    /// The resend email button was tapped.
-    case resendEmailTapped
-
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 

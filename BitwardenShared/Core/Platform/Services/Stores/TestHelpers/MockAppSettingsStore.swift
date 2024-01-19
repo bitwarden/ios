@@ -22,6 +22,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
+    var twoFactorTokens = [String: String]()
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)
@@ -71,6 +72,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         passwordGenerationOptions[userId]
+    }
+
+    func twoFactorToken(email: String) -> String? {
+        twoFactorTokens[email]
     }
 
     func unsuccessfulUnlockAttempts(userId: String) -> Int? {
@@ -131,6 +136,10 @@ class MockAppSettingsStore: AppSettingsStore {
             return
         }
         passwordGenerationOptions[userId] = options
+    }
+
+    func setTwoFactorToken(_ token: String?, email: String) {
+        twoFactorTokens[email] = token
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
