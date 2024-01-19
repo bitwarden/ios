@@ -84,6 +84,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             coordinator.navigate(to: .alert(alert))
         case let .profileSwitcherAction(profileAction):
             switch profileAction {
+            case let .accountLongPressed(account):
+                didLongPressProfileSwitcherItem(account)
             case let .accountPressed(account):
                 didTapProfileSwitcherItem(account)
             case .addAccountPressed:
@@ -98,10 +100,89 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             }
         case let .revealMasterPasswordFieldPressed(isMasterPasswordRevealed):
             state.isMasterPasswordRevealed = isMasterPasswordRevealed
+        case let .toastShown(toast):
+            state.toast = toast
         }
     }
 
     // MARK: Private
+
+    /// Handles a long press of an account in the profile switcher.
+    ///
+    /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
+    ///
+    private func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) {
+        state.profileSwitcherState.isVisible = false
+        coordinator.showAlert(.accountOptions(account, lockAction: {
+            do {
+                // Lock the vault of the selected account.
+                let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
+                await self.services.authRepository.lockVault(userId: account.userId)
+
+                // No navigation is necessary, since the user is already on the unlock
+                // vault view, but if it was the non-active account, display a success toast
+                // and update the profile switcher view.
+                if account.userId != activeAccountId {
+                    self.state.toast = Toast(text: Localizations.accountLockedSuccessfully)
+                    await self.refreshProfileState()
+                }
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
+        }, logoutAction: {
+            // Confirm logging out.
+            self.coordinator.showAlert(.logoutConfirmation {
+                do {
+                    // Log out of the selected account.
+                    let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
+                    try await self.services.authRepository.logout(userId: account.userId)
+
+                    // If the selected item was the currently active account, redirect the user
+                    // to the landing page.
+                    if account.userId == activeAccountId {
+                        self.coordinator.navigate(to: .landing)
+                    } else {
+                        // Otherwise, show the toast that the account was logged out successfully.
+                        self.state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
+
+                        // Update the profile switcher view.
+                        await self.refreshProfileState()
+                    }
+                } catch {
+                    self.services.errorReporter.log(error: error)
+                }
+            })
+        }))
+    }
+
+    /// Handles a tap of an account in the profile switcher.
+    ///
+    /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
+    ///
+    private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
+        coordinator.navigate(to: .switchAccount(userId: selectedAccount.userId))
+        state.profileSwitcherState.isVisible = false
+    }
+
+    /// Configures a profile switcher state with the current account and alternates.
+    ///
+    private func refreshProfileState() async {
+        var accounts = [ProfileSwitcherItem]()
+        var activeAccount: ProfileSwitcherItem?
+        do {
+            accounts = try await services.authRepository.getAccounts()
+            guard !accounts.isEmpty else { return }
+            activeAccount = try? await services.authRepository.getActiveAccount()
+            state.profileSwitcherState = ProfileSwitcherState(
+                accounts: accounts,
+                activeAccountId: activeAccount?.userId,
+                isVisible: state.profileSwitcherState.isVisible,
+                shouldAlwaysHideAddAccount: appExtensionDelegate?.isInAppExtension ?? false
+            )
+        } catch {
+            state.profileSwitcherState = .empty()
+        }
+    }
 
     /// Shows an alert asking the user to confirm that they want to logout.
     ///
@@ -146,34 +227,6 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                 return
             }
             coordinator.navigate(to: .alert(.invalidMasterPassword()))
-        }
-    }
-
-    /// Handles a tap of an account in the profile switcher
-    /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
-    ///
-    private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
-        coordinator.navigate(to: .switchAccount(userId: selectedAccount.userId))
-        state.profileSwitcherState.isVisible = false
-    }
-
-    /// Configures a profile switcher state with the current account and alternates.
-    ///
-    private func refreshProfileState() async {
-        var accounts = [ProfileSwitcherItem]()
-        var activeAccount: ProfileSwitcherItem?
-        do {
-            accounts = try await services.authRepository.getAccounts()
-            guard !accounts.isEmpty else { return }
-            activeAccount = try? await services.authRepository.getActiveAccount()
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: accounts,
-                activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible,
-                shouldAlwaysHideAddAccount: appExtensionDelegate?.isInAppExtension ?? false
-            )
-        } catch {
-            state.profileSwitcherState = .empty()
         }
     }
 }

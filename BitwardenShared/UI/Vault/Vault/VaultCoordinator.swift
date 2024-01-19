@@ -7,6 +7,16 @@ import SwiftUI
 ///
 @MainActor
 public protocol VaultCoordinatorDelegate: AnyObject {
+    /// Called when the user locks their vault.
+    ///
+    /// - Parameter account: The user's account.
+    ///
+    func didLockVault(account: Account)
+
+    /// Called when the user has been logged out.
+    ///
+    func didLogout()
+
     /// Called when the user taps add account.
     ///
     func didTapAddAccount()
@@ -119,6 +129,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showGroup(group, filter: filter)
         case .list:
             showList()
+        case let .lockVault(account):
+            delegate?.didLockVault(account: account)
+        case .logout:
+            delegate?.didLogout()
         case let .viewItem(id):
             showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         case let .switchAccount(userId: userId):

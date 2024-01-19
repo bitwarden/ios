@@ -3,6 +3,23 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertAuthTests: BitwardenTestCase {
+    /// `accountOptions(_:lockAction:logoutAction:)`
+    func test_accountOptions() {
+        let subject = Alert.accountOptions(
+            .init(email: "test@example.com", isUnlocked: true),
+            lockAction: {},
+            logoutAction: {}
+        )
+
+        XCTAssertEqual(subject.title, "test@example.com")
+        XCTAssertNil(subject.message)
+        XCTAssertEqual(subject.preferredStyle, .actionSheet)
+        XCTAssertEqual(subject.alertActions.count, 3)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.lock)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.logOut)
+        XCTAssertEqual(subject.alertActions[2].title, Localizations.cancel)
+    }
+
     /// `breachesAlert(action:)` constructs an `Alert` with the title, message, and Yes and No buttons.
     func test_breachesAlert() {
         let subject = Alert.breachesAlert {}

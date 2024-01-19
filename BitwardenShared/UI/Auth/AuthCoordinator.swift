@@ -149,7 +149,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
                 let account = try await services.authRepository.setActiveAccount(userId: userId)
                 let isLocked = try services.vaultTimeoutService.isLocked(userId: userId)
                 if isLocked {
-                    showVaultUnlock(account: account)
+                    showVaultUnlock(account: account, animated: false)
                 } else {
                     delegate?.didCompleteAuth()
                 }

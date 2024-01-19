@@ -413,11 +413,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
     }
 
-    /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.
-    func test_unlockVault_error() async {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.unlockVault(password: "")
-        }
+    /// `lockVault(userId:)` locks the vault for the specified user id.
+    func test_lockVault() async {
+        await subject.lockVault(userId: "10")
+        XCTAssertEqual(vaultTimeoutService.lockedIds, ["10"])
     }
 
     /// `logout` throws an error with no accounts.
@@ -452,5 +451,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         task.cancel()
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
+    }
+
+    /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.
+    func test_unlockVault_error() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.unlockVault(password: "")
+        }
     }
 } // swiftlint:disable:this file_length

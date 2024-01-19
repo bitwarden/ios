@@ -130,6 +130,20 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is VaultListView)
     }
 
+    /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
+    func test_navigateTo_lockVault() throws {
+        subject.navigate(to: .lockVault(account: .fixture()))
+
+        XCTAssertEqual(delegate.lockVaultAccount, .fixture())
+    }
+
+    /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
+    func test_navigateTo_logout() throws {
+        subject.navigate(to: .logout)
+
+        XCTAssertTrue(delegate.logoutTapped)
+    }
+
     /// `navigate(to:)` with `.switchAccount(userId:, isUnlocked: isUnlocked)`calls the associated delegate method.
     func test_navigateTo_switchAccount() throws {
         subject.navigate(to: .switchAccount(userId: "123"))
@@ -173,6 +187,16 @@ class VaultCoordinatorTests: BitwardenTestCase {
 class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var addAccountTapped = false
     var accountTapped = [String]()
+    var lockVaultAccount: Account?
+    var logoutTapped = false
+
+    func didLockVault(account: Account) {
+        lockVaultAccount = account
+    }
+
+    func didLogout() {
+        logoutTapped = true
+    }
 
     func didTapAddAccount() {
         addAccountTapped = true

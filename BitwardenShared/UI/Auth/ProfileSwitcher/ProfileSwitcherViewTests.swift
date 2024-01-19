@@ -37,10 +37,19 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Long pressing a profile row dispatches the `.accountLongPressed` action.
+    func test_accountRow_longPress_currentAccount() throws {
+        let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
+        try accountRow.labelView().callOnLongPressGesture()
+        let currentAccount = processor.state.activeAccountProfile!
+
+        XCTAssertEqual(processor.dispatchedActions.last, .accountLongPressed(currentAccount))
+    }
+
     /// Tapping a profile row dispatches the `.accountPressed` action.
     func test_accountRow_tap_currentAccount() throws {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        try accountRow.tap()
+        try accountRow.labelView().callOnTapGesture()
         let currentAccount = processor.state.activeAccountProfile!
 
         XCTAssertEqual(processor.dispatchedActions.last, .accountPressed(currentAccount))
@@ -52,6 +61,27 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         try addAccountRow.tap()
 
         XCTAssertEqual(processor.dispatchedActions.last, .addAccountPressed)
+    }
+
+    /// Long pressing an alternative profile row dispatches the `.accountLongPressed` action.
+    func test_alternateAccountRow_longPress_alternateAccount() throws {
+        let alternate = ProfileSwitcherItem(
+            email: "alternate@bitwarden.com",
+            userInitials: "NA"
+        )
+        let current = processor.state.activeAccountProfile!
+        processor.state = ProfileSwitcherState(
+            accounts: [
+                alternate,
+                current,
+            ],
+            activeAccountId: current.userId,
+            isVisible: true
+        )
+        let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
+        try addAccountRow.labelView().callOnLongPressGesture()
+
+        XCTAssertEqual(processor.dispatchedActions.last, .accountLongPressed(alternate))
     }
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
@@ -70,7 +100,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
-        try addAccountRow.tap()
+        try addAccountRow.labelView().callOnTapGesture()
 
         XCTAssertEqual(processor.dispatchedActions.last, .accountPressed(alternate))
     }
@@ -94,7 +124,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "")
-        try addAccountRow.tap()
+        try addAccountRow.labelView().callOnTapGesture()
 
         XCTAssertEqual(processor.dispatchedActions.last, .accountPressed(secondAlternate))
     }

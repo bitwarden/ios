@@ -18,6 +18,9 @@ struct VaultUnlockState: Equatable {
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState
 
+    /// A toast message to show in the view.
+    var toast: Toast?
+
     /// Keeps track of the number of unsuccessful attempts to unlock the vault.
     var unsuccessfulUnlockAttemptsCount: Int = 0
 

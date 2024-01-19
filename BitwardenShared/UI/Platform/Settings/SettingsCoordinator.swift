@@ -15,8 +15,7 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
 
     /// Called when the user locks their vault.
     ///
-    /// - Parameters:
-    ///   - account: The user's account.
+    /// - Parameter account: The user's account.
     ///
     func didLockVault(account: Account)
 
