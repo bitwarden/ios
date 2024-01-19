@@ -8,7 +8,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var appLocale: String?
     var appTheme: String?
-    var biometricAuthenticationEnabled = [String: Bool]()
+    var biometricAuthenticationEnabled = [String: Bool?]()
     var biometricIntegrityStates = [String: String?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var connectToWatchByUserId = [String: Bool]()
@@ -38,10 +38,6 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
-    }
-
-    func biometricIntegrityState(userId: String) -> String? {
-        biometricIntegrityStates[userId] ?? nil
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -94,10 +90,6 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
-    }
-
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
-        biometricIntegrityStates[userId] = base64EncodedIntegrityState
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
@@ -173,10 +165,26 @@ class MockAppSettingsStore: AppSettingsStore {
 
 extension MockAppSettingsStore {
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
-        biometricAuthenticationEnabled[userId] ?? false
+        (biometricAuthenticationEnabled[userId] ?? false) ?? false
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, for userId: String) {
+    func biometricIntegrityState(userId: String) -> String? {
+        biometricIntegrityStates[userId] ?? nil
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
+        guard isEnabled != nil else {
+            biometricAuthenticationEnabled.removeValue(forKey: userId)
+            return
+        }
         biometricAuthenticationEnabled[userId] = isEnabled
+    }
+
+    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
+        guard let base64EncodedIntegrityState else {
+            biometricIntegrityStates.removeValue(forKey: userId)
+            return
+        }
+        biometricIntegrityStates[userId] = base64EncodedIntegrityState
     }
 }

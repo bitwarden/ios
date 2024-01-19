@@ -104,6 +104,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
     }
 
+    /// `biometricIntegrityState` returns nil if there is no previous value.
+    func test_biometricIntegrityState_isInitiallyNil() {
+        XCTAssertNil(subject.biometricIntegrityState(userId: "-1"))
+    }
+
+    /// `biometricIntegrityState` returns nil if there is no previous value.
+    func test_biometricIntegrityState_withValue() {
+        subject.setBiometricIntegrityState("state1", userId: "0")
+        subject.setBiometricIntegrityState("state2", userId: "1")
+
+        XCTAssertEqual("state1", subject.biometricIntegrityState(userId: "0"))
+        XCTAssertEqual("state2", subject.biometricIntegrityState(userId: "1"))
+
+        subject.setBiometricIntegrityState("state3", userId: "0")
+        subject.setBiometricIntegrityState("state4", userId: "1")
+
+        XCTAssertEqual("state3", subject.biometricIntegrityState(userId: "0"))
+        XCTAssertEqual("state4", subject.biometricIntegrityState(userId: "1"))
+    }
+
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
     func test_clearClipboardValue_isInitiallyNever() {
         XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)

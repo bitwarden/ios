@@ -219,7 +219,7 @@ protocol AppSettingsStore: AnyObject {
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
     ///   - userId: The user ID associated with the biometric authentication preference.
     ///
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, for userId: String)
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
 
     /// Sets the time of the last sync for the user ID.
     ///
@@ -586,7 +586,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool, for userId: String) {
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
         store(isEnabled, for: .biometricAuthEnabled(userId: userId))
     }
 

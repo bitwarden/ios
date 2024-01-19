@@ -65,7 +65,7 @@ class DefaultBiometricsService: BiometricsService {
     }
 
     func configureBiometricIntegrity() async throws {
-        if let state = getBiometricInegrityState() {
+        if let state = getBiometricIntegrityState() {
             let base64State = state.base64EncodedString()
             try await stateService.setBiometricIntegrityState(base64State)
         }
@@ -98,6 +98,7 @@ class DefaultBiometricsService: BiometricsService {
     func setBiometricUnlockKey(authKey: String?, for userId: String? = nil) async throws {
         guard let authKey else {
             try await stateService.setBiometricAuthenticationEnabled(false)
+            try await stateService.setBiometricIntegrityState(nil)
             try? await deleteUserAuthKey(for: userId)
             return
         }
@@ -300,7 +301,7 @@ extension DefaultBiometricsService {
     ///
     /// - Returns: The `Data` for evaluatedPolicyDomainState.
     ///
-    private func getBiometricInegrityState() -> Data? {
+    private func getBiometricIntegrityState() -> Data? {
         let context = LAContext()
         var error: NSError?
         context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
@@ -320,7 +321,7 @@ extension DefaultBiometricsService {
     ///     If no data is stored to the device, `true` is returned by default.
     ///
     private func isBiometricIntegrityValid() async -> Bool {
-        guard let data = getBiometricInegrityState() else {
+        guard let data = getBiometricIntegrityState() else {
             // Fallback for devices unable to retrieve integrity state.
             return true
         }

@@ -229,6 +229,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     func logout(userId: String?) async throws {
         await vaultTimeoutService.remove(userId: userId)
+        try? await biometricsService.setBiometricUnlockKey(authKey: nil, for: userId)
         try await stateService.logoutAccount(userId: userId)
     }
 
@@ -256,7 +257,6 @@ extension DefaultAuthRepository: AuthRepository {
 
         let hashedPassword = try await authService.hashPassword(password: password, purpose: .localAuthorization)
         try await stateService.setMasterPasswordHash(hashedPassword)
-        await vaultTimeoutService.unlockVault(userId: account.profile.userId)
     }
 
     private func unlockVault(for account: Account, using method: InitUserCryptoMethod) async throws {

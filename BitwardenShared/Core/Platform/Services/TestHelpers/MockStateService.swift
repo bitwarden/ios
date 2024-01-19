@@ -301,7 +301,7 @@ extension MockStateService {
         return biometricIntegrityStates[activeAccount.profile.userId] ?? nil
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool) async throws {
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
         guard let activeAccount else { throw StateServiceError.noActiveAccount }
         try setBiometricAuthenticationEnabledResult.get()
         biometricsEnabled[activeAccount.profile.userId] = isEnabled

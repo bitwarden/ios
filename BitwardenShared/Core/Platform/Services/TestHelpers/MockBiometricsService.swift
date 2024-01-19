@@ -4,7 +4,6 @@ class MockBiometricsService: BiometricsService {
     var biometricUnlockStatus: Result<BiometricsUnlockStatus, Error> = .success(.notAvailable)
     var capturedUserAuthKey: String?
     var capturedUserID: String?
-    var deleteResult: Result<Void, Error> = .success(())
     var didConfigureBiometricIntegrity = false
     var didDeleteKey: Bool = false
     var getUserAuthKeyResult: Result<String, Error> = .success("UserAuthKey")
@@ -12,12 +11,6 @@ class MockBiometricsService: BiometricsService {
 
     func configureBiometricIntegrity() async {
         didConfigureBiometricIntegrity = true
-    }
-
-    func deleteUserAuthKey(for userId: String) async throws {
-        capturedUserID = userId
-        try deleteResult.get()
-        didDeleteKey = true
     }
 
     func getBiometricUnlockStatus() async throws -> BitwardenShared.BiometricsUnlockStatus {

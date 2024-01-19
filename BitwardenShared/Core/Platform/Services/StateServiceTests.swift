@@ -593,13 +593,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `logoutAccount()` clears any account data.
-    func test_logoutAccount_clearAccountData() async throws {
+    func test_logoutAccount_clearAccountData() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
         try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY"
         ))
+        try await subject.setBiometricIntegrityState("BiometricIntegrityState")
+        try await subject.setBiometricAuthenticationEnabled(true)
         try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
@@ -630,6 +632,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.logoutAccount()
 
+        XCTAssertEqual(appSettingsStore.biometricIntegrityStates, [:])
+        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])

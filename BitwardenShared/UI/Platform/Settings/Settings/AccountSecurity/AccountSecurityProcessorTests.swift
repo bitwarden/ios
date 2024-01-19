@@ -278,7 +278,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `.loadData` updates the state.
     func test_perform_loadData_biometricsValue_error() async {
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
         struct TestError: Error {}
         biometricsService.biometricUnlockStatus = .failure(TestError())
         subject.state.biometricUnlockStatus = .notAvailable

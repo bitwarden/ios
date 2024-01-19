@@ -148,7 +148,7 @@ protocol StateService: AnyObject {
 
     /// Gets the BiometricIntegrityState for the active user.
     ///
-    /// - Returns:An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
+    /// - Returns: An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
     ///
     func getBiometricIntegrityState() async throws -> String?
 
@@ -215,7 +215,7 @@ protocol StateService: AnyObject {
     ///     If `true`, the device should attempt biometric authentication for authorization events.
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
     ///
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool) async throws
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
 
     /// Sets the BiometricIntegrityState for the active user.
     ///
@@ -752,22 +752,24 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
 
-        let userId = try userId ?? getActiveAccountUserId()
-        state.accounts.removeValue(forKey: userId)
-        if state.activeUserId == userId {
+        let knownUserId: String = try userId ?? getActiveAccountUserId()
+        state.accounts.removeValue(forKey: knownUserId)
+        if state.activeUserId == knownUserId {
             // Find the next account to make the active account.
             state.activeUserId = state.accounts.first?.key
         }
 
-        appSettingsStore.setDefaultUriMatchType(nil, userId: userId)
-        appSettingsStore.setDisableAutoTotpCopy(nil, userId: userId)
-        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
-        appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
-        appSettingsStore.setLastSyncTime(nil, userId: userId)
-        appSettingsStore.setMasterPasswordHash(nil, userId: userId)
-        appSettingsStore.setPasswordGenerationOptions(nil, userId: userId)
+        appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
+        appSettingsStore.setBiometricIntegrityState(nil, userId: knownUserId)
+        appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
+        appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
+        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
+        appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
+        appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
+        appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
+        appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
 
-        try await dataStore.deleteDataForUser(userId: userId)
+        try await dataStore.deleteDataForUser(userId: knownUserId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
@@ -937,7 +939,7 @@ extension DefaultStateService {
         return appSettingsStore.biometricIntegrityState(userId: userId)
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool) async throws {
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
         let userId = try getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
     }
