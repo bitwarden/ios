@@ -14,6 +14,9 @@ class MockVaultRepository: VaultRepository {
     var ciphersAutofillSubject = CurrentValueSubject<[CipherView], Error>([])
     var cipherDetailsSubject = CurrentValueSubject<CipherView?, Error>(.fixture())
 
+    var deleteAttachmentId: String?
+    var deleteAttachmentResult: Result<CipherView?, Error> = .success(.fixture())
+
     var deletedCipher = [String]()
     var deleteCipherResult: Result<Void, Error> = .success(())
 
@@ -109,6 +112,11 @@ class MockVaultRepository: VaultRepository {
         uri _: String?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
         ciphersAutofillSubject.eraseToAnyPublisher().values
+    }
+
+    func deleteAttachment(withId attachmentId: String, cipherId _: String) async throws -> CipherView? {
+        deleteAttachmentId = attachmentId
+        return try deleteAttachmentResult.get()
     }
 
     func deleteCipher(_ id: String) async throws {

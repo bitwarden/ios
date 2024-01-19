@@ -63,6 +63,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
+
         super.init(state: state)
     }
 

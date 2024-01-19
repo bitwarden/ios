@@ -78,12 +78,27 @@ class CipherServiceTests: XCTestCase {
         try XCTAssertEqual(XCTUnwrap(publisherValue), [cipher])
     }
 
+    /// `deleteAttachmentWithServer(attachmentId:cipherId:)` deletes the cipher's attachment from backend
+    ///  and local storage.
+    func test_deleteAttachmentWithServer() async throws {
+        stateService.activeAccount = .fixture()
+        cipherDataStore.fetchCipherResult = .fixture(attachments: [.fixture(id: "456")])
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        let updatedCipher = try await subject.deleteAttachmentWithServer(attachmentId: "456", cipherId: "123")
+
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, .fixture(attachments: []))
+        XCTAssertEqual(updatedCipher, .fixture(attachments: []))
+    }
+
     /// `deleteCipherWithServer(id:)` deletes the cipher item from remote server and persisted cipher in the data store.
-    func test_deleteCipher() async throws {
+    func test_deleteCipherWithServer() async throws {
         stateService.accounts = [.fixtureAccountLogin()]
         stateService.activeAccount = .fixtureAccountLogin()
-        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        client.result = .httpSuccess(testData: .emptyResponse)
+
         try await subject.deleteCipherWithServer(id: "TestId")
+
         XCTAssertEqual(cipherDataStore.deleteCipherId, "TestId")
         XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
     }
@@ -165,9 +180,11 @@ class CipherServiceTests: XCTestCase {
     func test_softDeleteCipher() async throws {
         stateService.accounts = [.fixtureAccountLogin()]
         stateService.activeAccount = .fixtureAccountLogin()
-        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        client.result = .httpSuccess(testData: .emptyResponse)
         let cipherToDeleted = Cipher.fixture(deletedDate: .now, id: "123")
+
         try await subject.softDeleteCipherWithServer(id: "123", cipherToDeleted)
+
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
         XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherToDeleted)
     }

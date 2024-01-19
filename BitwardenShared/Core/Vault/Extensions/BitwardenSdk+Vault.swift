@@ -40,6 +40,8 @@ extension AttachmentResponseModel {
     }
 }
 
+extension AttachmentView: Identifiable {}
+
 extension CipherCardModel {
     init(card: BitwardenSdk.Card) {
         self.init(
