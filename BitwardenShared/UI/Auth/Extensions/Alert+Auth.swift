@@ -22,7 +22,7 @@ extension Alert {
     /// Display the options to log out of or lock the selected profile switcher item.
     ///
     /// - Parameters:
-    ///   - account: The selected item from the profile switcher view.
+    ///   - item: The selected item from the profile switcher view.
     ///   - lockAction: The action to perform if the user chooses to lock the account.
     ///   - logoutAction: The action to perform if the user chooses to log out of the account.
     ///
