@@ -2,6 +2,11 @@
 
 /// The state used to present the `AppExtensionView`.
 struct AppExtensionState: Equatable {
-    /// Whether the extension is already activated.
+    // MARK: Properties
+
+    /// Whether the extension was activated.
     var extensionActivated = false
+
+    /// Whether the extension is activated.
+    var extensionEnabled = false
 }

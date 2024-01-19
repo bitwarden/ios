@@ -91,6 +91,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UIHostingController<AppExtensionView>)
     }
 
+    /// `navigate(to:)` with `.appExtensionSetup` pushes the app extension view onto the stack navigator.
+    func test_navigateTo_appExtensionSetup() throws {
+        subject.navigate(to: .appExtensionSetup)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UIActivityViewController)
+    }
+
     /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
     func test_navigateTo_autoFill() throws {
         subject.navigate(to: .autoFill)

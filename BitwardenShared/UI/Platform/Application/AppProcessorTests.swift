@@ -66,6 +66,24 @@ class AppProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `start(navigator:)` builds the AppCoordinator and navigates to the initial route if provided.
+    func test_start_initialRoute() {
+        let rootNavigator = MockRootNavigator()
+
+        subject.start(
+            appContext: .mainApp,
+            initialRoute: .extensionSetup(.extensionActivation(type: .appExtension)),
+            navigator: rootNavigator,
+            window: nil
+        )
+
+        XCTAssertTrue(appModule.appCoordinator.isStarted)
+        XCTAssertEqual(
+            appModule.appCoordinator.routes,
+            [.extensionSetup(.extensionActivation(type: .appExtension))]
+        )
+    }
+
     /// `start(navigator:)` builds the AppCoordinator and navigates to the landing view if there
     /// isn't an active account.
     func test_start_noActiveAccount() {
