@@ -363,7 +363,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             )
         )
         let item: VaultListItem = .fixtureTOTP(totp: totpModel)
-        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItems = await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
         XCTAssertEqual(newItem, item)
     }
@@ -373,7 +373,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let newCode = "999232"
         clientVault.generateTOTPCodeResult = .success(newCode)
         let item: VaultListItem = .fixture()
-        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItems = await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
         XCTAssertEqual(newItem, item)
     }
@@ -392,7 +392,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             )
         )
         let item: VaultListItem = .fixtureTOTP(totp: totpModel)
-        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItems = await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
         switch newItem.itemType {
         case let .totp(_, model):

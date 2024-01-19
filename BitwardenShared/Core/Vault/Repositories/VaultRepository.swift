@@ -1,6 +1,7 @@
 import BitwardenSdk
 import Combine
 import Foundation
+import OSLog
 
 /// A protocol for a `VaultRepository` which manages access to the data needed by the UI layer.
 ///
@@ -314,15 +315,18 @@ class DefaultVaultRepository {
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         // A transform to convert a `CipherListView` into a `VaultListItem`.
-        let listItemTransform: (CipherView) async throws -> VaultListItem? = { [weak self] cipherView in
+        let listItemTransform: (CipherView) async -> VaultListItem? = { [weak self] cipherView in
             guard let self,
                   let id = cipherView.id,
                   let login = cipherView.login,
-                  let key = login.totp,
-                  let code = try? await clientVault.generateTOTPCode(
-                      for: key,
-                      date: timeProvider.presentTime
-                  ) else {
+                  let key = login.totp else {
+                return nil
+            }
+            guard let code = try? await clientVault.generateTOTPCode(
+                for: key,
+                date: timeProvider.presentTime
+            ) else {
+                Logger.application.error("Unable to create TOTP code for key \(key) for cipher id \(id)")
                 return nil
             }
 
@@ -341,7 +345,7 @@ class DefaultVaultRepository {
         }
 
         // Convert the CipherViews into VaultListItem.
-        let totpItems: [VaultListItem] = try await activeCiphers
+        let totpItems: [VaultListItem] = await activeCiphers
             .asyncMap(listItemTransform)
             .compactMap { $0 }
 
@@ -582,13 +586,14 @@ extension DefaultVaultRepository: VaultRepository {
         )
     }
 
-    func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
-        try await items.asyncMap { item in
+    func refreshTOTPCodes(for items: [VaultListItem]) async -> [VaultListItem] {
+        await items.asyncMap { item in
             guard case let .totp(name, model) = item.itemType,
-                  let key = model.loginView.totp else {
+                  let key = model.loginView.totp,
+                  let code = try? await clientVault.generateTOTPCode(for: key, date: Date()) else {
+                Logger.application.error("Unable to refresh TOTP code for list view item: \(item.id)")
                 return item
             }
-            let code = try await clientVault.generateTOTPCode(for: key, date: Date())
             var updatedModel = model
             updatedModel.totpCode = code
             return .init(
