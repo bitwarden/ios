@@ -7,6 +7,9 @@ import Foundation
 enum ExternalLinksConstants {
     // MARK: Properties
 
+    /// A link to the app review page within the app store.
+    static let appReview = URL(string: "https://itunes.apple.com/us/app/id1137397744?action=write-review")
+
     /// A link to Bitwarden's help page for learning more about the account fingerprint phrase.
     static let fingerprintPhrase = URL(string: "https://bitwarden.com/help/fingerprint-phrase/")!
 
