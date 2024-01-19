@@ -9,6 +9,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// The types of modules used by this coordinator.
     typealias Module = AuthModule
+        & ExtensionSetupModule
         & TabModule
         & VaultModule
 
@@ -16,6 +17,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// The context that the app is running within.
     private let appContext: AppContext
+
+    /// A delegate used to communicate with the app extension.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
 
     /// The coordinator currently being displayed.
     private var childCoordinator: AnyObject?
@@ -34,15 +38,18 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     ///
     /// - Parameters:
     ///   - appContext: The context that the app is running within.
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - module: The module to use for creating child coordinators.
     ///   - rootNavigator: The navigator to use for presenting screens.
     ///
     init(
         appContext: AppContext,
+        appExtensionDelegate: AppExtensionDelegate?,
         module: Module,
         rootNavigator: RootNavigator
     ) {
         self.appContext = appContext
+        self.appExtensionDelegate = appExtensionDelegate
         self.module = module
         self.rootNavigator = rootNavigator
     }
@@ -53,8 +60,12 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         switch route {
         case let .auth(authRoute):
             showAuth(route: authRoute)
+        case let .extensionSetup(extensionSetupRoute):
+            showExtensionSetup(route: extensionSetupRoute)
         case let .tab(tabRoute):
             showTab(route: tabRoute)
+        case let .vault(vaultRoute):
+            showVault(route: vaultRoute)
         }
     }
 
@@ -82,6 +93,25 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.start()
             coordinator.navigate(to: route)
             childCoordinator = coordinator
+        }
+    }
+
+    /// Shows the extension setup route.
+    ///
+    /// - Parameter route: The extension setup route to show.
+    ///
+    private func showExtensionSetup(route: ExtensionSetupRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<ExtensionSetupRoute> {
+            coordinator.navigate(to: route)
+        } else {
+            let stackNavigator = UINavigationController()
+            let coordinator = module.makeExtensionSetupCoordinator(
+                stackNavigator: stackNavigator
+            )
+            coordinator.start()
+            coordinator.navigate(to: route)
+            childCoordinator = coordinator
+            rootNavigator.show(child: stackNavigator)
         }
     }
 
@@ -135,7 +165,8 @@ extension AppCoordinator: AuthCoordinatorDelegate {
         case .mainApp:
             showTab(route: .vault(.list))
         case .appExtension:
-            showVault(route: .autofillList)
+            let route = appExtensionDelegate?.authCompletionRoute ?? .vault(.autofillList)
+            navigate(to: route)
         }
     }
 }
