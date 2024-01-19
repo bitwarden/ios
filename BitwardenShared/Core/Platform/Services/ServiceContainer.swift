@@ -314,6 +314,7 @@ public class ServiceContainer: Services {
             errorReporter: errorReporter,
             folderService: folderService,
             organizationService: organizationService,
+            settingsService: settingsService,
             stateService: stateService,
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
