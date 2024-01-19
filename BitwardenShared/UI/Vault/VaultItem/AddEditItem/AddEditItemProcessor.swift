@@ -19,8 +19,11 @@ protocol CipherItemOperationDelegate: AnyObject {
 // MARK: - AddEditItemProcessor
 
 /// The processor used to manage state and handle actions for the add item screen.
-final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
-    StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
+final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_body_length
+    AddEditItemState,
+    AddEditItemAction,
+    AddEditItemEffect
+> {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -175,7 +178,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     private func handleMenuAction(_ action: VaultItemManagementMenuAction) {
         switch action {
         case .attachments:
-            coordinator.navigate(to: .attachments)
+            coordinator.navigate(to: .attachments(state.cipher))
         case .clone:
             // we don't show clone option in edit item state
             break

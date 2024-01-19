@@ -153,7 +153,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.attachments()` navigates to the attachments view..
     func test_navigateTo_attachments() throws {
-        subject.navigate(to: .attachments)
+        subject.navigate(to: .attachments(.fixture()))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)

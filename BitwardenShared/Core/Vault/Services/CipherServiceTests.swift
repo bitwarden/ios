@@ -117,6 +117,33 @@ class CipherServiceTests: XCTestCase {
         XCTAssertEqual(cipherDataStore.replaceCiphersUserId, "1")
     }
 
+    /// `restoreCipherWithServer(id:_:)` restores the cipher in the backend and local storage.
+    func test_restoreCipherWithServer() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+        stateService.activeAccount = .fixture()
+
+        try await subject.restoreCipherWithServer(id: "1", .fixture())
+
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, .fixture())
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+    }
+
+    /// `saveAttachmentWithServer(cipherId:attachment:)` calls the backend and updates the attachment list of
+    /// the cipher in local storage.
+    func test_saveAttachmentWithServer() async throws {
+        client.result = .httpSuccess(testData: .saveAttachment)
+        stateService.activeAccount = .fixture()
+
+        let cipherResponse = try await subject.saveAttachmentWithServer(
+            cipherId: "1",
+            attachment: .init(attachment: .fixture(), contents: Data())
+        )
+
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherResponse)
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+        XCTAssertEqual(cipherResponse.attachments?.count, 1)
+    }
+
     /// `shareCipherWithServer(_:)` shares the cipher with the organization and updates the data store.
     func test_shareCipherWithServer() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)

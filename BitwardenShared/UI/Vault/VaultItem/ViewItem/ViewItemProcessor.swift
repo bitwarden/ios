@@ -244,7 +244,7 @@ private extension ViewItemProcessor {
 
         switch action {
         case .attachments:
-            coordinator.navigate(to: .attachments)
+            coordinator.navigate(to: .attachments(cipher))
         case .clone:
             coordinator.navigate(to: .cloneItem(cipher: cipher), context: self)
         case .editCollections:
@@ -432,4 +432,4 @@ extension ViewItemProcessor: MoveToOrganizationProcessorDelegate {
     func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
         state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
-}
+} // swiftlint:disable:this file_length

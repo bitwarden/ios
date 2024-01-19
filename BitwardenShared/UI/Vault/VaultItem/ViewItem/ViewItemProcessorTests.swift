@@ -687,7 +687,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         subject.receive(.morePressed(.attachments))
 
-        XCTAssertEqual(coordinator.routes.last, .attachments)
+        XCTAssertEqual(coordinator.routes.last, .attachments(cipher))
     }
 
     /// `receive(_:)` with `.morePressed(.clone)` navigates the user to the move to

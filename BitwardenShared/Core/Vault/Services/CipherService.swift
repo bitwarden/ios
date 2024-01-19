@@ -40,6 +40,16 @@ protocol CipherService {
     ///  - cipher: The cipher that the user is restoring.
     ///
     func restoreCipherWithServer(id: String, _ cipher: Cipher) async throws
+    
+    /// Save an attachment to a cipher for the current user, both in the backend and in local storage.
+    ///
+    /// - Parameters:
+    ///   - cipherId: The id of the cipher to add the attachment to.
+    ///   - attachment: The encrypted attachment data to save.
+    ///
+    /// - Returns: The updated cipher with one more attachment.
+    ///
+    func saveAttachmentWithServer(cipherId: String, attachment: AttachmentEncryptResult) async throws -> Cipher
 
     /// Shares a cipher with an organization and updates the locally stored data.
     ///
@@ -154,6 +164,27 @@ extension DefaultCipherService {
 
         // Restore cipher from local storage
         try await cipherDataStore.upsertCipher(cipher, userId: userID)
+    }
+
+    func saveAttachmentWithServer(cipherId: String, attachment: AttachmentEncryptResult) async throws -> Cipher {
+        let userId = try await stateService.getActiveAccountId()
+
+        // Create the cipher attachment in the backend
+        let response = try await cipherAPIService.saveAttachment(
+            cipherId: cipherId,
+            fileName: attachment.attachment.fileName,
+            fileSize: attachment.attachment.size,
+            key: attachment.attachment.key
+        )
+
+        // Update the cipher in local storage.
+        let updatedCipher = Cipher(responseModel: response.cipherResponse)
+        try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
+
+        // TODO: BIT-1465 actually upload file
+
+        // Return the updated cipher.
+        return updatedCipher
     }
 
     func shareCipherWithServer(_ cipher: Cipher) async throws {
