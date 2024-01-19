@@ -309,7 +309,7 @@ class DefaultVaultRepository {
     private func totpListItems(
         from ciphers: [CipherView],
         filter: VaultFilterType?
-    ) async throws -> [VaultListItem] {
+    ) async -> [VaultListItem] {
         // Filter and sort the list.
         let activeCiphers = ciphers
             .filter(filter?.cipherFilter(_:) ?? { _ in true })
@@ -332,7 +332,10 @@ class DefaultVaultRepository {
                 for: key,
                 date: timeProvider.presentTime
             ) else {
-                Logger.application.error("Unable to create TOTP code for key \(key) for cipher id \(id)")
+                errorReporter.log(
+                    error: TOTPServiceError
+                        .unableToGenerateCode("Unable to create TOTP code for key \(key) for cipher id \(id)")
+                )
                 return nil
             }
 
@@ -394,7 +397,7 @@ class DefaultVaultRepository {
         case .secureNote:
             return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case .totp:
-            return try await totpListItems(from: ciphers, filter: filter)
+            return await totpListItems(from: ciphers, filter: filter)
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
         }
@@ -441,7 +444,7 @@ class DefaultVaultRepository {
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
-        let oneTimePasswordCount: Int = try await totpListItems(from: ciphers, filter: filter).count
+        let oneTimePasswordCount: Int = await totpListItems(from: ciphers, filter: filter).count
 
         let totpItems = (oneTimePasswordCount > 0) ? [
             VaultListItem(
@@ -584,7 +587,7 @@ extension DefaultVaultRepository: VaultRepository {
     func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {
         let codeState = try await clientVault.generateTOTPCode(
             for: key.rawAuthenticatorKey,
-            date: Date()
+            date: timeProvider.presentTime
         )
         return LoginTOTPState(
             authKeyModel: key,
@@ -596,8 +599,10 @@ extension DefaultVaultRepository: VaultRepository {
         await items.asyncMap { item in
             guard case let .totp(name, model) = item.itemType,
                   let key = model.loginView.totp,
-                  let code = try? await clientVault.generateTOTPCode(for: key, date: Date()) else {
-                Logger.application.error("Unable to refresh TOTP code for list view item: \(item.id)")
+                  let code = try? await clientVault
+                  .generateTOTPCode(for: key, date: timeProvider.presentTime) else {
+                errorReporter.log(error: TOTPServiceError
+                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
                 return item
             }
             var updatedModel = model
@@ -668,7 +673,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func softDeleteCipher(_ cipher: CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
-        let softDeletedCipher = cipher.update(deletedDate: .now)
+        let softDeletedCipher = cipher.update(deletedDate: timeProvider.presentTime)
         let encryptCipher = try await clientVault.ciphers().encrypt(cipherView: softDeletedCipher)
         try await cipherService.softDeleteCipherWithServer(id: id, encryptCipher)
     }
