@@ -365,9 +365,13 @@ private extension ViewItemProcessor {
             services.errorReporter.log(error: error)
         }
     }
+}
 
+// MARK: TOTP
+
+private extension ViewItemProcessor {
     /// Updates the TOTP code for the view.
-    private func updateTOTPCode() async {
+    func updateTOTPCode() async {
         // Only update the code if the user has premium and there is a valid TOTP key model.
         guard state.hasPremiumFeatures,
               case let .data(cipherItemState) = state.loadingState,
