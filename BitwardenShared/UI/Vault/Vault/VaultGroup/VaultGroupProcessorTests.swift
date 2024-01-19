@@ -62,6 +62,14 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(subject.state.toast)
 
         subject.itemDeleted()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.itemDeleted)
+    }
+
+    /// `itemSoftDeleted()` delegate method shows the expected toast.
+    func test_delegate_itemSoftDeleted() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemSoftDeleted()
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemSoftDeleted)
     }
 
