@@ -284,6 +284,10 @@ extension DefaultAuthRepository: AuthRepository {
             switch biometricUnlockStatus {
             case .available(_, true, false):
                 try await biometricsService.configureBiometricIntegrity()
+                try await biometricsService.setBiometricUnlockKey(
+                    authKey: clientCrypto.getUserEncryptionKey(),
+                    for: account.profile.userId
+                )
             default:
                 break
             }

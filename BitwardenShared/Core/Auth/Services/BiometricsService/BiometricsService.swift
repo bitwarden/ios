@@ -108,11 +108,7 @@ class DefaultBiometricsService: BiometricsService {
 
     func getUserAuthKey(for userId: String? = nil) async throws -> String {
         let context = LAContext()
-        guard let bundleId = Bundle.main.bundleIdentifier,
-              try await context.evaluatePolicy(
-                  .deviceOwnerAuthenticationWithBiometrics,
-                  localizedReason: Localizations.useBiometricsToUnlock
-              ) else {
+        guard let bundleId = Bundle.main.bundleIdentifier else {
             throw BiometricsServiceError.getAuthKeyFailed
         }
         let id = try await getUserId(userId)
