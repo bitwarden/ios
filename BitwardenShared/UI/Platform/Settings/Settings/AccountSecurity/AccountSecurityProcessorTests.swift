@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AccountSecurityProcessorTests: BitwardenTestCase {
+class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
@@ -276,6 +276,17 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
     }
 
+    /// `perform(_:)` with `.loadData` updates the state.
+    func test_perform_loadData_biometricsValue_error() async {
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
+        struct TestError: Error {}
+        biometricsService.biometricUnlockStatus = .failure(TestError())
+        subject.state.biometricUnlockStatus = .notAvailable
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, .notAvailable)
+    }
+
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
     func test_perform_toggleUnlockWithBiometrics_authRepositoryFailure() async throws {
         struct TestError: Error, Equatable {}
@@ -306,6 +317,19 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         let error = try XCTUnwrap(errorReporter.errors.first as? TestError)
         XCTAssertEqual(error, TestError())
         XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithBiometrics` configures biometric integrity state if needed.
+    func test_perform_toggleUnlockWithBiometrics_invalidBiometryState() async {
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: false)
+        biometricsService.biometricUnlockStatus = .success(
+            biometricUnlockStatus
+        )
+        authRepository.allowBiometricUnlockResult = .success(())
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
+        await subject.perform(.toggleUnlockWithBiometrics(false))
+
+        XCTAssertTrue(biometricsService.didConfigureBiometricIntegrity)
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.

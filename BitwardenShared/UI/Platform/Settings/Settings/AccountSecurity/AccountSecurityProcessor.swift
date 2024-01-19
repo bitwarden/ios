@@ -187,6 +187,11 @@ final class AccountSecurityProcessor: StateProcessor<
         do {
             try await services.authRepository.allowBioMetricUnlock(enabled, userId: nil)
             state.biometricUnlockStatus = try await services.biometricsService.getBiometricUnlockStatus()
+            // Set biometric integrity if needed.
+            if case .available(_, true, false) = state.biometricUnlockStatus {
+                try await services.biometricsService.configureBiometricIntegrity()
+                state.biometricUnlockStatus = try await services.biometricsService.getBiometricUnlockStatus()
+            }
         } catch {
             services.errorReporter.log(error: error)
         }
