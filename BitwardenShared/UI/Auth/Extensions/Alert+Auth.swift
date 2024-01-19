@@ -19,6 +19,48 @@ extension Alert {
         )
     }
 
+    /// Display the options to log out of or lock the selected profile switcher item.
+    ///
+    /// - Parameters:
+    ///   - item: The selected item from the profile switcher view.
+    ///   - lockAction: The action to perform if the user chooses to lock the account.
+    ///   - logoutAction: The action to perform if the user chooses to log out of the account.
+    ///
+    /// - Returns: An alert displaying the options for the item.
+    ///
+    static func accountOptions(
+        _ item: ProfileSwitcherItem,
+        lockAction: @escaping () async -> Void,
+        logoutAction: @escaping () async -> Void
+    ) -> Alert {
+        // All accounts have the option to log out, but only display the lock option if
+        // the account is not currently locked.
+        var alertActions = [
+            AlertAction(
+                title: Localizations.logOut,
+                style: .default,
+                handler: { _, _ in await logoutAction() }
+            ),
+        ]
+        if item.isUnlocked {
+            alertActions.insert(
+                AlertAction(
+                    title: Localizations.lock,
+                    style: .default,
+                    handler: { _, _ in await lockAction() }
+                ),
+                at: 0
+            )
+        }
+
+        return Alert(
+            title: item.email,
+            message: nil,
+            preferredStyle: .actionSheet,
+            alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
+        )
+    }
+
     /// An alert notifying the user, upon creating an account, that their entered password has been found
     /// in a data breach.
     ///
