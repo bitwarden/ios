@@ -8,6 +8,9 @@ class MockClientCrypto: ClientCryptoProtocol {
         DerivePinKeyResponse(pinProtectedUserKey: "", encryptedPin: "")
     )
 
+    var derivePinUserKeyPin: String?
+    var derivePinUserKeyResult: Result<BitwardenSdk.EncString, Error> = .success("ENCRYPTED_USER_KEY")
+
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
 
     var initializeOrgCryptoRequest: InitOrgCryptoRequest?
@@ -19,6 +22,11 @@ class MockClientCrypto: ClientCryptoProtocol {
     func derivePinKey(pin: String) async throws -> BitwardenSdk.DerivePinKeyResponse {
         derivePinKeyPin = pin
         return try derivePinKeyResult.get()
+    }
+
+    func derivePinUserKey(encryptedPin: BitwardenSdk.EncString) async throws -> BitwardenSdk.EncString {
+        derivePinUserKeyPin = encryptedPin
+        return try derivePinUserKeyResult.get()
     }
 
     func getUserEncryptionKey() async throws -> String {
