@@ -8,6 +8,7 @@ import XCTest
 class AppCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appExtensionDelegate: MockAppExtensionDelegate!
     var module: MockAppModule!
     var rootNavigator: MockRootNavigator!
     var subject: AppCoordinator!
@@ -16,10 +17,12 @@ class AppCoordinatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        appExtensionDelegate = MockAppExtensionDelegate()
         module = MockAppModule()
         rootNavigator = MockRootNavigator()
         subject = AppCoordinator(
             appContext: .mainApp,
+            appExtensionDelegate: appExtensionDelegate,
             module: module,
             rootNavigator: rootNavigator
         )
@@ -27,6 +30,7 @@ class AppCoordinatorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        appExtensionDelegate = nil
         module = nil
         rootNavigator = nil
         subject = nil
@@ -41,17 +45,23 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list)])
     }
 
-    /// `didCompleteAuth()` starts the vault coordinator coordinator in the app extension and
-    /// navigates to the proper vault route.
+    /// `didCompleteAuth()` starts the vault coordinator in the app extension and navigates to the
+    /// proper vault route.
     func test_didCompleteAuth_appExtension() {
         subject = AppCoordinator(
             appContext: .appExtension,
+            appExtensionDelegate: appExtensionDelegate,
             module: module,
             rootNavigator: rootNavigator
         )
 
+        appExtensionDelegate.authCompletionRoute = .vault(.autofillList)
         subject.didCompleteAuth()
+        XCTAssertTrue(module.vaultCoordinator.isStarted)
+        XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
 
+        appExtensionDelegate.authCompletionRoute = .extensionSetup(.extensionActivation(type: .autofillExtension))
+        subject.didCompleteAuth()
         XCTAssertTrue(module.vaultCoordinator.isStarted)
         XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
     }
@@ -109,6 +119,27 @@ class AppCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .auth(.landing))
 
         XCTAssertEqual(module.authCoordinator.routes, [.landing, .landing])
+    }
+
+    /// `navigate(to:)` with `.extensionSetup(.extensionActivation))` starts the extension setup
+    /// coordinator and navigates to the proper route.
+    func test_navigateTo_extensionSetup() throws {
+        subject.navigate(to: .extensionSetup(.extensionActivation(type: .autofillExtension)))
+
+        XCTAssertTrue(module.extensionSetupCoordinator.isStarted)
+        XCTAssertEqual(module.extensionSetupCoordinator.routes, [.extensionActivation(type: .autofillExtension)])
+    }
+
+    /// `navigate(to:)` with `.extensionSetup(.extensionActivation))` twice uses the existing
+    /// coordinator, rather than creating a new one.
+    func test_navigateTo_extensionSetupTwice() {
+        subject.navigate(to: .extensionSetup(.extensionActivation(type: .autofillExtension)))
+        subject.navigate(to: .extensionSetup(.extensionActivation(type: .autofillExtension)))
+
+        XCTAssertEqual(
+            module.extensionSetupCoordinator.routes,
+            [.extensionActivation(type: .autofillExtension), .extensionActivation(type: .autofillExtension)]
+        )
     }
 
     /// `navigate(to:)` with `.tab(.vault(.list))` starts the tab coordinator and navigates to the proper tab route.

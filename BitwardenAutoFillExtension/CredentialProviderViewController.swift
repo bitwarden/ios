@@ -12,6 +12,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     /// The processor that manages application level logic.
     private var appProcessor: AppProcessor?
 
+    /// Whether the extension was opened to configure the extension after it was enabled.
+    private var isConfiguring = false
+
     /// A list of service identifiers used to filter credentials for autofill.
     private var serviceIdentifiers = [ASCredentialServiceIdentifier]()
 
@@ -51,17 +54,26 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 //    override func prepareInterfaceToProvideCredential(for credentialIdentity: ASPasswordCredentialIdentity) {
 //    }
 
+    override func prepareInterfaceForExtensionConfiguration() {
+        isConfiguring = true
+        initializeApp()
+    }
+
     // MARK: Private
 
     /// Cancels the extension request and dismisses the extension's view controller.
     ///
     private func cancel() {
-        extensionContext.cancelRequest(
-            withError: NSError(
-                domain: ASExtensionErrorDomain,
-                code: ASExtensionError.userCanceled.rawValue
+        if isConfiguring {
+            extensionContext.completeExtensionConfigurationRequest()
+        } else {
+            extensionContext.cancelRequest(
+                withError: NSError(
+                    domain: ASExtensionErrorDomain,
+                    code: ASExtensionError.userCanceled.rawValue
+                )
             )
-        )
+        }
     }
 
     /// Sets up and initializes the app and UI.
@@ -81,6 +93,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
 extension CredentialProviderViewController: AppExtensionDelegate {
     var isInAppExtension: Bool { true }
+
+    var authCompletionRoute: AppRoute {
+        if isConfiguring {
+            AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
+        } else {
+            AppRoute.vault(.autofillList)
+        }
+    }
 
     var uri: String? {
         guard let serviceIdentifier = serviceIdentifiers.first else { return nil }
