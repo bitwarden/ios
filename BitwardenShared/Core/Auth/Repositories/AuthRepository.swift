@@ -70,6 +70,12 @@ protocol AuthRepository: AnyObject {
     ///
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws
 
+    /// Saves the pin protected user key in memory.
+    ///
+    /// - Parameter pin: The user's pin.
+    ///
+    func setPinProtectedUserKeyToMemory(_ pin: String) async throws
+
     /// Sets the active account by User Id.
     ///
     /// - Parameter userId: The user Id to be set as active.
@@ -229,10 +235,16 @@ extension DefaultAuthRepository: AuthRepository {
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
         let pinKey = try await clientCrypto.derivePinKey(pin: pin)
         try await stateService.setPinKeys(
-            encryptedPin: pinKey.encryptedPin,
+            pinKeyEncryptedUserKey: pinKey.encryptedPin,
             pinProtectedUserKey: pinKey.pinProtectedUserKey,
             requirePasswordAfterRestart: requirePasswordAfterRestart
         )
+    }
+
+    func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
+        let pinKey = try await clientCrypto.derivePinKey(pin: pin)
+        let pinProtectedUserKey = try await clientCrypto.derivePinUserKey(encryptedPin: pinKey.encryptedPin)
+        try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
     }
 
     func unlockVaultWithPassword(password: String) async throws {

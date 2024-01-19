@@ -691,7 +691,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(account)
 
         try await subject.setPinKeys(
-            encryptedPin: "123",
+            pinKeyEncryptedUserKey: "123",
             pinProtectedUserKey: "123",
             requirePasswordAfterRestart: false
         )
@@ -920,7 +920,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
         try await subject.setPinKeys(
-            encryptedPin: "123",
+            pinKeyEncryptedUserKey: "123",
             pinProtectedUserKey: "123",
             requirePasswordAfterRestart: false
         )

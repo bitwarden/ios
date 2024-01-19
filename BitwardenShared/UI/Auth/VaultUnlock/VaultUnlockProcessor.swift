@@ -113,6 +113,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
         do {
             if try await services.authRepository.isPinUnlockAvailable() {
                 state.unlockMethod = .pin
+            } else if try await services.stateService.pinKeyEncryptedUserKey() != nil {
+                state.unlockMethod = .password
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -151,6 +153,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             coordinator.navigate(to: .complete)
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
+            try await services.authRepository.setPinProtectedUserKeyToMemory(state.pin)
         } catch let error as InputValidationError {
             coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))
         } catch {

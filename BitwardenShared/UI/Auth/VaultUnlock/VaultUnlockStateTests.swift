@@ -14,8 +14,7 @@ class VaultUnlockStateTests: BitwardenTestCase {
                         webVault: URL(string: "https://test.bitwarden.com")
                     )
                 )
-            ),
-            unlockMethod: .password
+            )
         )
 
         XCTAssertEqual(subject.email, "user@bitwarden.com")
@@ -33,8 +32,7 @@ class VaultUnlockStateTests: BitwardenTestCase {
                         webVault: nil
                     )
                 )
-            ),
-            unlockMethod: .password
+            )
         )
 
         XCTAssertEqual(subject.email, "user@bitwarden.com")

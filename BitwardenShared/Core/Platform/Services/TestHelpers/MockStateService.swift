@@ -246,10 +246,14 @@ class MockStateService: StateService {
         passwordGenerationOptions[userId] = options
     }
 
-    func setPinKeys(encryptedPin: String, pinProtectedUserKey: String, requirePasswordAfterRestart: Bool) async throws {
+    func setPinKeys(
+        pinKeyEncryptedUserKey: String,
+        pinProtectedUserKey: String,
+        requirePasswordAfterRestart: Bool
+    ) async throws {
         let userId = try getActiveAccount().profile.userId
         pinProtectedUserKeyValue[userId] = pinProtectedUserKey
-        pinKeyEncryptedUserKeyValue[userId] = encryptedPin
+        pinKeyEncryptedUserKeyValue[userId] = pinKeyEncryptedUserKey
 
         if requirePasswordAfterRestart {
             accountVolatileData[
@@ -257,6 +261,14 @@ class MockStateService: StateService {
                 default: AccountVolatileData()
             ].pinProtectedUserKey = pinProtectedUserKey
         }
+    }
+
+    func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
+        let userId = try getActiveAccount().profile.userId
+        accountVolatileData[
+            userId,
+            default: AccountVolatileData()
+        ].pinProtectedUserKey = pin
     }
 
     func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {

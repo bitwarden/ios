@@ -265,11 +265,21 @@ protocol StateService: AnyObject {
     /// Set's the pin keys.
     ///
     /// - Parameters:
-    ///   - encryptedPin: The user's encrypted pin.
+    ///   - pinKeyEncryptedUserKey: The user's encrypted pin.
     ///   - pinProtectedUserKey: The user's pin protected user key.
     ///   - requirePasswordAfterRestart: Whether to require password after app restart.
     ///
-    func setPinKeys(encryptedPin: String, pinProtectedUserKey: String, requirePasswordAfterRestart: Bool) async throws
+    func setPinKeys(
+        pinKeyEncryptedUserKey: String,
+        pinProtectedUserKey: String,
+        requirePasswordAfterRestart: Bool
+    ) async throws
+
+    /// Sets the pin protected user key to memory.
+    ///
+    /// - Parameter pin: The user's pin.
+    ///
+    func setPinProtectedUserKeyToMemory(_ pin: String) async throws
 
     /// Sets the encrypted pin.
     ///
@@ -792,7 +802,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
-        return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedKey(userId: userId)
+        return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedUserKey(userId: userId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
@@ -865,16 +875,27 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         try accountVolatileData[getActiveAccountUserId(), default: AccountVolatileData()].pinProtectedUserKey = pin
     }
 
-    func setPinKeys(encryptedPin: String, pinProtectedUserKey: String, requirePasswordAfterRestart: Bool) async throws {
+    func setPinKeys(
+        pinKeyEncryptedUserKey: String,
+        pinProtectedUserKey: String,
+        requirePasswordAfterRestart: Bool
+    ) async throws {
         if requirePasswordAfterRestart {
             try accountVolatileData[
                 getActiveAccountUserId(),
                 default: AccountVolatileData()
             ].pinProtectedUserKey = pinProtectedUserKey
         } else {
-            try appSettingsStore.setPinKeyEncryptedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
+            try appSettingsStore.setPinProtectedKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
         }
-        try appSettingsStore.setPinProtectedKey(key: encryptedPin, userId: getActiveAccountUserId())
+        try appSettingsStore.setPinKeyEncryptedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
+    }
+
+    func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
+        try accountVolatileData[
+            getActiveAccountUserId(),
+            default: AccountVolatileData()
+        ].pinProtectedUserKey = pin
     }
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
