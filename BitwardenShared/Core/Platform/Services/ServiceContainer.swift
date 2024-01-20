@@ -217,6 +217,7 @@ public class ServiceContainer: Services {
         )
 
         let sendService = DefaultSendService(
+            fileAPIService: apiService,
             sendAPIService: apiService,
             sendDataStore: dataStore,
             stateService: stateService
@@ -360,6 +361,10 @@ extension ServiceContainer {
     }
 
     var deviceAPIService: DeviceAPIService {
+        apiService
+    }
+
+    var fileAPIService: FileAPIService {
         apiService
     }
 

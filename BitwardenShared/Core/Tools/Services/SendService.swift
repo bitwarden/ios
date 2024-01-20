@@ -1,16 +1,31 @@
 import BitwardenSdk
 import Combine
+import Foundation
 
 // MARK: - SendService
 
 /// A protocol for a `SendService` which manages syncing and updates to the user's sends.
 ///
 protocol SendService {
-    /// Adds a new Send for the current user in both the backend and in local storage.
+    /// Adds a new text Send for the current user in both the backend and in local storage.
     ///
     /// - Parameter send: The send to add.
     ///
-    func addSend(_ send: Send) async throws
+    func addTextSend(_ send: Send) async throws
+
+    /// Adds a new file Send for the current user in both the backend and in local storage.
+    ///
+    /// - Parameters
+    ///   - send: The send to add.
+    ///   - data: The data representation of the file.
+    ///
+    func addFileSend(_ send: Send, data: Data) async throws
+
+    /// Deletes the send in both the backend and in local storage.
+    ///
+    /// - Parameter send: The send to be deleted.
+    ///
+    func deleteSend(_ send: Send) async throws
 
     /// Updates an existing Send for the current user in both the backend and in local storage.
     ///
@@ -40,7 +55,10 @@ protocol SendService {
 class DefaultSendService: SendService {
     // MARK: Properties
 
-    /// The service used to make cipher related API requests.
+    /// The service used to make file related API requests.
+    let fileAPIService: FileAPIService
+
+    /// The service used to make send related API requests.
     private let sendAPIService: SendAPIService
 
     /// The data store for managing the persisted sends for the user.
@@ -54,14 +72,18 @@ class DefaultSendService: SendService {
     /// Initialize a `DefaultSendService`.
     ///
     /// - Parameters:
+    ///   - fileAPIService: The service used to make file related API requests.
+    ///   - sendAPIService: The service used to make send related API requests.
     ///   - sendDataStore: The data store for managing the persisted sends for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
+        fileAPIService: FileAPIService,
         sendAPIService: SendAPIService,
         sendDataStore: SendDataStore,
         stateService: StateService
     ) {
+        self.fileAPIService = fileAPIService
         self.sendAPIService = sendAPIService
         self.sendDataStore = sendDataStore
         self.stateService = stateService
@@ -69,12 +91,46 @@ class DefaultSendService: SendService {
 }
 
 extension DefaultSendService {
-    func addSend(_ send: Send) async throws {
+    func addTextSend(_ send: Send) async throws {
         let userId = try await stateService.getActiveAccountId()
-        let response = try await sendAPIService.addSend(send)
+
+        let response = try await sendAPIService.addTextSend(send)
 
         let newSend = Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(newSend, userId: userId)
+    }
+
+    func addFileSend(_ send: Send, data: Data) async throws {
+        let userId = try await stateService.getActiveAccountId()
+
+        let response = try await sendAPIService.addFileSend(send, fileLength: data.count)
+
+        do {
+            try await fileAPIService.uploadSendFile(
+                data: data,
+                type: response.fileUploadType,
+                fileId: response.sendResponse.file?.id ?? "",
+                fileName: send.file?.fileName ?? "",
+                sendId: response.sendResponse.id,
+                url: response.url
+            )
+        } catch {
+            // If the file upload fails for any reason, bail out on saving this send by deleting it
+            // on the server.
+            try await sendAPIService.deleteSend(with: response.sendResponse.id)
+            return
+        }
+
+        let newSend = Send(sendResponseModel: response.sendResponse)
+        try await sendDataStore.upsertSend(newSend, userId: userId)
+    }
+
+    func deleteSend(_ send: Send) async throws {
+        guard let id = send.id else { return }
+        let userId = try await stateService.getActiveAccountId()
+
+        try await sendAPIService.deleteSend(with: id)
+        try await sendDataStore.deleteSend(id: id, userId: userId)
     }
 
     func updateSend(_ send: Send) async throws {

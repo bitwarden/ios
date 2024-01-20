@@ -179,7 +179,7 @@ extension AddEditSendItemState {
     private func newFileView() -> SendFileView {
         SendFileView(
             id: nil,
-            fileName: "",
+            fileName: fileName ?? "",
             size: nil,
             sizeName: nil
         )
