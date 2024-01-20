@@ -68,6 +68,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the password auto-fill screen.
     case passwordAutoFill
 
+    /// A route to the pending login requests view.
+    case pendingLoginRequests
+
     /// A route to view the select language view.
     ///
     /// - Parameter currentLanguage: The currently selected language option.

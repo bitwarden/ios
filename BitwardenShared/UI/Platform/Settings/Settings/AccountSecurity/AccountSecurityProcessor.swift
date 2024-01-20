@@ -72,6 +72,8 @@ final class AccountSecurityProcessor: StateProcessor<
             coordinator.navigate(to: .deleteAccount)
         case .logout:
             showLogoutConfirmation()
+        case .pendingLoginRequestsTapped:
+            coordinator.navigate(to: .pendingLoginRequests)
         case let .sessionTimeoutActionChanged(action):
             saveTimeoutActionSetting(action)
         case let .sessionTimeoutValueChanged(newValue):
@@ -79,7 +81,7 @@ final class AccountSecurityProcessor: StateProcessor<
         case let .setCustomSessionTimeoutValue(newValue):
             state.customSessionTimeoutValue = newValue
         case let .toggleApproveLoginRequestsToggle(isOn):
-            state.isApproveLoginRequestsToggleOn = isOn
+            confirmTogglingApproveLoginRequests(isOn)
         case let .toggleUnlockWithPINCode(isOn):
             toggleUnlockWithPIN(isOn)
         case .twoStepLoginPressed:
@@ -89,10 +91,29 @@ final class AccountSecurityProcessor: StateProcessor<
 
     // MARK: Private
 
-    /// Loads async data to the state.
+    /// Show an alert to confirm enabling approving login requests.
     ///
+    /// - Parameter isOn: Whether or not the toggle value is true or false.
+    ///
+    private func confirmTogglingApproveLoginRequests(_ isOn: Bool) {
+        // If the user is attempting to turn the toggle on, show an alert to confirm first.
+        if isOn {
+            coordinator.showAlert(.confirmApproveLoginRequests {
+                await self.toggleApproveLoginRequests(isOn)
+            })
+        } else {
+            Task { await toggleApproveLoginRequests(isOn) }
+        }
+    }
+
+    /// Load any initial data for the view.
     private func loadData() async {
-        state.biometricUnlockStatus = await loadBiometricUnlockPreference()
+        do {
+            state.biometricUnlockStatus = await loadBiometricUnlockPreference()
+            state.isApproveLoginRequestsToggleOn = try await services.stateService.getApproveLoginRequests()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Loads the state of the user's biometric unlock preferences.
@@ -151,15 +172,14 @@ final class AccountSecurityProcessor: StateProcessor<
             coordinator.navigate(to: .alert(
                 .displayFingerprintPhraseAlert({
                     self.state.fingerprintPhraseUrl = ExternalLinksConstants.fingerprintPhrase
-                }, phrase: phrase))
-            )
+                }, phrase: phrase)
+            ))
         } catch {
             coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
         }
     }
 
     /// Shows an alert asking the user to confirm that they want to logout.
-    ///
     private func showLogoutConfirmation() {
         let alert = Alert.logoutConfirmation {
             do {
@@ -172,9 +192,7 @@ final class AccountSecurityProcessor: StateProcessor<
         coordinator.navigate(to: .alert(alert))
     }
 
-    /// Shows the two step login alert. If `Yes` is selected, the user will be
-    /// navigated to the web app.
-    ///
+    /// Shows the two step login alert. If `Yes` is selected, the user will be navigated to the web app.
     private func showTwoStepLoginAlert() {
         coordinator.navigate(to: .alert(.twoStepLoginAlert {
             self.state.twoStepLoginUrl = self.services.twoStepLoginService.twoStepLoginUrl()
@@ -194,6 +212,19 @@ final class AccountSecurityProcessor: StateProcessor<
                 try await services.biometricsService.configureBiometricIntegrity()
                 state.biometricUnlockStatus = try await services.biometricsService.getBiometricUnlockStatus()
             }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Update the value of the approve login requests setting in the state and the cached data.
+    ///
+    /// - Parameter isOn: Whether or not the toggle value is true or false.
+    ///
+    private func toggleApproveLoginRequests(_ isOn: Bool) async {
+        do {
+            try await services.stateService.setApproveLoginRequests(isOn)
+            state.isApproveLoginRequestsToggleOn = isOn
         } catch {
             services.errorReporter.log(error: error)
         }
