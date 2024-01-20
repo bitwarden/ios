@@ -49,8 +49,8 @@ struct CipherItemState: Equatable {
     /// The Add or Existing Configuration.
     let configuration: Configuration
 
-    /// The custom fields.
-    var customFields: [CustomFieldState]
+    /// The custom fields state.
+    var customFieldsState: AddEditCustomFieldsState
 
     /// The identifier of the folder for this item.
     var folderId: String?
@@ -161,7 +161,7 @@ struct CipherItemState: Equatable {
         cardItemState = cardState
         collectionIds = []
         collections = []
-        self.customFields = customFields
+        customFieldsState = AddEditCustomFieldsState(customFields: customFields)
         self.folderId = folderId
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
@@ -251,8 +251,8 @@ struct CipherItemState: Equatable {
     /// - Parameter customFieldState: The custom field to update.
     ///
     mutating func togglePasswordVisibility(for customFieldState: CustomFieldState) {
-        if let index = customFields.firstIndex(of: customFieldState) {
-            customFields[index].isPasswordVisible.toggle()
+        if let index = customFieldsState.customFields.firstIndex(of: customFieldState) {
+            customFieldsState.customFields[index].isPasswordVisible.toggle()
         }
     }
 

@@ -10,6 +10,20 @@ enum FieldType: Int, Codable {
     /// The field stores a boolean value.
     case boolean = 2
 
-    /// The field value is linked to the item's username or password.
+    /// The field value is linked to the item's field.
     case linked = 3
+
+    /// The localized title of the `FieldType`.
+    var title: String {
+        switch self {
+        case .boolean:
+            Localizations.fieldTypeBoolean
+        case .hidden:
+            Localizations.fieldTypeHidden
+        case .linked:
+            Localizations.fieldTypeLinked
+        case .text:
+            Localizations.fieldTypeText
+        }
+    }
 }

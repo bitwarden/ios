@@ -39,6 +39,42 @@ extension Alert {
         )
     }
 
+    /// An alert to show when the user adds a custom field.
+    ///
+    /// - Parameters:
+    ///  - text: An optional initial value to pre-fill the text field with.
+    ///  - completion: A block that is executed when the user interacts with the "ok" button.
+    ///
+    static func nameCustomFieldAlert(
+        text: String? = nil,
+        completion: @MainActor @escaping (String) async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.customFieldName,
+            message: nil,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.ok,
+                    style: .default,
+                    handler: { _, alertTextFields in
+                        guard let name = alertTextFields.first(where: { $0.id == "name" })?.text else { return }
+                        await completion(name)
+                    }
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+            alertTextFields: [
+                AlertTextField(
+                    id: "name",
+                    autocapitalizationType: .none,
+                    autocorrectionType: .no,
+                    isSecureTextEntry: false,
+                    text: text
+                ),
+            ]
+        )
+    }
+
     /// An alert that notifies the user whether or not their password has been found in a data breach.
     ///
     /// - Parameter count: The number of times their password has been found in a data breach.

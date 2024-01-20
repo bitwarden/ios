@@ -134,7 +134,14 @@ extension CipherView {
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
-            fields: fields,
+            fields: addEditState.customFieldsState.customFields.map { customField in
+                FieldView(
+                    name: customField.name,
+                    value: customField.value,
+                    type: .init(fieldType: customField.type),
+                    linkedId: customField.linkedIdType?.rawValue
+                )
+            },
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,

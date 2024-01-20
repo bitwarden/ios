@@ -4,6 +4,9 @@ import BitwardenSdk
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable {
+    /// An `AddEditCustomFieldsAction` was dispatched from `AddEditCustomFieldsView`.
+    case customFieldActionDispatched(AddEditCustomFieldsAction)
+
     /// A card field changed
     case cardFieldChanged(AddEditCardItemAction)
 
