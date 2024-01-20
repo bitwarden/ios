@@ -4,23 +4,27 @@ import Foundation
 @testable import BitwardenShared
 
 class MockAuthService: AuthService {
-    var accessCode: String = ""
+    var answerLoginRequestApprove: Bool?
+    var answerLoginRequestResult: Result<Void, Error> = .success(())
+    var answerLoginRequestRequest: LoginRequest?
+
     var callbackUrlScheme: String = "callback"
 
-    var deviceIdentifier: String = ""
-    var email: String = ""
-    var fingerPrint: String = ""
+    var denyAllLoginRequestsResult: Result<Void, Error> = .success(())
+    var denyAllLoginRequestsRequests: [LoginRequest]?
 
     var generateSingleSignOnUrlResult: Result<(URL, String), Error> = .success((url: .example, state: "state"))
     var generateSingleSignOnOrgIdentifier: String?
 
-    var getPendingLoginRequestsCalled = false
-    var getPendingLoginRequestsResult: Result<[LoginRequest], Error> = .success([])
+    var getPendingLoginRequestCalled = false
+    var getPendingLoginRequestId: String?
+    var getPendingLoginRequestResult: Result<[LoginRequest], Error> = .success([])
 
     var hashPasswordPassword: String?
     var hashPasswordResult: Result<String, Error> = .success("hashed")
 
-    var initiateLoginWithDeviceResult: Result<Void, Error> = .success(())
+    var initiateLoginWithDeviceEmail: String?
+    var initiateLoginWithDeviceResult: Result<String, Error> = .success("")
 
     var loginWithMasterPasswordPassword: String?
     var loginWithMasterPasswordUsername: String?
@@ -39,14 +43,26 @@ class MockAuthService: AuthService {
     var publicKey: String = ""
     var resendVerificationCodeEmailResult: Result<Void, Error> = .success(())
 
+    func answerLoginRequest(_ request: LoginRequest, approve: Bool) async throws {
+        answerLoginRequestRequest = request
+        answerLoginRequestApprove = approve
+        try answerLoginRequestResult.get()
+    }
+
+    func denyAllLoginRequests(_ requests: [LoginRequest]) async throws {
+        denyAllLoginRequestsRequests = requests
+        try denyAllLoginRequestsResult.get()
+    }
+
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String) {
         generateSingleSignOnOrgIdentifier = organizationIdentifier
         return try generateSingleSignOnUrlResult.get()
     }
 
-    func getPendingLoginRequests() async throws -> [LoginRequest] {
-        getPendingLoginRequestsCalled = true
-        return try getPendingLoginRequestsResult.get()
+    func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest] {
+        getPendingLoginRequestCalled = true
+        getPendingLoginRequestId = id
+        return try getPendingLoginRequestResult.get()
     }
 
     func hashPassword(password: String, purpose _: HashPurpose) async throws -> String {
@@ -54,20 +70,9 @@ class MockAuthService: AuthService {
         return try hashPasswordResult.get()
     }
 
-    func initiateLoginWithDevice(
-        accessCode: String,
-        deviceIdentifier: String,
-        email: String,
-        fingerPrint: String,
-        publicKey: String
-    ) async throws {
-        self.accessCode = accessCode
-        self.deviceIdentifier = deviceIdentifier
-        self.email = email
-        self.fingerPrint = fingerPrint
-        self.publicKey = publicKey
-
-        try initiateLoginWithDeviceResult.get()
+    func initiateLoginWithDevice(email: String) async throws -> String {
+        initiateLoginWithDeviceEmail = email
+        return try initiateLoginWithDeviceResult.get()
     }
 
     func loginWithMasterPassword(_ password: String, username: String, captchaToken: String?) async throws {
