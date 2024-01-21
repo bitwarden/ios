@@ -386,7 +386,7 @@ class DefaultVaultRepository {
         switch group {
         case .card:
             return activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
-        case let .collection(id, _):
+        case let .collection(id, _, _):
             return activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
         case let .folder(id, _):
             return activeCiphers.filter { $0.folderId == id }.compactMap(VaultListItem.init)
@@ -480,7 +480,10 @@ class DefaultVaultRepository {
             let collectionCount = activeCiphers.lazy.filter { $0.collectionIds.contains(collectionId) }.count
             return VaultListItem(
                 id: collectionId,
-                itemType: .group(.collection(id: collectionId, name: collection.name), collectionCount)
+                itemType: .group(
+                    .collection(id: collectionId, name: collection.name, organizationId: collection.organizationId),
+                    collectionCount
+                )
             )
         }
 

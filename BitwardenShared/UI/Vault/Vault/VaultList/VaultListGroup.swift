@@ -23,7 +23,7 @@ public enum VaultListGroup: Equatable, Hashable {
     // MARK: Collections
 
     /// A group of ciphers within a collection.
-    case collection(id: String, name: String)
+    case collection(id: String, name: String, organizationId: String)
 
     // MARK: Folders
 
@@ -37,12 +37,18 @@ public enum VaultListGroup: Equatable, Hashable {
 }
 
 extension VaultListGroup {
+    /// The collection's ID, if the group is a collection.
+    var collectionId: String? {
+        guard case let .collection(collectionId, _, _) = self else { return nil }
+        return collectionId
+    }
+
     /// The display name for the group.
     var name: String {
         switch self {
         case .card:
             return Localizations.typeCard
-        case let .collection(_, name):
+        case let .collection(_, name, _):
             return name
         case let .folder(_, name):
             return name
@@ -64,7 +70,7 @@ extension VaultListGroup {
         switch self {
         case .card:
             return Localizations.cards
-        case let .collection(_, name):
+        case let .collection(_, name, _):
             return name
         case let .folder(_, name):
             return name
@@ -79,5 +85,11 @@ extension VaultListGroup {
         case .trash:
             return Localizations.trash
         }
+    }
+
+    /// The organization's ID of the collection, if the group is a collection.
+    var organizationId: String? {
+        guard case let .collection(_, _, organizationId) = self else { return nil }
+        return organizationId
     }
 }
