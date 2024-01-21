@@ -318,6 +318,7 @@ public class ServiceContainer: Services {
             settingsService: settingsService,
             stateService: stateService,
             syncService: syncService,
+            timeProvider: timeProvider,
             vaultTimeoutService: vaultTimeoutService
         )
 

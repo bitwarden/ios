@@ -9,7 +9,8 @@ class MockClientVaultService: ClientVaultService {
     var clientFolders = MockClientFolders()
     var clientPasswordHistory = MockClientPasswordHistory()
     var clientSends = MockClientSends()
-    var totpCode = "123456"
+    var generateTOTPCodeResult: Result<String, Error> = .success("123456")
+    var timeProvider = MockTimeProvider(.currentTime)
     var totpPeriod: UInt32 = 30
 
     func ciphers() -> ClientCiphersProtocol {
@@ -25,7 +26,12 @@ class MockClientVaultService: ClientVaultService {
     }
 
     func generateTOTPCode(for key: String, date: Date?) async throws -> BitwardenShared.TOTPCodeModel {
-        TOTPCodeModel(code: totpCode, codeGenerationDate: date ?? Date(), period: totpPeriod)
+        let code = try generateTOTPCodeResult.get()
+        return TOTPCodeModel(
+            code: code,
+            codeGenerationDate: date ?? timeProvider.presentTime,
+            period: totpPeriod
+        )
     }
 
     func passwordHistory() -> ClientPasswordHistoryProtocol {

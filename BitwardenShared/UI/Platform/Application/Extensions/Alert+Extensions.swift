@@ -84,11 +84,17 @@ extension Alert {
 
     /// An confirmation alert to show when the user wants to delete cipher item .
     ///
-    /// - Parameter completion: A block that is executed when the user interacts with the "yes" button.
+    /// - Parameters:
+    ///  - isSoftDelete: A flag to indicate if the delete was soft or permanent.
+    ///  - completion: A block that is executed when the user interacts with the "yes" button.
     ///
-    static func deleteCipherConfirmation(completion: @MainActor @escaping () async -> Void) -> Alert {
+    static func deleteCipherConfirmation(
+        isSoftDelete: Bool,
+        completion: @MainActor @escaping () async -> Void
+    ) -> Alert {
         Alert(
-            title: Localizations.doYouReallyWantToSoftDeleteCipher,
+            title: isSoftDelete ? Localizations.doYouReallyWantToSoftDeleteCipher
+                : Localizations.doYouReallyWantToPermanentlyDeleteCipher,
             message: nil,
             alertActions: [
                 AlertAction(

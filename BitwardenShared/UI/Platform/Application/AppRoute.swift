@@ -6,6 +6,12 @@ public enum AppRoute: Equatable {
     /// A route to the authentication flow.
     case auth(AuthRoute)
 
+    /// A route to the extension setup interface.
+    case extensionSetup(ExtensionSetupRoute)
+
     /// A route to the tab interface.
     case tab(TabRoute)
+
+    /// A route to the vault interface.
+    case vault(VaultRoute)
 }
