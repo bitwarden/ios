@@ -4,7 +4,7 @@ import Foundation
 
 /// Structure representing a single part from a multi-part form body.
 ///
-public struct MultipartFormPart {
+public struct MultipartFormPart: Equatable {
     // MARK: Properties
 
     /// Contents of the form part.
@@ -50,7 +50,7 @@ public extension MultipartFormPart {
 /// A protocol for a `RequestBody` that can be encoded as an multipart form for the body of a
 /// request.
 ///
-public protocol MultipartFormRequestBody: RequestBody {
+public protocol MultipartFormRequestBody: RequestBody, Equatable {
     /// Array of parts included in the form.
     var parts: [MultipartFormPart] { get }
 

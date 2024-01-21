@@ -5,7 +5,7 @@ import Networking
 
 /// A response model received when creating a new File type Send.
 ///
-struct SendFileResponseModel: JSONResponse {
+struct SendFileResponseModel: JSONResponse, Equatable {
     /// The URL where the file associated with this Send should be uploaded.
     let url: URL
 

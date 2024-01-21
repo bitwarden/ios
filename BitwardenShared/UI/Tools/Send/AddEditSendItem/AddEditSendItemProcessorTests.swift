@@ -41,16 +41,16 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         subject.state.text = "Text"
         subject.state.deletionDate = .custom
         subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
-        sendRepository.addSendResult = .success(())
+        sendRepository.addTextSendResult = .success(())
 
         await subject.perform(.savePressed)
 
         XCTAssertEqual(coordinator.loadingOverlaysShown, [
             LoadingOverlayState(title: Localizations.saving),
         ])
-        XCTAssertEqual(sendRepository.addSendSendView?.name, "Name")
-        XCTAssertEqual(sendRepository.addSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.addSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.addTextSendSendView?.name, "Name")
+        XCTAssertEqual(sendRepository.addTextSendSendView?.text?.text, "Text")
+        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
@@ -63,23 +63,23 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         subject.state.text = "Text"
         subject.state.deletionDate = .custom
         subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
-        sendRepository.addSendResult = .failure(URLError(.timedOut))
+        sendRepository.addTextSendResult = .failure(URLError(.timedOut))
 
         await subject.perform(.savePressed)
 
         XCTAssertEqual(coordinator.loadingOverlaysShown, [
             LoadingOverlayState(title: Localizations.saving),
         ])
-        XCTAssertEqual(sendRepository.addSendSendView?.name, "Name")
-        XCTAssertEqual(sendRepository.addSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.addSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.addTextSendSendView?.name, "Name")
+        XCTAssertEqual(sendRepository.addTextSendSendView?.text?.text, "Text")
+        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
 
-        sendRepository.addSendResult = .success(())
+        sendRepository.addTextSendResult = .success(())
         try await alert.tapAction(title: Localizations.tryAgain)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
@@ -90,7 +90,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
-        XCTAssertNil(sendRepository.addSendSendView)
+        XCTAssertNil(sendRepository.addTextSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
             .validationFieldRequired(fieldName: Localizations.name),
         ])

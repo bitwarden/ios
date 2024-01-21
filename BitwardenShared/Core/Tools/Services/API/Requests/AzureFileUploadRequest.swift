@@ -44,13 +44,13 @@ struct AzureFileUploadRequest: Request {
     ///
     /// - Parameters:
     ///   - data: The data representation of the file.
+    ///   - date: The date this request is being sent.
     ///   - url: The custom URL for this request.
     ///
-    init(data: Data, url: URL) {
+    init(data: Data, date: Date = .now, url: URL) {
         body = data
         self.url = url
 
-        let date = Date()
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEE, d MMM yyyy HH:mm:ss z"
         let formattedDate = dateFormatter.string(from: date)

@@ -21,7 +21,7 @@ struct DirectFileUploadRequestModel: MultipartFormRequestBody {
     ///
     /// - Parameters:
     ///   - data: The data of the file being uploaded.
-    ///   - date: The date to use in the ``boundry`` for this request.
+    ///   - date: The date to use in the ``boundary`` for this request.
     ///   - fileName: The name of the file being uploaded.
     ///
     init(data: Data, date: Date = .now, fileName: String) {
