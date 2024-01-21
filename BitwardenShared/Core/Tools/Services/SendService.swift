@@ -7,12 +7,6 @@ import Foundation
 /// A protocol for a `SendService` which manages syncing and updates to the user's sends.
 ///
 protocol SendService {
-    /// Adds a new text Send for the current user in both the backend and in local storage.
-    ///
-    /// - Parameter send: The send to add.
-    ///
-    func addTextSend(_ send: Send) async throws
-
     /// Adds a new file Send for the current user in both the backend and in local storage.
     ///
     /// - Parameters
@@ -20,6 +14,12 @@ protocol SendService {
     ///   - data: The data representation of the file.
     ///
     func addFileSend(_ send: Send, data: Data) async throws
+
+    /// Adds a new text Send for the current user in both the backend and in local storage.
+    ///
+    /// - Parameter send: The send to add.
+    ///
+    func addTextSend(_ send: Send) async throws
 
     /// Deletes the send in both the backend and in local storage.
     ///
@@ -56,7 +56,7 @@ class DefaultSendService: SendService {
     // MARK: Properties
 
     /// The service used to make file related API requests.
-    let fileAPIService: FileAPIService
+    private let fileAPIService: FileAPIService
 
     /// The service used to make send related API requests.
     private let sendAPIService: SendAPIService
@@ -91,15 +91,6 @@ class DefaultSendService: SendService {
 }
 
 extension DefaultSendService {
-    func addTextSend(_ send: Send) async throws {
-        let userId = try await stateService.getActiveAccountId()
-
-        let response = try await sendAPIService.addTextSend(send)
-
-        let newSend = Send(sendResponseModel: response)
-        try await sendDataStore.upsertSend(newSend, userId: userId)
-    }
-
     func addFileSend(_ send: Send, data: Data) async throws {
         let userId = try await stateService.getActiveAccountId()
 
@@ -122,6 +113,15 @@ extension DefaultSendService {
         }
 
         let newSend = Send(sendResponseModel: response.sendResponse)
+        try await sendDataStore.upsertSend(newSend, userId: userId)
+    }
+
+    func addTextSend(_ send: Send) async throws {
+        let userId = try await stateService.getActiveAccountId()
+
+        let response = try await sendAPIService.addTextSend(send)
+
+        let newSend = Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(newSend, userId: userId)
     }
 

@@ -10,7 +10,6 @@ class DirectSendFileUploadRequestTests: BitwardenTestCase {
     /// `init(data:fileName:fileId:sendId:)` initializes the properties correctly.
     func test_init() {
         let data = Data("example".utf8)
-        let date = Date(year: 2024, month: 1, day: 19, hour: 9, minute: 41, second: 42)
         let subject = DirectSendFileUploadRequest(
             data: data,
             fileName: "file_name",

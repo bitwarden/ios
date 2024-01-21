@@ -1,15 +1,10 @@
 import BitwardenSdk
 
+// MARK: - SendAPIService
+
 /// A protocol for an API service used to make send requests.
 ///
 protocol SendAPIService {
-    /// Performs an API request to add a new text send to the user's vault.
-    ///
-    /// - Parameter send: The send that the user is adding.
-    /// - Returns: The send that was added to the user's vault.
-    ///
-    func addTextSend(_ send: Send) async throws -> SendResponseModel
-
     /// Performs an API request to add a file new send to the user's vault.
     ///
     /// - Parameters:
@@ -18,6 +13,13 @@ protocol SendAPIService {
     /// - Returns: The send that was added to the user's vault.
     ///
     func addFileSend(_ send: Send, fileLength: Int) async throws -> SendFileResponseModel
+
+    /// Performs an API request to add a new text send to the user's vault.
+    ///
+    /// - Parameter send: The send that the user is adding.
+    /// - Returns: The send that was added to the user's vault.
+    ///
+    func addTextSend(_ send: Send) async throws -> SendResponseModel
 
     /// Performs an API request to delete a send in the user's vault.
     ///
@@ -33,13 +35,15 @@ protocol SendAPIService {
     func updateSend(_ send: Send) async throws -> SendResponseModel
 }
 
-extension APIService: SendAPIService {
-    func addTextSend(_ send: Send) async throws -> SendResponseModel {
-        try await apiService.send(AddTextSendRequest(send: send))
-    }
+// MARK: - APIService
 
+extension APIService: SendAPIService {
     func addFileSend(_ send: Send, fileLength: Int) async throws -> SendFileResponseModel {
         try await apiService.send(AddFileSendRequest(send: send, fileLength: fileLength))
+    }
+
+    func addTextSend(_ send: Send) async throws -> SendResponseModel {
+        try await apiService.send(AddTextSendRequest(send: send))
     }
 
     func deleteSend(with id: String) async throws {
