@@ -26,16 +26,19 @@ struct AddEditCustomFieldsView: View {
                                 store.send(.editCustomFieldNamePressed(index: index))
                             }
                         }
+
                         Button(Localizations.moveUp) {
                             withAnimation {
                                 store.send(.moveUpCustomFieldPressed(index: index))
                             }
                         }
+
                         Button(Localizations.moveDown) {
                             withAnimation {
                                 store.send(.moveDownCustomFieldPressed(index: index))
                             }
                         }
+
                         Button(Localizations.remove, role: .destructive) {
                             withAnimation {
                                 store.send(.removeCustomFieldPressed(index: index))
