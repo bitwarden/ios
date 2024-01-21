@@ -82,7 +82,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.customFieldsState.customFields[1].value)
     }
 
-    /// `receive(_:)` with `.customFieldActionDispatched(.customFieldChanged(newValue:,index:))` changes the value of the custom field.
+    /// `receive(_:)` with `.customFieldActionDispatched(.customFieldChanged(newValue:,index:))` changes
+    /// the value of the custom field.
     func test_customFieldActionDispatched_customFieldChanged() {
         subject.receive(.customFieldActionDispatched(.customFieldChanged("newValue", index: 0)))
         XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
@@ -100,8 +101,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.customFieldsState.customFields.first?.value, "old")
     }
 
-    /// `receive(_:)` with `customFieldActionDispatched(.editCustomFieldNamePressed(index:))` navigates to the `.alert` route
-    /// to edit the existing custom field name .
+    /// `receive(_:)` with `customFieldActionDispatched(.editCustomFieldNamePressed(index:))` navigates
+    /// to the `.alert` route to edit the existing custom field name .
     func test_receive_editCustomFieldNamePressed() async throws {
         XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "fieldName1")
         subject.receive(.customFieldActionDispatched(.editCustomFieldNamePressed(index: 0)))
@@ -143,8 +144,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields.reversed())
     }
 
-    /// `receive(_:)` with `.customFieldActionDispatched(.moveDownCustomFieldPressed(index:))` will not change anything if
-    /// the the given index to move down was wrong.
+    /// `receive(_:)` with `.customFieldActionDispatched(.moveDownCustomFieldPressed(index:))` will not
+    ///  change anything if the the given index to move down was wrong.
     func test_customFieldActionDispatched_moveDownCustomFieldPressed_wrongIndexes() {
         let originalCustomFields = [
             CustomFieldState(

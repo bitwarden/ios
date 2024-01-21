@@ -312,7 +312,14 @@ extension CipherItemState {
             viewPassword: true,
             localData: nil,
             attachments: nil,
-            fields: nil,
+            fields: customFieldsState.customFields.map { customField in
+                FieldView(
+                    name: customField.name,
+                    value: customField.value,
+                    type: .init(fieldType: customField.type),
+                    linkedId: customField.linkedIdType?.rawValue
+                )
+            },
             passwordHistory: nil,
             creationDate: creationDate,
             deletedDate: nil,
