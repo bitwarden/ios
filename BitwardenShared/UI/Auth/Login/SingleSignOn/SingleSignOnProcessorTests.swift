@@ -190,7 +190,17 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.vaultUnlock(.fixtureAccountLogin(), animated: false), .dismiss])
+        XCTAssertEqual(
+            coordinator.routes,
+            [
+                .vaultUnlock(
+                    .fixtureAccountLogin(),
+                    animated: false,
+                    attemptAutomaticBiometricUnlock: true
+                ),
+                .dismiss,
+            ]
+        )
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the complete route if the vault is unlocked.

@@ -8,6 +8,8 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var appLocale: String?
     var appTheme: String?
+    var biometricAuthenticationEnabled = [String: Bool?]()
+    var biometricIntegrityStates = [String: String?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
@@ -156,5 +158,33 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
         activeIdSubject.eraseToAnyPublisher()
+    }
+}
+
+// MARK: Biometrics
+
+extension MockAppSettingsStore {
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool {
+        (biometricAuthenticationEnabled[userId] ?? false) ?? false
+    }
+
+    func biometricIntegrityState(userId: String) -> String? {
+        biometricIntegrityStates[userId] ?? nil
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
+        guard isEnabled != nil else {
+            biometricAuthenticationEnabled.removeValue(forKey: userId)
+            return
+        }
+        biometricAuthenticationEnabled[userId] = isEnabled
+    }
+
+    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
+        guard let base64EncodedIntegrityState else {
+            biometricIntegrityStates.removeValue(forKey: userId)
+            return
+        }
+        biometricIntegrityStates[userId] = base64EncodedIntegrityState
     }
 }

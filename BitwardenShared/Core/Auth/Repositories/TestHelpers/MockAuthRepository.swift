@@ -3,6 +3,8 @@
 class MockAuthRepository: AuthRepository {
     var accountsResult: Result<[ProfileSwitcherItem], Error> = .failure(StateServiceError.noAccounts)
     var activeAccountResult: Result<ProfileSwitcherItem, Error> = .failure(StateServiceError.noActiveAccount)
+    var allowBiometricUnlock: Bool?
+    var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var deleteAccountCalled = false
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
@@ -16,6 +18,7 @@ class MockAuthRepository: AuthRepository {
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var unlockVaultPassword: String?
     var unlockVaultResult: Result<Void, Error> = .success(())
+    var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
 
     func deleteAccount(passwordText _: String) async throws {
         deleteAccountCalled = true
@@ -61,8 +64,17 @@ class MockAuthRepository: AuthRepository {
         try setActiveAccountResult.get()
     }
 
+    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws {
+        allowBiometricUnlock = enabled
+        try allowBiometricUnlockResult.get()
+    }
+
     func unlockVault(password: String) async throws {
         unlockVaultPassword = password
         try unlockVaultResult.get()
+    }
+
+    func unlockVaultWithBiometrics() async throws {
+        try unlockVaultWithBiometricsResult.get()
     }
 }

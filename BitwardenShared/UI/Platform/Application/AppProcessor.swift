@@ -60,7 +60,14 @@ public class AppProcessor {
         }
 
         if let activeAccount = services.appSettingsStore.state?.activeAccount {
-            coordinator.navigate(to: .auth(.vaultUnlock(activeAccount)))
+            coordinator.navigate(
+                to: .auth(
+                    .vaultUnlock(
+                        activeAccount,
+                        attemptAutomaticBiometricUnlock: true
+                    )
+                )
+            )
         } else {
             coordinator.navigate(to: .auth(.landing))
         }

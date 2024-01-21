@@ -42,9 +42,6 @@ final class AccountSecurityProcessor: StateProcessor<
         services: Services,
         state: AccountSecurityState
     ) {
-        var state = state
-        state.biometricAuthenticationType = services.biometricsService.getBiometricAuthenticationType()
-
         self.coordinator = coordinator
         self.services = services
         super.init(state: state)
@@ -56,15 +53,12 @@ final class AccountSecurityProcessor: StateProcessor<
         switch effect {
         case .accountFingerprintPhrasePressed:
             await showAccountFingerprintPhraseAlert()
+        case .loadData:
+            await loadData()
         case .lockVault:
-            do {
-                let account = try await services.stateService.getActiveAccount()
-                await services.settingsRepository.lockVault(userId: account.profile.userId)
-                coordinator.navigate(to: .lockVault(account: account))
-            } catch {
-                coordinator.navigate(to: .logout)
-                services.errorReporter.log(error: error)
-            }
+            await lockVault()
+        case let .toggleUnlockWithBiometrics(isOn):
+            await setBioMetricAuth(isOn)
         }
     }
 
@@ -86,12 +80,8 @@ final class AccountSecurityProcessor: StateProcessor<
             state.customSessionTimeoutValue = newValue
         case let .toggleApproveLoginRequestsToggle(isOn):
             state.isApproveLoginRequestsToggleOn = isOn
-        case let .toggleUnlockWithFaceID(isOn):
-            state.isUnlockWithFaceIDOn = isOn
         case let .toggleUnlockWithPINCode(isOn):
             toggleUnlockWithPIN(isOn)
-        case let .toggleUnlockWithTouchID(isOn):
-            state.isUnlockWithTouchIDToggleOn = isOn
         case .twoStepLoginPressed:
             showTwoStepLoginAlert()
         }
@@ -99,20 +89,36 @@ final class AccountSecurityProcessor: StateProcessor<
 
     // MARK: Private
 
-    /// Shows the account fingerprint phrase alert.
+    /// Loads async data to the state.
     ///
-    private func showAccountFingerprintPhraseAlert() async {
-        do {
-            let userId = try await services.stateService.getActiveAccountId()
-            let phrase = try await services.authRepository.getFingerprintPhrase(userId: userId)
+    private func loadData() async {
+        state.biometricUnlockStatus = await loadBiometricUnlockPreference()
+    }
 
-            coordinator.navigate(to: .alert(
-                .displayFingerprintPhraseAlert({
-                    self.state.fingerprintPhraseUrl = ExternalLinksConstants.fingerprintPhrase
-                }, phrase: phrase))
-            )
+    /// Loads the state of the user's biometric unlock preferences.
+    ///
+    /// - Returns: The `BiometricsUnlockStatus` for the user.
+    ///
+    private func loadBiometricUnlockPreference() async -> BiometricsUnlockStatus {
+        do {
+            let biometricsStatus = try await services.biometricsService.getBiometricUnlockStatus()
+            return biometricsStatus
         } catch {
-            coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+            Logger.application.debug("Error loading biometric preferences: \(error)")
+            return .notAvailable
+        }
+    }
+
+    /// Locks the user's vault
+    ///
+    private func lockVault() async {
+        do {
+            let account = try await services.stateService.getActiveAccount()
+            await services.settingsRepository.lockVault(userId: account.profile.userId)
+            coordinator.navigate(to: .lockVault(account: account))
+        } catch {
+            coordinator.navigate(to: .logout)
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -130,6 +136,23 @@ final class AccountSecurityProcessor: StateProcessor<
         } else {
             // TODO: BIT-1125 Persist the setting
             state.sessionTimeoutAction = action
+        }
+    }
+
+    /// Shows the account fingerprint phrase alert.
+    ///
+    private func showAccountFingerprintPhraseAlert() async {
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            let phrase = try await services.authRepository.getFingerprintPhrase(userId: userId)
+
+            coordinator.navigate(to: .alert(
+                .displayFingerprintPhraseAlert({
+                    self.state.fingerprintPhraseUrl = ExternalLinksConstants.fingerprintPhrase
+                }, phrase: phrase))
+            )
+        } catch {
+            coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
         }
     }
 
@@ -156,15 +179,37 @@ final class AccountSecurityProcessor: StateProcessor<
         }))
     }
 
+    /// Sets the user's biometric auth
+    ///
+    /// - Parameter enabled: Whether or not the the user wants biometric auth enabled.
+    ///
+    private func setBioMetricAuth(_ enabled: Bool) async {
+        do {
+            try await services.authRepository.allowBioMetricUnlock(enabled, userId: nil)
+            state.biometricUnlockStatus = try await services.biometricsService.getBiometricUnlockStatus()
+            // Set biometric integrity if needed.
+            if case .available(_, true, false) = state.biometricUnlockStatus {
+                try await services.biometricsService.configureBiometricIntegrity()
+                state.biometricUnlockStatus = try await services.biometricsService.getBiometricUnlockStatus()
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Shows an alert prompting the user to enter their PIN. If set successfully, the toggle will be turned on.
     ///
     /// - Parameter isOn: Whether or not the toggle value is true or false.
     ///
     private func toggleUnlockWithPIN(_ isOn: Bool) {
         if !state.isUnlockWithPINCodeOn {
-            coordinator.navigate(to: .alert(.enterPINCode(completion: { _ in
-                self.state.isUnlockWithPINCodeOn = isOn
-            })))
+            coordinator.navigate(
+                to: .alert(
+                    .enterPINCode(completion: { _ in
+                        self.state.isUnlockWithPINCodeOn = isOn
+                    })
+                )
+            )
         } else {
             state.isUnlockWithPINCodeOn = isOn
         }

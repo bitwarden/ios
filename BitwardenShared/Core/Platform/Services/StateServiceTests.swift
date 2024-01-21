@@ -277,6 +277,52 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, .twoMinutes)
     }
 
+    /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
+    func test_getBiometricAuthenticationEnabled_default() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.biometricAuthenticationEnabled = [
+            "1": true,
+        ]
+        let value = try await subject.getBiometricAuthenticationEnabled()
+        XCTAssertTrue(value)
+    }
+
+    /// `getBiometricAuthenticationEnabled(:)` throws errors if no user exists.
+    func test_getBiometricAuthenticationEnabled_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getBiometricAuthenticationEnabled()
+        }
+    }
+
+    /// `getBiometricIntegrityState(:)` returns biometric integrity state of the active user.
+    func test_getBiometricIntegrityState_active() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.biometricIntegrityStates = [
+            "1": "Expected State",
+        ]
+        let value = try await subject.getBiometricIntegrityState()
+        XCTAssertEqual(value, "Expected State")
+    }
+
+    /// `getBiometricIntegrityState(:)` returns biometric integrity state of the active user.
+    func test_getBiometricIntegrityState_error() async throws {
+        appSettingsStore.biometricIntegrityStates = [
+            "2": "Expected State",
+        ]
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getBiometricIntegrityState()
+        }
+    }
+
+    func test_getBiometricIntegrityState_nil() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.biometricIntegrityStates = [
+            "2": "Expected State",
+        ]
+        let value = try await subject.getBiometricIntegrityState()
+        XCTAssertNil(value, "Expected State")
+    }
+
     /// `getConnectToWatch()` returns the connect to watch value for the active account.
     func test_getConnectToWatch() async throws {
         await subject.addAccount(.fixture())
@@ -547,13 +593,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `logoutAccount()` clears any account data.
-    func test_logoutAccount_clearAccountData() async throws {
+    func test_logoutAccount_clearAccountData() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
         try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY"
         ))
+        try await subject.setBiometricIntegrityState("BiometricIntegrityState")
+        try await subject.setBiometricAuthenticationEnabled(true)
         try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
@@ -584,6 +632,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.logoutAccount()
 
+        XCTAssertEqual(appSettingsStore.biometricIntegrityStates, [:])
+        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
@@ -794,6 +844,44 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setAllowSyncOnRefresh(true)
         XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
+    }
+
+    /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
+    func test_setBiometricAuthenticationEnabled_default() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setBiometricAuthenticationEnabled(true)
+        XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+        try await subject.setBiometricAuthenticationEnabled(false)
+        XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+    }
+
+    /// `setBiometricAuthenticationEnabled(isEnabled:, userId:)` throws with no userID and no active user.
+    func test_setBiometricAuthenticationEnabled_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setBiometricAuthenticationEnabled(true)
+        }
+    }
+
+    /// `setBiometricAuthenticationEnabled(:)` sets biometric unlock preference for a user id.
+    func test_setBiometricAuthenticationEnabled_userID() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setBiometricAuthenticationEnabled(true)
+        XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+        try await subject.setBiometricAuthenticationEnabled(false)
+        XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+    }
+
+    /// `setBiometricIntegrityState(:)` sets biometric unlock preference for a user id.
+    func test_setBiometricIntegrityState_userID() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setBiometricIntegrityState("SetStateValue")
+        XCTAssertEqual(
+            appSettingsStore.biometricIntegrityState(userId: "1"),
+            "SetStateValue"
+        )
+        XCTAssertNil(appSettingsStore.biometricIntegrityState(userId: "2"))
+        try await subject.setBiometricIntegrityState(nil)
+        XCTAssertNil(appSettingsStore.biometricIntegrityState(userId: "1"))
     }
 
     /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.

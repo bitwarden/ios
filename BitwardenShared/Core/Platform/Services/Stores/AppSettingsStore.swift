@@ -45,6 +45,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
 
+    /// The system biometric integrity state `Data`, base64 encoded.
+    ///
+    /// - Parameter userId: The user ID associated with the Biometric Integrity State.
+    /// - Returns: A base64 encoded `String`
+    ///  representing the last known Biometric Integrity State `Data` for the userID.
+    ///
+    func biometricIntegrityState(userId: String) -> String?
+
     /// Gets the time after which the clipboard should be cleared.
     ///
     /// - Parameter userId: The user ID associated with the clipboard clearing time.
@@ -85,6 +93,16 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the disable auto-copy TOTP value.
     ///
     func disableAutoTotpCopy(userId: String) -> Bool
+
+    /// Get the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter userId: The user ID associated with the biometric authentication preference.
+    ///
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool
 
     /// Gets the time of the last sync for the user ID.
     ///
@@ -135,6 +153,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
 
+    /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
+    ///
+    /// - Parameters:
+    ///   - base64EncodedIntegrityState: The biometric integrity state `Data`, encoded as a base64 `String`.
+    ///   - userId: The user ID associated with the Biometric Integrity State.
+    ///
+    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String)
+
     /// Sets the time after which the clipboard should be cleared.
     ///
     /// - Parameters:
@@ -184,6 +210,16 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the encrypted user key.
     ///
     func setEncryptedUserKey(key: String?, userId: String)
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameters:
+    ///   - isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///   - userId: The user ID associated with the biometric authentication preference.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
 
     /// Sets the time of the last sync for the user ID.
     ///
@@ -356,6 +392,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appId
         case appLocale
         case appTheme
+        case biometricAuthEnabled(userId: String)
+        case biometricIntegrityState(userId: String)
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
         case defaultUriMatch(userId: String)
@@ -387,6 +425,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "appLocale"
             case .appTheme:
                 key = "theme"
+            case let .biometricAuthEnabled(userId):
+                key = "biometricUnlock_\(userId)"
+            case let .biometricIntegrityState(userId):
+                key = "biometricIntegritySource_\(userId)"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
@@ -480,6 +522,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .allowSyncOnRefresh(userId: userId))
     }
 
+    func biometricIntegrityState(userId: String) -> String? {
+        fetch(for: .biometricIntegrityState(userId: userId))
+    }
+
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
            let value = ClearClipboardValue(rawValue: rawValue) {
@@ -508,6 +554,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .disableAutoTotpCopy(userId: userId))
     }
 
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool {
+        fetch(for: .biometricAuthEnabled(userId: userId))
+    }
+
     func lastSyncTime(userId: String) -> Date? {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -534,6 +584,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
+        store(isEnabled, for: .biometricAuthEnabled(userId: userId))
+    }
+
+    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
+        store(base64EncodedIntegrityState, for: .biometricIntegrityState(userId: userId))
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {

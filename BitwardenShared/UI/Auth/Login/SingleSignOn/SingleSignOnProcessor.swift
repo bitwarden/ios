@@ -163,7 +163,13 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
 
                 // Show the appropriate view and dismiss this sheet.
                 if let account {
-                    coordinator.navigate(to: .vaultUnlock(account, animated: false))
+                    coordinator.navigate(
+                        to: .vaultUnlock(
+                            account,
+                            animated: false,
+                            attemptAutomaticBiometricUnlock: true
+                        )
+                    )
                 } else {
                     coordinator.navigate(to: .complete)
                 }
