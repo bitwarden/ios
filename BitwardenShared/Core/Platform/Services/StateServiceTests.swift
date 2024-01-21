@@ -428,6 +428,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `getNotificationsLastRegistrationDate()` returns the user's last notifications registration date.
+    func test_getNotificationsLastRegistrationDate() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let noDate = try await subject.getNotificationsLastRegistrationDate()
+        XCTAssertNil(noDate)
+
+        appSettingsStore.notificationsLastRegistrationDates["1"] = Date(year: 2024, month: 1, day: 1)
+        let date = try await subject.getNotificationsLastRegistrationDate()
+        XCTAssertEqual(date, Date(year: 2024, month: 1, day: 1))
+    }
+
     /// `getPasswordGenerationOptions()` gets the saved password generation options for the account.
     func test_getPasswordGenerationOptions() async throws {
         let options1 = PasswordGenerationOptions(length: 30)
@@ -611,6 +623,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         value = await subject.getLastUserShouldConnectToWatch()
         XCTAssertTrue(value)
+    }
+
+    /// `isAuthenticated()` returns the authentication state of the user.
+    func test_isAuthenticated() async throws {
+        var authenticationState = await subject.isAuthenticated()
+        XCTAssertFalse(authenticationState)
+
+        await subject.addAccount(.fixture())
+        try await subject.setAccountEncryptionKeys(.init(encryptedPrivateKey: "", encryptedUserKey: ""))
+        authenticationState = await subject.isAuthenticated()
+        XCTAssertTrue(authenticationState)
     }
 
     /// `logoutAccount()` clears any account data.
@@ -1014,6 +1037,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setMasterPasswordHash("1234", userId: "1")
         XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "1234"])
+    }
+
+    /// `setNotificationsLastRegistrationDate(_:)` sets the last notifications registration date for a user.
+    func test_setNotificationsLastRegistrationDate() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setNotificationsLastRegistrationDate(Date(year: 2024, month: 1, day: 1))
+        XCTAssertEqual(appSettingsStore.notificationsLastRegistrationDates["1"], Date(year: 2024, month: 1, day: 1))
     }
 
     /// `setPasswordGenerationOptions` sets the password generation options for an account.

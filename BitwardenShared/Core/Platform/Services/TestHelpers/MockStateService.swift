@@ -33,6 +33,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
     var masterPasswordHashes = [String: String]()
+    var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinKeyEncryptedUserKeyValue = [String: String]()
     var pinProtectedUserKeyValue = [String: String]()
@@ -153,6 +154,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return masterPasswordHashes[userId]
     }
 
+    func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return notificationsLastRegistrationDates[userId]
+    }
+
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return passwordGenerationOptions[userId]
@@ -254,6 +260,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         self.environmentUrls[userId] = environmentUrls
     }
 
+    func setIsAuthenticated() {
+        activeAccount = .fixture()
+        accountEncryptionKeys["1"] = .init(encryptedPrivateKey: "", encryptedUserKey: "")
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         lastSyncTimeByUserId[userId] = date
@@ -266,6 +277,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         masterPasswordHashes[userId] = hash
+    }
+
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        notificationsLastRegistrationDates[userId] = date
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {

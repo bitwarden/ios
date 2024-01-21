@@ -325,7 +325,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         waitFor(subject.state.isUnlockWithPINCodeOn == false)
         task.cancel()
-        
+
         XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
         XCTAssertTrue(coordinator.routes.isEmpty)
     }

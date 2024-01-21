@@ -122,8 +122,16 @@ protocol AppSettingsStore: AnyObject {
     /// Gets the master password hash for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the master password hash.
+    /// - Returns: The master password hash for the user.
     ///
     func masterPasswordHash(userId: String) -> String?
+
+    /// Gets the last date the user successfully registered for push notifications.
+    ///
+    /// - Parameter userId: The user ID associated with the last notifications registration date.
+    /// - Returns: The last notifications registration date for the user.
+    ///
+    func notificationsLastRegistrationDate(userId: String) -> Date?
 
     /// Gets the password generation options for a user ID.
     ///
@@ -266,6 +274,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the master password hash.
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String)
+
+    /// Sets the last notifications registration date for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The last notifications registration date.
+    ///   - userId: The user ID associated with the last notifications registration date.
+    ///
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String)
 
     /// Sets the password generation options for a user ID.
     ///
@@ -451,6 +467,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case lastUserShouldConnectToWatch
         case lastSync(userId: String)
         case masterPasswordHash(userId: String)
+        case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
         case pinKeyEncryptedUserKey(userId: String)
         case pinProtectedUserKey(userId: String)
@@ -500,6 +517,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "lastSync_\(userId)"
             case let .masterPasswordHash(userId):
                 key = "keyHash_\(userId)"
+            case let .notificationsLastRegistrationDate(userId):
+                key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
             case let .pinKeyEncryptedUserKey(userId):
@@ -625,6 +644,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .masterPasswordHash(userId: userId))
     }
 
+    func notificationsLastRegistrationDate(userId: String) -> Date? {
+        fetch(for: .notificationsLastRegistrationDate(userId: userId)).map { Date(timeIntervalSince1970: $0) }
+    }
+
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
@@ -695,6 +718,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setMasterPasswordHash(_ hash: String?, userId: String) {
         store(hash, for: .masterPasswordHash(userId: userId))
+    }
+
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
+        store(date?.timeIntervalSince1970, for: .notificationsLastRegistrationDate(userId: userId))
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
