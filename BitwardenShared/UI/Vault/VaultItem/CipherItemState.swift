@@ -312,7 +312,7 @@ extension CipherItemState {
             viewPassword: true,
             localData: nil,
             attachments: nil,
-            fields: customFieldsState.customFields.map { customField in
+            fields: customFieldsState.customFields.isEmpty ? nil : customFieldsState.customFields.map { customField in
                 FieldView(
                     name: customField.name,
                     value: customField.value,

@@ -134,7 +134,7 @@ extension CipherView {
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
-            fields: addEditState.customFieldsState.customFields.map { customField in
+            fields: addEditState.customFieldsState.customFields.isEmpty ? nil : addEditState.customFieldsState.customFields.map { customField in
                 FieldView(
                     name: customField.name,
                     value: customField.value,
