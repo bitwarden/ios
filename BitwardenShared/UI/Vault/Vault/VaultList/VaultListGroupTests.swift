@@ -22,6 +22,20 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertNil(VaultListGroup.trash.collectionId)
     }
 
+    /// `folderId` returns the folders's ID, if the group is a folder.
+    func test_folderId() {
+        XCTAssertNil(VaultListGroup.card.folderId)
+        XCTAssertNil(
+            VaultListGroup.collection(id: "1234", name: "Collection 🗂️", organizationId: "ABCD").folderId
+        )
+        XCTAssertEqual(VaultListGroup.folder(id: "4321", name: "Folder 📁").folderId, "4321")
+        XCTAssertNil(VaultListGroup.identity.folderId)
+        XCTAssertNil(VaultListGroup.login.folderId)
+        XCTAssertNil(VaultListGroup.secureNote.folderId)
+        XCTAssertNil(VaultListGroup.totp.folderId)
+        XCTAssertNil(VaultListGroup.trash.folderId)
+    }
+
     /// `name` returns the display name of the group.
     func test_name() {
         XCTAssertEqual(VaultListGroup.card.name, "Card")
