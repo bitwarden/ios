@@ -113,8 +113,6 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             handleMenuAction(menuAction)
         case let .nameChanged(newValue):
             state.name = newValue
-        case .newCustomFieldPressed:
-            presentCustomFieldAlert()
         case .newUriPressed:
             state.loginState.uris.append(UriState())
         case let .notesChanged(newValue):
@@ -188,7 +186,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             guard index > 0, index < state.customFieldsState.customFields.count else { return }
             state.customFieldsState.customFields.swapAt(index, index - 1)
         case let .removeCustomFieldPressed(index):
-            guard index < state.customFieldsState.customFields.count else { return }
+            guard index >= 0, index < state.customFieldsState.customFields.count else { return }
             state.customFieldsState.customFields.remove(at: index)
         case let .selectedCustomFieldType(type):
             presentNameCustomFieldAlert(fieldType: type)

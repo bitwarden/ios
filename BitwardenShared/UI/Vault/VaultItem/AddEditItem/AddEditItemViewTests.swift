@@ -127,7 +127,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_newCustomFieldButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.newCustomField)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .newCustomFieldPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .customFieldActionDispatched(.newCustomFieldPressed))
     }
 
     /// Tapping the new uri button dispatches the `.newUriPressed` action.

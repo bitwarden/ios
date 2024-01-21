@@ -40,9 +40,6 @@ enum AddEditItemAction: Equatable {
     /// The name field was changed.
     case nameChanged(String)
 
-    /// The new custom field button was pressed.
-    case newCustomFieldPressed
-
     /// The new uri button was pressed.
     case newUriPressed
 

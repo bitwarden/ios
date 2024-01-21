@@ -179,6 +179,7 @@ struct CipherItemState: Equatable {
     init(
         addItem type: CipherType = .login,
         allowTypeSelection: Bool = true,
+        customFields: [CustomFieldState] = [],
         hasPremium: Bool,
         totpKeyString: String? = nil,
         uri: String? = nil
@@ -188,7 +189,7 @@ struct CipherItemState: Equatable {
             allowTypeSelection: allowTypeSelection,
             cardState: .init(),
             configuration: .add,
-            customFields: [],
+            customFields: customFields,
             folderId: nil,
             identityState: .init(),
             isFavoriteOn: false,

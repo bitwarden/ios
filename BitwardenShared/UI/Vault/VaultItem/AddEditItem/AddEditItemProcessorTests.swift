@@ -45,7 +45,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 totpService: totpService,
                 vaultRepository: vaultRepository
             ),
-            state: CipherItemState(hasPremium: true)
+            state: CipherItemState(
+                customFields: [
+                    CustomFieldState(
+                        name: "fieldName1",
+                        type: .hidden,
+                        value: "old"
+                    ),
+                ],
+                hasPremium: true
+            )
         )
     }
 
@@ -62,6 +71,279 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `receive(_:)` with `.customFieldActionDispatched(.customFieldAdded)` adds a new custom field view.
+    func test_customFieldActionDispatched_customFieldAdded() {
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
+        subject.receive(.customFieldActionDispatched(.customFieldAdded(.text, "fieldName2")))
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
+        XCTAssertEqual(subject.state.customFieldsState.customFields[1].name, "fieldName2")
+        XCTAssertEqual(subject.state.customFieldsState.customFields[1].type, .text)
+        XCTAssertNil(subject.state.customFieldsState.customFields[1].value)
+    }
+
+    /// `receive(_:)` with `.customFieldActionDispatched(.customFieldChanged)` changes the value of the custom field.
+    func test_customFieldActionDispatched_customFieldChanged() {
+        subject.receive(.customFieldActionDispatched(.customFieldChanged("newValue", index: 0)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.name, "fieldName1")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.type, .hidden)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.value, "newValue")
+    }
+
+    /// `receive(_:)` with `.customFieldActionDispatched(.customFieldNameChanged)` changes the name of the custom field.
+    func test_customFieldActionDispatched_customFieldNameChanged() {
+        subject.receive(.customFieldActionDispatched(.customFieldNameChanged(index: 0, newValue: "newFieldName")))
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.name, "newFieldName")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.type, .hidden)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.value, "old")
+    }
+
+    /// `receive(_:)` with `customFieldActionDispatched(.editCustomFieldNamePressed)` navigates to the `.alert` route
+    /// to edit the existing custom field name .
+    func test_receive_editCustomFieldNamePressed() async throws {
+        XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "fieldName1")
+        subject.receive(.customFieldActionDispatched(.editCustomFieldNamePressed(index: 0)))
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert, .nameCustomFieldAlert { _ in })
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(id: "name", text: "new field name")
+        let okAction = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.ok }))
+        await okAction.handler?(okAction, [textField])
+        // validate a new custom field was added to the state.
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "new field name")
+    }
+
+    /// `receive(_:)` with `.customFieldActionDispatched(.moveDownCustomFieldPressed)` move down
+    /// the index of the given custom field.
+    func test_customFieldActionDispatched_moveDownCustomFieldPressed() {
+        let originalCustomFields = [
+            CustomFieldState(
+                name: "fieldName1",
+                type: .hidden,
+                value: "value1"
+            ),
+            CustomFieldState(
+                name: "fieldName2",
+                type: .text,
+                value: "value2"
+            ),
+        ]
+
+        subject.state.customFieldsState.customFields = originalCustomFields
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.name, "fieldName1")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.type, .hidden)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.value, "value1")
+
+        // move down the first custom field and validate the state change.
+        subject.receive(.customFieldActionDispatched(.moveDownCustomFieldPressed(index: 0)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields.reversed())
+    }
+
+    /// `receive(_:)` with `.customFieldActionDispatched(.moveDownCustomFieldPressed)` will not change anything if
+    /// the the given index to move down was wrong.
+    func test_customFieldActionDispatched_moveDownCustomFieldPressed_wrongIndexes() {
+        let originalCustomFields = [
+            CustomFieldState(
+                name: "fieldName1",
+                type: .hidden,
+                value: "value1"
+            ),
+            CustomFieldState(
+                name: "fieldName2",
+                type: .text,
+                value: "value2"
+            ),
+        ]
+
+        subject.state.customFieldsState.customFields = originalCustomFields
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.name, "fieldName1")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.type, .hidden)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.value, "value1")
+
+        // test wrong indexes for move down custom field.
+        subject.receive(.customFieldActionDispatched(.moveDownCustomFieldPressed(index: 2)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields)
+
+        subject.receive(.customFieldActionDispatched(.moveDownCustomFieldPressed(index: 1)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields)
+
+        subject.receive(.customFieldActionDispatched(.moveDownCustomFieldPressed(index: -1)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields)
+    }
+
+    /// `receive(_:)` with `.customFieldActionDispatched(.moveUpCustomFieldPressed)` move up
+    /// the index of the given custom field.
+    func test_customFieldActionDispatched_moveUpCustomFieldPressed() {
+        let originalCustomFields = [
+            CustomFieldState(
+                name: "fieldName1",
+                type: .hidden,
+                value: "value1"
+            ),
+            CustomFieldState(
+                name: "fieldName2",
+                type: .text,
+                value: "value2"
+            ),
+        ]
+
+        subject.state.customFieldsState.customFields = originalCustomFields
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
+        XCTAssertEqual(subject.state.customFieldsState.customFields[0].name, "fieldName1")
+        XCTAssertEqual(subject.state.customFieldsState.customFields[0].type, .hidden)
+        XCTAssertEqual(subject.state.customFieldsState.customFields[0].value, "value1")
+
+        // move down the first custom field and validate the state change.
+        subject.receive(.customFieldActionDispatched(.moveUpCustomFieldPressed(index: 1)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields.reversed())
+    }
+
+    /// `receive(_:)` with `.customFieldActionDispatched(.moveUpCustomFieldPressed)` will not change anything if
+    /// the the given index to move up was wrong.
+    func test_customFieldActionDispatched_moveUpCustomFieldPressed_wrongIndexes() {
+        let originalCustomFields = [
+            CustomFieldState(
+                name: "fieldName1",
+                type: .hidden,
+                value: "value1"
+            ),
+            CustomFieldState(
+                name: "fieldName2",
+                type: .text,
+                value: "value2"
+            ),
+        ]
+
+        subject.state.customFieldsState.customFields = originalCustomFields
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.name, "fieldName1")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.type, .hidden)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.value, "value1")
+
+        // test wrong indexes for move down custom field.
+        subject.receive(.customFieldActionDispatched(.moveUpCustomFieldPressed(index: 2)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields)
+
+        subject.receive(.customFieldActionDispatched(.moveUpCustomFieldPressed(index: 0)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields)
+
+        subject.receive(.customFieldActionDispatched(.moveUpCustomFieldPressed(index: -1)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields)
+    }
+
+    /// `receive(_:)` with `customFieldActionDispatched(.newCustomFieldPressed)` navigates to the `.alert` route
+    /// to select the new custom field type.
+    func test_receive_newCustomFieldPressed() async throws {
+        subject.receive(.customFieldActionDispatched(.newCustomFieldPressed))
+
+        // Validate that select custom field type action sheet is shown.
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.alertActions.count, 5)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.fieldTypeText)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.fieldTypeHidden)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.fieldTypeBoolean)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.fieldTypeLinked)
+        XCTAssertEqual(alert.alertActions[4].title, Localizations.cancel)
+    }
+
+    /// `receive(_:)` with `customFieldActionDispatched(.newCustomFieldPressed)` navigates to the `.alert` route
+    /// to select the new custom field type for secure note.
+    func test_receive_newCustomFieldPressed_forSecureNote() async throws {
+        subject.state.type = .secureNote
+        subject.receive(.customFieldActionDispatched(.newCustomFieldPressed))
+
+        // Validate that select custom field type action sheet is shown.
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.fieldTypeText)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.fieldTypeHidden)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.fieldTypeBoolean)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
+    }
+
+    /// `receive(_:)` with `.customFieldActionDispatched(.removeCustomFieldPressed(index:))` will remove
+    /// the  custom field from given index.
+    func test_customFieldActionDispatched_removeCustomFieldPressed() {
+        let originalCustomFields = [
+            CustomFieldState(
+                name: "fieldName1",
+                type: .hidden,
+                value: "value1"
+            ),
+            CustomFieldState(
+                name: "fieldName2",
+                type: .text,
+                value: "value2"
+            ),
+        ]
+
+        subject.state.customFieldsState.customFields = originalCustomFields
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.name, "fieldName1")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.type, .hidden)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.value, "value1")
+
+        subject.receive(.customFieldActionDispatched(.removeCustomFieldPressed(index: 1)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, [originalCustomFields[0]])
+
+        subject.receive(.customFieldActionDispatched(.removeCustomFieldPressed(index: 0)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, [])
+    }
+
+    /// `receive(_:)` with `.customFieldActionDispatched(.removeCustomFieldPressed(index:))` will not change anything
+    /// if  given index was wrong.
+    func test_customFieldActionDispatched_removeCustomFieldPressed_wrongIndexes() {
+        let originalCustomFields = [
+            CustomFieldState(
+                name: "fieldName1",
+                type: .hidden,
+                value: "value1"
+            ),
+            CustomFieldState(
+                name: "fieldName2",
+                type: .text,
+                value: "value2"
+            ),
+        ]
+
+        subject.state.customFieldsState.customFields = originalCustomFields
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.name, "fieldName1")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.type, .hidden)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.value, "value1")
+
+        subject.receive(.customFieldActionDispatched(.removeCustomFieldPressed(index: -1)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields)
+
+        subject.receive(.customFieldActionDispatched(.removeCustomFieldPressed(index: 2)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields)
+
+        subject.receive(.customFieldActionDispatched(.removeCustomFieldPressed(index: 3)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields)
+    }
+
+    /// `receive(_:)` with `customFieldActionDispatched(.selectedCustomFieldType)` navigates to the `.alert` route
+    /// to name the new custom field.
+    func test_customFieldActionDispatched_selectedCustomFieldType() async throws {
+        subject.receive(.customFieldActionDispatched(.selectedCustomFieldType(.boolean)))
+
+        // Validate that the new custom field name alert is shown.
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(alert, .nameCustomFieldAlert { _ in })
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(id: "name", text: "field name")
+        let okAction = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.ok }))
+        await okAction.handler?(okAction, [textField])
+        // validate a new custom field was added to the state.
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "field name")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.last?.type, .boolean)
+    }
 
     /// `didCancelGenerator()` navigates to the `.dismiss()` route.
     func test_didCancelGenerator() {
@@ -786,14 +1068,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.nameChanged(""))
 
         XCTAssertEqual(subject.state.name, "")
-    }
-
-    /// `receive(_:)` with `.newCustomFieldPressed` navigates to the `.alert` route.
-    func test_receive_newCustomFieldPressed() {
-        subject.receive(.newCustomFieldPressed)
-
-        // TODO: BIT-368 Add alert assertion
-        XCTAssertNil(coordinator.routes.last)
     }
 
     /// `receive(_:)` with `.newUriPressed` adds a new URI field to the state.
