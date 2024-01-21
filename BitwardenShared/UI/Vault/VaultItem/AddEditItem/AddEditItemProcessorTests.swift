@@ -82,7 +82,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.customFieldsState.customFields[1].value)
     }
 
-    /// `receive(_:)` with `.customFieldActionDispatched(.customFieldChanged)` changes the value of the custom field.
+    /// `receive(_:)` with `.customFieldActionDispatched(.customFieldChanged(newValue:,index:))` changes the value of the custom field.
     func test_customFieldActionDispatched_customFieldChanged() {
         subject.receive(.customFieldActionDispatched(.customFieldChanged("newValue", index: 0)))
         XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
@@ -100,7 +100,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.customFieldsState.customFields.first?.value, "old")
     }
 
-    /// `receive(_:)` with `customFieldActionDispatched(.editCustomFieldNamePressed)` navigates to the `.alert` route
+    /// `receive(_:)` with `customFieldActionDispatched(.editCustomFieldNamePressed(index:))` navigates to the `.alert` route
     /// to edit the existing custom field name .
     func test_receive_editCustomFieldNamePressed() async throws {
         XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "fieldName1")
@@ -116,7 +116,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "new field name")
     }
 
-    /// `receive(_:)` with `.customFieldActionDispatched(.moveDownCustomFieldPressed)` move down
+    /// `receive(_:)` with `.customFieldActionDispatched(.moveDownCustomFieldPressed(index:))` move down
     /// the index of the given custom field.
     func test_customFieldActionDispatched_moveDownCustomFieldPressed() {
         let originalCustomFields = [
@@ -143,7 +143,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields.reversed())
     }
 
-    /// `receive(_:)` with `.customFieldActionDispatched(.moveDownCustomFieldPressed)` will not change anything if
+    /// `receive(_:)` with `.customFieldActionDispatched(.moveDownCustomFieldPressed(index:))` will not change anything if
     /// the the given index to move down was wrong.
     func test_customFieldActionDispatched_moveDownCustomFieldPressed_wrongIndexes() {
         let originalCustomFields = [
@@ -176,7 +176,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields)
     }
 
-    /// `receive(_:)` with `.customFieldActionDispatched(.moveUpCustomFieldPressed)` move up
+    /// `receive(_:)` with `.customFieldActionDispatched(.moveUpCustomFieldPressed(index:))` move up
     /// the index of the given custom field.
     func test_customFieldActionDispatched_moveUpCustomFieldPressed() {
         let originalCustomFields = [
@@ -198,12 +198,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.customFieldsState.customFields[0].type, .hidden)
         XCTAssertEqual(subject.state.customFieldsState.customFields[0].value, "value1")
 
-        // move down the first custom field and validate the state change.
+        // move up the second custom field and validate the state change.
         subject.receive(.customFieldActionDispatched(.moveUpCustomFieldPressed(index: 1)))
         XCTAssertEqual(subject.state.customFieldsState.customFields, originalCustomFields.reversed())
     }
 
-    /// `receive(_:)` with `.customFieldActionDispatched(.moveUpCustomFieldPressed)` will not change anything if
+    /// `receive(_:)` with `.customFieldActionDispatched(.moveUpCustomFieldPressed(index:))` will not change anything if
     /// the the given index to move up was wrong.
     func test_customFieldActionDispatched_moveUpCustomFieldPressed_wrongIndexes() {
         let originalCustomFields = [
