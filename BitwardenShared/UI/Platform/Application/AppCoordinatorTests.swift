@@ -92,10 +92,54 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `didLogout()` starts the auth coordinator and navigates to the landing route.
-    func test_didLogout() {
-        subject.didLogout()
+    func test_didLogout_automatic_nilAccounts() {
+        subject.didLogout(userInitiated: false, otherAccounts: nil)
         XCTAssertTrue(module.authCoordinator.isStarted)
         XCTAssertEqual(module.authCoordinator.routes, [.landing])
+    }
+
+    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
+    func test_didLogout_automatic_noAccounts() {
+        subject.didLogout(userInitiated: false, otherAccounts: [])
+        XCTAssertTrue(module.authCoordinator.isStarted)
+        XCTAssertEqual(module.authCoordinator.routes, [.landing])
+    }
+
+    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
+    func test_didLogout_automatic_withAccount() {
+        subject.didLogout(userInitiated: false, otherAccounts: [.fixtureAccountLogin()])
+        XCTAssertTrue(module.authCoordinator.isStarted)
+        XCTAssertEqual(module.authCoordinator.routes, [.landing])
+    }
+
+    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
+    func test_didLogout_userInitiated_nilAccounts() {
+        subject.didLogout(userInitiated: true, otherAccounts: nil)
+        XCTAssertTrue(module.authCoordinator.isStarted)
+        XCTAssertEqual(module.authCoordinator.routes, [.landing])
+    }
+
+    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
+    func test_didLogout_userInitiated_noAccounts() {
+        subject.didLogout(userInitiated: true, otherAccounts: [])
+        XCTAssertTrue(module.authCoordinator.isStarted)
+        XCTAssertEqual(module.authCoordinator.routes, [.landing])
+    }
+
+    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
+    func test_didLogout_userInitiated_withAccount() {
+        let altAccount = Account.fixtureAccountLogin()
+        let expectedRoute = AuthRoute.vaultUnlock(
+            altAccount,
+            animated: true,
+            attemptAutomaticBiometricUnlock: true
+        )
+        subject.didLogout(userInitiated: true, otherAccounts: [altAccount])
+        XCTAssertTrue(module.authCoordinator.isStarted)
+        XCTAssertEqual(
+            module.authCoordinator.routes,
+            [expectedRoute]
+        )
     }
 
     /// `didTapAddAccount()` triggers the login sequence from the llanding page

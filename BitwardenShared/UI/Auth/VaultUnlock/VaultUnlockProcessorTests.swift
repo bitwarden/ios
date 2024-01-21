@@ -335,7 +335,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockVault` logs error if force logout fails after the 5th unsuccessful attempts.
     func test_perform_unlockVault_invalidPassword_logoutError() async throws {
         subject.state.masterPassword = "password"
-        stateService.activeAccount = .fixture()
+        stateService.activeAccount = .fixtureAccountLogin()
         subject.state.unsuccessfulUnlockAttemptsCount = 4
         await stateService.setUnsuccessfulUnlockAttempts(5)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 4)
@@ -514,6 +514,40 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.routes.last, .landing)
     }
 
+    /// `receive(_:)` with `.morePressed` navigates to the login options screen and allows the user
+    /// to logout.
+    func test_receive_morePressed_logout_nextAccount() async throws {
+        stateService.accounts = [
+            .fixture(),
+            .fixtureAccountLogin(),
+        ]
+        stateService.activeAccount = .fixture()
+        subject.receive(.morePressed)
+
+        let optionsAlert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(optionsAlert.title, Localizations.options)
+        XCTAssertNil(optionsAlert.message)
+        XCTAssertEqual(optionsAlert.preferredStyle, .actionSheet)
+        XCTAssertEqual(optionsAlert.alertActions.count, 2)
+        XCTAssertEqual(optionsAlert.alertActions[0].title, Localizations.logOut)
+        XCTAssertEqual(optionsAlert.alertActions[1].title, Localizations.cancel)
+
+        await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
+
+        let logoutConfirmationAlert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
+        XCTAssertEqual(logoutConfirmationAlert.message, Localizations.logoutConfirmation)
+        XCTAssertEqual(logoutConfirmationAlert.preferredStyle, .alert)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions.count, 2)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions[0].title, Localizations.yes)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions[1].title, Localizations.cancel)
+
+        await logoutConfirmationAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(coordinator.routes.last, .landing)
+    }
+
     /// `receive(_:)` with `.revealMasterPasswordFieldPressed` updates the state to reflect the changes.
     func test_receive_revealMasterPasswordFieldPressed() {
         subject.state.isMasterPasswordRevealed = false
@@ -584,6 +618,42 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             isVisible: true
         )
         authRepository.activeAccountResult = .success(activeProfile)
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(activeProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(authRepository.logoutUserId, activeProfile.userId)
+        XCTAssertEqual(coordinator.routes.last, .landing)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// log out of the selected account, which navigates back to the landing page for the active account.
+    func test_receive_accountLongPressed_logout_activeAccount_withAlternate() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem()
+        let otherProfile = ProfileSwitcherItem(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        authRepository.activeAccountResult = .success(activeProfile)
+        stateService.accounts = [
+            .fixture(
+                profile: .fixture(
+                    userId: "42"
+                )
+            ),
+        ]
 
         subject.receive(.profileSwitcherAction(.accountLongPressed(activeProfile)))
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)

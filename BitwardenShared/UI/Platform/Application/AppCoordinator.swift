@@ -187,8 +187,13 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         showAuth(route: .vaultUnlock(account))
     }
 
-    func didLogout() {
-        showAuth(route: .landing)
+    func didLogout(userInitiated: Bool, otherAccounts: [Account]?) {
+        if userInitiated,
+           let account = otherAccounts?.first {
+            showAuth(route: .vaultUnlock(account, attemptAutomaticBiometricUnlock: true))
+        } else {
+            showAuth(route: .landing)
+        }
     }
 }
 

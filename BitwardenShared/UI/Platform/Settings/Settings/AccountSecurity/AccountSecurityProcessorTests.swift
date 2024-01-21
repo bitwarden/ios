@@ -59,18 +59,18 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account: Account = .fixtureAccountLogin()
         stateService.activeAccount = account
 
-        await subject.perform(.lockVault)
+        await subject.perform(.lockVault(userInitiated: true))
 
-        XCTAssertEqual(settingsRepository.lockVaultCalls, [account.profile.userId])
-        XCTAssertEqual(coordinator.routes.last, .lockVault(account: account))
+        XCTAssertEqual(authRepository.lockVaultUserId, account.profile.userId)
+        XCTAssertEqual(coordinator.routes.last, .lockVault(account: account, userInitiated: true))
     }
 
     /// `perform(_:)` with `.lockVault` fails, locks the vault and navigates to the landing screen.
     func test_perform_lockVault_failure() async {
-        await subject.perform(.lockVault)
+        await subject.perform(.lockVault(userInitiated: true))
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [StateServiceError.noActiveAccount])
-        XCTAssertEqual(coordinator.routes.last, .logout)
+        XCTAssertEqual(coordinator.routes.last, .logout(userInitiated: true))
     }
 
     /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
@@ -146,15 +146,16 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(alert.alertActions[0].title, Localizations.yes)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
 
-        settingsRepository.logoutResult = .success(())
+        authRepository.logoutResult = .success(())
         // Tapping yes logs the user out.
         try await alert.tapAction(title: Localizations.yes)
 
-        XCTAssertEqual(coordinator.routes.last, .logout)
+        XCTAssertEqual(coordinator.routes.last, .logout(userInitiated: true))
     }
 
     /// `receive(_:)` with `.logout` presents a logout confirmation alert.
     func test_receive_logout_error() async throws {
+        authRepository.logoutResult = .failure(StateServiceError.noActiveAccount)
         subject.receive(.logout)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()

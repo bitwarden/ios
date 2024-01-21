@@ -55,8 +55,8 @@ final class AccountSecurityProcessor: StateProcessor<
             await showAccountFingerprintPhraseAlert()
         case .loadData:
             await loadData()
-        case .lockVault:
-            await lockVault()
+        case let .lockVault(userIntiated):
+            await lockVault(userInitiated: userIntiated)
         case let .toggleUnlockWithBiometrics(isOn):
             await setBioMetricAuth(isOn)
         }
@@ -111,13 +111,15 @@ final class AccountSecurityProcessor: StateProcessor<
 
     /// Locks the user's vault
     ///
-    private func lockVault() async {
+    ///
+    ///
+    private func lockVault(userInitiated: Bool) async {
         do {
             let account = try await services.stateService.getActiveAccount()
-            await services.settingsRepository.lockVault(userId: account.profile.userId)
-            coordinator.navigate(to: .lockVault(account: account))
+            await services.authRepository.lockVault(userId: account.profile.userId)
+            coordinator.navigate(to: .lockVault(account: account, userInitiated: userInitiated))
         } catch {
-            coordinator.navigate(to: .logout)
+            coordinator.navigate(to: .logout(userInitiated: userInitiated))
             services.errorReporter.log(error: error)
         }
     }
@@ -161,11 +163,11 @@ final class AccountSecurityProcessor: StateProcessor<
     private func showLogoutConfirmation() {
         let alert = Alert.logoutConfirmation {
             do {
-                try await self.services.settingsRepository.logout()
+                try await self.services.authRepository.logout()
             } catch {
                 self.services.errorReporter.log(error: error)
             }
-            self.coordinator.navigate(to: .logout)
+            self.coordinator.navigate(to: .logout(userInitiated: true))
         }
         coordinator.navigate(to: .alert(alert))
     }

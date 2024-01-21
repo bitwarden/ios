@@ -21,7 +21,11 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
 
     /// Called when the user has been logged out.
     ///
-    func didLogout()
+    /// - Parameters:
+    ///   - userInitiated: Did a user action initiate this logout.
+    ///   - otherAccounts: An optional array of the user's other accounts.
+    ///
+    func didLogout(userInitiated: Bool, otherAccounts: [Account]?)
 }
 
 // MARK: - SettingsCoordinator
@@ -103,10 +107,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showExportVault()
         case .folders:
             showFolders()
-        case let .lockVault(account):
+        case let .lockVault(account, _):
             delegate?.didLockVault(account: account)
-        case .logout:
-            delegate?.didLogout()
+        case let .logout(userInitiated):
+            Task {
+                let accounts = try? await services.stateService.getAccounts()
+                delegate?.didLogout(userInitiated: userInitiated, otherAccounts: accounts)
+            }
         case .other:
             showOtherScreen()
         case .passwordAutoFill:
