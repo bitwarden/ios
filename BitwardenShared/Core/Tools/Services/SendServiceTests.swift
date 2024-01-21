@@ -221,7 +221,6 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 0)
         XCTAssertNil(sendDataStore.deleteSendId)
         XCTAssertNil(sendDataStore.deleteSendUserId)
-
     }
 
     /// `replaceSends(_:userId:)` replaces the persisted sends in the data store.
