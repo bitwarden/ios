@@ -57,19 +57,24 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.appeared` toggles unlock with PIN depending on the user's saved settings.
-    func test_appeared() {
-        let account: Account = .fixtureAccountLogin()
-        stateService.activeAccount = account
+
+    /// `perform(_:)` with `.loadData` loads the initial data for the view.
+    func test_perform_loadData() async {
+        stateService.activeAccount = .fixture()
+        stateService.approveLoginRequestsByUserId["1"] = true
         authRepository.isPinUnlockAvailable = true
 
-        let task = Task {
-            await subject.perform(.appeared)
-        }
+        await subject.perform(.loadData)
 
-        waitFor(subject.state.isUnlockWithPINCodeOn)
-        task.cancel()
+        XCTAssertTrue(subject.state.isApproveLoginRequestsToggleOn)
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `perform(_:)` with `.loadData` records any errors.
+    func test_perform_loadData_error() async {
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
     }
 
     /// `perform(_:)` with `.lockVault` locks the user's vault.
@@ -77,18 +82,18 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account: Account = .fixtureAccountLogin()
         stateService.activeAccount = account
 
-        await subject.perform(.lockVault)
+        await subject.perform(.lockVault(userInitiated: true))
 
-        XCTAssertEqual(settingsRepository.lockVaultCalls, [account.profile.userId])
-        XCTAssertEqual(coordinator.routes.last, .lockVault(account: account))
+        XCTAssertEqual(authRepository.lockVaultUserId, account.profile.userId)
+        XCTAssertEqual(coordinator.routes.last, .lockVault(account: account, userInitiated: true))
     }
 
     /// `perform(_:)` with `.lockVault` fails, locks the vault and navigates to the landing screen.
     func test_perform_lockVault_failure() async {
-        await subject.perform(.lockVault)
+        await subject.perform(.lockVault(userInitiated: true))
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [StateServiceError.noActiveAccount])
-        XCTAssertEqual(coordinator.routes.last, .logout)
+        XCTAssertEqual(coordinator.routes.last, .logout(userInitiated: true))
     }
 
     /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
@@ -164,15 +169,16 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(alert.alertActions[0].title, Localizations.yes)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
 
-        settingsRepository.logoutResult = .success(())
+        authRepository.logoutResult = .success(())
         // Tapping yes logs the user out.
         try await alert.tapAction(title: Localizations.yes)
 
-        XCTAssertEqual(coordinator.routes.last, .logout)
+        XCTAssertEqual(coordinator.routes.last, .logout(userInitiated: true))
     }
 
     /// `receive(_:)` with `.logout` presents a logout confirmation alert.
     func test_receive_logout_error() async throws {
+        authRepository.logoutResult = .failure(StateServiceError.noActiveAccount)
         subject.receive(.logout)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
@@ -190,6 +196,12 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             errorReporter.errors as? [StateServiceError],
             [StateServiceError.noActiveAccount]
         )
+    }
+
+    /// `.receive(_:)` with `.pendingLoginRequestsTapped` navigates to the pending requests view.
+    func test_receive_pendingLoginRequestsTapped() {
+        subject.receive(.pendingLoginRequestsTapped)
+        XCTAssertEqual(coordinator.routes.last, .pendingLoginRequests)
     }
 
     /// `receive(_:)` with `sessionTimeoutActionChanged(:)` presents an alert if `logout` was selected.
@@ -261,16 +273,61 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.customSessionTimeoutValue, 15)
     }
 
-    /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` updates the state.
-    func test_receive_toggleApproveLoginRequestsToggle() {
+    /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` shows a confirmation alert and updates the state.
+    func test_receive_toggleApproveLoginRequestsToggle() async throws {
+        stateService.activeAccount = .fixture()
         subject.state.isApproveLoginRequestsToggleOn = false
+
         subject.receive(.toggleApproveLoginRequestsToggle(true))
 
-        XCTAssertTrue(subject.state.isApproveLoginRequestsToggleOn)
+        // Confirm enabling the setting on the alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.last)
+        await confirmAction.handler?(confirmAction, [])
+
+        waitFor(subject.state.isApproveLoginRequestsToggleOn)
+        XCTAssertEqual(stateService.approveLoginRequestsByUserId["1"], true)
+    }
+
+    /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` records any errors.
+    func test_receive_toggleApproveLoginRequestsToggle_error() async throws {
+        subject.state.isApproveLoginRequestsToggleOn = false
+
+        subject.receive(.toggleApproveLoginRequestsToggle(true))
+
+        // Confirm enabling the setting on the alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.last)
+        await confirmAction.handler?(confirmAction, [])
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
+    /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` updates the state.
+    func test_receive_toggleApproveLoginRequestsToggle_toggleOff() {
+        stateService.activeAccount = .fixture()
+        subject.state.isApproveLoginRequestsToggleOn = true
+
+        let task = Task {
+            subject.receive(.toggleApproveLoginRequestsToggle(false))
+        }
+
+        waitFor(!subject.state.isApproveLoginRequestsToggleOn)
+        task.cancel()
+        XCTAssertEqual(stateService.approveLoginRequestsByUserId["1"], false)
     }
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state when submit has been pressed.
-    func test_receive_toggleUnlockWithPINCode() async throws {
+    func test_receive_toggleUnlockWithPINCode_toggleOff() async throws {
+        subject.state.isUnlockWithPINCodeOn = true
+        subject.receive(.toggleUnlockWithPINCode(false))
+
+        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
+    /// pressed.
+    func test_receive_toggleUnlockWithPINCode_toggleOn() async throws {
         subject.state.isUnlockWithPINCodeOn = false
         subject.receive(.toggleUnlockWithPINCode(true))
 

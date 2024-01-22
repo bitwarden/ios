@@ -45,6 +45,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
 
+    /// Whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter userId: The user ID associated with the approve logins setting.
+    ///
+    /// - Returns: Whether the user has decided to allow the device to approve login requests.
+    ///
+    func approveLoginRequests(userId: String) -> Bool
+
     /// The system biometric integrity state `Data`, base64 encoded.
     ///
     /// - Parameter userId: The user ID associated with the Biometric Integrity State.
@@ -166,6 +174,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync on refresh setting.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
+
+    /// Sets whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameters:
+    ///   - approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
+    ///   - userId: The user ID associated with the approve logins setting.
+    ///
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String)
 
     /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
     ///
@@ -421,6 +437,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case allowSyncOnRefresh(userId: String)
         case appId
         case appLocale
+        case approveLoginRequests(userId: String)
         case appTheme
         case biometricAuthEnabled(userId: String)
         case biometricIntegrityState(userId: String)
@@ -455,6 +472,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "appId"
             case .appLocale:
                 key = "appLocale"
+            case let .approveLoginRequests(userId):
+                key = "approvePasswordlessLogins_\(userId)"
             case .appTheme:
                 key = "theme"
             case let .biometricAuthEnabled(userId):
@@ -558,6 +577,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .allowSyncOnRefresh(userId: userId))
     }
 
+    func approveLoginRequests(userId: String) -> Bool {
+        fetch(for: .approveLoginRequests(userId: userId))
+    }
+
     func biometricIntegrityState(userId: String) -> String? {
         fetch(for: .biometricIntegrityState(userId: userId))
     }
@@ -628,6 +651,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String) {
+        store(approveLoginRequests, for: .approveLoginRequests(userId: userId))
     }
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {

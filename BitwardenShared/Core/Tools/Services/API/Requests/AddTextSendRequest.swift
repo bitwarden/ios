@@ -2,11 +2,11 @@ import BitwardenSdk
 import Foundation
 import Networking
 
-// MARK: - AddSendRequest
+// MARK: - AddTextSendRequest
 
 /// A request model for adding a new send.
 ///
-struct AddSendRequest: Request {
+struct AddTextSendRequest: Request {
     // MARK: Types
 
     typealias Response = SendResponseModel
@@ -27,7 +27,7 @@ struct AddSendRequest: Request {
     /// The request details to include in the body of the request.
     let requestModel: SendRequestModel
 
-    /// Initialize an `AddSendRequest` for a `Send`.
+    /// Initialize an `AddTextSendRequest` for a `Send`.
     ///
     /// - Parameter send: The `Send` to add to the user's vault.
     ///
@@ -36,14 +36,15 @@ struct AddSendRequest: Request {
             deletionDate: send.deletionDate,
             disabled: send.disabled,
             expirationDate: send.expirationDate,
-            file: send.file.map(SendFileModel.init),
+            file: nil,
             hideEmail: send.hideEmail,
             key: send.key,
             maxAccessCount: send.maxAccessCount.map(Int32.init),
             name: send.name,
             notes: send.notes,
             password: send.password,
-            text: send.text.map(SendTextModel.init)
+            text: send.text.map(SendTextModel.init),
+            type: .text
         )
     }
 }

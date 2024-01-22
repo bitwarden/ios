@@ -92,6 +92,17 @@ protocol VaultRepository: AnyObject {
     ///
     func restoreCipher(_ cipher: CipherView) async throws
 
+    /// Save an attachment to a cipher.
+    ///
+    /// - Parameters:
+    ///   - cipherView: The cipher to add the attachment to.
+    ///   - fileData: The attachment's data.
+    ///   - fileName: The attachment's name.
+    ///
+    /// - Returns: The updated cipher with the new attachment added.
+    ///
+    func saveAttachment(cipherView: CipherView, fileData: Data, fileName: String) async throws -> CipherView
+
     /// A publisher for a user's cipher objects based on the specified search text and filter type.
     ///
     /// - Parameters:
@@ -602,8 +613,8 @@ extension DefaultVaultRepository: VaultRepository {
         await items.asyncMap { item in
             guard case let .totp(name, model) = item.itemType,
                   let key = model.loginView.totp,
-                  let code = try? await clientVault
-                  .generateTOTPCode(for: key, date: timeProvider.presentTime) else {
+                  let code = try? await clientVault.generateTOTPCode(for: key, date: timeProvider.presentTime)
+            else {
                 errorReporter.log(error: TOTPServiceError
                     .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
                 return item
@@ -627,6 +638,32 @@ extension DefaultVaultRepository: VaultRepository {
         let restoredCipher = cipher.update(deletedDate: nil)
         let encryptCipher = try await clientVault.ciphers().encrypt(cipherView: restoredCipher)
         try await cipherService.restoreCipherWithServer(id: id, encryptCipher)
+    }
+
+    func saveAttachment(cipherView: CipherView, fileData: Data, fileName: String) async throws -> CipherView {
+        guard let cipherId = cipherView.id else { throw BitwardenError.dataError("Received a cipher with a nil id") }
+
+        // Put the file data size and file name into a blank attachment view.
+        let attachmentView = AttachmentView(
+            id: nil,
+            url: nil,
+            size: "\(fileData.count)",
+            sizeName: nil,
+            fileName: fileName,
+            key: nil
+        )
+
+        // Encrypt the attachment.
+        let cipher = try await clientVault.ciphers().encrypt(cipherView: cipherView)
+        let attachment = try await clientVault.attachments().encryptBuffer(
+            cipher: cipher,
+            attachment: attachmentView,
+            buffer: fileData
+        )
+
+        // Save the attachment to the cipher and return the updated cipher.
+        let updatedCipher = try await cipherService.saveAttachmentWithServer(cipherId: cipherId, attachment: attachment)
+        return try await clientVault.ciphers().decrypt(cipher: updatedCipher)
     }
 
     func shareCipher(_ cipher: CipherView) async throws {

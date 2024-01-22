@@ -167,7 +167,8 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                         to: .vaultUnlock(
                             account,
                             animated: false,
-                            attemptAutomaticBiometricUnlock: true
+                            attemptAutomaticBiometricUnlock: true,
+                            didSwitchAccountAutomatically: false
                         )
                     )
                 } else {

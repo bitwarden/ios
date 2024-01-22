@@ -3,7 +3,29 @@
 extension Alert {
     // MARK: Methods
 
+    /// Confirm allowing the device to approve login requests.
+    ///
+    /// - Parameter action: The action to perform if the user selects yes.
+    ///
+    /// - Returns: An alert confirming allowing the device to approve login requests.
+    ///
+    static func confirmApproveLoginRequests(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.approveLoginRequests,
+            message: Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+            ]
+        )
+    }
+
     /// Confirm deleting the folder.
+    ///
+    /// - Parameter action: The action to perform if the user selects yes.
+    ///
+    /// - Returns: An alert to confirm deleting the folder.
+    ///
     static func confirmDeleteFolder(action: @MainActor @escaping () async -> Void) -> Alert {
         Alert(
             title: Localizations.doYouReallyWantToDelete,
@@ -11,6 +33,23 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
+    /// Confirm denying all the login requests.
+    ///
+    /// - Parameter action: The action to perform if the user selects yes.
+    ///
+    /// - Returns: An alert to confirm denying all the login requests.
+    ///
+    static func confirmDenyingAllRequests(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.areYouSureYouWantToDeclineAllPendingLogInRequests,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
             ]
         )
     }
@@ -27,7 +66,7 @@ extension Alert {
         Alert(
             title: Localizations.exportVaultConfirmationTitle,
             message: encrypted ?
-                (Localizations.encExportKeyWarning + "\n\n" + Localizations.encExportAccountWarning) :
+                (Localizations.encExportKeyWarning + .newLine + Localizations.encExportAccountWarning) :
                 Localizations.exportVaultWarning,
             alertActions: [
                 AlertAction(title: Localizations.exportVault, style: .default) { _ in await action() },

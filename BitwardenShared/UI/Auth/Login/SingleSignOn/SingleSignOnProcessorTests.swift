@@ -195,7 +195,8 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
                 .vaultUnlock(
                     .fixtureAccountLogin(),
                     animated: false,
-                    attemptAutomaticBiometricUnlock: true
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: false
                 ),
                 .dismiss,
             ]

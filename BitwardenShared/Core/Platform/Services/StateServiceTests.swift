@@ -282,6 +282,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(value)
     }
 
+    /// `getApproveLoginRequests()` returns the approve login requests setting for the active account.
+    func test_getApproveLoginRequests() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.approveLoginRequestsByUserId["1"] = true
+        let value = try await subject.getApproveLoginRequests()
+        XCTAssertTrue(value)
+    }
+
     /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
     func test_getClearClipboardValue() async throws {
         await subject.addAccount(.fixture())
@@ -883,6 +891,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setAllowSyncOnRefresh(true)
         XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
+    }
+
+    /// `setApproveLoginRequests(_:userId:)` sets the approve login requests setting for a user.
+    func test_setApproveLoginRequests() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setApproveLoginRequests(true)
+        XCTAssertEqual(appSettingsStore.approveLoginRequestsByUserId["1"], true)
     }
 
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.

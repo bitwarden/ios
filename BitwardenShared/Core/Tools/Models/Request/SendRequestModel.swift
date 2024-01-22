@@ -21,6 +21,9 @@ struct SendRequestModel: JSONRequestBody {
     /// The file data for a File type Send.
     var file: SendFileModel?
 
+    /// The length of the file.
+    var fileLength: Int?
+
     /// If the user's email address should be hidden when viewing the Send in
     /// the web interface.
     var hideEmail: Bool?
@@ -43,4 +46,7 @@ struct SendRequestModel: JSONRequestBody {
 
     /// The text data for a Text type Send.
     var text: SendTextModel?
+
+    /// The type of this Send.
+    var type: SendType
 }

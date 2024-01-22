@@ -32,9 +32,6 @@ struct AccountSecurityView: View {
             openURL(url)
             store.send(.clearTwoStepLoginUrl)
         }
-        .task {
-            await store.perform(.appeared)
-        }
         .onChange(of: store.state.fingerprintPhraseUrl) { newValue in
             guard let url = newValue else { return }
             openURL(url)
@@ -42,9 +39,6 @@ struct AccountSecurityView: View {
         }
         .task {
             await store.perform(.loadData)
-        }
-        .task {
-            await store.perform(.appeared)
         }
     }
 
@@ -67,8 +61,10 @@ struct AccountSecurityView: View {
                 SettingsListItem(
                     Localizations.pendingLogInRequests,
                     hasDivider: false
-                ) {}
-                    .cornerRadius(10)
+                ) {
+                    store.send(.pendingLoginRequestsTapped)
+                }
+                .cornerRadius(10)
             }
         }
     }
@@ -95,7 +91,7 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(Localizations.lockNow) {
                     Task {
-                        await store.perform(.lockVault)
+                        await store.perform(.lockVault(userInitiated: true))
                     }
                 }
 
@@ -214,13 +210,11 @@ struct AccountSecurityView: View {
 // MARK: - Previews
 
 #if DEBUG
-struct AccountSecurityView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            AccountSecurityView(
-                store: Store(processor: StateProcessor(state: AccountSecurityState()))
-            )
-        }
+#Preview {
+    NavigationView {
+        AccountSecurityView(
+            store: Store(processor: StateProcessor(state: AccountSecurityState()))
+        )
     }
 }
 #endif

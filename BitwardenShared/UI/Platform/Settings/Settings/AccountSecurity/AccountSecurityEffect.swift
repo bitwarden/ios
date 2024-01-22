@@ -6,14 +6,14 @@ enum AccountSecurityEffect: Equatable {
     /// The account fingerprint phrase button was tapped.
     case accountFingerprintPhrasePressed
 
-    /// The view has appeared.
-    case appeared
-
-    /// The view appeared so the initial data should be loaded.
+    /// Any initial data for the view should be loaded.
     case loadData
 
     /// The user's vault was locked.
-    case lockVault
+    ///
+    /// - Parameter userInitiated: Did a user action trigger this lock event.
+    ///
+    case lockVault(userInitiated: Bool)
 
     /// Unlock with Biometrics was toggled.
     case toggleUnlockWithBiometrics(Bool)

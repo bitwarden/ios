@@ -70,6 +70,45 @@ class SendListViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortraitAX5)
     }
 
+    /// The view renders correctly when the search results are empty.
+    func test_snapshot_search_empty_light() {
+        processor.state.searchResults = []
+        processor.state.searchText = "Searching"
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// The view renders in dark mode correctly when the search results are empty.
+    func test_snapshot_search_empty_dark() {
+        processor.state.searchResults = []
+        processor.state.searchText = "Searching"
+        assertSnapshot(of: subject, as: .defaultPortraitDark)
+    }
+
+    /// The view renders in large accessibility correctly when the search results are empty.
+    func test_snapshot_search_empty_ax5() {
+        processor.state.searchResults = []
+        processor.state.searchText = "Searching"
+        assertSnapshot(of: subject, as: .defaultPortraitAX5)
+    }
+
+    /// The view renders correctly when there are search results.
+    func test_snapshot_search_results_light() {
+        processor.state = .hasSearchResults
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// The view renders in dark mode correctly when there are search results.
+    func test_snapshot_search_results_dark() {
+        processor.state = .hasSearchResults
+        assertSnapshot(of: subject, as: .defaultPortraitDark)
+    }
+
+    /// The view renders in large accessibility correctly when there are search results.
+    func test_snapshot_search_results_ax5() {
+        processor.state = .hasSearchResults
+        assertSnapshot(of: subject, as: .defaultPortraitAX5)
+    }
+
     /// The view renders in light mode correctly when there are sends.
     func test_snapshot_values_light() {
         processor.state = .content

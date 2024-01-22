@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - AuthServiceTests
 
-class AuthServiceTests: BitwardenTestCase {
+class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var accountAPIService: AccountAPIService!
@@ -13,6 +13,7 @@ class AuthServiceTests: BitwardenTestCase {
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var clientGenerators: MockClientGenerators!
+    var clientPlatform: MockClientPlatform!
     var environmentService: MockEnvironmentService!
     var stateService: MockStateService!
     var subject: DefaultAuthService!
@@ -29,6 +30,7 @@ class AuthServiceTests: BitwardenTestCase {
         authAPIService = APIService(client: client)
         clientAuth = MockClientAuth()
         clientGenerators = MockClientGenerators()
+        clientPlatform = MockClientPlatform()
         environmentService = MockEnvironmentService()
         stateService = MockStateService()
         systemDevice = MockSystemDevice()
@@ -39,6 +41,7 @@ class AuthServiceTests: BitwardenTestCase {
             authAPIService: authAPIService,
             clientAuth: clientAuth,
             clientGenerators: clientGenerators,
+            clientPlatform: clientPlatform,
             environmentService: environmentService,
             stateService: stateService,
             systemDevice: systemDevice
@@ -54,6 +57,7 @@ class AuthServiceTests: BitwardenTestCase {
         client = nil
         clientAuth = nil
         clientGenerators = nil
+        clientPlatform = nil
         environmentService = nil
         stateService = nil
         subject = nil
@@ -91,6 +95,16 @@ class AuthServiceTests: BitwardenTestCase {
         ]
         XCTAssertEqual(expectedUrlComponents?.url, result.0)
         XCTAssertEqual("PASSWORD", result.1)
+    }
+
+    /// `getPendingLoginRequests()` returns all the active pending login requests.
+    func test_getPendingLoginRequests() async throws {
+        stateService.activeAccount = .fixture()
+        client.result = .httpSuccess(testData: .authRequestSuccess)
+
+        let result = try await subject.getPendingLoginRequests()
+
+        XCTAssertEqual(result, [.fixture(fingerprintPhrase: "a-fingerprint-phrase-string-placeholder")])
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` logs in with the password.

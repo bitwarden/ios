@@ -64,7 +64,8 @@ public class AppProcessor {
                 to: .auth(
                     .vaultUnlock(
                         activeAccount,
-                        attemptAutomaticBiometricUnlock: true
+                        attemptAutomaticBiometricUnlock: true,
+                        didSwitchAccountAutomatically: false
                     )
                 )
             )

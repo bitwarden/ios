@@ -5,6 +5,10 @@ import Foundation
 /// similar to `ClientVaultProtocol` but returns the protocols so they can be mocked for testing.
 ///
 protocol ClientVaultService: AnyObject {
+    /// Returns an object that handles encryption and decryption for attachments.
+    ///
+    func attachments() -> ClientAttachmentsProtocol
+
     /// Returns an object that handles encryption and decryption for ciphers.
     ///
     func ciphers() -> ClientCiphersProtocol
@@ -38,6 +42,14 @@ protocol ClientVaultService: AnyObject {
 // MARK: - ClientVault
 
 extension ClientVault: ClientVaultService {
+    func attachments() -> ClientAttachmentsProtocol {
+        attachments() as ClientAttachments
+    }
+
+    func ciphers() -> ClientCiphersProtocol {
+        ciphers() as ClientCiphers
+    }
+
     func collections() -> ClientCollectionsProtocol {
         collections() as ClientCollections
     }
@@ -62,9 +74,5 @@ extension ClientVault: ClientVaultService {
 
     func sends() -> ClientSendsProtocol {
         sends() as ClientSends
-    }
-
-    func ciphers() -> ClientCiphersProtocol {
-        ciphers() as ClientCiphers
     }
 }

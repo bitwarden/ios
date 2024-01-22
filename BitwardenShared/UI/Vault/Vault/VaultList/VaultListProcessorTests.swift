@@ -380,7 +380,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         // Verify the results.
         XCTAssertEqual(authRepository.logoutUserId, activeProfile.userId)
-        XCTAssertEqual(coordinator.routes.last, .logout)
+        XCTAssertEqual(coordinator.routes.last, .logout(userInitiated: true))
     }
 
     /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
