@@ -4,6 +4,7 @@ import Foundation
 @testable import BitwardenShared
 
 class MockClientVaultService: ClientVaultService {
+    var clientAttachments = MockClientAttachments()
     var clientCiphers = MockClientCiphers()
     var clientCollections = MockClientCollections()
     var clientFolders = MockClientFolders()
@@ -12,6 +13,10 @@ class MockClientVaultService: ClientVaultService {
     var generateTOTPCodeResult: Result<String, Error> = .success("123456")
     var timeProvider = MockTimeProvider(.currentTime)
     var totpPeriod: UInt32 = 30
+
+    func attachments() -> ClientAttachmentsProtocol {
+        clientAttachments
+    }
 
     func ciphers() -> ClientCiphersProtocol {
         clientCiphers
@@ -25,7 +30,7 @@ class MockClientVaultService: ClientVaultService {
         clientFolders
     }
 
-    func generateTOTPCode(for key: String, date: Date?) async throws -> BitwardenShared.TOTPCodeModel {
+    func generateTOTPCode(for _: String, date: Date?) async throws -> BitwardenShared.TOTPCodeModel {
         let code = try generateTOTPCodeResult.get()
         return TOTPCodeModel(
             code: code,
@@ -40,6 +45,41 @@ class MockClientVaultService: ClientVaultService {
 
     func sends() -> ClientSendsProtocol {
         clientSends
+    }
+}
+
+// MARK: - MockClientAttachments
+
+class MockClientAttachments: ClientAttachmentsProtocol {
+    var encryptedBuffers = [Data]()
+
+    func decryptBuffer(cipher _: Cipher, attachment _: Attachment, buffer: Data) async throws -> Data {
+        buffer
+    }
+
+    func decryptFile(
+        cipher _: Cipher,
+        attachment _: Attachment,
+        encryptedFilePath _: String,
+        decryptedFilePath _: String
+    ) async throws {}
+
+    func encryptBuffer(
+        cipher _: Cipher,
+        attachment: AttachmentView,
+        buffer: Data
+    ) async throws -> AttachmentEncryptResult {
+        encryptedBuffers.append(buffer)
+        return AttachmentEncryptResult(attachment: Attachment(attachmentView: attachment), contents: buffer)
+    }
+
+    func encryptFile(
+        cipher _: Cipher,
+        attachment: AttachmentView,
+        decryptedFilePath _: String,
+        encryptedFilePath _: String
+    ) async throws -> Attachment {
+        Attachment(attachmentView: attachment)
     }
 }
 

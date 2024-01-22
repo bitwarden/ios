@@ -27,11 +27,14 @@ enum VaultItemRoute: Equatable, Hashable {
     case alert(_ alert: Alert)
 
     /// A route to view the attachments.
-    case attachments
+    ///
+    /// - Parameter cipher: The  `CipherView` to view/edit the attachments for.
+    ///
+    case attachments(_ cipher: CipherView)
 
     /// A route to the clone item screen.
     ///
-    /// - Parameter cipher: A  `CipherView` to be cloned
+    /// - Parameter cipher: A  `CipherView` to be cloned.
     ///
     case cloneItem(cipher: CipherView)
 
@@ -47,7 +50,7 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to edit an item.
     ///
     /// - Parameters:
-    ///  - cipher: The `CipherView` to edit
+    ///  - cipher: The `CipherView` to edit.
     ///  - hasPremium: Whether the user has premium.
     ///
     case editItem(_ cipher: CipherView, _ hasPremium: Bool)

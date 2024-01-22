@@ -44,6 +44,24 @@ protocol CipherAPIService {
     ///
     func restoreCipher(withID id: String) async throws -> EmptyResponse
 
+    /// Performs an API request to create the attachment for the cipher in the backend.
+    ///
+    /// - Parameters:
+    ///   - cipherId: The id of the cipher to add the attachment to.
+    ///   - fileName: The name of the attachment.
+    ///   - fileSize: The size of the attachment.
+    ///   - key: The encryption key for the attachment.
+    ///
+    /// - Returns: The `SaveAttachmentResponse`.
+    ///
+    func saveAttachment(
+        cipherId: String,
+        fileName: String?,
+        fileSize: String?,
+        key: String?
+    ) async throws
+        -> SaveAttachmentResponse
+
     /// Performs an API request to share a cipher with an organization.
     ///
     /// - Parameter cipher: The cipher to share.
@@ -87,6 +105,20 @@ extension APIService: CipherAPIService {
 
     func restoreCipher(withID id: String) async throws -> EmptyResponse {
         try await apiService.send(RestoreCipherRequest(id: id))
+    }
+
+    func saveAttachment(
+        cipherId: String,
+        fileName: String?,
+        fileSize: String?,
+        key: String?
+    ) async throws -> SaveAttachmentResponse {
+        try await apiService.send(SaveAttachmentRequest(
+            cipherId: cipherId,
+            fileName: fileName,
+            fileSize: fileSize,
+            key: key
+        ))
     }
 
     func shareCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {

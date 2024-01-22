@@ -126,8 +126,8 @@ class CipherAPIServiceTests: XCTestCase {
     }
 
     /// `deleteCipher()` performs the delete cipher request.
-    func test_DeleteCipher() async throws {
-        client.result = .httpSuccess(testData: APITestData(data: Data()))
+    func test_deleteCipher() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
 
         _ = try await subject.deleteCipher(withID: "123")
 
@@ -139,7 +139,7 @@ class CipherAPIServiceTests: XCTestCase {
 
     /// `restoreCipher()` performs the restore cipher request.
     func test_restoreCipher() async throws {
-        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        client.result = .httpSuccess(testData: .emptyResponse)
 
         _ = try await subject.restoreCipher(withID: "123")
 
@@ -147,6 +147,73 @@ class CipherAPIServiceTests: XCTestCase {
         XCTAssertNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .put)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/restore")
+    }
+
+    /// `saveAttachment(cipherId:fileName:fileSize:key:)` performs the save attachment request and decodes the response.
+    func test_saveAttachment() async throws { // swiftlint:disable:this function_body_length
+        client.result = .httpSuccess(testData: .saveAttachment)
+
+        let response = try await subject.saveAttachment(
+            cipherId: "42",
+            fileName: "The Answer",
+            fileSize: "lots",
+            key: "🔑"
+        )
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/42/attachment/v2")
+
+        XCTAssertEqual(
+            response,
+            SaveAttachmentResponse(
+                attachmentId: "1",
+                cipherResponse: CipherDetailsResponseModel(
+                    attachments: [
+                        .init(
+                            fileName: "2.q4Pl+Pz7D3sxr1VEKuwke",
+                            id: "opbq2xocqozcwmlvtwoh15bovberxibb",
+                            key: "2.jUls4EBVWgMO9BR9aU+0WA==|H",
+                            size: "5725713",
+                            sizeName: "5.46 MB",
+                            url: "https://cdn.bitwarden.net/attachments/071350c"
+                        ),
+                    ],
+                    card: nil,
+                    collectionIds: nil,
+                    creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                    deletedDate: nil,
+                    edit: true,
+                    favorite: false,
+                    fields: nil,
+                    folderId: nil,
+                    id: "3792af7a-4441-11ee-be56-0242ac120002",
+                    identity: nil,
+                    key: nil,
+                    login: CipherLoginModel(
+                        autofillOnPageLoad: nil,
+                        password: "encrypted password",
+                        passwordRevisionDate: nil,
+                        totp: "totp",
+                        uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
+                        username: "encrypted username"
+                    ),
+                    name: "encrypted name",
+                    notes: nil,
+                    organizationId: nil,
+                    organizationUseTotp: false,
+                    passwordHistory: nil,
+                    reprompt: .none,
+                    revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                    secureNote: nil,
+                    type: .login,
+                    viewPassword: true
+                ),
+                fileUploadType: 1,
+                url: "https://bitwardenxx5keu3w.blob.core.windows.net/attachments-v2/etc"
+            )
+        )
     }
 
     /// `shareCipher()` performs the share cipher request and decodes the response.
@@ -199,7 +266,7 @@ class CipherAPIServiceTests: XCTestCase {
 
     /// `softDeleteCipher()` performs the soft delete cipher request.
     func test_softDeleteCipher() async throws {
-        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        client.result = .httpSuccess(testData: .emptyResponse)
 
         _ = try await subject.softDeleteCipher(withID: "123")
 
@@ -211,7 +278,7 @@ class CipherAPIServiceTests: XCTestCase {
 
     /// `updateCipherCollections()` performs the update cipher collections request.
     func test_updateCipherCollections() async throws {
-        client.result = .success(.success(body: Data()))
+        client.result = .httpSuccess(testData: .emptyResponse)
 
         try await subject.updateCipherCollections(.fixture(collectionIds: ["1", "2", "3"], id: "1"))
 

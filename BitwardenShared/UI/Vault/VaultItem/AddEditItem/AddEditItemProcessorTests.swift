@@ -734,8 +734,15 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.morePressed(.attachments)` navigates the user to the attachments  view.
     func test_receive_morePressed_attachments() throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state = try XCTUnwrap(
+            CipherItemState(
+                existing: cipher,
+                hasPremium: true
+            )
+        )
         subject.receive(.morePressed(.attachments))
-        XCTAssertEqual(coordinator.routes.last, .attachments)
+        XCTAssertEqual(coordinator.routes.last, .attachments(cipher))
     }
 
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
