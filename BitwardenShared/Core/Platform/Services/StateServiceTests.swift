@@ -692,12 +692,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setPinKeys(
             pinKeyEncryptedUserKey: "123",
-            pinProtectedUserKey: "123",
-            requirePasswordAfterRestart: false
+            pinProtectedUserKey: "321",
+            requirePasswordAfterRestart: true
         )
 
         let pinKeyEncryptedUserKey = try await subject.pinKeyEncryptedUserKey()
+        let pinProtectedUserKey = await subject.accountVolatileData["1"]?.pinProtectedUserKey
+
         XCTAssertEqual(pinKeyEncryptedUserKey, "123")
+        XCTAssertEqual(pinProtectedUserKey, "321")
     }
 
     /// `pinProtectedUserKey(userId:)` returns the pin protected user key.

@@ -98,7 +98,7 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func appeared() async {
         do {
-            if try await services.stateService.pinProtectedUserKey() != nil {
+            if try await services.authRepository.isPinUnlockAvailable() {
                 state.isUnlockWithPINCodeOn = true
             }
         } catch {

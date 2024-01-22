@@ -61,7 +61,6 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             }
         case .unlockVault:
             await unlockVault()
-            await setPins()
         }
     }
 
@@ -109,6 +108,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
 
     // MARK: Private
 
+    /// Checks whether or not pin unlock is available.
+    ///
     private func checkIfPinUnlockIsAvailable() async {
         do {
             if try await services.authRepository.isPinUnlockAvailable() {
@@ -153,7 +154,6 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             coordinator.navigate(to: .complete)
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
-            try await services.authRepository.setPinProtectedUserKeyToMemory(state.pin)
         } catch let error as InputValidationError {
             coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))
         } catch {
@@ -204,18 +204,6 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             )
         } catch {
             state.profileSwitcherState = .empty()
-        }
-    }
-
-    /// Sets the user's pins if a pin protected user key exists.
-    ///
-    private func setPins() async {
-        do {
-            if let pin = try await services.stateService.pinProtectedUserKey() {
-                try await services.authRepository.setPins(pin, requirePasswordAfterRestart: true)
-            }
-        } catch {
-            services.errorReporter.log(error: error)
         }
     }
 }

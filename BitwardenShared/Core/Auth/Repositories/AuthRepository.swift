@@ -242,8 +242,8 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
-        let pinKey = try await clientCrypto.derivePinKey(pin: pin)
-        let pinProtectedUserKey = try await clientCrypto.derivePinUserKey(encryptedPin: pinKey.encryptedPin)
+        guard let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() else { return }
+        let pinProtectedUserKey = try await clientCrypto.derivePinUserKey(encryptedPin: pinKeyEncryptedUserKey)
         try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
     }
 
@@ -309,9 +309,23 @@ extension DefaultAuthRepository: AuthRepository {
                 purpose: .localAuthorization
             )
             try await stateService.setMasterPasswordHash(hashedPassword)
+
+            guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
+                guard let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() else {
+                    throw StateServiceError.noPinKeyEncryptedUserKey
+                }
+                let pinKeyResponse = try await clientCrypto.derivePinKey(pin: pinKeyEncryptedUserKey)
+                try await setPinProtectedUserKeyToMemory(pinKeyResponse.pinProtectedUserKey)
+                return
+            }
+
+            guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
+                throw StateServiceError.noPinProtectedUserKey
+            }
+            try await setPins(pinProtectedUserKey, requirePasswordAfterRestart: true)
         case .pin:
-            guard let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() else {
-                throw StateServiceError.noPinKeyEncryptedUserKey
+            guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
+                throw StateServiceError.noPinProtectedUserKey
             }
             try await clientCrypto.initializeUserCrypto(
                 req: InitUserCryptoRequest(
@@ -320,10 +334,12 @@ extension DefaultAuthRepository: AuthRepository {
                     privateKey: encryptionKeys.encryptedPrivateKey,
                     method: .pin(
                         pin: passwordOrPin,
-                        pinProtectedUserKey: pinKeyEncryptedUserKey
+                        pinProtectedUserKey: pinProtectedUserKey
                     )
                 )
             )
+
+            try await setPins(pinProtectedUserKey, requirePasswordAfterRestart: true)
         }
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()

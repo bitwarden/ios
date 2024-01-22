@@ -216,14 +216,20 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
 
-    /// Sets the pin protected user key.
+    /// Sets the pin key encrypted user key.
     ///
     /// - Parameters:
-    ///   - key: A PIN protected user key from the user's PIN.
+    ///   - key: A pin key encrypted user key derived from the user's pin.
     ///   - userId: The user ID.
     ///
     func setPinKeyEncryptedUserKey(key: String?, userId: String)
 
+    /// Sets the pin protected user key.
+    ///
+    /// - Parameters:
+    ///  - key: A pin protected user key derived from the user's pin.
+    ///   - userId: The user ID.
+    ///
     func setPinProtectedKey(key: String?, userId: String)
 
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.

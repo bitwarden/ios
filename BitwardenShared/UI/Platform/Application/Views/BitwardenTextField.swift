@@ -88,15 +88,15 @@ struct BitwardenTextField<TrailingContent: View>: View {
     private var textField: some View {
         HStack(spacing: 8) {
             ZStack {
-                let isText = isPasswordVisible != nil
+                let isPassword = isPasswordVisible != nil
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
                 TextField(placeholder, text: $text)
                     .focused($isTextFieldFocused)
-                    .styleGuide(isText ? .bodyMonospaced : .body, includeLineSpacing: false)
-                    .hidden(!isPasswordVisible && isText)
+                    .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
+                    .hidden(!isPasswordVisible && isPassword)
                     .id(title)
-                if isText, !isPasswordVisible {
+                if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
                         .focused($isSecureFieldFocused)
                         .styleGuide(.bodyMonospaced, includeLineSpacing: false)
@@ -131,7 +131,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
     ///   - canViewPassword: Whether the password can be viewed.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
-    ///     button to toggle text visibility.
+    ///     button to toggle password visibility.
     ///   - placeholder: An optional placeholder to display in the text field.
     ///
     init(
@@ -168,7 +168,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     ///   - canViewPassword: Whether the password can be viewed.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
-    ///     button to toggle text visibility.
+    ///     button to toggle password visibility.
     ///   - placeholder: An optional placeholder to display in the text field.
     ///
     init(
