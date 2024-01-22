@@ -111,6 +111,36 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
 
     // MARK: Private
 
+    /// Navigates to the appropriate location following a logout.
+    ///
+    private func navigateFollowingLogout(
+        accountId: String?,
+        animated: Bool = true,
+        attemptAutomaticBiometricUnlock: Bool = true,
+        userInitiated: Bool
+    ) async {
+        if userInitiated,
+           let accounts = try? await services.stateService.getAccounts(),
+           let nextAccount = accounts.first,
+           accountId != nextAccount.profile.userId {
+            do {
+                let selected = try await services.authRepository.setActiveAccount(userId: nextAccount.profile.userId)
+                coordinator.navigate(
+                    to: .vaultUnlock(
+                        selected,
+                        animated: animated,
+                        attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
+                        didSwitchAccountAutomatically: true
+                    )
+                )
+            } catch {
+                coordinator.navigate(to: .landing)
+            }
+        } else {
+            coordinator.navigate(to: .landing)
+        }
+    }
+
     /// Loads the async state data for the view
     ///
     private func loadData() async {
@@ -131,17 +161,23 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
 
     /// Log out the present user.
     ///
-    private func logoutUser(resetAttempts: Bool = false) async {
+    /// - Parameters:
+    ///   - resetAttempts: A Bool indicating if the the login attempts counter should be reset.
+    ///   - userInitiated: A Bool indicating if the logout is initiated by a user action.
+    ///
+    private func logoutUser(resetAttempts: Bool = false, userInitiated: Bool) async {
+        let accountId = try? await services.stateService.getActiveAccountId()
         do {
             if resetAttempts {
                 state.unsuccessfulUnlockAttemptsCount = 0
                 await services.stateService.setUnsuccessfulUnlockAttempts(0)
             }
             try await services.authRepository.logout()
+            await navigateFollowingLogout(accountId: accountId, userInitiated: userInitiated)
         } catch {
             services.errorReporter.log(error: BitwardenError.logoutError(error: error))
+            await navigateFollowingLogout(accountId: accountId, userInitiated: userInitiated)
         }
-        coordinator.navigate(to: .landing)
     }
 
     /// Handles a long press of an account in the profile switcher.
@@ -168,25 +204,26 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             }
         }, logoutAction: {
             // Confirm logging out.
-            self.coordinator.showAlert(.logoutConfirmation {
+            self.coordinator.showAlert(.logoutConfirmation { [weak self] in
+                guard let self else { return }
                 do {
                     // Log out of the selected account.
-                    let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
-                    try await self.services.authRepository.logout(userId: account.userId)
+                    let activeAccountId = try await services.authRepository.getActiveAccount().userId
+                    try await services.authRepository.logout(userId: account.userId)
 
-                    // If the selected item was the currently active account, redirect the user
-                    // to the landing page.
+                    // If the selected item was the currently active account,
+                    //  switch to the next account or go to langing.
                     if account.userId == activeAccountId {
-                        self.coordinator.navigate(to: .landing)
+                        await navigateFollowingLogout(accountId: account.userId, userInitiated: true)
                     } else {
                         // Otherwise, show the toast that the account was logged out successfully.
-                        self.state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
+                        state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
 
                         // Update the profile switcher view.
-                        await self.refreshProfileState()
+                        await refreshProfileState()
                     }
                 } catch {
-                    self.services.errorReporter.log(error: error)
+                    services.errorReporter.log(error: error)
                 }
             })
         }))
@@ -226,7 +263,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     private func showLogoutConfirmation() {
         let alert = Alert.logoutConfirmation { [weak self] in
             guard let self else { return }
-            await logoutUser()
+            await logoutUser(userInitiated: true)
         }
         coordinator.navigate(to: .alert(alert))
     }
@@ -249,7 +286,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             state.unsuccessfulUnlockAttemptsCount += 1
             await services.stateService.setUnsuccessfulUnlockAttempts(state.unsuccessfulUnlockAttemptsCount)
             if state.unsuccessfulUnlockAttemptsCount >= 5 {
-                await logoutUser(resetAttempts: true)
+                await logoutUser(resetAttempts: true, userInitiated: true)
                 return
             }
             coordinator.navigate(to: .alert(.invalidMasterPassword()))
@@ -276,7 +313,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             Logger.processor.error("BiometricsServiceError unlocking vault with biometrics: \(error)")
             // If the user has locked biometry, logout immediately.
             if case .biometryLocked = error {
-                await logoutUser()
+                await logoutUser(userInitiated: true)
                 return
             }
             // There is no biometric auth key stored, set user preference to false.
@@ -295,7 +332,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             await services.stateService
                 .setUnsuccessfulUnlockAttempts(state.unsuccessfulUnlockAttemptsCount)
             if state.unsuccessfulUnlockAttemptsCount >= 5 {
-                await logoutUser(resetAttempts: true)
+                await logoutUser(resetAttempts: true, userInitiated: true)
                 return
             }
             await loadData()

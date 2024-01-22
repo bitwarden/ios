@@ -15,7 +15,11 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 
     /// Called when the user has been logged out.
     ///
-    func didLogout()
+    /// - Parameters:
+    ///   - userInitiated: Did a user action initiate this logout.
+    ///   - otherAccounts: An optional array of the user's other accounts.
+    ///
+    func didLogout(userInitiated: Bool, otherAccounts: [Account]?)
 
     /// Called when the user taps add account.
     ///
@@ -131,8 +135,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .lockVault(account):
             delegate?.didLockVault(account: account)
-        case .logout:
-            delegate?.didLogout()
+        case let .logout(userInitiated):
+            Task {
+                let accounts = try? await services.stateService.getAccounts()
+                delegate?.didLogout(userInitiated: userInitiated, otherAccounts: accounts)
+            }
         case let .viewItem(id):
             showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         case let .switchAccount(userId: userId):

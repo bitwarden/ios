@@ -149,7 +149,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
         let task = Task {
             try button.tap()
         }
-        waitFor(processor.effects.last == .lockVault)
+        waitFor(processor.effects.last == .lockVault(userInitiated: true))
         task.cancel()
     }
 }

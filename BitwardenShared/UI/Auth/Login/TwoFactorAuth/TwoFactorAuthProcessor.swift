@@ -137,7 +137,13 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             } else {
                 // Otherwise, navigate to the unlock vault view.
                 coordinator.hideLoadingOverlay()
-                coordinator.navigate(to: .vaultUnlock(account, animated: false))
+                coordinator.navigate(
+                    to: .vaultUnlock(
+                        account,
+                        animated: false,
+                        didSwitchAccountAutomatically: false
+                    )
+                )
                 coordinator.navigate(to: .dismiss)
             }
         } catch let error as InputValidationError {

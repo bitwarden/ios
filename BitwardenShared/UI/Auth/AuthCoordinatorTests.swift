@@ -234,10 +234,33 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.
     func test_navigate_vaultUnlock() {
-        subject.navigate(to: .vaultUnlock(.fixture()))
+        subject.navigate(
+            to: .vaultUnlock(
+                .fixture(),
+                didSwitchAccountAutomatically: false
+            )
+        )
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
         XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)
+    }
+
+    /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.
+    func test_navigate_vaultUnlock_withToast() throws {
+        subject.navigate(
+            to: .vaultUnlock(
+                .fixture(),
+                didSwitchAccountAutomatically: true
+            )
+        )
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
+        let view: VaultUnlockView = try XCTUnwrap(stackNavigator.actions.last?.view as? VaultUnlockView)
+        waitFor(view.store.state.toast != nil)
+        XCTAssertEqual(
+            view.store.state.toast?.text,
+            Localizations.accountSwitchedAutomatically
+        )
     }
 
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.

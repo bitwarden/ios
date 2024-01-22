@@ -56,7 +56,11 @@ class AppProcessorTests: BitwardenTestCase {
             appModule.appCoordinator.routes,
             [
                 .auth(
-                    .vaultUnlock(.fixture(), attemptAutomaticBiometricUnlock: true)
+                    .vaultUnlock(
+                        .fixture(),
+                        attemptAutomaticBiometricUnlock: true,
+                        didSwitchAccountAutomatically: false
+                    )
                 ),
             ]
         )

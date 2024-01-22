@@ -47,7 +47,10 @@ public enum VaultRoute: Equatable, Hashable {
     case lockVault(account: Account)
 
     /// A route to log the user out.
-    case logout
+    ///
+    /// - Parameter userInitiated: Did a user action trigger the logout.
+    ///
+    case logout(userInitiated: Bool)
 
     /// A route to switch accounts.
     ///
@@ -58,5 +61,6 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the view item screen.
     ///
     /// - Parameter id: The id of the item to display.
+    ///
     case viewItem(id: String)
 }

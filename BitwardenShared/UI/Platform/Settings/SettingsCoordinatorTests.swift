@@ -138,16 +138,27 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
     func test_navigateTo_lockVault() throws {
-        subject.navigate(to: .lockVault(account: .fixture()))
+        subject.navigate(to: .lockVault(account: .fixture(), userInitiated: true))
 
         XCTAssertTrue(delegate.didLockVaultCalled)
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
-    func test_navigateTo_logout() throws {
-        subject.navigate(to: .logout)
+    func test_navigateTo_logout_userInitiated() throws {
+        subject.navigate(to: .logout(userInitiated: true))
 
-        XCTAssertTrue(delegate.didLogoutCalled)
+        waitFor(delegate.didLogoutCalled)
+        let userInitiated = try XCTUnwrap(delegate.wasLogoutUserInitiated)
+        XCTAssertTrue(userInitiated)
+    }
+
+    /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
+    func test_navigateTo_logout_systemInitiated() throws {
+        subject.navigate(to: .logout(userInitiated: false))
+
+        waitFor(delegate.didLogoutCalled)
+        let userInitiated = try XCTUnwrap(delegate.wasLogoutUserInitiated)
+        XCTAssertFalse(userInitiated)
     }
 
     /// `navigate(to:)` with `.folders` pushes the folders view onto the stack navigator.
@@ -228,9 +239,11 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
+    var capturedOtherAccounts: [Account]?
     var didDeleteAccountCalled = false
     var didLockVaultCalled = false
     var didLogoutCalled = false
+    var wasLogoutUserInitiated: Bool?
 
     func didDeleteAccount(otherAccounts _: [Account]?) {
         didDeleteAccountCalled = true
@@ -240,7 +253,9 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
         didLockVaultCalled = true
     }
 
-    func didLogout() {
+    func didLogout(userInitiated: Bool, otherAccounts: [Account]?) {
+        capturedOtherAccounts = otherAccounts
+        wasLogoutUserInitiated = userInitiated
         didLogoutCalled = true
     }
 }

@@ -163,12 +163,14 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
                 do {
                     // Log out of the selected account.
                     let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
-                    try await self.services.authRepository.logout(userId: account.userId)
+                    try await self.services.authRepository.logout(
+                        userId: account.userId
+                    )
 
                     // If the selected item was the currently active account, redirect the user
                     // to the landing page.
                     if account.userId == activeAccountId {
-                        self.coordinator.navigate(to: .logout)
+                        self.coordinator.navigate(to: .logout(userInitiated: true))
                     } else {
                         // Otherwise, show the toast that the account was logged out successfully.
                         self.state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)

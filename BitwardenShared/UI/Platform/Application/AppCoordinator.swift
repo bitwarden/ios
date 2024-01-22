@@ -176,7 +176,12 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 extension AppCoordinator: SettingsCoordinatorDelegate {
     func didDeleteAccount(otherAccounts: [Account]?) {
         if let account = otherAccounts?.first {
-            showAuth(route: .vaultUnlock(account))
+            showAuth(
+                route: .vaultUnlock(
+                    account,
+                    didSwitchAccountAutomatically: true
+                )
+            )
         } else {
             showAuth(route: .landing)
         }
@@ -184,11 +189,22 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
     }
 
     func didLockVault(account: Account) {
-        showAuth(route: .vaultUnlock(account))
+        showAuth(route: .vaultUnlock(account, didSwitchAccountAutomatically: false))
     }
 
-    func didLogout() {
-        showAuth(route: .landing)
+    func didLogout(userInitiated: Bool, otherAccounts: [Account]?) {
+        if userInitiated,
+           let account = otherAccounts?.first {
+            showAuth(
+                route: .vaultUnlock(
+                    account,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: true
+                )
+            )
+        } else {
+            showAuth(route: .landing)
+        }
     }
 }
 
