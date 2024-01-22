@@ -100,8 +100,8 @@ private struct MainSendListView: View {
                 LazyVStack(spacing: 0) {
                     if !store.state.searchResults.isEmpty {
                         sendItemSectionView(
-                            title: Localizations.sends,
-                            isCountDisplayed: true,
+                            title: nil,
+                            isCountDisplayed: false,
                             items: store.state.searchResults
                         )
                     }
@@ -142,16 +142,20 @@ private struct MainSendListView: View {
     ///
     @ViewBuilder
     private func sendItemSectionView(
-        title: String,
+        title: String?,
         isCountDisplayed: Bool,
         items: [SendListItem]
     ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
-            HStack(alignment: .firstTextBaseline) {
-                SectionHeaderView(title)
-                Spacer()
-                if isCountDisplayed {
-                    SectionHeaderView("\(items.count)")
+            if title != nil || isCountDisplayed {
+                HStack(alignment: .firstTextBaseline) {
+                    if let title {
+                        SectionHeaderView(title)
+                    }
+                    Spacer()
+                    if isCountDisplayed {
+                        SectionHeaderView("\(items.count)")
+                    }
                 }
             }
 
