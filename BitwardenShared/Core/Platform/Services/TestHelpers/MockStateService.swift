@@ -12,6 +12,7 @@ class MockStateService: StateService {
     var accounts: [Account]?
     var allowSyncOnRefresh = [String: Bool]()
     var appLanguage: LanguageOption = .default
+    var approveLoginRequestsByUserId = [String: Bool]()
     var appTheme: AppTheme?
     var biometricsEnabled = [String: Bool]()
     var biometricIntegrityStates = [String: String?]()
@@ -94,6 +95,11 @@ class MockStateService: StateService {
 
     func getActiveAccountId() async throws -> String {
         try getActiveAccount().profile.userId
+    }
+
+    func getApproveLoginRequests(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return approveLoginRequestsByUserId[userId] ?? false
     }
 
     func getAppTheme() async -> AppTheme {
@@ -185,6 +191,11 @@ class MockStateService: StateService {
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
+    }
+
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        approveLoginRequestsByUserId[userId] = approveLoginRequests
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {

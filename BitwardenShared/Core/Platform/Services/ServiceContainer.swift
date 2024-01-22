@@ -261,6 +261,7 @@ public class ServiceContainer: Services {
             authAPIService: apiService,
             clientAuth: clientService.clientAuth(),
             clientGenerators: clientService.clientGenerator(),
+            clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
             stateService: stateService,
             systemDevice: UIDevice.current

@@ -575,7 +575,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.collectionIds, ["2"])
     }
 
-    /// `receive(_:)` with `.dismiss()` navigates to the `.list` route.
+    /// `receive(_:)` with `.dismiss()` navigates to the `.dismiss()` route.
     func test_receive_dismiss() {
         subject.receive(.dismissPressed)
 

@@ -9,6 +9,9 @@ class MockAuthService: AuthService {
     var generateSingleSignOnUrlResult: Result<(URL, String), Error> = .success((url: .example, state: "state"))
     var generateSingleSignOnOrgIdentifier: String?
 
+    var getPendingLoginRequestsCalled = false
+    var getPendingLoginRequestsResult: Result<[LoginRequest], Error> = .success([])
+
     var hashPasswordPassword: String?
     var hashPasswordResult: Result<String, Error> = .success("hashed")
 
@@ -32,6 +35,11 @@ class MockAuthService: AuthService {
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String) {
         generateSingleSignOnOrgIdentifier = organizationIdentifier
         return try generateSingleSignOnUrlResult.get()
+    }
+
+    func getPendingLoginRequests() async throws -> [LoginRequest] {
+        getPendingLoginRequestsCalled = true
+        return try getPendingLoginRequestsResult.get()
     }
 
     func hashPassword(password: String, purpose _: HashPurpose) async throws -> String {

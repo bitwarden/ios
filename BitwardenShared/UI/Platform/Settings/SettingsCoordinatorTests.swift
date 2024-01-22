@@ -188,6 +188,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UIHostingController<PasswordAutoFillView>)
     }
 
+    /// `navigate(to:)` with `.pendingLoginRequests()` presents the pending login requests view.
+    func test_navigateTo_pendingLoginRequests() throws {
+        subject.navigate(to: .pendingLoginRequests)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<PendingRequestsView>)
+    }
+
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
     func test_navigateTo_selectLanguage() throws {
         subject.navigate(to: .selectLanguage(currentLanguage: .default))

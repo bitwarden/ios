@@ -40,6 +40,10 @@ protocol AuthService {
     ///
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String)
 
+    /// Get all the pending login requests.
+    ///
+    func getPendingLoginRequests() async throws -> [LoginRequest]
+
     /// Creates a hash value for the user's master password.
     ///
     /// - Parameters:
@@ -112,10 +116,13 @@ class DefaultAuthService: AuthService {
     let callbackUrlScheme = "bitwarden"
 
     /// The client used by the application to handle auth related encryption and decryption tasks.
-    let clientAuth: ClientAuthProtocol
+    private let clientAuth: ClientAuthProtocol
 
     /// The client used for generating passwords and passphrases.
     private let clientGenerators: ClientGeneratorsProtocol
+
+    /// The client used by the application to handle account fingerprint phrase generation.
+    private let clientPlatform: ClientPlatformProtocol
 
     /// The code verifier used to login after receiving the code from the WebAuth.
     private var codeVerifier = ""
@@ -149,6 +156,7 @@ class DefaultAuthService: AuthService {
     ///   - authAPIService: The API service used to make calls related to the auth process.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientGenerators: The client used for generating passwords and passphrases.
+    ///   - clientPlatform: The client used by the application to handle account fingerprint phrase generation.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - stateService: The object used by the application to retrieve information about this device.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
@@ -159,6 +167,7 @@ class DefaultAuthService: AuthService {
         authAPIService: AuthAPIService,
         clientAuth: ClientAuthProtocol,
         clientGenerators: ClientGeneratorsProtocol,
+        clientPlatform: ClientPlatformProtocol,
         environmentService: EnvironmentService,
         stateService: StateService,
         systemDevice: SystemDevice
@@ -168,6 +177,7 @@ class DefaultAuthService: AuthService {
         self.authAPIService = authAPIService
         self.clientAuth = clientAuth
         self.clientGenerators = clientGenerators
+        self.clientPlatform = clientPlatform
         self.environmentService = environmentService
         self.stateService = stateService
         self.systemDevice = systemDevice
@@ -220,6 +230,20 @@ class DefaultAuthService: AuthService {
         urlComponents?.queryItems = queryItems
         guard let url = urlComponents?.url else { throw AuthError.unableToGenerateSSOUrl }
         return (url, state)
+    }
+
+    func getPendingLoginRequests() async throws -> [LoginRequest] {
+        // Get the pending login requests.
+        var loginRequests = try await authAPIService.getPendingLoginRequests()
+
+        // Use the user's email to decode the fingerprint phrase for each request.
+        let userEmail = try await stateService.getActiveAccount().profile.email
+        loginRequests = try await loginRequests.asyncMap { request in
+            var request = request
+            request.fingerprintPhrase = try await self.getFingerprintPhrase(from: request.publicKey, email: userEmail)
+            return request
+        }
+        return loginRequests
     }
 
     func loginWithMasterPassword(_ masterPassword: String, username: String, captchaToken: String?) async throws {
@@ -310,6 +334,21 @@ class DefaultAuthService: AuthService {
 
     // MARK: Private Methods
 
+    /// Get the fingerprint phrase from the public key of a login request.
+    ///
+    /// - Parameters:
+    ///   - publicKey: The public key of a login request.
+    ///   - email: The user's email.
+    ///
+    /// - Returns: The fingerprint phrase.
+    ///
+    private func getFingerprintPhrase(from publicKey: String, email: String) async throws -> String {
+        try await clientPlatform.fingerprint(req: .init(
+            fingerprintMaterial: email,
+            publicKey: publicKey.urlDecoded()
+        ))
+    }
+
     /// Get an identity token and handle the response.
     ///
     /// - Parameters:
@@ -390,4 +429,4 @@ class DefaultAuthService: AuthService {
             throw error
         }
     }
-}
+} // swiftlint:disable:this file_length

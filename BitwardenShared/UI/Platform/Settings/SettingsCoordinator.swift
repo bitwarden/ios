@@ -37,6 +37,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
+        & HasAuthService
         & HasBiometricsService
         & HasClientAuth
         & HasErrorReporter
@@ -118,6 +119,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showOtherScreen()
         case .passwordAutoFill:
             showPasswordAutoFill()
+        case .pendingLoginRequests:
+            showPendingLoginRequests()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
@@ -283,6 +286,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController, navigationTitle: Localizations.passwordAutofill)
+    }
+
+    /// Shows the pending login requests screen.
+    ///
+    private func showPendingLoginRequests() {
+        let processor = PendingRequestsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: PendingRequestsState()
+        )
+        let view = PendingRequestsView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
     }
 
     /// Shows the select language screen.

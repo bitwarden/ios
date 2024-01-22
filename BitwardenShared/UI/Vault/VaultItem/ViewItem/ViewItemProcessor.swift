@@ -1,8 +1,6 @@
 import BitwardenSdk
 import Foundation
 
-// swiftlint:disable file_length
-
 // MARK: - ViewItemProcessor
 
 /// A processor that can process `ViewItemAction`s.
@@ -432,4 +430,4 @@ extension ViewItemProcessor: MoveToOrganizationProcessorDelegate {
     func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
         state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
-}
+} // swiftlint:disable:this file_length

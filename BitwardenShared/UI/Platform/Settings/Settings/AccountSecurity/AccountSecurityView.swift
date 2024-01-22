@@ -61,8 +61,10 @@ struct AccountSecurityView: View {
                 SettingsListItem(
                     Localizations.pendingLogInRequests,
                     hasDivider: false
-                ) {}
-                    .cornerRadius(10)
+                ) {
+                    store.send(.pendingLoginRequestsTapped)
+                }
+                .cornerRadius(10)
             }
         }
     }
@@ -208,13 +210,11 @@ struct AccountSecurityView: View {
 // MARK: - Previews
 
 #if DEBUG
-struct AccountSecurityView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            AccountSecurityView(
-                store: Store(processor: StateProcessor(state: AccountSecurityState()))
-            )
-        }
+#Preview {
+    NavigationView {
+        AccountSecurityView(
+            store: Store(processor: StateProcessor(state: AccountSecurityState()))
+        )
     }
 }
 #endif
