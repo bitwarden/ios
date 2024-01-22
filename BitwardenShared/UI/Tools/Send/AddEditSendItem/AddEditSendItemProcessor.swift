@@ -116,7 +116,13 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         do {
             switch state.mode {
             case .add:
-                try await services.sendRepository.addSend(sendView)
+                switch state.type {
+                case .file:
+                    guard let fileData = state.fileData else { return }
+                    try await services.sendRepository.addFileSend(sendView, data: fileData)
+                case .text:
+                    try await services.sendRepository.addTextSend(sendView)
+                }
             case .edit:
                 try await services.sendRepository.updateSend(sendView)
             }

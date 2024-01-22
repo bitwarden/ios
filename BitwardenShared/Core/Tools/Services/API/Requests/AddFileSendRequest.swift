@@ -2,14 +2,14 @@ import BitwardenSdk
 import Foundation
 import Networking
 
-// MARK: - UpdateSendRequest
+// MARK: - AddFileSendRequest
 
-/// A request model for updating an existing send.
+/// A request model for adding a new file send.
 ///
-struct UpdateSendRequest: Request {
+struct AddFileSendRequest: Request {
     // MARK: Types
 
-    typealias Response = SendResponseModel
+    typealias Response = SendFileResponseModel
 
     // MARK: Properties
 
@@ -19,40 +19,35 @@ struct UpdateSendRequest: Request {
     }
 
     /// The HTTP method for this request.
-    let method: HTTPMethod = .put
+    let method: HTTPMethod = .post
 
     /// The URL path for this request.
-    var path: String { "/sends/\(sendId)" }
+    let path = "/sends/file/v2"
 
     /// The request details to include in the body of the request.
     let requestModel: SendRequestModel
 
-    /// The id of the send that is being updated.
-    let sendId: String
-
-    /// Initialize an `UpdateSendRequest` for a `Send`.
+    /// Initialize an `AddFileSendRequest` for a `Send`.
     ///
-    /// - Parameter send: The `Send` to add to the user's vault.
-    /// - Throws: An `UpdateSendRequestError` if an error is encountered when creating this request.
+    /// - Parameters
+    ///   - send: The `Send` to add to the user's vault.
+    ///   - fileLength: The length of the file.
     ///
-    init(send: Send) throws {
-        guard let id = send.id else {
-            throw BitwardenError.dataError("Received a send from the API with a missing ID.")
-        }
+    init(send: Send, fileLength: Int) {
         requestModel = SendRequestModel(
             deletionDate: send.deletionDate,
             disabled: send.disabled,
             expirationDate: send.expirationDate,
             file: send.file.map(SendFileModel.init),
+            fileLength: fileLength,
             hideEmail: send.hideEmail,
             key: send.key,
             maxAccessCount: send.maxAccessCount.map(Int32.init),
             name: send.name,
             notes: send.notes,
             password: send.password,
-            text: send.text.map(SendTextModel.init),
-            type: SendType(sendType: send.type)
+            text: nil,
+            type: .file
         )
-        sendId = id
     }
 }

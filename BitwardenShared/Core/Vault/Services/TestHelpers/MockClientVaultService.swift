@@ -123,6 +123,7 @@ class MockClientPasswordHistory: ClientPasswordHistoryProtocol {
 class MockClientSends: ClientSendsProtocol {
     var decryptedSends: [Send] = []
     var encryptedSendViews: [SendView] = []
+    var encryptedBuffers: [Data] = []
 
     func decrypt(send: Send) async throws -> SendView {
         decryptedSends.append(send)
@@ -146,8 +147,9 @@ class MockClientSends: ClientSendsProtocol {
         return Send(sendView: sendView)
     }
 
-    func encryptBuffer(send _: Send, buffer _: Data) async throws -> Data {
-        fatalError("Not implemented yet")
+    func encryptBuffer(send _: Send, buffer: Data) async throws -> Data {
+        encryptedBuffers.append(buffer)
+        return buffer
     }
 
     func encryptFile(send _: Send, decryptedFilePath _: String, encryptedFilePath _: String) async throws {

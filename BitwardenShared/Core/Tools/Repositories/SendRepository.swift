@@ -9,11 +9,25 @@ import Foundation
 protocol SendRepository: AnyObject {
     // MARK: Methods
 
-    /// Adds a new Send to the repository.
+    /// Adds a new file Send to the repository.
+    ///
+    /// - Parameters:
+    ///   - sendView: The send to add to the repository.
+    ///   - data: The data representation of the file for this send.
+    ///
+    func addFileSend(_ sendView: SendView, data: Data) async throws
+
+    /// Adds a new text Send to the repository.
     ///
     /// - Parameter sendView: The send to add to the repository.
     ///
-    func addSend(_ sendView: SendView) async throws
+    func addTextSend(_ sendView: SendView) async throws
+
+    /// Deletes a Send from the repository.
+    ///
+    /// - Parameter sendView: The send to delete from the repository.
+    ///
+    func deleteSend(_ sendView: SendView) async throws
 
     /// Updates an existing Send in the repository.
     ///
@@ -116,9 +130,20 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: Data Methods
 
-    func addSend(_ sendView: SendView) async throws {
+    func addFileSend(_ sendView: SendView, data: Data) async throws {
         let send = try await clientVault.sends().encrypt(send: sendView)
-        try await sendService.addSend(send)
+        let file = try await clientVault.sends().encryptBuffer(send: send, buffer: data)
+        try await sendService.addFileSend(send, data: file)
+    }
+
+    func addTextSend(_ sendView: SendView) async throws {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        try await sendService.addTextSend(send)
+    }
+
+    func deleteSend(_ sendView: SendView) async throws {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        try await sendService.deleteSend(send)
     }
 
     func updateSend(_ sendView: SendView) async throws {
