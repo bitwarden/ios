@@ -111,7 +111,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
 
     // MARK: Private
 
-    /// Navigates to the appropriate location follwoing a logout.
+    /// Navigates to the appropriate location following a logout.
     ///
     private func navigateFollowingLogout(
         accountId: String?,

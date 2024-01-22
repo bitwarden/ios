@@ -58,8 +58,7 @@ protocol AuthRepository: AnyObject {
 
     /// Logs the user out of the specified account.
     ///
-    /// - Parameters
-    ///   - userId: The user ID of the account to log out of.
+    /// - Parameter userId: The user ID of the account to log out of.
     ///
     func logout(userId: String?) async throws
 
