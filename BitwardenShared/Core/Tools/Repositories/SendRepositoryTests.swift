@@ -193,7 +193,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .fixture(
                 file: .fixture(fileName: "grumpy_cat.png"),
                 id: "3",
-                name: "A picture of a cute cat"
+                name: "A picture of a cute cát"
             ),
         ]
         let sendView = SendView(send: sendService.sendsSubject.value[2])
