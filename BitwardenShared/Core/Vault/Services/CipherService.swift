@@ -40,7 +40,7 @@ protocol CipherService {
     ///  - cipher: The cipher that the user is restoring.
     ///
     func restoreCipherWithServer(id: String, _ cipher: Cipher) async throws
-    
+
     /// Save an attachment to a cipher for the current user, both in the backend and in local storage.
     ///
     /// - Parameters:

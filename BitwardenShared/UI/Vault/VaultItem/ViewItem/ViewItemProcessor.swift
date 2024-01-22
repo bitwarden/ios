@@ -1,8 +1,6 @@
 import BitwardenSdk
 import Foundation
 
-// swiftlint:disable file_length
-
 // MARK: - ViewItemProcessor
 
 /// A processor that can process `ViewItemAction`s.
