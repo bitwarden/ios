@@ -129,7 +129,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                     to: .vaultUnlock(
                         selected,
                         animated: animated,
-                        attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock
+                        attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
+                        didSwitchAccountAutomatically: true
                     )
                 )
             } catch {

@@ -88,10 +88,12 @@ public enum AuthRoute: Equatable {
     ///   - animated: Whether to animate the transition to the view.
     ///   - attemptAutomaticBiometricUnlock: If `true` and biometric unlock is enabled/available,
     ///     the processor should attempt an automatic biometric unlock.
+    ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
     ///
     case vaultUnlock(
         Account,
         animated: Bool = true,
-        attemptAutomaticBiometricUnlock: Bool = false
+        attemptAutomaticBiometricUnlock: Bool = false,
+        didSwitchAccountAutomatically: Bool
     )
 }

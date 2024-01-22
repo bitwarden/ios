@@ -78,7 +78,16 @@ class AppCoordinatorTests: BitwardenTestCase {
     func test_didDeleteAccount_otherAccounts() {
         let account: Account = .fixtureAccountLogin()
         subject.didDeleteAccount(otherAccounts: [account])
-        XCTAssertEqual(module.authCoordinator.routes, [.vaultUnlock(account), .alert(.accountDeletedAlert())])
+        XCTAssertEqual(
+            module.authCoordinator.routes,
+            [
+                .vaultUnlock(
+                    account,
+                    didSwitchAccountAutomatically: true
+                ),
+                .alert(.accountDeletedAlert()),
+            ]
+        )
     }
 
     /// `didLockVault(_:, _:, _:)`  starts the auth coordinator and navigates to the login route.
@@ -88,7 +97,15 @@ class AppCoordinatorTests: BitwardenTestCase {
         subject.didLockVault(account: .fixtureAccountLogin())
 
         XCTAssertTrue(module.authCoordinator.isStarted)
-        XCTAssertEqual(module.authCoordinator.routes, [.vaultUnlock(account)])
+        XCTAssertEqual(
+            module.authCoordinator.routes,
+            [
+                .vaultUnlock(
+                    account,
+                    didSwitchAccountAutomatically: false
+                ),
+            ]
+        )
     }
 
     /// `didLogout()` starts the auth coordinator and navigates to the landing route.
@@ -132,7 +149,8 @@ class AppCoordinatorTests: BitwardenTestCase {
         let expectedRoute = AuthRoute.vaultUnlock(
             altAccount,
             animated: true,
-            attemptAutomaticBiometricUnlock: true
+            attemptAutomaticBiometricUnlock: true,
+            didSwitchAccountAutomatically: true
         )
         subject.didLogout(userInitiated: true, otherAccounts: [altAccount])
         XCTAssertTrue(module.authCoordinator.isStarted)
