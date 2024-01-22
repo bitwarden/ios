@@ -120,6 +120,9 @@ extension DefaultCipherService {
             response = try await cipherAPIService.addCipherWithCollections(cipher)
         }
 
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.collectionIds = cipher.collectionIds
+
         // Add the cipher in local storage.
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)
     }
@@ -158,6 +161,8 @@ extension DefaultCipherService {
 
         // Share the cipher from the backend.
         var response = try await cipherAPIService.shareCipher(cipher)
+
+        // The API doesn't return the collectionIds, so manually add them back.
         response.collectionIds = cipher.collectionIds
 
         // Update the cipher in local storage.
@@ -188,7 +193,10 @@ extension DefaultCipherService {
         let userId = try await stateService.getActiveAccountId()
 
         // Update the cipher in the backend.
-        let response = try await cipherAPIService.updateCipher(cipher)
+        var response = try await cipherAPIService.updateCipher(cipher)
+
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.collectionIds = cipher.collectionIds
 
         // Update the cipher in local storage.
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)

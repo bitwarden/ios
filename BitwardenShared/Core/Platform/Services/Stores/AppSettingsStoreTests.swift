@@ -104,6 +104,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
     }
 
+    /// `biometricIntegrityState` returns nil if there is no previous value.
+    func test_biometricIntegrityState_isInitiallyNil() {
+        XCTAssertNil(subject.biometricIntegrityState(userId: "-1"))
+    }
+
+    /// `biometricIntegrityState` returns nil if there is no previous value.
+    func test_biometricIntegrityState_withValue() {
+        subject.setBiometricIntegrityState("state1", userId: "0")
+        subject.setBiometricIntegrityState("state2", userId: "1")
+
+        XCTAssertEqual("state1", subject.biometricIntegrityState(userId: "0"))
+        XCTAssertEqual("state2", subject.biometricIntegrityState(userId: "1"))
+
+        subject.setBiometricIntegrityState("state3", userId: "0")
+        subject.setBiometricIntegrityState("state4", userId: "1")
+
+        XCTAssertEqual("state3", subject.biometricIntegrityState(userId: "0"))
+        XCTAssertEqual("state4", subject.biometricIntegrityState(userId: "1"))
+    }
+
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
     func test_clearClipboardValue_isInitiallyNever() {
         XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
@@ -254,6 +274,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
             "2:USER_KEY_NEW"
         )
+    }
+
+    /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
+    func test_isBiometricAuthenticationEnabled_isInitiallyFalse() {
+        XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))
+    }
+
+    /// `isBiometricAuthenticationEnabled` can be used to get the biometric unlock preference for a user.
+    func test_isBiometricAuthenticationEnabled_withValue() {
+        subject.setBiometricAuthenticationEnabled(false, for: "0")
+        subject.setBiometricAuthenticationEnabled(true, for: "1")
+
+        XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "0"))
+        XCTAssertTrue(subject.isBiometricAuthenticationEnabled(userId: "1"))
+
+        subject.setBiometricAuthenticationEnabled(true, for: "0")
+        subject.setBiometricAuthenticationEnabled(false, for: "1")
+
+        XCTAssertTrue(subject.isBiometricAuthenticationEnabled(userId: "0"))
+        XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "1"))
     }
 
     /// `lastUserShouldConnectToWatch` returns `false` if there isn't a previously stored value.

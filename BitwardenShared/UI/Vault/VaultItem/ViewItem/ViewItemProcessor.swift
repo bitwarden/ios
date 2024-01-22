@@ -1,14 +1,12 @@
 import BitwardenSdk
 import Foundation
 
+// swiftlint:disable file_length
+
 // MARK: - ViewItemProcessor
 
 /// A processor that can process `ViewItemAction`s.
-final class ViewItemProcessor: StateProcessor<// swiftlint:disable:this type_body_length
-    ViewItemState,
-    ViewItemAction,
-    ViewItemEffect
-> {
+final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -144,7 +142,9 @@ final class ViewItemProcessor: StateProcessor<// swiftlint:disable:this type_bod
             state.toast = newValue
         }
     }
+}
 
+private extension ViewItemProcessor {
     // MARK: Private Methods
 
     /// Copies a value to the pasteboard.

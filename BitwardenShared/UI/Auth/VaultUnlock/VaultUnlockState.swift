@@ -3,6 +3,9 @@
 struct VaultUnlockState: Equatable {
     // MARK: Properties
 
+    /// The biometric auth status for the user.
+    var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
+
     /// The user's email for the active account.
     let email: String
 

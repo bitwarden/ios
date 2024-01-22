@@ -29,14 +29,8 @@ enum AccountSecurityAction {
     /// Approve login requests was toggled.
     case toggleApproveLoginRequestsToggle(Bool)
 
-    /// Unlock with face ID was toggled.
-    case toggleUnlockWithFaceID(Bool)
-
     /// Unlock with pin code was toggled.
     case toggleUnlockWithPINCode(Bool)
-
-    /// Unlock with touch ID was toggled.
-    case toggleUnlockWithTouchID(Bool)
 
     /// The two step login button was pressed.
     case twoStepLoginPressed

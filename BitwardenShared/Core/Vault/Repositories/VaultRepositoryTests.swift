@@ -716,8 +716,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = Cipher.fixture(collectionIds: ["1"], id: "1")
         cipherService.ciphersSubject.send([cipher])
 
-        var iterator = try await subject.vaultListPublisher(group: .collection(id: "1", name: ""), filter: .allVaults)
-            .makeAsyncIterator()
+        var iterator = try await subject.vaultListPublisher(
+            group: .collection(id: "1", name: "", organizationId: "1"),
+            filter: .allVaults
+        )
+        .makeAsyncIterator()
         let vaultListItems = try await iterator.next()
 
         XCTAssertEqual(vaultListItems, [.fixture(cipherView: .init(cipher: cipher))])
@@ -862,7 +865,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
             .init(
                 id: "Collections",
-                items: [.fixtureGroup(id: "1", group: .collection(id: "1", name: ""), count: 1)],
+                items: [
+                    .fixtureGroup(
+                        id: "1",
+                        group: .collection(id: "1", name: "", organizationId: ""),
+                        count: 1
+                    ),
+                ],
                 name: Localizations.collections
             ),
             .init(
@@ -1050,7 +1059,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
 
         var iterator = try await subject.vaultListPublisher(
-            group: .collection(id: "f96de98e-618a-4886-b396-66b92a385325", name: "Engineering"),
+            group: .collection(
+                id: "f96de98e-618a-4886-b396-66b92a385325",
+                name: "Engineering",
+                organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
+            ),
             filter: .allVaults
         ).makeAsyncIterator()
         let items = try await iterator.next()
