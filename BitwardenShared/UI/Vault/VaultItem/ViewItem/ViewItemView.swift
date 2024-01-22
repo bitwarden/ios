@@ -199,7 +199,7 @@ struct ViewItemView_Previews: PreviewProvider {
             existing: cipher,
             hasPremium: true
         )!
-        state.customFields = [
+        state.customFieldsState.customFields = [
             CustomFieldState(
                 linkedIdType: nil,
                 name: "Field Name",
