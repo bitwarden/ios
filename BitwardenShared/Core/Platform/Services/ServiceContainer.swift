@@ -204,12 +204,6 @@ public class ServiceContainer: Services {
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
         let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
 
-        let cipherService = DefaultCipherService(
-            cipherAPIService: apiService,
-            cipherDataStore: dataStore,
-            stateService: stateService
-        )
-
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
             folderDataStore: dataStore,
@@ -220,6 +214,13 @@ public class ServiceContainer: Services {
             clientCrypto: clientService.clientCrypto(),
             errorReporter: errorReporter,
             organizationDataStore: dataStore,
+            stateService: stateService
+        )
+
+        let cipherService = DefaultCipherService(
+            cipherAPIService: apiService,
+            cipherDataStore: dataStore,
+            fileAPIService: apiService,
             stateService: stateService
         )
 

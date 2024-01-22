@@ -41,6 +41,12 @@ struct VaultListItemRowView: View {
                                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                                         .accessibilityLabel(Localizations.shared)
                                 }
+
+                                if cipherItem.attachments?.isEmpty == false {
+                                    Asset.Images.paperclip.swiftUIImage
+                                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                        .accessibilityLabel(Localizations.attachments)
+                                }
                             }
 
                             if let subTitle = store.state.item.subtitle {

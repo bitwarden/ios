@@ -67,10 +67,9 @@ protocol CipherAPIService {
     func saveAttachment(
         cipherId: String,
         fileName: String?,
-        fileSize: String?,
+        fileSize: Double?,
         key: String?
-    ) async throws
-        -> SaveAttachmentResponse
+    ) async throws -> SaveAttachmentResponse
 
     /// Performs an API request to share a cipher with an organization.
     ///
@@ -124,7 +123,7 @@ extension APIService: CipherAPIService {
     func saveAttachment(
         cipherId: String,
         fileName: String?,
-        fileSize: String?,
+        fileSize: Double?,
         key: String?
     ) async throws -> SaveAttachmentResponse {
         try await apiService.send(SaveAttachmentRequest(

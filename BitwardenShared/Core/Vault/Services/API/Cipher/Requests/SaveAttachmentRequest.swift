@@ -33,7 +33,7 @@ struct SaveAttachmentRequest: Request {
     ///   - fileSize: The size of the attachment .
     ///   - key: The encryption key for the attachment.
     ///
-    init(cipherId: String, fileName: String?, fileSize: String?, key: String?) {
+    init(cipherId: String, fileName: String?, fileSize: Double?, key: String?) {
         self.cipherId = cipherId
         requestModel = SaveAttachmentRequestModel(fileName: fileName, fileSize: fileSize, key: key)
     }

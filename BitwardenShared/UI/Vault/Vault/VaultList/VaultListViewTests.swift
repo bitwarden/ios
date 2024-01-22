@@ -186,6 +186,7 @@ class VaultListViewTests: BitwardenTestCase {
                     )),
                     .fixture(cipherView: .fixture(id: "12", name: "Example", type: .secureNote)),
                     .fixture(cipherView: .loginFixture(
+                        attachments: [.fixture()],
                         id: "13",
                         login: .fixture(username: "user@bitwarden.com"),
                         name: "Bitwarden",

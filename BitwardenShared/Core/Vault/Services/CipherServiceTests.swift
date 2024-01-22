@@ -9,6 +9,7 @@ class CipherServiceTests: XCTestCase {
     var cipherAPIService: CipherAPIService!
     var cipherDataStore: MockCipherDataStore!
     var client: MockHTTPClient!
+    var fileAPIService: FileAPIService!
     var stateService: MockStateService!
     var subject: CipherService!
 
@@ -16,14 +17,17 @@ class CipherServiceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+
         client = MockHTTPClient()
         cipherAPIService = APIService(client: client)
         cipherDataStore = MockCipherDataStore()
+        fileAPIService = APIService(client: client)
         stateService = MockStateService()
 
         subject = DefaultCipherService(
             cipherAPIService: cipherAPIService,
             cipherDataStore: cipherDataStore,
+            fileAPIService: fileAPIService,
             stateService: stateService
         )
     }
@@ -33,6 +37,7 @@ class CipherServiceTests: XCTestCase {
 
         cipherDataStore = nil
         client = nil
+        fileAPIService = nil
         stateService = nil
         subject = nil
     }
@@ -146,7 +151,10 @@ class CipherServiceTests: XCTestCase {
     /// `saveAttachmentWithServer(cipherId:attachment:)` calls the backend and updates the attachment list of
     /// the cipher in local storage.
     func test_saveAttachmentWithServer() async throws {
-        client.result = .httpSuccess(testData: .saveAttachment)
+        client.results = [
+            .httpSuccess(testData: .saveAttachment),
+            .httpSuccess(testData: .emptyResponse),
+        ]
         stateService.activeAccount = .fixture()
 
         let cipherResponse = try await subject.saveAttachmentWithServer(

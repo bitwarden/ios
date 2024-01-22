@@ -168,7 +168,7 @@ class CipherAPIServiceTests: XCTestCase {
         let response = try await subject.saveAttachment(
             cipherId: "42",
             fileName: "The Answer",
-            fileSize: "lots",
+            fileSize: 10000,
             key: "🔑"
         )
 
@@ -222,8 +222,8 @@ class CipherAPIServiceTests: XCTestCase {
                     type: .login,
                     viewPassword: true
                 ),
-                fileUploadType: 1,
-                url: "https://bitwardenxx5keu3w.blob.core.windows.net/attachments-v2/etc"
+                fileUploadType: .azure,
+                url: URL(string: "https://bitwardenxx5keu3w.blob.core.windows.net/attachments-v2/etc")!
             )
         )
     }
