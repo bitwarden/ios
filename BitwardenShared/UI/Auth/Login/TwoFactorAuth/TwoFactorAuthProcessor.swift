@@ -202,9 +202,9 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         state.authMethod = preferredMethod ?? .email
 
         // If email is one of the options, then parse the data to get the email to display.
-        if availableMethods.contains(.email) {
-            let emailData = state.authMethodsData["\(TwoFactorAuthMethod.email.rawValue)"]
-            let emailToDisplay = emailData?["Email"]
+        if availableMethods.contains(.email),
+           let emailData = state.authMethodsData["\(TwoFactorAuthMethod.email.rawValue)"],
+           let emailToDisplay = emailData?["Email"] {
             state.displayEmail = emailToDisplay ?? state.email
         }
     }

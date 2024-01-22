@@ -78,7 +78,7 @@ public enum AuthRoute: Equatable {
     case twoFactor(
         _ email: String,
         _ password: String?,
-        _ authMethodsData: [String: [String: String]]
+        _ authMethodsData: AuthMethodsData
     )
 
     /// A route to the unlock vault screen.

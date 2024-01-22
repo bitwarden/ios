@@ -373,7 +373,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     ///
     /// - Parameter data: The data required for the two-factor flow.
     ///
-    private func showTwoFactorAuth(email: String, password: String?, authMethodsData: [String: [String: String]]) {
+    private func showTwoFactorAuth(email: String, password: String?, authMethodsData: AuthMethodsData) {
         let state = TwoFactorAuthState(
             authMethodsData: authMethodsData,
             email: email,

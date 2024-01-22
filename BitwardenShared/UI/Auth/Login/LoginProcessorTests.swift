@@ -213,14 +213,13 @@ class LoginProcessorTests: BitwardenTestCase {
     /// if two-factor authentication is required.
     func test_perform_loginWithMasterPasswordPressed_twoFactorError() async {
         subject.state.masterPassword = "Test"
-        let authMethodsData = [String: [String: String]]()
         authService.loginWithMasterPasswordResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(authMethodsData, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil)
         )
 
         await subject.perform(.loginWithMasterPasswordPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .twoFactor("", "Test", authMethodsData))
+        XCTAssertEqual(coordinator.routes.last, .twoFactor("", "Test", AuthMethodsData()))
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
     }
