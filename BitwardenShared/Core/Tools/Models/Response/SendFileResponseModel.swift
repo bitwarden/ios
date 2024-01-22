@@ -12,6 +12,6 @@ struct SendFileResponseModel: JSONResponse, Equatable {
     /// The method for uploading the file associated with this Send.
     let fileUploadType: FileUploadType
 
-    /// The new send that was created..
+    /// The new send that was created.
     let sendResponse: SendResponseModel
 }
