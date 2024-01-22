@@ -79,7 +79,6 @@ class SendAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(
             response,
             SendFileResponseModel(
-                url: URL(string: "https://example.com?sv=2024-01-19")!,
                 fileUploadType: .azure,
                 sendResponse: SendResponseModel(
                     accessCount: 0,
@@ -101,7 +100,8 @@ class SendAPIServiceTests: BitwardenTestCase {
                         text: "encrypted text"
                     ),
                     type: .text
-                )
+                ),
+                url: URL(string: "https://example.com?sv=2024-01-19")!
             )
         )
     }

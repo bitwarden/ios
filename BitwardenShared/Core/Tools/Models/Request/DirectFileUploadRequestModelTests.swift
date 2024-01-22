@@ -7,6 +7,7 @@ import XCTest
 class DirectFileUploadRequestModelTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `init(data:date:fileName:)` initializes all the values correctly.
     func test_init() {
         let data = Data("example".utf8)
         let date = Date(timeIntervalSince1970: 420_420)
