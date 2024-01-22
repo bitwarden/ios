@@ -53,6 +53,7 @@ extension DefaultAppModule: AppModule {
     ) -> AnyCoordinator<AppRoute> {
         AppCoordinator(
             appContext: appContext,
+            appExtensionDelegate: appExtensionDelegate,
             module: self,
             rootNavigator: navigator
         ).asAnyCoordinator()

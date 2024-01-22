@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 // MARK: - CaptchaFlowDelegate
 
@@ -30,6 +31,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         & HasAuthService
         & HasCaptchaService
         & HasDeviceAPIService
+        & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -102,18 +104,17 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     ///
     private func launchCaptchaFlow(with siteKey: String) {
         do {
-            let callbackUrlScheme = services.captchaService.callbackUrlScheme
             let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
             coordinator.navigate(
                 to: .captcha(
                     url: url,
-                    callbackUrlScheme: callbackUrlScheme
+                    callbackUrlScheme: services.captchaService.callbackUrlScheme
                 ),
                 context: self
             )
         } catch {
-            // TODO: BIT-709 Add proper error handling
-            print(error)
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -122,13 +123,14 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// - Parameter captchaToken: An optional captcha token value to add to the token request.
     ///
     private func loginWithMasterPassword(captchaToken: String? = nil) async {
-        coordinator.showLoadingOverlay(title: Localizations.loggingIn)
-        defer {
-            // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
-            coordinator.hideLoadingOverlay()
-        }
+        // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
+        defer { coordinator.hideLoadingOverlay() }
 
         do {
+            try EmptyInputValidator(fieldName: Localizations.masterPassword)
+                .validate(input: state.masterPassword)
+            coordinator.showLoadingOverlay(title: Localizations.loggingIn)
+
             // Login.
             try await services.authService.loginWithMasterPassword(
                 state.masterPassword,
@@ -142,15 +144,18 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             // Complete the login flow.
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .complete)
-        } catch {
-            if let error = error as? IdentityTokenRequestError {
-                switch error {
-                case let .captchaRequired(hCaptchaSiteCode):
-                    launchCaptchaFlow(with: hCaptchaSiteCode)
-                }
-            } else {
-                // TODO: BIT-709 Add proper error handling for non-captcha errors.
+        } catch let error as InputValidationError {
+            coordinator.showAlert(.inputValidationAlert(error: error))
+        } catch let error as IdentityTokenRequestError {
+            switch error {
+            case let .captchaRequired(hCaptchaSiteCode):
+                launchCaptchaFlow(with: hCaptchaSiteCode)
+            case let .twoFactorRequired(authMethodsData, _):
+                coordinator.navigate(to: .twoFactor(state.username, state.masterPassword, authMethodsData))
             }
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -173,8 +178,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             )
             state.isLoginWithDeviceVisible = isKnownDevice
         } catch {
-            // TODO: BIT-709 Add proper error handling
-            print(error)
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
         }
     }
 }
@@ -189,7 +194,12 @@ extension LoginProcessor: CaptchaFlowDelegate {
     }
 
     func captchaErrored(error: Error) {
-        // TODO: BIT-709 Add proper error handling.
-        print(error)
+        services.errorReporter.log(error: error)
+
+        // Show the alert after a delay to ensure it doesn't try to display over the
+        // closing captcha view.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.coordinator.showAlert(.networkResponseError(error))
+        }
     }
 }

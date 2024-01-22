@@ -214,7 +214,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
         var alert = coordinator.alertShown.last
-        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+        XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: true) {})
 
         // Tap the "Yes" button on the alert.
         let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
@@ -240,7 +240,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
         let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert, .deleteCipherConfirmation {})
+        XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: true) {})
 
         // Tap the "Yes" button on the alert.
         let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
@@ -263,7 +263,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         }
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
-        XCTAssertTrue(delegate.itemDeletedCalled)
+        XCTAssertTrue(delegate.itemSoftDeletedCalled)
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
@@ -1363,7 +1363,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
 class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
     var itemDeletedCalled = false
+    var itemRestoredCalled = false
+    var itemSoftDeletedCalled = false
+
     func itemDeleted() {
         itemDeletedCalled = true
+    }
+
+    func itemRestored() {
+        itemRestoredCalled = true
+    }
+
+    func itemSoftDeleted() {
+        itemSoftDeletedCalled = true
     }
 }

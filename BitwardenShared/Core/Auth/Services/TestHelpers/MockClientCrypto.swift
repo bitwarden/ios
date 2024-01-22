@@ -8,7 +8,9 @@ class MockClientCrypto: ClientCryptoProtocol {
     var derivePinKeyResult: Result<DerivePinKeyResponse, Error> = .success(
         DerivePinKeyResponse(pinProtectedUserKey: "", encryptedPin: "")
     )
-    var derivePinUserKeyResult: Result<String, Error> = .success("pinUserKey")
+
+    var derivePinUserKeyPin: String?
+    var derivePinUserKeyResult: Result<EncString, Error> = .success("ENCRYPTED_USER_KEY")
 
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
 
@@ -24,7 +26,7 @@ class MockClientCrypto: ClientCryptoProtocol {
     }
 
     func derivePinUserKey(encryptedPin: EncString) async throws -> EncString {
-        return try derivePinUserKeyResult.get()
+        try derivePinUserKeyResult.get()
     }
 
     func getUserEncryptionKey() async throws -> String {

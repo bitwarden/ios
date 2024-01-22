@@ -28,18 +28,31 @@ struct ProfileSwitcherRow: View {
     /// A button with  accessibility traits for active accounts
     @ViewBuilder private var button: some View {
         switch store.state.rowType {
-        case .addAccount,
-             .alternate:
+        case .addAccount:
             Button {
                 store.send(.pressed(rowType))
             } label: {
                 rowContents
             }
-        case .active:
-            Button {
-                store.send(.pressed(rowType))
-            } label: {
+        case .alternate:
+            Button {} label: {
                 rowContents
+                    .onTapGesture {
+                        store.send(.pressed(rowType))
+                    }
+                    .onLongPressGesture {
+                        store.send(.longPressed(rowType))
+                    }
+            }
+        case .active:
+            Button {} label: {
+                rowContents
+                    .onTapGesture {
+                        store.send(.pressed(rowType))
+                    }
+                    .onLongPressGesture {
+                        store.send(.longPressed(rowType))
+                    }
             }
             .accessibility(
                 addTraits: .isSelected

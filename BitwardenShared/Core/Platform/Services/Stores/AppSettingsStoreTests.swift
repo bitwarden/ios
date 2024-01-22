@@ -104,6 +104,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
     }
 
+    /// `biometricIntegrityState` returns nil if there is no previous value.
+    func test_biometricIntegrityState_isInitiallyNil() {
+        XCTAssertNil(subject.biometricIntegrityState(userId: "-1"))
+    }
+
+    /// `biometricIntegrityState` returns nil if there is no previous value.
+    func test_biometricIntegrityState_withValue() {
+        subject.setBiometricIntegrityState("state1", userId: "0")
+        subject.setBiometricIntegrityState("state2", userId: "1")
+
+        XCTAssertEqual("state1", subject.biometricIntegrityState(userId: "0"))
+        XCTAssertEqual("state2", subject.biometricIntegrityState(userId: "1"))
+
+        subject.setBiometricIntegrityState("state3", userId: "0")
+        subject.setBiometricIntegrityState("state4", userId: "1")
+
+        XCTAssertEqual("state3", subject.biometricIntegrityState(userId: "0"))
+        XCTAssertEqual("state4", subject.biometricIntegrityState(userId: "1"))
+    }
+
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
     func test_clearClipboardValue_isInitiallyNever() {
         XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
@@ -254,6 +274,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
             "2:USER_KEY_NEW"
         )
+    }
+
+    /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
+    func test_isBiometricAuthenticationEnabled_isInitiallyFalse() {
+        XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))
+    }
+
+    /// `isBiometricAuthenticationEnabled` can be used to get the biometric unlock preference for a user.
+    func test_isBiometricAuthenticationEnabled_withValue() {
+        subject.setBiometricAuthenticationEnabled(false, for: "0")
+        subject.setBiometricAuthenticationEnabled(true, for: "1")
+
+        XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "0"))
+        XCTAssertTrue(subject.isBiometricAuthenticationEnabled(userId: "1"))
+
+        subject.setBiometricAuthenticationEnabled(true, for: "0")
+        subject.setBiometricAuthenticationEnabled(false, for: "1")
+
+        XCTAssertTrue(subject.isBiometricAuthenticationEnabled(userId: "0"))
+        XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "1"))
     }
 
     /// `lastUserShouldConnectToWatch` returns `false` if there isn't a previously stored value.
@@ -413,6 +453,29 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 )
             ),
             .defaultEU
+        )
+    }
+
+    /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.
+    func test_twoFactorToken_isInitiallyNil() {
+        XCTAssertNil(subject.twoFactorToken(email: "anything@email.com"))
+    }
+
+    /// `twoFactorToken(email:)` can be used to get and set the persisted value in user defaults.
+    func test_twoFactorToken_withValue() {
+        subject.setTwoFactorToken("tests_that_work", email: "lucky@gmail.com")
+        subject.setTwoFactorToken("tests_are_great", email: "happy@gmail.com")
+
+        XCTAssertEqual(subject.twoFactorToken(email: "lucky@gmail.com"), "tests_that_work")
+        XCTAssertEqual(subject.twoFactorToken(email: "happy@gmail.com"), "tests_are_great")
+
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:twoFactorToken_lucky@gmail.com"),
+            "tests_that_work"
+        )
+        XCTAssertEqual(
+            userDefaults.string(forKey: "bwPreferencesStorage:twoFactorToken_happy@gmail.com"),
+            "tests_are_great"
         )
     }
 

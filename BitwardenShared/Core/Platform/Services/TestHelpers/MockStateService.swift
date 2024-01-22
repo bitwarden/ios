@@ -14,6 +14,9 @@ class MockStateService: StateService {
     var allowSyncOnRefresh = [String: Bool]()
     var appLanguage: LanguageOption = .default
     var appTheme: AppTheme?
+    var biometricsEnabled = [String: Bool]()
+    var biometricIntegrityStates = [String: String?]()
+    var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
     var connectToWatchByUserId = [String: Bool]()
@@ -22,6 +25,9 @@ class MockStateService: StateService {
     var environmentUrls = [String: EnvironmentUrlData]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var getAccountEncryptionKeysError: Error?
+    var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var getBiometricIntegrityStateError: Error?
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
@@ -30,9 +36,12 @@ class MockStateService: StateService {
     var pinKeyEncryptedUserKeyValue = [String: String]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var setBiometricIntegrityStateError: Error?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var rememberedOrgIdentifier: String?
+    var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
@@ -58,6 +67,9 @@ class MockStateService: StateService {
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
+        if let error = getAccountEncryptionKeysError {
+            throw error
+        }
         let userId = try userId ?? getActiveAccount().profile.userId
         guard let encryptionKeys = accountEncryptionKeys[userId]
         else {
@@ -146,6 +158,10 @@ class MockStateService: StateService {
 
     func getShowWebIcons() async -> Bool {
         showWebIcons
+    }
+
+    func getTwoFactorToken(email: String) async -> String? {
+        twoFactorTokens[email]
     }
 
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
@@ -283,6 +299,10 @@ class MockStateService: StateService {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
 
+    func setTwoFactorToken(_ token: String?, email: String) async {
+        twoFactorTokens[email] = token
+    }
+
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         unsuccessfulUnlockAttempts[userId] = attempts
@@ -313,3 +333,35 @@ class MockStateService: StateService {
         showWebIconsSubject.eraseToAnyPublisher()
     }
 }
+
+// MARK: Biometrics
+
+extension MockStateService {
+    func getBiometricAuthenticationEnabled() async throws -> Bool {
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        try getBiometricAuthenticationEnabledResult.get()
+        return biometricsEnabled[activeAccount.profile.userId] ?? false
+    }
+
+    func getBiometricIntegrityState() async throws -> String? {
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        if let getBiometricIntegrityStateError {
+            throw getBiometricIntegrityStateError
+        }
+        return biometricIntegrityStates[activeAccount.profile.userId] ?? nil
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        try setBiometricAuthenticationEnabledResult.get()
+        biometricsEnabled[activeAccount.profile.userId] = isEnabled
+    }
+
+    func setBiometricIntegrityState(_ base64EncodedState: String?) async throws {
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        if let setBiometricIntegrityStateError {
+            throw setBiometricIntegrityStateError
+        }
+        biometricIntegrityStates[activeAccount.profile.userId] = base64EncodedState
+    }
+} // swiftlint:disable:this file_length

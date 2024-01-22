@@ -1,6 +1,7 @@
 import BitwardenSdk
 import Combine
 import Foundation
+import OSLog
 
 /// A protocol for a `VaultRepository` which manages access to the data needed by the UI layer.
 ///
@@ -84,6 +85,12 @@ protocol VaultRepository: AnyObject {
     ///  - Parameter userId: An optional userId. Defaults to the active user id.
     ///
     func remove(userId: String?) async
+
+    /// Restores a cipher from the trash.
+    ///
+    /// - Parameter cipher: The cipher that the user is restoring.
+    ///
+    func restoreCipher(_ cipher: CipherView) async throws
 
     /// A publisher for a user's cipher objects based on the specified search text and filter type.
     ///
@@ -220,11 +227,17 @@ class DefaultVaultRepository {
     /// The service used to manage syncing and updates to the user's organizations.
     private let organizationService: OrganizationService
 
+    /// The service used by the application to manage user settings.
+    let settingsService: SettingsService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
     /// The service used to handle syncing vault data with the API.
     private let syncService: SyncService
+
+    /// The service used to get the present time.
+    private let timeProvider: TimeProvider
 
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
@@ -244,8 +257,10 @@ class DefaultVaultRepository {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
+    ///   - settingsService: The service used by the application to manage user settings.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
+    ///   - timeProvider: The service used to get the present time.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
@@ -259,8 +274,10 @@ class DefaultVaultRepository {
         errorReporter: ErrorReporter,
         folderService: FolderService,
         organizationService: OrganizationService,
+        settingsService: SettingsService,
         stateService: StateService,
         syncService: SyncService,
+        timeProvider: TimeProvider,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.cipherAPIService = cipherAPIService
@@ -273,8 +290,10 @@ class DefaultVaultRepository {
         self.errorReporter = errorReporter
         self.folderService = folderService
         self.organizationService = organizationService
+        self.settingsService = settingsService
         self.stateService = stateService
         self.syncService = syncService
+        self.timeProvider = timeProvider
         self.vaultTimeoutService = vaultTimeoutService
     }
 
@@ -290,7 +309,7 @@ class DefaultVaultRepository {
     private func totpListItems(
         from ciphers: [CipherView],
         filter: VaultFilterType?
-    ) async throws -> [VaultListItem] {
+    ) async -> [VaultListItem] {
         // Filter and sort the list.
         let activeCiphers = ciphers
             .filter(filter?.cipherFilter(_:) ?? { _ in true })
@@ -302,18 +321,24 @@ class DefaultVaultRepository {
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         // A transform to convert a `CipherListView` into a `VaultListItem`.
-        let listItemTransform: (CipherView) async throws -> VaultListItem? = { [weak self] cipherView in
+        let listItemTransform: (CipherView) async -> VaultListItem? = { [weak self] cipherView in
             guard let self,
                   let id = cipherView.id,
                   let login = cipherView.login,
                   let key = login.totp else {
                 return nil
             }
-
-            let code = try await clientVault.generateTOTPCode(
+            guard let code = try? await clientVault.generateTOTPCode(
                 for: key,
-                date: Date()
-            )
+                date: timeProvider.presentTime
+            ) else {
+                errorReporter.log(
+                    error: TOTPServiceError
+                        .unableToGenerateCode("Unable to create TOTP code for key \(key) for cipher id \(id)")
+                )
+                return nil
+            }
+
             let listModel = VaultListTOTP(
                 id: id,
                 loginView: login,
@@ -329,7 +354,7 @@ class DefaultVaultRepository {
         }
 
         // Convert the CipherViews into VaultListItem.
-        let totpItems: [VaultListItem] = try await activeCiphers
+        let totpItems: [VaultListItem] = await activeCiphers
             .asyncMap(listItemTransform)
             .compactMap { $0 }
 
@@ -361,7 +386,7 @@ class DefaultVaultRepository {
         switch group {
         case .card:
             return activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
-        case let .collection(id, _):
+        case let .collection(id, _, _):
             return activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
         case let .folder(id, _):
             return activeCiphers.filter { $0.folderId == id }.compactMap(VaultListItem.init)
@@ -372,7 +397,7 @@ class DefaultVaultRepository {
         case .secureNote:
             return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case .totp:
-            return try await totpListItems(from: ciphers, filter: filter)
+            return await totpListItems(from: ciphers, filter: filter)
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
         }
@@ -419,7 +444,7 @@ class DefaultVaultRepository {
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
-        let oneTimePasswordCount: Int = try await totpListItems(from: ciphers, filter: filter).count
+        let oneTimePasswordCount: Int = await totpListItems(from: ciphers, filter: filter).count
 
         let totpItems = (oneTimePasswordCount > 0) ? [
             VaultListItem(
@@ -455,7 +480,10 @@ class DefaultVaultRepository {
             let collectionCount = activeCiphers.lazy.filter { $0.collectionIds.contains(collectionId) }.count
             return VaultListItem(
                 id: collectionId,
-                itemType: .group(.collection(id: collectionId, name: collection.name), collectionCount)
+                itemType: .group(
+                    .collection(id: collectionId, name: collection.name, organizationId: collection.organizationId),
+                    collectionCount
+                )
             )
         }
 
@@ -562,7 +590,7 @@ extension DefaultVaultRepository: VaultRepository {
     func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {
         let codeState = try await clientVault.generateTOTPCode(
             for: key.rawAuthenticatorKey,
-            date: Date()
+            date: timeProvider.presentTime
         )
         return LoginTOTPState(
             authKeyModel: key,
@@ -570,13 +598,16 @@ extension DefaultVaultRepository: VaultRepository {
         )
     }
 
-    func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
-        try await items.asyncMap { item in
+    func refreshTOTPCodes(for items: [VaultListItem]) async -> [VaultListItem] {
+        await items.asyncMap { item in
             guard case let .totp(name, model) = item.itemType,
-                  let key = model.loginView.totp else {
+                  let key = model.loginView.totp,
+                  let code = try? await clientVault
+                  .generateTOTPCode(for: key, date: timeProvider.presentTime) else {
+                errorReporter.log(error: TOTPServiceError
+                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
                 return item
             }
-            let code = try await clientVault.generateTOTPCode(for: key, date: Date())
             var updatedModel = model
             updatedModel.totpCode = code
             return .init(
@@ -589,6 +620,13 @@ extension DefaultVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         await vaultTimeoutService.remove(userId: userId)
+    }
+
+    func restoreCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+        guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        let restoredCipher = cipher.update(deletedDate: nil)
+        let encryptCipher = try await clientVault.ciphers().encrypt(cipherView: restoredCipher)
+        try await cipherService.restoreCipherWithServer(id: id, encryptCipher)
     }
 
     func shareCipher(_ cipher: CipherView) async throws {
@@ -638,7 +676,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func softDeleteCipher(_ cipher: CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
-        let softDeletedCipher = cipher.update(deletedDate: .now)
+        let softDeletedCipher = cipher.update(deletedDate: timeProvider.presentTime)
         let encryptCipher = try await clientVault.ciphers().encrypt(cipherView: softDeletedCipher)
         try await cipherService.softDeleteCipherWithServer(id: id, encryptCipher)
     }
@@ -689,8 +727,12 @@ extension DefaultVaultRepository: VaultRepository {
                     try await self.clientVault.ciphers().decrypt(cipher: cipher)
                 }
             }
-            .map { ciphers in
-                CipherMatchingHelper.ciphersMatching(uri: uri, ciphers: ciphers)
+            .asyncTryMap { ciphers in
+                await CipherMatchingHelper(
+                    settingsService: self.settingsService,
+                    stateService: self.stateService
+                )
+                .ciphersMatching(uri: uri, ciphers: ciphers)
             }
             .eraseToAnyPublisher()
             .values

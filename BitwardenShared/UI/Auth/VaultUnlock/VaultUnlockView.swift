@@ -13,7 +13,7 @@ struct VaultUnlockView: View {
     var footerText: String {
         """
         \(store.state.unlockMethod == .pin
-            ? Localizations.vaultLockedMasterPassword
+            ? Localizations.vaultLockedPIN
             : Localizations.vaultLockedMasterPassword)
         \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
         """
@@ -48,6 +48,10 @@ struct VaultUnlockView: View {
         .task {
             await store.perform(.appeared)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultUnlockAction.toastShown
+        ))
     }
 
     /// the scrollable content of the view.
@@ -55,6 +59,8 @@ struct VaultUnlockView: View {
         ScrollView {
             VStack(spacing: 24) {
                 textField
+
+                biometricAuthButton
 
                 Button {
                     Task { await store.perform(.unlockVault) }
@@ -81,6 +87,27 @@ struct VaultUnlockView: View {
                 mapEffect: nil
             )
         )
+    }
+
+    /// A button to trigger a biometric auth unlock.
+    @ViewBuilder private var biometricAuthButton: some View {
+        if case let .available(biometryType, true, true) = store.state.biometricUnlockStatus {
+            AsyncButton {
+                Task { await store.perform(.unlockVaultWithBiometrics) }
+            } label: {
+                biometricUnlockText(biometryType)
+            }
+            .buttonStyle(.secondary(shouldFillWidth: true))
+        }
+    }
+
+    @ViewBuilder private func biometricUnlockText(_ biometryType: BiometricAuthenticationType) -> some View {
+        switch biometryType {
+        case .faceID:
+            Text(Localizations.useFaceIDToUnlock)
+        case .touchID:
+            Text(Localizations.useFingerprintToUnlock)
+        }
     }
 
     /// A view that displays the ability to add or switch between account profiles

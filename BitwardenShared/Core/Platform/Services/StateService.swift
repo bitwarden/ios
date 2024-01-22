@@ -72,6 +72,14 @@ protocol StateService: AnyObject {
     ///
     func getAppTheme() async -> AppTheme
 
+    /// Get the active user's Biometric Authentication Preference.
+    ///
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func getBiometricAuthenticationEnabled() async throws -> Bool
+
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -142,6 +150,19 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
+    /// Gets the BiometricIntegrityState for the active user.
+    ///
+    /// - Returns: An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
+    ///
+    func getBiometricIntegrityState() async throws -> String?
+
+    /// Get the two-factor token (non-nil if the user selected the "remember me" option).
+    ///
+    /// - Parameter email: The user's email address.
+    /// - Returns: The two-factor token.
+    ///
+    func getTwoFactorToken(email: String) async -> String?
+
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
@@ -205,6 +226,20 @@ protocol StateService: AnyObject {
     /// - Parameter appTheme: The new app theme.
     ///
     func setAppTheme(_ appTheme: AppTheme) async
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
+
+    /// Sets the BiometricIntegrityState for the active user.
+    ///
+    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
+    ///
+    func setBiometricIntegrityState(_ base64State: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -301,6 +336,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
+
+    /// Sets the user's two-factor token.
+    ///
+    /// - Parameters:
+    ///   - token: The two-factor token.
+    ///   - email: The user's email address.
+    ///
+    func setTwoFactorToken(_ token: String?, email: String) async
 
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
@@ -652,7 +695,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func clearPins() async throws {
         let userId = try getActiveAccountUserId()
         accountVolatileData.removeValue(forKey: userId)
-        appSettingsStore.setPinProtectedKey(key: nil, userId: userId)
+        appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
         appSettingsStore.setPinKeyEncryptedUserKey(key: nil, userId: userId)
     }
 
@@ -760,6 +803,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         !appSettingsStore.disableWebIcons
     }
 
+    func getTwoFactorToken(email: String) async -> String? {
+        appSettingsStore.twoFactorToken(email: email)
+    }
+
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId) ?? 0
@@ -774,22 +821,24 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
 
-        let userId = try userId ?? getActiveAccountUserId()
-        state.accounts.removeValue(forKey: userId)
-        if state.activeUserId == userId {
+        let knownUserId: String = try userId ?? getActiveAccountUserId()
+        state.accounts.removeValue(forKey: knownUserId)
+        if state.activeUserId == knownUserId {
             // Find the next account to make the active account.
             state.activeUserId = state.accounts.first?.key
         }
 
-        appSettingsStore.setDefaultUriMatchType(nil, userId: userId)
-        appSettingsStore.setDisableAutoTotpCopy(nil, userId: userId)
-        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
-        appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
-        appSettingsStore.setLastSyncTime(nil, userId: userId)
-        appSettingsStore.setMasterPasswordHash(nil, userId: userId)
-        appSettingsStore.setPasswordGenerationOptions(nil, userId: userId)
+        appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
+        appSettingsStore.setBiometricIntegrityState(nil, userId: knownUserId)
+        appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
+        appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
+        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
+        appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
+        appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
+        appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
+        appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
 
-        try await dataStore.deleteDataForUser(userId: userId)
+        try await dataStore.deleteDataForUser(userId: knownUserId)
     }
 
     func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
@@ -876,7 +925,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         if requirePasswordAfterRestart {
             try await setPinProtectedUserKeyToMemory(pinProtectedUserKey)
         } else {
-            try appSettingsStore.setPinProtectedKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
+            try appSettingsStore.setPinProtectedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
         }
         try appSettingsStore.setPinKeyEncryptedUserKey(key: pinKeyEncryptedUserKey, userId: getActiveAccountUserId())
     }
@@ -909,6 +958,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             refreshToken: refreshToken
         )
         appSettingsStore.state = state
+    }
+
+    func setTwoFactorToken(_ token: String?, email: String) async {
+        appSettingsStore.setTwoFactorToken(token, email: email)
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
@@ -979,4 +1032,28 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 struct AccountVolatileData {
     /// The pin protected user key.
     var pinProtectedUserKey: String = ""
+}
+
+// MARK: Biometrics
+
+extension DefaultStateService {
+    func getBiometricAuthenticationEnabled() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
+    }
+
+    func getBiometricIntegrityState() async throws -> String? {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.biometricIntegrityState(userId: userId)
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+
+    func setBiometricIntegrityState(_ base64State: String?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricIntegrityState(base64State, userId: userId)
+    }
 }

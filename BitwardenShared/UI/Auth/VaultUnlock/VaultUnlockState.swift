@@ -17,6 +17,9 @@ struct VaultUnlockState: Equatable {
 
     // MARK: Properties
 
+    /// The biometric auth status for the user.
+    var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
+
     /// The user's email for the active account.
     let email: String
 
@@ -40,6 +43,9 @@ struct VaultUnlockState: Equatable {
 
     /// The user information used to unlock the vault.
     var unlockMethod: UnlockMethod = .password
+
+    /// A toast message to show in the view.
+    var toast: Toast?
 
     /// Keeps track of the number of unsuccessful attempts to unlock the vault.
     var unsuccessfulUnlockAttemptsCount: Int = 0

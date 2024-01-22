@@ -16,6 +16,9 @@ enum VaultUnlockAction: Equatable {
     /// The value for the PIN was changed.
     case pinChanged(String)
 
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// The reveal master password field button was pressed.
     case revealMasterPasswordFieldPressed(Bool)
 

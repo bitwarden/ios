@@ -65,12 +65,22 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
+    /// Long pressing a profile row dispatches the `.accountLongPressed` action.
+    func test_accountRow_longPress_currentAccount() throws {
+        processor.state.profileSwitcherState.isVisible = true
+        let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
+        let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
+        try accountRow.labelView().callOnLongPressGesture()
+
+        XCTAssertEqual(processor.dispatchedActions.last, .profileSwitcherAction(.accountLongPressed(currentAccount)))
+    }
+
     /// Tapping a profile row dispatches the `.accountPressed` action.
     func test_accountRow_tap_currentAccount() throws {
         processor.state.profileSwitcherState.isVisible = true
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
-        try accountRow.tap()
+        try accountRow.labelView().callOnTapGesture()
 
         XCTAssertEqual(processor.dispatchedActions.last, .profileSwitcherAction(.accountPressed(currentAccount)))
     }
