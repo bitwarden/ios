@@ -183,6 +183,7 @@ struct CipherItemState: Equatable {
         addItem type: CipherType = .login,
         allowTypeSelection: Bool = true,
         collectionIds: [String] = [],
+        customFields: [CustomFieldState] = [],
         hasPremium: Bool,
         organizationId: String? = nil,
         totpKeyString: String? = nil,
