@@ -130,7 +130,12 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             selectAccount(for: userId)
         case let .twoFactor(email, password, authMethodsData):
             showTwoFactorAuth(email: email, password: password, authMethodsData: authMethodsData)
-        case let .vaultUnlock(account, animated, attemptAutomaticBiometricUnlock, didSwitch):
+        case let .vaultUnlock(
+            account,
+            animated,
+            attemptAutomaticBiometricUnlock,
+            didSwitch
+        ):
             showVaultUnlock(
                 account: account,
                 animated: animated,
@@ -413,7 +418,9 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         processor.shouldAttemptAutomaticBiometricUnlock = attemptAutmaticBiometricUnlock
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator.replace(view, animated: animated)
-        processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
+        if didSwitchAccountAutomatically {
+            processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
+        }
     }
 }
 
