@@ -22,27 +22,19 @@ struct AddEditCustomFieldsView: View {
                 ) {
                     Menu {
                         Button(Localizations.edit) {
-                            withAnimation {
-                                store.send(.editCustomFieldNamePressed(index: index))
-                            }
+                            store.send(.editCustomFieldNamePressed(index: index))
                         }
 
                         Button(Localizations.moveUp) {
-                            withAnimation {
-                                store.send(.moveUpCustomFieldPressed(index: index))
-                            }
+                            store.send(.moveUpCustomFieldPressed(index: index))
                         }
 
                         Button(Localizations.moveDown) {
-                            withAnimation {
-                                store.send(.moveDownCustomFieldPressed(index: index))
-                            }
+                            store.send(.moveDownCustomFieldPressed(index: index))
                         }
 
                         Button(Localizations.remove, role: .destructive) {
-                            withAnimation {
-                                store.send(.removeCustomFieldPressed(index: index))
-                            }
+                            store.send(.removeCustomFieldPressed(index: index))
                         }
                     } label: {
                         Asset.Images.gear.swiftUIImage
