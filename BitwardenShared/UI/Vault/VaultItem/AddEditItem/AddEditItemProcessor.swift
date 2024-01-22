@@ -90,6 +90,8 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             updateCardState(&state, for: cardFieldAction)
         case let .collectionToggleChanged(newValue, collectionId):
             state.toggleCollection(newValue: newValue, collectionId: collectionId)
+        case let .customField(action):
+            handleCustomFieldAction(action)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
         case let .favoriteChanged(newValue):
@@ -165,6 +167,41 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             state.folders = [.default] + folders
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Handles an action associated with the `AddEditCustomFieldsAction`.
+    ///
+    /// - Parameter action: The action that was sent from the `AddEditCustomFieldsView`.
+    ///
+    private func handleCustomFieldAction(_ action: AddEditCustomFieldsAction) {
+        switch action {
+        case let .customFieldAdded(type, name):
+            state.customFieldsState.customFields.append(CustomFieldState(name: name, type: type))
+        case let .customFieldChanged(newValue, index: index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields[index].value = newValue
+        case let .customFieldNameChanged(index, newValue):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields[index].name = newValue
+        case let .editCustomFieldNamePressed(index: index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            presentEditCustomFieldNameAlert(oldName: state.customFieldsState.customFields[index].name, index: index)
+        case let .moveDownCustomFieldPressed(index: index):
+            guard state.customFieldsState.customFields.indices.contains(index),
+                  index != state.customFieldsState.customFields.indices.last else { return }
+            state.customFieldsState.customFields.swapAt(index, index + 1)
+        case let .moveUpCustomFieldPressed(index: index):
+            guard state.customFieldsState.customFields.indices.contains(index),
+                  index != state.customFieldsState.customFields.indices.first else { return }
+            state.customFieldsState.customFields.swapAt(index, index - 1)
+        case let .removeCustomFieldPressed(index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields.remove(at: index)
+        case let .selectedCustomFieldType(type):
+            presentNameCustomFieldAlert(fieldType: type)
+        case .newCustomFieldPressed:
+            presentCustomFieldAlert()
         }
     }
 
@@ -273,11 +310,61 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         }
     }
 
-    /// Builds an alert for creating a new custom field and then routes the coordinator
+    /// Builds an actions sheet for creating a new custom field and then routes the coordinator
     /// to the `.alert` route.
     ///
     private func presentCustomFieldAlert() {
-        // TODO: BIT-368 Navigate to an `.alert` route with the custom field alert
+        let fieldTypes: [FieldType] = state.type != .secureNote ? [.text, .hidden, .boolean, .linked]
+        : [.text, .hidden, .boolean]
+        let actions = fieldTypes.map { type in
+            AlertAction(title: type.localizedName, style: .default) { [weak self] _ in
+                guard let self else { return }
+                receive(
+                    .customField(
+                        .selectedCustomFieldType(type)
+                    )
+                )
+            }
+        }
+
+        let alertActions = actions + [AlertAction(title: Localizations.cancel, style: .cancel)]
+
+        let alert = Alert(
+            title: Localizations.selectTypeField,
+            message: nil,
+            preferredStyle: .actionSheet,
+            alertActions: alertActions
+        )
+        coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Builds an alert to edit  name of a custom field and then routes the coordinator
+    /// to the `.alert` route.
+    ///
+    private func presentEditCustomFieldNameAlert(oldName: String?, index: Int) {
+        let alert = Alert.nameCustomFieldAlert(text: oldName) { [weak self] name in
+            guard let self else { return }
+            receive(
+                .customField(
+                    .customFieldNameChanged(
+                        index: index,
+                        newValue: name
+                    )
+                )
+            )
+        }
+        coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Builds an alert to name a new custom field and then routes the coordinator
+    /// to the `.alert` route.
+    ///
+    private func presentNameCustomFieldAlert(fieldType: FieldType) {
+        let alert = Alert.nameCustomFieldAlert { [weak self] name in
+            guard let self else { return }
+            receive(.customField(.customFieldAdded(fieldType, name)))
+        }
+        coordinator.navigate(to: .alert(alert))
     }
 
     /// Builds and navigates to an alert for overwriting an existing value for the specified type.

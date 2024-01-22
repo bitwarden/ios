@@ -25,7 +25,7 @@ struct ViewItemDetailsView: View {
             notesSection
         }
 
-        if !store.state.customFields.isEmpty {
+        if !store.state.customFieldsState.customFields.isEmpty {
             customFieldsSection
         }
 
@@ -112,7 +112,7 @@ struct ViewItemDetailsView: View {
     /// The custom fields section.
     var customFieldsSection: some View {
         SectionView(Localizations.customFields) {
-            ForEach(store.state.customFields, id: \.self) { customField in
+            ForEach(store.state.customFieldsState.customFields, id: \.self) { customField in
                 BitwardenField(title: customField.name) {
                     switch customField.type {
                     case .boolean:

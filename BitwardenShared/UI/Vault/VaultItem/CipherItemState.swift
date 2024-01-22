@@ -49,8 +49,8 @@ struct CipherItemState: Equatable {
     /// The Add or Existing Configuration.
     let configuration: Configuration
 
-    /// The custom fields.
-    var customFields: [CustomFieldState]
+    /// The custom fields state.
+    var customFieldsState: AddEditCustomFieldsState
 
     /// The identifier of the folder for this item.
     var folderId: String?
@@ -163,7 +163,7 @@ struct CipherItemState: Equatable {
         cardItemState = cardState
         self.collectionIds = collectionIds
         collections = []
-        self.customFields = customFields
+        customFieldsState = AddEditCustomFieldsState(customFields: customFields)
         self.folderId = folderId
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
@@ -194,7 +194,7 @@ struct CipherItemState: Equatable {
             cardState: .init(),
             collectionIds: collectionIds,
             configuration: .add,
-            customFields: [],
+            customFields: customFields,
             folderId: nil,
             identityState: .init(),
             isFavoriteOn: false,
@@ -262,8 +262,8 @@ struct CipherItemState: Equatable {
     /// - Parameter customFieldState: The custom field to update.
     ///
     mutating func togglePasswordVisibility(for customFieldState: CustomFieldState) {
-        if let index = customFields.firstIndex(of: customFieldState) {
-            customFields[index].isPasswordVisible.toggle()
+        if let index = customFieldsState.customFields.firstIndex(of: customFieldState) {
+            customFieldsState.customFields[index].isPasswordVisible.toggle()
         }
     }
 
@@ -326,7 +326,14 @@ extension CipherItemState {
             viewPassword: true,
             localData: nil,
             attachments: nil,
-            fields: nil,
+            fields: customFieldsState.customFields.isEmpty ? nil : customFieldsState.customFields.map { customField in
+                FieldView(
+                    name: customField.name,
+                    value: customField.value,
+                    type: .init(fieldType: customField.type),
+                    linkedId: customField.linkedIdType?.rawValue
+                )
+            },
             passwordHistory: nil,
             creationDate: creationDate,
             deletedDate: nil,
