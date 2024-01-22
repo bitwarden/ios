@@ -21,7 +21,6 @@ struct PendingRequestsView: View {
                     pendingRequestsList(pendingRequests)
                 }
             }
-
             .padding(.vertical, 16)
             .frame(minHeight: geometry.size.height)
             .scrollView(addVerticalPadding: false)
