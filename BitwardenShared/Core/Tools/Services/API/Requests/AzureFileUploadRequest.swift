@@ -53,6 +53,8 @@ struct AzureFileUploadRequest: Request {
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEE, d MMM yyyy HH:mm:ss z"
+        dateFormatter.timeZone = TimeZone(identifier: "UTC")
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         let formattedDate = dateFormatter.string(from: date)
 
         let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
