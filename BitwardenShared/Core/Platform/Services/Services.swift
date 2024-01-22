@@ -85,7 +85,7 @@ protocol HasAuthService {
 ///
 protocol HasBiometricsService {
     /// The service used to obtain the available authentication policies and access controls for the user's device.
-    var biometricsService: BiometricsService { get }
+    var biometricsRepository: BiometricsRepository { get }
 }
 
 /// Protocol for an object that provides a `CameraService`.

@@ -501,7 +501,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
-            await coordinator.navigate(asyncTo: .scanCode, context: self)
+            await coordinator.navigate(asyncTo: .scanCode, withRedirect: false, context: self)
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }

@@ -11,7 +11,6 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
         & HasAuthRepository
         & HasClientAuth
         & HasStateService
-        & HasVaultTimeoutService
 
     // MARK: Properties
 
@@ -71,7 +70,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
         do {
             try await services.authRepository.deleteAccount(passwordText: passwordText)
-            try await navigatePostDeletion()
+            navigatePostDeletion()
         } catch {
             coordinator.navigate(to: .alert(.networkResponseError(error) {
                 await self.deleteAccount(passwordText: passwordText)
@@ -83,9 +82,8 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     /// If the user has another account, they're navigated to the vault unlock screen.
     /// If the user does not, they're navigated to the landing screen.
     ///
-    private func navigatePostDeletion() async throws {
-        let userAccounts = try await services.stateService.getAccounts()
-        coordinator.navigate(to: .didDeleteAccount(otherAccounts: userAccounts))
+    private func navigatePostDeletion() {
+        coordinator.navigate(to: .didDeleteAccount)
     }
 
     /// Shows the master password prompt when the user is attempting to delete their account.

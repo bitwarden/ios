@@ -877,7 +877,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         cameraService.cameraAuthorizationStatus = .authorized
         await subject.perform(.setupTotpPressed)
 
-        XCTAssertEqual(coordinator.asyncRoutes.last, .scanCode)
+        XCTAssertEqual(coordinator.routes.last, .scanCode)
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the

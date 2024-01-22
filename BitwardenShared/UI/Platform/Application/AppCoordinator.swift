@@ -59,7 +59,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func navigate(to route: AppRoute, context: AnyObject?) {
         switch route {
         case let .auth(authRoute):
-            showAuth(route: authRoute)
+            showAuth(authRoute)
         case let .extensionSetup(extensionSetupRoute):
             showExtensionSetup(route: extensionSetupRoute)
         case let .tab(tabRoute):
@@ -80,9 +80,12 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     ///
     /// - Parameter route: The auth route to show.
     ///
-    private func showAuth(route: AuthRoute) {
+    private func showAuth(_ authRoute: AuthRoute) {
         if let coordinator = childCoordinator as? AnyCoordinator<AuthRoute> {
-            coordinator.navigate(to: route)
+            Task {
+                let route = await coordinator.prepareAndRedirect(authRoute)
+                coordinator.navigate(to: route)
+            }
         } else {
             let navigationController = UINavigationController()
             let coordinator = module.makeAuthCoordinator(
@@ -90,9 +93,13 @@ class AppCoordinator: Coordinator, HasRootNavigator {
                 rootNavigator: rootNavigator,
                 stackNavigator: navigationController
             )
-            coordinator.start()
-            coordinator.navigate(to: route)
-            childCoordinator = coordinator
+
+            Task {
+                let route = await coordinator.prepareAndRedirect(authRoute)
+                coordinator.start()
+                childCoordinator = coordinator
+                coordinator.navigate(to: route)
+            }
         }
     }
 
@@ -174,37 +181,23 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 // MARK: - SettingsCoordinatorDelegate
 
 extension AppCoordinator: SettingsCoordinatorDelegate {
-    func didDeleteAccount(otherAccounts: [Account]?) {
-        if let account = otherAccounts?.first {
-            showAuth(
-                route: .vaultUnlock(
-                    account,
-                    didSwitchAccountAutomatically: true
-                )
-            )
-        } else {
-            showAuth(route: .landing)
-        }
-        showAuth(route: .alert(.accountDeletedAlert()))
+    func didDeleteAccount() {
+        showAuth(.didDeleteAccount)
     }
 
     func didLockVault(account: Account) {
-        showAuth(route: .vaultUnlock(account, didSwitchAccountAutomatically: false))
+        showAuth(
+            .vaultUnlock(
+                account,
+                animated: false,
+                attemptAutomaticBiometricUnlock: false,
+                didSwitchAccountAutomatically: false
+            )
+        )
     }
 
-    func didLogout(userInitiated: Bool, otherAccounts: [Account]?) {
-        if userInitiated,
-           let account = otherAccounts?.first {
-            showAuth(
-                route: .vaultUnlock(
-                    account,
-                    attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: true
-                )
-            )
-        } else {
-            showAuth(route: .landing)
-        }
+    func didLogout(userInitiated: Bool) {
+        showAuth(.didLogout(userInitiated: userInitiated))
     }
 }
 
@@ -212,10 +205,15 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
 
 extension AppCoordinator: VaultCoordinatorDelegate {
     func didTapAddAccount() {
-        showAuth(route: .landing)
+        showAuth(.landing)
     }
 
     func didTapAccount(userId: String) {
-        showAuth(route: .switchAccount(userId: userId))
+        showAuth(
+            .switchAccount(
+                isUserInitiated: true,
+                userId: userId
+            )
+        )
     }
 }

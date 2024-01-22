@@ -147,19 +147,12 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
            let accounts = try? await services.stateService.getAccounts(),
            let nextAccount = accounts.first,
            accountId != nextAccount.profile.userId {
-            do {
-                let selected = try await services.authRepository.setActiveAccount(userId: nextAccount.profile.userId)
-                coordinator.navigate(
-                    to: .vaultUnlock(
-                        selected,
-                        animated: animated,
-                        attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                        didSwitchAccountAutomatically: true
-                    )
+            coordinator.navigate(
+                to: .switchAccount(
+                    isUserInitiated: userInitiated,
+                    userId: nextAccount.profile.userId
                 )
-            } catch {
-                coordinator.navigate(to: .landing)
-            }
+            )
         } else {
             coordinator.navigate(to: .landing)
         }
@@ -168,7 +161,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
     /// Loads the async state data for the view
     ///
     private func loadData() async {
-        state.biometricUnlockStatus = await (try? services.biometricsService.getBiometricUnlockStatus())
+        state.biometricUnlockStatus = await (try? services.biometricsRepository.getBiometricUnlockStatus())
             ?? .notAvailable
         state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
         state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
@@ -258,7 +251,10 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
     /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
     ///
     private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
-        coordinator.navigate(to: .switchAccount(userId: selectedAccount.userId))
+        coordinator.navigate(to: .switchAccount(
+            isUserInitiated: true,
+            userId: selectedAccount.userId
+        ))
         state.profileSwitcherState.isVisible = false
     }
 
@@ -331,7 +327,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
     /// Attempts to unlock the vault with the user's biometrics
     ///
     private func unlockWithBiometrics() async {
-        let status = try? await services.biometricsService.getBiometricUnlockStatus()
+        let status = try? await services.biometricsRepository.getBiometricUnlockStatus()
         guard case let .available(_, enabled: enabled, hasValidIntegrity) = status,
               enabled,
               hasValidIntegrity else {
@@ -353,7 +349,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
             }
             // There is no biometric auth key stored, set user preference to false.
             if case .getAuthKeyFailed = error {
-                try? await services.authRepository.allowBioMetricUnlock(false, userId: nil)
+                try? await services.authRepository.allowBioMetricUnlock(false)
             }
             await loadData()
         } catch let error as StateServiceError {

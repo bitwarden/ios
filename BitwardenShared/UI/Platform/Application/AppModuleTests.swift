@@ -29,7 +29,7 @@ class AppModuleTests: BitwardenTestCase {
         let rootViewController = RootViewController()
         let coordinator = subject.makeAppCoordinator(appContext: .mainApp, navigator: rootViewController)
         coordinator.navigate(to: .auth(.landing), context: nil)
-        XCTAssertNotNil(rootViewController.childViewController)
+        waitFor(rootViewController.childViewController != nil)
     }
 
     /// `makeAuthCoordinator` builds the auth coordinator.

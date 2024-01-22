@@ -114,6 +114,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(
         asyncTo route: AuthenticatorKeyCaptureRoute,
+        withRedirect: Bool = false,
         context: AnyObject?
     ) async {
         guard case .scanCode = route else {

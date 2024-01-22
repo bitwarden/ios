@@ -66,26 +66,14 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
     }
 
-    /// `didDeleteAccount(otherAccounts:)` navigates to the landing screen
-    /// and presents an alert notifying the user that they deleted their account.
-    func test_didDeleteAccount_noOtherAccounts() {
-        subject.didDeleteAccount(otherAccounts: [])
-        XCTAssertEqual(module.authCoordinator.routes, [.landing, .alert(.accountDeletedAlert())])
-    }
-
-    /// `didDeleteAccount(otherAccounts:)` navigates to the vault unlock screen
-    /// and presents an alert notifying the user that they deleted their account.
-    func test_didDeleteAccount_otherAccounts() {
-        let account: Account = .fixtureAccountLogin()
-        subject.didDeleteAccount(otherAccounts: [account])
+    /// `didDeleteAccount(otherAccounts:)` navigates to the `didDeleteAccount` route.
+    func test_didDeleteAccount() {
+        subject.didDeleteAccount()
+        waitFor(!module.authCoordinator.routes.isEmpty)
         XCTAssertEqual(
             module.authCoordinator.routes,
             [
-                .vaultUnlock(
-                    account,
-                    didSwitchAccountAutomatically: true
-                ),
-                .alert(.accountDeletedAlert()),
+                .didDeleteAccount,
             ]
         )
     }
@@ -96,74 +84,57 @@ class AppCoordinatorTests: BitwardenTestCase {
 
         subject.didLockVault(account: .fixtureAccountLogin())
 
-        XCTAssertTrue(module.authCoordinator.isStarted)
+        waitFor(module.authCoordinator.isStarted)
         XCTAssertEqual(
             module.authCoordinator.routes,
             [
                 .vaultUnlock(
                     account,
+                    animated: false,
+                    attemptAutomaticBiometricUnlock: false,
                     didSwitchAccountAutomatically: false
                 ),
             ]
         )
     }
 
-    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
-    func test_didLogout_automatic_nilAccounts() {
-        subject.didLogout(userInitiated: false, otherAccounts: nil)
-        XCTAssertTrue(module.authCoordinator.isStarted)
-        XCTAssertEqual(module.authCoordinator.routes, [.landing])
+    /// `didLogout()` starts the auth coordinator and navigates to the `.didLogout` route.
+    func test_didLogout_automatic() {
+        subject.didLogout(userInitiated: false)
+        waitFor(module.authCoordinator.isStarted)
+        XCTAssertEqual(module.authCoordinator.routes, [.didLogout(userInitiated: false)])
     }
 
-    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
-    func test_didLogout_automatic_noAccounts() {
-        subject.didLogout(userInitiated: false, otherAccounts: [])
-        XCTAssertTrue(module.authCoordinator.isStarted)
-        XCTAssertEqual(module.authCoordinator.routes, [.landing])
-    }
-
-    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
-    func test_didLogout_automatic_withAccount() {
-        subject.didLogout(userInitiated: false, otherAccounts: [.fixtureAccountLogin()])
-        XCTAssertTrue(module.authCoordinator.isStarted)
-        XCTAssertEqual(module.authCoordinator.routes, [.landing])
-    }
-
-    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
-    func test_didLogout_userInitiated_nilAccounts() {
-        subject.didLogout(userInitiated: true, otherAccounts: nil)
-        XCTAssertTrue(module.authCoordinator.isStarted)
-        XCTAssertEqual(module.authCoordinator.routes, [.landing])
-    }
-
-    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
-    func test_didLogout_userInitiated_noAccounts() {
-        subject.didLogout(userInitiated: true, otherAccounts: [])
-        XCTAssertTrue(module.authCoordinator.isStarted)
-        XCTAssertEqual(module.authCoordinator.routes, [.landing])
-    }
-
-    /// `didLogout()` starts the auth coordinator and navigates to the landing route.
-    func test_didLogout_userInitiated_withAccount() {
-        let altAccount = Account.fixtureAccountLogin()
-        let expectedRoute = AuthRoute.vaultUnlock(
-            altAccount,
-            animated: true,
-            attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: true
-        )
-        subject.didLogout(userInitiated: true, otherAccounts: [altAccount])
-        XCTAssertTrue(module.authCoordinator.isStarted)
+    /// `didLogout()` starts the auth coordinator and navigates to the `.didLogout` route.
+    func test_didLogout_userInitiated() {
+        let expectedRoute = AuthRoute.didLogout(userInitiated: true)
+        subject.didLogout(userInitiated: true)
+        waitFor(module.authCoordinator.isStarted)
         XCTAssertEqual(
             module.authCoordinator.routes,
             [expectedRoute]
         )
     }
 
+    /// `didTapAccount(:)` triggers the switch account action.
+    func test_didTapAccount() {
+        subject.didTapAccount(userId: "123")
+        waitFor(module.authCoordinator.isStarted)
+        XCTAssertEqual(
+            module.authCoordinator.routes,
+            [
+                .switchAccount(
+                    isUserInitiated: true,
+                    userId: "123"
+                ),
+            ]
+        )
+    }
+
     /// `didTapAddAccount()` triggers the login sequence from the llanding page
     func test_didTapAddAccount() {
         subject.didTapAddAccount()
-        XCTAssertTrue(module.authCoordinator.isStarted)
+        waitFor(module.authCoordinator.isStarted)
         XCTAssertEqual(module.authCoordinator.routes, [.landing])
     }
 
@@ -171,7 +142,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_auth() throws {
         subject.navigate(to: .auth(.landing))
 
-        XCTAssertTrue(module.authCoordinator.isStarted)
+        waitFor(module.authCoordinator.isStarted)
         XCTAssertEqual(module.authCoordinator.routes, [.landing])
     }
 
@@ -180,6 +151,7 @@ class AppCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .auth(.landing))
         subject.navigate(to: .auth(.landing))
 
+        waitFor(module.authCoordinator.routes.count > 1)
         XCTAssertEqual(module.authCoordinator.routes, [.landing, .landing])
     }
 

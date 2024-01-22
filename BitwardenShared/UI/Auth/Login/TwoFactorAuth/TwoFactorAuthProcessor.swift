@@ -104,7 +104,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     }
 
     /// Attempt to login.
-    private func login(captchaToken: String? = nil) async {
+    private func login(captchaToken: String? = nil) async { // swiftlint:disable:this function_body_length
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 
@@ -141,6 +141,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                     to: .vaultUnlock(
                         account,
                         animated: false,
+                        attemptAutomaticBiometricUnlock: true,
                         didSwitchAccountAutomatically: false
                     )
                 )

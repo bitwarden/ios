@@ -11,7 +11,7 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
     ///
     /// - Parameter otherAccounts: An optional array of the user's other accounts.
     ///
-    func didDeleteAccount(otherAccounts: [Account]?)
+    func didDeleteAccount()
 
     /// Called when the user locks their vault.
     ///
@@ -25,7 +25,7 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
     ///   - userInitiated: Did a user action initiate this logout.
     ///   - otherAccounts: An optional array of the user's other accounts.
     ///
-    func didLogout(userInitiated: Bool, otherAccounts: [Account]?)
+    func didLogout(userInitiated: Bool)
 }
 
 // MARK: - SettingsCoordinator
@@ -48,7 +48,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasTimeProvider
         & HasTwoStepLoginService
         & HasVaultRepository
-        & HasVaultTimeoutService
 
     // MARK: Properties
 
@@ -102,9 +101,9 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showAutoFill()
         case .deleteAccount:
             showDeleteAccount()
-        case let .didDeleteAccount(otherAccounts):
+        case .didDeleteAccount:
             stackNavigator.dismiss {
-                self.delegate?.didDeleteAccount(otherAccounts: otherAccounts ?? nil)
+                self.delegate?.didDeleteAccount()
             }
         case .dismiss:
             stackNavigator.dismiss()
@@ -115,10 +114,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         case let .lockVault(account, _):
             delegate?.didLockVault(account: account)
         case let .logout(userInitiated):
-            Task {
-                let accounts = try? await services.stateService.getAccounts()
-                delegate?.didLogout(userInitiated: userInitiated, otherAccounts: accounts)
-            }
+            delegate?.didLogout(userInitiated: userInitiated)
         case .other:
             showOtherScreen()
         case .passwordAutoFill:

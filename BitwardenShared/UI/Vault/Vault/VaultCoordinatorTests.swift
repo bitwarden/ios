@@ -200,16 +200,14 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var accountTapped = [String]()
     var lockVaultAccount: Account?
     var logoutTapped = false
-    var otherAccounts: [Account]?
     var userInitiated: Bool?
 
     func didLockVault(account: Account) {
         lockVaultAccount = account
     }
 
-    func didLogout(userInitiated: Bool, otherAccounts: [Account]?) {
+    func didLogout(userInitiated: Bool) {
         self.userInitiated = userInitiated
-        self.otherAccounts = otherAccounts
         logoutTapped = true
     }
 

@@ -46,6 +46,6 @@ final class ManualEntryProcessorTests: BitwardenTestCase {
     /// `receive()` with `.scanCodePressed` navigates to `.scanCode`.
     func test_perform_scanCodePressed() async {
         await subject.perform(.scanCodePressed)
-        XCTAssertEqual(coordinator.asyncRoutes, [.scanCode])
+        XCTAssertEqual(coordinator.routes, [.scanCode])
     }
 }

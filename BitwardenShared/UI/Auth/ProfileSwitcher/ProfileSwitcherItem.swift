@@ -5,18 +5,28 @@ import SwiftUI
 /// An object that defines account profile information relevant to account switching
 /// Part of `ProfileSwitcherState`.
 struct ProfileSwitcherItem: Equatable, Hashable {
+    /// A placeholder empty item.
+    static var empty: ProfileSwitcherItem {
+        ProfileSwitcherItem(
+            email: "",
+            isUnlocked: false,
+            userId: "",
+            userInitials: ".."
+        )
+    }
+
     /// The color associated with the profile
     var color = Color.purple
 
     /// The account's email.
-    var email = ""
+    var email: String
 
     /// The the locked state of an account profile
-    var isUnlocked = false
+    var isUnlocked: Bool
 
     /// The user's identifier
-    var userId = UUID().uuidString
+    var userId: String
 
     /// The user's initials.
-    var userInitials = ".."
+    var userInitials: String
 }

@@ -8,6 +8,9 @@ import Foundation
 enum VaultTimeoutServiceError: Error {
     /// There are no known accounts.
     case noAccountFound
+
+    /// There is an unhandled timeout action.
+    case unhandledTimeoutAction(Int)
 }
 
 // MARK: - VaultTimeoutService
@@ -17,11 +20,17 @@ enum VaultTimeoutServiceError: Error {
 protocol VaultTimeoutService: AnyObject {
     // MARK: Methods
 
+    /// Whether a session timeout should occur.
+    ///
+    /// - Returns: Whether a session timeout should occur.
+    ///
+    func hasPassedSessionTimeout(userId: String) async throws -> Bool
+
     /// Checks the locked status of a user vault by user id
     ///  - Parameter userId: The userId of the account
     ///  - Returns: A bool, true if locked, false if unlocked.
     ///
-    func isLocked(userId: String) throws -> Bool
+    func isLocked(userId: String) -> Bool
 
     /// Locks the user's vault
     ///
@@ -50,18 +59,19 @@ protocol VaultTimeoutService: AnyObject {
     ///
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
 
-    /// Whether a session timeout should occur.
-    ///
-    /// - Returns: Whether a session timeout should occur.
-    ///
-    func shouldSessionTimeout(userId: String) async throws -> Bool
-
     /// Unlocks the user's vault
     ///
     /// - Parameter userId: The userId of the account to unlock.
     ///     Defaults to the active account if nil
     ///
     func unlockVault(userId: String?) async
+
+    /// Gets the `SessionTimeoutValue` for a user.
+    ///
+    ///  - Parameter userId: The userId of the account.
+    ///     Defaults to the active user if nil.
+    ///
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue
 }
 
 // MARK: - DefaultVaultTimeoutService
@@ -75,6 +85,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// The state service used by this Default Service.
     private var stateService: StateService
 
+    /// Provides the current time.
+    private var timeProvider: TimeProvider
+
     /// The store of locked status for known accounts
     var timeoutStore = [String: Bool]()
 
@@ -85,17 +98,33 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     /// Creates a new `DefaultVaultTimeoutService`.
     ///
-    /// - Parameter stateService: The StateService used by DefaultVaultTimeoutService.
+    /// - Parameters:
+    ///  - stateService: The StateService used by DefaultVaultTimeoutService.
+    ///  - timeProvider: Provides the current time.
     ///
-    init(stateService: StateService) {
+    init(stateService: StateService, timeProvider: TimeProvider) {
         self.stateService = stateService
+        self.timeProvider = timeProvider
     }
 
     // MARK: Methods
 
-    func isLocked(userId: String) throws -> Bool {
+    func hasPassedSessionTimeout(userId: String) async throws -> Bool {
+        guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId) else { return true }
+        let vaultTimeout = try await sessionTimeoutValue(userId: userId)
+
+        if vaultTimeout == .never { return false }
+
+        if timeProvider.presentTime.timeIntervalSince(lastActiveTime) >= TimeInterval(vaultTimeout.rawValue) {
+            return true
+        }
+        return false
+    }
+
+    func isLocked(userId: String) -> Bool {
         guard let isLocked = timeoutStore[userId] else {
-            throw VaultTimeoutServiceError.noAccountFound
+            timeoutStore[userId] = true
+            return true
         }
         return isLocked
     }
@@ -111,24 +140,11 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func setLastActiveTime(userId: String) async throws {
-        try await stateService.setLastActiveTime(Date(), userId: userId)
+        try await stateService.setLastActiveTime(timeProvider.presentTime, userId: userId)
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         try await stateService.setVaultTimeout(value: value, userId: userId)
-    }
-
-    func shouldSessionTimeout(userId: String) async throws -> Bool {
-        guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId) else { return true }
-        let vaultTimeout = try await stateService.getVaultTimeout(userId: userId)
-
-        if vaultTimeout == .onAppRestart { return true }
-        if vaultTimeout == .never { return false }
-
-        if Date().timeIntervalSince(lastActiveTime) >= TimeInterval(vaultTimeout.rawValue) {
-            return true
-        }
-        return false
     }
 
     func unlockVault(userId: String?) async {
@@ -136,5 +152,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         var updatedStore = timeoutStore.mapValues { _ in true }
         updatedStore[id] = false
         timeoutStore = updatedStore
+    }
+
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
+        try await stateService.getVaultTimeout(userId: userId)
     }
 }

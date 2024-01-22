@@ -102,7 +102,11 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
         }
     }
 
-    func navigate(asyncTo route: VaultItemRoute, context: AnyObject?) async {
+    func navigate(
+        asyncTo route: VaultItemRoute,
+        withRedirect: Bool = false,
+        context: AnyObject?
+    ) async {
         guard case .scanCode = route else {
             navigate(to: route, context: context)
             return
@@ -193,7 +197,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
             stackNavigator: navigationController
         )
         coordinator.start()
-        await coordinator.navigate(asyncTo: .scanCode)
+        await coordinator.navigate(asyncTo: .scanCode, withRedirect: false, context: nil)
         stackNavigator.present(navigationController, overFullscreen: true)
     }
 

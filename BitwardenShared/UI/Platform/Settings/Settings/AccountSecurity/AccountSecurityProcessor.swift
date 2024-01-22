@@ -20,7 +20,6 @@ final class AccountSecurityProcessor: StateProcessor<
         & HasStateService
         & HasTimeProvider
         & HasTwoStepLoginService
-        & HasVaultTimeoutService
 
     // MARK: Private Properties
 
@@ -143,7 +142,7 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func loadBiometricUnlockPreference() async -> BiometricsUnlockStatus {
         do {
-            let biometricsStatus = try await services.biometricsService.getBiometricUnlockStatus()
+            let biometricsStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
             return biometricsStatus
         } catch {
             Logger.application.debug("Error loading biometric preferences: \(error)")
@@ -198,7 +197,7 @@ final class AccountSecurityProcessor: StateProcessor<
         Task {
             do {
                 state.sessionTimeoutValue = value
-                try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: nil)
+                try await services.authRepository.setVaultTimeout(value: value)
             } catch {
                 self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
                 self.services.errorReporter.log(error: error)
@@ -249,12 +248,12 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func setBioMetricAuth(_ enabled: Bool) async {
         do {
-            try await services.authRepository.allowBioMetricUnlock(enabled, userId: nil)
-            state.biometricUnlockStatus = try await services.biometricsService.getBiometricUnlockStatus()
+            try await services.authRepository.allowBioMetricUnlock(enabled)
+            state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
             // Set biometric integrity if needed.
             if case .available(_, true, false) = state.biometricUnlockStatus {
-                try await services.biometricsService.configureBiometricIntegrity()
-                state.biometricUnlockStatus = try await services.biometricsService.getBiometricUnlockStatus()
+                try await services.biometricsRepository.configureBiometricIntegrity()
+                state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
             }
         } catch {
             services.errorReporter.log(error: error)

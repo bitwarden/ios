@@ -13,6 +13,7 @@ class MockAuthRepository: AuthRepository {
     var encryptedPin: String = "123"
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
     var initiateLoginWithDeviceResult: Result<String, Error> = .success("fingerprint")
+    var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailable = false
     var lockVaultUserId: String?
     var logoutCalled = false
@@ -22,7 +23,9 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
+    var setActiveAccountId: String?
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var setVaultTimeoutError: Error?
     var unlockVaultPassword: String?
     var unlockVaultPIN: String?
     var unlockWithPasswordResult: Result<Void, Error> = .success(())
@@ -30,8 +33,9 @@ class MockAuthRepository: AuthRepository {
 
     var unlockVaultResult: Result<Void, Error> = .success(())
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
+    var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
 
-    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws {
+    func allowBioMetricUnlock(_ enabled: Bool) async throws {
         allowBiometricUnlock = enabled
         try allowBiometricUnlockResult.get()
     }
@@ -66,6 +70,10 @@ class MockAuthRepository: AuthRepository {
         return try initiateLoginWithDeviceResult.get()
     }
 
+    func isLocked(userId: String?) async throws -> Bool {
+        try isLockedResult.get()
+    }
+
     func isPinUnlockAvailable() async throws -> Bool {
         isPinUnlockAvailable
     }
@@ -90,13 +98,20 @@ class MockAuthRepository: AuthRepository {
         try logoutResult.get()
     }
 
-    func setActiveAccount(userId _: String) async throws -> Account {
-        try setActiveAccountResult.get()
+    func setActiveAccount(userId: String) async throws -> Account {
+        setActiveAccountId = userId
+        return try setActiveAccountResult.get()
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
+    }
+
+    func setVaultTimeout(value: BitwardenShared.SessionTimeoutValue, userId: String?) async throws {
+        if let setVaultTimeoutError {
+            throw setVaultTimeoutError
+        }
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
@@ -111,5 +126,9 @@ class MockAuthRepository: AuthRepository {
 
     func unlockVaultWithBiometrics() async throws {
         try unlockVaultWithBiometricsResult.get()
+    }
+
+    func unlockVaultWithNeverlockKey() async throws {
+        try unlockVaultWithNeverlockResult.get()
     }
 }

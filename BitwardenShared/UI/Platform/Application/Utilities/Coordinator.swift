@@ -3,6 +3,8 @@
 public protocol Coordinator<Route>: AnyObject {
     associatedtype Route
 
+    // MARK: Methods
+
     /// Hides the loading overlay view.
     ///
     func hideLoadingOverlay()
@@ -19,9 +21,17 @@ public protocol Coordinator<Route>: AnyObject {
     ///
     /// - Parameters:
     ///     - route:  Navigate to this `Route` with delay.
+    ///     - withRedirect: Should the route be redirected if needed?
     ///     - context: An object representing the context where the navigation occurred.
     ///
-    func navigate(asyncTo route: Route, context: AnyObject?) async
+    func navigate(asyncTo route: Route, withRedirect: Bool, context: AnyObject?) async
+
+    /// Prepare the coordinator for a given route and redirect if needed.
+    ///
+    /// - Parameter route: The route for which the coordinator should prepare itself.
+    /// - Returns: A redirected route for which the Coordinator is prepared.
+    ///
+    func prepareAndRedirect(_ route: Route) async -> Route
 
     /// Shows the provided alert on the `stackNavigator`.
     ///
@@ -77,19 +87,49 @@ public extension Coordinator {
         navigate(to: route, context: nil)
     }
 
-    /// Navigate to the screen associated with the given `Route` asynchronously without context.
-    ///
-    /// - Parameters:
-    ///     - route: The specific `Route` to navigate to.
-    ///
-    func navigate(asyncTo route: Route) async {
-        await navigate(asyncTo: route, context: nil)
-    }
-
     /// Default to synchronous navigation
     ///
-    func navigate(asyncTo route: Route, context: AnyObject?) async {
+    /// - Parameters:
+    ///     - route:  Navigate to this `Route` with delay.
+    ///     - withRedirect: Should the route be redirected if needed?
+    ///     - context: An object representing the context where the navigation occurred.
+    ///
+    func navigate(asyncTo route: Route, withRedirect: Bool, context: AnyObject?) async {
         navigate(to: route, context: context)
+    }
+
+    /// A helper for when not all parameters are needed.
+    ///
+    /// - Parameter route:  Navigate to this `Route` with delay.
+    ///
+    func navigate(asyncTo route: Route) async {
+        await navigate(asyncTo: route, withRedirect: false, context: nil)
+    }
+
+    /// A helper for when not all parameters are needed.
+    ///
+    /// - Parameters:
+    ///     - route:  Navigate to this `Route` with delay.
+    ///     - withRedirect: Should the route be redirected if needed?
+    ///
+    func navigate(asyncTo route: Route, withRedirect: Bool) async {
+        await navigate(asyncTo: route, withRedirect: withRedirect, context: nil)
+    }
+
+    /// A helper for when not all parameters are needed.
+    ///
+    /// - Parameters:
+    ///     - route:  Navigate to this `Route` with delay.
+    ///     - context: An object representing the context where the navigation occurred.
+    ///
+    func navigate(asyncTo route: Route, context: AnyObject?) async {
+        await navigate(asyncTo: route, withRedirect: false, context: context)
+    }
+
+    /// Default to no preparation and no redirect for a route.
+    ///
+    func prepareAndRedirect(_ route: Route) async -> Route {
+        route
     }
 }
 

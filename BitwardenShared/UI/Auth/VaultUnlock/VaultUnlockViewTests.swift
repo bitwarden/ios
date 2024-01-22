@@ -162,7 +162,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
 
     /// Check the snapshot for the profiles visible
     func test_snapshot_profilesVisible() {
-        let account = ProfileSwitcherItem(
+        let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
             userInitials: "EW"
         )
@@ -190,7 +190,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
 
     /// Check the snapshot for the profiles closed
     func test_snapshot_profilesClosed() {
-        let account = ProfileSwitcherItem(
+        let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
             userInitials: "EW"
         )

@@ -21,6 +21,18 @@ public enum AuthRoute: Equatable {
     /// A route that dismisses a presented sheet.
     case dismiss
 
+    /// A route after the user deletes an account.
+    case didDeleteAccount
+
+    /// A route after the user logs out from an account.
+    case didLogout(userInitiated: Bool)
+
+    /// A route after the app starts
+    case didStart
+
+    /// A route after the user times out.
+    case didTimeout(userId: String)
+
     /// A route to the enterprise single sign-on screen.
     ///
     /// - Parameter email: The user's email.
@@ -67,9 +79,11 @@ public enum AuthRoute: Equatable {
 
     /// A route to switch accounts.
     ///
-    /// - Parameter userId: The user Id of the selected account.
+    /// - Parameters:
+    ///   - isUserInitiated: Did the user trigger the account switch?
+    ///   - userId: The user Id of the selected account.
     ///
-    case switchAccount(userId: String)
+    case switchAccount(isUserInitiated: Bool, userId: String)
 
     /// A route to the two-factor authentication view.
     ///
@@ -95,8 +109,8 @@ public enum AuthRoute: Equatable {
     ///
     case vaultUnlock(
         Account,
-        animated: Bool = true,
-        attemptAutomaticBiometricUnlock: Bool = false,
+        animated: Bool,
+        attemptAutomaticBiometricUnlock: Bool,
         didSwitchAccountAutomatically: Bool
     )
 }

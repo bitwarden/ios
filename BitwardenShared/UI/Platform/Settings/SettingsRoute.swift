@@ -37,10 +37,7 @@ public enum SettingsRoute: Equatable, Hashable {
     case deleteAccount
 
     /// A route to either the login view or vault unlock view upon account deletion.
-    ///
-    /// - Parameter otherAccounts: An optional array of the user's other accounts.
-    ///
-    case didDeleteAccount(otherAccounts: [Account]?)
+    case didDeleteAccount
 
     /// A route that dismisses the current view.
     case dismiss

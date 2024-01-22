@@ -7,7 +7,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     var appSettingsStore: MockAppSettingsStore!
     var authRepository: MockAuthRepository!
-    var biometricsService: MockBiometricsService!
+    var biometricsRepository: MockBiometricsRepository!
     var coordinator: MockCoordinator<SettingsRoute>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
@@ -22,7 +22,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         appSettingsStore = MockAppSettingsStore()
         authRepository = MockAuthRepository()
-        biometricsService = MockBiometricsService()
+        biometricsRepository = MockBiometricsRepository()
         coordinator = MockCoordinator<SettingsRoute>()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
@@ -33,7 +33,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
-                biometricsService: biometricsService,
+                biometricsRepository: biometricsRepository,
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
                 stateService: stateService,
@@ -48,7 +48,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         appSettingsStore = nil
         authRepository = nil
-        biometricsService = nil
+        biometricsRepository = nil
         coordinator = nil
         errorReporter = nil
         settingsRepository = nil
@@ -389,7 +389,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.loadData` updates the state.
     func test_perform_loadData_biometricsValue() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        biometricsService.biometricUnlockStatus = .success(
+        biometricsRepository.biometricUnlockStatus = .success(
             biometricUnlockStatus
         )
         subject.state.biometricUnlockStatus = .notAvailable
@@ -401,7 +401,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.loadData` updates the state.
     func test_perform_loadData_biometricsValue_error() async {
         struct TestError: Error {}
-        biometricsService.biometricUnlockStatus = .failure(TestError())
+        biometricsRepository.biometricUnlockStatus = .failure(TestError())
         subject.state.biometricUnlockStatus = .notAvailable
         await subject.perform(.loadData)
 
@@ -412,7 +412,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_toggleUnlockWithBiometrics_authRepositoryFailure() async throws {
         struct TestError: Error, Equatable {}
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        biometricsService.biometricUnlockStatus = .success(
+        biometricsRepository.biometricUnlockStatus = .success(
             .available(.touchID, enabled: false, hasValidIntegrity: false)
         )
 
@@ -426,10 +426,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    func test_perform_toggleUnlockWithBiometrics_biometricsServiceFailure() async throws {
+    func test_perform_toggleUnlockWithBiometrics_biometricsRepositoryFailure() async throws {
         struct TestError: Error, Equatable {}
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        biometricsService.biometricUnlockStatus = .failure(TestError())
+        biometricsRepository.biometricUnlockStatus = .failure(TestError())
 
         authRepository.allowBiometricUnlockResult = .success(())
         subject.state.biometricUnlockStatus = biometricUnlockStatus
@@ -443,20 +443,20 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` configures biometric integrity state if needed.
     func test_perform_toggleUnlockWithBiometrics_invalidBiometryState() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: false)
-        biometricsService.biometricUnlockStatus = .success(
+        biometricsRepository.biometricUnlockStatus = .success(
             biometricUnlockStatus
         )
         authRepository.allowBiometricUnlockResult = .success(())
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
         await subject.perform(.toggleUnlockWithBiometrics(false))
 
-        XCTAssertTrue(biometricsService.didConfigureBiometricIntegrity)
+        XCTAssertTrue(biometricsRepository.didConfigureBiometricIntegrity)
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
     func test_perform_toggleUnlockWithBiometrics_success() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: true)
-        biometricsService.biometricUnlockStatus = .success(
+        biometricsRepository.biometricUnlockStatus = .success(
             biometricUnlockStatus
         )
         authRepository.allowBiometricUnlockResult = .success(())

@@ -121,7 +121,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.didDeleteAccount(otherAccounts:)` calls the delegate method
     /// that performs navigation post-deletion.
     func test_navigateTo_didDeleteAccount() throws {
-        subject.navigate(to: .didDeleteAccount(otherAccounts: []))
+        subject.navigate(to: .didDeleteAccount)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
@@ -257,13 +257,12 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
-    var capturedOtherAccounts: [Account]?
     var didDeleteAccountCalled = false
     var didLockVaultCalled = false
     var didLogoutCalled = false
     var wasLogoutUserInitiated: Bool?
 
-    func didDeleteAccount(otherAccounts _: [Account]?) {
+    func didDeleteAccount() {
         didDeleteAccountCalled = true
     }
 
@@ -271,8 +270,7 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
         didLockVaultCalled = true
     }
 
-    func didLogout(userInitiated: Bool, otherAccounts: [Account]?) {
-        capturedOtherAccounts = otherAccounts
+    func didLogout(userInitiated: Bool) {
         wasLogoutUserInitiated = userInitiated
         didLogoutCalled = true
     }

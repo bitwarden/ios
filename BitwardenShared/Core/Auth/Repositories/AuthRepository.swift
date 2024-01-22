@@ -1,12 +1,15 @@
 import BitwardenSdk
 import Foundation
+import LocalAuthentication
+
+// swiftlint:disable file_length
 
 /// A protocol for an `AuthRepository` which manages access to the data needed by the UI layer.
 ///
 protocol AuthRepository: AnyObject {
     // MARK: Methods
 
-    /// Enables or disables biometric unlock for a user.
+    /// Enables or disables biometric unlock for the active user.
     ///
     /// - Parameters:
     ///   - enabled: Whether or not the the user wants biometric auth enabled.
@@ -14,7 +17,7 @@ protocol AuthRepository: AnyObject {
     ///     If `false`, any userAuthKey is deleted from the keychain and the user preference is set to false.
     ///   - userId: The user Id to be configured.
     ///
-    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws
+    func allowBioMetricUnlock(_ enabled: Bool) async throws
 
     /// Clears the pins stored on device and in memory.
     ///
@@ -69,6 +72,12 @@ protocol AuthRepository: AnyObject {
     ///
     func isPinUnlockAvailable() async throws -> Bool
 
+    /// Checks the locked status of a user vault by user id
+    ///  - Parameter userId: The userId of the account
+    ///  - Returns: A bool, true if locked, false if unlocked.
+    ///
+    func isLocked(userId: String?) async throws -> Bool
+
     /// Locks the user's vault and clears decrypted data from memory.
     ///
     ///  - Parameter userId: The userId of the account to lock.
@@ -106,9 +115,21 @@ protocol AuthRepository: AnyObject {
     ///
     func setActiveAccount(userId: String) async throws -> Account
 
+    /// Sets the SessionTimeoutValue.
+    ///
+    /// - Parameters:
+    ///   - value: The timeout value.
+    ///   - userId: The user's ID.
+    ///
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
+
     /// Attempts to unlock the user's vault with biometrics.
     ///
     func unlockVaultWithBiometrics() async throws
+
+    /// Attempts to unlock the user's vault with the stored neverlock key.
+    ///
+    func unlockVaultWithNeverlockKey() async throws
 
     /// Attempts to unlock the user's vault with their master password.
     ///
@@ -124,10 +145,27 @@ protocol AuthRepository: AnyObject {
 }
 
 extension AuthRepository {
+    /// Checks the locked status of a user vault by user id
+    ///
+    ///  - Returns: A bool, true if locked, false if unlocked.
+    ///
+    func isLocked() async throws -> Bool {
+        try await isLocked(userId: nil)
+    }
+
     /// Logs the user out of the active account.
     ///
     func logout() async throws {
         try await logout(userId: nil)
+    }
+
+    /// Sets the SessionTimeoutValue upon the app being backgrounded.
+    ///
+    /// - Parameters:
+    ///   - value: The timeout value.
+    ///
+    func setVaultTimeout(value: SessionTimeoutValue) async throws {
+        try await setVaultTimeout(value: value, userId: nil)
     }
 }
 
@@ -145,7 +183,7 @@ class DefaultAuthRepository {
     private let authService: AuthService
 
     /// The service to use system Biometrics for vault unlock.
-    let biometricsService: BiometricsService
+    let biometricsRepository: BiometricsRepository
 
     /// The client used by the application to handle auth related encryption and decryption tasks.
     private let clientAuth: ClientAuthProtocol
@@ -158,6 +196,9 @@ class DefaultAuthRepository {
 
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
+
+    /// The keychain service used by this repository.
+    private let keychainService: KeychainService
 
     /// The service used to manage syncing and updates to the user's organizations.
     private let organizationService: OrganizationService
@@ -175,11 +216,12 @@ class DefaultAuthRepository {
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
     ///   - authService: The service used that handles some of the auth logic.
-    ///   - biometricsService: The service to use system Biometrics for vault unlock.
+    ///   - biometricsRepository: The service to use system Biometrics for vault unlock.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientPlatform: The client used by the application to handle generating account fingerprints.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - keychainService: The keychain service used by the application.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -187,22 +229,24 @@ class DefaultAuthRepository {
     init(
         accountAPIService: AccountAPIService,
         authService: AuthService,
-        biometricsService: BiometricsService,
+        biometricsRepository: BiometricsRepository,
         clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
         clientPlatform: ClientPlatformProtocol,
         environmentService: EnvironmentService,
+        keychainService: KeychainService,
         organizationService: OrganizationService,
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.accountAPIService = accountAPIService
         self.authService = authService
-        self.biometricsService = biometricsService
+        self.biometricsRepository = biometricsRepository
         self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
         self.clientPlatform = clientPlatform
         self.environmentService = environmentService
+        self.keychainService = keychainService
         self.organizationService = organizationService
         self.stateService = stateService
         self.vaultTimeoutService = vaultTimeoutService
@@ -212,15 +256,14 @@ class DefaultAuthRepository {
 // MARK: - AuthRepository
 
 extension DefaultAuthRepository: AuthRepository {
-    func clearPins() async throws {
-        try await stateService.clearPins()
+    func allowBioMetricUnlock(_ enabled: Bool) async throws {
+        try await biometricsRepository.setBiometricUnlockKey(
+            authKey: enabled ? clientCrypto.getUserEncryptionKey() : nil
+        )
     }
 
-    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws {
-        try await biometricsService.setBiometricUnlockKey(
-            authKey: enabled ? clientCrypto.getUserEncryptionKey() : nil,
-            for: userId
-        )
+    func clearPins() async throws {
+        try await stateService.clearPins()
     }
 
     func deleteAccount(passwordText: String) async throws {
@@ -273,6 +316,12 @@ extension DefaultAuthRepository: AuthRepository {
         return request.fingerprint
     }
 
+    func isLocked(userId: String?) async throws -> Bool {
+        try await vaultTimeoutService.isLocked(
+            userId: userIdOrActive(userId)
+        )
+    }
+
     func isPinUnlockAvailable() async throws -> Bool {
         try await stateService.pinProtectedUserKey() != nil
     }
@@ -282,8 +331,8 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func logout(userId: String?) async throws {
+        try? await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         await vaultTimeoutService.remove(userId: userId)
-        try? await biometricsService.setBiometricUnlockKey(authKey: nil, for: userId)
         try await stateService.logoutAccount(userId: userId)
     }
 
@@ -306,10 +355,41 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+        // Ensure we have a user id.
+        let id = try await userIdOrActive(userId)
+        let currentValue = try? await vaultTimeoutService.sessionTimeoutValue(userId: id)
+        // Set or delete the never lock key according to the current and new values.
+        if case .never = value {
+            try await keychainService.setUserAuthKey(
+                for: .neverLock(
+                    userId: id
+                ),
+                value: clientCrypto.getUserEncryptionKey()
+            )
+        } else if currentValue == .never {
+            try await keychainService.deleteUserAuthKey(
+                for: .neverLock(userId: id)
+            )
+        }
+
+        // Then configure the vault timeout service with the correct value.
+        try await vaultTimeoutService.setVaultTimeout(
+            value: value,
+            userId: id
+        )
+    }
+
     func unlockVaultWithBiometrics() async throws {
-        let account = try await stateService.getActiveAccount()
-        let decryptedUserKey = try await biometricsService.getUserAuthKey(for: account.profile.userId)
+        let decryptedUserKey = try await biometricsRepository.getUserAuthKey()
         try await unlockVault(method: .decryptedKey(decryptedUserKey: decryptedUserKey))
+    }
+
+    func unlockVaultWithNeverlockKey() async throws {
+        let id = try await stateService.getActiveAccountId()
+        let key = KeychainItem.neverLock(userId: id)
+        let neverlockKey = try await keychainService.getUserAuthKeyValue(for: key)
+        try await unlockVault(method: .decryptedKey(decryptedUserKey: neverlockKey))
     }
 
     func unlockVaultWithPassword(password: String) async throws {
@@ -333,29 +413,23 @@ extension DefaultAuthRepository: AuthRepository {
     ///   - Returns: The `ProfileSwitcherItem` representing the account.
     ///
     private func profileItem(from account: Account) async -> ProfileSwitcherItem {
-        var profile = ProfileSwitcherItem(
+        let isLocked = await (try? isLocked(userId: account.profile.userId)) ?? true
+        let hasNeverLock = await (try? stateService
+            .getVaultTimeout(userId: account.profile.userId)) == .never
+        let displayAsUnlocked = !isLocked || hasNeverLock
+        return ProfileSwitcherItem(
             email: account.profile.email,
+            isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
             userInitials: account.initials()
                 ?? ".."
         )
-        do {
-            let isUnlocked = try !vaultTimeoutService.isLocked(userId: account.profile.userId)
-            profile.isUnlocked = isUnlocked
-            return profile
-        } catch {
-            profile.isUnlocked = false
-            let userId = profile.userId
-            await vaultTimeoutService.lockVault(userId: userId)
-            return profile
-        }
     }
 
-    /// Unlocks the vault with the pin or password.
+    /// Attempts to unlocks the vault with a given method.
     ///
     /// - Parameters:
-    ///   - passwordOrPin: The user's password or pin.
-    ///   - method: The unlocking method, which is either password or pin.
+    ///   - method: The unlocking `InitUserCryptoMethod` method.
     ///
     private func unlockVault(method: InitUserCryptoMethod) async throws {
         let account = try await stateService.getActiveAccount()
@@ -371,6 +445,11 @@ extension DefaultAuthRepository: AuthRepository {
         )
 
         switch method {
+        case .authRequest:
+            break
+        case .decryptedKey:
+            // No-op: nothing extra to do for decryptedKey.
+            break
         case let .password(password, _):
             let hashedPassword = try await authService.hashPassword(
                 password: password,
@@ -386,13 +465,12 @@ extension DefaultAuthRepository: AuthRepository {
             }
 
             // Re-enable biometrics, if required.
-            let biometricUnlockStatus = try? await biometricsService.getBiometricUnlockStatus()
+            let biometricUnlockStatus = try? await biometricsRepository.getBiometricUnlockStatus()
             switch biometricUnlockStatus {
             case .available(_, true, false):
-                try await biometricsService.configureBiometricIntegrity()
-                try await biometricsService.setBiometricUnlockKey(
-                    authKey: clientCrypto.getUserEncryptionKey(),
-                    for: account.profile.userId
+                try await biometricsRepository.configureBiometricIntegrity()
+                try await biometricsRepository.setBiometricUnlockKey(
+                    authKey: clientCrypto.getUserEncryptionKey()
                 )
             default:
                 break
@@ -400,12 +478,14 @@ extension DefaultAuthRepository: AuthRepository {
         case .pin:
             // No-op: nothing extra to do for pin unlock.
             break
-        case .decryptedKey:
-            break
-        case .authRequest:
-            break
         }
+
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()
     }
-} // swiftlint:disable:this file_length
+
+    private func userIdOrActive(_ maybeId: String?) async throws -> String {
+        if let maybeId { return maybeId }
+        return try await stateService.getActiveAccountId()
+    }
+}

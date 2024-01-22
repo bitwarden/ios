@@ -205,7 +205,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     /// visibility and navigates to switch account.
     func test_receive_profileSwitcher_accountPressed() {
         subject.state.profileSwitcherState.isVisible = true
-        subject.receive(.profileSwitcherAction(.accountPressed(ProfileSwitcherItem(userId: "1"))))
+        subject.receive(.profileSwitcherAction(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(coordinator.routes.last, .switchAccount(userId: "1"))

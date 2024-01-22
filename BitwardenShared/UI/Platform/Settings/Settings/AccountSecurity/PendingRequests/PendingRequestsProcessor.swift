@@ -55,7 +55,7 @@ final class PendingRequestsProcessor: StateProcessor<
             confirmDenyAllRequests()
         case .dismiss:
             coordinator.navigate(to: .dismiss, context: self)
-        case let .requestTapped(request):
+        case .requestTapped:
             // TODO: BIT-807
             break
         case let .toastShown(newValue):
@@ -73,22 +73,17 @@ final class PendingRequestsProcessor: StateProcessor<
 
     /// Deny all the login requests.
     private func denyAllRequests() async {
-        guard case let .data(requests) = state.loadingState else { return }
-        do {
-            // Deny all the requests.
-            coordinator.showLoadingOverlay(title: Localizations.loading)
-            // TODO: BIT-441
+        guard case .data = state.loadingState else { return }
+        // Deny all the requests.
+        coordinator.showLoadingOverlay(title: Localizations.loading)
 
-            // Refresh the view.
-            await loadData()
+        // TODO: BIT-441
+        // Refresh the view.
+        await loadData()
 
-            // Show the success toast.
-            coordinator.hideLoadingOverlay()
-            state.toast = Toast(text: Localizations.requestsDeclined)
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
-        }
+        // Show the success toast.
+        coordinator.hideLoadingOverlay()
+        state.toast = Toast(text: Localizations.requestsDeclined)
     }
 
     /// Load the pending login requests to display.

@@ -104,31 +104,8 @@ class AppProcessorTests: BitwardenTestCase {
         XCTAssertEqual(notificationService.messageReceivedMessage?.keys.first, "knock knock")
     }
 
-    /// Upon a session timeout on app foreground, the user should be navigated to the landing screen.
-    func test_shouldSessionTimeout_navigateTo_landing() async throws {
-        let rootNavigator = MockRootNavigator()
-        let account: Account = .fixture()
-
-        appSettingStore.timeoutAction[account.profile.userId] = SessionTimeoutAction.logout.rawValue
-        appSettingStore.state = State(
-            accounts: [account.profile.userId: account],
-            activeUserId: account.profile.userId
-        )
-        stateService.activeAccount = account
-        stateService.accounts = [account]
-        appSettingStore.vaultTimeout[account.profile.userId] = SessionTimeoutValue.onAppRestart.rawValue
-        vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
-
-        subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
-
-        notificationCenterService.willEnterForegroundSubject.send()
-        waitFor(vaultTimeoutService.shouldSessionTimeout[account.profile.userId] == true)
-
-        XCTAssertEqual(appModule.appCoordinator.routes.last, .auth(.landing))
-    }
-
-    /// Upon a session timeout on app foreground, the user should be navigated to the vault unlock screen.
-    func test_shouldSessionTimeout_navigateTo_vaultUnlock() async throws {
+    /// Upon a session timeout on app foreground, send the user to the `.didTimeout` route.
+    func test_shouldSessionTimeout_navigateTo_didTimeout() throws {
         let rootNavigator = MockRootNavigator()
         let account: Account = .fixture()
 
@@ -146,33 +123,10 @@ class AppProcessorTests: BitwardenTestCase {
         notificationCenterService.willEnterForegroundSubject.send()
         waitFor(vaultTimeoutService.shouldSessionTimeout[account.profile.userId] == true)
 
+        waitFor(appModule.appCoordinator.routes.last != .auth(.didStart))
         XCTAssertEqual(
             appModule.appCoordinator.routes.last,
-            .auth(.vaultUnlock(
-                .fixture(),
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            ))
-        )
-    }
-
-    /// `start(navigator:)` builds the AppCoordinator and navigates to vault unlock if there's an
-    /// active account.
-    func test_start_activeAccount() async throws {
-        appSettingStore.state = State.fixture()
-        appSettingStore.vaultTimeout = [Account.fixture().profile.userId: 60]
-        let rootNavigator = MockRootNavigator()
-
-        subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
-
-        XCTAssertTrue(appModule.appCoordinator.isStarted)
-        XCTAssertEqual(
-            appModule.appCoordinator.routes.last,
-            .auth(.vaultUnlock(
-                .fixture(),
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            ))
+            .auth(.didTimeout(userId: account.profile.userId))
         )
     }
 
@@ -194,14 +148,13 @@ class AppProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `start(navigator:)` builds the AppCoordinator and navigates to the landing view if there
-    /// isn't an active account.
-    func test_start_noActiveAccount() {
+    /// `start(navigator:)` builds the AppCoordinator and navigates to the `.didStart` route.
+    func test_start_authRoute() {
         let rootNavigator = MockRootNavigator()
 
         subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         XCTAssertTrue(appModule.appCoordinator.isStarted)
-        XCTAssertEqual(appModule.appCoordinator.routes, [.auth(.landing)])
+        XCTAssertEqual(appModule.appCoordinator.routes, [.auth(.didStart)])
     }
 }

@@ -196,6 +196,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                 accounts: [
                                     ProfileSwitcherItem(
                                         email: "max.protecc@bitwarden.com",
+                                        isUnlocked: false,
                                         userId: "123",
                                         userInitials: "MP"
                                     ),
@@ -222,6 +223,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                 accounts: [
                                     ProfileSwitcherItem(
                                         email: "max.protecc@bitwarden.com",
+                                        isUnlocked: false,
                                         userId: "123",
                                         userInitials: "MP"
                                     ),
