@@ -646,6 +646,97 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemRestoredCalled)
     }
 
+    /// `.receive(_:)` with `.downloadAttachment(_)` shows an alert and downloads the attachment for large attachments.
+    func test_receive_downloadAttachment() async throws {
+        // Set up the mock results.
+        vaultRepository.downloadAttachmentResult = .success(.example)
+        let attachment = AttachmentView.fixture(size: "11000000", sizeName: "big")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        subject.state.loadingState = .data(state)
+
+        // Attempt to download the attachment.
+        subject.receive(.downloadAttachment(attachment))
+
+        // Confirm on the alert
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Confirm the results.
+        XCTAssertEqual(vaultRepository.downloadAttachmentAttachment, attachment)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.downloading)
+        XCTAssertEqual(coordinator.routes.last, .saveFile(temporaryUrl: .example))
+    }
+
+    /// `.receive(_:)` with `.downloadAttachment(_)`handles any errors.
+    func test_receive_downloadAttachment_error() async throws {
+        // Set up the mock results.
+        vaultRepository.downloadAttachmentResult = .failure(BitwardenTestError.example)
+        let attachment = AttachmentView.fixture(size: "11000000", sizeName: "big")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        subject.state.loadingState = .data(state)
+
+        // Attempt to download the attachment.
+        subject.receive(.downloadAttachment(attachment))
+
+        // Confirm on the alert
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Confirm the results.
+        XCTAssertEqual(vaultRepository.downloadAttachmentAttachment, attachment)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.downloading)
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.unableToDownloadFile))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `.receive(_:)` with `.downloadAttachment(_)` shows an alert if the data wasn't saved to a url.
+    func test_receive_downloadAttachment_nilUrl() async throws {
+        // Set up the mock results.
+        vaultRepository.downloadAttachmentResult = .success(nil)
+        let attachment = AttachmentView.fixture(size: "11000000", sizeName: "big")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        subject.state.loadingState = .data(state)
+
+        // Attempt to download the attachment.
+        subject.receive(.downloadAttachment(attachment))
+
+        // Confirm on the alert
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Confirm the results.
+        XCTAssertEqual(vaultRepository.downloadAttachmentAttachment, attachment)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.downloading)
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.unableToDownloadFile))
+    }
+
+    /// `.receive(_:)` with `.downloadAttachment(_)` skips the confirmation alert for small files..
+    func test_receive_downloadAttachment_smallAttachment() throws {
+        // Set up the mock results.
+        vaultRepository.downloadAttachmentResult = .success(.example)
+        let attachment = AttachmentView.fixture(size: "10", sizeName: "small")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        subject.state.loadingState = .data(state)
+
+        // Attempt to download the attachment.
+        let task = Task {
+            subject.receive(.downloadAttachment(attachment))
+        }
+
+        // Confirm the results.
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.routes.last, .saveFile(temporaryUrl: .example))
+    }
+
     /// `receive` with `.editPressed` has no change when the state is loading.
     func test_receive_editPressed_loading() {
         subject.receive(.editPressed)

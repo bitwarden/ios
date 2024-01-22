@@ -56,7 +56,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: AppRoute, context: AnyObject?) {
+    func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
         case let .auth(authRoute):
             showAuth(route: authRoute)

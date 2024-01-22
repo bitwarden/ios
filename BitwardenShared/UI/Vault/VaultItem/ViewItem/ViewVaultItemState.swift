@@ -7,6 +7,9 @@ import Foundation
 protocol ViewVaultItemState: Sendable {
     // MARK: Properties
 
+    /// The item's attachments.
+    var attachments: [AttachmentView]? { get }
+
     /// The card item state.
     var cardItemViewState: any ViewCardItemState { get }
 

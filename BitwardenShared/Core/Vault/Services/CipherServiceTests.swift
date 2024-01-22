@@ -108,6 +108,16 @@ class CipherServiceTests: XCTestCase {
         XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
     }
 
+    /// `downloadAttachment(withId:cipherId:)` downloads the attachment and returns the associated data.
+    func test_downloadAttachment() async throws {
+        client.result = .httpSuccess(testData: .downloadAttachment)
+        client.downloadResults = [.success(.example)]
+
+        let resultUrl = try await subject.downloadAttachment(withId: "1", cipherId: "2")
+
+        XCTAssertEqual(resultUrl, .example)
+    }
+
     /// `fetchCipher(withId:)` returns the cipher if it exists and nil otherwise.
     func test_fetchCipher() async throws {
         stateService.activeAccount = .fixture()

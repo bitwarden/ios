@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 import Networking
 
 // MARK: - CipherAPIServiceError
@@ -46,6 +47,24 @@ protocol CipherAPIService {
     /// - Returns: The `EmptyResponse`.
     ///
     func deleteCipher(withID id: String) async throws -> EmptyResponse
+
+    /// Get the information necessary to download an attachment.
+    ///
+    /// - Parameters:
+    ///   - id: The id of the attachment to download.
+    ///   - cipherId: The id of the cipher that owns the attachment.
+    ///
+    /// - Returns: The `DownloadAttachmentResponse`.
+    ///
+    func downloadAttachment(withId id: String, cipherId: String) async throws -> DownloadAttachmentResponse
+
+    /// Download the raw data of an attachment from its remote location.
+    ///
+    /// - Parameter url: The url where the data is stored.
+    ///
+    /// - Returns: The url of the temporary file location if it was able to be downloaded.
+    ///
+    func downloadAttachmentData(from url: URL) async throws -> URL?
 
     /// Performs an API request to restore a cipher in the user's trash.
     ///
@@ -114,6 +133,14 @@ extension APIService: CipherAPIService {
 
     func deleteCipher(withID id: String) async throws -> EmptyResponse {
         try await apiService.send(DeleteCipherRequest(id: id))
+    }
+
+    func downloadAttachment(withId id: String, cipherId: String) async throws -> DownloadAttachmentResponse {
+        try await apiService.send(DownloadAttachmentRequest(attachmentId: id, cipherId: cipherId))
+    }
+
+    func downloadAttachmentData(from url: URL) async throws -> URL? {
+        try await apiUnauthenticatedService.download(from: URLRequest(url: url))
     }
 
     func restoreCipher(withID id: String) async throws -> EmptyResponse {

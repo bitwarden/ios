@@ -23,6 +23,9 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Remove the temporary file located at the given path.
+    func clearTemporaryDownload(from url: URL)
+
     /// Delete an attachment from a cipher.
     ///
     /// - Parameters:
@@ -44,6 +47,16 @@ protocol VaultRepository: AnyObject {
     /// - Returns: Whether the active account has premium.
     ///
     func doesActiveAccountHavePremium() async throws -> Bool
+
+    /// Download and decrypt an attachment and save the file to local storage on the device.
+    ///
+    /// - Parameters:
+    ///   - attachment: The attachment to download.
+    ///   - cipher: The cipher the attachment belongs to.
+    ///
+    /// - Returns: The url of the temporary location of downloaded and decrypted data on the user's device.
+    ///
+    func downloadAttachment(_ attachment: AttachmentView, cipher: CipherView) async throws -> URL?
 
     /// Attempt to fetch a cipher with the given id.
     ///
@@ -614,6 +627,14 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.addCipherWithServer(cipher)
     }
 
+    func clearTemporaryDownload(from url: URL) {
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
     func fetchCipher(withId id: String) async throws -> CipherView? {
         guard let cipher = try await cipherService.fetchCipher(withId: id) else { return nil }
         return try? await clientVault.ciphers().decrypt(cipher: cipher)
@@ -679,6 +700,39 @@ extension DefaultVaultRepository: VaultRepository {
             .fetchAllOrganizations()
             .filter { $0.enabled && $0.usersGetPremium }
         return !organizations.isEmpty
+    }
+
+    func downloadAttachment(_ attachment: AttachmentView, cipher: CipherView) async throws -> URL? {
+        guard let attachmentId = attachment.id,
+              let attachmentName = attachment.fileName,
+              let cipherId = cipher.id
+        else { throw BitwardenError.dataError("Missing data") }
+
+        // Get the encrypted cipher and attachment, then download the actual data of the attachment.
+        let encryptedCipher = try await clientVault.ciphers().encrypt(cipherView: cipher)
+        guard let attachment = encryptedCipher.attachments?.first(where: { $0.id == attachmentId }),
+              let downloadedUrl = try await cipherService.downloadAttachment(withId: attachmentId, cipherId: cipherId)
+        else { return nil }
+
+        // Create a temporary location to write the decrypted data to.
+        let storageUrl = try FileManager.default.url(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: false
+        )
+        let temporaryUrl = storageUrl.appendingPathComponent(attachmentName)
+
+        // Decrypt the downloaded data and move it to the specified temporary location.
+        try await clientVault.attachments().decryptFile(
+            cipher: encryptedCipher,
+            attachment: attachment,
+            encryptedFilePath: downloadedUrl.path,
+            decryptedFilePath: temporaryUrl.path
+        )
+
+        // Return the temporary location where the downloaded data is located.
+        return temporaryUrl
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {

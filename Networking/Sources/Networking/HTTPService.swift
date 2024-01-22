@@ -84,6 +84,16 @@ public class HTTPService {
 
     // MARK: Request Performing
 
+    /// Download and store the data from a `URLRequest`.
+    ///
+    /// - Parameter urlRequest: The `URLRequest` where the downloadable data is located.
+    ///
+    /// - Returns: The `URL` temporary location of the file.
+    ///
+    public func download(from urlRequest: URLRequest) async throws -> URL {
+        try await client.download(from: urlRequest)
+    }
+
     /// Performs a network request.
     ///
     /// - Parameter request: The request to perform.
