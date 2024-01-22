@@ -63,7 +63,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     }
 
     /// `.receive(_:)` with `.declineAllRequestsTapped` shows the confirmation alert
-    /// and declines all the requests..
+    /// and declines all the requests.
     func test_receive_declineAllRequestsTapped() async throws {
         subject.receive(.declineAllRequestsTapped)
 
@@ -79,7 +79,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     }
 
     /// `.receive(_:)` with `.declineAllRequestsTapped` shows the confirmation alert
-    /// and handles any errors from declining all the requests..
+    /// and handles any errors from declining all the requests.
     func test_receive_declineAllRequestsTapped_error() async throws {
         subject.receive(.declineAllRequestsTapped)
 

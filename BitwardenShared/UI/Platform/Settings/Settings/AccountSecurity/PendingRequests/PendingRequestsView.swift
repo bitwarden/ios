@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - PendingRequestsView
 
-/// A view that shows all the pending login requests and allows the user to approve or deny them..
+/// A view that shows all the pending login requests and allows the user to approve or deny them.
 ///
 struct PendingRequestsView: View {
     // MARK: Properties
@@ -53,9 +53,8 @@ struct PendingRequestsView: View {
             HStack(spacing: 4) {
                 Spacer()
 
-                Image(uiImage: Asset.Images.trash.image)
+                Image(decorative: Asset.Images.trash)
                     .frame(width: 16, height: 16)
-                    .accessibilityHidden(true)
 
                 Text(Localizations.declineAllRequests)
 
@@ -69,8 +68,7 @@ struct PendingRequestsView: View {
     /// The empty view.
     private var empty: some View {
         VStack(spacing: 20) {
-            Image(uiImage: Asset.Images.pendingLoginRequestsEmpty.image)
-                .accessibilityHidden(true)
+            Image(decorative: Asset.Images.pendingLoginRequestsEmpty)
 
             Text(Localizations.noPendingRequests)
                 .styleGuide(.body)
@@ -162,13 +160,13 @@ struct PendingRequestsView: View {
                     id: "1",
                     key: nil,
                     origin: "",
+                    masterPasswordHash: nil,
                     publicKey: "",
                     requestAccessCode: nil,
                     requestApproved: nil,
                     requestDeviceType: "iOS",
                     requestIpAddress: "11-22-333-444",
-                    responseDate: nil,
-                    masterPasswordHash: nil
+                    responseDate: nil
                 ),
                 LoginRequest(
                     creationDate: Date(),
@@ -176,13 +174,13 @@ struct PendingRequestsView: View {
                     id: "2",
                     key: nil,
                     origin: "",
+                    masterPasswordHash: nil,
                     publicKey: "",
                     requestAccessCode: nil,
                     requestApproved: nil,
                     requestDeviceType: "iOS",
                     requestIpAddress: "11-22-333-444",
-                    responseDate: nil,
-                    masterPasswordHash: nil
+                    responseDate: nil
                 ),
             ]
         )

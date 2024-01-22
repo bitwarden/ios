@@ -23,13 +23,13 @@ extension LoginRequest {
             id: id,
             key: key,
             origin: origin,
+            masterPasswordHash: masterPasswordHash,
             publicKey: publicKey,
             requestAccessCode: requestAccessCode,
             requestApproved: requestApproved,
             requestDeviceType: requestDeviceType,
             requestIpAddress: requestIpAddress,
-            responseDate: responseDate,
-            masterPasswordHash: masterPasswordHash
+            responseDate: responseDate
         )
     }
 }

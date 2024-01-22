@@ -25,6 +25,9 @@ public struct LoginRequest: JSONResponse, Equatable {
     /// The origin of the login request.
     let origin: String
 
+    /// The master password hash of the login request.
+    let masterPasswordHash: String?
+
     /// The public key of the login request.
     let publicKey: String
 
@@ -42,9 +45,6 @@ public struct LoginRequest: JSONResponse, Equatable {
 
     /// The response date, if the login request has already been approved or denied.
     let responseDate: Date?
-
-    /// The master password hash of the login request.
-    let masterPasswordHash: String?
 }
 
 extension LoginRequest: Identifiable {}
