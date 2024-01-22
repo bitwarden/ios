@@ -80,10 +80,11 @@ struct AddEditItemView: View {
         AddEditCustomFieldsView(
             store: store.child(
                 state: { $0.customFieldsState },
-                mapAction: { .customFieldActionDispatched($0) },
+                mapAction: { .customField($0) },
                 mapEffect: nil
             )
         )
+        .animation(.easeInOut(duration: 0.2), value: store.state.customFieldsState)
     }
 
     private var existing: some View {

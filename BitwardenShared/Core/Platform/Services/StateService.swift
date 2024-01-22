@@ -68,6 +68,14 @@ protocol StateService: AnyObject {
     ///
     func getAppTheme() async -> AppTheme
 
+    /// Get the active user's Biometric Authentication Preference.
+    ///
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func getBiometricAuthenticationEnabled() async throws -> Bool
+
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -75,6 +83,14 @@ protocol StateService: AnyObject {
     /// - Returns: The time after which the clipboard should clear.
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
+
+    /// Gets the connect to watch value for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the connect to watch value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: Whether to connect to the watch app.
+    ///
+    func getConnectToWatch(userId: String?) async throws -> Bool
 
     /// Gets the default URI match type value for an account.
     ///
@@ -96,6 +112,13 @@ protocol StateService: AnyObject {
     /// - Returns: The user's environment URLs.
     ///
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
+
+    /// The last value of the connect to watch setting, ignoring the user id. Used for
+    /// sending the status to the watch if the user is logged out.
+    ///
+    /// - Returns: The last known value of the `connectToWatch` setting.
+    ///
+    func getLastUserShouldConnectToWatch() async -> Bool
 
     /// Gets the master password hash for a user ID.
     ///
@@ -122,6 +145,19 @@ protocol StateService: AnyObject {
     /// - Returns: Whether to show the website icons.
     ///
     func getShowWebIcons() async -> Bool
+
+    /// Gets the BiometricIntegrityState for the active user.
+    ///
+    /// - Returns: An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
+    ///
+    func getBiometricIntegrityState() async throws -> String?
+
+    /// Get the two-factor token (non-nil if the user selected the "remember me" option).
+    ///
+    /// - Parameter email: The user's email address.
+    /// - Returns: The two-factor token.
+    ///
+    func getTwoFactorToken(email: String) async -> String?
 
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
@@ -173,6 +209,20 @@ protocol StateService: AnyObject {
     ///
     func setAppTheme(_ appTheme: AppTheme) async
 
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
+
+    /// Sets the BiometricIntegrityState for the active user.
+    ///
+    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
+    ///
+    func setBiometricIntegrityState(_ base64State: String?) async throws
+
     /// Sets the clear clipboard value for an account.
     ///
     /// - Parameters:
@@ -180,6 +230,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the connect to watch value for an account.
+    ///
+    /// - Parameters:
+    ///   - connectToWatch: Whether to connect to the watch app.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws
 
     /// Sets the default URI match type value for an account.
     ///
@@ -242,6 +300,14 @@ protocol StateService: AnyObject {
     ///
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
 
+    /// Sets the user's two-factor token.
+    ///
+    /// - Parameters:
+    ///   - token: The two-factor token.
+    ///   - email: The user's email address.
+    ///
+    func setTwoFactorToken(_ token: String?, email: String) async
+
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
@@ -263,13 +329,19 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: The userId `String` of the active account
     ///
-    func activeAccountIdPublisher() async -> AsyncPublisher<AnyPublisher<String?, Never>>
+    func activeAccountIdPublisher() async -> AnyPublisher<String?, Never>
 
     /// A publisher for the app theme.
     ///
     /// - Returns: A publisher for the app theme.
     ///
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never>
+
+    /// A publisher for the connect to watch value.
+    ///
+    /// - Returns: A publisher for the connect to watch value.
+    ///
+    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never>
 
     /// A publisher for the last sync time for the active account.
     ///
@@ -281,7 +353,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: A publisher for whether or not to show the web icons.
     ///
-    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>>
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never>
 }
 
 extension StateService {
@@ -307,6 +379,14 @@ extension StateService {
     ///
     func getClearClipboardValue() async throws -> ClearClipboardValue {
         try await getClearClipboardValue(userId: nil)
+    }
+
+    /// Gets the connect to watch value for the active account.
+    ///
+    /// - Returns: Whether to connect to the watch app.
+    ///
+    func getConnectToWatch() async throws -> Bool {
+        try await getConnectToWatch(userId: nil)
     }
 
     /// Gets the default URI match type value for the active account.
@@ -398,6 +478,14 @@ extension StateService {
         try await setClearClipboardValue(clearClipboardValue, userId: nil)
     }
 
+    /// Sets the connect to watch value for the active account.
+    ///
+    /// - Parameter connectToWatch: Whether to connect to the watch app.
+    ///
+    func setConnectToWatch(_ connectToWatch: Bool) async throws {
+        try await setConnectToWatch(connectToWatch, userId: nil)
+    }
+
     /// Sets the default URI match type value the active account.
     ///
     /// - Parameter defaultUriMatchType: The default URI match type.
@@ -481,7 +569,7 @@ enum StateServiceError: Error {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService {
+actor DefaultStateService: StateService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -501,8 +589,11 @@ actor DefaultStateService: StateService {
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
 
-    /// A subject containing the app theme..
+    /// A subject containing the app theme.
     private var appThemeSubject: CurrentValueSubject<AppTheme, Never>
+
+    /// A subject containing the connect to watch value.
+    private var connectToWatchByUserIdSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
@@ -511,7 +602,7 @@ actor DefaultStateService: StateService {
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     /// A subject containing whether to show the website icons.
-    var showWebIconsSubject: CurrentValueSubject<Bool, Never>
+    private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
 
     // MARK: Initialization
 
@@ -601,6 +692,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getConnectToWatch(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.connectToWatch(userId: userId)
+    }
+
     func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
@@ -614,6 +710,10 @@ actor DefaultStateService: StateService {
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
+    }
+
+    func getLastUserShouldConnectToWatch() async -> Bool {
+        appSettingsStore.lastUserShouldConnectToWatch
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
@@ -634,6 +734,10 @@ actor DefaultStateService: StateService {
         !appSettingsStore.disableWebIcons
     }
 
+    func getTwoFactorToken(email: String) async -> String? {
+        appSettingsStore.twoFactorToken(email: email)
+    }
+
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId) ?? 0
@@ -648,22 +752,24 @@ actor DefaultStateService: StateService {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
 
-        let userId = try userId ?? getActiveAccountUserId()
-        state.accounts.removeValue(forKey: userId)
-        if state.activeUserId == userId {
+        let knownUserId: String = try userId ?? getActiveAccountUserId()
+        state.accounts.removeValue(forKey: knownUserId)
+        if state.activeUserId == knownUserId {
             // Find the next account to make the active account.
             state.activeUserId = state.accounts.first?.key
         }
 
-        appSettingsStore.setDefaultUriMatchType(nil, userId: userId)
-        appSettingsStore.setDisableAutoTotpCopy(nil, userId: userId)
-        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
-        appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
-        appSettingsStore.setLastSyncTime(nil, userId: userId)
-        appSettingsStore.setMasterPasswordHash(nil, userId: userId)
-        appSettingsStore.setPasswordGenerationOptions(nil, userId: userId)
+        appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
+        appSettingsStore.setBiometricIntegrityState(nil, userId: knownUserId)
+        appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
+        appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
+        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
+        appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
+        appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
+        appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
+        appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
 
-        try await dataStore.deleteDataForUser(userId: userId)
+        try await dataStore.deleteDataForUser(userId: knownUserId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
@@ -694,6 +800,16 @@ actor DefaultStateService: StateService {
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setConnectToWatch(connectToWatch, userId: userId)
+        connectToWatchByUserIdSubject.value[userId] = connectToWatch
+
+        // Save the value of the connect to watch setting independent of the user id,
+        // in order to be able to send a status to the watch if the user logs out.
+        appSettingsStore.lastUserShouldConnectToWatch = connectToWatch
     }
 
     func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws {
@@ -745,6 +861,10 @@ actor DefaultStateService: StateService {
         appSettingsStore.state = state
     }
 
+    func setTwoFactorToken(_ token: String?, email: String) async {
+        appSettingsStore.setTwoFactorToken(token, email: email)
+    }
+
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
@@ -757,12 +877,27 @@ actor DefaultStateService: StateService {
 
     // MARK: Publishers
 
-    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
+    func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
         appSettingsStore.activeAccountIdPublisher()
     }
 
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
         appThemeSubject.eraseToAnyPublisher()
+    }
+
+    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never> {
+        activeAccountIdPublisher().flatMap { userId in
+            self.connectToWatchByUserIdSubject.map { values in
+                if let userId {
+                    // Get the user's setting, if they're logged in.
+                    values[userId] ?? self.appSettingsStore.connectToWatch(userId: userId)
+                } else {
+                    // Otherwise, use the last known value for the previous user.
+                    self.appSettingsStore.lastUserShouldConnectToWatch
+                }
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
@@ -773,8 +908,8 @@ actor DefaultStateService: StateService {
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
     }
 
-    func showWebIconsPublisher() async -> AsyncPublisher<AnyPublisher<Bool, Never>> {
-        showWebIconsSubject.eraseToAnyPublisher().values
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
+        showWebIconsSubject.eraseToAnyPublisher()
     }
 
     // MARK: Private
@@ -788,5 +923,29 @@ actor DefaultStateService: StateService {
             throw StateServiceError.noActiveAccount
         }
         return activeUserId
+    }
+}
+
+// MARK: Biometrics
+
+extension DefaultStateService {
+    func getBiometricAuthenticationEnabled() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
+    }
+
+    func getBiometricIntegrityState() async throws -> String? {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.biometricIntegrityState(userId: userId)
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+
+    func setBiometricIntegrityState(_ base64State: String?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricIntegrityState(base64State, userId: userId)
     }
 }

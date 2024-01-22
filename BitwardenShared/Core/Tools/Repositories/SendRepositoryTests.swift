@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - SendRepositoryTests
 
-class SendRepositoryTests: BitwardenTestCase {
+class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
@@ -180,6 +180,95 @@ class SendRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    /// `searchSendPublisher(searchText:)` returns search matching send name.
+    func test_searchSendPublisher_searchText_name() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        sendService.sendsSubject.value = [
+            .fixture(
+                id: "1",
+                name: "Shakespeare quote",
+                text: .fixture(text: "To be or not to be?")
+            ),
+            .fixture(id: "2", name: "Cactus"),
+            .fixture(
+                file: .fixture(fileName: "grumpy_cat.png"),
+                id: "3",
+                name: "A picture of a cute cát"
+            ),
+        ]
+        let sendView = SendView(send: sendService.sendsSubject.value[2])
+        let expectedSearchResult = try [XCTUnwrap(SendListItem(sendView: sendView))]
+        var iterator = try await subject
+            .searchSendPublisher(searchText: "cat")
+            .makeAsyncIterator()
+        let sends = try await iterator.next()
+        XCTAssertEqual(sends, expectedSearchResult)
+    }
+
+    /// `searchSendPublisher(searchText:)` returns search matching text send's value.
+    func test_searchSendPublisher_searchText_text() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        sendService.sendsSubject.value = [
+            .fixture(
+                id: "1",
+                name: "Shakespeare quote",
+                text: .fixture(text: "To be or not to be?")
+            ),
+            .fixture(id: "2", name: "Cactus"),
+            .fixture(
+                file: .fixture(fileName: "grumpy_cat.png"),
+                id: "3",
+                name: "A picture of a cute cat"
+            ),
+        ]
+        let sendView = SendView(send: sendService.sendsSubject.value[0])
+        let expectedSearchResult = try [XCTUnwrap(SendListItem(sendView: sendView))]
+        var iterator = try await subject
+            .searchSendPublisher(searchText: "or not")
+            .makeAsyncIterator()
+        let sends = try await iterator.next()
+        XCTAssertEqual(sends, expectedSearchResult)
+    }
+
+    /// `searchSendPublisher(searchText:)` returns search matching text send's value.
+    func test_searchSendPublisher_searchText_fileName() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        sendService.sendsSubject.value = [
+            .fixture(
+                id: "1",
+                name: "Shakespeare quote",
+                text: .fixture(text: "To be or not to be?")
+            ),
+            .fixture(id: "2", name: "Cactus"),
+            .fixture(
+                file: .fixture(fileName: "grumpy_cat.png"),
+                id: "3",
+                name: "A picture of a cute cat"
+            ),
+        ]
+        let sendView = SendView(send: sendService.sendsSubject.value[2])
+        let expectedSearchResult = try [XCTUnwrap(SendListItem(sendView: sendView))]
+        var iterator = try await subject
+            .searchSendPublisher(searchText: "grumpy")
+            .makeAsyncIterator()
+        let sends = try await iterator.next()
+        XCTAssertEqual(sends, expectedSearchResult)
+    }
+
+    /// `sendListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the sends tab.
+    func test_sendListPublisher_withoutValues() async throws {
+        sendService.sendsSubject.send([])
+
+        var iterator = try await subject.sendListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            """
+        }
+    }
+
     /// `sendListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the sends tab.
     func test_sendListPublisher_withValues() async throws {
@@ -209,6 +298,15 @@ class SendRepositoryTests: BitwardenTestCase {
               - Send: encrypted name
             """
         }
+    }
+
+    /// `updateSend()` successfully encrypts the send view and uses the send service to update it.
+    func test_updateSend() async throws {
+        let sendView = SendView.fixture()
+        try await subject.updateSend(sendView)
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendService.updateSendSend, Send(sendView: sendView))
     }
 
     // MARK: Private Methods

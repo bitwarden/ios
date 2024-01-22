@@ -1,6 +1,8 @@
 import BitwardenSdk
 import Foundation
 
+// swiftlint:disable file_length
+
 // MARK: - ViewItemProcessor
 
 /// A processor that can process `ViewItemAction`s.
@@ -80,7 +82,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 services.errorReporter.log(error: error)
             }
         case .deletePressed:
-            await showDeleteConfirmation()
+            guard case let .data(cipherState) = state.loadingState else { return }
+            if cipherState.cipher.deletedDate == nil {
+                await showSoftDeleteConfirmation(cipherState.cipher)
+            } else {
+                await showPermanentDeleteConfirmation(cipherState.cipher)
+            }
+        case .restorePressed:
+            await showRestoreItemConfirmation()
         case .totpCodeExpired:
             await updateTOTPCode()
         }
@@ -133,7 +142,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             state.toast = newValue
         }
     }
+}
 
+private extension ViewItemProcessor {
     // MARK: Private Methods
 
     /// Copies a value to the pasteboard.
@@ -157,16 +168,33 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         }
     }
 
+    /// Permanently deletes the item currently stored in `state`.
+    ///
+    private func permanentDeleteItem(id: String) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(.init(title: Localizations.deleting))
+
+            try await services.vaultRepository.deleteCipher(id)
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemDeleted()
+            })))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Soft deletes the item currently stored in `state`.
     ///
-    private func deleteItem(_ cipher: CipherView) async {
+    private func softDeleteItem(_ cipher: CipherView) async {
         defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(.init(title: Localizations.softDeleting))
 
             try await services.vaultRepository.softDeleteCipher(cipher)
             coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemDeleted()
+                self?.delegate?.itemSoftDeleted()
             })))
         } catch {
             coordinator.showAlert(.networkResponseError(error))
@@ -250,13 +278,63 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         coordinator.navigate(to: .alert(alert))
     }
 
-    /// Shows delete cipher confirmation alert.
-    private func showDeleteConfirmation() async {
-        guard case let .data(cipherState) = state.loadingState else { return }
-        let alert = Alert.deleteCipherConfirmation { [weak self] in
-            guard let self else { return }
-            await deleteItem(cipherState.cipher)
+    /// Restores the item currently stored in `state`.
+    ///
+    private func restoreItem(_ cipher: CipherView) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(.init(title: Localizations.restoring))
+
+            try await services.vaultRepository.restoreCipher(cipher)
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemRestored()
+            })))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
         }
+    }
+
+    /// Shows a permanent delete cipher confirmation alert.
+    ///
+    private func showPermanentDeleteConfirmation(_ cipher: CipherView) async {
+        guard let id = cipher.id else { return }
+        let alert = Alert.deleteCipherConfirmation(isSoftDelete: false) { [weak self] in
+            guard let self else { return }
+            await permanentDeleteItem(id: id)
+        }
+        coordinator.showAlert(alert)
+    }
+
+    /// Shows a soft delete cipher confirmation alert.
+    ///
+    private func showSoftDeleteConfirmation(_ cipher: CipherView) async {
+        let alert = Alert.deleteCipherConfirmation(isSoftDelete: true) { [weak self] in
+            guard let self else { return }
+            await softDeleteItem(cipher)
+        }
+        coordinator.showAlert(alert)
+    }
+
+    /// Shows restore cipher confirmation alert.
+    ///
+    private func showRestoreItemConfirmation() async {
+        guard case let .data(cipherState) = state.loadingState else { return }
+        let alert = Alert(
+            title: Localizations.doYouReallyWantToRestoreCipher,
+            message: nil,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.yes,
+                    style: .default,
+                    handler: { [weak self] _ in
+                        guard let self else { return }
+                        await restoreItem(cipherState.cipher)
+                    }
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
         coordinator.showAlert(alert)
     }
 
@@ -287,9 +365,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             services.errorReporter.log(error: error)
         }
     }
+}
 
+// MARK: TOTP
+
+private extension ViewItemProcessor {
     /// Updates the TOTP code for the view.
-    private func updateTOTPCode() async {
+    func updateTOTPCode() async {
         // Only update the code if the user has premium and there is a valid TOTP key model.
         guard state.hasPremiumFeatures,
               case let .data(cipherItemState) = state.loadingState,
@@ -322,6 +404,16 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
             self?.delegate?.itemDeleted()
+        })))
+    }
+
+    func itemRestored() {
+        delegate?.itemRestored()
+    }
+
+    func itemSoftDeleted() {
+        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+            self?.delegate?.itemSoftDeleted()
         })))
     }
 }

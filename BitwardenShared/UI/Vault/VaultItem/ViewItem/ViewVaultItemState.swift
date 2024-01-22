@@ -16,6 +16,9 @@ protocol ViewVaultItemState: Sendable {
     /// The custom fields state.
     var customFieldsState: AddEditCustomFieldsState { get set }
 
+    /// A flag indicating if item was soft deleted.
+    var isSoftDeleted: Bool { get }
+
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool { get set }
 

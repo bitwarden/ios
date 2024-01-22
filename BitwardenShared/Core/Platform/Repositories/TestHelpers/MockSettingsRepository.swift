@@ -9,6 +9,8 @@ class MockSettingsRepository: SettingsRepository {
     var addFolderResult: Result<Void, Error> = .success(())
     var allowSyncOnRefresh = false
     var allowSyncOnRefreshResult: Result<Void, Error> = .success(())
+    var connectToWatch = false
+    var connectToWatchResult: Result<Void, Error> = .success(())
     var deletedFolderId: String?
     var deleteFolderResult: Result<Void, Error> = .success(())
     var editedFolderName: String?
@@ -18,18 +20,14 @@ class MockSettingsRepository: SettingsRepository {
     var foldersListError: Error?
     var getDefaultUriMatchTypeResult: Result<BitwardenShared.UriMatchType, Error> = .success(.domain)
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
-    var isLockedResult: Result<Bool, VaultTimeoutServiceError> = .failure(.noAccountFound)
     var lastSyncTimeError: Error?
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
-    var lockVaultCalls = [String?]()
-    var unlockVaultCalls = [String?]()
     var updateDefaultUriMatchTypeValue: BitwardenShared.UriMatchType?
     var updateDefaultUriMatchTypeResult: Result<Void, Error> = .success(())
     var updateDisableAutoTotpCopyValue: Bool?
     var updateDisableAutoTotpCopyResult: Result<Void, Error> = .success(())
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
-    var logoutResult: Result<Void, StateServiceError> = .failure(.noActiveAccount)
     var foldersListSubject = CurrentValueSubject<[FolderView], Error>([])
 
     var clearClipboardValue: ClearClipboardValue = .never
@@ -59,16 +57,17 @@ class MockSettingsRepository: SettingsRepository {
         return allowSyncOnRefresh
     }
 
+    func getConnectToWatch() async throws -> Bool {
+        try connectToWatchResult.get()
+        return connectToWatch
+    }
+
     func getDefaultUriMatchType() async throws -> BitwardenShared.UriMatchType {
         try getDefaultUriMatchTypeResult.get()
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try getDisableAutoTotpCopyResult.get()
-    }
-
-    func isLocked(userId _: String) throws -> Bool {
-        try isLockedResult.get()
     }
 
     func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>> {
@@ -78,17 +77,14 @@ class MockSettingsRepository: SettingsRepository {
         return lastSyncTimeSubject.eraseToAnyPublisher().values
     }
 
-    func lockVault(userId: String?) {
-        lockVaultCalls.append(userId)
-    }
-
-    func unlockVault(userId: String?) {
-        lockVaultCalls.append(userId)
-    }
-
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         self.allowSyncOnRefresh = allowSyncOnRefresh
         try allowSyncOnRefreshResult.get()
+    }
+
+    func updateConnectToWatch(_ connectToWatch: Bool) async throws {
+        self.connectToWatch = connectToWatch
+        try connectToWatchResult.get()
     }
 
     func updateDefaultUriMatchType(_ defaultUriMatchType: BitwardenShared.UriMatchType) async throws {
@@ -104,10 +100,6 @@ class MockSettingsRepository: SettingsRepository {
     func validatePassword(_ password: String) async throws -> Bool {
         validatePasswordPasswords.append(password)
         return try validatePasswordResult.get()
-    }
-
-    func logout() async throws {
-        try logoutResult.get()
     }
 
     func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>> {

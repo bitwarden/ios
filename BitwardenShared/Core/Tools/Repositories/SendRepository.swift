@@ -15,6 +15,12 @@ protocol SendRepository: AnyObject {
     ///
     func addSend(_ sendView: SendView) async throws
 
+    /// Updates an existing Send in the repository.
+    ///
+    /// - Parameter sendView: The send to update in the repository.
+    ///
+    func updateSend(_ sendView: SendView) async throws
+
     /// Validates the user's active account has access to premium features.
     ///
     /// - Returns: Whether the active account has premium.
@@ -31,6 +37,15 @@ protocol SendRepository: AnyObject {
     func fetchSync(isManualRefresh: Bool) async throws
 
     // MARK: Publishers
+
+    /// A publisher for a user's send objects based on the specified search text.
+    ///
+    /// - Parameter searchText:  The search text to filter the send list.
+    /// - Returns: A publisher for the user's sends.
+    ///
+    func searchSendPublisher(
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>>
 
     /// A publisher for all the sends in the user's account.
     ///
@@ -106,6 +121,11 @@ class DefaultSendRepository: SendRepository {
         try await sendService.addSend(send)
     }
 
+    func updateSend(_ sendView: SendView) async throws {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        try await sendService.updateSend(send)
+    }
+
     // MARK: API Methods
 
     func fetchSync(isManualRefresh: Bool) async throws {
@@ -116,6 +136,43 @@ class DefaultSendRepository: SendRepository {
     }
 
     // MARK: Publishers
+
+    func searchSendPublisher(
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .folding(options: .diacriticInsensitive, locale: .current)
+
+        return try await sendService.sendsPublisher().asyncTryMap { sends -> [SendListItem] in
+            // Convert the Sends to SendViews and filter appropriately.
+            let activeSends = try await sends.asyncMap { send in
+                try await self.clientVault.sends().decrypt(send: send)
+            }
+
+            var matchedSends: [SendView] = []
+            var lowPriorityMatchedSends: [SendView] = []
+
+            // Search the sends.
+            activeSends.forEach { sendView in
+                if sendView.name.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+                    matchedSends.append(sendView)
+                } else if sendView.text?.text?.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    lowPriorityMatchedSends.append(sendView)
+                } else if sendView.file?.fileName.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    lowPriorityMatchedSends.append(sendView)
+                }
+            }
+
+            // Return the result.
+            let result = matchedSends.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } +
+                lowPriorityMatchedSends
+            return result.compactMap { SendListItem(sendView: $0) }
+        }.eraseToAnyPublisher().values
+    }
 
     func sendListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
         try await sendService.sendsPublisher()
@@ -137,6 +194,10 @@ class DefaultSendRepository: SendRepository {
         let sends = try await sends
             .asyncMap { try await clientVault.sends().decrypt(send: $0) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        guard !sends.isEmpty else {
+            return []
+        }
 
         let fileSendsCount = sends
             .filter { $0.type == .file }

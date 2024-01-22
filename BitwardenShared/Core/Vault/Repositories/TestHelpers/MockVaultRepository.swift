@@ -53,6 +53,9 @@ class MockVaultRepository: VaultRepository {
 
     var removeAccountIds = [String?]()
 
+    var restoredCipher = [CipherView]()
+    var restoreCipherResult: Result<Void, Error> = .success(())
+
     var searchCipherSubject = CurrentValueSubject<[VaultListItem], Error>([])
 
     var shareCipherCiphers = [CipherView]()
@@ -159,6 +162,11 @@ class MockVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
+    }
+
+    func restoreCipher(_ cipher: CipherView) async throws {
+        restoredCipher.append(cipher)
+        try restoreCipherResult.get()
     }
 
     func searchCipherPublisher(

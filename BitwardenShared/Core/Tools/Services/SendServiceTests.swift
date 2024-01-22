@@ -37,6 +37,8 @@ class SendServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `addSend()` with a successful response uses the api service to send an add send request and
+    /// save the result in the database.
     func test_addSend_success() async throws {
         stateService.activeAccount = .fixture()
         client.results = [
@@ -49,6 +51,7 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 1)
     }
 
+    /// `addSend()` with a failure response throws the encountered error.
     func test_addSend_failure() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -89,5 +92,37 @@ class SendServiceTests: BitwardenTestCase {
         let publisherValue = try await iterator.next()
 
         try XCTAssertEqual(XCTUnwrap(publisherValue), [.fixture()])
+    }
+
+    /// `updateSend()` with a successful response uses the api service to send an update send
+    /// request and save the result in the database.
+    func test_updateSend_success() async throws {
+        stateService.activeAccount = .fixture()
+        client.results = [
+            .httpSuccess(testData: APITestData.sendResponse),
+        ]
+
+        let send = Send.fixture()
+        try await subject.addSend(send)
+
+        XCTAssertEqual(client.requests.count, 1)
+    }
+
+    /// `updateSend()` with a failure response throws the encountered error.
+    func test_updateSend_failure() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        client.results = [
+            .httpFailure(BitwardenTestError.example),
+        ]
+
+        let send = Send.fixture()
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.updateSend(send)
+        }
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(sendDataStore.upsertSendValue)
+        XCTAssertNil(sendDataStore.upsertSendUserId)
     }
 }

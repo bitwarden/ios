@@ -25,6 +25,10 @@ struct LandingView: View {
         .task {
             await store.perform(.appeared)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: LandingAction.toastShown
+        ))
     }
 
     /// The Toolbar item for the profile switcher view

@@ -114,7 +114,25 @@ extension CipherView {
     /// - Returns: An updated `CipherView` reflecting the changes from the `AddEditItemState`.
     ///
     func updatedView(with addEditState: AddEditItemState) -> CipherView {
-        CipherView(
+        // Update the password history if the password has changed.
+        var passwordHistory = passwordHistory
+        if addEditState.type == .login,
+           let previousPassword = login?.password,
+           addEditState.loginState.password != previousPassword {
+            // Update the password history list.
+            let newPasswordHistoryView = PasswordHistoryView(password: previousPassword, lastUsedDate: Date())
+            if passwordHistory == nil {
+                passwordHistory = [newPasswordHistoryView]
+            } else {
+                passwordHistory!.append(newPasswordHistoryView)
+            }
+
+            // Cap the size of the password history list to 5.
+            passwordHistory = passwordHistory?.suffix(5)
+        }
+
+        // Return the updated cipher.
+        return CipherView(
             id: id,
             organizationId: organizationId,
             folderId: addEditState.folderId,
@@ -134,14 +152,15 @@ extension CipherView {
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
-            fields: addEditState.customFieldsState.customFields.isEmpty ? nil : addEditState.customFieldsState.customFields.map { customField in
-                FieldView(
-                    name: customField.name,
-                    value: customField.value,
-                    type: .init(fieldType: customField.type),
-                    linkedId: customField.linkedIdType?.rawValue
-                )
-            },
+            fields: addEditState.customFieldsState.customFields.isEmpty ?
+                nil : addEditState.customFieldsState.customFields.map { customField in
+                    FieldView(
+                        name: customField.name,
+                        value: customField.value,
+                        type: .init(fieldType: customField.type),
+                        linkedId: customField.linkedIdType?.rawValue
+                    )
+                },
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,

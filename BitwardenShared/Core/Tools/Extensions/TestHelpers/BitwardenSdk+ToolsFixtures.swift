@@ -14,7 +14,7 @@ extension Send {
         expirationDate: Date? = nil,
         file: SendFileModel? = nil,
         hideEmail: Bool = false,
-        id: String = "1",
+        id: String? = "1",
         key: String = "KEY",
         maxAccessCount: UInt32? = nil,
         name: String = "Test Send",
@@ -41,6 +41,34 @@ extension Send {
             revisionDate: revisionDate,
             deletionDate: deletionDate,
             expirationDate: expirationDate
+        )
+    }
+}
+
+extension SendFileModel {
+    static func fixture(
+        id: String? = nil,
+        fileName: String = "fileName",
+        size: String? = nil,
+        sizeName: String? = nil
+    ) -> SendFileModel {
+        SendFileModel(
+            fileName: fileName,
+            id: id,
+            size: size,
+            sizeName: sizeName
+        )
+    }
+}
+
+extension SendTextModel {
+    static func fixture(
+        hidden: Bool = false,
+        text: String = "text"
+    ) -> SendTextModel {
+        SendTextModel(
+            hidden: hidden,
+            text: text
         )
     }
 }

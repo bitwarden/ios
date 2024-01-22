@@ -104,6 +104,19 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(value)
     }
 
+    /// `getConnectToWatch()` returns the expected value.
+    func test_getConnectToWatch() async throws {
+        stateService.activeAccount = .fixture()
+
+        // Defaults to false if no value is set.
+        var value = try await subject.getConnectToWatch()
+        XCTAssertFalse(value)
+
+        stateService.connectToWatchByUserId["1"] = true
+        value = try await subject.getConnectToWatch()
+        XCTAssertTrue(value)
+    }
+
     /// `getDefaultUriMatchType()` returns the default URI match type value.
     func test_getDefaultUriMatchType() async throws {
         stateService.activeAccount = .fixture()
@@ -130,10 +143,9 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
     /// `fetchSync()` throws an error if syncing fails.
     func test_fetchSync_error() async throws {
-        struct SyncError: Error, Equatable {}
-        syncService.fetchSyncResult = .failure(SyncError())
+        syncService.fetchSyncResult = .failure(BitwardenTestError.example)
 
-        await assertAsyncThrows(error: SyncError()) {
+        await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.fetchSync()
         }
     }
@@ -176,56 +188,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         try XCTAssertEqual(XCTUnwrap(lastSyncTime), updatedDate)
     }
 
-    /// `lockVault(userId:)` passes a user id to be locked.
-    func test_lockVault_unknownUserId() {
-        let task = Task {
-            await subject.lockVault(userId: nil)
-        }
-        waitFor(!vaultTimeoutService.lockedIds.isEmpty)
-        task.cancel()
-        XCTAssertEqual(vaultTimeoutService.lockedIds, [nil])
-    }
-
-    /// `lockVault(userId:)` passes a user id to be locked.
-    func test_lockVault_knownUserId() {
-        let task = Task {
-            await subject.lockVault(userId: "123")
-        }
-        waitFor(!vaultTimeoutService.lockedIds.isEmpty)
-        task.cancel()
-        XCTAssertEqual(vaultTimeoutService.lockedIds, ["123"])
-    }
-
-    /// `logout()` has the state service log the user out.
-    func test_logout() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
-
-        try await subject.logout()
-
-        XCTAssertEqual(stateService.accountsLoggedOut, ["1"])
-    }
-
-    /// `unlockVault(userId:)` passes a user id to be unlocked.
-    func test_unlockVault_unknownUserId() {
-        let task = Task {
-            await subject.unlockVault(userId: nil)
-        }
-        waitFor(!vaultTimeoutService.unlockedIds.isEmpty)
-        task.cancel()
-        XCTAssertEqual(vaultTimeoutService.unlockedIds, [nil])
-    }
-
-    /// `unlockVault(userId:)` passes a user id to be unlocked.
-    func test_unlockVault_knownUserId() {
-        let task = Task {
-            await subject.unlockVault(userId: "123")
-        }
-        waitFor(!vaultTimeoutService.unlockedIds.isEmpty)
-        task.cancel()
-        XCTAssertEqual(vaultTimeoutService.unlockedIds, ["123"])
-    }
-
-    /// `updateAllowSyncOnRefresh(_:)` updates the value in the app settings store.
+    /// `updateAllowSyncOnRefresh()` updates the value in the state service.
     func test_updateAllowSyncOnRefresh() async throws {
         stateService.activeAccount = .fixture()
 
@@ -236,6 +199,20 @@ class SettingsRepositoryTests: BitwardenTestCase {
         // Set the value and ensure it updates.
         try await subject.updateAllowSyncOnRefresh(true)
         value = try await stateService.getAllowSyncOnRefresh()
+        XCTAssertTrue(value)
+    }
+
+    /// `updateConnectToWatch()` updates the value in the state service.
+    func test_updateConnectToWatch() async throws {
+        stateService.activeAccount = .fixture()
+
+        // The value should start off with a default of false.
+        var value = try await stateService.getConnectToWatch()
+        XCTAssertFalse(value)
+
+        // Set the value and ensure it updates.
+        try await subject.updateConnectToWatch(true)
+        value = try await stateService.getConnectToWatch()
         XCTAssertTrue(value)
     }
 

@@ -1,7 +1,7 @@
 import BitwardenSdk
 import Foundation
 
-/// A `Sendable` type to describe the state of a custom fields for `AddEditCustomFieldsView`.
+/// A `Sendable` type to describe the state of a list of custom fields for `AddEditCustomFieldsView`.
 ///
 struct AddEditCustomFieldsState: Sendable, Equatable {
     // MARK: Properties

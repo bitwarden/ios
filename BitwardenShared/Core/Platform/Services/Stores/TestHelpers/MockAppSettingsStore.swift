@@ -8,18 +8,23 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var appLocale: String?
     var appTheme: String?
+    var biometricAuthenticationEnabled = [String: Bool?]()
+    var biometricIntegrityStates = [String: String?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
-    var disableWebIcons: Bool = false
+    var disableWebIcons = false
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
+    var lastUserShouldConnectToWatch = false
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
+    var twoFactorTokens = [String: String]()
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)
@@ -37,6 +42,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func connectToWatch(userId: String) -> Bool {
+        connectToWatchByUserId[userId] ?? false
     }
 
     func defaultUriMatchType(userId: String) -> UriMatchType? {
@@ -67,6 +76,10 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId]
     }
 
+    func twoFactorToken(email: String) -> String? {
+        twoFactorTokens[email]
+    }
+
     func unsuccessfulUnlockAttempts(userId: String) -> Int? {
         unsuccessfulUnlockAttempts[userId]
     }
@@ -81,6 +94,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setConnectToWatch(_ connectToWatch: Bool, userId: String) {
+        connectToWatchByUserId[userId] = connectToWatch
     }
 
     func setDefaultUriMatchType(_ uriMatchType: UriMatchType?, userId: String) {
@@ -123,6 +140,10 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId] = options
     }
 
+    func setTwoFactorToken(_ token: String?, email: String) {
+        twoFactorTokens[email] = token
+    }
+
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
         unsuccessfulUnlockAttempts[userId] = attempts
     }
@@ -135,9 +156,35 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId] = options
     }
 
-    func activeAccountIdPublisher() -> AsyncPublisher<AnyPublisher<String?, Never>> {
-        activeIdSubject
-            .eraseToAnyPublisher()
-            .values
+    func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
+        activeIdSubject.eraseToAnyPublisher()
+    }
+}
+
+// MARK: Biometrics
+
+extension MockAppSettingsStore {
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool {
+        (biometricAuthenticationEnabled[userId] ?? false) ?? false
+    }
+
+    func biometricIntegrityState(userId: String) -> String? {
+        biometricIntegrityStates[userId] ?? nil
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
+        guard isEnabled != nil else {
+            biometricAuthenticationEnabled.removeValue(forKey: userId)
+            return
+        }
+        biometricAuthenticationEnabled[userId] = isEnabled
+    }
+
+    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
+        guard let base64EncodedIntegrityState else {
+            biometricIntegrityStates.removeValue(forKey: userId)
+            return
+        }
+        biometricIntegrityStates[userId] = base64EncodedIntegrityState
     }
 }

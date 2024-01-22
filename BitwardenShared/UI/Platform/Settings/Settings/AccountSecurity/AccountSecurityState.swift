@@ -104,8 +104,8 @@ public enum SessionTimeoutAction: CaseIterable, Equatable, Menuable {
 /// An object that defines the current state of the `AccountSecurityView`.
 ///
 struct AccountSecurityState: Equatable {
-    /// The biometric authentication type for the user's device.
-    var biometricAuthenticationType: BiometricAuthenticationType?
+    /// The biometric auth status for the user.
+    var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
 
     /// The accessibility label used for the custom timeout value.
     var customTimeoutAccessibilityLabel: String {
@@ -131,14 +131,8 @@ struct AccountSecurityState: Equatable {
         sessionTimeoutValue == .custom
     }
 
-    /// Whether the unlock with face ID toggle is on.
-    var isUnlockWithFaceIDOn: Bool = false
-
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
-
-    /// Whether the unlock with touch ID toggle is on.
-    var isUnlockWithTouchIDToggleOn: Bool = false
 
     /// The action taken when a session timeout occurs.
     var sessionTimeoutAction: SessionTimeoutAction = .lock

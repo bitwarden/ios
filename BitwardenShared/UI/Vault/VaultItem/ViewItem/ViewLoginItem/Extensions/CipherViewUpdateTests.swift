@@ -4,7 +4,7 @@ import XCTest
 @testable import BitwardenShared
 
 final class CipherViewUpdateTests: BitwardenTestCase {
-    // MARK: Propteries
+    // MARK: Properties
 
     var cipherItemState: CipherItemState!
     var subject: BitwardenSdk.CipherView!
@@ -179,7 +179,24 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         XCTAssertEqual(comparison.revisionDate, subject.revisionDate)
     }
 
-    /// Tests that the update succeeds with udpated properties.
+    /// Tests that the update succeeds with a new password updating the password history.
+    func test_update_login_passwordHistory_succeeds() {
+        subject = CipherView.loginFixture(login: .fixture(password: "Old password"))
+        cipherItemState.loginState.password = "New password"
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        let newPasswordHistory = comparison.passwordHistory
+
+        XCTAssertEqual(newPasswordHistory?.last?.password, "Old password")
+
+        cipherItemState.loginState.password = "Extra newer password"
+        let secondComparison = comparison.updatedView(with: cipherItemState)
+        let newerPasswordHistory = secondComparison.passwordHistory
+
+        XCTAssertEqual(newerPasswordHistory?.last?.password, "New password")
+    }
+
+    /// Tests that the update succeeds with updated properties.
     func test_update_secureNote_succeeds() {
         cipherItemState.type = .secureNote
         let comparison = subject.updatedView(with: cipherItemState)

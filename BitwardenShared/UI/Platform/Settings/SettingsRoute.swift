@@ -52,11 +52,15 @@ public enum SettingsRoute: Equatable, Hashable {
     ///
     /// - Parameters:
     ///   - account: The user's account
+    ///   - userInitiated: Did a user action initiate the logout.
     ///
-    case lockVault(account: Account)
+    case lockVault(account: Account, userInitiated: Bool)
 
     /// A route to log the user out.
-    case logout
+    ///
+    /// - Parameter userInitiated: Did a user action initiate the logout.
+    ///
+    case logout(userInitiated: Bool)
 
     /// A route to the other view.
     case other

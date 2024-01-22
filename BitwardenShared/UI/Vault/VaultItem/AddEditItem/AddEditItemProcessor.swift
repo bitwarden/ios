@@ -6,8 +6,14 @@ import Foundation
 /// An object that is notified when specific circumstances in the add/edit/delete item view have occurred.
 ///
 protocol CipherItemOperationDelegate: AnyObject {
-    /// Called when the cipher item has been successfully deleted.
+    /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
+
+    /// Called when the cipher item has been successfully restored.
+    func itemRestored()
+
+    /// Called when the cipher item has been successfully soft deleted.
+    func itemSoftDeleted()
 }
 
 // MARK: - AddEditItemProcessor
@@ -74,7 +80,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         case .setupTotpPressed:
             await setupTotp()
         case .deletePressed:
-            await showDeleteConfirmation()
+            await showSoftDeleteConfirmation()
         }
     }
 
@@ -84,7 +90,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             updateCardState(&state, for: cardFieldAction)
         case let .collectionToggleChanged(newValue, collectionId):
             state.toggleCollection(newValue: newValue, collectionId: collectionId)
-        case let .customFieldActionDispatched(action):
+        case let .customField(action):
             handleCustomFieldAction(action)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
@@ -171,22 +177,24 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         case let .customFieldAdded(type, name):
             state.customFieldsState.customFields.append(CustomFieldState(name: name, type: type))
         case let .customFieldChanged(newValue, index: index):
-            guard index >= 0, index < state.customFieldsState.customFields.count else { return }
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
             state.customFieldsState.customFields[index].value = newValue
         case let .customFieldNameChanged(index, newValue):
-            guard index >= 0, index < state.customFieldsState.customFields.count else { return }
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
             state.customFieldsState.customFields[index].name = newValue
         case let .editCustomFieldNamePressed(index: index):
-            guard index >= 0, index < state.customFieldsState.customFields.count else { return }
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
             presentEditCustomFieldNameAlert(oldName: state.customFieldsState.customFields[index].name, index: index)
         case let .moveDownCustomFieldPressed(index: index):
-            guard index >= 0, index < state.customFieldsState.customFields.count - 1 else { return }
+            guard state.customFieldsState.customFields.indices.contains(index),
+                  index != state.customFieldsState.customFields.indices.last else { return }
             state.customFieldsState.customFields.swapAt(index, index + 1)
         case let .moveUpCustomFieldPressed(index: index):
-            guard index > 0, index < state.customFieldsState.customFields.count else { return }
+            guard state.customFieldsState.customFields.indices.contains(index),
+                  index != state.customFieldsState.customFields.indices.first else { return }
             state.customFieldsState.customFields.swapAt(index, index - 1)
         case let .removeCustomFieldPressed(index):
-            guard index >= 0, index < state.customFieldsState.customFields.count else { return }
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
             state.customFieldsState.customFields.remove(at: index)
         case let .selectedCustomFieldType(type):
             presentNameCustomFieldAlert(fieldType: type)
@@ -307,10 +315,10 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         let fieldTypes: [FieldType] = state.type != .secureNote ? [.text, .hidden, .boolean, .linked]
             : [.text, .hidden, .boolean]
         let actions = fieldTypes.map { type in
-            AlertAction(title: type.title, style: .default) { [weak self] _ in
+            AlertAction(title: type.localizedName, style: .default) { [weak self] _ in
                 guard let self else { return }
                 receive(
-                    .customFieldActionDispatched(
+                    .customField(
                         .selectedCustomFieldType(type)
                     )
                 )
@@ -335,7 +343,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         let alert = Alert.nameCustomFieldAlert(text: oldName) { [weak self] name in
             guard let self else { return }
             receive(
-                .customFieldActionDispatched(
+                .customField(
                     .customFieldNameChanged(
                         index: index,
                         newValue: name
@@ -352,7 +360,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     private func presentNameCustomFieldAlert(fieldType: FieldType) {
         let alert = Alert.nameCustomFieldAlert { [weak self] name in
             guard let self else { return }
-            receive(.customFieldActionDispatched(.customFieldAdded(fieldType, name)))
+            receive(.customField(.customFieldAdded(fieldType, name)))
         }
         coordinator.navigate(to: .alert(alert))
     }
@@ -431,13 +439,13 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
 
     /// Soft Deletes the item currently stored in `state`.
     ///
-    private func deleteItem() async {
+    private func softDeleteItem() async {
         defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(title: Localizations.softDeleting)
             try await services.vaultRepository.softDeleteCipher(state.cipher)
             coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemDeleted()
+                self?.delegate?.itemSoftDeleted()
             })))
         } catch {
             coordinator.showAlert(.networkResponseError(error))
@@ -445,12 +453,12 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         }
     }
 
-    /// Shows delete cipher confirmation alert.
+    /// Shows a soft delete cipher confirmation alert.
     ///
-    private func showDeleteConfirmation() async {
-        let alert = Alert.deleteCipherConfirmation { [weak self] in
+    private func showSoftDeleteConfirmation() async {
+        let alert = Alert.deleteCipherConfirmation(isSoftDelete: true) { [weak self] in
             guard let self else { return }
-            await deleteItem()
+            await softDeleteItem()
         }
         coordinator.showAlert(alert)
     }

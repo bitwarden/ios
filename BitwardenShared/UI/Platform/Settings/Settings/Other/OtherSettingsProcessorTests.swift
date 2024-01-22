@@ -39,22 +39,6 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `init` with a different cached value for the clear clipboard setting loads correctly.
-    func test_init_clearClipboardValue() {
-        settingsRepository.clearClipboardValue = .thirtySeconds
-
-        subject = OtherSettingsProcessor(
-            coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(
-                errorReporter: errorReporter,
-                settingsRepository: settingsRepository
-            ),
-            state: OtherSettingsState()
-        )
-
-        XCTAssertEqual(subject.state.clearClipboardValue, .thirtySeconds)
-    }
-
     /// `perform(_:)` with `.loadInitialValues` records an error if getting the allow sync
     /// on refresh value fails.
     func test_perform_loadInitialValues_error() async {
@@ -66,12 +50,16 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loadInitialValues` fetches the allow sync on refresh value.
-    func test_perform_getAllowSyncOnRefresh_success() async {
+    func test_perform_loadInitialValues_success() async {
         settingsRepository.allowSyncOnRefresh = true
+        settingsRepository.clearClipboardValue = .thirtySeconds
+        settingsRepository.connectToWatch = true
 
         await subject.perform(.loadInitialValues)
 
+        XCTAssertEqual(subject.state.clearClipboardValue, .thirtySeconds)
         XCTAssertTrue(subject.state.isAllowSyncOnRefreshToggleOn)
+        XCTAssertTrue(subject.state.isConnectToWatchToggleOn)
     }
 
     /// `perform(_:)` with `.streamLastSyncTime` updates the state's last sync time whenever it changes.
@@ -112,7 +100,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.syncNow` shows the loading overlay while syncing and then an alert if
     /// syncing fails.
     func test_perform_syncNow_error() async throws {
-        settingsRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        settingsRepository.fetchSyncResult = .failure(URLError(.timedOut))
 
         await subject.perform(.syncNow)
 
@@ -121,7 +109,13 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
 
         let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(alert, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
+
+        // Tapping the try again button the alert should attempt the call again.
+        settingsRepository.fetchSyncCalled = false
+        let tryAgainAction = try XCTUnwrap(alert.alertActions.first)
+        await tryAgainAction.handler?(tryAgainAction, [])
+        XCTAssertTrue(settingsRepository.fetchSyncCalled)
     }
 
     /// `receive(_:)` with `.clearClipboardValueChanged` updates the value in the state and the repository.
@@ -149,7 +143,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
 
         subject.receive(.toggleAllowSyncOnRefresh(true))
 
-        XCTAssertTrue(subject.state.isAllowSyncOnRefreshToggleOn)
+        XCTAssertFalse(subject.state.isAllowSyncOnRefreshToggleOn)
         waitFor { self.errorReporter.errors.isEmpty == false }
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
@@ -160,17 +154,34 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
 
         subject.receive(.toggleAllowSyncOnRefresh(true))
 
-        XCTAssertTrue(subject.state.isAllowSyncOnRefreshToggleOn)
-        waitFor { self.settingsRepository.allowSyncOnRefresh == true }
+        waitFor { self.subject.state.isAllowSyncOnRefreshToggleOn == true }
         XCTAssertTrue(settingsRepository.allowSyncOnRefresh)
+        XCTAssertTrue(subject.state.isAllowSyncOnRefreshToggleOn)
     }
 
-    /// `receive(_:)` with `isConnectToWatchToggleOn` updates the value in the state.
-    func test_receive_toggleConnectToWatch() {
-        XCTAssertFalse(subject.state.isConnectToWatchToggleOn)
+    /// `receive(_:)` with `toggleConnectToWatch` updates the value in the state and records an error if it
+    /// failed to update the cached data.
+    func test_receive_toggleConnectToWatch_error() {
+        settingsRepository.connectToWatchResult = .failure(BitwardenTestError.example)
 
         subject.receive(.toggleConnectToWatch(true))
 
+        XCTAssertFalse(subject.state.isConnectToWatchToggleOn)
+        waitFor { self.errorReporter.errors.isEmpty == false }
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `receive(_:)` with `toggleConnectToWatch` updates the value in the state and the repository
+    func test_receive_toggleConnectToWatch_success() {
+        XCTAssertFalse(subject.state.isConnectToWatchToggleOn)
+
+        let task = Task {
+            subject.receive(.toggleConnectToWatch(true))
+        }
+
+        waitFor(subject.state.isConnectToWatchToggleOn)
+        task.cancel()
+        XCTAssertTrue(settingsRepository.connectToWatch)
         XCTAssertTrue(subject.state.isConnectToWatchToggleOn)
     }
 }

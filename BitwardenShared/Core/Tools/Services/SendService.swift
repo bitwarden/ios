@@ -12,6 +12,12 @@ protocol SendService {
     ///
     func addSend(_ send: Send) async throws
 
+    /// Updates an existing Send for the current user in both the backend and in local storage.
+    ///
+    /// - Parameter send: The send to update.
+    ///
+    func updateSend(_ send: Send) async throws
+
     /// Replaces the persisted list of sends for the user.
     ///
     /// - Parameters:
@@ -66,6 +72,14 @@ extension DefaultSendService {
     func addSend(_ send: Send) async throws {
         let userId = try await stateService.getActiveAccountId()
         let response = try await sendAPIService.addSend(send)
+
+        let newSend = Send(sendResponseModel: response)
+        try await sendDataStore.upsertSend(newSend, userId: userId)
+    }
+
+    func updateSend(_ send: Send) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        let response = try await sendAPIService.updateSend(send)
 
         let newSend = Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(newSend, userId: userId)

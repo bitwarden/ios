@@ -35,6 +35,9 @@ protocol SettingsRepository: AnyObject {
     /// Get the current value of the allow sync on refresh value.
     func getAllowSyncOnRefresh() async throws -> Bool
 
+    /// Get the current value of the connect to watch setting.
+    func getConnectToWatch() async throws -> Bool
+
     /// Gets the default URI match type setting for the current user.
     ///
     func getDefaultUriMatchType() async throws -> UriMatchType
@@ -49,29 +52,17 @@ protocol SettingsRepository: AnyObject {
     ///
     func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>>
 
-    /// Locks the user's vault and clears decrypted data from memory.
-    ///
-    ///  - Parameter userId: The userId of the account to lock.
-    ///     Defaults to active account if nil.
-    ///
-    func lockVault(userId: String?) async
-
-    /// Logs the active user out of the application.
-    ///
-    func logout() async throws
-
-    /// Unlocks the user's vault.
-    ///
-    ///  - Parameter userId: The userId of the account to unlock.
-    ///     Defaults to active account if nil.
-    ///
-    func unlockVault(userId: String?) async
-
     /// Update the cached value of the sync on refresh setting.
     ///
     /// - Parameter allowSyncOnRefresh: Whether the vault should sync on refreshing.
     ///
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws
+
+    /// Update the cached value of the connect to watch setting.
+    ///
+    /// - Parameter connectToWatch: Whether to connect to the watch app.
+    ///
+    func updateConnectToWatch(_ connectToWatch: Bool) async throws
 
     /// Update the cached value of the default URI match type setting.
     ///
@@ -191,6 +182,10 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.getAllowSyncOnRefresh()
     }
 
+    func getConnectToWatch() async throws -> Bool {
+        try await stateService.getConnectToWatch()
+    }
+
     func getDefaultUriMatchType() async throws -> UriMatchType {
         try await stateService.getDefaultUriMatchType()
     }
@@ -203,20 +198,12 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.lastSyncTimePublisher().values
     }
 
-    func lockVault(userId: String?) async {
-        await vaultTimeoutService.lockVault(userId: userId)
-    }
-
-    func logout() async throws {
-        try await stateService.logoutAccount()
-    }
-
-    func unlockVault(userId: String?) async {
-        await vaultTimeoutService.unlockVault(userId: userId)
-    }
-
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await stateService.setAllowSyncOnRefresh(allowSyncOnRefresh)
+    }
+
+    func updateConnectToWatch(_ connectToWatch: Bool) async throws {
+        try await stateService.setConnectToWatch(connectToWatch)
     }
 
     func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async throws {

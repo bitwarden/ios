@@ -4,14 +4,14 @@ import BitwardenSdk
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable {
-    /// An `AddEditCustomFieldsAction` was dispatched from `AddEditCustomFieldsView`.
-    case customFieldActionDispatched(AddEditCustomFieldsAction)
-
     /// A card field changed
     case cardFieldChanged(AddEditCardItemAction)
 
     /// The toggle for including the item in a collection was changed.
     case collectionToggleChanged(Bool, collectionId: String)
+
+    /// A custom field action was sent.
+    case customField(AddEditCustomFieldsAction)
 
     /// The dismiss button was pressed.
     case dismissPressed

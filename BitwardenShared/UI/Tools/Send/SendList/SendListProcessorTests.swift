@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -79,6 +80,18 @@ class SendListProcessorTests: BitwardenTestCase {
         XCTAssertTrue(sendRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and updates the
+    /// state.
+    func test_search() async {
+        subject.state.searchResults = []
+        let sendListItem = SendListItem.fixture()
+        sendRepository.searchSendSubject.send([sendListItem])
+
+        await subject.perform(.search("for me"))
+
+        XCTAssertEqual(subject.state.searchResults, [sendListItem])
+    }
+
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
     func test_receive_addItemPressed() {
         subject.receive(.addItemPressed)
@@ -111,9 +124,18 @@ class SendListProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the edit send route.
-    func test_receive_sendListItemRow_sendListItemPressed() {
-        subject.receive(.sendListItemRow(.sendListItemPressed(.fixture())))
+    func test_receive_sendListItemRow_sendListItemPressed_withSendView() {
+        let sendView = SendView.fixture()
+        let item = SendListItem(sendView: sendView)!
+        subject.receive(.sendListItemRow(.sendListItemPressed(item)))
 
-        // TODO: BIT-1389 Assert navigation to edit send route
+        XCTAssertEqual(coordinator.routes.last, .edit(sendView))
+    }
+
+    func test_receive_sendListItemRow_sendListItemPressed_withGroup() {
+        let item = SendListItem.groupFixture()
+        subject.receive(.sendListItemRow(.sendListItemPressed(item)))
+
+        // TODO: BIT-1412 Assert navigation to group send route
     }
 }

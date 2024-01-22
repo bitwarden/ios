@@ -60,7 +60,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
         switch route {
         case let .addItem(allowTypeSelection, group, hasPremium, uri):
             showAddItem(
-                for: group.flatMap(CipherType.init),
+                for: group,
                 allowTypeSelection: allowTypeSelection,
                 hasPremium: hasPremium,
                 uri: uri,
@@ -134,7 +134,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
     /// Shows the add item screen.
     ///
     /// - Parameters:
-    ///   - type: An optional `CipherType` to initialize this view with.
+    ///   - group: An optional `VaultListGroup` to initialize this view with.
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - hasPremium: Whether the user has premium,
     ///   - uri: A URI string used to populate the add item screen.
@@ -142,16 +142,18 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
     ///     in the add/edit/delete item view have occurred.
     ///
     private func showAddItem(
-        for type: CipherType?,
+        for group: VaultListGroup?,
         allowTypeSelection: Bool,
         hasPremium: Bool,
         uri: String?,
         delegate: CipherItemOperationDelegate?
     ) {
         let state = CipherItemState(
-            addItem: type ?? .login,
+            addItem: group.flatMap(CipherType.init) ?? .login,
             allowTypeSelection: allowTypeSelection,
+            collectionIds: group?.collectionId.flatMap { [$0] } ?? [],
             hasPremium: hasPremium,
+            organizationId: group?.organizationId,
             uri: uri
         )
         let processor = AddEditItemProcessor(
