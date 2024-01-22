@@ -153,14 +153,14 @@ extension CipherView {
             localData: localData,
             attachments: attachments,
             fields: addEditState.customFieldsState.customFields.isEmpty ?
-            nil : addEditState.customFieldsState.customFields.map { customField in
-                FieldView(
-                    name: customField.name,
-                    value: customField.value,
-                    type: .init(fieldType: customField.type),
-                    linkedId: customField.linkedIdType?.rawValue
-                )
-            },
+                nil : addEditState.customFieldsState.customFields.map { customField in
+                    FieldView(
+                        name: customField.name,
+                        value: customField.value,
+                        type: .init(fieldType: customField.type),
+                        linkedId: customField.linkedIdType?.rawValue
+                    )
+                },
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,

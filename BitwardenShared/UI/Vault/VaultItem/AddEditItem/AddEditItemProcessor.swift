@@ -315,7 +315,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     ///
     private func presentCustomFieldAlert() {
         let fieldTypes: [FieldType] = state.type != .secureNote ? [.text, .hidden, .boolean, .linked]
-        : [.text, .hidden, .boolean]
+            : [.text, .hidden, .boolean]
         let actions = fieldTypes.map { type in
             AlertAction(title: type.localizedName, style: .default) { [weak self] _ in
                 guard let self else { return }
