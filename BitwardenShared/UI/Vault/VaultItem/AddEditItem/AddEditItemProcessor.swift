@@ -171,13 +171,13 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         case let .customFieldAdded(type, name):
             state.customFieldsState.customFields.append(CustomFieldState(name: name, type: type))
         case let .customFieldChanged(newValue, index: index):
-            guard state.customFieldsState.customFields.count > index else { return }
+            guard index >= 0, index < state.customFieldsState.customFields.count else { return }
             state.customFieldsState.customFields[index].value = newValue
         case let .customFieldNameChanged(index, newValue):
-            guard index < state.customFieldsState.customFields.count else { return }
+            guard index >= 0, index < state.customFieldsState.customFields.count else { return }
             state.customFieldsState.customFields[index].name = newValue
         case let .editCustomFieldNamePressed(index: index):
-            guard index < state.customFieldsState.customFields.count else { return }
+            guard index >= 0, index < state.customFieldsState.customFields.count else { return }
             presentEditCustomFieldNameAlert(oldName: state.customFieldsState.customFields[index].name, index: index)
         case let .moveDownCustomFieldPressed(index: index):
             guard index >= 0, index < state.customFieldsState.customFields.count - 1 else { return }
