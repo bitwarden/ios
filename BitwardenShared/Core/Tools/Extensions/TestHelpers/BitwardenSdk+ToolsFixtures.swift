@@ -44,3 +44,31 @@ extension Send {
         )
     }
 }
+
+extension SendFileModel {
+    static func fixture(
+        id: String? = nil,
+        fileName: String = "fileName",
+        size: String? = nil,
+        sizeName: String? = nil
+    ) -> SendFileModel {
+        SendFileModel(
+            fileName: fileName,
+            id: id,
+            size: size,
+            sizeName: sizeName
+        )
+    }
+}
+
+extension SendTextModel {
+    static func fixture(
+        hidden: Bool = false,
+        text: String = "text"
+    ) -> SendTextModel {
+        SendTextModel(
+            hidden: hidden,
+            text: text
+        )
+    }
+}

@@ -7,6 +7,11 @@ import SwiftUI
 /// `isSearching` environment variable will work correctly.
 ///
 private struct MainSendListView: View {
+    // MARK: Private Properties
+
+    /// A flag indicating if the search bar is focused.
+    @Environment(\.isSearching) private var isSearching
+
     // MARK: Properties
 
     /// The `Store` for this view.
@@ -15,14 +20,36 @@ private struct MainSendListView: View {
     // MARK: View
 
     var body: some View {
+        // A ZStack with hidden children is used here so that opening and closing the
+        // search interface does not reset the scroll position for the main vault
+        // view, as would happen if we used an `if else` block here.
+        //
+        // Additionally, we cannot use an `.overlay()` on the main vault view to contain
+        // the search interface since VoiceOver still reads the elements below the overlay,
+        // which is not ideal.
+
+        ZStack {
+            let isSearching = isSearching
+                || !store.state.searchText.isEmpty
+                || !store.state.searchResults.isEmpty
+
+            content
+                .hidden(isSearching)
+
+            search
+                .hidden(!isSearching)
+        }
+    }
+
+    // MARK: Private views
+
+    @ViewBuilder private var content: some View {
         if store.state.sections.isEmpty {
             empty
         } else {
             list
         }
     }
-
-    // MARK: Private views
 
     /// The empty state for this view, displayed when there are no items.
     @ViewBuilder private var empty: some View {
@@ -63,6 +90,46 @@ private struct MainSendListView: View {
             .padding(16)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+    }
+
+    /// A view that displays the search interface, including search results, an empty search
+    /// interface, and a message indicating that no results were found.
+    @ViewBuilder private var search: some View {
+        if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    if !store.state.searchResults.isEmpty {
+                        sendItemSectionView(
+                            title: Localizations.sends,
+                            isCountDisplayed: true,
+                            items: store.state.searchResults
+                        )
+                    }
+                }
+                .padding(16)
+            }
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        } else {
+            GeometryReader { reader in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        VStack(spacing: 35) {
+                            Image(decorative: Asset.Images.magnifyingGlass)
+                                .resizable()
+                                .frame(width: 74, height: 74)
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                            Text(Localizations.thereAreNoItemsThatMatchTheSearch)
+                                .multilineTextAlignment(.center)
+                                .styleGuide(.callout)
+                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
+                    }
+                }
+                .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+            }
+        }
     }
 
     /// Creates a section that appears in the sends list.
@@ -154,6 +221,9 @@ struct SendListView: View {
                 }
             }
             .task { await store.perform(.appeared) }
+            .task(id: store.state.searchText) {
+                await store.perform(.search(store.state.searchText))
+            }
             .onChange(of: store.state.infoUrl) { newValue in
                 guard let url = newValue else { return }
                 openURL(url)
@@ -275,3 +345,76 @@ struct SendListView: View {
         )
     }
 }
+
+#Preview("Search - Empty") {
+    NavigationView {
+        SendListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SendListState(
+                        searchText: "Searching",
+                        searchResults: []
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("Search - Results") {
+    NavigationView {
+        SendListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SendListState(
+                        searchText: "Searching",
+                        searchResults: [
+                            SendListItem(
+                                sendView: .init(
+                                    id: "22",
+                                    accessId: "22",
+                                    name: "Text Send",
+                                    notes: nil,
+                                    key: "",
+                                    newPassword: nil,
+                                    hasPassword: false,
+                                    type: .text,
+                                    file: nil,
+                                    text: nil,
+                                    maxAccessCount: nil,
+                                    accessCount: 0,
+                                    disabled: false,
+                                    hideEmail: false,
+                                    revisionDate: Date(),
+                                    deletionDate: Date().advanced(by: 100),
+                                    expirationDate: Date().advanced(by: 100)
+                                )
+                            )!,
+                            SendListItem(
+                                sendView: .init(
+                                    id: "23",
+                                    accessId: "23",
+                                    name: "All Statuses",
+                                    notes: nil,
+                                    key: "",
+                                    newPassword: nil,
+                                    hasPassword: true,
+                                    type: .text,
+                                    file: nil,
+                                    text: nil,
+                                    maxAccessCount: 1,
+                                    accessCount: 1,
+                                    disabled: true,
+                                    hideEmail: true,
+                                    revisionDate: Date(),
+                                    deletionDate: Date(),
+                                    expirationDate: Date().advanced(by: -1)
+                                )
+                            )!,
+                        ]
+                    )
+                )
+            )
+        )
+    }
+} // swiftlint:disable:this file_length
