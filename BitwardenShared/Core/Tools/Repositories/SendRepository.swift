@@ -38,6 +38,15 @@ protocol SendRepository: AnyObject {
 
     // MARK: Publishers
 
+    /// A publisher for a user's send objects based on the specified search text.
+    ///
+    /// - Parameter searchText:  The search text to filter the send list.
+    /// - Returns: A publisher for the user's sends.
+    ///
+    func searchSendPublisher(
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>>
+
     /// A publisher for all the sends in the user's account.
     ///
     /// - Returns: A publisher for the list of sends in the user's account.
@@ -127,6 +136,43 @@ class DefaultSendRepository: SendRepository {
     }
 
     // MARK: Publishers
+
+    func searchSendPublisher(
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .folding(options: .diacriticInsensitive, locale: .current)
+
+        return try await sendService.sendsPublisher().asyncTryMap { sends -> [SendListItem] in
+            // Convert the Sends to SendViews and filter appropriately.
+            let activeSends = try await sends.asyncMap { send in
+                try await self.clientVault.sends().decrypt(send: send)
+            }
+
+            var matchedSends: [SendView] = []
+            var lowPriorityMatchedSends: [SendView] = []
+
+            // Search the sends.
+            activeSends.forEach { sendView in
+                if sendView.name.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+                    matchedSends.append(sendView)
+                } else if sendView.text?.text?.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    lowPriorityMatchedSends.append(sendView)
+                } else if sendView.file?.fileName.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    lowPriorityMatchedSends.append(sendView)
+                }
+            }
+
+            // Return the result.
+            let result = matchedSends.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } +
+                lowPriorityMatchedSends
+            return result.compactMap { SendListItem(sendView: $0) }
+        }.eraseToAnyPublisher().values
+    }
 
     func sendListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
         try await sendService.sendsPublisher()

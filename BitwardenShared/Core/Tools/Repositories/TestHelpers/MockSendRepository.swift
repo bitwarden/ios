@@ -14,6 +14,8 @@ class MockSendRepository: SendRepository {
     var fetchSyncIsManualRefresh: Bool?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
+    var searchSendSubject = CurrentValueSubject<[SendListItem], Error>([])
+
     var sendListSubject = CurrentValueSubject<[SendListSection], Error>([])
 
     var addSendResult: Result<Void, Error> = .success(())
@@ -42,6 +44,12 @@ class MockSendRepository: SendRepository {
         fetchSyncCalled = true
         fetchSyncIsManualRefresh = isManualRefresh
         try fetchSyncResult.get()
+    }
+
+    func searchSendPublisher(
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
+        searchSendSubject.eraseToAnyPublisher().values
     }
 
     func sendListPublisher() -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
