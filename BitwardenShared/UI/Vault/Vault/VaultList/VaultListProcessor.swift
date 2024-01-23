@@ -242,7 +242,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             return []
         }
         do {
-            let result = try await services.vaultRepository.searchCipherPublisher(
+            let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 filterType: state.searchVaultFilterType
             )

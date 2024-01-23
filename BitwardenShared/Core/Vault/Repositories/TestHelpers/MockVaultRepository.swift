@@ -59,7 +59,9 @@ class MockVaultRepository: VaultRepository {
     var saveAttachmentFileName: String?
     var saveAttachmentResult: Result<CipherView, Error> = .success(.fixture())
 
-    var searchCipherSubject = CurrentValueSubject<[VaultListItem], Error>([])
+    var searchCipherAutofillSubject = CurrentValueSubject<[CipherView], Error>([])
+
+    var searchVaultListSubject = CurrentValueSubject<[VaultListItem], Error>([])
 
     var shareCipherCiphers = [CipherView]()
     var shareCipherResult: Result<Void, Error> = .success(())
@@ -177,11 +179,18 @@ class MockVaultRepository: VaultRepository {
         return try saveAttachmentResult.get()
     }
 
-    func searchCipherPublisher(
+    func searchCipherAutofillPublisher(
+        searchText _: String,
+        filterType _: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
+        searchCipherAutofillSubject.eraseToAnyPublisher().values
+    }
+
+    func searchVaultListPublisher(
         searchText _: String,
         filterType _: VaultFilterType
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
-        searchCipherSubject.eraseToAnyPublisher().values
+        searchVaultListSubject.eraseToAnyPublisher().values
     }
 
     func shareCipher(_ cipher: CipherView) async throws {
