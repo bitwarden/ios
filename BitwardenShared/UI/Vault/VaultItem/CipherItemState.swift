@@ -163,7 +163,7 @@ struct CipherItemState: Equatable {
         cardItemState = cardState
         self.collectionIds = collectionIds
         collections = []
-        customFieldsState = AddEditCustomFieldsState(customFields: customFields)
+        customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: customFields)
         self.folderId = folderId
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn

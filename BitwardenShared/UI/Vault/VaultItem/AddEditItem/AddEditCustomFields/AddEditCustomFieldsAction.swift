@@ -32,6 +32,9 @@ enum AddEditCustomFieldsAction: Equatable {
     /// A custom field type was selected.
     case selectedCustomFieldType(FieldType)
 
+    /// A custom field `LinkedIdType` was selected.
+    case selectedLinkedIdType(Int, LinkedIdType)
+
     /// The toggle password visibility button was changed.
     case togglePasswordVisibilityChanged(Bool, Int)
 }

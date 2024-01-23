@@ -59,11 +59,38 @@ struct AddEditCustomFieldsView: View {
                     .frame(height: 60)
                 case .linked:
                     BitwardenField(title: field.name ?? "") {
-                        // BIT-1548
-                        Text(field.linkedIdType?.localizedName ?? "")
-                            .styleGuide(.body)
-                    }
-                    accessoryContent: {
+                        Menu {
+                            Picker(selection:
+                                store.binding(
+                                    get: { state in
+                                        if let idType = state.customFields[index].linkedIdType ??
+                                            LinkedIdType.getLinkedIdType(for: state.cipherType).first {
+                                            return idType
+                                        } else {
+                                            assertionFailure("we should have set the default customField"
+                                                + " LinkedIdType by the time user creates linked custom fields.")
+                                            return .cardBrand
+                                        }
+                                    },
+                                    send: { idType in
+                                        AddEditCustomFieldsAction.selectedLinkedIdType(index, idType)
+                                    }
+                                )
+                            ) {
+                                ForEach(LinkedIdType.getLinkedIdType(for: store.state.cipherType)) { idType in
+                                    Text(idType.localizedName)
+                                        .tag(idType)
+                                }
+                            } label: {
+                                Text("where")
+                            }
+                        } label: {
+                            Text(field.linkedIdType?.localizedName ?? "")
+                                .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                                .styleGuide(.body)
+                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        }
+                    } accessoryContent: {
                         menuOptions(index: index)
                     }
                 }
@@ -108,6 +135,7 @@ struct AddEditCustomFieldsView_Previews: PreviewProvider {
             store: Store(
                 processor: StateProcessor(
                     state: AddEditCustomFieldsState(
+                        cipherType: .identity,
                         customFields: [
                             CustomFieldState(
                                 linkedIdType: nil,
