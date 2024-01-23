@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: - AddEditSendItemProcessor
@@ -12,7 +13,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation for this processor.
-    let coordinator: any Coordinator<SendRoute>
+    let coordinator: any Coordinator<SendItemRoute>
 
     /// The services required by this processor.
     let services: Services
@@ -27,7 +28,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<SendRoute>,
+        coordinator: any Coordinator<SendItemRoute>,
         services: Services,
         state: AddEditSendItemState
     ) {
@@ -62,7 +63,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         case let .expirationDateChanged(newValue):
             state.expirationDate = newValue
         case .dismissPressed:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .cancel)
         case let .hideMyEmailChanged(newValue):
             state.isHideMyEmailOn = newValue
         case let .hideTextByDefaultChanged(newValue):
@@ -114,20 +115,21 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
 
         let sendView = state.newSendView()
         do {
+            let newSendView: SendView
             switch state.mode {
             case .add:
                 switch state.type {
                 case .file:
                     guard let fileData = state.fileData else { return }
-                    try await services.sendRepository.addFileSend(sendView, data: fileData)
+                    newSendView = try await services.sendRepository.addFileSend(sendView, data: fileData)
                 case .text:
-                    try await services.sendRepository.addTextSend(sendView)
+                    newSendView = try await services.sendRepository.addTextSend(sendView)
                 }
             case .edit:
-                try await services.sendRepository.updateSend(sendView)
+                newSendView = try await services.sendRepository.updateSend(sendView)
             }
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .complete(newSendView))
         } catch {
             coordinator.showAlert(.networkResponseError(error) { [weak self] in
                 await self?.saveSendItem()

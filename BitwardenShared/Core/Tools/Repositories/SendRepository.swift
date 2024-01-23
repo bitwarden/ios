@@ -15,13 +15,13 @@ protocol SendRepository: AnyObject {
     ///   - sendView: The send to add to the repository.
     ///   - data: The data representation of the file for this send.
     ///
-    func addFileSend(_ sendView: SendView, data: Data) async throws
+    func addFileSend(_ sendView: SendView, data: Data) async throws -> SendView
 
     /// Adds a new text Send to the repository.
     ///
     /// - Parameter sendView: The send to add to the repository.
     ///
-    func addTextSend(_ sendView: SendView) async throws
+    func addTextSend(_ sendView: SendView) async throws -> SendView
 
     /// Deletes a Send from the repository.
     ///
@@ -29,11 +29,17 @@ protocol SendRepository: AnyObject {
     ///
     func deleteSend(_ sendView: SendView) async throws
 
+    /// Creates the share URL for a given `SendView`, if one can be created.
+    ///
+    /// - Parameter sendView: The send to create the share url for.
+    ///
+    func shareURL(for sendView: SendView) async throws -> URL?
+
     /// Updates an existing Send in the repository.
     ///
     /// - Parameter sendView: The send to update in the repository.
     ///
-    func updateSend(_ sendView: SendView) async throws
+    func updateSend(_ sendView: SendView) async throws -> SendView
 
     /// Validates the user's active account has access to premium features.
     ///
@@ -76,6 +82,9 @@ class DefaultSendRepository: SendRepository {
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
 
+    /// The service used to retrieve urls for the active account's environment.
+    let environmentService: EnvironmentService
+
     /// The service used to manage syncing and updates to the user's organizations.
     let organizationService: OrganizationService
 
@@ -94,6 +103,7 @@ class DefaultSendRepository: SendRepository {
     ///
     /// - Parameters:
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - environmentService: The service used to retrieve urls for the active account's environment.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - sendService: The service used to sync and store sends.
     ///   - stateService: The service used by the application to manage account state.
@@ -101,12 +111,14 @@ class DefaultSendRepository: SendRepository {
     ///
     init(
         clientVault: ClientVaultService,
+        environmentService: EnvironmentService,
         organizationService: OrganizationService,
         sendService: SendService,
         stateService: StateService,
         syncService: SyncService
     ) {
         self.clientVault = clientVault
+        self.environmentService = environmentService
         self.organizationService = organizationService
         self.sendService = sendService
         self.stateService = stateService
@@ -130,15 +142,17 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: Data Methods
 
-    func addFileSend(_ sendView: SendView, data: Data) async throws {
+    func addFileSend(_ sendView: SendView, data: Data) async throws -> SendView {
         let send = try await clientVault.sends().encrypt(send: sendView)
         let file = try await clientVault.sends().encryptBuffer(send: send, buffer: data)
-        try await sendService.addFileSend(send, data: file)
+        let newSend = try await sendService.addFileSend(send, data: file)
+        return try await clientVault.sends().decrypt(send: newSend)
     }
 
-    func addTextSend(_ sendView: SendView) async throws {
+    func addTextSend(_ sendView: SendView) async throws -> SendView {
         let send = try await clientVault.sends().encrypt(send: sendView)
-        try await sendService.addTextSend(send)
+        let newSend = try await sendService.addTextSend(send)
+        return try await clientVault.sends().decrypt(send: newSend)
     }
 
     func deleteSend(_ sendView: SendView) async throws {
@@ -146,9 +160,20 @@ class DefaultSendRepository: SendRepository {
         try await sendService.deleteSend(send)
     }
 
-    func updateSend(_ sendView: SendView) async throws {
+    func shareURL(for sendView: SendView) async throws -> URL? {
         let send = try await clientVault.sends().encrypt(send: sendView)
-        try await sendService.updateSend(send)
+
+        guard let accessId = send.accessId else { return nil }
+        let encodedKey = Data(send.key.utf8).base64EncodedString().urlEncoded()
+        let sharePath = "/#/send/\(accessId)/\(encodedKey)"
+        let url = URL(string: environmentService.webVaultURL.absoluteString.appending(sharePath))
+        return url
+    }
+
+    func updateSend(_ sendView: SendView) async throws -> SendView {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        let newSend = try await sendService.updateSend(send)
+        return try await clientVault.sends().decrypt(send: newSend)
     }
 
     // MARK: API Methods

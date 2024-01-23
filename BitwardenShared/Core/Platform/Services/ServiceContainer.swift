@@ -288,6 +288,7 @@ public class ServiceContainer: Services {
 
         let sendRepository = DefaultSendRepository(
             clientVault: clientService.clientVault(),
+            environmentService: environmentService,
             organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
