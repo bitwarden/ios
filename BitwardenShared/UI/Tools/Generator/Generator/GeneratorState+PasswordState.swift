@@ -91,8 +91,8 @@ extension GeneratorState {
 
             let minimumLowercase = containsLowercase ? 1 : 0
             let minimumUppercase = containsUppercase ? 1 : 0
-            let minimumNumber = containsNumbers ? minimumNumber : 0
-            let minimumSpecial = containsSpecial ? minimumSpecial : 0
+            let minimumNumber = containsNumbers ? max(1, minimumNumber) : 0
+            let minimumSpecial = containsSpecial ? max(1, minimumSpecial) : 0
             let minimumLength = minimumLowercase + minimumUppercase + minimumNumber + minimumSpecial
             if length < minimumLength {
                 length = minimumLength
