@@ -99,6 +99,21 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.customFieldsState.customFields[1].value)
     }
 
+    /// `receive(_:)` with `.customField(.customFieldAdded)` adds a new linked custom field view and selects
+    /// default `LinkedIdType`.
+    func test_customField_customFieldAdded_linked() {
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
+        subject.receive(.customField(.customFieldAdded(.linked, "linked field")))
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
+        XCTAssertEqual(subject.state.customFieldsState.customFields[1].name, "linked field")
+        XCTAssertEqual(subject.state.customFieldsState.customFields[1].type, .linked)
+        XCTAssertNil(subject.state.customFieldsState.customFields[1].value)
+        XCTAssertEqual(
+            subject.state.customFieldsState.customFields[1].linkedIdType,
+            LinkedIdType.getLinkedIdType(for: subject.state.customFieldsState.cipherType).first
+        )
+    }
+
     /// `receive(_:)` with `.customField(.customFieldChanged(newValue:,index:))` changes
     /// the value of the custom field.
     func test_customField_customFieldChanged() {
@@ -361,6 +376,28 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
         XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "field name")
         XCTAssertEqual(subject.state.customFieldsState.customFields.last?.type, .boolean)
+    }
+
+    /// `receive(_:)` with `customField(.selectedLinkedIdType)` updates
+    /// the `.linkedIdType` of the custom field.
+    func test_customField_selectedLinkedIdType() async throws {
+        let originalCustomFields = [
+            CustomFieldState(
+                linkedIdType: .loginPassword,
+                name: "fieldName1",
+                type: .linked,
+                value: nil
+            ),
+        ]
+        subject.state.customFieldsState.customFields = originalCustomFields
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "fieldName1")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.last?.type, .linked)
+        XCTAssertNil(subject.state.customFieldsState.customFields.last?.value)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.last?.linkedIdType, .loginPassword)
+
+        subject.receive(.customField(.selectedLinkedIdType(0, .loginUsername)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields.last?.linkedIdType, .loginUsername)
     }
 
     /// `receive(_:)` with `customField(.togglePasswordVisibilityChanged)`  only changes
@@ -1237,6 +1274,10 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.typeChanged(.card))
 
         XCTAssertEqual(subject.state.type, .card)
+        XCTAssertEqual(
+            subject.state.customFieldsState,
+            AddEditCustomFieldsState(cipherType: .card, customFields: [])
+        )
     }
 
     /// `receive(_:)` with `.uriChanged` with a valid index updates the state correctly.

@@ -67,8 +67,8 @@ struct AddEditCustomFieldsView: View {
                                             LinkedIdType.getLinkedIdType(for: state.cipherType).first {
                                             return idType
                                         } else {
-                                            assertionFailure("we should have set the default customField"
-                                                + " LinkedIdType by the time user creates linked custom fields.")
+                                            assertionFailure("The default LinkedIdType for the customField " +
+                                                "should have been set when the user creates linked custom fields.")
                                             return .cardBrand
                                         }
                                     },
@@ -82,7 +82,7 @@ struct AddEditCustomFieldsView: View {
                                         .tag(idType)
                                 }
                             } label: {
-                                Text("where")
+                                EmptyView()
                             }
                         } label: {
                             Text(field.linkedIdType?.localizedName ?? "")

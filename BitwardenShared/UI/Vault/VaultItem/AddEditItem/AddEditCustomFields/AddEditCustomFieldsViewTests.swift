@@ -18,7 +18,12 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: .init(customFields: [.init(name: "custom1", type: .text)]))
+        processor = MockProcessor(
+            state: .init(
+                cipherType: .login,
+                customFields: [.init(name: "custom1", type: .text)]
+            )
+        )
         let store = Store(processor: processor)
         subject = AddEditCustomFieldsView(store: store)
     }
