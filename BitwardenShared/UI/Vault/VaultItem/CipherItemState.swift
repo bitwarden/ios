@@ -196,8 +196,6 @@ struct CipherItemState: Equatable {
             cardState: .init(),
             collectionIds: collectionIds,
             configuration: .add,
-            customFields: [],
-            folderId: folderId,
             customFields: customFields,
             folderId: folderId,
             identityState: .init(),
