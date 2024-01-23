@@ -179,6 +179,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     private func handleCustomFieldAction(_ action: AddEditCustomFieldsAction) {
         switch action {
+        case let .booleanFieldChanged(newValue, index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields[index].value = String(newValue).lowercased()
         case let .customFieldAdded(type, name):
             state.customFieldsState.customFields.append(CustomFieldState(name: name, type: type))
         case let .customFieldChanged(newValue, index: index):
@@ -198,13 +201,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             guard state.customFieldsState.customFields.indices.contains(index),
                   index != state.customFieldsState.customFields.indices.first else { return }
             state.customFieldsState.customFields.swapAt(index, index - 1)
+        case .newCustomFieldPressed:
+            presentCustomFieldAlert()
         case let .removeCustomFieldPressed(index):
             guard state.customFieldsState.customFields.indices.contains(index) else { return }
             state.customFieldsState.customFields.remove(at: index)
         case let .selectedCustomFieldType(type):
             presentNameCustomFieldAlert(fieldType: type)
-        case .newCustomFieldPressed:
-            presentCustomFieldAlert()
+        case let .togglePasswordVisibilityChanged(isPasswordVisible, index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields[index].isPasswordVisible = isPasswordVisible
         }
     }
 

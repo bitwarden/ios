@@ -113,9 +113,8 @@ struct ViewItemDetailsView: View {
     var customFieldsSection: some View {
         SectionView(Localizations.customFields) {
             ForEach(store.state.customFieldsState.customFields, id: \.self) { customField in
-                BitwardenField(title: customField.name) {
-                    switch customField.type {
-                    case .boolean:
+                if customField.type == .boolean {
+                    HStack(spacing: 16) {
                         let image = customField.booleanValue
                             ? Asset.Images.checkSquare.swiftUIImage
                             : Asset.Images.square.swiftUIImage
@@ -123,52 +122,67 @@ struct ViewItemDetailsView: View {
                             .resizable()
                             .frame(width: 16, height: 16)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    case .hidden:
-                        if let value = customField.value {
-                            PasswordText(
-                                password: value,
-                                isPasswordVisible: customField.isPasswordVisible
-                            )
-                        }
-                    case .text:
-                        if let value = customField.value {
-                            Text(value)
-                        }
-                    case .linked:
-                        if let linkedIdType = customField.linkedIdType {
-                            HStack(spacing: 8) {
-                                Asset.Images.link.swiftUIImage
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                                Text(linkedIdType.localizedName)
-                            }
-                        }
+
+                        Text(customField.name ?? "")
+                            .styleGuide(.body)
                     }
-                } accessoryContent: {
-                    if let value = customField.value {
+                    .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                } else {
+                    BitwardenField(title: customField.name) {
                         switch customField.type {
+                        case .boolean:
+                            EmptyView()
                         case .hidden:
-                            PasswordVisibilityButton(isPasswordVisible: customField.isPasswordVisible) {
-                                store.send(.customFieldVisibilityPressed(customField))
-                            }
-                            Button {
-                                store.send(.copyPressed(value: value))
-                            } label: {
-                                Asset.Images.copy.swiftUIImage
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
+                            if let value = customField.value {
+                                PasswordText(
+                                    password: value,
+                                    isPasswordVisible: customField.isPasswordVisible
+                                )
                             }
                         case .text:
-                            Button {
-                                store.send(.copyPressed(value: value))
-                            } label: {
-                                Asset.Images.copy.swiftUIImage
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
+                            if let value = customField.value {
+                                Text(value)
                             }
-                        case .boolean, .linked:
-                            EmptyView()
+                        case .linked:
+                            if let linkedIdType = customField.linkedIdType {
+                                HStack(spacing: 8) {
+                                    Asset.Images.link.swiftUIImage
+                                        .resizable()
+                                        .frame(width: 16, height: 16)
+                                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                    Text(linkedIdType.localizedName)
+                                }
+                            }
+                        }
+                    } accessoryContent: {
+                        if let value = customField.value {
+                            switch customField.type {
+                            case .hidden:
+                                PasswordVisibilityButton(isPasswordVisible: customField.isPasswordVisible) {
+                                    store.send(.customFieldVisibilityPressed(customField))
+                                }
+                                Button {
+                                    store.send(.copyPressed(value: value))
+                                } label: {
+                                    Asset.Images.copy.swiftUIImage
+                                        .resizable()
+                                        .frame(width: 16, height: 16)
+                                }
+                            case .text:
+                                Button {
+                                    store.send(.copyPressed(value: value))
+                                } label: {
+                                    Asset.Images.copy.swiftUIImage
+                                        .resizable()
+                                        .frame(width: 16, height: 16)
+                                }
+                            case .boolean, .linked:
+                                EmptyView()
+                            }
                         }
                     }
                 }
