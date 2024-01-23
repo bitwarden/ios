@@ -21,6 +21,27 @@ class EnvironmentUrlDataTests: XCTestCase {
         XCTAssertFalse(EnvironmentUrlData(webVault: .example).isEmpty)
     }
 
+    /// `sendShareURL` returns the send url for the base url.
+    func test_sendShareURL_baseURL() {
+        let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))
+        XCTAssertEqual(subject.sendShareURL?.absoluteString, "https://vault.example.com/#/send")
+    }
+
+    /// `sendShareURL` returns the default send base url.
+    func test_sendShareURL_noURLs() {
+        let subject = EnvironmentUrlData(base: nil, webVault: nil)
+        XCTAssertNil(subject.sendShareURL?.absoluteString)
+    }
+
+    /// `sendShareURL` returns the send url for the web vault url.
+    func test_sendShareURL_webVaultURL() {
+        let subject = EnvironmentUrlData(
+            base: URL(string: "https://vault.example.com"),
+            webVault: URL(string: "https://web.vault.example.com")
+        )
+        XCTAssertEqual(subject.sendShareURL?.absoluteString, "https://web.vault.example.com/#/send")
+    }
+
     /// `webVaultHost` returns the host for the base URL if no web vault URL is set.
     func test_webVaultHost_baseURL() {
         let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))

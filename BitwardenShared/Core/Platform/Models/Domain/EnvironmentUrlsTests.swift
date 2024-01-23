@@ -18,6 +18,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 eventsURL: URL(string: "https://example.com/events")!,
                 iconsURL: URL(string: "https://example.com/icons")!,
                 identityURL: URL(string: "https://example.com/identity")!,
+                sendShareURL: URL(string: "https://example.com/#/send")!,
                 webVaultURL: URL(string: "https://example.com")!
             )
         )
@@ -42,6 +43,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 eventsURL: URL(string: "https://events.example.com")!,
                 iconsURL: URL(string: "https://icons.example.com")!,
                 identityURL: URL(string: "https://identity.example.com")!,
+                sendShareURL: URL(string: "https://example.com/#/send")!,
                 webVaultURL: URL(string: "https://example.com")!
             )
         )
@@ -58,6 +60,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 eventsURL: URL(string: "https://events.bitwarden.com")!,
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
+                sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 webVaultURL: URL(string: "https://vault.bitwarden.com")!
             )
         )

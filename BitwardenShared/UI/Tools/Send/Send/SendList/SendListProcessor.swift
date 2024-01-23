@@ -1,3 +1,6 @@
+import BitwardenSdk
+import Foundation
+
 // MARK: - SendListProcessor
 
 /// The processor used to manage state and handle actions for the send tab list screen.
@@ -56,7 +59,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     override func receive(_ action: SendListAction) {
         switch action {
         case .addItemPressed:
-            coordinator.navigate(to: .addItem)
+            coordinator.navigate(to: .addItem, context: self)
         case .clearInfoUrl:
             state.infoUrl = nil
         case .infoButtonPressed:
@@ -68,7 +71,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             case let .sendListItemPressed(item):
                 switch item.itemType {
                 case let .send(sendView):
-                    coordinator.navigate(to: .edit(sendView))
+                    coordinator.navigate(to: .editItem(sendView), context: self)
                 case .group:
                     // TODO: BIT-1412 Navigate to the group list screen
                     break
@@ -111,5 +114,22 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         }
 
         return []
+    }
+}
+
+// MARK: - SendListProcessor:SendItemDelegate
+
+extension SendListProcessor: SendItemDelegate {
+    func sendItemCancelled() {
+        coordinator.navigate(to: .dismiss())
+    }
+
+    func sendItemCompleted(with sendView: SendView) {
+        Task {
+            guard let url = try? await services.sendRepository.shareURL(for: sendView) else { return }
+            coordinator.navigate(to: .dismiss(DismissAction(action: {
+                self.coordinator.navigate(to: .share(url: url))
+            })))
+        }
     }
 }

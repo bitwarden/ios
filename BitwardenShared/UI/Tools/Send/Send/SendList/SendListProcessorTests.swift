@@ -129,13 +129,42 @@ class SendListProcessorTests: BitwardenTestCase {
         let item = SendListItem(sendView: sendView)!
         subject.receive(.sendListItemRow(.sendListItemPressed(item)))
 
-        XCTAssertEqual(coordinator.routes.last, .edit(sendView))
+        XCTAssertEqual(coordinator.routes.last, .editItem(sendView))
     }
 
+    /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the group send route.
     func test_receive_sendListItemRow_sendListItemPressed_withGroup() {
         let item = SendListItem.groupFixture()
         subject.receive(.sendListItemRow(.sendListItemPressed(item)))
 
         // TODO: BIT-1412 Assert navigation to group send route
+    }
+
+    func test_sendItemCancelled() {
+        subject.sendItemCancelled()
+
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    func test_sendItemCompleted() throws {
+        sendRepository.shareURLResult = .success(.example)
+        let sendView = SendView.fixture()
+        subject.sendItemCompleted(with: sendView)
+
+        waitFor(
+            sendRepository.shareURLSendView != nil && !coordinator.routes.isEmpty
+        )
+
+        XCTAssertEqual(sendRepository.shareURLSendView, sendView)
+        XCTAssertEqual(coordinator.routes.count, 1)
+
+        switch coordinator.routes[0] {
+        case let .dismiss(dismissAction):
+            let action = try XCTUnwrap(dismissAction?.action)
+            action()
+        default:
+            XCTFail("The route was not a dismiss route: \(coordinator.routes[0])")
+        }
+        XCTAssertEqual(coordinator.routes.last, .share(url: .example))
     }
 }
