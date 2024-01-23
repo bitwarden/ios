@@ -41,10 +41,17 @@ public class AppProcessor {
     ///
     /// - Parameters:
     ///   - appContext: The context that the app is running within.
+    ///   - initialRoute: The initial route to navigate to. If `nil` this, will navigate to the
+    ///     unlock or landing auth route based on if there's an active account. Defaults to `nil`.
     ///   - navigator: The object that will be used to navigate between routes.
     ///   - window: The window to use to set the app's theme.
     ///
-    public func start(appContext: AppContext, navigator: RootNavigator, window: UIWindow?) {
+    public func start(
+        appContext: AppContext,
+        initialRoute: AppRoute? = nil,
+        navigator: RootNavigator,
+        window: UIWindow?
+    ) {
         let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
         coordinator.start()
         self.coordinator = coordinator
@@ -59,7 +66,9 @@ public class AppProcessor {
             await services.environmentService.loadURLsForActiveAccount()
         }
 
-        if let activeAccount = services.appSettingsStore.state?.activeAccount {
+        if let initialRoute {
+            coordinator.navigate(to: initialRoute)
+        } else if let activeAccount = services.appSettingsStore.state?.activeAccount {
             coordinator.navigate(
                 to: .auth(
                     .vaultUnlock(

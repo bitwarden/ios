@@ -25,3 +25,13 @@ public protocol AppExtensionDelegate: AnyObject {
     ///
     func didCancel()
 }
+
+public extension AppExtensionDelegate {
+    /// The autofill request should be completed with the specified username and password.
+    ///
+    /// - Parameters:
+    ///   - username: The username to fill.
+    ///   - password: The password to fill.
+    ///
+    func completeAutofillRequest(username: String, password: String) {}
+}

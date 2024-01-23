@@ -15,11 +15,12 @@
 # BitwardenShared/UI/Auth @bitwarden/team-auth-dev
 
 # AutoFill
+# BitwardenActionExtension @bitwarden/team-autofill-dev
 # BitwardenAutoFillExtension @bitwarden/team-autofill-dev
+# BitwardenShared/Core/Autofill @bitwarden/team-autofill-dev
 
 # Platform
 # Bitwarden @bitwarden/team-platform-dev
-# BitwardenActionExtension @bitwarden/team-platform-dev
 # BitwardenShareExtension @bitwarden/team-platform-dev
 # BitwardenShared/Core/Platform @bitwarden/team-platform-dev
 # BitwardenShared/UI/Platform @bitwarden/team-platform-dev
