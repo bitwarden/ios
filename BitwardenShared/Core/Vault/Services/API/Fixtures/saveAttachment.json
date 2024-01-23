@@ -1,0 +1,55 @@
+{
+    "attachmentId": "1",
+    "url": "https://bitwardenxx5keu3w.blob.core.windows.net/attachments-v2/etc",
+    "fileUploadType": 1,
+    "cipherResponse": {
+        "collectionIds": null,
+        "folderId": null,
+        "favorite": false,
+        "edit": true,
+        "viewPassword": true,
+        "id": "3792af7a-4441-11ee-be56-0242ac120002",
+        "organizationId": null,
+        "type": 1,
+        "name": "encrypted name",
+        "notes": null,
+        "login": {
+            "uri": "encrypted uri",
+            "uris": [
+                {
+                    "uri": "encrypted uri",
+                    "match": null
+                }
+            ],
+            "username": "encrypted username",
+            "password": "encrypted password",
+            "passwordRevisionDate": null,
+            "totp": "totp",
+            "autofillOnPageLoad": null
+        },
+        "card": null,
+        "identity": null,
+        "secureNote": null,
+        "fields": null,
+        "passwordHistory": null,
+        "attachments": [
+            {
+                "id": "opbq2xocqozcwmlvtwoh15bovberxibb",
+                "url": "https://cdn.bitwarden.net/attachments/071350c",
+                "fileName": "2.q4Pl+Pz7D3sxr1VEKuwke",
+                "key": "2.jUls4EBVWgMO9BR9aU+0WA==|H",
+                "size": "5725713",
+                "sizeName": "5.46 MB",
+                "object": "attachment"
+            }
+        ],
+        "organizationUseTotp": false,
+        "revisionDate": "2023-08-10T08:33:45.3457421Z",
+        "creationDate": "2023-08-10T08:33:45.3457421Z",
+        "deletedDate": null,
+        "reprompt": 0,
+        "object": "cipherDetails"
+    },
+    "cipherMiniResponse": null,
+    "object": "attachment-fileUpload"
+}

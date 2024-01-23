@@ -62,11 +62,27 @@ protocol StateService: AnyObject {
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
 
+    /// Gets whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter userId: The user ID associated with the setting. Defaults to the active account if `nil`.
+    ///
+    /// - Returns: Whether the user has decided to allow the device to approve login requests.
+    ///
+    func getApproveLoginRequests(userId: String?) async throws -> Bool
+
     /// Get the app theme.
     ///
     /// - Returns: The app theme.
     ///
     func getAppTheme() async -> AppTheme
+
+    /// Get the active user's Biometric Authentication Preference.
+    ///
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func getBiometricAuthenticationEnabled() async throws -> Bool
 
     /// Gets the clear clipboard value for an account.
     ///
@@ -138,6 +154,19 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
+    /// Gets the BiometricIntegrityState for the active user.
+    ///
+    /// - Returns: An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
+    ///
+    func getBiometricIntegrityState() async throws -> String?
+
+    /// Get the two-factor token (non-nil if the user selected the "remember me" option).
+    ///
+    /// - Parameter email: The user's email address.
+    /// - Returns: The two-factor token.
+    ///
+    func getTwoFactorToken(email: String) async -> String?
+
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
@@ -182,11 +211,33 @@ protocol StateService: AnyObject {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
 
+    /// Sets whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameters:
+    ///   - approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
+    ///   - userId: The user ID associated with the setting. Defaults to the active account if `nil`.
+    ///
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws
+
     /// Sets the app theme.
     ///
     /// - Parameter appTheme: The new app theme.
     ///
     func setAppTheme(_ appTheme: AppTheme) async
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
+
+    /// Sets the BiometricIntegrityState for the active user.
+    ///
+    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
+    ///
+    func setBiometricIntegrityState(_ base64State: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -265,6 +316,14 @@ protocol StateService: AnyObject {
     ///
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
 
+    /// Sets the user's two-factor token.
+    ///
+    /// - Parameters:
+    ///   - token: The two-factor token.
+    ///   - email: The user's email address.
+    ///
+    func setTwoFactorToken(_ token: String?, email: String) async
+
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
@@ -328,6 +387,16 @@ extension StateService {
     ///
     func getAllowSyncOnRefresh() async throws -> Bool {
         try await getAllowSyncOnRefresh(userId: nil)
+    }
+
+    /// Gets whether the current user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter userId: The user ID associated with the setting. Defaults to the active account if `nil`.
+    ///
+    /// - Returns: Whether the current user has decided to allow the device to approve login requests.
+    ///
+    func getApproveLoginRequests() async throws -> Bool {
+        try await getApproveLoginRequests(userId: nil)
     }
 
     /// Gets the clear clipboard value for the active account.
@@ -425,6 +494,14 @@ extension StateService {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await setAllowSyncOnRefresh(allowSyncOnRefresh, userId: nil)
+    }
+
+    /// Sets whether the current user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
+    ///
+    func setApproveLoginRequests(_ approveLoginRequests: Bool) async throws {
+        try await setApproveLoginRequests(approveLoginRequests, userId: nil)
     }
 
     /// Sets the clear clipboard value for the active account.
@@ -526,7 +603,7 @@ enum StateServiceError: Error {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService {
+actor DefaultStateService: StateService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -640,6 +717,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
     }
 
+    func getApproveLoginRequests(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.approveLoginRequests(userId: userId)
+    }
+
     func getAppTheme() async -> AppTheme {
         AppTheme(appSettingsStore.appTheme)
     }
@@ -691,6 +773,10 @@ actor DefaultStateService: StateService {
         !appSettingsStore.disableWebIcons
     }
 
+    func getTwoFactorToken(email: String) async -> String? {
+        appSettingsStore.twoFactorToken(email: email)
+    }
+
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId) ?? 0
@@ -705,22 +791,24 @@ actor DefaultStateService: StateService {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
 
-        let userId = try userId ?? getActiveAccountUserId()
-        state.accounts.removeValue(forKey: userId)
-        if state.activeUserId == userId {
+        let knownUserId: String = try userId ?? getActiveAccountUserId()
+        state.accounts.removeValue(forKey: knownUserId)
+        if state.activeUserId == knownUserId {
             // Find the next account to make the active account.
             state.activeUserId = state.accounts.first?.key
         }
 
-        appSettingsStore.setDefaultUriMatchType(nil, userId: userId)
-        appSettingsStore.setDisableAutoTotpCopy(nil, userId: userId)
-        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
-        appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
-        appSettingsStore.setLastSyncTime(nil, userId: userId)
-        appSettingsStore.setMasterPasswordHash(nil, userId: userId)
-        appSettingsStore.setPasswordGenerationOptions(nil, userId: userId)
+        appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
+        appSettingsStore.setBiometricIntegrityState(nil, userId: knownUserId)
+        appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
+        appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
+        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
+        appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
+        appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
+        appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
+        appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
 
-        try await dataStore.deleteDataForUser(userId: userId)
+        try await dataStore.deleteDataForUser(userId: knownUserId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
@@ -741,6 +829,11 @@ actor DefaultStateService: StateService {
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
+    }
+
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setApproveLoginRequests(approveLoginRequests, userId: userId)
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {
@@ -812,6 +905,10 @@ actor DefaultStateService: StateService {
         appSettingsStore.state = state
     }
 
+    func setTwoFactorToken(_ token: String?, email: String) async {
+        appSettingsStore.setTwoFactorToken(token, email: email)
+    }
+
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
@@ -870,5 +967,29 @@ actor DefaultStateService: StateService {
             throw StateServiceError.noActiveAccount
         }
         return activeUserId
+    }
+}
+
+// MARK: Biometrics
+
+extension DefaultStateService {
+    func getBiometricAuthenticationEnabled() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
+    }
+
+    func getBiometricIntegrityState() async throws -> String? {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.biometricIntegrityState(userId: userId)
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+
+    func setBiometricIntegrityState(_ base64State: String?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricIntegrityState(base64State, userId: userId)
     }
 }

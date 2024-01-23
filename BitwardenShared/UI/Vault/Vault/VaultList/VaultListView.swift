@@ -541,11 +541,17 @@ struct VaultListView_Previews: PreviewProvider {
                                     items: [
                                         VaultListItem(
                                             id: "31",
-                                            itemType: .group(.collection(id: "", name: "Design"), 0)
+                                            itemType: .group(
+                                                .collection(id: "", name: "Design", organizationId: "1"),
+                                                0
+                                            )
                                         ),
                                         VaultListItem(
                                             id: "32",
-                                            itemType: .group(.collection(id: "", name: "Engineering"), 2)
+                                            itemType: .group(
+                                                .collection(id: "", name: "Engineering", organizationId: "1"),
+                                                2
+                                            )
                                         ),
                                     ],
                                     name: "Collections"

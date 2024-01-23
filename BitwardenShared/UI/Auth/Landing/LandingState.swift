@@ -22,6 +22,9 @@ struct LandingState: Equatable {
     /// The region selected by the user.
     var region: RegionType
 
+    /// A toast message to show in the view.
+    var toast: Toast?
+
     // MARK: Initialization
 
     /// Creates a new `LandingState`.

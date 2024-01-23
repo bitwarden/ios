@@ -1,14 +1,31 @@
 import BitwardenSdk
 
+// MARK: - SendAPIService
+
 /// A protocol for an API service used to make send requests.
 ///
 protocol SendAPIService {
-    /// Performs an API request to add a new send to the user's vault.
+    /// Performs an API request to add a file new send to the user's vault.
+    ///
+    /// - Parameters:
+    ///   - send: The send that the user is adding.
+    ///   - fileLength: The length of the file the user is adding.
+    /// - Returns: The send that was added to the user's vault.
+    ///
+    func addFileSend(_ send: Send, fileLength: Int) async throws -> SendFileResponseModel
+
+    /// Performs an API request to add a new text send to the user's vault.
     ///
     /// - Parameter send: The send that the user is adding.
     /// - Returns: The send that was added to the user's vault.
     ///
-    func addSend(_ send: Send) async throws -> SendResponseModel
+    func addTextSend(_ send: Send) async throws -> SendResponseModel
+
+    /// Performs an API request to delete a send in the user's vault.
+    ///
+    /// - Parameter id: The id of the send that the user is deleting.
+    ///
+    func deleteSend(with id: String) async throws
 
     /// Performs an API request to update a send in the user's vault.
     ///
@@ -18,9 +35,19 @@ protocol SendAPIService {
     func updateSend(_ send: Send) async throws -> SendResponseModel
 }
 
+// MARK: - APIService
+
 extension APIService: SendAPIService {
-    func addSend(_ send: Send) async throws -> SendResponseModel {
-        try await apiService.send(AddSendRequest(send: send))
+    func addFileSend(_ send: Send, fileLength: Int) async throws -> SendFileResponseModel {
+        try await apiService.send(AddFileSendRequest(send: send, fileLength: fileLength))
+    }
+
+    func addTextSend(_ send: Send) async throws -> SendResponseModel {
+        try await apiService.send(AddTextSendRequest(send: send))
+    }
+
+    func deleteSend(with id: String) async throws {
+        _ = try await apiService.send(DeleteSendRequest(sendId: id))
     }
 
     func updateSend(_ send: Send) async throws -> SendResponseModel {

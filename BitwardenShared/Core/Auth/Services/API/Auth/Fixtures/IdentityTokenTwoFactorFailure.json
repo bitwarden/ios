@@ -8,5 +8,6 @@
             "Email":
             "sh***@example.com"
         }
-    }
+    },
+    "SsoEmail2faSessionToken": "exampleToken"
 }

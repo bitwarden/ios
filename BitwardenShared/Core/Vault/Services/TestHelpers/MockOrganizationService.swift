@@ -7,6 +7,8 @@ class MockOrganizationService: OrganizationService {
     var fetchAllOrganizationsResult: Result<[Organization], Error> = .success([])
 
     var initializeOrganizationCryptoCalled = false
+    var initializeOrganizationCryptoError: Error?
+
     var initializeOrganizationCryptoWithOrgsCalled = false // swiftlint:disable:this identifier_name
 
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
@@ -20,6 +22,9 @@ class MockOrganizationService: OrganizationService {
 
     func initializeOrganizationCrypto() async throws {
         initializeOrganizationCryptoCalled = true
+        if let error = initializeOrganizationCryptoError {
+            throw error
+        }
     }
 
     func initializeOrganizationCrypto(organizations: [Organization]) async {

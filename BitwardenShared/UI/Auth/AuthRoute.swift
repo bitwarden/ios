@@ -75,13 +75,25 @@ public enum AuthRoute: Equatable {
     ///   - password: The password, if the login method was password.
     ///   - authMethodsData: The data on the available auth methods.
     ///
-    case twoFactor(_ email: String, _ password: String?, _ authMethodsData: [String: [String: String]])
+    case twoFactor(
+        _ email: String,
+        _ password: String?,
+        _ authMethodsData: AuthMethodsData
+    )
 
     /// A route to the unlock vault screen.
     ///
     /// - Parameters:
     ///   - account: The account to unlock the vault for.
     ///   - animated: Whether to animate the transition to the view.
+    ///   - attemptAutomaticBiometricUnlock: If `true` and biometric unlock is enabled/available,
+    ///     the processor should attempt an automatic biometric unlock.
+    ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
     ///
-    case vaultUnlock(Account, animated: Bool = true)
+    case vaultUnlock(
+        Account,
+        animated: Bool = true,
+        attemptAutomaticBiometricUnlock: Bool = false,
+        didSwitchAccountAutomatically: Bool
+    )
 }

@@ -92,6 +92,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             }
         case let .profileSwitcherAction(profileAction):
             switch profileAction {
+            case let .accountLongPressed(account):
+                didLongPressProfileSwitcherItem(account)
             case let .accountPressed(account):
                 didTapProfileSwitcherItem(account)
             case .addAccountPressed:
@@ -127,6 +129,60 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     /// Navigates to login to initiate the add account flow.
     private func addAccount() {
         coordinator.navigate(to: .addAccount)
+    }
+
+    /// Handles a long press of an account in the profile switcher.
+    ///
+    /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
+    ///
+    private func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) {
+        state.profileSwitcherState.isVisible = false
+        coordinator.showAlert(.accountOptions(account, lockAction: {
+            do {
+                // Lock the vault of the selected account.
+                let activeAccount = try await self.services.stateService.getActiveAccount()
+                await self.services.authRepository.lockVault(userId: account.userId)
+
+                // If the selected item was the currently active account, redirect the user
+                // to the unlock vault view.
+                if account.userId == activeAccount.profile.userId {
+                    self.coordinator.navigate(to: .lockVault(account: activeAccount))
+                } else {
+                    // Otherwise, show the toast that the account was locked successfully.
+                    self.state.toast = Toast(text: Localizations.accountLockedSuccessfully)
+
+                    // Update the profile switcher view.
+                    await self.refreshProfileState()
+                }
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
+        }, logoutAction: {
+            // Confirm logging out.
+            self.coordinator.showAlert(.logoutConfirmation {
+                do {
+                    // Log out of the selected account.
+                    let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
+                    try await self.services.authRepository.logout(
+                        userId: account.userId
+                    )
+
+                    // If the selected item was the currently active account, redirect the user
+                    // to the landing page.
+                    if account.userId == activeAccountId {
+                        self.coordinator.navigate(to: .logout(userInitiated: true))
+                    } else {
+                        // Otherwise, show the toast that the account was logged out successfully.
+                        self.state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
+
+                        // Update the profile switcher view.
+                        await self.refreshProfileState()
+                    }
+                } catch {
+                    self.services.errorReporter.log(error: error)
+                }
+            })
+        }))
     }
 
     /// Handles a tap of an account in the profile switcher.
@@ -301,6 +357,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
 
 extension VaultListProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
+        state.toast = Toast(text: Localizations.itemDeleted)
+    }
+
+    func itemSoftDeleted() {
         state.toast = Toast(text: Localizations.itemSoftDeleted)
     }
 

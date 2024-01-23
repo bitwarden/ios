@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "pending_login_requests_empty.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

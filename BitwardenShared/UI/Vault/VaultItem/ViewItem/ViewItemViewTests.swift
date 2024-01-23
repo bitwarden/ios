@@ -207,7 +207,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             ),
         ]
 
-        cipherState.customFields = [
+        cipherState.customFieldsState.customFields = [
             CustomFieldState(
                 linkedIdType: nil,
                 name: "Text",

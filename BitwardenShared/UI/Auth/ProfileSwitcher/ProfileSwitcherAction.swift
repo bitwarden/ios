@@ -4,6 +4,9 @@ import SwiftUI
 
 /// Actions that can be processed by a `ProfileSwitcherProcessor`.
 enum ProfileSwitcherAction: Equatable {
+    /// An account row item was long pressed.
+    case accountLongPressed(ProfileSwitcherItem)
+
     /// An account row item was pressed.
     case accountPressed(ProfileSwitcherItem)
 

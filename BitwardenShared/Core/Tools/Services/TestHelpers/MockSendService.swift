@@ -1,5 +1,6 @@
 import BitwardenSdk
 import Combine
+import Foundation
 
 @testable import BitwardenShared
 
@@ -8,8 +9,15 @@ import Combine
 class MockSendService: SendService {
     // MARK: Properties
 
-    var addSendSend: Send?
-    var addSendResult: Result<Void, Error> = .success(())
+    var addFileSendData: Data?
+    var addFileSendSend: Send?
+    var addFileSendResult: Result<Void, Error> = .success(())
+
+    var addTextSendSend: Send?
+    var addTextSendResult: Result<Void, Error> = .success(())
+
+    var deleteSendSend: Send?
+    var deleteSendResult: Result<Void, Error> = .success(())
 
     var updateSendSend: Send?
     var updateSendResult: Result<Void, Error> = .success(())
@@ -21,9 +29,20 @@ class MockSendService: SendService {
 
     // MARK: Methods
 
-    func addSend(_ send: Send) async throws {
-        addSendSend = send
-        try addSendResult.get()
+    func addFileSend(_ send: Send, data: Data) async throws {
+        addFileSendData = data
+        addFileSendSend = send
+        try addFileSendResult.get()
+    }
+
+    func addTextSend(_ send: Send) async throws {
+        addTextSendSend = send
+        try addTextSendResult.get()
+    }
+
+    func deleteSend(_ send: Send) async throws {
+        deleteSendSend = send
+        try deleteSendResult.get()
     }
 
     func updateSend(_ send: Send) async throws {

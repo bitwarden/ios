@@ -41,6 +41,16 @@ protocol CipherService {
     ///
     func restoreCipherWithServer(id: String, _ cipher: Cipher) async throws
 
+    /// Save an attachment to a cipher for the current user, both in the backend and in local storage.
+    ///
+    /// - Parameters:
+    ///   - cipherId: The id of the cipher to add the attachment to.
+    ///   - attachment: The encrypted attachment data to save.
+    ///
+    /// - Returns: The updated cipher with one more attachment.
+    ///
+    func saveAttachmentWithServer(cipherId: String, attachment: AttachmentEncryptResult) async throws -> Cipher
+
     /// Shares a cipher with an organization and updates the locally stored data.
     ///
     /// - Parameter cipher: The cipher to share.
@@ -120,6 +130,9 @@ extension DefaultCipherService {
             response = try await cipherAPIService.addCipherWithCollections(cipher)
         }
 
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.collectionIds = cipher.collectionIds
+
         // Add the cipher in local storage.
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)
     }
@@ -153,11 +166,34 @@ extension DefaultCipherService {
         try await cipherDataStore.upsertCipher(cipher, userId: userID)
     }
 
+    func saveAttachmentWithServer(cipherId: String, attachment: AttachmentEncryptResult) async throws -> Cipher {
+        let userId = try await stateService.getActiveAccountId()
+
+        // Create the cipher attachment in the backend
+        let response = try await cipherAPIService.saveAttachment(
+            cipherId: cipherId,
+            fileName: attachment.attachment.fileName,
+            fileSize: attachment.attachment.size,
+            key: attachment.attachment.key
+        )
+
+        // Update the cipher in local storage.
+        let updatedCipher = Cipher(responseModel: response.cipherResponse)
+        try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
+
+        // TODO: BIT-1465 actually upload file
+
+        // Return the updated cipher.
+        return updatedCipher
+    }
+
     func shareCipherWithServer(_ cipher: Cipher) async throws {
         let userId = try await stateService.getActiveAccountId()
 
         // Share the cipher from the backend.
         var response = try await cipherAPIService.shareCipher(cipher)
+
+        // The API doesn't return the collectionIds, so manually add them back.
         response.collectionIds = cipher.collectionIds
 
         // Update the cipher in local storage.
@@ -188,7 +224,10 @@ extension DefaultCipherService {
         let userId = try await stateService.getActiveAccountId()
 
         // Update the cipher in the backend.
-        let response = try await cipherAPIService.updateCipher(cipher)
+        var response = try await cipherAPIService.updateCipher(cipher)
+
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.collectionIds = cipher.collectionIds
 
         // Update the cipher in local storage.
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)

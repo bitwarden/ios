@@ -186,10 +186,11 @@ public class ServiceContainer: Services {
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
 
-        let biometricsService = DefaultBiometricsService()
-        let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+
+        let biometricsService = DefaultBiometricsService(stateService: stateService)
+        let clientService = DefaultClientService()
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
@@ -217,6 +218,7 @@ public class ServiceContainer: Services {
         )
 
         let sendService = DefaultSendService(
+            fileAPIService: apiService,
             sendAPIService: apiService,
             sendDataStore: dataStore,
             stateService: stateService
@@ -259,6 +261,7 @@ public class ServiceContainer: Services {
             authAPIService: apiService,
             clientAuth: clientService.clientAuth(),
             clientGenerators: clientService.clientGenerator(),
+            clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
             stateService: stateService,
             systemDevice: UIDevice.current
@@ -267,6 +270,7 @@ public class ServiceContainer: Services {
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
+            biometricsService: biometricsService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             clientPlatform: clientService.clientPlatform(),
@@ -314,8 +318,10 @@ public class ServiceContainer: Services {
             errorReporter: errorReporter,
             folderService: folderService,
             organizationService: organizationService,
+            settingsService: settingsService,
             stateService: stateService,
             syncService: syncService,
+            timeProvider: timeProvider,
             vaultTimeoutService: vaultTimeoutService
         )
 
@@ -359,6 +365,10 @@ extension ServiceContainer {
     }
 
     var deviceAPIService: DeviceAPIService {
+        apiService
+    }
+
+    var fileAPIService: FileAPIService {
         apiService
     }
 

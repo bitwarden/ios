@@ -2,10 +2,11 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AccountSecurityProcessorTests: BitwardenTestCase {
+class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var biometricsService: MockBiometricsService!
     var coordinator: MockCoordinator<SettingsRoute>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
@@ -19,6 +20,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         super.setUp()
 
         authRepository = MockAuthRepository()
+        biometricsService = MockBiometricsService()
         coordinator = MockCoordinator<SettingsRoute>()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
@@ -28,6 +30,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         subject = AccountSecurityProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                biometricsService: biometricsService,
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
                 stateService: stateService,
@@ -41,6 +45,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         authRepository = nil
+        biometricsService = nil
         coordinator = nil
         errorReporter = nil
         settingsRepository = nil
@@ -49,23 +54,40 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.loadData` loads the initial data for the view.
+    func test_perform_loadData() async {
+        stateService.activeAccount = .fixture()
+        stateService.approveLoginRequestsByUserId["1"] = true
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.isApproveLoginRequestsToggleOn)
+    }
+
+    /// `perform(_:)` with `.loadData` records any errors.
+    func test_perform_loadData_error() async {
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
     /// `perform(_:)` with `.lockVault` locks the user's vault.
     func test_perform_lockVault() async {
         let account: Account = .fixtureAccountLogin()
         stateService.activeAccount = account
 
-        await subject.perform(.lockVault)
+        await subject.perform(.lockVault(userInitiated: true))
 
-        XCTAssertEqual(settingsRepository.lockVaultCalls, [account.profile.userId])
-        XCTAssertEqual(coordinator.routes.last, .lockVault(account: account))
+        XCTAssertEqual(authRepository.lockVaultUserId, account.profile.userId)
+        XCTAssertEqual(coordinator.routes.last, .lockVault(account: account, userInitiated: true))
     }
 
     /// `perform(_:)` with `.lockVault` fails, locks the vault and navigates to the landing screen.
     func test_perform_lockVault_failure() async {
-        await subject.perform(.lockVault)
+        await subject.perform(.lockVault(userInitiated: true))
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [StateServiceError.noActiveAccount])
-        XCTAssertEqual(coordinator.routes.last, .logout)
+        XCTAssertEqual(coordinator.routes.last, .logout(userInitiated: true))
     }
 
     /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
@@ -141,15 +163,16 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[0].title, Localizations.yes)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
 
-        settingsRepository.logoutResult = .success(())
+        authRepository.logoutResult = .success(())
         // Tapping yes logs the user out.
         try await alert.tapAction(title: Localizations.yes)
 
-        XCTAssertEqual(coordinator.routes.last, .logout)
+        XCTAssertEqual(coordinator.routes.last, .logout(userInitiated: true))
     }
 
     /// `receive(_:)` with `.logout` presents a logout confirmation alert.
     func test_receive_logout_error() async throws {
+        authRepository.logoutResult = .failure(StateServiceError.noActiveAccount)
         subject.receive(.logout)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
@@ -167,6 +190,12 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
             errorReporter.errors as? [StateServiceError],
             [StateServiceError.noActiveAccount]
         )
+    }
+
+    /// `.receive(_:)` with `.pendingLoginRequestsTapped` navigates to the pending requests view.
+    func test_receive_pendingLoginRequestsTapped() {
+        subject.receive(.pendingLoginRequestsTapped)
+        XCTAssertEqual(coordinator.routes.last, .pendingLoginRequests)
     }
 
     /// `receive(_:)` with `sessionTimeoutActionChanged(:)` presents an alert if `logout` was selected.
@@ -238,24 +267,61 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.customSessionTimeoutValue, 15)
     }
 
-    /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` updates the state.
-    func test_receive_toggleApproveLoginRequestsToggle() {
+    /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` shows a confirmation alert and updates the state.
+    func test_receive_toggleApproveLoginRequestsToggle() async throws {
+        stateService.activeAccount = .fixture()
         subject.state.isApproveLoginRequestsToggleOn = false
+
         subject.receive(.toggleApproveLoginRequestsToggle(true))
 
-        XCTAssertTrue(subject.state.isApproveLoginRequestsToggleOn)
+        // Confirm enabling the setting on the alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.last)
+        await confirmAction.handler?(confirmAction, [])
+
+        waitFor(subject.state.isApproveLoginRequestsToggleOn)
+        XCTAssertEqual(stateService.approveLoginRequestsByUserId["1"], true)
     }
 
-    /// `receive(_:)` with `.toggleUnlockWithFaceID` updates the state.
-    func test_receive_toggleUnlockWithFaceID() {
-        subject.state.isUnlockWithFaceIDOn = false
-        subject.receive(.toggleUnlockWithFaceID(true))
+    /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` records any errors.
+    func test_receive_toggleApproveLoginRequestsToggle_error() async throws {
+        subject.state.isApproveLoginRequestsToggleOn = false
 
-        XCTAssertTrue(subject.state.isUnlockWithFaceIDOn)
+        subject.receive(.toggleApproveLoginRequestsToggle(true))
+
+        // Confirm enabling the setting on the alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.last)
+        await confirmAction.handler?(confirmAction, [])
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
+    /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` updates the state.
+    func test_receive_toggleApproveLoginRequestsToggle_toggleOff() {
+        stateService.activeAccount = .fixture()
+        subject.state.isApproveLoginRequestsToggleOn = true
+
+        let task = Task {
+            subject.receive(.toggleApproveLoginRequestsToggle(false))
+        }
+
+        waitFor(!subject.state.isApproveLoginRequestsToggleOn)
+        task.cancel()
+        XCTAssertEqual(stateService.approveLoginRequestsByUserId["1"], false)
     }
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state when submit has been pressed.
-    func test_receive_toggleUnlockWithPINCode() async throws {
+    func test_receive_toggleUnlockWithPINCode_toggleOff() async throws {
+        subject.state.isUnlockWithPINCodeOn = true
+        subject.receive(.toggleUnlockWithPINCode(false))
+
+        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
+    /// pressed.
+    func test_receive_toggleUnlockWithPINCode_toggleOn() async throws {
         subject.state.isUnlockWithPINCodeOn = false
         subject.receive(.toggleUnlockWithPINCode(true))
 
@@ -267,12 +333,87 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }
 
-    /// `receive(_:)` with `.toggleUnlockWithTouchID` updates the state.
-    func test_receive_toggleUnlockWithTouchID() {
-        subject.state.isUnlockWithTouchIDToggleOn = false
-        subject.receive(.toggleUnlockWithTouchID(true))
+    /// `perform(_:)` with `.loadData` updates the state.
+    func test_perform_loadData_biometricsValue() async {
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
+        biometricsService.biometricUnlockStatus = .success(
+            biometricUnlockStatus
+        )
+        subject.state.biometricUnlockStatus = .notAvailable
+        await subject.perform(.loadData)
 
-        XCTAssertTrue(subject.state.isUnlockWithTouchIDToggleOn)
+        XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
+    }
+
+    /// `perform(_:)` with `.loadData` updates the state.
+    func test_perform_loadData_biometricsValue_error() async {
+        struct TestError: Error {}
+        biometricsService.biometricUnlockStatus = .failure(TestError())
+        subject.state.biometricUnlockStatus = .notAvailable
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, .notAvailable)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
+    func test_perform_toggleUnlockWithBiometrics_authRepositoryFailure() async throws {
+        struct TestError: Error, Equatable {}
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
+        biometricsService.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: false, hasValidIntegrity: false)
+        )
+
+        authRepository.allowBiometricUnlockResult = .failure(TestError())
+        subject.state.biometricUnlockStatus = biometricUnlockStatus
+        await subject.perform(.toggleUnlockWithBiometrics(false))
+
+        let error = try XCTUnwrap(errorReporter.errors.first as? TestError)
+        XCTAssertEqual(error, TestError())
+        XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
+    func test_perform_toggleUnlockWithBiometrics_biometricsServiceFailure() async throws {
+        struct TestError: Error, Equatable {}
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
+        biometricsService.biometricUnlockStatus = .failure(TestError())
+
+        authRepository.allowBiometricUnlockResult = .success(())
+        subject.state.biometricUnlockStatus = biometricUnlockStatus
+        await subject.perform(.toggleUnlockWithBiometrics(false))
+
+        let error = try XCTUnwrap(errorReporter.errors.first as? TestError)
+        XCTAssertEqual(error, TestError())
+        XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithBiometrics` configures biometric integrity state if needed.
+    func test_perform_toggleUnlockWithBiometrics_invalidBiometryState() async {
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: false)
+        biometricsService.biometricUnlockStatus = .success(
+            biometricUnlockStatus
+        )
+        authRepository.allowBiometricUnlockResult = .success(())
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
+        await subject.perform(.toggleUnlockWithBiometrics(false))
+
+        XCTAssertTrue(biometricsService.didConfigureBiometricIntegrity)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
+    func test_perform_toggleUnlockWithBiometrics_success() async {
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: true)
+        biometricsService.biometricUnlockStatus = .success(
+            biometricUnlockStatus
+        )
+        authRepository.allowBiometricUnlockResult = .success(())
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        await subject.perform(.toggleUnlockWithBiometrics(false))
+
+        XCTAssertEqual(
+            subject.state.biometricUnlockStatus,
+            biometricUnlockStatus
+        )
     }
 
     /// `receive(_:)` with `.twoStepLoginPressed` shows the two step login alert.
@@ -302,4 +443,4 @@ class AccountSecurityProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.twoStepLoginUrl, URL.example)
     }
-}
+} // swiftlint:disable:this file_length

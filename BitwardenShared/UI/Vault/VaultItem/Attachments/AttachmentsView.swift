@@ -30,6 +30,10 @@ struct AttachmentsView: View {
         .task {
             await store.perform(.loadPremiumStatus)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: AttachmentsAction.toastShown
+        ))
     }
 
     // MARK: Private Views
@@ -59,7 +63,7 @@ struct AttachmentsView: View {
 
     /// The view of current attachments.
     @ViewBuilder private var currentAttachments: some View {
-        if store.state.attachments.isEmpty {
+        if store.state.cipher?.attachments?.isEmpty ?? true {
             Text(Localizations.noAttachments)
                 .styleGuide(.body)
                 .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)

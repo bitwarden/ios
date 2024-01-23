@@ -48,6 +48,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         switch effect {
         case .continueTapped:
             await login()
+        case .resendEmailTapped:
+            await resendEmail()
         }
     }
 
@@ -61,9 +63,6 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             coordinator.navigate(to: .dismiss)
         case let .rememberMeToggleChanged(isOn):
             state.isRememberMeOn = isOn
-        case .resendEmailTapped:
-            state.toast = Toast(text: Localizations.verificationEmailSent)
-        // TODO: BIT-807 implement resend email
         case let .toastShown(newValue):
             state.toast = newValue
         case let .verificationCodeChanged(newValue):
@@ -105,7 +104,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     }
 
     /// Attempt to login.
-    private func login(captchaToken _: String? = nil) async {
+    private func login(captchaToken: String? = nil) async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 
@@ -117,11 +116,36 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             // If the user is manually entering a code, remove any white spaces, just in case.
             var code = state.verificationCode
             if state.authMethod == .authenticatorApp || state.authMethod == .email {
-                code = code.trimmingCharacters(in: .whitespacesAndNewlines)
+                code = code.replacingOccurrences(of: " ", with: "")
             }
 
             // Attempt to login.
-            // TODO: BIT-807
+            let account = try await services.authService.loginWithTwoFactorCode(
+                email: state.email,
+                code: code,
+                method: state.authMethod,
+                remember: state.isRememberMeOn,
+                captchaToken: captchaToken
+            )
+
+            // Try to unlock the vault with the master password, if it's known.
+            if let password = state.password {
+                try await services.authRepository.unlockVault(password: password)
+                coordinator.hideLoadingOverlay()
+                coordinator.navigate(to: .dismiss)
+                coordinator.navigate(to: .complete)
+            } else {
+                // Otherwise, navigate to the unlock vault view.
+                coordinator.hideLoadingOverlay()
+                coordinator.navigate(
+                    to: .vaultUnlock(
+                        account,
+                        animated: false,
+                        didSwitchAccountAutomatically: false
+                    )
+                )
+                coordinator.navigate(to: .dismiss)
+            }
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch let error as IdentityTokenRequestError {
@@ -134,7 +158,30 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 ))
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.invalidVerificationCode
+            ))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Resend the verification code email.
+    private func resendEmail() async {
+        guard state.authMethod == .email else { return }
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.submitting)
+
+            try await services.authService.resendVerificationCodeEmail()
+
+            coordinator.hideLoadingOverlay()
+            state.toast = Toast(text: Localizations.verificationEmailSent)
+        } catch {
+            coordinator.hideLoadingOverlay()
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.verificationEmailNotSent
+            ))
             services.errorReporter.log(error: error)
         }
     }
@@ -155,9 +202,9 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         state.authMethod = preferredMethod ?? .email
 
         // If email is one of the options, then parse the data to get the email to display.
-        if availableMethods.contains(.email) {
-            let emailData = state.authMethodsData["\(TwoFactorAuthMethod.email.rawValue)"]
-            let emailToDisplay = emailData?["Email"]
+        if availableMethods.contains(.email),
+           let emailData = state.authMethodsData["\(TwoFactorAuthMethod.email.rawValue)"],
+           let emailToDisplay = emailData?["Email"] {
             state.displayEmail = emailToDisplay ?? state.email
         }
     }
