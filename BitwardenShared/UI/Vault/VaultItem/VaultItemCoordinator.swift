@@ -152,6 +152,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
             addItem: group.flatMap(CipherType.init) ?? .login,
             allowTypeSelection: allowTypeSelection,
             collectionIds: group?.collectionId.flatMap { [$0] } ?? [],
+            folderId: group?.folderId,
             hasPremium: hasPremium,
             organizationId: group?.organizationId,
             uri: uri

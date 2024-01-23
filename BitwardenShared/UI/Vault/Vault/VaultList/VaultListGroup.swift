@@ -43,6 +43,12 @@ extension VaultListGroup {
         return collectionId
     }
 
+    /// The folder's ID, if the group is a collection.
+    var folderId: String? {
+        guard case let .folder(folderId, _) = self else { return nil }
+        return folderId
+    }
+
     /// The display name for the group.
     var name: String {
         switch self {
