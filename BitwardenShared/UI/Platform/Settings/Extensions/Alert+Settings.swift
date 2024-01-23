@@ -34,7 +34,6 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
-
             ]
         )
     }

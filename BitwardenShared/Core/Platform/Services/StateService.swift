@@ -139,6 +139,13 @@ protocol StateService: AnyObject {
     ///
     func getMasterPasswordHash(userId: String?) async throws -> String?
 
+    /// Gets the last notifications registration date for a user ID.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The last notifications registration date.
+    ///
+    func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date?
+
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
@@ -210,7 +217,7 @@ protocol StateService: AnyObject {
     /// Sets the account encryption keys for an account.
     ///
     /// - Parameters:
-    ///   - encryptionKeys:  The account encryption keys.
+    ///   - encryptionKeys: The account encryption keys.
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
@@ -304,6 +311,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the master password hash.
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws
+
+    /// Sets the last notifications registration date for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The last notifications registration date.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws
 
     /// Sets the password generation options for a user ID.
     ///
@@ -484,6 +499,14 @@ extension StateService {
         try await getMasterPasswordHash(userId: nil)
     }
 
+    /// Gets the last notifications registration date for the active account.
+    ///
+    /// - Returns: The last notifications registration date for the active account.
+    ///
+    func getNotificationsLastRegistrationDate() async throws -> Date? {
+        try await getNotificationsLastRegistrationDate(userId: nil)
+    }
+
     /// Gets the password generation options for the active account.
     ///
     /// - Returns: The password generation options for the user ID.
@@ -509,6 +532,15 @@ extension StateService {
     ///
     func getUsernameGenerationOptions() async throws -> UsernameGenerationOptions? {
         try await getUsernameGenerationOptions(userId: nil)
+    }
+
+    /// Whether the user is authenticated or not.
+    ///
+    /// - Returns: Whether the user is authenticated.
+    ///
+    func isAuthenticated() async -> Bool {
+        let accountKeys = try? await getAccountEncryptionKeys()
+        return accountKeys != nil
     }
 
     /// Logs the user out of the active account.
@@ -603,6 +635,14 @@ extension StateService {
     ///
     func setMasterPasswordHash(_ hash: String?) async throws {
         try await setMasterPasswordHash(hash, userId: nil)
+    }
+
+    /// Sets the last notifications registration date for the active account.
+    ///
+    /// - Parameter date: The last notifications registration date.
+    ///
+    func setNotificationsLastRegistrationDate(_ date: Date?) async throws {
+        try await setNotificationsLastRegistrationDate(date, userId: nil)
     }
 
     /// Sets the password generation options for the active account.
@@ -826,6 +866,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.masterPasswordHash(userId: userId)
     }
 
+    func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.notificationsLastRegistrationDate(userId: userId)
+    }
+
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.passwordGenerationOptions(userId: userId)
@@ -951,6 +996,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setMasterPasswordHash(hash, userId: userId)
+    }
+
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setNotificationsLastRegistrationDate(date, userId: userId)
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {

@@ -51,6 +51,9 @@ public class ServiceContainer: Services {
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
+    /// The service used by the application to handle notifications.
+    let notificationService: NotificationService
+
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
 
@@ -108,6 +111,7 @@ public class ServiceContainer: Services {
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
+    ///   - notificationService: The service used by the application to handle notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
@@ -135,6 +139,7 @@ public class ServiceContainer: Services {
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
+        notificationService: NotificationService,
         pasteboardService: PasteboardService,
         sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
@@ -161,6 +166,7 @@ public class ServiceContainer: Services {
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
+        self.notificationService = notificationService
         self.pasteboardService = pasteboardService
         self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
@@ -242,6 +248,15 @@ public class ServiceContainer: Services {
             settingsService: settingsService,
             stateService: stateService,
             syncAPIService: apiService
+        )
+
+        let notificationService = DefaultNotificationService(
+            appIdService: appIdService,
+            authAPIService: apiService,
+            errorReporter: errorReporter,
+            notificationAPIService: apiService,
+            stateService: stateService,
+            syncService: syncService
         )
 
         let totpService = DefaultTOTPService()
@@ -338,6 +353,7 @@ public class ServiceContainer: Services {
             environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
+            notificationService: notificationService,
             pasteboardService: pasteboardService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
@@ -383,4 +399,4 @@ extension ServiceContainer {
     var clientPlatform: ClientPlatformProtocol {
         clientService.clientPlatform()
     }
-}
+} // swiftlint:disable:this file_length

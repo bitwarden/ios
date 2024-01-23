@@ -21,6 +21,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var lastUserShouldConnectToWatch = false
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
+    var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinKeyEncryptedUserKey = [String: String]()
     var pinProtectedUserKey = [String: String]()
@@ -77,6 +78,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func masterPasswordHash(userId: String) -> String? {
         masterPasswordHashes[userId]
+    }
+
+    func notificationsLastRegistrationDate(userId: String) -> Date? {
+        notificationsLastRegistrationDates[userId]
     }
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
@@ -149,6 +154,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setMasterPasswordHash(_ hash: String?, userId: String) {
         masterPasswordHashes[userId] = hash
+    }
+
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
+        notificationsLastRegistrationDates[userId] = date
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {

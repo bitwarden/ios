@@ -82,4 +82,43 @@ public class AppProcessor {
             coordinator.navigate(to: .auth(.landing))
         }
     }
+
+    // MARK: Notification Methods
+
+    /// Called when the app has registered for push notifications.
+    ///
+    /// - Parameter tokenData: The device token for push notifications.
+    ///
+    public func didRegister(withToken tokenData: Data) {
+        Task {
+            await services.notificationService.didRegister(withToken: tokenData)
+        }
+    }
+
+    /// Called when the app failed to register for push notifications.
+    ///
+    /// - Parameter error: The error received.
+    ///
+    public func failedToRegister(_ error: Error) {
+        services.errorReporter.log(error: error)
+    }
+
+    /// Called when the app has received data from a push notification.
+    ///
+    /// - Parameters:
+    ///   - message: The content of the push notification.
+    ///   - notificationDismissed: `true` if a notification banner has been dismissed.
+    ///   - notificationTapped: `true` if a notification banner has been tapped.
+    ///
+    public func messageReceived(
+        _ message: [AnyHashable: Any],
+        notificationDismissed: Bool? = nil,
+        notificationTapped: Bool? = nil
+    ) async {
+        await services.notificationService.messageReceived(
+            message,
+            notificationDismissed: notificationDismissed,
+            notificationTapped: notificationTapped
+        )
+    }
 }
