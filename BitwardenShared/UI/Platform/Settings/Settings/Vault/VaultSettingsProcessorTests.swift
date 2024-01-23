@@ -14,7 +14,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator<SettingsRoute>()
-        subject = VaultSettingsProcessor(coordinator: coordinator.asAnyCoordinator())
+        subject = VaultSettingsProcessor(coordinator: coordinator.asAnyCoordinator(), state: VaultSettingsState())
     }
 
     override func tearDown() {
@@ -25,6 +25,14 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `receive(_:)` with `.clearImportItemsUrl` clears the URL in the state.
+    func test_receive_clearImportItemsUrl() {
+        subject.state.importItemsUrl = .example
+        subject.receive(.clearImportItemsUrl)
+
+        XCTAssertNil(subject.state.importItemsUrl)
+    }
 
     /// Receiving `.exportVaultTapped` navigates to the export vault screen.
     func test_receive_exportVaultTapped() {
@@ -38,5 +46,12 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
         subject.receive(.foldersTapped)
 
         XCTAssertEqual(coordinator.routes.last, .folders)
+    }
+
+    /// `receive(_:)` with `.importItemsTapped` set the URL to open in the state.
+    func test_receive_importItemsTapped() {
+        subject.receive(.importItemsTapped)
+
+        XCTAssertEqual(subject.state.importItemsUrl, ExternalLinksConstants.importItems)
     }
 }

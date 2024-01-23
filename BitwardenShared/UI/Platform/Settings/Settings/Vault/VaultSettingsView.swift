@@ -7,8 +7,11 @@ import SwiftUI
 struct VaultSettingsView: View {
     // MARK: Properties
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
-    @ObservedObject var store: Store<Void, VaultSettingsAction, Void>
+    @ObservedObject var store: Store<VaultSettingsState, VaultSettingsAction, Void>
 
     // MARK: View
 
@@ -18,6 +21,11 @@ struct VaultSettingsView: View {
         }
         .scrollView()
         .navigationBar(title: Localizations.vault, titleDisplayMode: .inline)
+        .onChange(of: store.state.importItemsUrl) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearImportItemsUrl)
+        }
     }
 
     // MARK: Private views
@@ -46,5 +54,5 @@ struct VaultSettingsView: View {
 }
 
 #Preview {
-    VaultSettingsView(store: Store(processor: StateProcessor(state: ())))
+    VaultSettingsView(store: Store(processor: StateProcessor(state: VaultSettingsState())))
 }
