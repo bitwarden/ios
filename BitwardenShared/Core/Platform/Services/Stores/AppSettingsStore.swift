@@ -132,6 +132,20 @@ protocol AppSettingsStore: AnyObject {
     ///
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions?
 
+    /// The user's pin protected user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
+    /// - Returns: The pin protected user key.
+    ///
+    func pinKeyEncryptedUserKey(userId: String) -> String?
+
+    /// The pin protected user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key.
+    /// - Returns: The pin protected user key.
+    ///
+    func pinProtectedUserKey(userId: String) -> String?
+
     /// Get the two-factor token associated with a user's email..
     ///
     /// - Parameter email: The user's email.
@@ -260,6 +274,22 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
+
+    /// Sets the pin key encrypted user key.
+    ///
+    /// - Parameters:
+    ///   - key: A pin key encrypted user key derived from the user's pin.
+    ///   - userId: The user ID.
+    ///
+    func setPinKeyEncryptedUserKey(key: String?, userId: String)
+
+    /// Sets the pin protected user key.
+    ///
+    /// - Parameters:
+    ///  - key: A pin protected user key derived from the user's pin.
+    ///   - userId: The user ID.
+    ///
+    func setPinProtectedUserKey(key: String?, userId: String)
 
     /// Sets the two-factor token.
     ///
@@ -422,6 +452,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case lastSync(userId: String)
         case masterPasswordHash(userId: String)
         case passwordGenerationOptions(userId: String)
+        case pinKeyEncryptedUserKey(userId: String)
+        case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentUrls
         case rememberedEmail
         case rememberedOrgIdentifier
@@ -470,6 +502,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "keyHash_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
+            case let .pinKeyEncryptedUserKey(userId):
+                key = "pinKeyEncryptedUserKey_\(userId)"
+            case let .pinProtectedUserKey(userId):
+                key = "pinProtectedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
             case .rememberedEmail:
@@ -593,6 +629,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
 
+    func pinKeyEncryptedUserKey(userId: String) -> String? {
+        fetch(for: .pinKeyEncryptedUserKey(userId: userId))
+    }
+
+    func pinProtectedUserKey(userId: String) -> String? {
+        fetch(for: .pinProtectedUserKey(userId: userId))
+    }
+
     func twoFactorToken(email: String) -> String? {
         fetch(for: .twoFactorToken(email: email))
     }
@@ -655,6 +699,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         store(options, for: .passwordGenerationOptions(userId: userId))
+    }
+
+    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
+        store(key, for: .pinKeyEncryptedUserKey(userId: userId))
+    }
+
+    func setPinProtectedUserKey(key: String?, userId: String) {
+        store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
     func setTwoFactorToken(_ token: String?, email: String) {

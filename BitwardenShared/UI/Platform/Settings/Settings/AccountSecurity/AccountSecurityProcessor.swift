@@ -111,6 +111,10 @@ final class AccountSecurityProcessor: StateProcessor<
         do {
             state.biometricUnlockStatus = await loadBiometricUnlockPreference()
             state.isApproveLoginRequestsToggleOn = try await services.stateService.getApproveLoginRequests()
+
+            if try await services.authRepository.isPinUnlockAvailable() {
+                state.isUnlockWithPINCodeOn = true
+            }
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -235,16 +239,31 @@ final class AccountSecurityProcessor: StateProcessor<
     /// - Parameter isOn: Whether or not the toggle value is true or false.
     ///
     private func toggleUnlockWithPIN(_ isOn: Bool) {
-        if !state.isUnlockWithPINCodeOn {
-            coordinator.navigate(
-                to: .alert(
-                    .enterPINCode(completion: { _ in
+        if isOn {
+            coordinator.navigate(to: .alert(.enterPINCode(completion: { pin in
+                self.coordinator.navigate(to: .alert(.unlockWithPINCodeAlert { requirePassword in
+                    do {
+                        try await self.services.authRepository.setPins(
+                            pin,
+                            requirePasswordAfterRestart: requirePassword
+                        )
                         self.state.isUnlockWithPINCodeOn = isOn
-                    })
-                )
-            )
+                    } catch {
+                        self.coordinator.navigate(to: .alert(.defaultAlert(
+                            title: Localizations.anErrorHasOccurred)
+                        ))
+                    }
+                }))
+            })))
         } else {
-            state.isUnlockWithPINCodeOn = isOn
+            Task {
+                do {
+                    try await self.services.authRepository.clearPins()
+                    state.isUnlockWithPINCodeOn = isOn
+                } catch {
+                    self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+                }
+            }
         }
     }
 }

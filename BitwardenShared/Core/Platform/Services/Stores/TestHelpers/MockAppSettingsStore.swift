@@ -22,6 +22,8 @@ class MockAppSettingsStore: AppSettingsStore {
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pinKeyEncryptedUserKey = [String: String]()
+    var pinProtectedUserKey = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
@@ -79,6 +81,14 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         passwordGenerationOptions[userId]
+    }
+
+    func pinKeyEncryptedUserKey(userId: String) -> String? {
+        pinKeyEncryptedUserKey[userId]
+    }
+
+    func pinProtectedUserKey(userId: String) -> String? {
+        pinProtectedUserKey[userId]
     }
 
     func twoFactorToken(email: String) -> String? {
@@ -147,6 +157,14 @@ class MockAppSettingsStore: AppSettingsStore {
             return
         }
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
+        pinKeyEncryptedUserKey[userId] = key
+    }
+
+    func setPinProtectedUserKey(key: String?, userId: String) {
+        pinProtectedUserKey[userId] = key
     }
 
     func setTwoFactorToken(_ token: String?, email: String) {

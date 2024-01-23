@@ -139,7 +139,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             )
 
             // Unlock the vault.
-            try await services.authRepository.unlockVault(password: state.masterPassword)
+            try await services.authRepository.unlockVaultWithPassword(password: state.masterPassword)
 
             // Complete the login flow.
             coordinator.hideLoadingOverlay()

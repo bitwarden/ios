@@ -66,7 +66,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
                     ) {
                         isPasswordVisible.wrappedValue.toggle()
                     }
-                    .accessibilityIdentifier(passwordVisibilityAccessibilityId ?? "PasswordVisibilityToggle")
+                    .accessibilityIdentifier(passwordVisibilityAccessibilityId ?? "TextVisibilityToggle")
 
                     if let trailingContent {
                         trailingContent
@@ -129,7 +129,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
     ///   - text: The text entered into the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - canViewPassword: Whether the password can be viewed.
-    ///   - isPasswordVisible: Whether or not the password in the text field is visible.
+    ///   - isPasswordVisible: Whether the password is visible.
     ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
     ///     button to toggle password visibility.
     ///   - placeholder: An optional placeholder to display in the text field.
@@ -146,9 +146,9 @@ struct BitwardenTextField<TrailingContent: View>: View {
         @ViewBuilder trailingContent: () -> TrailingContent
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
-        self.canViewPassword = canViewPassword
-        self.footer = footer
         self.isPasswordVisible = isPasswordVisible
+        self.footer = footer
+        self.canViewPassword = canViewPassword
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.placeholder = placeholder ?? ""
         _text = text
@@ -166,7 +166,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     ///   - text: The text entered into the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - canViewPassword: Whether the password can be viewed.
-    ///   - isPasswordVisible: Whether or not the password in the text field is visible.
+    ///   - isPasswordVisible: Whether the password is visible.
     ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
     ///     button to toggle password visibility.
     ///   - placeholder: An optional placeholder to display in the text field.
