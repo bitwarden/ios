@@ -9,5 +9,6 @@
             "sh***@example.com"
         }
     },
-    "SsoEmail2faSessionToken": "exampleToken"
+    "SsoEmail2faSessionToken": "exampleToken",
+    "CaptchaBypassToken": "BWCaptchaBypass_ABCXYZ"
 }
