@@ -114,6 +114,10 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.replace(view)
     }
 
+    /// Presents the system share sheet for the specified items.
+    ///
+    /// - Parameter items: The items to share using the system share sheet.
+    ///
     private func showShareSheet(for items: [Any]) {
         let viewController = UIActivityViewController(
             activityItems: items,
