@@ -66,11 +66,13 @@ struct AttachmentsView: View {
 
     /// The currently chosen file to add.
     @ViewBuilder private var chosenFile: some View {
-        Text(store.state.fileName ?? Localizations.noFileChosen)
-            .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity)
+        if store.state.fileName != nil || (store.state.cipher?.attachments?.isEmpty ?? true) {
+            Text(store.state.fileName ?? Localizations.noFileChosen)
+                .styleGuide(.body)
+                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+        }
     }
 
     /// The view of current attachments.

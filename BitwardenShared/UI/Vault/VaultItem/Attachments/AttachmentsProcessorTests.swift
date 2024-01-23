@@ -204,8 +204,8 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         await confirmAction.handler?(confirmAction, [])
 
         // Verify the results.
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenError.dataError("Missing id")))
-        XCTAssertEqual(errorReporter.errors.last as? NSError, BitwardenError.dataError("Missing id"))
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(CipherAPIServiceError.updateMissingId))
+        XCTAssertEqual(errorReporter.errors.last as? CipherAPIServiceError, .updateMissingId)
     }
 
     /// `receive(_:)` with `.dismissPressed` dismisses the view.

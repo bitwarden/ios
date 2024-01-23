@@ -77,7 +77,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
         defer { coordinator.hideLoadingOverlay() }
         do {
             guard let attachmentId = attachment.id, let cipherId = state.cipher?.id else {
-                throw BitwardenError.dataError("Missing id")
+                throw CipherAPIServiceError.updateMissingId
             }
 
             // Delete the attachment.
