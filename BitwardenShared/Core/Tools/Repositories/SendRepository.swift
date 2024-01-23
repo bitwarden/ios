@@ -161,11 +161,8 @@ class DefaultSendRepository: SendRepository {
     }
 
     func shareURL(for sendView: SendView) async throws -> URL? {
-        let send = try await clientVault.sends().encrypt(send: sendView)
-
-        guard let accessId = send.accessId else { return nil }
-        let encodedKey = Data(send.key.utf8).base64EncodedString().urlEncoded()
-        let sharePath = "/#/send/\(accessId)/\(encodedKey)"
+        guard let accessId = sendView.accessId, let key = sendView.key else { return nil }
+        let sharePath = "/#/send/\(accessId)/\(key)"
         let url = URL(string: environmentService.webVaultURL.absoluteString.appending(sharePath))
         return url
     }
