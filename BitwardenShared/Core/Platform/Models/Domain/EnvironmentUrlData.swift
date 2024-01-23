@@ -70,6 +70,15 @@ extension EnvironmentUrlData {
             && webVault == nil
     }
 
+    /// The base url for send sharing.
+    var sendShareURL: URL? {
+        if let sendBase = webVault ?? base,
+           let url = URL(string: sendBase.absoluteString.appending("/#/send")) {
+            return url
+        }
+        return nil
+    }
+
     /// The host of URL to the user's web vault.
     var webVaultHost: String? {
         let url = webVault ?? base

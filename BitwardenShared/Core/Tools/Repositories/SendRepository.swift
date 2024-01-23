@@ -162,8 +162,8 @@ class DefaultSendRepository: SendRepository {
 
     func shareURL(for sendView: SendView) async throws -> URL? {
         guard let accessId = sendView.accessId, let key = sendView.key else { return nil }
-        let sharePath = "/#/send/\(accessId)/\(key)"
-        let url = URL(string: environmentService.webVaultURL.absoluteString.appending(sharePath))
+        let sharePath = "/\(accessId)/\(key)"
+        let url = URL(string: environmentService.sendShareURL.absoluteString.appending(sharePath))
         return url
     }
 

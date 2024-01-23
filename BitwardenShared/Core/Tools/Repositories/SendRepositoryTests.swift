@@ -403,4 +403,4 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             }
         }
     }
-}
+} // swiftlint:disable:this file_length
