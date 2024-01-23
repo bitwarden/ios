@@ -12,7 +12,9 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
 
     /// Initializes a new `VaultSettingsProcessor`.
     ///
-    /// - Parameter coordinator: The coordinator used to manage navigation.
+    /// - Parameters:
+    ///   - coordinator: The coordinator used to manage navigation.
+    ///   - state: The initial state of the processor.
     ///
     init(
         coordinator: AnyCoordinator<SettingsRoute>,

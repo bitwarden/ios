@@ -41,7 +41,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .exportVault)
     }
 
-    /// Receiving `.foldersTapped` navigates to the folders screen.
+    /// `receive(_:)` with  `.foldersTapped` navigates to the folders screen.
     func test_receive_foldersTapped() {
         subject.receive(.foldersTapped)
 
