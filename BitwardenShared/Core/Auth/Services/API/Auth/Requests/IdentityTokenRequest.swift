@@ -21,8 +21,9 @@ enum IdentityTokenRequestError: Error, Equatable {
     /// - Parameters:
     ///   - authMethodsData: The information about the available auth methods.
     ///   - ssoToken: The sso token, which is non-nil if the user is using single sign on.
+    ///   - captchaBypassToken: A captcha bypass token, which allows the user to bypass the next captcha prompt.
     ///
-    case twoFactorRequired(_ authMethodsData: AuthMethodsData, _ ssoToken: String?)
+    case twoFactorRequired(_ authMethodsData: AuthMethodsData, _ ssoToken: String?, _ captchaBypassToken: String?)
 }
 
 // MARK: - IdentityTokenRequest
@@ -77,7 +78,8 @@ struct IdentityTokenRequest: Request {
 
             if let providersData = object["TwoFactorProviders2"] as? AuthMethodsData {
                 let ssoToken = object["SsoEmail2faSessionToken"] as? String
-                throw IdentityTokenRequestError.twoFactorRequired(providersData, ssoToken)
+                let captchaBypassToken = object["CaptchaBypassToken"] as? String
+                throw IdentityTokenRequestError.twoFactorRequired(providersData, ssoToken, captchaBypassToken)
             } else if let siteCode = object["HCaptcha_SiteKey"] as? String {
                 // Throw the captcha error if the captcha site key can be found.
                 throw IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: siteCode)

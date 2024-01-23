@@ -150,7 +150,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             switch error {
             case let .captchaRequired(hCaptchaSiteCode):
                 launchCaptchaFlow(with: hCaptchaSiteCode)
-            case let .twoFactorRequired(authMethodsData, _):
+            case let .twoFactorRequired(authMethodsData, _, _):
                 coordinator.navigate(to: .twoFactor(state.username, state.masterPassword, authMethodsData))
             }
         } catch {

@@ -184,7 +184,13 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         // Attempt to login.
         let authMethodsData = ["1": ["Email": "sh***@example.com"]]
-        await assertAsyncThrows(error: IdentityTokenRequestError.twoFactorRequired(authMethodsData, "exampleToken")) {
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(
+                authMethodsData,
+                "exampleToken",
+                "BWCaptchaBypass_ABCXYZ"
+            )
+        ) {
             try await subject.loginWithMasterPassword(
                 "Password1234!",
                 username: "email@example.com",
@@ -259,7 +265,13 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         // First login with the master password so that the request will be saved.
         let authMethodsData = ["1": ["Email": "sh***@example.com"]]
-        await assertAsyncThrows(error: IdentityTokenRequestError.twoFactorRequired(authMethodsData, "exampleToken")) {
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(
+                authMethodsData,
+                "exampleToken",
+                "BWCaptchaBypass_ABCXYZ"
+            )
+        ) {
             try await subject.loginWithMasterPassword(
                 "Password1234!",
                 username: "email@example.com",
@@ -320,7 +332,13 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         // First login with the master password so that the resend email request will be saved.
         let authMethodsData = ["1": ["Email": "sh***@example.com"]]
-        await assertAsyncThrows(error: IdentityTokenRequestError.twoFactorRequired(authMethodsData, "exampleToken")) {
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(
+                authMethodsData,
+                "exampleToken",
+                "BWCaptchaBypass_ABCXYZ"
+            )
+        ) {
             try await subject.loginWithMasterPassword(
                 "Password1234!",
                 username: "email@example.com",

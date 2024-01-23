@@ -214,7 +214,7 @@ class LoginProcessorTests: BitwardenTestCase {
     func test_perform_loginWithMasterPasswordPressed_twoFactorError() async {
         subject.state.masterPassword = "Test"
         authService.loginWithMasterPasswordResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil)
         )
 
         await subject.perform(.loginWithMasterPasswordPressed)

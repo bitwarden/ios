@@ -164,7 +164,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
     func test_perform_continueTapped_twoFactorError() async {
         subject.state.verificationCode = "Test"
         authService.loginWithTwoFactorCodeResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(.init(), nil)
+            IdentityTokenRequestError.twoFactorRequired(.init(), nil, nil)
         )
 
         await subject.perform(.continueTapped)

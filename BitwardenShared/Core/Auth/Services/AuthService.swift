@@ -407,10 +407,11 @@ class DefaultAuthService: AuthService {
             let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
             try await stateService.setAccountEncryptionKeys(encryptionKeys)
         } catch let error as IdentityTokenRequestError {
-            if case let .twoFactorRequired(_, ssoToken) = error {
+            if case let .twoFactorRequired(_, ssoToken, captchaBypassToken) = error {
                 // If the token request require two-factor authentication, cache the request so that
                 // the token information can be added once the user inputs the code.
                 twoFactorRequest = request
+                twoFactorRequest?.captchaToken = captchaBypassToken
 
                 // Form the resend email request in case the user needs to resend the verification code email.
                 var passwordHash: String?
