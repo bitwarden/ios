@@ -11,6 +11,7 @@ class MockAppModule:
     TabModule,
     PasswordHistoryModule,
     SendModule,
+    SendItemModule,
     SettingsModule,
     VaultModule,
     VaultItemModule {
@@ -22,6 +23,7 @@ class MockAppModule:
     var generatorCoordinator = MockCoordinator<GeneratorRoute>()
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute>()
     var sendCoordinator = MockCoordinator<SendRoute>()
+    var sendItemCoordinator = MockCoordinator<SendItemRoute>()
     var settingsCoordinator = MockCoordinator<SettingsRoute>()
     var tabCoordinator = MockCoordinator<TabRoute>()
     var vaultCoordinator = MockCoordinator<VaultRoute>()
@@ -73,6 +75,13 @@ class MockAppModule:
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<SendRoute> {
         sendCoordinator.asAnyCoordinator()
+    }
+
+    func makeSendItemCoordinator(
+        delegate: SendItemDelegate,
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<SendItemRoute> {
+        sendItemCoordinator.asAnyCoordinator()
     }
 
     func makeSettingsCoordinator(

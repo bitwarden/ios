@@ -58,17 +58,17 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: SendRoute, context: AnyObject?) {
         switch route {
         case .addItem:
+            guard let delegate = context as? SendItemDelegate else { return }
             Task {
                 let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-                guard let delegate = context as? SendItemDelegate else { return }
                 showItem(route: .add(hasPremium: hasPremium ?? false), delegate: delegate)
             }
         case let .dismiss(dismissAction):
             stackNavigator.dismiss(completion: dismissAction?.action)
         case let .editItem(sendView):
+            guard let delegate = context as? SendItemDelegate else { return }
             Task {
                 let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-                guard let delegate = context as? SendItemDelegate else { return }
                 showItem(route: .edit(sendView, hasPremium: hasPremium ?? false), delegate: delegate)
             }
         case .list:

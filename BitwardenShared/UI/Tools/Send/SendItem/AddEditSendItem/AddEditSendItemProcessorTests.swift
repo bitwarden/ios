@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -7,7 +8,7 @@ import XCTest
 class AddEditSendItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SendRoute>!
+    var coordinator: MockCoordinator<SendItemRoute>!
     var sendRepository: MockSendRepository!
     var subject: AddEditSendItemProcessor!
 
@@ -41,7 +42,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         subject.state.text = "Text"
         subject.state.deletionDate = .custom
         subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
-        sendRepository.addTextSendResult = .success(())
+        let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
+        sendRepository.addTextSendResult = .success(sendView)
 
         await subject.perform(.savePressed)
 
@@ -53,7 +55,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
     /// `perform(_:)` with `.savePressed` and valid input and http failure shows an error alert.
@@ -79,9 +81,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
 
-        sendRepository.addTextSendResult = .success(())
+        let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
+        sendRepository.addTextSendResult = .success(sendView)
         try await alert.tapAction(title: Localizations.tryAgain)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
     /// `perform(_:)` with `.savePressed` and invalid input shows a validation alert.
@@ -104,7 +107,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         subject.state.text = "Text"
         subject.state.deletionDate = .custom
         subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
-        sendRepository.updateSendResult = .success(())
+        let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
+        sendRepository.updateSendResult = .success(sendView)
 
         await subject.perform(.savePressed)
 
@@ -116,7 +120,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
     /// `perform(_:)` with `.savePressed` while editing and valid input and http failure shows an
@@ -144,9 +148,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
 
-        sendRepository.updateSendResult = .success(())
+        let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
+        sendRepository.updateSendResult = .success(sendView)
         try await alert.tapAction(title: Localizations.tryAgain)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
     /// `perform(_:)` with `.savePressed` while editing and invalid input shows a validation alert.
@@ -225,7 +230,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .cancel)
     }
 
     /// `receive(_:)` with `.expirationDateChanged` updates the expiration date.

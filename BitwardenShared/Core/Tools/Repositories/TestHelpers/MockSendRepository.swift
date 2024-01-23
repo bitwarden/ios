@@ -19,30 +19,33 @@ class MockSendRepository: SendRepository {
 
     var sendListSubject = CurrentValueSubject<[SendListSection], Error>([])
 
-    var addFileSendResult: Result<Void, Error> = .success(())
+    var addFileSendResult: Result<SendView, Error> = .success(.fixture())
     var addFileSendData: Data?
     var addFileSendSendView: SendView?
 
-    var addTextSendResult: Result<Void, Error> = .success(())
+    var addTextSendResult: Result<SendView, Error> = .success(.fixture())
     var addTextSendSendView: SendView?
 
     var deleteSendResult: Result<Void, Error> = .success(())
     var deleteSendSendView: SendView?
 
-    var updateSendResult: Result<Void, Error> = .success(())
+    var updateSendResult: Result<SendView, Error> = .success(.fixture())
     var updateSendSendView: SendView?
+
+    var shareURLResult: Result<URL?, Error> = .success(.example)
+    var shareURLSendView: SendView?
 
     // MARK: Methods
 
-    func addFileSend(_ sendView: SendView, data: Data) async throws {
+    func addFileSend(_ sendView: SendView, data: Data) async throws -> SendView {
         addFileSendSendView = sendView
         addFileSendData = data
-        try addFileSendResult.get()
+        return try addFileSendResult.get()
     }
 
-    func addTextSend(_ sendView: SendView) async throws {
+    func addTextSend(_ sendView: SendView) async throws -> SendView {
         addTextSendSendView = sendView
-        try addTextSendResult.get()
+        return try addTextSendResult.get()
     }
 
     func deleteSend(_ sendView: SendView) async throws {
@@ -50,9 +53,9 @@ class MockSendRepository: SendRepository {
         try deleteSendResult.get()
     }
 
-    func updateSend(_ sendView: SendView) async throws {
+    func updateSend(_ sendView: SendView) async throws -> SendView {
         updateSendSendView = sendView
-        try updateSendResult.get()
+        return try updateSendResult.get()
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
@@ -75,5 +78,10 @@ class MockSendRepository: SendRepository {
         sendListSubject
             .eraseToAnyPublisher()
             .values
+    }
+
+    func shareURL(for sendView: SendView) async throws -> URL? {
+        shareURLSendView = sendView
+        return try shareURLResult.get()
     }
 }
