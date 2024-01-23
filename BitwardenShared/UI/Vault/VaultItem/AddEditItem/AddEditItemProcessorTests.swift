@@ -72,6 +72,23 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `receive(_:)` with `.customField(.booleanFieldChanged)` changes
+    /// the boolean value of the custom field.
+    func test_customField_booleanFieldChanged() {
+        subject.state.customFieldsState.customFields = [
+            CustomFieldState(
+                name: "fieldName1",
+                type: .boolean,
+                value: "true"
+            ),
+        ]
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.name, "fieldName1")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.type, .boolean)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.booleanValue, true)
+        subject.receive(.customField(.booleanFieldChanged(false, 0)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.booleanValue, false)
+    }
+
     /// `receive(_:)` with `.customField(.customFieldAdded)` adds a new custom field view.
     func test_customField_customFieldAdded() {
         XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
@@ -344,6 +361,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.customFieldsState.customFields.count, 2)
         XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "field name")
         XCTAssertEqual(subject.state.customFieldsState.customFields.last?.type, .boolean)
+    }
+
+    /// `receive(_:)` with `customField(.togglePasswordVisibilityChanged)`  only changes
+    /// the `isPasswordVisible` of the custom field.
+    func test_customField_togglePasswordVisibilityChanged() async throws {
+        XCTAssertEqual(subject.state.customFieldsState.customFields[0].isPasswordVisible, false)
+        subject.receive(.customField(.togglePasswordVisibilityChanged(true, 0)))
+        XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.name, "fieldName1")
+        XCTAssertEqual(subject.state.customFieldsState.customFields.first?.type, .hidden)
+        XCTAssertEqual(subject.state.customFieldsState.customFields[0].isPasswordVisible, true)
     }
 
     /// `didCancelGenerator()` navigates to the `.dismiss()` route.
