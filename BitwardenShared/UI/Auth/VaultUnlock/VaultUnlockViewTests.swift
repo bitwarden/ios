@@ -22,6 +22,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
                     activeAccountId: nil,
                     isVisible: false
                 ),
+                unlockMethod: .password,
                 webVaultHost: "bitwarden.com"
             )
         )

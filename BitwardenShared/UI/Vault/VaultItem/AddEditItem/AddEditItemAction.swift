@@ -10,6 +10,9 @@ enum AddEditItemAction: Equatable {
     /// The toggle for including the item in a collection was changed.
     case collectionToggleChanged(Bool, collectionId: String)
 
+    /// A custom field action was sent.
+    case customField(AddEditCustomFieldsAction)
+
     /// The dismiss button was pressed.
     case dismissPressed
 

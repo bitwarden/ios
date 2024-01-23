@@ -362,7 +362,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             existing: CipherView.loginFixture(),
             hasPremium: true
         )!
-        cipherState.customFields = [
+        cipherState.customFieldsState.customFields = [
             customField1,
             customField2,
             customField3,
@@ -378,7 +378,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             XCTFail("ViewItemState has incorrect value: \(newLoadingState)")
             return
         }
-        let customFields = loadingState.customFields
+        let customFields = loadingState.customFieldsState.customFields
         XCTAssertEqual(customFields.count, 3)
         XCTAssertFalse(customFields[0].isPasswordVisible)
         XCTAssertTrue(customFields[1].isPasswordVisible)
@@ -687,7 +687,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         subject.receive(.morePressed(.attachments))
 
-        XCTAssertEqual(coordinator.routes.last, .attachments)
+        XCTAssertEqual(coordinator.routes.last, .attachments(cipher))
     }
 
     /// `receive(_:)` with `.morePressed(.clone)` navigates the user to the move to

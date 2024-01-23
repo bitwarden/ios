@@ -3,9 +3,10 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockStateService: StateService {
+class MockStateService: StateService { // swiftlint:disable:this type_body_length
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountTokens: Account.AccountTokens?
+    var accountVolatileData: [String: AccountVolatileData] = [:]
     var accountsAdded = [Account]()
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
@@ -33,6 +34,8 @@ class MockStateService: StateService {
     var lastUserShouldConnectToWatch = false
     var masterPasswordHashes = [String: String]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pinKeyEncryptedUserKeyValue = [String: String]()
+    var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
@@ -49,6 +52,13 @@ class MockStateService: StateService {
     func addAccount(_ account: BitwardenShared.Account) async {
         accountsAdded.append(account)
         activeAccount = account
+    }
+
+    func clearPins() async throws {
+        let userId = try getActiveAccount().profile.userId
+        accountVolatileData.removeValue(forKey: userId)
+        pinProtectedUserKeyValue[userId] = nil
+        pinKeyEncryptedUserKeyValue[userId] = nil
     }
 
     func deleteAccount() async throws {
@@ -175,6 +185,16 @@ class MockStateService: StateService {
         accountsLoggedOut.append(userId)
     }
 
+    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return pinKeyEncryptedUserKeyValue[userId] ?? nil
+    }
+
+    func pinProtectedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return pinProtectedUserKeyValue[userId] ?? nil
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         accountEncryptionKeys[userId] = encryptionKeys
@@ -224,6 +244,11 @@ class MockStateService: StateService {
         disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
     }
 
+    func setEncryptedPin(_ pin: String) async throws {
+        let userId = try getActiveAccount().profile.userId
+        accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = pin
+    }
+
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         self.environmentUrls[userId] = environmentUrls
@@ -246,6 +271,31 @@ class MockStateService: StateService {
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPinKeys(
+        pinKeyEncryptedUserKey: String,
+        pinProtectedUserKey: String,
+        requirePasswordAfterRestart: Bool
+    ) async throws {
+        let userId = try getActiveAccount().profile.userId
+        pinProtectedUserKeyValue[userId] = pinProtectedUserKey
+        pinKeyEncryptedUserKeyValue[userId] = pinKeyEncryptedUserKey
+
+        if requirePasswordAfterRestart {
+            accountVolatileData[
+                userId,
+                default: AccountVolatileData()
+            ].pinProtectedUserKey = pinProtectedUserKey
+        }
+    }
+
+    func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
+        let userId = try getActiveAccount().profile.userId
+        accountVolatileData[
+            userId,
+            default: AccountVolatileData()
+        ].pinProtectedUserKey = pin
     }
 
     func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {

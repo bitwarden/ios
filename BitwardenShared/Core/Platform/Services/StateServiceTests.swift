@@ -95,6 +95,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(publishedValues, [.default, .dark])
     }
 
+    /// `clearPins()` clears the user's pins.
+    func test_clearPins() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        try await subject.clearPins()
+        let pinProtectedUserKey = try await subject.pinProtectedUserKey()
+        let pinKeyEncryptedUserKey = try await subject.pinKeyEncryptedUserKey()
+
+        XCTAssertNil(pinProtectedUserKey)
+        XCTAssertNil(pinKeyEncryptedUserKey)
+    }
+
     /// `.deleteAccount()` deletes the active user's account, removing it from the state.
     func test_deleteAccount() async throws {
         let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -738,6 +751,32 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
     }
 
+    /// `pinKeyEncryptedUserKey()` returns the pin key encrypted user key.
+    func test_pinKeyEncryptedUserKey() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        try await subject.setPinKeys(
+            pinKeyEncryptedUserKey: "123",
+            pinProtectedUserKey: "321",
+            requirePasswordAfterRestart: true
+        )
+
+        let pinKeyEncryptedUserKey = try await subject.pinKeyEncryptedUserKey()
+        let pinProtectedUserKey = await subject.accountVolatileData["1"]?.pinProtectedUserKey
+
+        XCTAssertEqual(pinKeyEncryptedUserKey, "123")
+        XCTAssertEqual(pinProtectedUserKey, "321")
+    }
+
+    /// `pinProtectedUserKey(userId:)` returns the pin protected user key.
+    func test_pinProtectedUserKey() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        appSettingsStore.pinProtectedUserKey["1"] = "123"
+        let pin = try await subject.pinProtectedUserKey(userId: "1")
+        XCTAssertEqual(pin, "123")
+    }
+
     /// `rememberedOrgIdentifier` gets and sets the value as expected.
     func test_rememberedOrgIdentifier() {
         // Getting the value should get the value from the app settings store.
@@ -989,6 +1028,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["1"], options1)
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["2"], options2)
+    }
+
+    /// `setPinKeys(encryptedPin:pinProtectedUserKey:requirePasswordAfterRestart:)` sets pin keys for an account.
+    func test_setPinKeys() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setPinKeys(
+            pinKeyEncryptedUserKey: "123",
+            pinProtectedUserKey: "123",
+            requirePasswordAfterRestart: false
+        )
+        XCTAssertEqual(appSettingsStore.pinProtectedUserKey["1"], "123")
+        XCTAssertEqual(appSettingsStore.pinKeyEncryptedUserKey["1"], "123")
     }
 
     /// `setPreAuthEnvironmentUrls` saves the pre-auth URLs.

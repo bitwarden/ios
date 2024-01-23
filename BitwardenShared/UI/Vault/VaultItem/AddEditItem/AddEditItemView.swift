@@ -77,12 +77,14 @@ struct AddEditItemView: View {
     }
 
     private var customSection: some View {
-        SectionView(Localizations.customFields) {
-            Button(Localizations.newCustomField) {
-                store.send(.newCustomFieldPressed)
-            }
-            .buttonStyle(.tertiary())
-        }
+        AddEditCustomFieldsView(
+            store: store.child(
+                state: { $0.customFieldsState },
+                mapAction: { .customField($0) },
+                mapEffect: nil
+            )
+        )
+        .animation(.easeInOut(duration: 0.2), value: store.state.customFieldsState)
     }
 
     private var existing: some View {

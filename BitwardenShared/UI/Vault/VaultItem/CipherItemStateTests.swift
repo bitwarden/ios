@@ -17,7 +17,7 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertEqual(state.allowTypeSelection, false)
         XCTAssertEqual(state.cardItemState, cipher.cardItemState())
         XCTAssertEqual(state.configuration, .add)
-        XCTAssertEqual(state.customFields, cipher.customFields)
+        XCTAssertEqual(state.customFieldsState, .init(customFields: cipher.customFields))
         XCTAssertEqual(state.folderId, cipher.folderId)
         XCTAssertEqual(state.identityState, cipher.identityItemState())
         XCTAssertEqual(state.isFavoriteOn, cipher.favorite)

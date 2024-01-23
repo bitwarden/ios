@@ -27,8 +27,8 @@ protocol AddEditItemState: Sendable {
     /// The Add or Existing Configuration.
     var configuration: CipherItemState.Configuration { get }
 
-    /// The custom fields.
-    var customFields: [CustomFieldState] { get set }
+    /// The custom fields state.
+    var customFieldsState: AddEditCustomFieldsState { get set }
 
     /// The folder this item should be added to.
     var folder: DefaultableType<FolderView> { get set }

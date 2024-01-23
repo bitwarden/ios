@@ -68,8 +68,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
             )
         case let .alert(alert):
             stackNavigator.present(alert)
-        case .attachments:
-            showAttachments()
+        case let .attachments(cipher):
+            showAttachments(for: cipher)
         case let .cloneItem(cipher):
             showCloneItem(for: cipher, delegate: context as? CipherItemOperationDelegate)
         case let .dismiss(onDismiss):
@@ -170,11 +170,13 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
 
     /// Shows the attachments screen.
     ///
-    private func showAttachments() {
+    /// - Parameter cipher: The cipher to show the attachments for.
+    ///
+    private func showAttachments(for cipher: CipherView) {
         let processor = AttachmentsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: AttachmentsState()
+            state: AttachmentsState(cipher: cipher)
         )
         let view = AttachmentsView(store: Store(processor: processor))
         let hostingController = UIHostingController(rootView: view)

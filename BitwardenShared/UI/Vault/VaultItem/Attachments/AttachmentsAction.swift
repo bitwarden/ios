@@ -8,4 +8,7 @@ enum AttachmentsAction: Equatable {
 
     /// The dismiss button was pressed.
     case dismissPressed
+
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
 }
