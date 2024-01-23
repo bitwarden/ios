@@ -650,6 +650,9 @@ enum StateServiceError: Error {
 
     /// There isn't an active account.
     case noActiveAccount
+
+    /// The user has no pin protected user key.
+    case noPinProtectedUserKey
 }
 
 // MARK: - DefaultStateService
