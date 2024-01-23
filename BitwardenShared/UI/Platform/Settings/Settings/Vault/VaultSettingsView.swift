@@ -21,10 +21,10 @@ struct VaultSettingsView: View {
         }
         .scrollView()
         .navigationBar(title: Localizations.vault, titleDisplayMode: .inline)
-        .onChange(of: store.state.importItemsUrl) { newValue in
+        .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)
-            store.send(.clearImportItemsUrl)
+            store.send(.clearUrl)
         }
     }
 

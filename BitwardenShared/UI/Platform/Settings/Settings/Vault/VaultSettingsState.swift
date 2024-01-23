@@ -6,5 +6,5 @@ import Foundation
 ///
 struct VaultSettingsState {
     /// The import items URL.
-    var importItemsUrl: URL?
+    var url: URL?
 }

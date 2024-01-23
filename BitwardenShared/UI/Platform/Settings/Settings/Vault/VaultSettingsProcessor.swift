@@ -28,14 +28,14 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
 
     override func receive(_ action: VaultSettingsAction) {
         switch action {
-        case .clearImportItemsUrl:
-            state.importItemsUrl = nil
+        case .clearUrl:
+            state.url = nil
         case .exportVaultTapped:
             coordinator.navigate(to: .exportVault)
         case .foldersTapped:
             coordinator.navigate(to: .folders)
         case .importItemsTapped:
-            state.importItemsUrl = ExternalLinksConstants.importItems
+            state.url = ExternalLinksConstants.importItems
         }
     }
 }

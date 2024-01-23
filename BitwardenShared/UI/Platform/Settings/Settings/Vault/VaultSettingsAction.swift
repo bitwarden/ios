@@ -3,8 +3,8 @@
 /// Actions handled by the `VaultSettingsProcessor`.
 ///
 enum VaultSettingsAction {
-    /// Clears the import items URL.
-    case clearImportItemsUrl
+    /// Clears the URL.
+    case clearUrl
 
     /// The export vault button was tapped.
     case exportVaultTapped

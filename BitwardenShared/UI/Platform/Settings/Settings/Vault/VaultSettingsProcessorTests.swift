@@ -26,12 +26,12 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `receive(_:)` with `.clearImportItemsUrl` clears the URL in the state.
+    /// `receive(_:)` with `.clearUrl` clears the URL in the state.
     func test_receive_clearImportItemsUrl() {
-        subject.state.importItemsUrl = .example
-        subject.receive(.clearImportItemsUrl)
+        subject.state.url = .example
+        subject.receive(.clearUrl)
 
-        XCTAssertNil(subject.state.importItemsUrl)
+        XCTAssertNil(subject.state.url)
     }
 
     /// Receiving `.exportVaultTapped` navigates to the export vault screen.
@@ -52,6 +52,6 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     func test_receive_importItemsTapped() {
         subject.receive(.importItemsTapped)
 
-        XCTAssertEqual(subject.state.importItemsUrl, ExternalLinksConstants.importItems)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.importItems)
     }
 }
