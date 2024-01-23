@@ -39,6 +39,42 @@ extension Alert {
         )
     }
 
+    /// An alert to allow the user to add or edit the name of a custom field.
+    ///
+    /// - Parameters:
+    ///  - text: An optional initial value to pre-fill the text field with.
+    ///  - completion: A block that is executed when the user interacts with the "ok" button.
+    ///
+    static func nameCustomFieldAlert(
+        text: String? = nil,
+        completion: @MainActor @escaping (String) async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.customFieldName,
+            message: nil,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.ok,
+                    style: .default,
+                    handler: { _, alertTextFields in
+                        guard let name = alertTextFields.first(where: { $0.id == "name" })?.text else { return }
+                        await completion(name)
+                    }
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+            alertTextFields: [
+                AlertTextField(
+                    id: "name",
+                    autocapitalizationType: .none,
+                    autocorrectionType: .no,
+                    isSecureTextEntry: false,
+                    text: text
+                ),
+            ]
+        )
+    }
+
     /// An alert that notifies the user whether or not their password has been found in a data breach.
     ///
     /// - Parameter count: The number of times their password has been found in a data breach.
@@ -84,11 +120,17 @@ extension Alert {
 
     /// An confirmation alert to show when the user wants to delete cipher item .
     ///
-    /// - Parameter completion: A block that is executed when the user interacts with the "yes" button.
+    /// - Parameters:
+    ///  - isSoftDelete: A flag to indicate if the delete was soft or permanent.
+    ///  - completion: A block that is executed when the user interacts with the "yes" button.
     ///
-    static func deleteCipherConfirmation(completion: @MainActor @escaping () async -> Void) -> Alert {
+    static func deleteCipherConfirmation(
+        isSoftDelete: Bool,
+        completion: @MainActor @escaping () async -> Void
+    ) -> Alert {
         Alert(
-            title: Localizations.doYouReallyWantToSoftDeleteCipher,
+            title: isSoftDelete ? Localizations.doYouReallyWantToSoftDeleteCipher
+                : Localizations.doYouReallyWantToPermanentlyDeleteCipher,
             message: nil,
             alertActions: [
                 AlertAction(

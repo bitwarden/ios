@@ -12,10 +12,10 @@ typealias Services = HasAPIService
     & HasCameraService
     & HasCaptchaService
     & HasClientAuth
-    & HasDateProvider
     & HasDeviceAPIService
     & HasEnvironmentService
     & HasErrorReporter
+    & HasFileAPIService
     & HasGeneratorRepository
     & HasNotificationCenterService
     & HasPasteboardService
@@ -107,12 +107,6 @@ protocol HasClientAuth {
     var clientAuth: ClientAuthProtocol { get }
 }
 
-/// Protocol for an object that provides a `DateProvider`.
-///
-protocol HasDateProvider {
-    var dateProvider: DateProvider { get }
-}
-
 /// Protocol for an object that provides a `DeviceAPIService`.
 ///
 protocol HasDeviceAPIService {
@@ -132,6 +126,13 @@ protocol HasEnvironmentService {
 protocol HasErrorReporter {
     /// The service used by the application to report non-fatal errors.
     var errorReporter: ErrorReporter { get }
+}
+
+/// Protocol for an object that provides a `FileAPIService`.
+///
+protocol HasFileAPIService {
+    /// The service used by the application to make file-related API requests.
+    var fileAPIService: FileAPIService { get }
 }
 
 /// Protocol for an object that provides a `GeneratorRepository`.

@@ -62,7 +62,23 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(subject.state.toast)
 
         subject.itemDeleted()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.itemDeleted)
+    }
+
+    /// `itemSoftDeleted()` delegate method shows the expected toast.
+    func test_delegate_itemSoftDeleted() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemSoftDeleted()
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemSoftDeleted)
+    }
+
+    /// `itemRestored()` delegate method shows the expected toast.
+    func test_delegate_itemRestored() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemRestored()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.itemRestored)
     }
 
     /// `perform(_:)` with `.appeared` starts streaming vault items.

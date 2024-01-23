@@ -95,7 +95,47 @@ public class HTTPService {
         try await send(request, shouldRetryIfUnauthorized: true)
     }
 
-    // MARK: Private
+    /// Performs a network request.
+    ///
+    /// This method should only be used in instances where extensive customization of the underlying
+    /// network request needs to be made. In most use cases, the ``send(_:)`` method will provide
+    /// the best experience.
+    ///
+    /// - Parameters:
+    ///   - httpRequest: The http request to perform.
+    ///   - validate: An optional validation block that will be executed after the request has been
+    ///     completed, but before the response handlers have processed the response.
+    ///   - shouldRetryIfUnauthorized: A flag indicating if this request should be retried when an
+    ///     authentication error is encountered. If true, the token provider will be used to refresh
+    ///     the token before attempting the network request again. If authentication fails a second
+    ///     time this method will throw the authentication error.
+    /// - Returns: The http response received for the request.
+    ///
+    ///
+    public func send(
+        _ httpRequest: HTTPRequest,
+        validate: ((HTTPResponse) throws -> Void)? = nil,
+        shouldRetryIfUnauthorized: Bool = false
+    ) async throws -> HTTPResponse {
+        var httpRequest = httpRequest
+        try await applyRequestHandlers(&httpRequest)
+        logger.logRequest(httpRequest)
+
+        var httpResponse = try await client.send(httpRequest)
+        logger.logResponse(httpResponse)
+
+        if let tokenProvider, httpResponse.statusCode == 401, shouldRetryIfUnauthorized {
+            try await tokenProvider.refreshToken()
+
+            // Send the request again, but don't retry if still unauthorized to prevent a retry loop.
+            return try await send(httpRequest, validate: validate, shouldRetryIfUnauthorized: false)
+        }
+        try validate?(httpResponse)
+        try await applyResponseHandlers(&httpResponse)
+        return httpResponse
+    }
+
+    // MARK: Private Methods
 
     /// Performs a network request.
     ///
@@ -109,21 +149,13 @@ public class HTTPService {
         _ request: R,
         shouldRetryIfUnauthorized: Bool
     ) async throws -> R.Response where R.Response: Response {
-        var httpRequest = try HTTPRequest(request: request, baseURL: baseURL)
-        logger.logRequest(httpRequest)
-        try await applyRequestHandlers(&httpRequest)
+        let httpRequest = try HTTPRequest(request: request, baseURL: baseURL)
 
-        var httpResponse = try await client.send(httpRequest)
-        logger.logResponse(httpResponse)
-
-        if let tokenProvider, httpResponse.statusCode == 401, shouldRetryIfUnauthorized {
-            try await tokenProvider.refreshToken()
-
-            // Send the request again, but don't retry if still unauthorized to prevent a retry loop.
-            return try await send(request, shouldRetryIfUnauthorized: false)
-        }
-        try request.validate(httpResponse)
-        try await applyResponseHandlers(&httpResponse)
+        let httpResponse = try await send(
+            httpRequest,
+            validate: request.validate,
+            shouldRetryIfUnauthorized: shouldRetryIfUnauthorized
+        )
 
         return try R.Response(response: httpResponse)
     }

@@ -7,9 +7,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
-    var dateProvider: MockDateProvider!
     var dataStore: DataStore!
     var subject: DefaultStateService!
+    var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
 
@@ -17,13 +17,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         super.setUp()
 
         appSettingsStore = MockAppSettingsStore()
-        dateProvider = MockDateProvider()
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
+        timeProvider = MockTimeProvider(.currentTime)
 
         subject = DefaultStateService(
             appSettingsStore: appSettingsStore,
-            dateProvider: dateProvider,
-            dataStore: dataStore
+            dataStore: dataStore,
+            timeProvider: timeProvider
         )
     }
 
@@ -31,9 +31,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         super.tearDown()
 
         appSettingsStore = nil
-        dateProvider = nil
         dataStore = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests
@@ -273,12 +273,66 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(value)
     }
 
+    /// `getApproveLoginRequests()` returns the approve login requests setting for the active account.
+    func test_getApproveLoginRequests() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.approveLoginRequestsByUserId["1"] = true
+        let value = try await subject.getApproveLoginRequests()
+        XCTAssertTrue(value)
+    }
+
     /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
     func test_getClearClipboardValue() async throws {
         await subject.addAccount(.fixture())
         appSettingsStore.clearClipboardValues["1"] = .twoMinutes
         let value = try await subject.getClearClipboardValue()
         XCTAssertEqual(value, .twoMinutes)
+    }
+
+    /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
+    func test_getBiometricAuthenticationEnabled_default() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.biometricAuthenticationEnabled = [
+            "1": true,
+        ]
+        let value = try await subject.getBiometricAuthenticationEnabled()
+        XCTAssertTrue(value)
+    }
+
+    /// `getBiometricAuthenticationEnabled(:)` throws errors if no user exists.
+    func test_getBiometricAuthenticationEnabled_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getBiometricAuthenticationEnabled()
+        }
+    }
+
+    /// `getBiometricIntegrityState(:)` returns biometric integrity state of the active user.
+    func test_getBiometricIntegrityState_active() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.biometricIntegrityStates = [
+            "1": "Expected State",
+        ]
+        let value = try await subject.getBiometricIntegrityState()
+        XCTAssertEqual(value, "Expected State")
+    }
+
+    /// `getBiometricIntegrityState(:)` returns biometric integrity state of the active user.
+    func test_getBiometricIntegrityState_error() async throws {
+        appSettingsStore.biometricIntegrityStates = [
+            "2": "Expected State",
+        ]
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getBiometricIntegrityState()
+        }
+    }
+
+    func test_getBiometricIntegrityState_nil() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.biometricIntegrityStates = [
+            "2": "Expected State",
+        ]
+        let value = try await subject.getBiometricIntegrityState()
+        XCTAssertNil(value, "Expected State")
     }
 
     /// `getConnectToWatch()` returns the connect to watch value for the active account.
@@ -352,7 +406,11 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setLastActiveTime(userId: "1")
         let lastActiveTime = try await subject.getLastActiveTime(userId: "1")
-        XCTAssertEqual(lastActiveTime, dateProvider.now)
+        XCTAssertEqual(
+            lastActiveTime!.timeIntervalSince1970,
+            timeProvider.presentTime.timeIntervalSince1970,
+            accuracy: 1.0
+        )
     }
 
     /// `getMasterPasswordHash()` returns the user's master password hash.
@@ -427,6 +485,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let action = try await subject.getTimeoutAction(userId: "1")
         XCTAssertEqual(action, .logout)
+    }
+
+    /// `getTwoFactorToken(email:)` gets the two-factor code associated with the email.
+    func test_getTwoFactorToken() async {
+        appSettingsStore.setTwoFactorToken("yay_you_win!", email: "winner@email.com")
+
+        let value = await subject.getTwoFactorToken(email: "winner@email.com")
+        XCTAssertEqual(value, "yay_you_win!")
     }
 
     /// `getUnsuccessfulUnlockAttempts(userId:)` gets the unsuccessful unlock attempts for the account.
@@ -569,13 +635,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `logoutAccount()` clears any account data.
-    func test_logoutAccount_clearAccountData() async throws {
+    func test_logoutAccount_clearAccountData() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(account)
         try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY"
         ))
+        try await subject.setBiometricIntegrityState("BiometricIntegrityState")
+        try await subject.setBiometricAuthenticationEnabled(true)
         try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
@@ -606,6 +674,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.logoutAccount()
 
+        XCTAssertEqual(appSettingsStore.biometricIntegrityStates, [:])
+        XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
@@ -818,6 +888,52 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
     }
 
+    /// `setApproveLoginRequests(_:userId:)` sets the approve login requests setting for a user.
+    func test_setApproveLoginRequests() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setApproveLoginRequests(true)
+        XCTAssertEqual(appSettingsStore.approveLoginRequestsByUserId["1"], true)
+    }
+
+    /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
+    func test_setBiometricAuthenticationEnabled_default() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setBiometricAuthenticationEnabled(true)
+        XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+        try await subject.setBiometricAuthenticationEnabled(false)
+        XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+    }
+
+    /// `setBiometricAuthenticationEnabled(isEnabled:, userId:)` throws with no userID and no active user.
+    func test_setBiometricAuthenticationEnabled_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setBiometricAuthenticationEnabled(true)
+        }
+    }
+
+    /// `setBiometricAuthenticationEnabled(:)` sets biometric unlock preference for a user id.
+    func test_setBiometricAuthenticationEnabled_userID() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setBiometricAuthenticationEnabled(true)
+        XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+        try await subject.setBiometricAuthenticationEnabled(false)
+        XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+    }
+
+    /// `setBiometricIntegrityState(:)` sets biometric unlock preference for a user id.
+    func test_setBiometricIntegrityState_userID() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setBiometricIntegrityState("SetStateValue")
+        XCTAssertEqual(
+            appSettingsStore.biometricIntegrityState(userId: "1"),
+            "SetStateValue"
+        )
+        XCTAssertNil(appSettingsStore.biometricIntegrityState(userId: "2"))
+        try await subject.setBiometricIntegrityState(nil)
+        XCTAssertNil(appSettingsStore.biometricIntegrityState(userId: "1"))
+    }
+
     /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.
     func test_setClearClipboardValue() async throws {
         await subject.addAccount(.fixture())
@@ -889,7 +1005,11 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
         try await subject.setLastActiveTime(userId: "1")
-        XCTAssertEqual(appSettingsStore.lastActiveTime["1"], dateProvider.now)
+        XCTAssertEqual(
+            appSettingsStore.lastActiveTime["1"]!.timeIntervalSince1970,
+            timeProvider.presentTime.timeIntervalSince1970,
+            accuracy: 1.0
+        )
     }
 
     /// `setMasterPasswordHash(_:)` sets the master password hash for a user.
@@ -927,6 +1047,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setShowWebIcons() async {
         await subject.setShowWebIcons(false)
         XCTAssertTrue(appSettingsStore.disableWebIcons)
+    }
+
+    /// `setTwoFactorToken(_:email:)` sets the two-factor code for the email.
+    func test_setTwoFactorToken() async {
+        await subject.setTwoFactorToken("yay_you_win!", email: "winner@email.com")
+        XCTAssertEqual(appSettingsStore.twoFactorToken(email: "winner@email.com"), "yay_you_win!")
     }
 
     /// `setUnsuccessfulUnlockAttempts(userId:)` sets the unsuccessful unlock attempts for the account.

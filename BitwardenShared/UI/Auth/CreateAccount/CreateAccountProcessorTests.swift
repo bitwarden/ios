@@ -271,7 +271,6 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` and a captcha error occurs navigates to the `.captcha` route.
     func test_perform_createAccount_captchaError() async {
-        captchaService.generateCaptchaUrlValue = .example
         subject.state.emailText = "email@example.com"
         subject.state.passwordText = "password1234"
         subject.state.retypePasswordText = "password1234"

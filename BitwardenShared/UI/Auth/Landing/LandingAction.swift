@@ -19,4 +19,7 @@ enum LandingAction: Equatable {
 
     /// The value for the remember me toggle was changed.
     case rememberMeChanged(Bool)
+
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
 }

@@ -8,11 +8,11 @@ class AppProcessorTests: BitwardenTestCase {
 
     var appModule: MockAppModule!
     var appSettingStore: MockAppSettingsStore!
-    var dateProvider: MockDateProvider!
     var notificationCenterService: MockNotificationCenterService!
     var stateService: MockStateService!
     var subject: AppProcessor!
     var syncService: MockSyncService!
+    var timeProvider: MockTimeProvider!
     var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
@@ -22,10 +22,10 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = MockAppModule()
         appSettingStore = MockAppSettingsStore()
-        dateProvider = MockDateProvider()
         notificationCenterService = MockNotificationCenterService()
         stateService = MockStateService()
         syncService = MockSyncService()
+        timeProvider = MockTimeProvider(.currentTime)
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = AppProcessor(
@@ -44,11 +44,11 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = nil
         appSettingStore = nil
-        dateProvider = nil
         notificationCenterService = nil
         stateService = nil
         subject = nil
         syncService = nil
+        timeProvider = nil
         vaultTimeoutService = nil
     }
 
@@ -66,7 +66,7 @@ class AppProcessorTests: BitwardenTestCase {
 
         let updated = vaultTimeoutService.lastActiveTime[account.profile.userId]
 
-        XCTAssertEqual(dateProvider.now, updated)
+        XCTAssertEqual(timeProvider.presentTime.timeIntervalSince1970, updated!.timeIntervalSince1970, accuracy: 1.0)
     }
 
     /// Upon a session timeout on app foreground, the user should be navigated to the landing screen.
@@ -111,7 +111,14 @@ class AppProcessorTests: BitwardenTestCase {
         notificationCenterService.willEnterForegroundSubject.send()
         waitFor(vaultTimeoutService.shouldSessionTimeout[account.profile.userId] == true)
 
-        XCTAssertEqual(appModule.appCoordinator.routes.last, .auth(.vaultUnlock(account)))
+        XCTAssertEqual(
+            appModule.appCoordinator.routes.last,
+            .auth(.vaultUnlock(
+                .fixture(),
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            ))
+        )
     }
 
     /// `start(navigator:)` builds the AppCoordinator and navigates to vault unlock if there's an
@@ -124,7 +131,14 @@ class AppProcessorTests: BitwardenTestCase {
         subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         XCTAssertTrue(appModule.appCoordinator.isStarted)
-        XCTAssertEqual(appModule.appCoordinator.routes.last, .auth(.vaultUnlock(.fixture())))
+        XCTAssertEqual(
+            appModule.appCoordinator.routes.last,
+            .auth(.vaultUnlock(
+                .fixture(),
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            ))
+        )
     }
 
     /// `start(navigator:)` builds the AppCoordinator and navigates to the landing view if there

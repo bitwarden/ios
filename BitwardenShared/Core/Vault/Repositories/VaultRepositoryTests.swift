@@ -17,10 +17,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
+    var now: Date!
     var organizationService: MockOrganizationService!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
     var syncService: MockSyncService!
+    var timeProvider: MockTimeProvider!
     var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
@@ -38,8 +40,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         folderService = MockFolderService()
+        now = Date(year: 2024, month: 1, day: 18)
         organizationService = MockOrganizationService()
         syncService = MockSyncService()
+        timeProvider = MockTimeProvider(.mockTime(now))
         vaultTimeoutService = MockVaultTimeoutService()
         clientVault.clientCiphers = clientCiphers
         stateService = MockStateService()
@@ -55,8 +59,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             errorReporter: errorReporter,
             folderService: folderService,
             organizationService: organizationService,
+            settingsService: MockSettingsService(),
             stateService: stateService,
             syncService: syncService,
+            timeProvider: timeProvider,
             vaultTimeoutService: vaultTimeoutService
         )
     }
@@ -75,8 +81,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         errorReporter = nil
         folderService = nil
         organizationService = nil
+        now = nil
         stateService = nil
         subject = nil
+        timeProvider = nil
         vaultTimeoutService = nil
     }
 
@@ -345,7 +353,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_noKey() async throws {
         let newCode = "999232"
-        clientVault.totpCode = newCode
+        clientVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
             loginView: .fixture(),
@@ -356,7 +364,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             )
         )
         let item: VaultListItem = .fixtureTOTP(totp: totpModel)
-        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItems = await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
         XCTAssertEqual(newItem, item)
     }
@@ -364,9 +372,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_nonTOTP() async throws {
         let newCode = "999232"
-        clientVault.totpCode = newCode
+        clientVault.generateTOTPCodeResult = .success(newCode)
         let item: VaultListItem = .fixture()
-        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItems = await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
         XCTAssertEqual(newItem, item)
     }
@@ -374,7 +382,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should update correctly
     func test_refreshTOTPCodes_valid() async throws {
         let newCode = "999232"
-        clientVault.totpCode = newCode
+        clientVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
             loginView: .fixture(totp: .base32Key),
@@ -385,7 +393,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             )
         )
         let item: VaultListItem = .fixtureTOTP(totp: totpModel)
-        let newItems = try await subject.refreshTOTPCodes(for: [item])
+        let newItems = await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
         switch newItem.itemType {
         case let .totp(_, model):
@@ -615,6 +623,52 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `restoreCipher()` throws on id errors.
+    func test_restoreCipher_idError_nil() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.restoreCipher(.fixture(id: nil))
+        }
+    }
+
+    /// `restoreCipher()` restores cipher for the back end and in local storage.
+    func test_restoreCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        let cipherView: CipherView = .fixture(deletedDate: .now, id: "123")
+        cipherService.restoreWithServerResult = .success(())
+        try await subject.restoreCipher(cipherView)
+        XCTAssertNotNil(cipherView.deletedDate)
+        XCTAssertNil(cipherService.restoredCipher?.deletedDate)
+        XCTAssertEqual(cipherService.restoredCipherId, "123")
+    }
+
+    /// `saveAttachment(cipherView:fileData:fileName:)` saves the attachment to the cipher.
+    func test_saveAttachment() async throws {
+        cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "42"))
+
+        let updatedCipher = try await subject.saveAttachment(
+            cipherView: .fixture(),
+            fileData: Data(),
+            fileName: "Pineapple on pizza"
+        )
+
+        // Ensure all the steps completed as expected.
+        XCTAssertEqual(clientVault.clientCiphers.encryptedCiphers, [.fixture()])
+        XCTAssertEqual(clientVault.clientAttachments.encryptedBuffers, [Data()])
+        XCTAssertEqual(cipherService.saveAttachmentWithServerCipherId, "1")
+        XCTAssertEqual(updatedCipher.id, "42")
+    }
+
+    /// `saveAttachment(cipherView:fileData:fileName:)`  throws on id errors.
+    func test_saveAttachment_idNilError() async throws {
+        await assertAsyncThrows {
+            _ = try await subject.saveAttachment(cipherView: .fixture(id: nil), fileData: Data(), fileName: "")
+        }
+    }
+
     /// `softDeleteCipher()` throws on id errors.
     func test_softDeleteCipher_idError_nil() async throws {
         stateService.accounts = [.fixtureAccountLogin()]
@@ -686,8 +740,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = Cipher.fixture(collectionIds: ["1"], id: "1")
         cipherService.ciphersSubject.send([cipher])
 
-        var iterator = try await subject.vaultListPublisher(group: .collection(id: "1", name: ""), filter: .allVaults)
-            .makeAsyncIterator()
+        var iterator = try await subject.vaultListPublisher(
+            group: .collection(id: "1", name: "", organizationId: "1"),
+            filter: .allVaults
+        )
+        .makeAsyncIterator()
         let vaultListItems = try await iterator.next()
 
         XCTAssertEqual(vaultListItems, [.fixture(cipherView: .init(cipher: cipher))])
@@ -754,6 +811,20 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `vaultListPublisher(group:filter:)` filters out TOTP items with keys that
+    ///      the SDK cannot parse into TOTP codes.
+    func test_vaultListPublisher_groups_totp_invalidCode() async throws {
+        let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
+        struct InvalidCodeError: Error, Equatable {}
+        clientVault.generateTOTPCodeResult = .failure(InvalidCodeError())
+        cipherService.ciphersSubject.send([cipher])
+
+        var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
+        let vaultListItems = try await iterator.next()
+
+        XCTAssertNil(vaultListItems?.last?.itemType)
+    }
+
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
     func test_vaultListPublisher_groups_trash() async throws {
         let cipher = Cipher.fixture(deletedDate: Date(), id: "1")
@@ -818,7 +889,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
             .init(
                 id: "Collections",
-                items: [.fixtureGroup(id: "1", group: .collection(id: "1", name: ""), count: 1)],
+                items: [
+                    .fixtureGroup(
+                        id: "1",
+                        group: .collection(id: "1", name: "", organizationId: ""),
+                        count: 1
+                    ),
+                ],
                 name: Localizations.collections
             ),
             .init(
@@ -1006,7 +1083,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
 
         var iterator = try await subject.vaultListPublisher(
-            group: .collection(id: "f96de98e-618a-4886-b396-66b92a385325", name: "Engineering"),
+            group: .collection(
+                id: "f96de98e-618a-4886-b396-66b92a385325",
+                name: "Engineering",
+                organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
+            ),
             filter: .allVaults
         ).makeAsyncIterator()
         let items = try await iterator.next()

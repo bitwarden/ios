@@ -175,9 +175,12 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     func test_receive_toggleConnectToWatch_success() {
         XCTAssertFalse(subject.state.isConnectToWatchToggleOn)
 
-        subject.receive(.toggleConnectToWatch(true))
+        let task = Task {
+            subject.receive(.toggleConnectToWatch(true))
+        }
 
-        waitFor { self.settingsRepository.connectToWatch == true }
+        waitFor(subject.state.isConnectToWatchToggleOn)
+        task.cancel()
         XCTAssertTrue(settingsRepository.connectToWatch)
         XCTAssertTrue(subject.state.isConnectToWatchToggleOn)
     }

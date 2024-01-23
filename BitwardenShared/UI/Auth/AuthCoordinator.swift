@@ -26,6 +26,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         & HasAuthAPIService
         & HasAuthRepository
         & HasAuthService
+        & HasBiometricsService
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
@@ -82,7 +83,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
 
     // MARK: Methods
 
-    func navigate(to route: AuthRoute, context: AnyObject?) {
+    func navigate(to route: AuthRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case let .alert(alert):
             showAlert(alert)
@@ -127,8 +128,15 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             )
         case let .switchAccount(userId: userId):
             selectAccount(for: userId)
-        case let .vaultUnlock(account, animated):
-            showVaultUnlock(account: account, animated: animated)
+        case let .twoFactor(email, password, authMethodsData):
+            showTwoFactorAuth(email: email, password: password, authMethodsData: authMethodsData)
+        case let .vaultUnlock(account, animated, attemptAutomaticBiometricUnlock, didSwitch):
+            showVaultUnlock(
+                account: account,
+                animated: animated,
+                attemptAutmaticBiometricUnlock: attemptAutomaticBiometricUnlock,
+                didSwitchAccountAutomatically: didSwitch
+            )
         }
     }
 
@@ -147,7 +155,12 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
                 let account = try await services.authRepository.setActiveAccount(userId: userId)
                 let isLocked = try services.vaultTimeoutService.isLocked(userId: userId)
                 if isLocked {
-                    showVaultUnlock(account: account)
+                    showVaultUnlock(
+                        account: account,
+                        animated: false,
+                        attemptAutmaticBiometricUnlock: true,
+                        didSwitchAccountAutomatically: false
+                    )
                 } else {
                     delegate?.didCompleteAuth()
                 }
@@ -356,21 +369,51 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         session.start()
     }
 
+    /// Show the two factor authentication view.
+    ///
+    /// - Parameter data: The data required for the two-factor flow.
+    ///
+    private func showTwoFactorAuth(email: String, password: String?, authMethodsData: AuthMethodsData) {
+        let state = TwoFactorAuthState(
+            authMethodsData: authMethodsData,
+            email: email,
+            password: password
+        )
+        let processor = TwoFactorAuthProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: state
+        )
+        let view = TwoFactorAuthView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator.present(navigationController)
+    }
+
     /// Shows the vault unlock view.
     ///
     /// - Parameters:
     ///   - account: The active account.
     ///   - animated: Whether to animate the transition.
+    ///   - attemptAutmaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
+    ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
     ///
-    private func showVaultUnlock(account: Account, animated: Bool = true) {
+    private func showVaultUnlock(
+        account: Account,
+        animated: Bool = true,
+        attemptAutmaticBiometricUnlock: Bool = false,
+        didSwitchAccountAutomatically: Bool
+    ) {
         let processor = VaultUnlockProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultUnlockState(account: account)
         )
+        processor.shouldAttemptAutomaticBiometricUnlock = attemptAutmaticBiometricUnlock
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator.replace(view, animated: animated)
+        processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
     }
 }
 
@@ -380,4 +423,4 @@ extension AuthCoordinator: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for _: ASWebAuthenticationSession) -> ASPresentationAnchor {
         stackNavigator.rootViewController?.view.window ?? UIWindow()
     }
-}
+} // swiftlint:disable:this file_length

@@ -5,6 +5,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - VaultItemCoordinatorTests
 
 class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -151,7 +153,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.attachments()` navigates to the attachments view..
     func test_navigateTo_attachments() throws {
-        subject.navigate(to: .attachments)
+        subject.navigate(to: .attachments(.fixture()))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
@@ -459,4 +461,4 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     func didCancelScan() {
         didCancel = true
     }
-} // swiftlint:disable:this file_length
+}

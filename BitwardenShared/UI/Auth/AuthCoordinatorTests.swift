@@ -198,7 +198,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
     }
 
-    /// `navigate(to:)` with `.switchAccount` with an unknonw account triggers completion
+    /// `navigate(to:)` with `.switchAccount` with an unknown account triggers completion.
     func test_navigate_switchAccount_unknownLock() {
         let account = Account.fixture()
         authRepository.setActiveAccountResult = .success(account)
@@ -212,7 +212,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
     }
 
-    /// `navigate(to:)` with `.switchAccount` with an invalid account navigates to landing
+    /// `navigate(to:)` with `.switchAccount` with an invalid account navigates to landing view.
     func test_navigate_switchAccount_notFound() {
         let account = Account.fixture()
         let task = Task {
@@ -223,12 +223,44 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
     }
 
+    /// `navigate(to:)` with `.twoFactor` shows the two factor auth view.
+    func test_navigate_twoFactor() throws {
+        subject.navigate(to: .twoFactor("", "", ["": ["": ""]]))
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<TwoFactorAuthView>)
+    }
+
     /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.
     func test_navigate_vaultUnlock() {
-        subject.navigate(to: .vaultUnlock(.fixture()))
+        subject.navigate(
+            to: .vaultUnlock(
+                .fixture(),
+                didSwitchAccountAutomatically: false
+            )
+        )
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
         XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)
+    }
+
+    /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.
+    func test_navigate_vaultUnlock_withToast() throws {
+        subject.navigate(
+            to: .vaultUnlock(
+                .fixture(),
+                didSwitchAccountAutomatically: true
+            )
+        )
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
+        let view: VaultUnlockView = try XCTUnwrap(stackNavigator.actions.last?.view as? VaultUnlockView)
+        waitFor(view.store.state.toast != nil)
+        XCTAssertEqual(
+            view.store.state.toast?.text,
+            Localizations.accountSwitchedAutomatically
+        )
     }
 
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.

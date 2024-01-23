@@ -1,6 +1,7 @@
 @testable import BitwardenShared
 
 class MockAppExtensionDelegate: AppExtensionDelegate {
+    var authCompletionRoute = AppRoute.vault(.autofillList)
     var didCancelCalled = false
     var didCompleteAutofillRequest: (username: String, password: String)?
     var isInAppExtension = false

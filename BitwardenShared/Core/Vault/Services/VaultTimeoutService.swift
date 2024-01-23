@@ -74,11 +74,11 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// A subject containing the active account id.
     var activeAccountIdSubject = CurrentValueSubject<String?, Never>(nil)
 
-    /// The service used to access the current date and time.
-    private var dateProvider: DateProvider
-
     /// The state service used by this Default Service.
     private var stateService: StateService
+
+    /// Provides the current time.
+    private var timeProvider: TimeProvider
 
     /// The store of locked status for known accounts
     var timeoutStore = [String: Bool]()
@@ -91,12 +91,12 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Creates a new `DefaultVaultTimeoutService`.
     ///
     /// - Parameters:
-    ///  - dateProvider: The service used to access the current date and time.
     ///  - stateService: The StateService used by DefaultVaultTimeoutService.
+    ///  - timeProvider: Provides the current time.
     ///
-    init(dateProvider: DateProvider, stateService: StateService) {
-        self.dateProvider = dateProvider
+    init(stateService: StateService, timeProvider: TimeProvider) {
         self.stateService = stateService
+        self.timeProvider = timeProvider
     }
 
     // MARK: Methods
@@ -141,7 +141,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         if vaultTimeout == -1 { return true }
         if vaultTimeout == -2 { return false }
 
-        if dateProvider.now.timeIntervalSince(lastActiveTime) >= TimeInterval(vaultTimeout * 60) {
+        if timeProvider.presentTime.timeIntervalSince(lastActiveTime) >= TimeInterval(vaultTimeout * 60) {
             return true
         }
         return false

@@ -50,7 +50,8 @@ struct UpdateSendRequest: Request {
             name: send.name,
             notes: send.notes,
             password: send.password,
-            text: send.text.map(SendTextModel.init)
+            text: send.text.map(SendTextModel.init),
+            type: SendType(sendType: send.type)
         )
         sendId = id
     }

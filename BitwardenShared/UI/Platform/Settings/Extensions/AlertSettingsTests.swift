@@ -3,6 +3,21 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertSettingsTests: BitwardenTestCase {
+    /// `confirmApproveLoginRequests(action:)` constructs an `Alert` with the title,
+    /// message, yes, and cancel buttons to confirm approving login requests
+    func test_confirmApproveLoginRequests() {
+        let subject = Alert.confirmApproveLoginRequests {}
+
+        XCTAssertEqual(subject.title, Localizations.approveLoginRequests)
+        XCTAssertEqual(subject.message, Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.no)
+        XCTAssertEqual(subject.alertActions.first?.style, .cancel)
+        XCTAssertEqual(subject.alertActions.last?.title, Localizations.yes)
+        XCTAssertEqual(subject.alertActions.last?.style, .default)
+    }
+
     /// `confirmDeleteFolder(action:)` constructs an `Alert` with the title,
     /// message, yes, and cancel buttons to confirm deleting a folder.
     func test_confirmDeleteFolder() {
@@ -12,6 +27,21 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.doYouReallyWantToDelete)
         XCTAssertNil(subject.message)
+    }
+
+    /// `confirmDenyingAllRequests(action:)` constructs an `Alert` with the title,
+    /// message, yes, and cancel buttons to confirm denying all login requests
+    func test_confirmDenyingAllRequests() {
+        let subject = Alert.confirmDenyingAllRequests {}
+
+        XCTAssertEqual(subject.title, Localizations.areYouSureYouWantToDeclineAllPendingLogInRequests)
+        XCTAssertNil(subject.message)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.no)
+        XCTAssertEqual(subject.alertActions.first?.style, .cancel)
+        XCTAssertEqual(subject.alertActions.last?.title, Localizations.yes)
+        XCTAssertEqual(subject.alertActions.last?.style, .default)
     }
 
     /// `confirmExportVault(encrypted:action:)` constructs an `Alert` with the title, message, and Yes and Export vault

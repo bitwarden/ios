@@ -42,3 +42,31 @@ extension SendView {
         )
     }
 }
+
+extension SendFileView {
+    static func fixture(
+        id: String? = nil,
+        fileName: String = "fileName",
+        size: String? = nil,
+        sizeName: String? = nil
+    ) -> SendFileView {
+        SendFileView(
+            id: id,
+            fileName: fileName,
+            size: size,
+            sizeName: sizeName
+        )
+    }
+}
+
+extension SendTextView {
+    static func fixture(
+        hidden: Bool = false,
+        text: String = "text"
+    ) -> SendTextView {
+        SendTextView(
+            text: text,
+            hidden: hidden
+        )
+    }
+}

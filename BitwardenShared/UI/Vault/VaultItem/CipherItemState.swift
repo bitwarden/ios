@@ -49,8 +49,8 @@ struct CipherItemState: Equatable {
     /// The Add or Existing Configuration.
     let configuration: Configuration
 
-    /// The custom fields.
-    var customFields: [CustomFieldState]
+    /// The custom fields state.
+    var customFieldsState: AddEditCustomFieldsState
 
     /// The identifier of the folder for this item.
     var folderId: String?
@@ -144,6 +144,7 @@ struct CipherItemState: Equatable {
         accountHasPremium: Bool,
         allowTypeSelection: Bool,
         cardState: CardItemState,
+        collectionIds: [String],
         configuration: Configuration,
         customFields: [CustomFieldState],
         folderId: String?,
@@ -153,15 +154,16 @@ struct CipherItemState: Equatable {
         loginState: LoginItemState,
         name: String,
         notes: String,
+        organizationId: String?,
         type: CipherType,
         updatedDate: Date
     ) {
         self.accountHasPremium = accountHasPremium
         self.allowTypeSelection = allowTypeSelection
         cardItemState = cardState
-        collectionIds = []
+        self.collectionIds = collectionIds
         collections = []
-        self.customFields = customFields
+        customFieldsState = AddEditCustomFieldsState(customFields: customFields)
         self.folderId = folderId
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
@@ -170,6 +172,7 @@ struct CipherItemState: Equatable {
         self.loginState = loginState
         self.name = name
         self.notes = notes
+        self.organizationId = organizationId
         ownershipOptions = []
         self.type = type
         self.updatedDate = updatedDate
@@ -179,7 +182,10 @@ struct CipherItemState: Equatable {
     init(
         addItem type: CipherType = .login,
         allowTypeSelection: Bool = true,
+        collectionIds: [String] = [],
+        customFields: [CustomFieldState] = [],
         hasPremium: Bool,
+        organizationId: String? = nil,
         totpKeyString: String? = nil,
         uri: String? = nil
     ) {
@@ -187,8 +193,9 @@ struct CipherItemState: Equatable {
             accountHasPremium: hasPremium,
             allowTypeSelection: allowTypeSelection,
             cardState: .init(),
+            collectionIds: collectionIds,
             configuration: .add,
-            customFields: [],
+            customFields: customFields,
             folderId: nil,
             identityState: .init(),
             isFavoriteOn: false,
@@ -200,6 +207,7 @@ struct CipherItemState: Equatable {
             ),
             name: uri.flatMap(URL.init)?.host ?? "",
             notes: "",
+            organizationId: organizationId,
             type: type,
             updatedDate: .now
         )
@@ -210,6 +218,7 @@ struct CipherItemState: Equatable {
             accountHasPremium: hasPremium,
             allowTypeSelection: false,
             cardState: cipherView.cardItemState(),
+            collectionIds: cipherView.collectionIds,
             configuration: .add,
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
@@ -219,6 +228,7 @@ struct CipherItemState: Equatable {
             loginState: cipherView.loginItemState(showTOTP: hasPremium),
             name: "\(cipherView.name) - \(Localizations.clone)",
             notes: cipherView.notes ?? "",
+            organizationId: cipherView.organizationId,
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
         )
@@ -230,6 +240,7 @@ struct CipherItemState: Equatable {
             accountHasPremium: hasPremium,
             allowTypeSelection: false,
             cardState: cipherView.cardItemState(),
+            collectionIds: cipherView.collectionIds,
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
@@ -239,6 +250,7 @@ struct CipherItemState: Equatable {
             loginState: cipherView.loginItemState(showTOTP: hasPremium),
             name: cipherView.name,
             notes: cipherView.notes ?? "",
+            organizationId: cipherView.organizationId,
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
         )
@@ -251,8 +263,8 @@ struct CipherItemState: Equatable {
     /// - Parameter customFieldState: The custom field to update.
     ///
     mutating func togglePasswordVisibility(for customFieldState: CustomFieldState) {
-        if let index = customFields.firstIndex(of: customFieldState) {
-            customFields[index].isPasswordVisible.toggle()
+        if let index = customFieldsState.customFields.firstIndex(of: customFieldState) {
+            customFieldsState.customFields[index].isPasswordVisible.toggle()
         }
     }
 
@@ -274,6 +286,10 @@ struct CipherItemState: Equatable {
 extension CipherItemState: AddEditItemState {}
 
 extension CipherItemState: ViewVaultItemState {
+    var isSoftDeleted: Bool {
+        cipher.deletedDate != nil
+    }
+
     var cardItemViewState: any ViewCardItemState {
         cardItemState
     }
@@ -311,7 +327,14 @@ extension CipherItemState {
             viewPassword: true,
             localData: nil,
             attachments: nil,
-            fields: nil,
+            fields: customFieldsState.customFields.isEmpty ? nil : customFieldsState.customFields.map { customField in
+                FieldView(
+                    name: customField.name,
+                    value: customField.value,
+                    type: .init(fieldType: customField.type),
+                    linkedId: customField.linkedIdType?.rawValue
+                )
+            },
             passwordHistory: nil,
             creationDate: creationDate,
             deletedDate: nil,

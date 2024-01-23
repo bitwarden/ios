@@ -83,7 +83,15 @@ public class AppProcessor {
             if vaultTimeout == -1 {
                 navigatePostTimeout()
             } else {
-                coordinator.navigate(to: .auth(.vaultUnlock(activeAccount)))
+                coordinator.navigate(
+                    to: .auth(
+                        .vaultUnlock(
+                            activeAccount,
+                            attemptAutomaticBiometricUnlock: true,
+                            didSwitchAccountAutomatically: false
+                        )
+                    )
+                )
             }
         } else {
             coordinator.navigate(to: .auth(.landing))
@@ -99,7 +107,7 @@ public class AppProcessor {
         guard let action = services.appSettingsStore.timeoutAction(userId: account.profile.userId) else { return }
         switch action {
         case 0:
-            coordinator?.navigate(to: .auth(.vaultUnlock(account)))
+            coordinator?.navigate(to: .auth(.vaultUnlock(account, didSwitchAccountAutomatically: false)))
         case 1:
             Task {
                 try await services.stateService.logoutAccount(userId: account.profile.userId)

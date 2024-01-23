@@ -41,6 +41,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         switch effect {
         case .appeared:
             await streamSendList()
+        case let .search(text):
+            state.searchResults = await searchSends(for: text)
         case .refresh:
             do {
                 try await services.sendRepository.fetchSync(isManualRefresh: true)
@@ -86,5 +88,28 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Searches the sends using the provided string, and returns any matching results.
+    ///
+    /// - Parameter searchText: The string to use when searching the sends.
+    /// - Returns: An array of `SendListItem`s. If no results can be found, an empty array will be
+    ///   returned.
+    ///
+    private func searchSends(for searchText: String) async -> [SendListItem] {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return []
+        }
+
+        do {
+            let result = try await services.sendRepository.searchSendPublisher(searchText: searchText)
+            for try await sends in result {
+                return sends
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+
+        return []
     }
 }

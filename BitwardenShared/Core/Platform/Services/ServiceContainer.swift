@@ -42,9 +42,6 @@ public class ServiceContainer: Services {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
-    /// The service that used by the application to access the current date and time.
-    let dateProvider: DateProvider
-
     /// The service used by the application to manage the environment settings.
     let environmentService: EnvironmentService
 
@@ -111,7 +108,6 @@ public class ServiceContainer: Services {
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
-    ///   - dateProvider: The service that used by the application to access the current date and time.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
@@ -140,7 +136,6 @@ public class ServiceContainer: Services {
         captchaService: CaptchaService,
         cameraService: CameraService,
         clientService: ClientService,
-        dateProvider: DateProvider,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
@@ -168,7 +163,6 @@ public class ServiceContainer: Services {
         self.captchaService = captchaService
         self.cameraService = cameraService
         self.clientService = clientService
-        self.dateProvider = dateProvider
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
@@ -198,15 +192,18 @@ public class ServiceContainer: Services {
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
 
-        let biometricsService = DefaultBiometricsService()
         let clientService = DefaultClientService()
-        let dateProvider = DefaultDateProvider()
         let dataStore = DataStore(errorReporter: errorReporter)
+
+        let timeProvider = CurrentTime()
+
         let stateService = DefaultStateService(
             appSettingsStore: appSettingsStore,
-            dateProvider: dateProvider,
-            dataStore: dataStore
+            dataStore: dataStore,
+            timeProvider: timeProvider
         )
+
+        let biometricsService = DefaultBiometricsService(stateService: stateService)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
@@ -235,6 +232,7 @@ public class ServiceContainer: Services {
         )
 
         let sendService = DefaultSendService(
+            fileAPIService: apiService,
             sendAPIService: apiService,
             sendDataStore: dataStore,
             stateService: stateService
@@ -263,7 +261,7 @@ public class ServiceContainer: Services {
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-        let vaultTimeoutService = DefaultVaultTimeoutService(dateProvider: dateProvider, stateService: stateService)
+        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
@@ -276,6 +274,7 @@ public class ServiceContainer: Services {
             authAPIService: apiService,
             clientAuth: clientService.clientAuth(),
             clientGenerators: clientService.clientGenerator(),
+            clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
             stateService: stateService,
             systemDevice: UIDevice.current
@@ -284,6 +283,7 @@ public class ServiceContainer: Services {
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
+            biometricsService: biometricsService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             clientPlatform: clientService.clientPlatform(),
@@ -318,8 +318,6 @@ public class ServiceContainer: Services {
             vaultTimeoutService: vaultTimeoutService
         )
 
-        let timeProvider = CurrentTime()
-
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
             cipherService: cipherService,
@@ -331,8 +329,10 @@ public class ServiceContainer: Services {
             errorReporter: errorReporter,
             folderService: folderService,
             organizationService: organizationService,
+            settingsService: settingsService,
             stateService: stateService,
             syncService: syncService,
+            timeProvider: timeProvider,
             vaultTimeoutService: vaultTimeoutService
         )
 
@@ -346,7 +346,6 @@ public class ServiceContainer: Services {
             captchaService: captchaService,
             cameraService: DefaultCameraService(),
             clientService: clientService,
-            dateProvider: dateProvider,
             environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
@@ -378,6 +377,10 @@ extension ServiceContainer {
     }
 
     var deviceAPIService: DeviceAPIService {
+        apiService
+    }
+
+    var fileAPIService: FileAPIService {
         apiService
     }
 

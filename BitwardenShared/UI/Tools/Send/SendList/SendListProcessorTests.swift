@@ -80,6 +80,18 @@ class SendListProcessorTests: BitwardenTestCase {
         XCTAssertTrue(sendRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and updates the
+    /// state.
+    func test_search() async {
+        subject.state.searchResults = []
+        let sendListItem = SendListItem.fixture()
+        sendRepository.searchSendSubject.send([sendListItem])
+
+        await subject.perform(.search("for me"))
+
+        XCTAssertEqual(subject.state.searchResults, [sendListItem])
+    }
+
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
     func test_receive_addItemPressed() {
         subject.receive(.addItemPressed)

@@ -42,7 +42,7 @@ struct ProfileSwitcherState: Equatable {
 
     /// The visibility of the add account row.
     var showsAddAccount: Bool {
-        !shouldAlwaysHideAddAccount && accounts.count < Constants.maxAcccounts
+        !shouldAlwaysHideAddAccount && accounts.count < Constants.maxAccounts
     }
 
     // MARK: Initialization

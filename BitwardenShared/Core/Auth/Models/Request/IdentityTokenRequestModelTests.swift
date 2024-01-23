@@ -90,6 +90,23 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         XCTAssertNil(valuesByKey["captchaResponse"])
     }
 
+    /// `values` contains the two-factor information if it's provided.
+    func test_values_withTwoFactorInformation() {
+        let subject = IdentityTokenRequestModel(
+            authenticationMethod: .password(username: "user@example.com", password: "password"),
+            captchaToken: nil,
+            deviceInfo: .fixture(),
+            twoFactorCode: "hi_im_a_lil_code",
+            twoFactorMethod: .email,
+            twoFactorRemember: true
+        )
+        let valuesByKey = valuesByKey(subject.values)
+
+        XCTAssertEqual(valuesByKey["twoFactorToken"], "hi_im_a_lil_code")
+        XCTAssertEqual(valuesByKey["twoFactorProvider"], "1")
+        XCTAssertEqual(valuesByKey["twoFactorRemember"], "1")
+    }
+
     // MARK: Private
 
     /// Converts the list of `URLQueryItem`s to a dictionary keyed by the item's name.
