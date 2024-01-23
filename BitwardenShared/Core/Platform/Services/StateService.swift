@@ -198,10 +198,10 @@ protocol StateService: AnyObject {
     ///
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions?
 
-    /// Gets the session timeout date.
+    /// Gets the session timeout value.
     ///
     /// - Parameter userId: The user ID for the account.
-    /// - Returns: The session timeout date.
+    /// - Returns: The session timeout value.
     ///
     func getVaultTimeout(userId: String?) async throws -> Int
 
@@ -378,13 +378,13 @@ protocol StateService: AnyObject {
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws
 
-    /// Sets the session timeout date.
+    /// Sets the session timeout value.
     ///
     /// - Parameters:
-    ///   - value: How many minutes in the future the timeout should occur.
+    ///   - value: How many seconds in the future the timeout should occur.
     ///   - userId: The user ID associated with the timeout value.
     ///
-    func setVaultTimeout(value: Int?, userId: String?) async throws
+    func setVaultTimeout(value: Int, userId: String?) async throws
 
     // MARK: Publishers
 
@@ -538,9 +538,9 @@ extension StateService {
         try await getUsernameGenerationOptions(userId: nil)
     }
 
-    /// Gets the session timeout date.
+    /// Gets the session timeout value.
     ///
-    /// - Returns: The session timeout date.
+    /// - Returns: The session timeout value.
     ///
     func getVaultTimeout() async throws -> Int {
         try await getVaultTimeout(userId: nil)
@@ -674,11 +674,11 @@ extension StateService {
         try await setUsernameGenerationOptions(options, userId: nil)
     }
 
-    /// Sets the session timeout date.
+    /// Sets the session timeout value.
     ///
-    /// - Parameter value: How many minutes in the future the timeout should occur.
+    /// - Parameter value: How many seconds in the future the timeout should occur.
     ///
-    func setVaultTimeout(value: Int?) async throws {
+    func setVaultTimeout(value: Int) async throws {
         try await setVaultTimeout(value: value, userId: nil)
     }
 }
@@ -728,7 +728,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
 
-    /// Provides the present time.
+    /// The service that provides the present time.
     private let timeProvider: TimeProvider
 
     /// A subject containing the last sync time mapped to user ID.
@@ -744,7 +744,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
     ///  - dataStore: The data store that handles performing data requests.
-    ///  - timeProvider: Provides the present time.
+    ///  - timeProvider: The service that provides the present time.
     ///
     init(
         appSettingsStore: AppSettingsStore,
@@ -1050,7 +1050,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
     }
 
-    func setVaultTimeout(value: Int?, userId: String?) async throws {
+    func setVaultTimeout(value: Int, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setVaultTimeout(key: value, userId: userId)
     }

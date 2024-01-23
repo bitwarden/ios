@@ -50,7 +50,11 @@ protocol VaultTimeoutService: AnyObject {
     ///   - value: The timeout value.
     ///   - userId: The user's ID.
     ///
-    func setVaultTimeout(value: Int?, userId: String?) async throws
+    /// A value of -1 means the app should timeout on restart.
+    /// A value of -2 means the app should never timeout.
+    /// A value of -100 denotes a custom timeout value.
+    ///
+    func setVaultTimeout(value: Int, userId: String?) async throws
 
     /// Whether a session timeout should occur.
     ///
@@ -130,7 +134,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         try await stateService.setLastActiveTime(userId: userId)
     }
 
-    func setVaultTimeout(value: Int?, userId: String?) async throws {
+    func setVaultTimeout(value: Int, userId: String?) async throws {
         try await stateService.setVaultTimeout(value: value, userId: userId)
     }
 
@@ -141,7 +145,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         if vaultTimeout == -1 { return true }
         if vaultTimeout == -2 { return false }
 
-        if timeProvider.presentTime.timeIntervalSince(lastActiveTime) >= TimeInterval(vaultTimeout * 60) {
+        if timeProvider.presentTime.timeIntervalSince(lastActiveTime) >= TimeInterval(vaultTimeout) {
             return true
         }
         return false

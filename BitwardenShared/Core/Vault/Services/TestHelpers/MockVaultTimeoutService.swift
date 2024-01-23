@@ -39,7 +39,7 @@ class MockVaultTimeoutService: VaultTimeoutService {
         lastActiveTime[userId] = timeProvider.presentTime
     }
 
-    func setVaultTimeout(value: Int?, userId: String?) async throws {
+    func setVaultTimeout(value: Int, userId: String?) async throws {
         vaultTimeout[account.profile.userId] = value
     }
 

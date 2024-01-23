@@ -186,6 +186,22 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(stateService.vaultTimeout[account.profile.userId], 120)
     }
 
+    /// `.setVaultTimeout(value:userId:)` sets the user's vault timeout value to on app restart.
+    func test_setVaultTimeout_appRestart() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        try await subject.setVaultTimeout(value: -1, userId: account.profile.userId)
+        XCTAssertEqual(stateService.vaultTimeout[account.profile.userId], -1)
+    }
+
+    /// `.setVaultTimeout(value:userId:)` sets the user's vault timeout value to never.
+    func test_setVaultTimeout_never() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        try await subject.setVaultTimeout(value: -2, userId: account.profile.userId)
+        XCTAssertEqual(stateService.vaultTimeout[account.profile.userId], -2)
+    }
+
     /// `.shouldSessionTimeout()` returns false if the user should not be timed out.
     func test_shouldSessionTimeout_false() async throws {
         let account = Account.fixture()

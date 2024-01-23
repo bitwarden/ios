@@ -3,7 +3,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockStateService: StateService {
+class MockStateService: StateService { // swiftlint:disable:this type_body_length
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountTokens: Account.AccountTokens?
     var accountsAdded = [Account]()
@@ -303,7 +303,7 @@ class MockStateService: StateService {
         usernameGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(value: Int?, userId: String?) async throws {
+    func setVaultTimeout(value: Int, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         vaultTimeout[userId] = value
     }

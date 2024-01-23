@@ -221,8 +221,6 @@ final class AccountSecurityProcessor: StateProcessor<
             do {
                 if value == -100 {
                     try await services.vaultTimeoutService.setVaultTimeout(value: 60, userId: nil)
-                } else if value == -2 {
-                    try await services.vaultTimeoutService.setVaultTimeout(value: nil, userId: nil)
                 } else {
                     try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: nil)
                 }
