@@ -37,6 +37,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
+        & HasAuthService
         & HasBiometricsService
         & HasClientAuth
         & HasErrorReporter
@@ -93,6 +94,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showAppearance()
         case .appExtension:
             showAppExtension()
+        case .appExtensionSetup:
+            showAppExtensionSetup(delegate: context as? AppExtensionSetupDelegate)
         case .autoFill:
             showAutoFill()
         case .deleteAccount:
@@ -118,6 +121,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showOtherScreen()
         case .passwordAutoFill:
             showPasswordAutoFill()
+        case .pendingLoginRequests:
+            showPendingLoginRequests()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
@@ -208,6 +213,29 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.push(viewController, navigationTitle: Localizations.appExtension)
     }
 
+    /// Shows the app extension setup screen.
+    ///
+    /// - Parameter delegate: The `AppExtensionSetupDelegate` to notify when the user interacts with
+    ///     the extension.
+    ///
+    private func showAppExtensionSetup(delegate: AppExtensionSetupDelegate?) {
+        let extensionItem = NSExtensionItem()
+        extensionItem.attachments = [
+            NSItemProvider(
+                item: "" as NSString,
+                typeIdentifier: Constants.UTType.appExtensionSetup
+            ),
+        ]
+        let viewController = UIActivityViewController(activityItems: [extensionItem], applicationActivities: nil)
+        viewController.completionWithItemsHandler = { activityType, completed, _, _ in
+            delegate?.didDismissExtensionSetup(
+                enabled: completed &&
+                    activityType?.rawValue == Bundle.main.appExtensionIdentifier
+            )
+        }
+        stackNavigator.present(viewController)
+    }
+
     /// Shows the auto-fill screen.
     ///
     private func showAutoFill() {
@@ -285,6 +313,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         stackNavigator.push(viewController, navigationTitle: Localizations.passwordAutofill)
     }
 
+    /// Shows the pending login requests screen.
+    ///
+    private func showPendingLoginRequests() {
+        let processor = PendingRequestsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: PendingRequestsState()
+        )
+        let view = PendingRequestsView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
+    }
+
     /// Shows the select language screen.
     ///
     private func showSelectLanguage(currentLanguage: LanguageOption, delegate: SelectLanguageDelegate?) {
@@ -313,7 +354,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// Shows the vault screen.
     ///
     private func showVault() {
-        let processor = VaultSettingsProcessor(coordinator: asAnyCoordinator())
+        let processor = VaultSettingsProcessor(
+            coordinator: asAnyCoordinator(),
+            state: VaultSettingsState()
+        )
         let view = VaultSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never

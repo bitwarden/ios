@@ -165,7 +165,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(.search)` with a keyword should update search results in state.
     func test_perform_search() async {
         let searchResult: [CipherView] = [.fixture(name: "example")]
-        vaultRepository.searchCipherSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
+        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
         await subject.perform(.search("example"))
 
         XCTAssertEqual(subject.state.searchResults.count, 1)
@@ -177,7 +177,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(.search)` throws error and error is logged.
     func test_perform_search_error() async {
-        vaultRepository.searchCipherSubject.send(completion: .failure(BitwardenTestError.example))
+        vaultRepository.searchVaultListSubject.send(completion: .failure(BitwardenTestError.example))
         await subject.perform(.search("example"))
 
         XCTAssertEqual(subject.state.searchResults.count, 0)

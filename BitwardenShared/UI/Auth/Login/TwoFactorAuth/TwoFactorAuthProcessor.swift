@@ -130,7 +130,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 
             // Try to unlock the vault with the master password, if it's known.
             if let password = state.password {
-                try await services.authRepository.unlockVault(password: password)
+                try await services.authRepository.unlockVaultWithPassword(password: password)
                 coordinator.hideLoadingOverlay()
                 coordinator.navigate(to: .dismiss)
                 coordinator.navigate(to: .complete)

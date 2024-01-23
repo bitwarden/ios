@@ -137,4 +137,19 @@ extension Alert {
             alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
         )
     }
+
+    /// An alert that informs the user about receiving push notifications.
+    ///
+    /// - Parameter action: The action to perform when the user clicks through.
+    /// - Returns: An alert that informs the user about receiving push notifications.
+    ///
+    static func pushNotificationsInformation(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.enableAutomaticSyncing,
+            message: Localizations.pushNotificationAlert,
+            alertActions: [
+                AlertAction(title: Localizations.okGotIt, style: .default) { _, _ in await action() },
+            ]
+        )
+    }
 }

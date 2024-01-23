@@ -1,6 +1,7 @@
 extension APITestData {
     static let cipherResponse = loadFromJsonBundle(resource: "cipherResponse")
     static let folderResponse = loadFromJsonBundle(resource: "folderResponse")
+    static let saveAttachment = loadFromJsonBundle(resource: "saveAttachment")
     static let syncWithCipher = loadFromJsonBundle(resource: "syncWithCipher")
     static let syncWithCiphers = loadFromJsonBundle(resource: "syncWithCiphers")
     static let syncWithCiphersCollections = loadFromJsonBundle(resource: "syncWithCiphersCollections")

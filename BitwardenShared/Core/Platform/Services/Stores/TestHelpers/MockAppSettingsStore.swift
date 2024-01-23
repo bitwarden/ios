@@ -7,6 +7,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
     var appLocale: String?
+    var approveLoginRequestsByUserId = [String: Bool]()
     var appTheme: String?
     var biometricAuthenticationEnabled = [String: Bool?]()
     var biometricIntegrityStates = [String: String?]()
@@ -20,7 +21,10 @@ class MockAppSettingsStore: AppSettingsStore {
     var lastUserShouldConnectToWatch = false
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
+    var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pinKeyEncryptedUserKey = [String: String]()
+    var pinProtectedUserKey = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
@@ -38,6 +42,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
+    }
+
+    func approveLoginRequests(userId: String) -> Bool {
+        approveLoginRequestsByUserId[userId] ?? false
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -72,8 +80,20 @@ class MockAppSettingsStore: AppSettingsStore {
         masterPasswordHashes[userId]
     }
 
+    func notificationsLastRegistrationDate(userId: String) -> Date? {
+        notificationsLastRegistrationDates[userId]
+    }
+
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         passwordGenerationOptions[userId]
+    }
+
+    func pinKeyEncryptedUserKey(userId: String) -> String? {
+        pinKeyEncryptedUserKey[userId]
+    }
+
+    func pinProtectedUserKey(userId: String) -> String? {
+        pinProtectedUserKey[userId]
     }
 
     func twoFactorToken(email: String) -> String? {
@@ -90,6 +110,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
+    }
+
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String) {
+        approveLoginRequestsByUserId[userId] = approveLoginRequests
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
@@ -132,12 +156,24 @@ class MockAppSettingsStore: AppSettingsStore {
         masterPasswordHashes[userId] = hash
     }
 
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
+        notificationsLastRegistrationDates[userId] = date
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         guard let options else {
             passwordGenerationOptions.removeValue(forKey: userId)
             return
         }
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
+        pinKeyEncryptedUserKey[userId] = key
+    }
+
+    func setPinProtectedUserKey(key: String?, userId: String) {
+        pinProtectedUserKey[userId] = key
     }
 
     func setTwoFactorToken(_ token: String?, email: String) {

@@ -27,6 +27,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the app extension screen.
     case appExtension
 
+    /// A route to the app extension setup sheet.
+    case appExtensionSetup
+
     /// A route to the auto-fill screen.
     case autoFill
 
@@ -67,6 +70,9 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to the password auto-fill screen.
     case passwordAutoFill
+
+    /// A route to the pending login requests view.
+    case pendingLoginRequests
 
     /// A route to view the select language view.
     ///

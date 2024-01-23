@@ -21,4 +21,15 @@ class AlertVaultTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[3].title, Localizations.cancel)
         XCTAssertEqual(subject.alertActions[3].style, .cancel)
     }
+
+    /// `pushNotificationsInformation(action:)` constructs an `Alert` that informs the
+    ///  user about receiving push notifications.
+    func test_pushNotificationsInformation() {
+        let subject = Alert.pushNotificationsInformation {}
+
+        XCTAssertEqual(subject.title, Localizations.enableAutomaticSyncing)
+        XCTAssertEqual(subject.message, Localizations.pushNotificationAlert)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.okGotIt)
+        XCTAssertEqual(subject.alertActions.first?.style, .default)
+    }
 }

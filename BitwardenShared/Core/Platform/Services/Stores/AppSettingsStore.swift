@@ -45,6 +45,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
 
+    /// Whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter userId: The user ID associated with the approve logins setting.
+    ///
+    /// - Returns: Whether the user has decided to allow the device to approve login requests.
+    ///
+    func approveLoginRequests(userId: String) -> Bool
+
     /// The system biometric integrity state `Data`, base64 encoded.
     ///
     /// - Parameter userId: The user ID associated with the Biometric Integrity State.
@@ -114,8 +122,16 @@ protocol AppSettingsStore: AnyObject {
     /// Gets the master password hash for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the master password hash.
+    /// - Returns: The master password hash for the user.
     ///
     func masterPasswordHash(userId: String) -> String?
+
+    /// Gets the last date the user successfully registered for push notifications.
+    ///
+    /// - Parameter userId: The user ID associated with the last notifications registration date.
+    /// - Returns: The last notifications registration date for the user.
+    ///
+    func notificationsLastRegistrationDate(userId: String) -> Date?
 
     /// Gets the password generation options for a user ID.
     ///
@@ -123,6 +139,20 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The password generation options for the user ID.
     ///
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions?
+
+    /// The user's pin protected user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
+    /// - Returns: The pin protected user key.
+    ///
+    func pinKeyEncryptedUserKey(userId: String) -> String?
+
+    /// The pin protected user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key.
+    /// - Returns: The pin protected user key.
+    ///
+    func pinProtectedUserKey(userId: String) -> String?
 
     /// Get the two-factor token associated with a user's email..
     ///
@@ -152,6 +182,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync on refresh setting.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
+
+    /// Sets whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameters:
+    ///   - approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
+    ///   - userId: The user ID associated with the approve logins setting.
+    ///
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String)
 
     /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
     ///
@@ -237,6 +275,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String)
 
+    /// Sets the last notifications registration date for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The last notifications registration date.
+    ///   - userId: The user ID associated with the last notifications registration date.
+    ///
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String)
+
     /// Sets the password generation options for a user ID.
     ///
     /// - Parameters:
@@ -244,6 +290,22 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
+
+    /// Sets the pin key encrypted user key.
+    ///
+    /// - Parameters:
+    ///   - key: A pin key encrypted user key derived from the user's pin.
+    ///   - userId: The user ID.
+    ///
+    func setPinKeyEncryptedUserKey(key: String?, userId: String)
+
+    /// Sets the pin protected user key.
+    ///
+    /// - Parameters:
+    ///  - key: A pin protected user key derived from the user's pin.
+    ///   - userId: The user ID.
+    ///
+    func setPinProtectedUserKey(key: String?, userId: String)
 
     /// Sets the two-factor token.
     ///
@@ -391,6 +453,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case allowSyncOnRefresh(userId: String)
         case appId
         case appLocale
+        case approveLoginRequests(userId: String)
         case appTheme
         case biometricAuthEnabled(userId: String)
         case biometricIntegrityState(userId: String)
@@ -404,7 +467,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case lastUserShouldConnectToWatch
         case lastSync(userId: String)
         case masterPasswordHash(userId: String)
+        case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
+        case pinKeyEncryptedUserKey(userId: String)
+        case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentUrls
         case rememberedEmail
         case rememberedOrgIdentifier
@@ -423,6 +489,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "appId"
             case .appLocale:
                 key = "appLocale"
+            case let .approveLoginRequests(userId):
+                key = "approvePasswordlessLogins_\(userId)"
             case .appTheme:
                 key = "theme"
             case let .biometricAuthEnabled(userId):
@@ -449,8 +517,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "lastSync_\(userId)"
             case let .masterPasswordHash(userId):
                 key = "keyHash_\(userId)"
+            case let .notificationsLastRegistrationDate(userId):
+                key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
+            case let .pinKeyEncryptedUserKey(userId):
+                key = "pinKeyEncryptedUserKey_\(userId)"
+            case let .pinProtectedUserKey(userId):
+                key = "pinProtectedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
             case .rememberedEmail:
@@ -522,6 +596,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .allowSyncOnRefresh(userId: userId))
     }
 
+    func approveLoginRequests(userId: String) -> Bool {
+        fetch(for: .approveLoginRequests(userId: userId))
+    }
+
     func biometricIntegrityState(userId: String) -> String? {
         fetch(for: .biometricIntegrityState(userId: userId))
     }
@@ -566,8 +644,20 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .masterPasswordHash(userId: userId))
     }
 
+    func notificationsLastRegistrationDate(userId: String) -> Date? {
+        fetch(for: .notificationsLastRegistrationDate(userId: userId)).map { Date(timeIntervalSince1970: $0) }
+    }
+
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         fetch(for: .passwordGenerationOptions(userId: userId))
+    }
+
+    func pinKeyEncryptedUserKey(userId: String) -> String? {
+        fetch(for: .pinKeyEncryptedUserKey(userId: userId))
+    }
+
+    func pinProtectedUserKey(userId: String) -> String? {
+        fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
     func twoFactorToken(email: String) -> String? {
@@ -584,6 +674,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String) {
+        store(approveLoginRequests, for: .approveLoginRequests(userId: userId))
     }
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
@@ -626,8 +720,20 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(hash, for: .masterPasswordHash(userId: userId))
     }
 
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
+        store(date?.timeIntervalSince1970, for: .notificationsLastRegistrationDate(userId: userId))
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         store(options, for: .passwordGenerationOptions(userId: userId))
+    }
+
+    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
+        store(key, for: .pinKeyEncryptedUserKey(userId: userId))
+    }
+
+    func setPinProtectedUserKey(key: String?, userId: String) {
+        store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
     func setTwoFactorToken(_ token: String?, email: String) {

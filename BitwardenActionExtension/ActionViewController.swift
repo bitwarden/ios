@@ -1,55 +1,92 @@
+import BitwardenShared
 import MobileCoreServices
 import UIKit
-import UniformTypeIdentifiers
 
 class ActionViewController: UIViewController {
-    // Automatically created ActionViewController. We should alter this to match our own use.
+    // MARK: Properties
 
-//    @IBOutlet weak var imageView: UIImageView!
+    /// The app's theme.
+    var appTheme: AppTheme = .default
 
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//
-//        // Get the item[s] we're handling from the extension context.
-//
-//        // For example, look for an image and place it into an image view.
-//        // Replace this with something appropriate for the type[s] your extension supports.
-//        var imageFound = false
-//        for item in self.extensionContext!.inputItems as! [NSExtensionItem] {
-//            for provider in item.attachments! {
-//                if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-//                    // This is an image. We'll load it, then place it in our image view.
-//                    weak var weakImageView = self.imageView
-//                    provider.loadItem(
-//                        forTypeIdentifier: UTType.image.identifier,
-//                        options: nil, completionHandler: { (imageURL, error) in
-//                        OperationQueue.main.addOperation {
-//                            if let strongImageView = weakImageView {
-//                                if let imageURL = imageURL as? URL {
-//                                    strongImageView.image = UIImage(data: try! Data(contentsOf: imageURL))
-//                                }
-//                            }
-//                        }
-//                    })
-//
-//                    imageFound = true
-//                    break
-//                }
-//            }
-//
-//            if (imageFound) {
-//                // We only handle one image, so stop looking for more.
-//                break
-//            }
-//        }
-//    }
+    /// The processor that manages application level logic.
+    private var appProcessor: AppProcessor?
 
-//    @IBAction func done() {
-//        // Return any edited content to the host app.
-//        // This template doesn't do anything, so we just echo the passed in items.
-//        self.extensionContext!.completeRequest(
-//            returningItems: self.extensionContext!.inputItems,
-//            completionHandler: nil
-//        )
-//    }
+    /// A helper class for processing the input items from the extension.
+    private let actionExtensionHelper = ActionExtensionHelper()
+
+    // MARK: View Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        guard let inputItems = extensionContext?.inputItems as? [NSExtensionItem] else { return }
+        actionExtensionHelper.processInputItems(inputItems)
+
+        initializeApp()
+    }
+
+    // MARK: Private
+
+    /// Sets up and initializes the app and UI.
+    ///
+    private func initializeApp() {
+        let errorReporter = OSLogErrorReporter()
+        let services = ServiceContainer(errorReporter: errorReporter)
+        let appModule = DefaultAppModule(appExtensionDelegate: self, services: services)
+        let appProcessor = AppProcessor(appModule: appModule, services: services)
+        self.appProcessor = appProcessor
+
+        let initialRoute: AppRoute? = if actionExtensionHelper.isAppExtensionSetup {
+            AppRoute.extensionSetup(.extensionActivation(type: .appExtension))
+        } else {
+            nil
+        }
+
+        appProcessor.start(
+            appContext: .appExtension,
+            initialRoute: initialRoute,
+            navigator: self,
+            window: nil
+        )
+    }
+}
+
+// MARK: - AppExtensionDelegate
+
+extension ActionViewController: AppExtensionDelegate {
+    var authCompletionRoute: AppRoute {
+        if actionExtensionHelper.isAppExtensionSetup {
+            AppRoute.extensionSetup(.extensionActivation(type: .appExtension))
+        } else {
+            AppRoute.vault(.autofillList)
+        }
+    }
+
+    var isInAppExtension: Bool { true }
+
+    var uri: String? { nil }
+
+    func didCancel() {
+        extensionContext?.completeRequest(returningItems: nil)
+    }
+}
+
+// MARK: - RootNavigator
+
+extension ActionViewController: RootNavigator {
+    var rootViewController: UIViewController? { self }
+
+    func show(child: Navigator) {
+        if let fromViewController = children.first {
+            fromViewController.willMove(toParent: nil)
+            fromViewController.view.removeFromSuperview()
+            fromViewController.removeFromParent()
+        }
+
+        if let toViewController = child.rootViewController {
+            addChild(toViewController)
+            view.addConstrained(subview: toViewController.view)
+            toViewController.didMove(toParent: self)
+        }
+    }
 }

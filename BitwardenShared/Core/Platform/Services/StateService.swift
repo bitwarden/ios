@@ -20,6 +20,10 @@ protocol StateService: AnyObject {
     ///
     func addAccount(_ account: Account) async
 
+    /// Clears the pins stored on device and in memory.
+    ///
+    func clearPins() async throws
+
     /// Deletes the current active account.
     ///
     func deleteAccount() async throws
@@ -61,6 +65,14 @@ protocol StateService: AnyObject {
     /// - Returns: The allow sync on refresh value.
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
+
+    /// Gets whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter userId: The user ID associated with the setting. Defaults to the active account if `nil`.
+    ///
+    /// - Returns: Whether the user has decided to allow the device to approve login requests.
+    ///
+    func getApproveLoginRequests(userId: String?) async throws -> Bool
 
     /// Get the app theme.
     ///
@@ -127,6 +139,13 @@ protocol StateService: AnyObject {
     ///
     func getMasterPasswordHash(userId: String?) async throws -> String?
 
+    /// Gets the last notifications registration date for a user ID.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The last notifications registration date.
+    ///
+    func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date?
+
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
@@ -181,10 +200,24 @@ protocol StateService: AnyObject {
     ///
     func logoutAccount(userId: String?) async throws
 
+    /// The user's pin key encrypted user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
+    /// - Returns: The user's pin key encrypted user key.
+    ///
+    func pinKeyEncryptedUserKey(userId: String?) async throws -> String?
+
+    /// The pin protected user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key.
+    /// - Returns: The user's pin protected user key.
+    ///
+    func pinProtectedUserKey(userId: String?) async throws -> String?
+
     /// Sets the account encryption keys for an account.
     ///
     /// - Parameters:
-    ///   - encryptionKeys:  The account encryption keys.
+    ///   - encryptionKeys: The account encryption keys.
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
@@ -202,6 +235,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
+
+    /// Sets whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameters:
+    ///   - approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
+    ///   - userId: The user ID associated with the setting. Defaults to the active account if `nil`.
+    ///
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws
 
     /// Sets the app theme.
     ///
@@ -271,6 +312,14 @@ protocol StateService: AnyObject {
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws
 
+    /// Sets the last notifications registration date for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The last notifications registration date.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws
+
     /// Sets the password generation options for a user ID.
     ///
     /// - Parameters:
@@ -278,6 +327,25 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws
+
+    /// Set's the pin keys.
+    ///
+    /// - Parameters:
+    ///   - pinKeyEncryptedUserKey: The user's encrypted pin.
+    ///   - pinProtectedUserKey: The user's pin protected user key.
+    ///   - requirePasswordAfterRestart: Whether to require password after app restart.
+    ///
+    func setPinKeys(
+        pinKeyEncryptedUserKey: String,
+        pinProtectedUserKey: String,
+        requirePasswordAfterRestart: Bool
+    ) async throws
+
+    /// Sets the pin protected user key to memory.
+    ///
+    /// - Parameter pin: The user's pin.
+    ///
+    func setPinProtectedUserKeyToMemory(_ pin: String) async throws
 
     /// Sets the environment URLs used prior to user authentication.
     ///
@@ -373,6 +441,16 @@ extension StateService {
         try await getAllowSyncOnRefresh(userId: nil)
     }
 
+    /// Gets whether the current user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter userId: The user ID associated with the setting. Defaults to the active account if `nil`.
+    ///
+    /// - Returns: Whether the current user has decided to allow the device to approve login requests.
+    ///
+    func getApproveLoginRequests() async throws -> Bool {
+        try await getApproveLoginRequests(userId: nil)
+    }
+
     /// Gets the clear clipboard value for the active account.
     ///
     /// - Returns: The clear clipboard value.
@@ -421,6 +499,14 @@ extension StateService {
         try await getMasterPasswordHash(userId: nil)
     }
 
+    /// Gets the last notifications registration date for the active account.
+    ///
+    /// - Returns: The last notifications registration date for the active account.
+    ///
+    func getNotificationsLastRegistrationDate() async throws -> Date? {
+        try await getNotificationsLastRegistrationDate(userId: nil)
+    }
+
     /// Gets the password generation options for the active account.
     ///
     /// - Returns: The password generation options for the user ID.
@@ -448,10 +534,35 @@ extension StateService {
         try await getUsernameGenerationOptions(userId: nil)
     }
 
+    /// Whether the user is authenticated or not.
+    ///
+    /// - Returns: Whether the user is authenticated.
+    ///
+    func isAuthenticated() async -> Bool {
+        let accountKeys = try? await getAccountEncryptionKeys()
+        return accountKeys != nil
+    }
+
     /// Logs the user out of the active account.
     ///
     func logoutAccount() async throws {
         try await logoutAccount(userId: nil)
+    }
+
+    /// The user's pin protected user key.
+    ///
+    /// - Returns: The pin protected user key.
+    ///
+    func pinKeyEncryptedUserKey() async throws -> String? {
+        try await pinKeyEncryptedUserKey(userId: nil)
+    }
+
+    /// The pin protected user key.
+    ///
+    /// - Returns: The pin protected user key.
+    ///
+    func pinProtectedUserKey() async throws -> String? {
+        try await pinProtectedUserKey(userId: nil)
     }
 
     /// Sets the account encryption keys for the active account.
@@ -468,6 +579,14 @@ extension StateService {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await setAllowSyncOnRefresh(allowSyncOnRefresh, userId: nil)
+    }
+
+    /// Sets whether the current user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
+    ///
+    func setApproveLoginRequests(_ approveLoginRequests: Bool) async throws {
+        try await setApproveLoginRequests(approveLoginRequests, userId: nil)
     }
 
     /// Sets the clear clipboard value for the active account.
@@ -518,6 +637,14 @@ extension StateService {
         try await setMasterPasswordHash(hash, userId: nil)
     }
 
+    /// Sets the last notifications registration date for the active account.
+    ///
+    /// - Parameter date: The last notifications registration date.
+    ///
+    func setNotificationsLastRegistrationDate(_ date: Date?) async throws {
+        try await setNotificationsLastRegistrationDate(date, userId: nil)
+    }
+
     /// Sets the password generation options for the active account.
     ///
     /// - Parameter options: The user's password generation options.
@@ -563,6 +690,9 @@ enum StateServiceError: Error {
 
     /// There isn't an active account.
     case noActiveAccount
+
+    /// The user has no pin protected user key.
+    case noPinProtectedUserKey
 }
 
 // MARK: - DefaultStateService
@@ -585,6 +715,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     }
 
     // MARK: Private Properties
+
+    /// The data stored in memory.
+    var accountVolatileData: [String: AccountVolatileData] = [:]
 
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
@@ -628,6 +761,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
         state.accounts[account.profile.userId] = account
         state.activeUserId = account.profile.userId
+    }
+
+    func clearPins() async throws {
+        let userId = try getActiveAccountUserId()
+        accountVolatileData.removeValue(forKey: userId)
+        appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
+        appSettingsStore.setPinKeyEncryptedUserKey(key: nil, userId: userId)
     }
 
     func deleteAccount() async throws {
@@ -683,6 +823,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
     }
 
+    func getApproveLoginRequests(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.approveLoginRequests(userId: userId)
+    }
+
     func getAppTheme() async -> AppTheme {
         AppTheme(appSettingsStore.appTheme)
     }
@@ -719,6 +864,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.masterPasswordHash(userId: userId)
+    }
+
+    func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.notificationsLastRegistrationDate(userId: userId)
     }
 
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
@@ -772,6 +922,16 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         try await dataStore.deleteDataForUser(userId: knownUserId)
     }
 
+    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.pinKeyEncryptedUserKey(userId: userId)
+    }
+
+    func pinProtectedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedUserKey(userId: userId)
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
@@ -790,6 +950,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
+    }
+
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setApproveLoginRequests(approveLoginRequests, userId: userId)
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {
@@ -833,9 +998,34 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setMasterPasswordHash(hash, userId: userId)
     }
 
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setNotificationsLastRegistrationDate(date, userId: userId)
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPasswordGenerationOptions(options, userId: userId)
+    }
+
+    func setPinKeys(
+        pinKeyEncryptedUserKey: String,
+        pinProtectedUserKey: String,
+        requirePasswordAfterRestart: Bool
+    ) async throws {
+        if requirePasswordAfterRestart {
+            try await setPinProtectedUserKeyToMemory(pinProtectedUserKey)
+        } else {
+            try appSettingsStore.setPinProtectedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
+        }
+        try appSettingsStore.setPinKeyEncryptedUserKey(key: pinKeyEncryptedUserKey, userId: getActiveAccountUserId())
+    }
+
+    func setPinProtectedUserKeyToMemory(_ pinProtectedUserKey: String) async throws {
+        try accountVolatileData[
+            getActiveAccountUserId(),
+            default: AccountVolatileData()
+        ].pinProtectedUserKey = pinProtectedUserKey
     }
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
@@ -924,6 +1114,15 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         }
         return activeUserId
     }
+}
+
+// MARK: - AccountVolatileData
+
+/// The data stored in memory.
+///
+struct AccountVolatileData {
+    /// The pin protected user key.
+    var pinProtectedUserKey: String = ""
 }
 
 // MARK: Biometrics

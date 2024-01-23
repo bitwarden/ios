@@ -2,7 +2,11 @@ import OSLog
 
 /// The processor used to manage state and handle actions for the vault unlock screen.
 ///
-class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect> {
+class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_length
+    VaultUnlockState,
+    VaultUnlockAction,
+    VaultUnlockEffect
+> {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -51,6 +55,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     override func perform(_ effect: VaultUnlockEffect) async {
         switch effect {
         case .appeared:
+            await refreshProfileState()
+            await checkIfPinUnlockIsAvailable()
             await loadData()
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
@@ -86,6 +92,8 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                 ]
             )
             coordinator.navigate(to: .alert(alert))
+        case let .pinChanged(pin):
+            state.pin = pin
         case let .profileSwitcherAction(profileAction):
             switch profileAction {
             case let .accountLongPressed(account):
@@ -104,12 +112,28 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             }
         case let .revealMasterPasswordFieldPressed(isMasterPasswordRevealed):
             state.isMasterPasswordRevealed = isMasterPasswordRevealed
+        case let .revealPinFieldPressed(isPinRevealed):
+            state.isPinRevealed = isPinRevealed
         case let .toastShown(toast):
             state.toast = toast
         }
     }
 
     // MARK: Private
+
+    /// Checks whether or not pin unlock is available.
+    ///
+    private func checkIfPinUnlockIsAvailable() async {
+        do {
+            if try await services.authRepository.isPinUnlockAvailable() {
+                state.unlockMethod = .pin
+            } else if try await services.stateService.pinKeyEncryptedUserKey() != nil {
+                state.unlockMethod = .password
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Navigates to the appropriate location following a logout.
     ///
@@ -272,16 +296,27 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     ///
     private func unlockVault() async {
         do {
-            try EmptyInputValidator(fieldName: Localizations.masterPassword)
-                .validate(input: state.masterPassword)
+            switch state.unlockMethod {
+            case .password:
+                try EmptyInputValidator(fieldName: Localizations.masterPassword)
+                    .validate(input: state.masterPassword)
+                try await services.authRepository.unlockVaultWithPassword(password: state.masterPassword)
+            case .pin:
+                try EmptyInputValidator(fieldName: Localizations.pin)
+                    .validate(input: state.pin)
+                try await services.authRepository.unlockVaultWithPIN(pin: state.pin)
+            }
 
-            try await services.authRepository.unlockVault(password: state.masterPassword)
             coordinator.navigate(to: .complete)
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
         } catch let error as InputValidationError {
             coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))
         } catch {
+            let alert = Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: state.unlockMethod == .pin ? Localizations.invalidPIN : Localizations.invalidMasterPassword
+            )
             Logger.processor.error("Error unlocking vault: \(error)")
             state.unsuccessfulUnlockAttemptsCount += 1
             await services.stateService.setUnsuccessfulUnlockAttempts(state.unsuccessfulUnlockAttemptsCount)
@@ -289,7 +324,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
                 await logoutUser(resetAttempts: true, userInitiated: true)
                 return
             }
-            coordinator.navigate(to: .alert(.invalidMasterPassword()))
+            coordinator.navigate(to: .alert(alert))
         }
     }
 

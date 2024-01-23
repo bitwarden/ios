@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "app_extension_enabled.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

@@ -7,6 +7,8 @@ class AppProcessorTests: BitwardenTestCase {
 
     var appModule: MockAppModule!
     var appSettingStore: MockAppSettingsStore!
+    var errorReporter: MockErrorReporter!
+    var notificationService: MockNotificationService!
     var subject: AppProcessor!
     var syncService: MockSyncService!
     var vaultTimeoutService: MockVaultTimeoutService!
@@ -18,6 +20,8 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = MockAppModule()
         appSettingStore = MockAppSettingsStore()
+        errorReporter = MockErrorReporter()
+        notificationService = MockNotificationService()
         syncService = MockSyncService()
         vaultTimeoutService = MockVaultTimeoutService()
 
@@ -25,6 +29,8 @@ class AppProcessorTests: BitwardenTestCase {
             appModule: appModule,
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingStore,
+                errorReporter: errorReporter,
+                notificationService: notificationService,
                 syncService: syncService,
                 vaultTimeoutService: vaultTimeoutService
             )
@@ -35,12 +41,41 @@ class AppProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         appModule = nil
+        errorReporter = nil
+        notificationService = nil
         subject = nil
         syncService = nil
         vaultTimeoutService = nil
     }
 
     // MARK: Tests
+
+    /// `didRegister(withToken:)` passes the token to the notification service.
+    func test_didRegister() throws {
+        let tokenData = try XCTUnwrap("tokensForFree".data(using: .utf8))
+
+        let task = Task {
+            subject.didRegister(withToken: tokenData)
+        }
+
+        waitFor(notificationService.registrationTokenData == tokenData)
+        task.cancel()
+    }
+
+    /// `failedToRegister(_:)` records the error.
+    func test_failedToRegister() {
+        subject.failedToRegister(BitwardenTestError.example)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.
+    func test_messageReceived() async {
+        let message: [AnyHashable: Any] = ["knock knock": "who's there?"]
+
+        await subject.messageReceived(message)
+
+        XCTAssertEqual(notificationService.messageReceivedMessage?.keys.first, "knock knock")
+    }
 
     /// `start(navigator:)` builds the AppCoordinator and navigates to vault unlock if there's an
     /// active account.
@@ -63,6 +98,24 @@ class AppProcessorTests: BitwardenTestCase {
                     )
                 ),
             ]
+        )
+    }
+
+    /// `start(navigator:)` builds the AppCoordinator and navigates to the initial route if provided.
+    func test_start_initialRoute() {
+        let rootNavigator = MockRootNavigator()
+
+        subject.start(
+            appContext: .mainApp,
+            initialRoute: .extensionSetup(.extensionActivation(type: .appExtension)),
+            navigator: rootNavigator,
+            window: nil
+        )
+
+        XCTAssertTrue(appModule.appCoordinator.isStarted)
+        XCTAssertEqual(
+            appModule.appCoordinator.routes,
+            [.extensionSetup(.extensionActivation(type: .appExtension))]
         )
     }
 
