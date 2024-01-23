@@ -52,7 +52,11 @@ struct FoldersView: View {
         VStack(spacing: 0) {
             ForEachIndexed(
                 store.state.folders.sorted { first, second in
-                    first.name.localizedStandardCompare(second.name) == .orderedAscending
+                    if first.name.localizedStandardCompare(second.name) == .orderedSame {
+                        first.id?.localizedStandardCompare(second.id ?? "") == .orderedAscending
+                    } else {
+                        first.name.localizedStandardCompare(second.name) == .orderedAscending
+                    }
                 },
                 id: \.id
             ) { index, folder in
