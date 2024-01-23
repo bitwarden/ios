@@ -14,6 +14,17 @@ struct AddEditCustomFieldsView: View {
         SectionView(Localizations.customFields) {
             ForEachIndexed(store.state.customFields) { index, field in
                 switch field.type {
+                case .text:
+                    BitwardenTextField(
+                        title: field.name,
+                        text: store.binding(
+                            get: { _ in field.value ?? "" },
+                            send: { .customFieldChanged($0, index: index) }
+                        )
+                    ) {
+                        menuOptions(index: index)
+                    }
+                    .textFieldConfiguration(.url)
                 case .hidden:
                     BitwardenTextField(
                         title: field.name,
@@ -46,17 +57,15 @@ struct AddEditCustomFieldsView: View {
                             .buttonStyle(.accessory)
                     }
                     .frame(height: 60)
-                default:
-                    BitwardenTextField(
-                        title: field.name,
-                        text: store.binding(
-                            get: { _ in field.value ?? "" },
-                            send: { .customFieldChanged($0, index: index) }
-                        )
-                    ) {
+                case .linked:
+                    BitwardenField(title: field.name ?? "") {
+                        // BIT-1548
+                        Text(field.linkedIdType?.localizedName ?? "")
+                            .styleGuide(.body)
+                    }
+                    accessoryContent: {
                         menuOptions(index: index)
                     }
-                    .textFieldConfiguration(.url)
                 }
             }
 
@@ -92,37 +101,46 @@ struct AddEditCustomFieldsView: View {
     }
 }
 
-#Preview {
-    AddEditCustomFieldsView(
-        store: Store(
-            processor: StateProcessor(
-                state: AddEditCustomFieldsState(
-                    customFields: [
-                        CustomFieldState(
-                            linkedIdType: nil,
-                            name: "Custom text",
-                            type: .text,
-                            value: "value goes here"
-                        ),
-                        CustomFieldState(
-                            linkedIdType: nil,
-                            name: "Custom text",
-                            type: .hidden,
-                            value: "value goes here"
-                        ),
-                        CustomFieldState(
-                            linkedIdType: nil,
-                            name: "Custom boolean",
-                            type: .boolean
-                        ),
-                    ]
+#if DEBUG
+struct AddEditCustomFieldsView_Previews: PreviewProvider {
+    static var previews: some View {
+        AddEditCustomFieldsView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditCustomFieldsState(
+                        customFields: [
+                            CustomFieldState(
+                                linkedIdType: nil,
+                                name: "Custom text",
+                                type: .text,
+                                value: "value goes here"
+                            ),
+                            CustomFieldState(
+                                linkedIdType: nil,
+                                name: "Custom text",
+                                type: .hidden,
+                                value: "value goes here"
+                            ),
+                            CustomFieldState(
+                                linkedIdType: nil,
+                                name: "Custom boolean",
+                                type: .boolean
+                            ),
+                            CustomFieldState(
+                                linkedIdType: .identityFirstName,
+                                name: "Custom linked field",
+                                type: .linked
+                            ),
+                        ]
+                    )
                 )
             )
         )
-    )
-    .padding(16)
-    .background(
-        Asset.Colors.backgroundSecondary.swiftUIColor
-            .ignoresSafeArea()
-    )
+        .padding(16)
+        .background(
+            Asset.Colors.backgroundSecondary.swiftUIColor
+                .ignoresSafeArea()
+        )
+    }
 }
+#endif
