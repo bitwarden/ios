@@ -55,8 +55,6 @@ class VaultUnlockProcessor: StateProcessor< // swiftlint:disable:this type_body_
     override func perform(_ effect: VaultUnlockEffect) async {
         switch effect {
         case .appeared:
-            state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
-            state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
             await refreshProfileState()
             await checkIfPinUnlockIsAvailable()
             await loadData()

@@ -309,7 +309,9 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
-        guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else { return }
+        guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
+            throw
+        }
         try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
     }
 
@@ -366,9 +368,11 @@ extension DefaultAuthRepository: AuthRepository {
             )
             try await stateService.setMasterPasswordHash(hashedPassword)
 
+            // If the user has a pin, but requires master password after restart, set the pin
+            // protected user key in memory for future unlocks prior to app restart.
             if let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() {
-                let response = try await clientCrypto.derivePinKey(pin: pinKeyEncryptedUserKey)
-                try await stateService.setPinProtectedUserKeyToMemory(response.pinProtectedUserKey)
+                let pinProtectedUserKey = try await clientCrypto.derivePinUserKey(encryptedPin: pinKeyEncryptedUserKey)
+                try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
             }
 
             // Re-enable biometrics, if required.
@@ -384,9 +388,8 @@ extension DefaultAuthRepository: AuthRepository {
                 break
             }
         case .pin:
-            guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else {
-                throw StateServiceError.noPinProtectedUserKey
-            }
+            // No-op: nothing extra to do for pin unlock.
+            break
         case .decryptedKey:
             break
         }
