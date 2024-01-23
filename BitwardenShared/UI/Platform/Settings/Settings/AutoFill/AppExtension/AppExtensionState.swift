@@ -7,6 +7,6 @@ struct AppExtensionState: Equatable {
     /// Whether the extension was activated.
     var extensionActivated = false
 
-    /// Whether the extension is activated.
+    /// Whether the extension is enabled.
     var extensionEnabled = false
 }

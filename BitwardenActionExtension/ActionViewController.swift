@@ -54,7 +54,7 @@ class ActionViewController: UIViewController {
 // MARK: - AppExtensionDelegate
 
 extension ActionViewController: AppExtensionDelegate {
-    var authCompletionRoute: BitwardenShared.AppRoute {
+    var authCompletionRoute: AppRoute {
         if actionExtensionHelper.isAppExtensionSetup {
             AppRoute.extensionSetup(.extensionActivation(type: .appExtension))
         } else {
