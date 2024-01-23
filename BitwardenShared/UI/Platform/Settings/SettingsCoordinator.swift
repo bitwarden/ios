@@ -329,7 +329,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// Shows the vault screen.
     ///
     private func showVault() {
-        let processor = VaultSettingsProcessor(coordinator: asAnyCoordinator())
+        let processor = VaultSettingsProcessor(
+            coordinator: asAnyCoordinator(),
+            state: VaultSettingsState()
+        )
         let view = VaultSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never

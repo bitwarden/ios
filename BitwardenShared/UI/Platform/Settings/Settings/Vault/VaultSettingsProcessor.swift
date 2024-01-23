@@ -2,7 +2,7 @@
 
 /// The processor used to manage state and handle actions for the `VaultSettingsView`.
 ///
-final class VaultSettingsProcessor: StateProcessor<Void, VaultSettingsAction, Void> {
+final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSettingsAction, Void> {
     // MARK: Properties
 
     /// The coordinator used to manage navigation.
@@ -12,26 +12,30 @@ final class VaultSettingsProcessor: StateProcessor<Void, VaultSettingsAction, Vo
 
     /// Initializes a new `VaultSettingsProcessor`.
     ///
-    /// - Parameter coordinator: The coordinator used to manage navigation.
+    /// - Parameters:
+    ///   - coordinator: The coordinator used to manage navigation.
+    ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>
+        coordinator: AnyCoordinator<SettingsRoute>,
+        state: VaultSettingsState
     ) {
         self.coordinator = coordinator
-        super.init(state: ())
+        super.init(state: state)
     }
 
     // MARK: Methods
 
     override func receive(_ action: VaultSettingsAction) {
         switch action {
+        case .clearUrl:
+            state.url = nil
         case .exportVaultTapped:
             coordinator.navigate(to: .exportVault)
         case .foldersTapped:
             coordinator.navigate(to: .folders)
         case .importItemsTapped:
-            // TODO: BIT-977
-            break
+            state.url = ExternalLinksConstants.importItems
         }
     }
 }

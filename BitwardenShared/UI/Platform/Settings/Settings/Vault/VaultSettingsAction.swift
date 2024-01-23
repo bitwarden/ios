@@ -3,6 +3,9 @@
 /// Actions handled by the `VaultSettingsProcessor`.
 ///
 enum VaultSettingsAction {
+    /// Clears the URL.
+    case clearUrl
+
     /// The export vault button was tapped.
     case exportVaultTapped
 
