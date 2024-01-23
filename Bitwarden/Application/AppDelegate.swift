@@ -14,7 +14,7 @@ protocol AppDelegateType: AnyObject {
 
 /// The app's `UIApplicationDelegate` which serves as the entry point into the app.
 ///
-class AppDelegate: UIResponder, UIApplicationDelegate, AppDelegateType {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, AppDelegateType {
     // MARK: Properties
 
     /// The processor that manages application level logic.
@@ -28,11 +28,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AppDelegateType {
     // MARK: Methods
 
     func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+        _: UIApplication,
+        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         // Exit early if testing to avoid running any app functionality.
         guard !isTesting else { return true }
+
+        UNUserNotificationCenter.current().delegate = self
+        UIApplication.shared.registerForRemoteNotifications()
 
         #if DEBUG
         let errorReporter = OSLogErrorReporter()
@@ -44,5 +47,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AppDelegateType {
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)
         return true
+    }
+
+    /// Successfully registered for push notifications.
+    func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        appProcessor?.didRegister(withToken: deviceToken)
+    }
+
+    /// Record an error if registering for push notifications failed.
+    func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        appProcessor?.failedToRegister(error)
+    }
+
+    /// Received a response to a push notification alert.
+    func userNotificationCenter(
+        _: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse
+    ) async {
+        await appProcessor?.messageReceived(
+            response.notification.request.content.userInfo,
+            notificationDismissed: response.actionIdentifier == UNNotificationDismissActionIdentifier,
+            notificationTapped: response.actionIdentifier == UNNotificationDefaultActionIdentifier
+        )
+    }
+
+    /// Received a message in the foreground of the app.
+    func userNotificationCenter(
+        _: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
+        await appProcessor?.messageReceived(notification.request.content.userInfo)
+        return .banner
     }
 }

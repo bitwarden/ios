@@ -3,6 +3,9 @@ import OSLog
 extension Logger {
     // MARK: Type Properties
 
+    /// Logger instance for the app's action extension.
+    static let appExtension = Logger(subsystem: subsystem, category: "AppExtension")
+
     /// Logger instance for general application-level logs.
     static let application = Logger(subsystem: subsystem, category: "Application")
 

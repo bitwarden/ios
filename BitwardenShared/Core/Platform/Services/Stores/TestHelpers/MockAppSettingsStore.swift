@@ -23,7 +23,10 @@ class MockAppSettingsStore: AppSettingsStore {
     var lastUserShouldConnectToWatch = false
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
+    var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pinKeyEncryptedUserKey = [String: String]()
+    var pinProtectedUserKey = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
@@ -85,8 +88,20 @@ class MockAppSettingsStore: AppSettingsStore {
         masterPasswordHashes[userId]
     }
 
+    func notificationsLastRegistrationDate(userId: String) -> Date? {
+        notificationsLastRegistrationDates[userId]
+    }
+
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         passwordGenerationOptions[userId]
+    }
+
+    func pinKeyEncryptedUserKey(userId: String) -> String? {
+        pinKeyEncryptedUserKey[userId]
+    }
+
+    func pinProtectedUserKey(userId: String) -> String? {
+        pinProtectedUserKey[userId]
     }
 
     func twoFactorToken(email: String) -> String? {
@@ -145,6 +160,10 @@ class MockAppSettingsStore: AppSettingsStore {
         masterPasswordHashes[userId] = hash
     }
 
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
+        notificationsLastRegistrationDates[userId] = date
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         guard let options else {
             passwordGenerationOptions.removeValue(forKey: userId)
@@ -153,8 +172,12 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(key: Int, userId: String) {
-        vaultTimeout[userId] = key
+    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
+        pinKeyEncryptedUserKey[userId] = key
+    }
+
+    func setPinProtectedUserKey(key: String?, userId: String) {
+        pinProtectedUserKey[userId] = key
     }
 
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
@@ -175,6 +198,10 @@ class MockAppSettingsStore: AppSettingsStore {
             return
         }
         usernameGenerationOptions[userId] = options
+    }
+
+    func setVaultTimeout(key: Int, userId: String) {
+        vaultTimeout[userId] = key
     }
 
     func timeoutAction(userId: String) -> Int? {

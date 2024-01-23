@@ -5,6 +5,7 @@ import XCTest
 class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appSettingsStore: MockAppSettingsStore!
     var authRepository: MockAuthRepository!
     var biometricsService: MockBiometricsService!
     var coordinator: MockCoordinator<SettingsRoute>!
@@ -19,6 +20,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     override func setUp() {
         super.setUp()
 
+        appSettingsStore = MockAppSettingsStore()
         authRepository = MockAuthRepository()
         biometricsService = MockBiometricsService()
         coordinator = MockCoordinator<SettingsRoute>()
@@ -44,6 +46,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     override func tearDown() {
         super.tearDown()
 
+        appSettingsStore = nil
         authRepository = nil
         biometricsService = nil
         coordinator = nil
@@ -70,10 +73,12 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_loadData() async {
         stateService.activeAccount = .fixture()
         stateService.approveLoginRequestsByUserId["1"] = true
+        authRepository.isPinUnlockAvailable = true
 
         await subject.perform(.loadData)
 
         XCTAssertTrue(subject.state.isApproveLoginRequestsToggleOn)
+        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }
 
     /// `perform(_:)` with `.loadData` records any errors.
@@ -331,9 +336,15 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state when submit has been pressed.
-    func test_receive_toggleUnlockWithPINCode_toggleOff() async throws {
+    func test_receive_toggleUnlockWithPINCode_toggleOff() {
         subject.state.isUnlockWithPINCodeOn = true
-        subject.receive(.toggleUnlockWithPINCode(false))
+
+        let task = Task {
+            subject.receive(.toggleUnlockWithPINCode(false))
+        }
+
+        waitFor(subject.state.isUnlockWithPINCodeOn == false)
+        task.cancel()
 
         XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
         XCTAssertTrue(coordinator.routes.isEmpty)
@@ -350,7 +361,28 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         }
 
         try await alert.tapAction(title: Localizations.submit)
+
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+
+        try await alert.tapAction(title: Localizations.yes)
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` turns the toggle off and clears the user's pins.
+    func test_receive_toggleUnlockWithPINCode_off() {
+        let account: Account = .fixture()
+        stateService.activeAccount = account
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
+
+        subject.state.isUnlockWithPINCodeOn = true
+        let task = Task {
+            subject.receive(.toggleUnlockWithPINCode(false))
+        }
+        waitFor(!subject.state.isUnlockWithPINCodeOn)
+        task.cancel()
+        XCTAssertTrue(authRepository.clearPinsCalled)
     }
 
     /// `perform(_:)` with `.loadData` updates the state.

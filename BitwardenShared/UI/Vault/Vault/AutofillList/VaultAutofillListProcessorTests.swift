@@ -73,6 +73,87 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
     }
 
+    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
+    func test_perform_search() {
+        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
+        vaultRepository.searchCipherAutofillSubject.value = ciphers
+
+        let task = Task {
+            await subject.perform(.search("Bit"))
+        }
+
+        waitFor(!subject.state.ciphersForSearch.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.ciphersForSearch, ciphers)
+        XCTAssertFalse(subject.state.showNoResults)
+    }
+
+    /// `perform(_:)` with `.search()` doesn't perform a search if the search string is empty.
+    func test_perform_search_empty() async {
+        await subject.perform(.search(" "))
+
+        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
+        XCTAssertFalse(subject.state.showNoResults)
+    }
+
+    /// `perform(_:)` with `.search()` performs a cipher search and logs an error if one occurs.
+    func test_perform_search_error() {
+        let task = Task {
+            await subject.perform(.search("example"))
+        }
+
+        vaultRepository.searchCipherAutofillSubject.send(completion: .failure(BitwardenTestError.example))
+        waitFor(!coordinator.alertShown.isEmpty)
+        task.cancel()
+
+        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.search()` sets the `showNoResults` flag if the search resulted in no results.
+    func test_perform_search_noResults() {
+        let task = Task {
+            await subject.perform(.search("example"))
+        }
+        waitFor(subject.state.showNoResults)
+        task.cancel()
+
+        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
+        XCTAssertTrue(subject.state.showNoResults)
+    }
+
+    /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.
+    func test_perform_streamAutofillItems() {
+        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
+        vaultRepository.ciphersAutofillSubject.value = ciphers
+
+        let task = Task {
+            await subject.perform(.streamAutofillItems)
+        }
+
+        waitFor(!subject.state.ciphersForAutofill.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.ciphersForAutofill, ciphers)
+    }
+
+    /// `perform(_:)` with `.streamAutofillItems` logs an error if one occurs.
+    func test_perform_streamAutofillItems_error() {
+        let task = Task {
+            await subject.perform(.streamAutofillItems)
+        }
+
+        vaultRepository.ciphersAutofillSubject.send(completion: .failure(BitwardenTestError.example))
+        waitFor(!coordinator.alertShown.isEmpty)
+        task.cancel()
+
+        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
     /// `receive(_:)` with `.addTapped` navigates to the add item view.
     func test_receive_addTapped() {
         subject.receive(.addTapped)
@@ -85,6 +166,30 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         subject.receive(.cancelTapped)
 
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+    }
+
+    /// `receive(_:)` with `.searchStateChanged` updates the state when the search state changes
+    func test_receive_searchStateChanged() {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        subject.receive(.searchTextChanged("Bit"))
+        subject.state.ciphersForSearch = [.fixture()]
+        subject.state.showNoResults = true
+
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
+        XCTAssertTrue(subject.state.searchText.isEmpty)
+        XCTAssertFalse(subject.state.showNoResults)
+    }
+
+    /// `receive(_:)` with `.searchTextChanged` updates the state's search text value.
+    func test_receive_searchTextChanged() {
+        subject.receive(.searchTextChanged("Bit"))
+        XCTAssertEqual(subject.state.searchText, "Bit")
+
+        subject.receive(.searchTextChanged("Bitwarden"))
+        XCTAssertEqual(subject.state.searchText, "Bitwarden")
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.

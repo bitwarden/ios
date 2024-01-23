@@ -60,10 +60,17 @@ public class AppProcessor {
     ///
     /// - Parameters:
     ///   - appContext: The context that the app is running within.
+    ///   - initialRoute: The initial route to navigate to. If `nil` this, will navigate to the
+    ///     unlock or landing auth route based on if there's an active account. Defaults to `nil`.
     ///   - navigator: The object that will be used to navigate between routes.
     ///   - window: The window to use to set the app's theme.
     ///
-    public func start(appContext: AppContext, navigator: RootNavigator, window: UIWindow?) {
+    public func start(
+        appContext: AppContext,
+        initialRoute: AppRoute? = nil,
+        navigator: RootNavigator,
+        window: UIWindow?
+    ) {
         let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
         coordinator.start()
         self.coordinator = coordinator
@@ -78,7 +85,9 @@ public class AppProcessor {
             await services.environmentService.loadURLsForActiveAccount()
         }
 
-        if let activeAccount = services.appSettingsStore.state?.activeAccount {
+        if let initialRoute {
+            coordinator.navigate(to: initialRoute)
+        } else if let activeAccount = services.appSettingsStore.state?.activeAccount {
             let vaultTimeout = services.appSettingsStore.vaultTimeout(userId: activeAccount.profile.userId)
             if vaultTimeout == -1 {
                 navigatePostTimeout()
@@ -116,5 +125,44 @@ public class AppProcessor {
         default:
             break
         }
+    }
+
+    // MARK: Notification Methods
+
+    /// Called when the app has registered for push notifications.
+    ///
+    /// - Parameter tokenData: The device token for push notifications.
+    ///
+    public func didRegister(withToken tokenData: Data) {
+        Task {
+            await services.notificationService.didRegister(withToken: tokenData)
+        }
+    }
+
+    /// Called when the app failed to register for push notifications.
+    ///
+    /// - Parameter error: The error received.
+    ///
+    public func failedToRegister(_ error: Error) {
+        services.errorReporter.log(error: error)
+    }
+
+    /// Called when the app has received data from a push notification.
+    ///
+    /// - Parameters:
+    ///   - message: The content of the push notification.
+    ///   - notificationDismissed: `true` if a notification banner has been dismissed.
+    ///   - notificationTapped: `true` if a notification banner has been tapped.
+    ///
+    public func messageReceived(
+        _ message: [AnyHashable: Any],
+        notificationDismissed: Bool? = nil,
+        notificationTapped: Bool? = nil
+    ) async {
+        await services.notificationService.messageReceived(
+            message,
+            notificationDismissed: notificationDismissed,
+            notificationTapped: notificationTapped
+        )
     }
 }

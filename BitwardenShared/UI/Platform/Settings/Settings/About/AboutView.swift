@@ -34,6 +34,11 @@ struct AboutView: View {
             openURL(url)
             store.send(.clearURL)
         }
+        .onChange(of: store.state.appReviewUrl) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearAppReviewURL)
+        }
     }
 
     // MARK: Private views

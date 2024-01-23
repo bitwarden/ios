@@ -3,6 +3,21 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertSettingsTests: BitwardenTestCase {
+    /// `appStoreAlert(action:)` constructs an `Alert` with the title,
+    /// message, cancel, and continue buttons to confirm navigating to the app store.
+    func test_appStoreAlert() {
+        let subject = Alert.appStoreAlert {}
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.continueToAppStore)
+        XCTAssertEqual(subject.message, Localizations.rateAppDescriptionLong)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[0].style, .cancel)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.continue)
+        XCTAssertEqual(subject.alertActions[1].style, .default)
+    }
+
     /// `confirmApproveLoginRequests(action:)` constructs an `Alert` with the title,
     /// message, yes, and cancel buttons to confirm approving login requests
     func test_confirmApproveLoginRequests() {
@@ -54,7 +69,7 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.title, Localizations.exportVaultConfirmationTitle)
         XCTAssertEqual(
             subject.message,
-            Localizations.encExportKeyWarning + "\n\n" + Localizations.encExportAccountWarning
+            Localizations.encExportKeyWarning + .newLine + Localizations.encExportAccountWarning
         )
 
         subject = Alert.confirmExportVault(encrypted: false) {}
@@ -95,5 +110,15 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.enterPIN)
         XCTAssertEqual(subject.message, Localizations.setPINDescription)
+    }
+
+    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons.
+    func test_unlockWithPINAlert() {
+        let subject = Alert.unlockWithPINCodeAlert { _ in }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
+        XCTAssertEqual(subject.message, Localizations.pinRequireMasterPasswordRestart)
     }
 }

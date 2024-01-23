@@ -3,6 +3,9 @@
 /// Actions handled by the `AboutProcessor`.
 ///
 enum AboutAction: Equatable {
+    /// Clears the app review URL.
+    case clearAppReviewURL
+
     /// The url has been opened so clear the value in the state.
     case clearURL
 

@@ -5,7 +5,11 @@ import SwiftUI
 
 /// The processor used to manage state and handle actions for the vault list screen.
 ///
-final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, VaultListEffect> {
+final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_body_length
+    VaultListState,
+    VaultListAction,
+    VaultListEffect
+> {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -47,6 +51,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         switch effect {
         case .appeared:
             await refreshVault(isManualRefresh: false)
+            await requestNotificationPermissions()
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -232,6 +237,25 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         }
     }
 
+    /// Request permission to send push notifications if the user hasn't granted or denied permissions before.
+    private func requestNotificationPermissions() async {
+        // Don't do anything if the user has already responded to the permission request.
+        let notificationSettings = await UNUserNotificationCenter.current().notificationSettings()
+        guard notificationSettings.authorizationStatus == .notDetermined else { return }
+
+        // Show the explanation alert before asking for permissions.
+        coordinator.showAlert(
+            .pushNotificationsInformation {
+                do {
+                    _ = try await UNUserNotificationCenter.current()
+                        .requestAuthorization(options: [.alert, .sound, .badge])
+                } catch {
+                    self.services.errorReporter.log(error: error)
+                }
+            }
+        )
+    }
+
     /// Searches the vault using the provided string, and returns any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the vault.
@@ -242,7 +266,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             return []
         }
         do {
-            let result = try await services.vaultRepository.searchCipherPublisher(
+            let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 filterType: state.searchVaultFilterType
             )
@@ -386,4 +410,4 @@ enum MoreOptionsAction {
 
     /// Navigate to view the item with the given `id`.
     case view(id: String)
-}
+} // swiftlint:disable:this file_length

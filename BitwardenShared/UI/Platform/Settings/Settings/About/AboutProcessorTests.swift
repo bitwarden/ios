@@ -55,6 +55,13 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isSubmitCrashLogsToggleOn)
     }
 
+    /// `receive(_:)` with `.clearAppReviewURL` clears the app review URL in the state.
+    func test_receive_clearAppReviewURL() {
+        subject.state.appReviewUrl = .example
+        subject.receive(.clearAppReviewURL)
+        XCTAssertNil(subject.state.appReviewUrl)
+    }
+
     /// `receive(_:)` with `.clearURL` clears the URL in the state.
     func test_receive_clearURL() {
         subject.state.url = .example
@@ -66,6 +73,22 @@ class AboutProcessorTests: BitwardenTestCase {
     func test_receive_helpCenterTapped() {
         subject.receive(.helpCenterTapped)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.helpAndFeedback)
+    }
+
+    /// `receive(_:)` with `.rateTheAppTapped` shows an alert for navigating to the app store.
+    /// When `Continue` is tapped on the alert, the `appReviewUrl` is populated.
+    func test_receive_rateTheAppTapped() async throws {
+        subject.receive(.rateTheAppTapped)
+
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+
+        try await alert.tapAction(title: Localizations.continue)
+        XCTAssertEqual(
+            subject.state.appReviewUrl?.absoluteString,
+            "https://itunes.apple.com/us/app/id1137397744?action=write-review"
+        )
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.

@@ -382,6 +382,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:keyHash_2"), "zyxw")
     }
 
+    /// `notificationsLastRegistrationDate(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_notificationsLastRegistrationDate_isInitiallyNil() {
+        XCTAssertNil(subject.notificationsLastRegistrationDate(userId: "-1"))
+    }
+
+    /// `notificationsLastRegistrationDate(userId:)` can be used to get the last notifications registration date for a
+    /// user.
+    func test_notificationsLastRegistrationDate_withValue() {
+        let date1 = Date(year: 2023, month: 12, day: 1)
+        let date2 = Date(year: 2023, month: 10, day: 2)
+
+        subject.setNotificationsLastRegistrationDate(date1, userId: "1")
+        subject.setNotificationsLastRegistrationDate(date2, userId: "2")
+
+        XCTAssertEqual(subject.notificationsLastRegistrationDate(userId: "1"), date1)
+        XCTAssertEqual(subject.notificationsLastRegistrationDate(userId: "2"), date2)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:pushLastRegistrationDate_1"), 1_701_388_800.0)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:pushLastRegistrationDate_2"), 1_696_204_800.0)
+    }
+
     /// `passwordGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.
     func test_passwordGenerationOptions_isInitiallyNil() {
         XCTAssertNil(subject.passwordGenerationOptions(userId: "-1"))
@@ -420,6 +440,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "1"), options1)
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "2"), options2)
+    }
+
+    /// `.pinKeyEncryptedUserKey(userId:)` can be used to get the pin key encrypted user key.
+    func test_pinKeyEncryptedUserKey() {
+        let userId = Account.fixture().profile.userId
+        subject.setPinKeyEncryptedUserKey(key: "123", userId: userId)
+        let pin = subject.pinKeyEncryptedUserKey(userId: userId)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinKeyEncryptedUserKey_1"), pin)
+    }
+
+    /// `.pinProtectedUserKey(userId:)` can be used to get the pin protected user key for a user.
+    func test_pinProtectedUserKey() {
+        let userId = Account.fixture().profile.userId
+        subject.setPinProtectedUserKey(key: "123", userId: userId)
+        let pin = subject.pinProtectedUserKey(userId: userId)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinProtectedUserKey_1"), pin)
     }
 
     /// `preAuthEnvironmentUrls` returns `nil` if there isn't a previously stored value.

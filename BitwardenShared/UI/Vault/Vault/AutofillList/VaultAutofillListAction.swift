@@ -11,6 +11,12 @@ enum VaultAutofillListAction: Equatable {
     /// The cancel button was tapped.
     case cancelTapped
 
+    /// The text in the search bar was changed.
+    case searchStateChanged(isSearching: Bool)
+
+    /// The text in the search bar was changed.
+    case searchTextChanged(String)
+
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 }

@@ -117,25 +117,8 @@ private struct VaultMainView: View {
                 }
             }
         } else {
-            GeometryReader { reader in
-                ScrollView {
-                    VStack(spacing: 0) {
-                        searchVaultFilterRow
-
-                        VStack(spacing: 35) {
-                            Image(decorative: Asset.Images.magnifyingGlass)
-                                .resizable()
-                                .frame(width: 74, height: 74)
-                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-                            Text(Localizations.thereAreNoItemsThatMatchTheSearch)
-                                .multilineTextAlignment(.center)
-                                .styleGuide(.callout)
-                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
-                    }
-                }
+            SearchNoResultsView {
+                searchVaultFilterRow
             }
         }
     }

@@ -8,7 +8,9 @@ class AppProcessorTests: BitwardenTestCase {
 
     var appModule: MockAppModule!
     var appSettingStore: MockAppSettingsStore!
+    var errorReporter: MockErrorReporter!
     var notificationCenterService: MockNotificationCenterService!
+    var notificationService: MockNotificationService!
     var stateService: MockStateService!
     var subject: AppProcessor!
     var syncService: MockSyncService!
@@ -22,7 +24,9 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = MockAppModule()
         appSettingStore = MockAppSettingsStore()
+        errorReporter = MockErrorReporter()
         notificationCenterService = MockNotificationCenterService()
+        notificationService = MockNotificationService()
         stateService = MockStateService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.currentTime)
@@ -32,6 +36,8 @@ class AppProcessorTests: BitwardenTestCase {
             appModule: appModule,
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingStore,
+                errorReporter: errorReporter,
+                notificationService: notificationService,
                 stateService: stateService,
                 syncService: syncService,
                 vaultTimeoutService: vaultTimeoutService
@@ -44,7 +50,9 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = nil
         appSettingStore = nil
+        errorReporter = nil
         notificationCenterService = nil
+        notificationService = nil
         stateService = nil
         subject = nil
         syncService = nil
@@ -67,6 +75,33 @@ class AppProcessorTests: BitwardenTestCase {
         let updated = vaultTimeoutService.lastActiveTime[account.profile.userId]
 
         XCTAssertEqual(timeProvider.presentTime.timeIntervalSince1970, updated!.timeIntervalSince1970, accuracy: 1.0)
+    }
+
+    /// `didRegister(withToken:)` passes the token to the notification service.
+    func test_didRegister() throws {
+        let tokenData = try XCTUnwrap("tokensForFree".data(using: .utf8))
+
+        let task = Task {
+            subject.didRegister(withToken: tokenData)
+        }
+
+        waitFor(notificationService.registrationTokenData == tokenData)
+        task.cancel()
+    }
+
+    /// `failedToRegister(_:)` records the error.
+    func test_failedToRegister() {
+        subject.failedToRegister(BitwardenTestError.example)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.
+    func test_messageReceived() async {
+        let message: [AnyHashable: Any] = ["knock knock": "who's there?"]
+
+        await subject.messageReceived(message)
+
+        XCTAssertEqual(notificationService.messageReceivedMessage?.keys.first, "knock knock")
     }
 
     /// Upon a session timeout on app foreground, the user should be navigated to the landing screen.
@@ -138,6 +173,24 @@ class AppProcessorTests: BitwardenTestCase {
                 attemptAutomaticBiometricUnlock: true,
                 didSwitchAccountAutomatically: false
             ))
+        )
+    }
+
+    /// `start(navigator:)` builds the AppCoordinator and navigates to the initial route if provided.
+    func test_start_initialRoute() {
+        let rootNavigator = MockRootNavigator()
+
+        subject.start(
+            appContext: .mainApp,
+            initialRoute: .extensionSetup(.extensionActivation(type: .appExtension)),
+            navigator: rootNavigator,
+            window: nil
+        )
+
+        XCTAssertTrue(appModule.appCoordinator.isStarted)
+        XCTAssertEqual(
+            appModule.appCoordinator.routes,
+            [.extensionSetup(.extensionActivation(type: .appExtension))]
         )
     }
 

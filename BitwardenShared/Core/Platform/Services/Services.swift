@@ -18,6 +18,7 @@ typealias Services = HasAPIService
     & HasFileAPIService
     & HasGeneratorRepository
     & HasNotificationCenterService
+    & HasNotificationService
     & HasPasteboardService
     & HasSendRepository
     & HasSettingsRepository
@@ -140,6 +141,13 @@ protocol HasFileAPIService {
 protocol HasGeneratorRepository {
     /// The repository used by the application to manage generator data for the UI layer.
     var generatorRepository: GeneratorRepository { get }
+}
+
+/// Protocol for an object that provides a `NotificationService`.
+///
+protocol HasNotificationService {
+    /// The service used by the application to handle notifications.
+    var notificationService: NotificationService { get }
 }
 
 /// Protocol for an object that provides a `PasteboardService`.

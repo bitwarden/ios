@@ -46,9 +46,19 @@ class AppExtensionViewTests: BitwardenTestCase {
         )
     }
 
+    /// The almost done view renders correctly.
+    func test_snapshot_appExtension_almostDone() {
+        processor.state.extensionActivated = true
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
     /// The reactivate view renders correctly.
     func test_snapshot_appExtension_reactivate() {
         processor.state.extensionActivated = true
+        processor.state.extensionEnabled = true
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]

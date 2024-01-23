@@ -72,6 +72,7 @@ extension JSONDecoder {
             }
             return AnyKey(stringValue: camelCaseKey)
         }
+        decoder.dateDecodingStrategy = defaultDecoder.dateDecodingStrategy
         return decoder
     }()
 
@@ -79,6 +80,7 @@ extension JSONDecoder {
     static let snakeCaseDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = defaultDecoder.dateDecodingStrategy
         return decoder
     }()
 }
