@@ -86,7 +86,7 @@ struct AddEditCustomFieldsView: View {
                             }
                         } label: {
                             Text(field.linkedIdType?.localizedName ?? "")
-                                .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .styleGuide(.body)
                                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                         }
