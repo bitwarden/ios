@@ -166,9 +166,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
-    /// `deleteCipher()` deletes cipher from back end and local storage.
+    /// `deleteAttachment(withId:cipherId)` deletes attachment from backend and local storage.
+    func test_deleteAttachment() async throws {
+        cipherService.deleteAttachmentWithServerResult = .success(.fixture(id: "2"))
+
+        let updatedCipher = try await subject.deleteAttachment(withId: "10", cipherId: "")
+
+        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "10")
+        XCTAssertEqual(updatedCipher, CipherView(cipher: .fixture(id: "2")))
+    }
+
+    /// `deleteAttachment(withId:cipherId)` returns nil if the cipher couldn't be found for some reason.
+    func test_deleteAttachment_nilResult() async throws {
+        cipherService.deleteAttachmentWithServerResult = .success(nil)
+
+        let updatedCipher = try await subject.deleteAttachment(withId: "10", cipherId: "")
+
+        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "10")
+        XCTAssertNil(updatedCipher)
+    }
+
+    /// `deleteCipher()` deletes cipher from backend and local storage.
     func test_deleteCipher() async throws {
-        client.result = .httpSuccess(testData: APITestData(data: Data()))
         cipherService.deleteWithServerResult = .success(())
         try await subject.deleteCipher("123")
         XCTAssertEqual(cipherService.deleteCipherId, "123")

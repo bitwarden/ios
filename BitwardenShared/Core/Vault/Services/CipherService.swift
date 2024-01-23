@@ -12,6 +12,16 @@ protocol CipherService {
     ///
     func addCipherWithServer(_ cipher: Cipher) async throws
 
+    /// Delete a cipher's attachment for the current user both in the backend and in local storage.
+    ///
+    /// - Parameters:
+    ///   - attachmentId: The id of the attachment to delete.
+    ///   - cipherId: The id of the cipher that owns the attachment.
+    ///
+    /// - Returns: The updated cipher with one less attachment.
+    ///
+    func deleteAttachmentWithServer(attachmentId: String, cipherId: String) async throws -> Cipher?
+
     /// Deletes a cipher for the current user both in the backend and in local storage.
     ///
     /// - Parameter id: The id of cipher item to be deleted.
@@ -135,6 +145,27 @@ extension DefaultCipherService {
 
         // Add the cipher in local storage.
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)
+    }
+
+    func deleteAttachmentWithServer(attachmentId: String, cipherId: String) async throws -> Cipher? {
+        let userId = try await stateService.getActiveAccountId()
+
+        // Delete attachment from the backend.
+        _ = try await cipherAPIService.deleteAttachment(withID: attachmentId, cipherId: cipherId)
+
+        // Remove the attachment from the cipher.
+        guard let cipher = try await cipherDataStore.fetchCipher(withId: cipherId, userId: userId) else { return nil }
+        var attachments = cipher.attachments ?? []
+        if let index = attachments.firstIndex(where: { $0.id == attachmentId }) {
+            attachments.remove(at: index)
+        }
+        let updatedCipher = cipher.update(attachments: attachments)
+
+        // Update the cipher in local storage.
+        try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
+
+        // Return the updated cipher.
+        return updatedCipher
     }
 
     func deleteCipherWithServer(id: String) async throws {
