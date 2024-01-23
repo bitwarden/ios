@@ -17,9 +17,11 @@ class AppCoordinatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+
         appExtensionDelegate = MockAppExtensionDelegate()
         module = MockAppModule()
         rootNavigator = MockRootNavigator()
+
         subject = AppCoordinator(
             appContext: .mainApp,
             appExtensionDelegate: appExtensionDelegate,
@@ -91,7 +93,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `didLockVault(_:, _:, _:)`  starts the auth coordinator and navigates to the login route.
-    func test_did_lockVault() {
+    func test_didLockVault() {
         let account: Account = .fixtureAccountLogin()
 
         subject.didLockVault(account: .fixtureAccountLogin())
@@ -160,11 +162,18 @@ class AppCoordinatorTests: BitwardenTestCase {
         )
     }
 
-    /// `didTapAddAccount()` triggers the login sequence from the llanding page
+    /// `didTapAddAccount()` triggers the login sequence from the landing page
     func test_didTapAddAccount() {
         subject.didTapAddAccount()
         XCTAssertTrue(module.authCoordinator.isStarted)
         XCTAssertEqual(module.authCoordinator.routes, [.landing])
+    }
+
+    /// `didTapAccount()` switches accounts.
+    func test_didTapAccount() {
+        subject.didTapAccount(userId: "2")
+        XCTAssertTrue(module.authCoordinator.isStarted)
+        XCTAssertEqual(module.authCoordinator.routes, [.switchAccount(userId: "2")])
     }
 
     /// `navigate(to:)` with `.onboarding` starts the auth coordinator and navigates to the proper auth route.
@@ -202,6 +211,27 @@ class AppCoordinatorTests: BitwardenTestCase {
             module.extensionSetupCoordinator.routes,
             [.extensionActivation(type: .autofillExtension), .extensionActivation(type: .autofillExtension)]
         )
+    }
+
+    /// `navigate(to:)` with `.loginRequest(_)` shows the login request view.
+    func test_navigateTo_loginRequest() {
+        // Set up.
+        rootNavigator.rootViewController = MockUIViewController()
+        subject.navigate(to: .tab(.vault(.list)))
+
+        // Test.
+        let task = Task {
+            subject.navigate(to: .loginRequest(.fixture()))
+        }
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+        task.cancel()
+
+        // Validate.
+        XCTAssertTrue(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController
+        )
+        XCTAssertTrue(module.loginRequestCoordinator.isStarted)
+        XCTAssertEqual(module.loginRequestCoordinator.routes.last, .loginRequest(.fixture()))
     }
 
     /// `navigate(to:)` with `.sendItem(.add(content:hasPremium:))` starts the send item coordinator
@@ -245,6 +275,27 @@ class AppCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .tab(.vault(.list)))
 
         XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list), .vault(.list)])
+    }
+
+    /// `presentLoginRequest(_:)` shows the login request view.
+    func test_presentLoginRequest() {
+        // Set up.
+        rootNavigator.rootViewController = MockUIViewController()
+        subject.navigate(to: .tab(.vault(.list)))
+
+        // Test.
+        let task = Task {
+            subject.presentLoginRequest(.fixture())
+        }
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+        task.cancel()
+
+        // Validate.
+        XCTAssertTrue(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController
+        )
+        XCTAssertTrue(module.loginRequestCoordinator.isStarted)
+        XCTAssertEqual(module.loginRequestCoordinator.routes.last, .loginRequest(.fixture()))
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.

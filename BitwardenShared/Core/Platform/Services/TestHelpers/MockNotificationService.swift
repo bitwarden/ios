@@ -3,6 +3,7 @@ import Foundation
 @testable import BitwardenShared
 
 class MockNotificationService: NotificationService {
+    var delegate: NotificationServiceDelegate?
     var messageReceivedMessage: [AnyHashable: Any]?
     var registrationTokenData: Data?
 
@@ -16,5 +17,9 @@ class MockNotificationService: NotificationService {
         notificationTapped _: Bool?
     ) async {
         messageReceivedMessage = message
+    }
+
+    func setDelegate(_ delegate: NotificationServiceDelegate?) {
+        self.delegate = delegate
     }
 }

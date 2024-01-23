@@ -33,6 +33,8 @@ public class AppProcessor {
         self.appModule = appModule
         self.services = services
 
+        self.services.notificationService.setDelegate(self)
+
         UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
         UI.applyDefaultAppearances()
 
@@ -164,5 +166,48 @@ public class AppProcessor {
             notificationDismissed: notificationDismissed,
             notificationTapped: notificationTapped
         )
+    }
+}
+
+extension AppProcessor: NotificationServiceDelegate {
+    /// Show the login request.
+    ///
+    /// - Parameter loginRequest: The login request.
+    ///
+    func showLoginRequest(_ loginRequest: LoginRequest) {
+        coordinator?.navigate(to: .loginRequest(loginRequest))
+    }
+
+    /// Switch the active account in order to show the login request, prompting the user if necessary.
+    ///
+    /// - Parameters:
+    ///   - account: The account associated with the login request.
+    ///   - loginRequest: The login request to show.
+    ///   - showAlert: Whether to show the alert or simply switch the account.
+    ///
+    func switchAccounts(to account: Account, for loginRequest: LoginRequest, showAlert: Bool) {
+        DispatchQueue.main.async {
+            if showAlert {
+                self.coordinator?.showAlert(.confirmation(
+                    title: Localizations.logInRequested,
+                    message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email)
+                ) {
+                    self.switchAccounts(to: account.profile.userId, for: loginRequest)
+                })
+            } else {
+                self.switchAccounts(to: account.profile.userId, for: loginRequest)
+            }
+        }
+    }
+
+    /// Switch to the specified account and show the login request.
+    ///
+    /// - Parameters:
+    ///   - userId: The userId of the account to switch to.
+    ///   - loginRequest: The login request to show.
+    ///
+    private func switchAccounts(to userId: String, for loginRequest: LoginRequest) {
+        (coordinator as? VaultCoordinatorDelegate)?.didTapAccount(userId: userId)
+        coordinator?.navigate(to: .loginRequest(loginRequest))
     }
 }

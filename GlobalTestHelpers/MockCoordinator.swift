@@ -12,6 +12,7 @@ class MockCoordinator<Route>: Coordinator {
     var isLoadingOverlayShowing = false
     var isStarted: Bool = false
     var loadingOverlaysShown = [LoadingOverlayState]()
+    var toastsShown = [String]()
     var routes: [Route] = []
     var asyncRoutes: [Route] = []
 
@@ -39,6 +40,10 @@ class MockCoordinator<Route>: Coordinator {
     func showLoadingOverlay(_ state: LoadingOverlayState) {
         isLoadingOverlayShowing = true
         loadingOverlaysShown.append(state)
+    }
+
+    func showToast(_ text: String) {
+        toastsShown.append(text)
     }
 
     func start() {

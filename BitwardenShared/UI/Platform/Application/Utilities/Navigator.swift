@@ -36,4 +36,13 @@ extension Navigator {
         guard let rootViewController else { return }
         LoadingOverlayDisplayHelper.hide(from: rootViewController)
     }
+
+    /// Shows the toast.
+    ///
+    /// - Parameter toast: The toast to display.
+    ///
+    func showToast(_ toast: Toast) {
+        guard let rootViewController else { return }
+        ToastDisplayHelper.show(in: rootViewController, toast: toast)
+    }
 }
