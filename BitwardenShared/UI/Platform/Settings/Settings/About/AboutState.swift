@@ -5,6 +5,9 @@ import Foundation
 /// An object that defines the current state of the `AboutView`.
 ///
 struct AboutState {
+    /// The URL for Bitwarden's app review page in the app store.
+    var appReviewUrl: URL?
+
     /// The copyright text.
     var copyrightText = "© Bitwarden Inc. 2015-\(Calendar.current.component(.year, from: Date.now))"
 

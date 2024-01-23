@@ -44,12 +44,16 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 
     override func receive(_ action: AboutAction) {
         switch action {
+        case .clearAppReviewURL:
+            state.appReviewUrl = nil
         case .clearURL:
             state.url = nil
         case .helpCenterTapped:
             state.url = ExternalLinksConstants.helpAndFeedback
         case .rateTheAppTapped:
-            break
+            coordinator.navigate(to: .alert(.appStoreAlert {
+                self.state.appReviewUrl = ExternalLinksConstants.appReview
+            }))
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleSubmitCrashLogs(isOn):

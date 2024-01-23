@@ -3,6 +3,24 @@
 extension Alert {
     // MARK: Methods
 
+    /// An alert that asks if the user wants to navigate to the app store to leave a review.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert that asks if the user wants to navigate to the app store to leave a review.
+    ///
+    static func appStoreAlert(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.continueToAppStore,
+            message: Localizations.rateAppDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
+            ]
+        )
+    }
+
     /// Confirm allowing the device to approve login requests.
     ///
     /// - Parameter action: The action to perform if the user selects yes.
@@ -16,6 +34,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+
             ]
         )
     }
