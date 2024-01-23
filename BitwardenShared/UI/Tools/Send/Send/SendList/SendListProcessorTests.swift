@@ -151,7 +151,9 @@ class SendListProcessorTests: BitwardenTestCase {
         let sendView = SendView.fixture()
         subject.sendItemCompleted(with: sendView)
 
-        waitFor(sendRepository.shareURLSendView != nil)
+        waitFor(
+            sendRepository.shareURLSendView != nil && !coordinator.routes.isEmpty
+        )
 
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
         XCTAssertEqual(coordinator.routes.count, 1)
