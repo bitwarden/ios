@@ -74,7 +74,7 @@ final class AccountSecurityProcessor: StateProcessor<
             state.twoStepLoginUrl = nil
         case let .customTimeoutValueChanged(newValue):
             state.customTimeoutValue = newValue
-            setVaultTimeout(value: newValue)
+            setVaultTimeout(value: .custom(newValue))
         case .deleteAccountPressed:
             coordinator.navigate(to: .deleteAccount)
         case .logout:
@@ -85,7 +85,7 @@ final class AccountSecurityProcessor: StateProcessor<
             setTimeoutAction(newValue)
         case let .sessionTimeoutValueChanged(newValue):
             state.sessionTimeoutValue = newValue
-            setVaultTimeout(value: newValue.rawValue)
+            setVaultTimeout(value: newValue)
         case let .toggleApproveLoginRequestsToggle(isOn):
             confirmTogglingApproveLoginRequests(isOn)
         case let .toggleUnlockWithPINCode(isOn):
@@ -101,8 +101,8 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func appeared() async {
         do {
+            // Timeout action
             let timeoutAction = try await services.stateService.getTimeoutAction()
-            let vaultTimeout = try await services.stateService.getVaultTimeout()
 
             if timeoutAction == nil {
                 try await services.stateService.setTimeoutAction(action: .lock)
@@ -110,23 +110,16 @@ final class AccountSecurityProcessor: StateProcessor<
 
             state.sessionTimeoutAction = try await services.stateService.getTimeoutAction() ?? .lock
 
-            if vaultTimeout == -1 {
-                state.sessionTimeoutValue = .onAppRestart
-            } else if vaultTimeout == -2 {
-                state.sessionTimeoutValue = .never
+            // Timeout value
+            let vaultTimeout = try await services.stateService.getVaultTimeout()
+
+            if SessionTimeoutValue.allCases.contains(vaultTimeout) {
+                for value in SessionTimeoutValue.allCases where vaultTimeout.rawValue == value.rawValue {
+                    state.sessionTimeoutValue = value
+                }
             } else {
-                var rawTimeoutValues: [Int] = []
-                for value in SessionTimeoutValue.allCases {
-                    rawTimeoutValues.append(value.rawValue)
-                }
-                if !rawTimeoutValues.contains(vaultTimeout) {
-                    state.sessionTimeoutValue = .custom
-                    state.customTimeoutValue = vaultTimeout
-                } else {
-                    for (_, value) in state.vaultTimeoutValues where vaultTimeout == value.rawValue {
-                        state.sessionTimeoutValue = value
-                    }
-                }
+                state.sessionTimeoutValue = .custom(vaultTimeout.rawValue)
+                state.customTimeoutValue = vaultTimeout.rawValue
             }
         } catch {
             coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
@@ -216,14 +209,10 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     /// - Parameter value: The vault timeout value.
     ///
-    private func setVaultTimeout(value: Int) {
+    private func setVaultTimeout(value: SessionTimeoutValue) {
         Task {
             do {
-                if value == -100 {
-                    try await services.vaultTimeoutService.setVaultTimeout(value: 60, userId: nil)
-                } else {
-                    try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: nil)
-                }
+                try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: nil)
             } catch {
                 self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
                 self.services.errorReporter.log(error: error)

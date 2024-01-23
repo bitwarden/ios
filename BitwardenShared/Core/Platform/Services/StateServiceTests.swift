@@ -534,9 +534,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getVaultTimeout() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        try await subject.setVaultTimeout(value: 20, userId: "1")
+        try await subject.setVaultTimeout(value: .custom(20), userId: "1")
         let vaultTimeout = try await subject.getVaultTimeout(userId: "1")
-        XCTAssertEqual(vaultTimeout, 20)
+        XCTAssertEqual(vaultTimeout, .custom(20))
     }
 
     /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
@@ -1099,7 +1099,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setVaultTimeout() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        try await subject.setVaultTimeout(value: 20, userId: "1")
+        try await subject.setVaultTimeout(value: .custom(20), userId: "1")
         XCTAssertEqual(appSettingsStore.vaultTimeout["1"], 20)
     }
 

@@ -153,7 +153,7 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(key: Int?, userId: String) {
+    func setVaultTimeout(key: Int, userId: String) {
         vaultTimeout[userId] = key
     }
 

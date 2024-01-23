@@ -285,7 +285,7 @@ protocol AppSettingsStore: AnyObject {
     ///   - key: The session timeout date.
     ///   - userId: The user ID associated with the session timeout date.
     ///
-    func setVaultTimeout(key: Int?, userId: String)
+    func setVaultTimeout(key: Int, userId: String)
 
     /// Sets the username generation options for a user ID.
     ///
@@ -708,7 +708,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
-        store(key.rawValue, for: .vaultTimeoutAction(userId: userId))
+        store(key, for: .vaultTimeoutAction(userId: userId))
     }
 
     func setTwoFactorToken(_ token: String?, email: String) {
@@ -719,7 +719,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
 
-    func setVaultTimeout(key: Int?, userId: String) {
+    func setVaultTimeout(key: Int, userId: String) {
         store(key, for: .vaultTimeout(userId: userId))
     }
 

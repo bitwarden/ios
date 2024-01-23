@@ -4,36 +4,36 @@ import Foundation
 
 /// An enumeration of session timeout values to choose from.
 ///
-public enum SessionTimeoutValue: Int, CaseIterable, Equatable, Menuable {
+public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menuable {
     /// Timeout immediately.
-    case immediately = 0
+    case immediately
 
     /// Timeout after 1 minute.
-    case oneMinute = 60
+    case oneMinute
 
     /// Timeout after 5 minutes.
-    case fiveMinutes = 300
+    case fiveMinutes
 
     /// Timeout after 15 minutes.
-    case fifteenMinutes = 900
+    case fifteenMinutes
 
     /// Timeout after 30 minutes.
-    case thirtyMinutes = 1800
+    case thirtyMinutes
 
     /// Timeout after 1 hour.
-    case oneHour = 3600
+    case oneHour
 
     /// Timeout after 4 hours.
-    case fourHours = 14400
+    case fourHours
 
     /// Timeout on app restart.
-    case onAppRestart = -1
+    case onAppRestart
 
     /// Never timeout the session.
-    case never = -2
+    case never
 
     /// A custom timeout value.
-    case custom = -100
+    case custom(Int)
 
     /// All of the cases to show in the menu.
     public static let allCases: [Self] = [
@@ -46,7 +46,7 @@ public enum SessionTimeoutValue: Int, CaseIterable, Equatable, Menuable {
         .fourHours,
         .onAppRestart,
         .never,
-        .custom,
+        .custom(-100),
     ]
 
     /// The localized string representation of a `SessionTimeoutValue`.
@@ -72,6 +72,46 @@ public enum SessionTimeoutValue: Int, CaseIterable, Equatable, Menuable {
             Localizations.never
         case .custom:
             Localizations.custom
+        }
+    }
+
+    public var rawValue: Int {
+        switch self {
+        case .immediately: 0
+        case .oneMinute: 60
+        case .fiveMinutes: 300
+        case .fifteenMinutes: 900
+        case .thirtyMinutes: 1800
+        case .oneHour: 3600
+        case .fourHours: 14400
+        case .onAppRestart: -1
+        case .never: -2
+        case let .custom(customValue): customValue
+        }
+    }
+
+    public init(rawValue: Int) {
+        switch rawValue {
+        case 0:
+            self = .immediately
+        case 60:
+            self = .oneMinute
+        case 300:
+            self = .fiveMinutes
+        case 900:
+            self = .fifteenMinutes
+        case 1800:
+            self = .thirtyMinutes
+        case 3600:
+            self = .oneHour
+        case 14400:
+            self = .fourHours
+        case -1:
+            self = .onAppRestart
+        case -2:
+            self = .never
+        default:
+            self = .custom(rawValue)
         }
     }
 }
@@ -129,7 +169,8 @@ struct AccountSecurityState: Equatable {
 
     /// Whether or not the custom session timeout field is shown.
     var isShowingCustomTimeout: Bool {
-        sessionTimeoutValue == .custom
+        guard case .custom = sessionTimeoutValue else { return false }
+        return true
     }
 
     /// Whether the unlock with pin code toggle is on.
@@ -143,14 +184,4 @@ struct AccountSecurityState: Equatable {
 
     /// The URL for two step login external link.
     var twoStepLoginUrl: URL?
-
-    /// A dictionary mapping session timeout values and their numerical representations.
-    /// e.g. `[0: .immediately]`
-    var vaultTimeoutValues: [Int: SessionTimeoutValue] {
-        var map: [Int: SessionTimeoutValue] = [:]
-        for object in SessionTimeoutValue.allCases {
-            map.updateValue(object, forKey: object.rawValue)
-        }
-        return map
-    }
 }

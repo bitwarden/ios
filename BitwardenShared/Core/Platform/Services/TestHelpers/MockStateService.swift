@@ -3,7 +3,8 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockStateService: StateService { // swiftlint:disable:this type_body_length
+class MockStateService: StateService {
+    // swiftlint:disable:this type_body_length
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountTokens: Account.AccountTokens?
     var accountsAdded = [Account]()
@@ -45,7 +46,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
-    var vaultTimeout = [String: Int]()
+    var vaultTimeout = [String: SessionTimeoutValue]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
@@ -184,9 +185,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return usernameGenerationOptions[userId]
     }
 
-    func getVaultTimeout(userId: String?) async throws -> Int {
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try userId ?? getActiveAccount().profile.userId
-        return vaultTimeout[userId] ?? 0
+        return vaultTimeout[userId] ?? .immediately
     }
 
     func logoutAccount(userId: String?) async throws {
@@ -303,7 +304,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         usernameGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(value: Int, userId: String?) async throws {
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         vaultTimeout[userId] = value
     }

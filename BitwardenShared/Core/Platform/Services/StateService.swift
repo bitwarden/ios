@@ -203,7 +203,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID for the account.
     /// - Returns: The session timeout value.
     ///
-    func getVaultTimeout(userId: String?) async throws -> Int
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue
 
     /// Logs the user out of an account.
     ///
@@ -381,10 +381,10 @@ protocol StateService: AnyObject {
     /// Sets the session timeout value.
     ///
     /// - Parameters:
-    ///   - value: How many seconds in the future the timeout should occur.
+    ///   - value: The value that dictates how many seconds in the future a timeout should occur.
     ///   - userId: The user ID associated with the timeout value.
     ///
-    func setVaultTimeout(value: Int, userId: String?) async throws
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
 
     // MARK: Publishers
 
@@ -542,7 +542,7 @@ extension StateService {
     ///
     /// - Returns: The session timeout value.
     ///
-    func getVaultTimeout() async throws -> Int {
+    func getVaultTimeout() async throws -> SessionTimeoutValue {
         try await getVaultTimeout(userId: nil)
     }
 
@@ -676,9 +676,9 @@ extension StateService {
 
     /// Sets the session timeout value.
     ///
-    /// - Parameter value: How many seconds in the future the timeout should occur.
+    /// - Parameter value: The value that dictates how many seconds in the future a timeout should occur.
     ///
-    func setVaultTimeout(value: Int) async throws {
+    func setVaultTimeout(value: SessionTimeoutValue) async throws {
         try await setVaultTimeout(value: value, userId: nil)
     }
 }
@@ -903,9 +903,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.usernameGenerationOptions(userId: userId)
     }
 
-    func getVaultTimeout(userId: String?) async throws -> Int {
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try userId ?? getActiveAccountId()
-        return appSettingsStore.vaultTimeout(userId: userId) ?? -2
+        return SessionTimeoutValue(rawValue: appSettingsStore.vaultTimeout(userId: userId) ?? -2)
     }
 
     func logoutAccount(userId: String?) async throws {
@@ -1050,9 +1050,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
     }
 
-    func setVaultTimeout(value: Int, userId: String?) async throws {
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setVaultTimeout(key: value, userId: userId)
+        appSettingsStore.setVaultTimeout(key: value.rawValue, userId: userId)
     }
 
     // MARK: Publishers
