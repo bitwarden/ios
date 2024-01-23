@@ -2,7 +2,11 @@ import OSLog
 
 /// The processor used to manage state and handle actions for the vault unlock screen.
 ///
-class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect> {
+class VaultUnlockProcessor: StateProcessor< // swiftlint:disable:this type_body_length
+    VaultUnlockState,
+    VaultUnlockAction,
+    VaultUnlockEffect
+> {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -167,7 +171,7 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
     ///
     private func loadData() async {
         state.biometricUnlockStatus = await (try? services.biometricsService.getBiometricUnlockStatus())
-            ?? .notAvailable
+        ?? .notAvailable
         state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
         state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
         await refreshProfileState()
@@ -371,4 +375,4 @@ class VaultUnlockProcessor: StateProcessor<VaultUnlockState, VaultUnlockAction, 
             await loadData()
         }
     }
-} // swiftlint:disable:this file_length
+}

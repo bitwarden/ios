@@ -101,15 +101,6 @@ struct VaultUnlockView: View {
         }
     }
 
-    @ViewBuilder private func biometricUnlockText(_ biometryType: BiometricAuthenticationType) -> some View {
-        switch biometryType {
-        case .faceID:
-            Text(Localizations.useFaceIDToUnlock)
-        case .touchID:
-            Text(Localizations.useFingerprintToUnlock)
-        }
-    }
-
     /// A view that displays the ability to add or switch between account profiles
     @ViewBuilder private var profileSwitcher: some View {
         ProfileSwitcherView(
@@ -158,6 +149,15 @@ struct VaultUnlockView: View {
                 )
             )
             .textFieldConfiguration(.password)
+        }
+    }
+
+    private func biometricUnlockText(_ biometryType: BiometricAuthenticationType) -> some View {
+        switch biometryType {
+        case .faceID:
+            Text(Localizations.useFaceIDToUnlock)
+        case .touchID:
+            Text(Localizations.useFingerprintToUnlock)
         }
     }
 }

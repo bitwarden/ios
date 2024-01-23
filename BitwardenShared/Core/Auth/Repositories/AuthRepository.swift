@@ -309,7 +309,6 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
-        let account = try await stateService.getActiveAccount()
         guard let pinProtectedUserKey = try await stateService.pinProtectedUserKey() else { return }
         try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
     }

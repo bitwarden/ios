@@ -163,7 +163,7 @@ class MockAppSettingsStore: AppSettingsStore {
         pinKeyEncryptedUserKey[userId] = key
     }
 
-    func setPinProtectedKey(key: String?, userId: String) {
+    func setPinProtectedUserKey(key: String?, userId: String) {
         pinProtectedUserKey[userId] = key
     }
 

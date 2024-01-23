@@ -57,7 +57,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: Tests
 
-
     /// `perform(_:)` with `.loadData` loads the initial data for the view.
     func test_perform_loadData() async {
         stateService.activeAccount = .fixture()
@@ -317,10 +316,16 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state when submit has been pressed.
-    func test_receive_toggleUnlockWithPINCode_toggleOff() async throws {
+    func test_receive_toggleUnlockWithPINCode_toggleOff() {
         subject.state.isUnlockWithPINCodeOn = true
-        subject.receive(.toggleUnlockWithPINCode(false))
 
+        let task = Task {
+            subject.receive(.toggleUnlockWithPINCode(false))
+        }
+
+        waitFor(subject.state.isUnlockWithPINCodeOn == false)
+        task.cancel()
+        
         XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
         XCTAssertTrue(coordinator.routes.isEmpty)
     }

@@ -3,7 +3,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockStateService: StateService {
+class MockStateService: StateService { // swiftlint:disable:this type_body_length
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountTokens: Account.AccountTokens?
     var accountVolatileData: [String: AccountVolatileData] = [:]
@@ -375,4 +375,4 @@ extension MockStateService {
         }
         biometricIntegrityStates[activeAccount.profile.userId] = base64EncodedState
     }
-} // swiftlint:disable:this file_length
+}
