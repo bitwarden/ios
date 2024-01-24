@@ -16,4 +16,7 @@ enum VaultGroupEffect: Equatable {
 
     /// Stream the show web icons setting.
     case streamShowWebIcons
+
+    /// Stream the vault list for the user.
+    case streamVaultList
 }

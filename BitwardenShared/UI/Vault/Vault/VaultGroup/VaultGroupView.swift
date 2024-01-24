@@ -1,5 +1,7 @@
 import SwiftUI
 
+// swiftlint:disable file_length
+
 // MARK: - VaultGroupView
 
 /// A view that displays the items in a single vault group.
@@ -47,6 +49,9 @@ struct VaultGroupView: View {
             .task {
                 await store.perform(.streamShowWebIcons)
             }
+            .task(id: store.state.vaultFilterType) {
+                await store.perform(.streamVaultList)
+            }
             .toast(store.binding(
                 get: \.toast,
                 send: VaultGroupAction.toastShown
@@ -76,6 +81,9 @@ struct VaultGroupView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
+                    vaultFilterRow()
+                        .padding(.top, 16)
+
                     Spacer()
 
                     Text(Localizations.noItems)
@@ -170,35 +178,62 @@ struct VaultGroupView: View {
         )
     }
 
+    /// Displays the vault filter row if the user is a member of any
+    @ViewBuilder
+    private func vaultFilterRow() -> some View {
+        SearchVaultFilterRowView(
+            hasDivider: false, store: store.child(
+                state: { state in
+                    SearchVaultFilterRowState(
+                        organizations: state.organizations,
+                        searchVaultFilterType: state.vaultFilterType
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .searchVaultFilterChanged(type):
+                        return .vaultFilterChanged(type)
+                    }
+                },
+                mapEffect: nil
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
     // MARK: Private Methods
 
     /// A view that displays a list of the contents of this vault group.
     @ViewBuilder
     private func groupView(with items: [VaultListItem]) -> some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 7) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(Localizations.items.uppercased())
-                    Spacer()
-                    Text("\(items.count)")
-                }
-                .font(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            VStack(spacing: 20.0) {
+                vaultFilterRow()
 
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(items) { item in
-                        Button {
-                            store.send(.itemPressed(item))
-                        } label: {
-                            vaultItemRow(
-                                for: item,
-                                isLastInSection: items.last == item
-                            )
+                VStack(alignment: .leading, spacing: 7) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(Localizations.items.uppercased())
+                        Spacer()
+                        Text("\(items.count)")
+                    }
+                    .font(.footnote)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(items) { item in
+                            Button {
+                                store.send(.itemPressed(item))
+                            } label: {
+                                vaultItemRow(
+                                    for: item,
+                                    isLastInSection: items.last == item
+                                )
+                            }
                         }
                     }
+                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .padding(16)
         }

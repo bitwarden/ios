@@ -37,4 +37,7 @@ enum VaultGroupAction: Equatable {
 
     /// The toast was shown or hidden.
     case toastShown(Toast?)
+
+    /// The selected vault filter changed.
+    case vaultFilterChanged(VaultFilterType)
 }

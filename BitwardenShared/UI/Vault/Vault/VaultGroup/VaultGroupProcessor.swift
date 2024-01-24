@@ -1,6 +1,8 @@
 import BitwardenSdk
 import Foundation
 
+// swiftlint:disable file_length
+
 // MARK: - VaultGroupProcessor
 
 /// A `Processor` that can process `VaultGroupAction`s and `VaultGroupEffect`s.
@@ -88,6 +90,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
             }
+        case .streamVaultList:
+            await streamVaultList()
         }
     }
 
@@ -124,6 +128,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             state.searchVaultFilterType = newValue
         case let .toastShown(newValue):
             state.toast = newValue
+        case let .vaultFilterChanged(newValue):
+            state.vaultFilterType = newValue
         }
     }
 
