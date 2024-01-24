@@ -1,3 +1,5 @@
+import Combine
+import Foundation
 import UIKit
 
 /// The `AppProcessor` processes actions received at the application level and contains the logic
@@ -33,6 +35,23 @@ public class AppProcessor {
 
         UI.initialLanguageCode = services.appSettingsStore.appLocale
         UI.applyDefaultAppearances()
+
+        Task {
+            for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
+                let userId = try await self.services.stateService.getActiveAccountId()
+                let shouldTimeout = try await services.vaultTimeoutService.shouldSessionTimeout(userId: userId)
+                if shouldTimeout {
+                    navigatePostTimeout()
+                }
+            }
+        }
+
+        Task {
+            for await _ in services.notificationCenterService.didEnterBackgroundPublisher() {
+                let userId = try await self.services.stateService.getActiveAccountId()
+                try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
+            }
+        }
     }
 
     // MARK: Methods
@@ -69,17 +88,42 @@ public class AppProcessor {
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
         } else if let activeAccount = services.appSettingsStore.state?.activeAccount {
-            coordinator.navigate(
-                to: .auth(
-                    .vaultUnlock(
-                        activeAccount,
-                        attemptAutomaticBiometricUnlock: true,
-                        didSwitchAccountAutomatically: false
+            let vaultTimeout = services.appSettingsStore.vaultTimeout(userId: activeAccount.profile.userId)
+            if vaultTimeout == SessionTimeoutValue.onAppRestart.rawValue {
+                navigatePostTimeout()
+            } else {
+                coordinator.navigate(
+                    to: .auth(
+                        .vaultUnlock(
+                            activeAccount,
+                            attemptAutomaticBiometricUnlock: true,
+                            didSwitchAccountAutomatically: false
+                        )
                     )
                 )
-            )
+            }
         } else {
             coordinator.navigate(to: .auth(.landing))
+        }
+    }
+
+    // MARK: Private methods
+
+    /// Navigates when a session timeout occurs.
+    ///
+    private func navigatePostTimeout() {
+        guard let account = services.appSettingsStore.state?.activeAccount else { return }
+        guard let action = services.appSettingsStore.timeoutAction(userId: account.profile.userId) else { return }
+        switch action {
+        case SessionTimeoutAction.lock.rawValue:
+            coordinator?.navigate(to: .auth(.vaultUnlock(account, didSwitchAccountAutomatically: false)))
+        case SessionTimeoutAction.logout.rawValue:
+            Task {
+                try await services.stateService.logoutAccount(userId: account.profile.userId)
+            }
+            coordinator?.navigate(to: .auth(.landing))
+        default:
+            break
         }
     }
 

@@ -57,6 +57,18 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.appeared` sets the state's timeout action
+    /// using the data stored in the `AppSettingsStore`.
+    func test_perform_appeared_sessionTimeoutAction() async throws {
+        let account: Account = .fixture()
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        stateService.timeoutAction[userId] = .logout
+
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+    }
+
     /// `perform(_:)` with `.loadData` loads the initial data for the view.
     func test_perform_loadData() async {
         stateService.activeAccount = .fixture()
@@ -78,7 +90,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `.lockVault` locks the user's vault.
     func test_perform_lockVault() async {
-        let account: Account = .fixtureAccountLogin()
+        let account: Account = .fixture()
         stateService.activeAccount = account
 
         await subject.perform(.lockVault(userInitiated: true))
@@ -206,7 +218,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `receive(_:)` with `sessionTimeoutActionChanged(:)` presents an alert if `logout` was selected.
     /// It then updates the state if `Yes` was tapped on the alert, confirming the user's decision.
     func test_receive_sessionTimeoutActionChanged_logout() async throws {
-        XCTAssertEqual(subject.state.sessionTimeoutAction, .lock)
+        stateService.activeAccount = .fixture()
+
         subject.receive(.sessionTimeoutActionChanged(.logout))
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
@@ -229,9 +242,9 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `sessionTimeoutActionChanged(:)` updates the state when `lock` was selected.
     func test_receive_sessionTimeoutActionChanged_lock() async throws {
-        XCTAssertEqual(subject.state.sessionTimeoutAction, .lock)
-        subject.receive(.sessionTimeoutActionChanged(.logout))
+        stateService.activeAccount = .fixture()
 
+        subject.receive(.sessionTimeoutActionChanged(.logout))
         let alert = try coordinator.unwrapLastRouteAsAlert()
         try await alert.tapAction(title: Localizations.yes)
         XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
@@ -242,8 +255,9 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `sessionTimeoutActionChanged(:)` doesn't update the state if the value did not change.
     func test_receive_sessionTimeoutActionChanged_sameValue() async throws {
-        subject.receive(.sessionTimeoutActionChanged(.logout))
+        stateService.activeAccount = .fixture()
 
+        subject.receive(.sessionTimeoutActionChanged(.logout))
         let alert = try coordinator.unwrapLastRouteAsAlert()
         try await alert.tapAction(title: Localizations.yes)
         XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
@@ -261,15 +275,22 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` updates the session timeout value in the state.
     func test_receive_sessionTimeoutValueChanged() {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
+
+        let account = Account.fixture()
+        stateService.activeAccount = account
         subject.receive(.sessionTimeoutValueChanged(.never))
-        XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
+        waitFor(subject.state.sessionTimeoutValue == .never)
     }
 
-    /// `receive(_:)` with `setCustomSessionTimeoutValue(:)` updates the custom session timeout value in the state.
+    /// `receive(_:)` with `setCustomSessionTimeoutValue(_:)` updates the custom session timeout value in the state.
     func test_receive_setCustomSessionTimeoutValue() {
-        XCTAssertEqual(subject.state.customSessionTimeoutValue, 60)
-        subject.receive(.setCustomSessionTimeoutValue(15))
-        XCTAssertEqual(subject.state.customSessionTimeoutValue, 15)
+        XCTAssertEqual(subject.state.customTimeoutValue, 60)
+
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        subject.receive(.customTimeoutValueChanged(120))
+        waitFor(subject.state.customTimeoutValue == 120)
     }
 
     /// `receive(_:)` with `.toggleApproveLoginRequestsToggle` shows a confirmation alert and updates the state.

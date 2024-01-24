@@ -165,7 +165,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     func test_singleSignOnCompleted_twoFactorError() async throws {
         // Set up the mock data.
         authService.generateSingleSignOnUrlResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil)
         )
         subject.state.identifierText = "BestOrganization"
 

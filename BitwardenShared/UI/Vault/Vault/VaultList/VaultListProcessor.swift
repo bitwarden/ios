@@ -283,8 +283,10 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
         return []
     }
 
-    /// Sets the visibility of the profiles view and updates accessibility focus
-    /// - Parameter visible: the intended visibility of the view
+    /// Sets the visibility of the profiles view and updates accessbility focus.
+    ///
+    /// - Parameter visible: the intended visibility of the view.
+    ///
     private func setProfileSwitcher(visible: Bool) {
         if !visible {
             state.profileSwitcherState.hasSetAccessibilityFocus = false

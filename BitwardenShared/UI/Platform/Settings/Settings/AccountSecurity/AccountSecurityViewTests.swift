@@ -125,7 +125,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
                             hasValidIntegrity: true
                         ),
                         isApproveLoginRequestsToggleOn: true,
-                        sessionTimeoutValue: .custom
+                        sessionTimeoutValue: .custom(60)
                     )
                 )
             )
@@ -145,7 +145,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
                             hasValidIntegrity: true
                         ),
                         isApproveLoginRequestsToggleOn: true,
-                        sessionTimeoutValue: .custom
+                        sessionTimeoutValue: .custom(60)
                     )
                 )
             )
@@ -165,7 +165,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
                             hasValidIntegrity: false
                         ),
                         isApproveLoginRequestsToggleOn: true,
-                        sessionTimeoutValue: .custom
+                        sessionTimeoutValue: .custom(60)
                     )
                 )
             )
@@ -180,7 +180,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
                 processor: StateProcessor(
                     state: AccountSecurityState(
                         isApproveLoginRequestsToggleOn: true,
-                        sessionTimeoutValue: .custom
+                        sessionTimeoutValue: .custom(60)
                     )
                 )
             )

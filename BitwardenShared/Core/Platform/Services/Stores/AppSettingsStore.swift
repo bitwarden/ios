@@ -84,6 +84,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func defaultUriMatchType(userId: String) -> UriMatchType?
 
+    /// Gets the disable auto-copy TOTP value for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the disable auto-copy TOTP value.
+    ///
+    func disableAutoTotpCopy(userId: String) -> Bool
+
     /// Gets the encrypted private key for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the encrypted private key.
@@ -96,11 +102,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedUserKey(userId: String) -> String?
 
-    /// Gets the disable auto-copy TOTP value for the user ID.
+    /// The user's last active time within the app.
+    /// This value is set when the app is backgrounded.
     ///
-    /// - Parameter userId: The user ID associated with the disable auto-copy TOTP value.
+    /// - Parameter userId: The user ID associated with the last active time within the app.
     ///
-    func disableAutoTotpCopy(userId: String) -> Bool
+    func lastActiveTime(userId: String) -> Date?
 
     /// Get the user's Biometric Authentication Preference.
     ///
@@ -154,27 +161,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func pinProtectedUserKey(userId: String) -> String?
 
-    /// Get the two-factor token associated with a user's email..
-    ///
-    /// - Parameter email: The user's email.
-    /// - Returns: The two-factor token.
-    ///
-    func twoFactorToken(email: String) -> String?
-
-    /// Gets the username generation options for a user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the username generation options.
-    /// - Returns: The username generation options for the user ID.
-    ///
-    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
-
-    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
-    /// - Returns: The number of unsuccessful attempts to unlock the vault.
-    ///
-    func unsuccessfulUnlockAttempts(userId: String) -> Int?
-
     /// Whether the vault should sync on refreshing.
     ///
     /// - Parameters:
@@ -190,6 +176,16 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the approve logins setting.
     ///
     func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String)
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameters:
+    ///   - isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///   - userId: The user ID associated with the biometric authentication preference.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
 
     /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
     ///
@@ -249,15 +245,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setEncryptedUserKey(key: String?, userId: String)
 
-    /// Sets the user's Biometric Authentication Preference.
+    /// Sets the last active time within the app.
     ///
     /// - Parameters:
-    ///   - isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
-    ///     If `true`, the device should attempt biometric authentication for authorization events.
-    ///     If `false`, the device should not attempt biometric authentication for authorization events.
-    ///   - userId: The user ID associated with the biometric authentication preference.
+    ///   - date: The date of the last active time.
+    ///   - userId: The user ID associated with the last active time within the app.
     ///
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
+    func setLastActiveTime(_ date: Date?, userId: String)
 
     /// Sets the time of the last sync for the user ID.
     ///
@@ -307,6 +301,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPinProtectedUserKey(key: String?, userId: String)
 
+    /// Sets the user's timeout action.
+    ///
+    /// - Parameters:
+    ///   - key: The action taken when a session has timed out.
+    ///   - userId: The user ID associated with the session timeout action.
+    ///
+    func setTimeoutAction(key: SessionTimeoutAction, userId: String)
+
     /// Sets the two-factor token.
     ///
     /// - Parameters:
@@ -323,6 +325,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
 
+    /// Sets the user's session timeout date.
+    ///
+    /// - Parameters:
+    ///   - key: The session timeout date.
+    ///   - userId: The user ID associated with the session timeout date.
+    ///
+    func setVaultTimeout(key: Int, userId: String)
+
     /// Sets the username generation options for a user ID.
     ///
     /// - Parameters:
@@ -330,6 +340,41 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
+
+    /// Returns the action taken upon a session timeout.
+    ///
+    /// - Parameter userId: The user ID associated with the session timeout action.
+    /// - Returns: The  user's session timeout action.
+    ///
+    func timeoutAction(userId: String) -> Int?
+
+    /// Get the two-factor token associated with a user's email..
+    ///
+    /// - Parameter email: The user's email.
+    /// - Returns: The two-factor token.
+    ///
+    func twoFactorToken(email: String) -> String?
+
+    /// Gets the username generation options for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the username generation options.
+    /// - Returns: The username generation options for the user ID.
+    ///
+    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
+
+    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    ///
+    func unsuccessfulUnlockAttempts(userId: String) -> Int?
+
+    /// Returns the session timeout date.
+    ///
+    /// - Parameter userId: The user ID associated with the session timeout date.
+    /// - Returns: The user's session timeout date.
+    ///
+    func vaultTimeout(userId: String) -> Int?
 
     // MARK: Publishers
 
@@ -350,7 +395,7 @@ class DefaultAppSettingsStore {
     /// The `UserDefaults` instance to persist settings.
     let userDefaults: UserDefaults
 
-    /// A subject containing a `String?` for the userId of the active account..
+    /// A subject containing a `String?` for the userId of the active account.
     lazy var activeAccountIdSubject = CurrentValueSubject<String?, Never>(state?.activeUserId)
 
     // MARK: Initialization
@@ -464,8 +509,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case disableWebIcons
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
-        case lastUserShouldConnectToWatch
+        case lastActiveTime(userId: String)
         case lastSync(userId: String)
+        case lastUserShouldConnectToWatch
         case masterPasswordHash(userId: String)
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
@@ -478,6 +524,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
+        case vaultTimeout(userId: String)
+        case vaultTimeoutAction(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -511,10 +559,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
                 key = "encPrivateKey_\(userId)"
-            case .lastUserShouldConnectToWatch:
-                key = "lastUserShouldConnectToWatch"
+            case let .lastActiveTime(userId):
+                key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
+            case .lastUserShouldConnectToWatch:
+                key = "lastUserShouldConnectToWatch"
             case let .masterPasswordHash(userId):
                 key = "keyHash_\(userId)"
             case let .notificationsLastRegistrationDate(userId):
@@ -539,6 +589,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
+            case let .vaultTimeout(userId):
+                key = "vaultTimeout_\(userId)"
+            case let .vaultTimeoutAction(userId):
+                key = "vaultTimeoutAction_\(userId)"
             }
             return "bwPreferencesStorage:\(key)"
         }
@@ -616,6 +670,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .connectToWatch(userId: userId))
     }
 
+    func defaultUriMatchType(userId: String) -> UriMatchType? {
+        fetch(for: .defaultUriMatch(userId: userId))
+    }
+
+    func disableAutoTotpCopy(userId: String) -> Bool {
+        fetch(for: .disableAutoTotpCopy(userId: userId))
+    }
+
     func encryptedPrivateKey(userId: String) -> String? {
         fetch(for: .encryptedPrivateKey(userId: userId))
     }
@@ -624,12 +686,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .encryptedUserKey(userId: userId))
     }
 
-    func defaultUriMatchType(userId: String) -> UriMatchType? {
-        fetch(for: .defaultUriMatch(userId: userId))
-    }
-
-    func disableAutoTotpCopy(userId: String) -> Bool {
-        fetch(for: .disableAutoTotpCopy(userId: userId))
+    func lastActiveTime(userId: String) -> Date? {
+        fetch(for: .lastActiveTime(userId: userId))
     }
 
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
@@ -658,18 +716,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func pinProtectedUserKey(userId: String) -> String? {
         fetch(for: .pinProtectedUserKey(userId: userId))
-    }
-
-    func twoFactorToken(email: String) -> String? {
-        fetch(for: .twoFactorToken(email: email))
-    }
-
-    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
-        fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
-    }
-
-    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
-        fetch(for: .usernameGenerationOptions(userId: userId))
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
@@ -712,6 +758,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .encryptedUserKey(userId: userId))
     }
 
+    func setLastActiveTime(_ date: Date?, userId: String) {
+        store(date, for: .lastActiveTime(userId: userId))
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
     }
@@ -736,12 +786,40 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
+    func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
+        store(key, for: .vaultTimeoutAction(userId: userId))
+    }
+
     func setTwoFactorToken(_ token: String?, email: String) {
         store(token, for: .twoFactorToken(email: email))
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         store(options, for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func setVaultTimeout(key: Int, userId: String) {
+        store(key, for: .vaultTimeout(userId: userId))
+    }
+
+    func timeoutAction(userId: String) -> Int? {
+        fetch(for: .vaultTimeoutAction(userId: userId))
+    }
+
+    func twoFactorToken(email: String) -> String? {
+        fetch(for: .twoFactorToken(email: email))
+    }
+
+    func vaultTimeout(userId: String) -> Int? {
+        fetch(for: .vaultTimeout(userId: userId))
+    }
+
+    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+        fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
+    }
+
+    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
+        fetch(for: .usernameGenerationOptions(userId: userId))
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {

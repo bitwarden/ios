@@ -9,7 +9,8 @@ class VaultAutofillListProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasAuthRepository
+        & HasErrorReporter
         & HasPasteboardService
         & HasVaultRepository
 
@@ -62,6 +63,8 @@ class VaultAutofillListProcessor: StateProcessor<
             await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
                 self?.state.toast = Toast(text: toastText)
             }
+        case .loadData:
+            await refreshProfileState()
         case let .search(text):
             await searchVault(for: text)
         case .streamAutofillItems:
@@ -72,6 +75,7 @@ class VaultAutofillListProcessor: StateProcessor<
     override func receive(_ action: VaultAutofillListAction) {
         switch action {
         case .addTapped:
+            state.profileSwitcherState.setIsVisible(false)
             coordinator.navigate(
                 to: .addItem(
                     allowTypeSelection: false,
@@ -81,11 +85,14 @@ class VaultAutofillListProcessor: StateProcessor<
             )
         case .cancelTapped:
             appExtensionDelegate?.didCancel()
+        case let .profileSwitcherAction(action):
+            handleProfileSwitcherAction(action)
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else { return }
             state.searchText = ""
             state.ciphersForSearch = []
             state.showNoResults = false
+            state.profileSwitcherState.isVisible = false
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .toastShown(newValue):
@@ -94,6 +101,62 @@ class VaultAutofillListProcessor: StateProcessor<
     }
 
     // MARK: Private Methods
+
+    /// Handles a tap of an account in the profile switcher.
+    ///
+    /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
+    ///
+    private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
+        defer { state.profileSwitcherState.setIsVisible(false) }
+        guard state.profileSwitcherState.activeAccountId != selectedAccount.userId else { return }
+        coordinator.navigate(
+            to: .switchAccount(userId: selectedAccount.userId)
+        )
+    }
+
+    /// Handles receiving a `ProfileSwitcherAction`.
+    ///
+    /// - Parameter action: The `ProfileSwitcherAction` to handle.
+    ///
+    private func handleProfileSwitcherAction(_ action: ProfileSwitcherAction) {
+        switch action {
+        case .accountLongPressed:
+            // No-op: account long-press not supported in the extension.
+            break
+        case let .accountPressed(account):
+            didTapProfileSwitcherItem(account)
+        case .addAccountPressed:
+            // No-op: add account not supported in the extension.
+            break
+        case .backgroundPressed:
+            state.profileSwitcherState.setIsVisible(false)
+        case let .requestedProfileSwitcher(visible: isVisible):
+            state.profileSwitcherState.isVisible = isVisible
+        case let .scrollOffsetChanged(newOffset):
+            state.profileSwitcherState.scrollOffset = newOffset
+        }
+    }
+
+    /// Configures a profile switcher state with the current account and alternates.
+    ///
+    private func refreshProfileState() async {
+        var accounts = [ProfileSwitcherItem]()
+        var activeAccount: ProfileSwitcherItem?
+        do {
+            accounts = try await services.authRepository.getAccounts()
+            activeAccount = try? await services.authRepository.getActiveAccount()
+
+            state.profileSwitcherState = ProfileSwitcherState(
+                accounts: accounts,
+                activeAccountId: activeAccount?.userId,
+                isVisible: state.profileSwitcherState.isVisible,
+                shouldAlwaysHideAddAccount: true
+            )
+        } catch {
+            services.errorReporter.log(error: error)
+            state.profileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
+        }
+    }
 
     /// Searches the list of ciphers for those matching the search term.
     ///

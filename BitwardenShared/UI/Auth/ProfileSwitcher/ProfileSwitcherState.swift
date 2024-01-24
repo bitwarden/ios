@@ -94,4 +94,15 @@ struct ProfileSwitcherState: Equatable {
 
         return isVisible && !hasSetAccessibilityFocus
     }
+
+    /// Sets the visibility of the profiles view and updates accessibility focus
+    ///
+    /// - Parameter visible: the intended visibility of the view
+    ///
+    mutating func setIsVisible(_ visible: Bool) {
+        if !visible {
+            hasSetAccessibilityFocus = false
+        }
+        isVisible = visible
+    }
 }

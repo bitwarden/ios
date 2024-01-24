@@ -30,6 +30,16 @@ protocol CipherAPIService {
     ///
     func addCipherWithCollections(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
 
+    /// Performs an API request to delete an existing attachment in the user's vault.
+    ///
+    /// - Parameters:
+    ///   - attachmentId: The id of the attachment to be deleted.
+    ///   - cipherId: The id of the cipher that owns the attachment.
+    ///
+    /// - Returns: The `EmptyResponse`.
+    ///
+    func deleteAttachment(withID attachmentId: String, cipherId: String) async throws -> EmptyResponse
+
     /// Performs an API request to delete an existing cipher in the user's vault.
     ///
     /// - Parameter id: The cipher id that to be deleted.
@@ -57,10 +67,9 @@ protocol CipherAPIService {
     func saveAttachment(
         cipherId: String,
         fileName: String?,
-        fileSize: String?,
+        fileSize: Int?,
         key: String?
-    ) async throws
-        -> SaveAttachmentResponse
+    ) async throws -> SaveAttachmentResponse
 
     /// Performs an API request to share a cipher with an organization.
     ///
@@ -99,6 +108,10 @@ extension APIService: CipherAPIService {
         try await apiService.send(AddCipherWithCollectionsRequest(cipher: cipher))
     }
 
+    func deleteAttachment(withID attachmentId: String, cipherId: String) async throws -> EmptyResponse {
+        try await apiService.send(DeleteAttachmentRequest(attachmentId: attachmentId, cipherId: cipherId))
+    }
+
     func deleteCipher(withID id: String) async throws -> EmptyResponse {
         try await apiService.send(DeleteCipherRequest(id: id))
     }
@@ -110,7 +123,7 @@ extension APIService: CipherAPIService {
     func saveAttachment(
         cipherId: String,
         fileName: String?,
-        fileSize: String?,
+        fileSize: Int?,
         key: String?
     ) async throws -> SaveAttachmentResponse {
         try await apiService.send(SaveAttachmentRequest(

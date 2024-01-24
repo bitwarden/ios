@@ -1,3 +1,4 @@
+import Foundation
 import Networking
 
 /// API response for saving an attachment.
@@ -12,8 +13,8 @@ struct SaveAttachmentResponse: JSONResponse, Codable, Equatable {
     let cipherResponse: CipherDetailsResponseModel
 
     /// The type of file upload to perform with the file.
-    let fileUploadType: Int
+    let fileUploadType: FileUploadType
 
     /// The url of the attachment.
-    let url: String
+    let url: URL
 }

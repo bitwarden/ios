@@ -4,6 +4,25 @@ import Networking
 /// A protocol for an API service used to make file requests.
 ///
 protocol FileAPIService {
+    /// Upload the file associated with a new attachment to a cipher..
+    ///
+    /// - Parameters:
+    ///   - attachmentId: The id for the attachment.
+    ///   - cipherId: The id for the cipher.
+    ///   - data: The data representation of the file.
+    ///   - type: The method for uploading the file.
+    ///   - fileName: The name of the file.
+    ///   - url: The URL to upload the file to.
+    ///
+    func uploadCipherAttachment( // swiftlint:disable:this function_parameter_count
+        attachmentId: String,
+        cipherId: String,
+        data: Data,
+        fileName: String,
+        type: FileUploadType,
+        url: URL
+    ) async throws
+
     /// Upload the file associated with a new File type Send.
     ///
     /// - Parameters:
@@ -25,6 +44,27 @@ protocol FileAPIService {
 }
 
 extension APIService: FileAPIService {
+    func uploadCipherAttachment( // swiftlint:disable:this function_parameter_count
+        attachmentId: String,
+        cipherId: String,
+        data: Data,
+        fileName: String,
+        type: FileUploadType,
+        url: URL
+    ) async throws {
+        switch type {
+        case .azure:
+            try await azureUploadFile(data: data, url: url)
+        case .direct:
+            _ = try await apiService.send(DirectAttachmentUploadRequest(
+                attachmentId: attachmentId,
+                data: data,
+                cipherId: cipherId,
+                fileName: fileName
+            ))
+        }
+    }
+
     func uploadSendFile( // swiftlint:disable:this function_parameter_count
         data: Data,
         type: FileUploadType,

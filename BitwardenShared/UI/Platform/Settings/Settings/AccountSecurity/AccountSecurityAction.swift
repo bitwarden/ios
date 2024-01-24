@@ -27,7 +27,7 @@ enum AccountSecurityAction: Equatable {
     case sessionTimeoutValueChanged(SessionTimeoutValue)
 
     /// Sets the custom session timeout value.
-    case setCustomSessionTimeoutValue(TimeInterval)
+    case customTimeoutValueChanged(Int)
 
     /// Approve login requests was toggled.
     case toggleApproveLoginRequestsToggle(Bool)

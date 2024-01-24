@@ -23,6 +23,16 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Delete an attachment from a cipher.
+    ///
+    /// - Parameters:
+    ///   - attachmentId: The id of the attachment to delete.
+    ///   - cipherId: The id of the cipher that owns the attachment.
+    ///
+    /// - Returns: The updated cipher view with one less attachment.
+    ///
+    func deleteAttachment(withId attachmentId: String, cipherId: String) async throws -> CipherView?
+
     /// Delete a cipher from the user's vault.
     ///
     /// - Parameter id: The cipher id that to be deleted.
@@ -672,6 +682,18 @@ extension DefaultVaultRepository: VaultRepository {
         return try await clientVault.folders()
             .decryptList(folders: folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    func deleteAttachment(withId attachmentId: String, cipherId: String) async throws -> CipherView? {
+        // Delete the attachment and then decrypt the resulting updated cipher.
+        if let updatedCipher = try await cipherService.deleteAttachmentWithServer(
+            attachmentId: attachmentId,
+            cipherId: cipherId
+        ) {
+            return try await clientVault.ciphers().decrypt(cipher: updatedCipher)
+        }
+        // This would only return nil if the cipher somehow doesn't exist in the datastore anymore.
+        return nil
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {

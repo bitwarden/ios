@@ -1,3 +1,4 @@
+import BitwardenSdk
 import SnapshotTesting
 import XCTest
 
@@ -8,6 +9,16 @@ class AttachmentsViewTests: BitwardenTestCase {
 
     var processor: MockProcessor<AttachmentsState, AttachmentsAction, AttachmentsEffect>!
     var subject: AttachmentsView!
+
+    var cipherWithAttachments: CipherView {
+        .fixture(
+            attachments: [
+                .fixture(fileName: "selfieWithACat.png", id: "1", sizeName: "10 MB"),
+                .fixture(fileName: "selfieWithADog.png", id: "2", sizeName: "11.2 MB"),
+                .fixture(fileName: "selfieWithAPotato.png", id: "3", sizeName: "201.2 MB"),
+            ]
+        )
+    }
 
     // MARK: Setup & Teardown
 
@@ -43,6 +54,14 @@ class AttachmentsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .chooseFilePressed)
     }
 
+    /// Tapping the delete button dispatches the `.delete` action.
+    func test_deleteButton_tap() throws {
+        processor.state.cipher = .fixture(attachments: [.fixture()])
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.delete)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .deletePressed(.fixture()))
+    }
+
     /// Tapping the save button performs the `.savePressed` effect.
     func test_saveButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.save)
@@ -64,6 +83,24 @@ class AttachmentsViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly with large text.
     func test_snapshot_attachments_empty_large() {
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitAX5)
+    }
+
+    /// The view with several attachments renders correctly in dark mode.
+    func test_snapshot_attachments_several_dark() {
+        processor.state.cipher = cipherWithAttachments
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitDark)
+    }
+
+    /// The view with several attachments renders correctly.
+    func test_snapshot_attachments_several_default() {
+        processor.state.cipher = cipherWithAttachments
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+    }
+
+    /// The view with several attachments renders correctly with large text.
+    func test_snapshot_attachments_several_large() {
+        processor.state.cipher = cipherWithAttachments
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitAX5)
     }
 }

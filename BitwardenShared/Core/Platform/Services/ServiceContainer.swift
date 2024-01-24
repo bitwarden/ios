@@ -12,7 +12,7 @@ import UIKit
 ///             & HasExampleRepository
 ///     }
 ///
-public class ServiceContainer: Services {
+public class ServiceContainer: Services { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The service used by the application to make API requests.
@@ -50,6 +50,9 @@ public class ServiceContainer: Services {
 
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
+
+    /// The service used by the application to access the system's notification center.
+    let notificationCenterService: NotificationCenterService
 
     /// The service used by the application to handle notifications.
     let notificationService: NotificationService
@@ -111,6 +114,7 @@ public class ServiceContainer: Services {
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
+    ///   - notificaitonCenterService: The service used by the application to access the system's notification center.
     ///   - notificationService: The service used by the application to handle notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
@@ -139,6 +143,7 @@ public class ServiceContainer: Services {
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
+        notificationCenterService: NotificationCenterService,
         notificationService: NotificationService,
         pasteboardService: PasteboardService,
         sendRepository: SendRepository,
@@ -166,6 +171,7 @@ public class ServiceContainer: Services {
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
+        self.notificationCenterService = notificationCenterService
         self.notificationService = notificationService
         self.pasteboardService = pasteboardService
         self.sendRepository = sendRepository
@@ -192,23 +198,25 @@ public class ServiceContainer: Services {
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
 
+        let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
-        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+
+        let timeProvider = CurrentTime()
+
+        let stateService = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore,
+            timeProvider: timeProvider
+        )
 
         let biometricsService = DefaultBiometricsService(stateService: stateService)
-        let clientService = DefaultClientService()
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
         let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
-
-        let cipherService = DefaultCipherService(
-            cipherAPIService: apiService,
-            cipherDataStore: dataStore,
-            stateService: stateService
-        )
+        let notificationCenterService = DefaultNotificationCenterService()
 
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
@@ -220,6 +228,13 @@ public class ServiceContainer: Services {
             clientCrypto: clientService.clientCrypto(),
             errorReporter: errorReporter,
             organizationDataStore: dataStore,
+            stateService: stateService
+        )
+
+        let cipherService = DefaultCipherService(
+            cipherAPIService: apiService,
+            cipherDataStore: dataStore,
+            fileAPIService: apiService,
             stateService: stateService
         )
 
@@ -262,8 +277,7 @@ public class ServiceContainer: Services {
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-
-        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
+        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
@@ -304,6 +318,7 @@ public class ServiceContainer: Services {
 
         let sendRepository = DefaultSendRepository(
             clientVault: clientService.clientVault(),
+            environmentService: environmentService,
             organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
@@ -319,8 +334,6 @@ public class ServiceContainer: Services {
             syncService: syncService,
             vaultTimeoutService: vaultTimeoutService
         )
-
-        let timeProvider = CurrentTime()
 
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
@@ -353,6 +366,7 @@ public class ServiceContainer: Services {
             environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
+            notificationCenterService: notificationCenterService,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
             sendRepository: sendRepository,

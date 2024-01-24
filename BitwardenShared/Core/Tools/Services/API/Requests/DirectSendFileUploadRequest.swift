@@ -8,6 +8,8 @@ import Networking
 struct DirectSendFileUploadRequest: Request {
     typealias Response = EmptyResponse
 
+    // MARK: Properties
+
     /// The body of the request.
     var body: DirectFileUploadRequestModel? {
         requestModel
@@ -30,7 +32,7 @@ struct DirectSendFileUploadRequest: Request {
     /// The id of the Send associated with this file.
     let sendId: String
 
-    // MARK: - Initialization
+    // MARK: Initialization
 
     /// Creates a new `DirectSendFileUploadRequest`.
     ///

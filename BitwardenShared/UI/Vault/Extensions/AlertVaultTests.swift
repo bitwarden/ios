@@ -3,6 +3,20 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertVaultTests: BitwardenTestCase {
+    /// `confirmDeleteAttachment(action:)` shows an `Alert` that asks the user to confirm deleting
+    /// an attachment.
+    func test_confirmDeleteAttachment() {
+        let subject = Alert.confirmDeleteAttachment {}
+
+        XCTAssertEqual(subject.title, Localizations.doYouReallyWantToDelete)
+        XCTAssertNil(subject.message)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.yes)
+        XCTAssertEqual(subject.alertActions.first?.style, .default)
+        XCTAssertEqual(subject.alertActions.last?.title, Localizations.no)
+        XCTAssertEqual(subject.alertActions.last?.style, .cancel)
+    }
+
     /// `attachmentOptions(handler:)` constructs an `Alert` that presents the user with options
     /// to select an attachment type.
     func test_fileSelectionOptions() {

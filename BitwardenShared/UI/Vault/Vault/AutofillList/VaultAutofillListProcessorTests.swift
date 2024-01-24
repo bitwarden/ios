@@ -7,6 +7,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
+    var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultRoute>!
     var errorReporter: MockErrorReporter!
     var subject: VaultAutofillListProcessor!
@@ -18,6 +19,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         super.setUp()
 
         appExtensionDelegate = MockAppExtensionDelegate()
+        authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
@@ -26,6 +28,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                authRepository: authRepository,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository
             ),
@@ -37,6 +40,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         appExtensionDelegate = nil
+        authRepository = nil
         coordinator = nil
         errorReporter = nil
         subject = nil
@@ -71,6 +75,26 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.copyPassword)
 
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+    }
+
+    /// `perform(_:)` with `.loadData` loads the profile switcher state.
+    func test_perform_loadData_profileSwitcher() async {
+        authRepository.accountsResult = .success([.anneAccount])
+        authRepository.activeAccountResult = .success(.anneAccount)
+
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.profileSwitcherState.accounts, [.anneAccount])
+    }
+
+    /// `perform(_:)` with `.loadData` logs an error if one occurs when loading the profile switcher.
+    func test_perform_loadData_profileSwitcher_error() async {
+        authRepository.accountsResult = .failure(StateServiceError.noAccounts)
+
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.profileSwitcherState, .empty(shouldAlwaysHideAddAccount: true))
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, StateServiceError.noAccounts)
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
@@ -161,6 +185,15 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .addItem(allowTypeSelection: false, group: .login))
     }
 
+    /// `receive(_:)` with `.addTapped` hides the profile switcher if it's visible.
+    func test_receive_addTapped_hidesProfileSwitcher() {
+        subject.state.profileSwitcherState.isVisible = true
+
+        subject.receive(.addTapped)
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
     /// `receive(_:)` with `.cancelTapped` notifies the delegate to cancel the extension.
     func test_receive_cancelTapped() {
         subject.receive(.cancelTapped)
@@ -168,7 +201,40 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)
     }
 
-    /// `receive(_:)` with `.searchStateChanged` updates the state when the search state changes
+    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the profile switcher's
+    /// visibility and navigates to switch account.
+    func test_receive_profileSwitcher_accountPressed() {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.profileSwitcherAction(.accountPressed(ProfileSwitcherItem(userId: "1"))))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.routes.last, .switchAccount(userId: "1"))
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.backgroundPressed)` turns off the Profile Switcher Visibility.
+    func test_receive_profileSwitcher_backgroundPressed() {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.profileSwitcherAction(.backgroundPressed))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.scrollOffsetChanged)` updates the scroll offset.
+    func test_receive_profileSwitcher_scrollOffset() {
+        subject.state.profileSwitcherState.scrollOffset = .zero
+        subject.receive(.profileSwitcherAction(.scrollOffsetChanged(CGPoint(x: 10, y: 10))))
+        XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, CGPoint(x: 10, y: 10))
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.toggleProfilesViewVisibility)` updates the state correctly.
+    func test_receive_profileSwitcher_toggleProfilesViewVisibility() {
+        subject.state.profileSwitcherState.isVisible = false
+        subject.receive(.profileSwitcherAction(.requestedProfileSwitcher(visible: true)))
+
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.searchStateChanged` updates the state when the search state changes.
     func test_receive_searchStateChanged() {
         subject.receive(.searchStateChanged(isSearching: true))
 
@@ -181,6 +247,14 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
         XCTAssertTrue(subject.state.searchText.isEmpty)
         XCTAssertFalse(subject.state.showNoResults)
+    }
+
+    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` hides the profile switcher.
+    func test_receive_searchStateChanged_true_profilesHide() {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
 
     /// `receive(_:)` with `.searchTextChanged` updates the state's search text value.

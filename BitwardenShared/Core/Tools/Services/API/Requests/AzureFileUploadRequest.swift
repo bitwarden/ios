@@ -31,7 +31,7 @@ struct AzureFileUploadRequest: Request {
     /// The HTTP method for the request.
     let method: HTTPMethod = .put
 
-    /// The path for this request. Intentially empty since this request uses a custom URL.
+    /// The path for this request. Intentionally empty since this request uses a custom URL.
     let path = ""
 
     /// The custom URL for this request. Used in place of `path`, since file uploads to Azure can be

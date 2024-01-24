@@ -47,6 +47,9 @@ class VaultAutofillListViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly.
     func test_snapshot_vaultAutofillList_empty() {
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -55,6 +58,9 @@ class VaultAutofillListViewTests: BitwardenTestCase {
 
     /// The populated view renders correctly.
     func test_snapshot_vaultAutofillList_populated() {
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
         processor.state.ciphersForAutofill = [
             .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Apple"),
             .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Bitwarden"),

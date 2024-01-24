@@ -44,6 +44,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasPasteboardService
         & HasSettingsRepository
         & HasStateService
+        & HasTimeProvider
         & HasTwoStepLoginService
         & HasVaultRepository
         & HasVaultTimeoutService
