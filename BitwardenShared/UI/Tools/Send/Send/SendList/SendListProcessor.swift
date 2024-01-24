@@ -206,6 +206,7 @@ extension SendListProcessor: SendItemDelegate {
     }
 
     func sendItemDeleted() {
+        coordinator.navigate(to: .dismiss(nil))
         state.toast = Toast(text: Localizations.sendDeleted)
     }
 }

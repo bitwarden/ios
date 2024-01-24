@@ -53,8 +53,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         AsyncButton(Localizations.copyLink) {
                             await store.perform(.copyLinkPressed)
                         }
-                        AsyncButton(Localizations.removePassword) {
-                            await store.perform(.removePassword)
+                        if store.state.originalSendView?.hasPassword ?? false {
+                            AsyncButton(Localizations.removePassword) {
+                                await store.perform(.removePassword)
+                            }
                         }
                         AsyncButton(Localizations.delete, role: .destructive) {
                             await store.perform(.deletePressed)
