@@ -4,6 +4,8 @@ import XCTest
 
 // MARK: - AppSettingsStoreTests
 
+// swiftlint:disable file_length
+
 class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -638,4 +640,25 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(subject.state)
         XCTAssertNil(userDefaults.data(forKey: "bwPreferencesStorage:state"))
     }
-} // swiftlint:disable:this file_length
+
+    /// `.timeoutAction(userId:)` returns the correct timeout action.
+    func test_timeoutAction() throws {
+        subject.setTimeoutAction(key: .logout, userId: "1")
+        XCTAssertEqual(subject.timeoutAction(userId: "1"), 1)
+        XCTAssertEqual(
+            try JSONDecoder().decode(
+                SessionTimeoutAction.self,
+                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:vaultTimeoutAction_1")).utf8)
+            ),
+            .logout
+        )
+    }
+
+    /// `.vaultTimeout(userId:)` returns the correct vault timeout value.
+    func test_vaultTimeout() throws {
+        subject.setVaultTimeout(key: 60, userId: "1")
+
+        XCTAssertEqual(subject.vaultTimeout(userId: "1"), 60)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:vaultTimeout_1"), 60)
+    }
+}

@@ -23,9 +23,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
     var connectToWatchSubject = CurrentValueSubject<Bool, Never>(false)
-    var environmentUrls = [String: EnvironmentUrlData]()
+    var timeProvider = MockTimeProvider(.currentTime)
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var environmentUrls = [String: EnvironmentUrlData]()
+    var lastActiveTime = [String: Date]()
     var getAccountEncryptionKeysError: Error?
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var getBiometricIntegrityStateError: Error?
@@ -38,19 +40,21 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var pinKeyEncryptedUserKeyValue = [String: String]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
-    var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
-    var setBiometricIntegrityStateError: Error?
+    var rememberedOrgIdentifier: String?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
-    var rememberedOrgIdentifier: String?
+    var timeoutAction = [String: SessionTimeoutAction]()
+    var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var setBiometricIntegrityStateError: Error?
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
+    var vaultTimeout = [String: SessionTimeoutValue]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
 
-    func addAccount(_ account: BitwardenShared.Account) async {
+    func addAccount(_ account: Account) async {
         accountsAdded.append(account)
         activeAccount = account
     }
@@ -80,7 +84,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return encryptionKeys
     }
 
-    func getAccounts() async throws -> [BitwardenShared.Account] {
+    func getAccounts() async throws -> [Account] {
         guard let accounts else { throw StateServiceError.noAccounts }
         return accounts
     }
@@ -149,6 +153,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return environmentUrls[userId]
     }
 
+    func getLastActiveTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return lastActiveTime[userId]
+    }
+
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return masterPasswordHashes[userId]
@@ -172,6 +181,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         showWebIcons
     }
 
+    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return timeoutAction[userId] ?? .lock
+    }
+
     func getTwoFactorToken(email: String) async -> String? {
         twoFactorTokens[email]
     }
@@ -184,6 +198,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return usernameGenerationOptions[userId]
+    }
+
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return vaultTimeout[userId] ?? .immediately
     }
 
     func logoutAccount(userId: String?) async throws {
@@ -265,6 +284,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountEncryptionKeys["1"] = .init(encryptedPrivateKey: "", encryptedUserKey: "")
     }
 
+    func setLastActiveTime(userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        lastActiveTime[userId] = timeProvider.presentTime
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         lastSyncTimeByUserId[userId] = date
@@ -322,6 +346,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         self.showWebIcons = showWebIcons
     }
 
+    func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        timeoutAction[userId] = action
+    }
+
     func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
     }
@@ -338,6 +367,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         usernameGenerationOptions[userId] = options
+    }
+
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        vaultTimeout[userId] = value
     }
 
     func activeAccountIdPublisher() async -> AnyPublisher<String?, Never> {
@@ -391,4 +425,4 @@ extension MockStateService {
         }
         biometricIntegrityStates[activeAccount.profile.userId] = base64EncodedState
     }
-}
+} // swiftlint:disable:this file_length

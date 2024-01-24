@@ -18,7 +18,9 @@ final class AccountSecurityProcessor: StateProcessor<
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
+        & HasTimeProvider
         & HasTwoStepLoginService
+        & HasVaultTimeoutService
 
     // MARK: Private Properties
 
@@ -53,6 +55,8 @@ final class AccountSecurityProcessor: StateProcessor<
         switch effect {
         case .accountFingerprintPhrasePressed:
             await showAccountFingerprintPhraseAlert()
+        case .appeared:
+            await appeared()
         case .loadData:
             await loadData()
         case let .lockVault(userIntiated):
@@ -68,18 +72,19 @@ final class AccountSecurityProcessor: StateProcessor<
             state.fingerprintPhraseUrl = nil
         case .clearTwoStepLoginUrl:
             state.twoStepLoginUrl = nil
+        case let .customTimeoutValueChanged(newValue):
+            setVaultTimeout(value: .custom(newValue))
         case .deleteAccountPressed:
             coordinator.navigate(to: .deleteAccount)
         case .logout:
             showLogoutConfirmation()
         case .pendingLoginRequestsTapped:
             coordinator.navigate(to: .pendingLoginRequests)
-        case let .sessionTimeoutActionChanged(action):
-            saveTimeoutActionSetting(action)
+        case let .sessionTimeoutActionChanged(newValue):
+            setTimeoutAction(newValue)
         case let .sessionTimeoutValueChanged(newValue):
             state.sessionTimeoutValue = newValue
-        case let .setCustomSessionTimeoutValue(newValue):
-            state.customSessionTimeoutValue = newValue
+            setVaultTimeout(value: newValue)
         case let .toggleApproveLoginRequestsToggle(isOn):
             confirmTogglingApproveLoginRequests(isOn)
         case let .toggleUnlockWithPINCode(isOn):
@@ -90,6 +95,18 @@ final class AccountSecurityProcessor: StateProcessor<
     }
 
     // MARK: Private
+
+    /// The view has appeared.
+    ///
+    private func appeared() async {
+        do {
+            state.sessionTimeoutAction = try await services.stateService.getTimeoutAction()
+            state.sessionTimeoutValue = try await services.stateService.getVaultTimeout()
+        } catch {
+            coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Show an alert to confirm enabling approving login requests.
     ///
@@ -149,20 +166,43 @@ final class AccountSecurityProcessor: StateProcessor<
         }
     }
 
-    /// Saves the user's session timeout action.
+    /// Sets the session timeout action.
     ///
-    /// - Parameter action: The action to perform on session timeout.
+    /// - Parameter action: The action that occurs upon a session timeout.
     ///
-    private func saveTimeoutActionSetting(_ action: SessionTimeoutAction) {
+    private func setTimeoutAction(_ action: SessionTimeoutAction) {
         guard action != state.sessionTimeoutAction else { return }
         if action == .logout {
             coordinator.navigate(to: .alert(.logoutOnTimeoutAlert {
-                // TODO: BIT-1125 Persist the setting
-                self.state.sessionTimeoutAction = action
+                do {
+                    try await self.services.stateService.setTimeoutAction(action: action)
+                } catch {
+                    self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+                    self.services.errorReporter.log(error: error)
+                }
             }))
         } else {
-            // TODO: BIT-1125 Persist the setting
-            state.sessionTimeoutAction = action
+            Task {
+                try await services.stateService.setTimeoutAction(action: action)
+            }
+        }
+
+        state.sessionTimeoutAction = action
+    }
+
+    /// Sets the vault timeout value.
+    ///
+    /// - Parameter value: The vault timeout value.
+    ///
+    private func setVaultTimeout(value: SessionTimeoutValue) {
+        Task {
+            do {
+                state.sessionTimeoutValue = value
+                try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: nil)
+            } catch {
+                self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+                self.services.errorReporter.log(error: error)
+            }
         }
     }
 

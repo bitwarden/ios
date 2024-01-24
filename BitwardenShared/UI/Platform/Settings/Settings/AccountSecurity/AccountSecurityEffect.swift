@@ -6,6 +6,9 @@ enum AccountSecurityEffect: Equatable {
     /// The account fingerprint phrase button was tapped.
     case accountFingerprintPhrasePressed
 
+    /// The view has appeared.
+    case appeared
+
     /// Any initial data for the view should be loaded.
     case loadData
 

@@ -22,7 +22,7 @@ protocol TimeProvider: AnyObject {
 
 // MARK: - CurrentTime
 
-/// A `TimeProvider` that uses returns the current time whenever `presentTime` is read.
+/// A `TimeProvider` that returns the current time whenever `presentTime` is read.
 ///
 class CurrentTime: TimeProvider {
     var presentTime: Date {

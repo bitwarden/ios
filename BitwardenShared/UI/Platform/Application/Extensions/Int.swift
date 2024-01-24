@@ -2,13 +2,14 @@ import Foundation
 
 // MARK: - TimeInterval
 
-extension TimeInterval {
+extension Int {
     // MARK: Methods
 
-    /// Creates a string from a time interval value in the format of `HH:mm`.
+    /// Creates a string in the format of `HH:mm` from a number of seconds.
     ///
     /// - Parameter shouldSpellOut: Whether `DateComponentsFormatter.UnitsStyle.spellOut`
     /// is applied for accessibility purposes.
+    ///
     /// - Returns: A string from a time interval value in the format of `HH:mm`.
     ///
     func timeInHoursMinutes(shouldSpellOut: Bool = false) -> String {

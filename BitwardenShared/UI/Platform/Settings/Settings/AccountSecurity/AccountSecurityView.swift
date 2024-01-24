@@ -38,6 +38,9 @@ struct AccountSecurityView: View {
             store.send(.clearFingerprintPhraseUrl)
         }
         .task {
+            await store.perform(.appeared)
+        }
+        .task {
             await store.perform(.loadData)
         }
     }
@@ -130,8 +133,8 @@ struct AccountSecurityView: View {
                         title: Localizations.custom,
                         customTimeoutValue: store.state.customTimeoutString,
                         pickerValue: store.binding(
-                            get: \.customSessionTimeoutValue,
-                            send: AccountSecurityAction.setCustomSessionTimeoutValue
+                            get: \.customTimeoutValue,
+                            send: AccountSecurityAction.customTimeoutValueChanged
                         ),
                         customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel
                     )

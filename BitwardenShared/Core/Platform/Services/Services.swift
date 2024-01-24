@@ -17,6 +17,7 @@ typealias Services = HasAPIService
     & HasErrorReporter
     & HasFileAPIService
     & HasGeneratorRepository
+    & HasNotificationCenterService
     & HasNotificationService
     & HasPasteboardService
     & HasSendRepository
@@ -101,12 +102,14 @@ protocol HasCaptchaService {
 }
 
 /// Protocol for an object that provides a `ClientAuth`.
+///
 protocol HasClientAuth {
     /// The client used by the application to handle auth related encryption and decryption tasks.
     var clientAuth: ClientAuthProtocol { get }
 }
 
 /// Protocol for an object that provides a `DeviceAPIService`.
+///
 protocol HasDeviceAPIService {
     /// The service used by the application to make device-related API requests.
     var deviceAPIService: DeviceAPIService { get }
@@ -152,6 +155,13 @@ protocol HasNotificationService {
 protocol HasPasteboardService {
     /// The service used by the application for sharing data with other apps.
     var pasteboardService: PasteboardService { get }
+}
+
+/// Protocol for an object that provides a `NotificationCenterService`.
+///
+protocol HasNotificationCenterService {
+    /// The service used by the application to access the system's notification center.
+    var notificationCenterService: NotificationCenterService { get }
 }
 
 /// Protocol for an object that provides a `SendRepository`.
