@@ -185,7 +185,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID for the account.
     /// - Returns: The action to perform when a session timeout occurs.
     ///
-    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction?
+    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction
 
     /// Get the two-factor token (non-nil if the user selected the "remember me" option).
     ///
@@ -321,9 +321,7 @@ protocol StateService: AnyObject {
 
     /// Sets the last active time within the app.
     ///
-    /// - Parameters:
-    ///   - date: The date of the last active time.
-    ///   - userId: The user ID associated with the last active time within the app.
+    /// - Parameter userId: The user ID associated with the last active time within the app.
     ///
     func setLastActiveTime(userId: String?) async throws
 
@@ -575,7 +573,7 @@ extension StateService {
     ///
     /// - Returns: The action to perform when a session timeout occurs.
     ///
-    func getTimeoutAction() async throws -> SessionTimeoutAction? {
+    func getTimeoutAction() async throws -> SessionTimeoutAction {
         try await getTimeoutAction(userId: nil)
     }
 
@@ -994,10 +992,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         !appSettingsStore.disableWebIcons
     }
 
-    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction? {
+    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
         let userId = try userId ?? getActiveAccountUserId()
-        let rawValue = appSettingsStore.timeoutAction(userId: userId) ?? 0
-        return SessionTimeoutAction(rawValue: rawValue)
+        guard let rawValue = appSettingsStore.timeoutAction(userId: userId),
+              let timeoutAction = SessionTimeoutAction(rawValue: rawValue) else {
+            return .lock
+        }
+        return timeoutAction
     }
 
     func getTwoFactorToken(email: String) async -> String? {
@@ -1016,7 +1017,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try userId ?? getActiveAccountId()
-        return SessionTimeoutValue(rawValue: appSettingsStore.vaultTimeout(userId: userId) ?? -2)
+        guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
+            return .fifteenMinutes
+        }
+        return SessionTimeoutValue(rawValue: rawValue)
     }
 
     func logoutAccount(userId: String?) async throws {

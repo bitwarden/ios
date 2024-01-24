@@ -73,7 +73,6 @@ final class AccountSecurityProcessor: StateProcessor<
         case .clearTwoStepLoginUrl:
             state.twoStepLoginUrl = nil
         case let .customTimeoutValueChanged(newValue):
-            state.customTimeoutValue = newValue
             setVaultTimeout(value: .custom(newValue))
         case .deleteAccountPressed:
             coordinator.navigate(to: .deleteAccount)
@@ -101,26 +100,8 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func appeared() async {
         do {
-            // Timeout action
-            let timeoutAction = try await services.stateService.getTimeoutAction()
-
-            if timeoutAction == nil {
-                try await services.stateService.setTimeoutAction(action: .lock)
-            }
-
-            state.sessionTimeoutAction = try await services.stateService.getTimeoutAction() ?? .lock
-
-            // Timeout value
-            let vaultTimeout = try await services.stateService.getVaultTimeout()
-
-            if SessionTimeoutValue.allCases.contains(vaultTimeout) {
-                for value in SessionTimeoutValue.allCases where vaultTimeout.rawValue == value.rawValue {
-                    state.sessionTimeoutValue = value
-                }
-            } else {
-                state.sessionTimeoutValue = .custom(vaultTimeout.rawValue)
-                state.customTimeoutValue = vaultTimeout.rawValue
-            }
+            state.sessionTimeoutAction = try await services.stateService.getTimeoutAction()
+            state.sessionTimeoutValue = try await services.stateService.getVaultTimeout()
         } catch {
             coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
             services.errorReporter.log(error: error)
@@ -216,6 +197,7 @@ final class AccountSecurityProcessor: StateProcessor<
     private func setVaultTimeout(value: SessionTimeoutValue) {
         Task {
             do {
+                state.sessionTimeoutValue = value
                 try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: nil)
             } catch {
                 self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))

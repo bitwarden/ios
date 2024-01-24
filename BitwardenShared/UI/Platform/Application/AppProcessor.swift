@@ -89,7 +89,7 @@ public class AppProcessor {
             coordinator.navigate(to: initialRoute)
         } else if let activeAccount = services.appSettingsStore.state?.activeAccount {
             let vaultTimeout = services.appSettingsStore.vaultTimeout(userId: activeAccount.profile.userId)
-            if vaultTimeout == -1 {
+            if vaultTimeout == SessionTimeoutValue.onAppRestart.rawValue {
                 navigatePostTimeout()
             } else {
                 coordinator.navigate(
@@ -115,9 +115,9 @@ public class AppProcessor {
         guard let account = services.appSettingsStore.state?.activeAccount else { return }
         guard let action = services.appSettingsStore.timeoutAction(userId: account.profile.userId) else { return }
         switch action {
-        case 0:
+        case SessionTimeoutAction.lock.rawValue:
             coordinator?.navigate(to: .auth(.vaultUnlock(account, didSwitchAccountAutomatically: false)))
-        case 1:
+        case SessionTimeoutAction.logout.rawValue:
             Task {
                 try await services.stateService.logoutAccount(userId: account.profile.userId)
             }

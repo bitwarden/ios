@@ -288,6 +288,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         let account = Account.fixture()
         stateService.activeAccount = account
+
         subject.receive(.customTimeoutValueChanged(120))
         waitFor(subject.state.customTimeoutValue == 120)
     }

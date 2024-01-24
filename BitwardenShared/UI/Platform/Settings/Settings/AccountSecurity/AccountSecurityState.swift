@@ -169,7 +169,12 @@ struct AccountSecurityState: Equatable {
     }
 
     /// The custom session timeout value, initially set to 60 seconds.
-    var customTimeoutValue: Int = 60
+    var customTimeoutValue: Int {
+        guard case let .custom(customValue) = sessionTimeoutValue else {
+            return 60
+        }
+        return customValue
+    }
 
     /// The string representation of the custom session timeout value.
     var customTimeoutString: String {

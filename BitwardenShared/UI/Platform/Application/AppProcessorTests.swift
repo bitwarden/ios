@@ -109,14 +109,14 @@ class AppProcessorTests: BitwardenTestCase {
         let rootNavigator = MockRootNavigator()
         let account: Account = .fixture()
 
-        appSettingStore.timeoutAction[account.profile.userId] = 1
+        appSettingStore.timeoutAction[account.profile.userId] = SessionTimeoutAction.logout.rawValue
         appSettingStore.state = State(
             accounts: [account.profile.userId: account],
             activeUserId: account.profile.userId
         )
         stateService.activeAccount = account
         stateService.accounts = [account]
-        appSettingStore.vaultTimeout[account.profile.userId] = -1
+        appSettingStore.vaultTimeout[account.profile.userId] = SessionTimeoutValue.onAppRestart.rawValue
         vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
 
         subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
@@ -132,7 +132,7 @@ class AppProcessorTests: BitwardenTestCase {
         let rootNavigator = MockRootNavigator()
         let account: Account = .fixture()
 
-        appSettingStore.timeoutAction[account.profile.userId] = 0
+        appSettingStore.timeoutAction[account.profile.userId] = SessionTimeoutAction.lock.rawValue
         appSettingStore.state = State(
             accounts: [account.profile.userId: account],
             activeUserId: account.profile.userId

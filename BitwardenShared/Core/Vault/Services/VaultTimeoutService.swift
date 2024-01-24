@@ -38,9 +38,7 @@ protocol VaultTimeoutService: AnyObject {
 
     /// Sets the last active time within the app.
     ///
-    /// - Parameters:
-    ///   - date: The date of the last active time.
-    ///   - userId: The user ID associated with the last active time within the app.
+    /// - Parameter userId: The user ID associated with the last active time within the app.
     ///
     func setLastActiveTime(userId: String) async throws
 
@@ -118,14 +116,6 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         timeoutStore = timeoutStore.filter { $0.key != id }
     }
 
-    private func shouldClearData(activeAccountId: String?) -> Bool {
-        guard let activeAccountId,
-              let isLocked = timeoutStore[activeAccountId] else {
-            return true
-        }
-        return isLocked
-    }
-
     func setLastActiveTime(userId: String) async throws {
         try await stateService.setLastActiveTime(userId: userId)
     }
@@ -135,7 +125,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func shouldSessionTimeout(userId: String) async throws -> Bool {
-        guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId) else { return false }
+        guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId) else { return true }
         let vaultTimeout = try await stateService.getVaultTimeout(userId: userId)
 
         if vaultTimeout == .onAppRestart { return true }

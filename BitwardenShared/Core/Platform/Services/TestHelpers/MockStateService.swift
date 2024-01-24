@@ -181,7 +181,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         showWebIcons
     }
 
-    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction? {
+    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
         let userId = try userId ?? getActiveAccount().profile.userId
         return timeoutAction[userId] ?? .lock
     }
