@@ -94,11 +94,17 @@ struct AddEditSendItemState: Equatable {
     /// The private notes for this item.
     var notes: String = ""
 
+    /// The original send view that is being edited.
+    var originalSendView: SendView? = nil
+
     /// A password that can be used to limit access to this item.
     var password: String = ""
 
     /// The contents of this item.
     var text: String = ""
+
+    /// A toast message to show in the view.
+    var toast: Toast?
 
     /// The type of this item.
     var type: SendType = .text
@@ -135,6 +141,7 @@ extension AddEditSendItemState {
             mode: .edit,
             name: sendView.name,
             notes: sendView.notes ?? "",
+            originalSendView: sendView,
             password: "",
             text: sendView.text?.text ?? "",
             type: SendType(sendType: sendView.type)

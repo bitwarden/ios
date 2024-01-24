@@ -14,6 +14,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
     typealias Module = FileSelectionModule
 
     typealias Services = HasErrorReporter
+        & HasPasteboardService
         & HasSendRepository
 
     // MARK: - Private Properties
@@ -66,6 +67,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             showAddItem(hasPremium: hasPremium)
         case .cancel:
             delegate?.sendItemCancelled()
+        case .deleted:
+            delegate?.sendItemDeleted()
         case let .complete(sendView):
             delegate?.sendItemCompleted(with: sendView)
         case let .edit(sendView, hasPremium):
@@ -73,6 +76,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
         case let .fileSelection(route):
             guard let delegate = context as? FileSelectionDelegate else { return }
             showFileSelection(route: route, delegate: delegate)
+        case let .share(url):
+            showShareSheet(for: [url])
         }
     }
 
@@ -134,5 +139,17 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
         coordinator.start()
         coordinator.navigate(to: route)
         fileSelectionCoordinator = coordinator
+    }
+
+    /// Presents the system share sheet for the specified items.
+    ///
+    /// - Parameter items: The items to share using the system share sheet.
+    ///
+    private func showShareSheet(for items: [Any]) {
+        let viewController = UIActivityViewController(
+            activityItems: items,
+            applicationActivities: nil
+        )
+        stackNavigator.present(viewController)
     }
 }

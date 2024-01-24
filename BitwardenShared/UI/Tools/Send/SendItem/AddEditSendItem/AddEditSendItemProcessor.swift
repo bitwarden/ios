@@ -8,7 +8,8 @@ import Foundation
 class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect> {
     // MARK: Types
 
-    typealias Services = HasSendRepository
+    typealias Services = HasPasteboardService
+        & HasSendRepository
 
     // MARK: Properties
 
@@ -41,8 +42,26 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
 
     override func perform(_ effect: AddEditSendItemEffect) async {
         switch effect {
+        case .copyLinkPressed:
+            guard let sendView = state.originalSendView,
+                  let url = try? await services.sendRepository.shareURL(for: sendView)
+            else { return }
+
+            services.pasteboardService.copy(url.absoluteString)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.sendLink))
+        case .deletePressed:
+            guard let sendView = state.originalSendView else { return }
+            let alert = Alert.deleteSendConfirmation { [weak self] in
+                await self?.deleteSend(sendView)
+            }
+            coordinator.showAlert(alert)
+        case .removePassword:
+            break
         case .savePressed:
             await saveSendItem()
+        case .shareLinkPressed:
+            guard let sendView = state.originalSendView else { return }
+            await shareSaveURL(sendView)
         }
     }
 
@@ -84,12 +103,33 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.isShareOnSaveOn = newValue
         case let .textChanged(newValue):
             state.text = newValue
+        case let .toastShown(toast):
+            state.toast = toast
         case let .typeChanged(newValue):
             updateType(newValue)
         }
     }
 
     // MARK: Private Methods
+
+    /// Presents an alert asking the user if they would like to delete the provided send.
+    ///
+    /// - Parameter sendView: The send to be deleted.
+    ///
+    private func deleteSend(_ sendView: SendView) async {
+        coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.deleting))
+        do {
+            try await services.sendRepository.deleteSend(sendView)
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .deleted)
+        } catch {
+            let alert = Alert.networkResponseError(error) { [weak self] in
+                await self?.deleteSend(sendView)
+            }
+            coordinator.hideLoadingOverlay()
+            coordinator.showAlert(alert)
+        }
+    }
 
     /// Presents the file selection alert.
     ///
@@ -135,6 +175,17 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
                 await self?.saveSendItem()
             })
         }
+    }
+
+    /// Navigates to the `.share` route for the provided send view.
+    ///
+    /// - Parameter sendView: The send that is being shared.
+    ///
+    private func shareSaveURL(_ sendView: SendView) async {
+        guard let url = try? await services.sendRepository.shareURL(for: state.newSendView())
+        else { return }
+
+        coordinator.navigate(to: .share(url))
     }
 
     /// Attempts to update the send type. If the new value requires premium access and the active

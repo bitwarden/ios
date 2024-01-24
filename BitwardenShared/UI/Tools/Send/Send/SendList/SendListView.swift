@@ -43,6 +43,7 @@ private struct MainSendListView: View {
 
     // MARK: Private views
 
+    /// The view shown when not searching. Contains sends content or an empty state.
     @ViewBuilder private var content: some View {
         if store.state.sections.isEmpty {
             empty
@@ -151,8 +152,8 @@ private struct MainSendListView: View {
                                     hasDivider: items.last != item
                                 )
                             },
-                            mapAction: { .sendListItemRow($0) },
-                            mapEffect: nil
+                            mapAction: SendListAction.sendListItemRow,
+                            mapEffect: SendListEffect.sendListItemRow
                         )
                     )
                 }
@@ -206,6 +207,10 @@ struct SendListView: View {
                     store.send(.addItemPressed)
                 }
             }
+            .toast(store.binding(
+                get: \.toast,
+                send: SendListAction.toastShown
+            ))
             .task { await store.perform(.appeared) }
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))

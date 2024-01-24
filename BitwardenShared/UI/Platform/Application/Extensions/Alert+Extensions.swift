@@ -39,6 +39,28 @@ extension Alert {
         )
     }
 
+    static func deleteSendConfirmation(
+        completion: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.areYouSureDeleteSend,
+            message: nil,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.cancel,
+                    style: .cancel
+                ),
+                AlertAction(
+                    title: Localizations.yes,
+                    style: .default,
+                    handler: { _, _ in
+                        await completion()
+                    }
+                )
+            ]
+        )
+    }
+
     /// An alert to allow the user to add or edit the name of a custom field.
     ///
     /// - Parameters:

@@ -59,6 +59,9 @@ enum AddEditSendItemAction: Equatable {
     /// The text value text field was changed.
     case textChanged(String)
 
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// The type picker was changed.
     case typeChanged(SendType)
 }

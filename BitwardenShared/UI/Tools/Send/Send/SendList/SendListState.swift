@@ -16,4 +16,7 @@ struct SendListState {
 
     /// The sections displayed in the send list.
     var sections: [SendListSection] = []
+
+    /// A toast message to show in the view.
+    var toast: Toast?
 }

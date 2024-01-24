@@ -17,4 +17,7 @@ enum SendListAction: Equatable {
 
     /// A wrapped `SendListItemRowAction`.
     case sendListItemRow(SendListItemRowAction)
+
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
 }
