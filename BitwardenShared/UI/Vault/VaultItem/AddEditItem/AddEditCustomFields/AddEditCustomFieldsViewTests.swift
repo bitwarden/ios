@@ -18,7 +18,12 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: .init(customFields: [.init(name: "custom1", type: .text)]))
+        processor = MockProcessor(
+            state: .init(
+                cipherType: .login,
+                customFields: [.init(name: "custom1", type: .text)]
+            )
+        )
         let store = Store(processor: processor)
         subject = AddEditCustomFieldsView(store: store)
     }
@@ -64,5 +69,26 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.remove)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .removeCustomFieldPressed(index: 0))
+    }
+
+    /// The view with all types of custom fields renders correctly in dark mode.
+    func test_snapshot_allFields_dark() {
+        for preview in AddEditCustomFieldsView_Previews._allPreviews {
+            assertSnapshot(of: preview.content, as: .defaultPortraitDark)
+        }
+    }
+
+    /// The view with all types of custom fields renders correctly.
+    func test_snapshot_allFields_default() {
+        for preview in AddEditCustomFieldsView_Previews._allPreviews {
+            assertSnapshot(of: preview.content, as: .defaultPortrait)
+        }
+    }
+
+    /// The view with all types of custom fields renders correctly with large text.
+    func test_snapshot_allFields_large() {
+        for preview in AddEditCustomFieldsView_Previews._allPreviews {
+            assertSnapshot(of: preview.content, as: .defaultPortraitAX5)
+        }
     }
 }

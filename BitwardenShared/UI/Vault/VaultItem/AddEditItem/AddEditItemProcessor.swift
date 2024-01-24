@@ -146,6 +146,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.loginState.totpState = .init(newValue)
         case let .typeChanged(newValue):
             state.type = newValue
+            state.customFieldsState = AddEditCustomFieldsState(cipherType: newValue, customFields: [])
         case let .uriChanged(newValue, index: index):
             guard state.loginState.uris.count > index else { return }
             state.loginState.uris[index].uri = newValue
@@ -180,8 +181,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     private func handleCustomFieldAction(_ action: AddEditCustomFieldsAction) {
         switch action {
+        case let .booleanFieldChanged(newValue, index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields[index].value = String(newValue).lowercased()
         case let .customFieldAdded(type, name):
-            state.customFieldsState.customFields.append(CustomFieldState(name: name, type: type))
+            var customFieldState = CustomFieldState(name: name, type: type)
+            if type == .linked {
+                customFieldState.linkedIdType = LinkedIdType.getLinkedIdType(for: state.type).first
+            }
+            state.customFieldsState.customFields.append(customFieldState)
         case let .customFieldChanged(newValue, index: index):
             guard state.customFieldsState.customFields.indices.contains(index) else { return }
             state.customFieldsState.customFields[index].value = newValue
@@ -199,13 +207,20 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             guard state.customFieldsState.customFields.indices.contains(index),
                   index != state.customFieldsState.customFields.indices.first else { return }
             state.customFieldsState.customFields.swapAt(index, index - 1)
+        case .newCustomFieldPressed:
+            presentCustomFieldAlert()
         case let .removeCustomFieldPressed(index):
             guard state.customFieldsState.customFields.indices.contains(index) else { return }
             state.customFieldsState.customFields.remove(at: index)
         case let .selectedCustomFieldType(type):
             presentNameCustomFieldAlert(fieldType: type)
-        case .newCustomFieldPressed:
-            presentCustomFieldAlert()
+        case let .selectedLinkedIdType(index, idType):
+            guard state.customFieldsState.customFields.indices.contains(index),
+                  state.customFieldsState.customFields[index].type == .linked else { return }
+            state.customFieldsState.customFields[index].linkedIdType = idType
+        case let .togglePasswordVisibilityChanged(isPasswordVisible, index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields[index].isPasswordVisible = isPasswordVisible
         }
     }
 

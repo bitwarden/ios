@@ -6,6 +6,9 @@ import Foundation
 struct AddEditCustomFieldsState: Sendable, Equatable {
     // MARK: Properties
 
+    /// The cipher type.
+    let cipherType: CipherType
+
     /// The custom fields.
     var customFields: [CustomFieldState] = []
 }
