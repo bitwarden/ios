@@ -211,7 +211,7 @@ extension DefaultCipherService {
         let response = try await cipherAPIService.saveAttachment(
             cipherId: cipherId,
             fileName: attachment.attachment.fileName,
-            fileSize: Double(attachment.attachment.size ?? ""),
+            fileSize: Int(attachment.attachment.size ?? ""),
             key: attachment.attachment.key
         )
 
