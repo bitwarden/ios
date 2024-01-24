@@ -24,7 +24,6 @@ struct AddEditCustomFieldsView: View {
                     ) {
                         menuOptions(index: index)
                     }
-                    .textFieldConfiguration(.url)
                 case .hidden:
                     BitwardenTextField(
                         title: field.name,
@@ -56,7 +55,7 @@ struct AddEditCustomFieldsView: View {
                         menuOptions(index: index)
                             .buttonStyle(.accessory)
                     }
-                    .frame(height: 60)
+                    .frame(minHeight: 60)
                 case .linked:
                     BitwardenField(title: field.name ?? "") {
                         Menu {
@@ -124,6 +123,7 @@ struct AddEditCustomFieldsView: View {
             Asset.Images.gear.swiftUIImage
                 .resizable()
                 .frame(width: 16, height: 16)
+                .accessibilityLabel(Localizations.options)
         }
     }
 }
