@@ -10,6 +10,8 @@ class MockSendItemDelegate: SendItemDelegate {
     var didSendItemCompleted = false
     var sendItemCompletedSendView: SendView?
 
+    var didSendItemDeleted = false
+
     func sendItemCancelled() {
         didSendItemCancelled = true
     }
@@ -17,5 +19,9 @@ class MockSendItemDelegate: SendItemDelegate {
     func sendItemCompleted(with sendView: SendView) {
         didSendItemCompleted = true
         sendItemCompletedSendView = sendView
+    }
+
+    func sendItemDeleted() {
+        didSendItemDeleted = true
     }
 }

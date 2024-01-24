@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-// swiftlint:disable type_body_length function_body_length
+// swiftlint:disable file_length type_body_length function_body_length
 
 class SendServiceTests: BitwardenTestCase {
     // MARK: Properties
@@ -276,6 +276,40 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertNil(sendDataStore.deleteSendUserId)
     }
 
+    /// `removePasswordFromSend()` performs the remove password request and updates the value in the
+    /// data store.
+    func test_removePasswordFromSend_success() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "USER_ID"))
+        client.results = [
+            .httpSuccess(testData: APITestData.sendResponse),
+        ]
+
+        let response = try await subject.removePasswordFromSend(.fixture(id: "SEND_ID"))
+
+        XCTAssertEqual(response.id, "fc483c22-443c-11ee-be56-0242ac120002")
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            sendDataStore.upsertSendValue?.id,
+            "fc483c22-443c-11ee-be56-0242ac120002"
+        )
+        XCTAssertEqual(sendDataStore.upsertSendUserId, "USER_ID")
+    }
+
+    /// `removePasswordFromSend()` performs the remove password request and updates the value in the
+    /// data store.
+    func test_removePasswordFromSend_failure() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "USER_ID"))
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            _ = try await subject.removePasswordFromSend(.fixture(id: "SEND_ID"))
+        }
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(sendDataStore.upsertSendValue)
+        XCTAssertNil(sendDataStore.upsertSendUserId)
+    }
+
     /// `replaceSends(_:userId:)` replaces the persisted sends in the data store.
     func test_replaceSends() async throws {
         let sends: [SendResponseModel] = [
@@ -383,4 +417,4 @@ class SendServiceTests: BitwardenTestCase {
     }
 }
 
-// swiftlint:enable type_body_length function_body_length
+// swiftlint:enable file_length type_body_length function_body_length

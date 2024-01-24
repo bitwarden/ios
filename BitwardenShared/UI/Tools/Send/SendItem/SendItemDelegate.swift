@@ -15,4 +15,7 @@ public protocol SendItemDelegate: AnyObject {
     /// - Parameter sendView: The send view that was added or updated in this flow.
     ///
     func sendItemCompleted(with sendView: SendView)
+
+    /// The send item flow was completed by deleting the send in the flow.
+    func sendItemDeleted()
 }

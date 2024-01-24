@@ -15,6 +15,23 @@ class SettingsDataStoreTests: BitwardenTestCase {
         ]
     )
 
+    let policies: [PolicyResponseModel] = [
+        PolicyResponseModel(
+            data: nil,
+            enabled: true,
+            id: "1",
+            organizationId: "org-1",
+            type: .twoFactorAuthentication
+        ),
+        PolicyResponseModel(
+            data: nil,
+            enabled: true,
+            id: "2",
+            organizationId: "org-1",
+            type: .masterPassword
+        ),
+    ]
+
     // MARK: Setup & Teardown
 
     override func setUp() {

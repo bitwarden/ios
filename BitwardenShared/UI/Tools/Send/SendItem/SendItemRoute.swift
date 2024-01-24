@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 // MARK: - SendItemRoute
 
@@ -21,6 +22,9 @@ public enum SendItemRoute: Equatable, Hashable {
     ///
     case complete(_ sendView: SendView)
 
+    /// A route specifing that the send item flow completed by deleting a send.
+    case deleted
+
     /// A route to the edit item screen for the provided send.
     ///
     /// - Parameters:
@@ -34,4 +38,10 @@ public enum SendItemRoute: Equatable, Hashable {
     /// - Parameter route: The file selection route to follow.
     ///
     case fileSelection(_ route: FileSelectionRoute)
+
+    /// A route to share the provided URL.
+    ///
+    /// - Parameter url: The `URL` to share.
+    ///
+    case share(url: URL)
 }

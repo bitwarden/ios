@@ -212,6 +212,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let biometricsService = DefaultBiometricsService(stateService: stateService)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
+        let policyService = DefaultPolicyService(policyDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
@@ -259,6 +260,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             collectionService: collectionService,
             folderService: folderService,
             organizationService: organizationService,
+            policyService: policyService,
             sendService: sendService,
             settingsService: settingsService,
             stateService: stateService,
