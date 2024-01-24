@@ -80,6 +80,7 @@ class DataStore {
         try await deleteAllFolders(userId: userId)
         try await deleteAllOrganizations(userId: userId)
         try await deleteAllPasswordHistory(userId: userId)
+        try await deleteAllPolicies(userId: userId)
         try await deleteAllSends(userId: userId)
         try await deleteEquivalentDomains(userId: userId)
     }

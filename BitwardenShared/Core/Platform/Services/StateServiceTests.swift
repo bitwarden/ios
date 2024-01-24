@@ -671,6 +671,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 folder: Folder(id: "1", name: "FOLDER1", revisionDate: Date())
             )
             _ = OrganizationData(context: context, userId: "1", organization: .fixture())
+            _ = PolicyData(context: context, userId: "1", policy: .fixture())
             _ = try SendData(context: context, userId: "1", send: .fixture())
         }
 
@@ -691,6 +692,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try XCTAssertEqual(context.count(for: FolderData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: OrganizationData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)
+        try XCTAssertEqual(context.count(for: PolicyData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: SendData.fetchByUserIdRequest(userId: "1")), 0)
     }
 

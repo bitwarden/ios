@@ -199,6 +199,7 @@ public class ServiceContainer: Services {
         let clientService = DefaultClientService()
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
+        let policyService = DefaultPolicyService(policyDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
@@ -244,6 +245,7 @@ public class ServiceContainer: Services {
             collectionService: collectionService,
             folderService: folderService,
             organizationService: organizationService,
+            policyService: policyService,
             sendService: sendService,
             settingsService: settingsService,
             stateService: stateService,

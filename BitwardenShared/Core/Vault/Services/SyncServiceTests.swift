@@ -12,6 +12,7 @@ class SyncServiceTests: BitwardenTestCase {
     var collectionService: MockCollectionService!
     var folderService: MockFolderService!
     var organizationService: MockOrganizationService!
+    var policyService: MockPolicyService!
     var sendService: MockSendService!
     var settingsService: MockSettingsService!
     var stateService: MockStateService!
@@ -27,6 +28,7 @@ class SyncServiceTests: BitwardenTestCase {
         collectionService = MockCollectionService()
         folderService = MockFolderService()
         organizationService = MockOrganizationService()
+        policyService = MockPolicyService()
         sendService = MockSendService()
         settingsService = MockSettingsService()
         stateService = MockStateService()
@@ -36,6 +38,7 @@ class SyncServiceTests: BitwardenTestCase {
             collectionService: collectionService,
             folderService: folderService,
             organizationService: organizationService,
+            policyService: policyService,
             sendService: sendService,
             settingsService: settingsService,
             stateService: stateService,
@@ -51,6 +54,7 @@ class SyncServiceTests: BitwardenTestCase {
         collectionService = nil
         folderService = nil
         organizationService = nil
+        policyService = nil
         sendService = nil
         settingsService = nil
         stateService = nil
@@ -228,6 +232,53 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?[0].id, "ORG_1")
         XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?[1].id, "ORG_2")
         XCTAssertEqual(organizationService.replaceOrganizationsUserId, "1")
+    }
+
+    /// `fetchSync()` replaces the list of the user's policies.
+    func test_fetchSync_polices() async throws {
+        client.result = .httpSuccess(testData: .syncWithPolicies)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync()
+
+        XCTAssertEqual(policyService.replacePoliciesPolicies.count, 4)
+        XCTAssertEqual(
+            policyService.replacePoliciesPolicies[0],
+            .fixture(enabled: false, id: "policy-0", organizationId: "org-1", type: .twoFactorAuthentication)
+        )
+        XCTAssertEqual(
+            policyService.replacePoliciesPolicies[1],
+            .fixture(
+                data: [
+                    "minComplexity": .null,
+                    "minLength": .int(12),
+                    "requireUpper": .bool(true),
+                    "requireLower": .bool(true),
+                    "requireNumbers": .bool(true),
+                    "requireSpecial": .bool(false),
+                    "enforceOnLogin": .bool(false),
+                ],
+                enabled: true,
+                id: "policy-1",
+                organizationId: "org-1",
+                type: .masterPassword
+            )
+        )
+        XCTAssertEqual(
+            policyService.replacePoliciesPolicies[2],
+            .fixture(enabled: false, id: "policy-3", organizationId: "org-1", type: .onlyOrg)
+        )
+        XCTAssertEqual(
+            policyService.replacePoliciesPolicies[3],
+            .fixture(
+                data: ["autoEnrollEnabled": .bool(false)],
+                enabled: true,
+                id: "policy-8",
+                organizationId: "org-1",
+                type: .resetPassword
+            )
+        )
+        XCTAssertEqual(policyService.replacePoliciesUserId, "1")
     }
 
     /// `fetchSync()` throws an error if the request fails.
