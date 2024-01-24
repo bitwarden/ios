@@ -53,9 +53,6 @@ enum AddEditSendItemAction: Equatable {
     /// The password visibility was changed.
     case passwordVisibleChanged(Bool)
 
-    /// The share on save toggle was changed.
-    case shareOnSaveChanged(Bool)
-
     /// The text value text field was changed.
     case textChanged(String)
 

@@ -17,7 +17,6 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             isHideMyEmailOn: false,
             isHideTextByDefaultOn: true,
             isPasswordVisible: false,
-            isShareOnSaveOn: true,
             isOptionsExpanded: true,
             maximumAccessCount: 42,
             name: "Name",

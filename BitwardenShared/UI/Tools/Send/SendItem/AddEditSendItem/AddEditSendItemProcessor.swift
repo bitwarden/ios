@@ -80,8 +80,6 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.name = newValue
         case let .notesChanged(newValue):
             state.notes = newValue
-        case let .shareOnSaveChanged(newValue):
-            state.isShareOnSaveOn = newValue
         case let .textChanged(newValue):
             state.text = newValue
         case let .typeChanged(newValue):

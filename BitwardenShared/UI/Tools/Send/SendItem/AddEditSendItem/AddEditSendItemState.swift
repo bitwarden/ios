@@ -73,9 +73,6 @@ struct AddEditSendItemState: Equatable {
     /// A flag indicating if the password is visible.
     var isPasswordVisible = false
 
-    /// A flag indicating if the share sheet should be presented once this item is saved.
-    var isShareOnSaveOn = false
-
     /// A flag indicating if the options section is expanded.
     var isOptionsExpanded = false
 
@@ -128,7 +125,6 @@ extension AddEditSendItemState {
             isHideMyEmailOn: sendView.hideEmail,
             isHideTextByDefaultOn: sendView.text?.hidden ?? false,
             isPasswordVisible: false,
-            isShareOnSaveOn: false,
             isOptionsExpanded: false,
             key: sendView.key,
             maximumAccessCount: sendView.maxAccessCount.map(Int.init) ?? 0,

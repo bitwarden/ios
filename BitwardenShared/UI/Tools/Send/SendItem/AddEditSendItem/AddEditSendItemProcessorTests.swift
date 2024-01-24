@@ -307,14 +307,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isPasswordVisible)
     }
 
-    /// `receive(_:)` with `.shareOnSaveChanged` updates the share on save toggle.
-    func test_receive_shareOnSaveChanged() {
-        subject.state.isShareOnSaveOn = false
-        subject.receive(.shareOnSaveChanged(true))
-
-        XCTAssertTrue(subject.state.isShareOnSaveOn)
-    }
-
     /// `receive(_:)` with `.textChanged` updates the text.
     func test_receive_textChanged() {
         subject.state.text = ""
