@@ -9,7 +9,7 @@ struct SaveAttachmentRequestModel: JSONRequestBody, Equatable {
     let fileName: String?
 
     /// The attachment's size.
-    let fileSize: String?
+    let fileSize: Int?
 
     /// The key used to decrypt the attachment.
     let key: String?

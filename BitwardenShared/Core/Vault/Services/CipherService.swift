@@ -1,5 +1,6 @@
 import BitwardenSdk
 import Combine
+import Foundation
 
 // MARK: - CipherService
 
@@ -105,6 +106,9 @@ class DefaultCipherService: CipherService {
     /// The data store for managing the persisted ciphers for the user.
     private let cipherDataStore: CipherDataStore
 
+    /// The service used to make file related API requests.
+    private let fileAPIService: FileAPIService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -115,15 +119,18 @@ class DefaultCipherService: CipherService {
     /// - Parameters:
     ///   - cipherAPIService: The service used to make cipher related API requests.
     ///   - cipherDataStore: The data store for managing the persisted ciphers for the user.
+    ///   - fileAPIService: The service used to make file related API requests.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
         cipherAPIService: CipherAPIService,
         cipherDataStore: CipherDataStore,
+        fileAPIService: FileAPIService,
         stateService: StateService
     ) {
         self.cipherAPIService = cipherAPIService
         self.cipherDataStore = cipherDataStore
+        self.fileAPIService = fileAPIService
         self.stateService = stateService
     }
 }
@@ -204,15 +211,23 @@ extension DefaultCipherService {
         let response = try await cipherAPIService.saveAttachment(
             cipherId: cipherId,
             fileName: attachment.attachment.fileName,
-            fileSize: attachment.attachment.size,
+            fileSize: Int(attachment.attachment.size ?? ""),
             key: attachment.attachment.key
+        )
+
+        // Upload the attachment data to the server.
+        try await fileAPIService.uploadCipherAttachment(
+            attachmentId: response.attachmentId,
+            cipherId: response.cipherResponse.id,
+            data: attachment.contents,
+            fileName: attachment.attachment.fileName ?? "",
+            type: response.fileUploadType,
+            url: response.url
         )
 
         // Update the cipher in local storage.
         let updatedCipher = Cipher(responseModel: response.cipherResponse)
         try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
-
-        // TODO: BIT-1465 actually upload file
 
         // Return the updated cipher.
         return updatedCipher

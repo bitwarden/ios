@@ -218,12 +218,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
         let notificationCenterService = DefaultNotificationCenterService()
 
-        let cipherService = DefaultCipherService(
-            cipherAPIService: apiService,
-            cipherDataStore: dataStore,
-            stateService: stateService
-        )
-
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
             folderDataStore: dataStore,
@@ -234,6 +228,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientCrypto: clientService.clientCrypto(),
             errorReporter: errorReporter,
             organizationDataStore: dataStore,
+            stateService: stateService
+        )
+
+        let cipherService = DefaultCipherService(
+            cipherAPIService: apiService,
+            cipherDataStore: dataStore,
+            fileAPIService: apiService,
             stateService: stateService
         )
 

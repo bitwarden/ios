@@ -12,7 +12,7 @@ class SaveAttachmentRequestTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        subject = SaveAttachmentRequest(cipherId: "1", fileName: "Name", fileSize: "10", key: "🔑")
+        subject = SaveAttachmentRequest(cipherId: "1", fileName: "Name", fileSize: 10, key: "🔑")
     }
 
     override func tearDown() {
@@ -28,7 +28,7 @@ class SaveAttachmentRequestTests: BitwardenTestCase {
             """
             {
               "fileName" : "Name",
-              "fileSize" : "10",
+              "fileSize" : 10,
               "key" : "🔑"
             }
             """
