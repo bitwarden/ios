@@ -71,4 +71,13 @@ extension Constants {
         /// A type identifier for the app extension setup.
         static let appExtensionSetup = "com.8bit.bitwarden.extension-setup"
     }
+    
+    /// An app extension key for the autofill URL.
+    static let appExtensionUrlStringKey = "url_string"
+
+    /// An app extension key for the page details JSON.
+    static let appExtensionWebViewPageDetails = "pageDetails"
+
+    /// An app extension key for the fill script JSON.
+    static let appExtensionWebViewPageFillScript = "fillScript"
 }

@@ -18,8 +18,9 @@ public protocol AppExtensionDelegate: AnyObject {
     /// - Parameters:
     ///   - username: The username to fill.
     ///   - password: The password to fill.
+    ///   - fields: A list of additional fields to fill.
     ///
-    func completeAutofillRequest(username: String, password: String)
+    func completeAutofillRequest(username: String, password: String, fields: [(String, String)]?)
 
     /// A cancel button was tapped to exit the extension.
     ///
@@ -32,6 +33,17 @@ public extension AppExtensionDelegate {
     /// - Parameters:
     ///   - username: The username to fill.
     ///   - password: The password to fill.
+    ///   - fields: A list of additional fields to file.
     ///
-    func completeAutofillRequest(username: String, password: String) {}
+    func completeAutofillRequest(username: String, password: String, fields: [(String, String)]?) {}
+
+    /// The autofill request should be completed with the specified username and password.
+    ///
+    /// - Parameters:
+    ///   - username: The username to fill.
+    ///   - password: The password to fill.
+    ///
+    func completeAutofillRequest(username: String, password: String) {
+        completeAutofillRequest(username: username, password: password, fields: nil)
+    }
 }

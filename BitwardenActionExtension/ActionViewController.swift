@@ -1,6 +1,7 @@
 import BitwardenShared
 import MobileCoreServices
 import UIKit
+import UniformTypeIdentifiers
 
 class ActionViewController: UIViewController {
     // MARK: Properties
@@ -26,6 +27,20 @@ class ActionViewController: UIViewController {
     }
 
     // MARK: Private
+
+    /// Completes the extension request with a dictionary of item data to return to the host app.
+    ///
+    /// - Parameter itemData: The dictionary of item data to return to the host app from the extension.
+    ///
+    private func completeRequest(itemData: [String: Any]) {
+        let resultsProvider = NSItemProvider(
+            item: itemData as NSSecureCoding,
+            typeIdentifier: UTType.propertyList.identifier
+        )
+        let resultsItem = NSExtensionItem()
+        resultsItem.attachments = [resultsProvider]
+        extensionContext?.completeRequest(returningItems: [resultsItem])
+    }
 
     /// Sets up and initializes the app and UI.
     ///
@@ -64,7 +79,16 @@ extension ActionViewController: AppExtensionDelegate {
 
     var isInAppExtension: Bool { true }
 
-    var uri: String? { nil }
+    var uri: String? { actionExtensionHelper.uri }
+
+    func completeAutofillRequest(username: String, password: String, fields: [(String, String)]?) {
+        let itemData = actionExtensionHelper.itemDataToCompleteRequest(
+            username: username,
+            password: password,
+            fields: fields ?? []
+        )
+        completeRequest(itemData: itemData)
+    }
 
     func didCancel() {
         extensionContext?.completeRequest(returningItems: nil)
