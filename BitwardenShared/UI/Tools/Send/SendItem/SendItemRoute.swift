@@ -43,5 +43,5 @@ public enum SendItemRoute: Equatable, Hashable {
     ///
     /// - Parameter url: The `URL` to share.
     ///
-    case share(_ url: URL)
+    case share(url: URL)
 }

@@ -95,7 +95,7 @@ struct AddEditSendItemState: Equatable {
     var notes: String = ""
 
     /// The original send view that is being edited.
-    var originalSendView: SendView? = nil
+    var originalSendView: SendView?
 
     /// A password that can be used to limit access to this item.
     var password: String = ""

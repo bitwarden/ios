@@ -209,10 +209,10 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     /// - Parameter sendView: The send that is being shared.
     ///
     private func shareSaveURL(_ sendView: SendView) async {
-        guard let url = try? await services.sendRepository.shareURL(for: state.newSendView())
+        guard let url = try? await services.sendRepository.shareURL(for: sendView)
         else { return }
 
-        coordinator.navigate(to: .share(url))
+        coordinator.navigate(to: .share(url: url))
     }
 
     /// Attempts to update the send type. If the new value requires premium access and the active

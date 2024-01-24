@@ -56,7 +56,7 @@ extension Alert {
                     handler: { _, _ in
                         await completion()
                     }
-                )
+                ),
             ]
         )
     }
@@ -78,7 +78,7 @@ extension Alert {
                     handler: { _, _ in
                         await completion()
                     }
-                )
+                ),
             ]
         )
     }

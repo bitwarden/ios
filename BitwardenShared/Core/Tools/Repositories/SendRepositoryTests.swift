@@ -234,6 +234,33 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    /// `removePassword(from:)` successfully encrypts the send view and uses the send service to
+    /// remove the password from it.
+    func test_removePassword_success() async throws {
+        let sendView = SendView.fixture(id: "SEND_ID")
+        sendService.removePasswordFromSendResult = .success(.fixture(id: "SEND_ID"))
+
+        let response = try await subject.removePassword(from: sendView)
+
+        XCTAssertEqual(response.id, "SEND_ID")
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(clientSends.decryptedSends, [.fixture(id: "SEND_ID")])
+        XCTAssertEqual(sendService.removePasswordFromSendSend, Send(sendView: sendView))
+    }
+
+    /// `removePassword(from:)` rethrows any errors encountered.
+    func test_removePassword_failure() async {
+        sendService.removePasswordFromSendResult = .failure(BitwardenTestError.example)
+        let sendView = SendView.fixture()
+
+        await assertAsyncThrows {
+            _ = try await subject.removePassword(from: sendView)
+        }
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertTrue(clientSends.decryptedSends.isEmpty)
+    }
+
     /// `searchSendPublisher(searchText:)` returns search matching send name.
     func test_searchSendPublisher_searchText_name() async throws {
         stateService.activeAccount = .fixtureAccountLogin()

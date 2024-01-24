@@ -151,7 +151,7 @@ extension DefaultSendService {
 
         let newSend = Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(newSend, userId: userId)
-        return send
+        return newSend
     }
 
     func updateSend(_ send: Send) async throws -> Send {

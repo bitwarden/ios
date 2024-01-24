@@ -22,6 +22,9 @@ class MockSendService: SendService {
     var updateSendSend: Send?
     var updateSendResult: Result<Send, Error> = .success(.fixture())
 
+    var removePasswordFromSendResult: Result<Send, Error> = .success(.fixture())
+    var removePasswordFromSendSend: Send?
+
     var replaceSendsSends: [SendResponseModel]?
     var replaceSendsUserId: String?
 
@@ -48,6 +51,11 @@ class MockSendService: SendService {
     func updateSend(_ send: Send) async throws -> Send {
         updateSendSend = send
         return try updateSendResult.get()
+    }
+
+    func removePasswordFromSend(_ send: Send) async throws -> Send {
+        removePasswordFromSendSend = send
+        return try removePasswordFromSendResult.get()
     }
 
     func replaceSends(_ sends: [SendResponseModel], userId: String) async throws {
