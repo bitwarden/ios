@@ -8,6 +8,9 @@ enum VaultGroupEffect: Equatable {
     /// The refresh control was triggered.
     case refresh
 
+    /// Searches based on the keyword.
+    case search(String)
+
     /// Stream the show web icons setting.
     case streamShowWebIcons
 }

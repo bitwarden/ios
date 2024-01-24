@@ -350,6 +350,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(isDisabled)
     }
 
+    /// `refreshTOTPCode(:)` rethrows errors.
+    func test_refreshTOTPCode_error() async throws {
+        let newCode = "999232"
+        clientVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
+        let keyModel = try XCTUnwrap(TOTPKeyModel(authenticatorKey: .base32Key))
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.refreshTOTPCode(for: keyModel)
+        }
+    }
+
+    /// `refreshTOTPCode(:)` creates a LoginTOTP model on success.
+    func test_refreshTOTPCode_success() async throws {
+        let newCode = "999232"
+        clientVault.generateTOTPCodeResult = .success(newCode)
+        let keyModel = try XCTUnwrap(TOTPKeyModel(authenticatorKey: .base32Key))
+        let update = try await subject.refreshTOTPCode(for: keyModel)
+        XCTAssertEqual(
+            update,
+            LoginTOTPState(
+                authKeyModel: keyModel,
+                codeModel: .init(
+                    code: newCode,
+                    codeGenerationDate: timeProvider.presentTime,
+                    period: UInt32(keyModel.period)
+                )
+            )
+        )
+    }
+
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_noKey() async throws {
         let newCode = "999232"
@@ -554,6 +583,328 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
+    }
+
+    /// `searchVaultListPublisher(searchText:, group: .trash, filterType:)`
+    /// returns only matching items form the trash.
+    func test_searchVaultListPublisher_searchText_trashGroup() async throws {
+        stateService.activeAccount = .fixture()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "dabcd"),
+            .fixture(id: "2", name: "qwe"),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(id: "4", name: "Café"),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[2]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        var iterator = try await subject
+            .searchVaultListPublisher(
+                searchText: "cafe",
+                group: .trash,
+                filterType: .allVaults
+            )
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, expectedSearchResult)
+    }
+
+    /// `searchVaultListPublisher(searchText:, group: .card, filterType:)`
+    /// returns search results with card items matching a name.
+    func test_searchVaultListPublisher_searchText_cardGroup() async throws {
+        stateService.activeAccount = .fixture()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "café", type: .card),
+            .fixture(id: "2", name: "cafepass", type: .login),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(id: "4", name: "Café Friend", type: .identity),
+            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
+            .fixture(
+                id: "5",
+                login: .fixture(totp: .base32Key),
+                name: "one time cafefe",
+                type: .login
+            ),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[0]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        var iterator = try await subject
+            .searchVaultListPublisher(
+                searchText: "cafe",
+                group: .card,
+                filterType: .allVaults
+            )
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, expectedSearchResult)
+    }
+
+    /// `searchVaultListPublisher(searchText:, group: .card, filterType:)`
+    /// returns search items matching a cipher name within a folder.
+    func test_searchVaultListPublisher_searchText_folderGroup() async throws {
+        stateService.activeAccount = .fixture()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "café", type: .card),
+            .fixture(id: "2", name: "cafepass", type: .login),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(
+                folderId: "coffee",
+                id: "0",
+                name: "Best Cafes",
+                type: .secureNote
+            ),
+            .fixture(id: "4", name: "Café Friend", type: .identity),
+            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
+            .fixture(
+                id: "5",
+                login: .fixture(totp: .base32Key),
+                name: "one time cafefe",
+                type: .login
+            ),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        var iterator = try await subject
+            .searchVaultListPublisher(
+                searchText: "cafe",
+                group: .folder(id: "coffee", name: "Caff-fiend"),
+                filterType: .allVaults
+            )
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, expectedSearchResult)
+    }
+
+    /// `searchVaultListPublisher(searchText:, group: .collection, filterType:)`
+    /// returns search items matching a cipher name within collections.
+    func test_searchVaultListPublisher_searchText_collection() async throws {
+        stateService.activeAccount = .fixture()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "café", type: .card),
+            .fixture(id: "2", name: "cafepass", type: .login),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(
+                folderId: "coffee",
+                id: "0",
+                name: "Best Cafes",
+                type: .secureNote
+            ),
+            .fixture(
+                collectionIds: ["123", "meep"],
+                id: "4",
+                name: "Café Friend",
+                type: .identity
+            ),
+            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
+            .fixture(
+                id: "5",
+                login: .fixture(totp: .base32Key),
+                name: "one time cafefe",
+                type: .login
+            ),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[4]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        var iterator = try await subject
+            .searchVaultListPublisher(
+                searchText: "cafe",
+                group: .collection(
+                    id: "123",
+                    name: "The beans",
+                    organizationId: "Giv-em-da-beanz"
+                ),
+                filterType: .allVaults
+            )
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, expectedSearchResult)
+    }
+
+    /// `searchVaultListPublisher(searchText:, group: .identity, filterType:)`
+    /// returns search matching cipher name for identities.
+    func test_searchVaultListPublisher_searchText_identity() async throws {
+        stateService.activeAccount = .fixture()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "café", type: .card),
+            .fixture(id: "2", name: "cafepass", type: .login),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(
+                folderId: "coffee",
+                id: "0",
+                name: "Best Cafes",
+                type: .secureNote
+            ),
+            .fixture(
+                collectionIds: ["123", "meep"],
+                id: "4",
+                name: "Café Friend",
+                type: .identity
+            ),
+            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
+            .fixture(
+                id: "5",
+                login: .fixture(totp: .base32Key),
+                name: "one time cafefe",
+                type: .login
+            ),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[4]))
+        let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
+        var iterator = try await subject
+            .searchVaultListPublisher(
+                searchText: "cafe",
+                group: .identity,
+                filterType: .allVaults
+            )
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, expectedSearchResult)
+    }
+
+    /// `searchVaultListPublisher(searchText:, group: .login, filterType:)`
+    /// returns search matching cipher name for login items.
+    func test_searchVaultListPublisher_searchText_login() async throws {
+        stateService.activeAccount = .fixture()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "café", type: .card),
+            .fixture(id: "2", name: "cafepass", type: .login),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(
+                folderId: "coffee",
+                id: "0",
+                name: "Best Cafes",
+                type: .secureNote
+            ),
+            .fixture(
+                collectionIds: ["123", "meep"],
+                id: "4",
+                name: "Café Friend",
+                type: .identity
+            ),
+            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
+            .fixture(
+                id: "6",
+                login: .fixture(totp: .base32Key),
+                name: "one time cafefe",
+                type: .login
+            ),
+        ]
+        let expectedSearchResult = try [
+            XCTUnwrap(
+                VaultListItem(
+                    cipherView: CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1]))
+                )
+            ),
+            XCTUnwrap(
+                VaultListItem(
+                    cipherView: CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[6]))
+                )
+            ),
+        ]
+        var iterator = try await subject
+            .searchVaultListPublisher(
+                searchText: "cafe",
+                group: .login,
+                filterType: .allVaults
+            )
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, expectedSearchResult)
+    }
+
+    /// `searchVaultListPublisher(searchText:, group: .secureNote, filterType:)`
+    /// returns search matching cipher name for secure note items.
+    func test_searchVaultListPublisher_searchText_secureNote() async throws {
+        stateService.activeAccount = .fixture()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "café", type: .card),
+            .fixture(id: "2", name: "cafepass", type: .login),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(
+                folderId: "coffee",
+                id: "0",
+                name: "Best Cafes",
+                type: .secureNote
+            ),
+            .fixture(
+                collectionIds: ["123", "meep"],
+                id: "4",
+                name: "Café Friend",
+                type: .identity
+            ),
+            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
+            .fixture(
+                id: "6",
+                login: .fixture(totp: .base32Key),
+                name: "one time cafefe",
+                type: .login
+            ),
+        ]
+        let expectedSearchResult = try [
+            XCTUnwrap(
+                VaultListItem(
+                    cipherView: CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
+                )
+            ),
+            XCTUnwrap(
+                VaultListItem(
+                    cipherView: CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[5]))
+                )
+            ),
+        ]
+        var iterator = try await subject
+            .searchVaultListPublisher(
+                searchText: "cafe",
+                group: .secureNote,
+                filterType: .allVaults
+            )
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, expectedSearchResult)
+    }
+
+    /// `searchVaultListPublisher(searchText:, group: .totp, filterType:)`
+    /// returns search matching cipher name for TOTP login items.
+    func test_searchVaultListPublisher_searchText_totp() async throws {
+        stateService.activeAccount = .fixture()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "café", type: .login),
+            .fixture(id: "2", name: "cafepass", type: .login),
+            .fixture(id: "5", name: "Café thoughts", type: .login),
+            .fixture(
+                id: "6",
+                login: .fixture(totp: .base32Key),
+                name: "one time cafefe",
+                type: .login
+            ),
+        ]
+        let totpCipher = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
+        let expectedResults = try [
+            VaultListItem(
+                id: "6",
+                itemType: .totp(
+                    name: "one time cafefe",
+                    totpModel: .init(
+                        id: "6",
+                        loginView: XCTUnwrap(totpCipher.login),
+                        totpCode: .init(
+                            code: "123456",
+                            codeGenerationDate: timeProvider.presentTime,
+                            period: 30
+                        )
+                    )
+                )
+            ),
+        ]
+
+        var iterator = try await subject
+            .searchVaultListPublisher(
+                searchText: "cafe",
+                group: .totp,
+                filterType: .allVaults
+            )
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, expectedResults)
     }
 
     /// `searchVaultListPublisher(searchText:, filterType:)` returns search matching cipher id.

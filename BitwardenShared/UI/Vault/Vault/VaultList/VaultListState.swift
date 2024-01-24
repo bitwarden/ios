@@ -19,14 +19,14 @@ struct VaultListState: Equatable {
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty()
 
+    /// Whether to show the special web icons.
+    var showWebIcons = true
+
     /// An array of results matching the `searchText`.
     var searchResults = [VaultListItem]()
 
     /// The text that the user is currently searching for.
     var searchText = ""
-
-    /// Whether to show the special web icons.
-    var showWebIcons = true
 
     /// The search vault filter used to display a single or all vaults for the user.
     var searchVaultFilterType: VaultFilterType = .allVaults

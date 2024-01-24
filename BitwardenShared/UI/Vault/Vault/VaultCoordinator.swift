@@ -173,20 +173,25 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             state: VaultGroupState(
                 group: group,
                 iconBaseURL: services.environmentService.iconsURL,
+                searchVaultFilterType: filter,
                 vaultFilterType: filter
             )
         )
         let store = Store(processor: processor)
+        let searchHandler = GroupSearchHandler(store: store)
         let view = VaultGroupView(
+            searchHandler: searchHandler,
             store: store,
             timeProvider: services.timeProvider
         )
         let viewController = UIHostingController(rootView: view)
+        let searchController = UISearchController()
+        searchController.searchResultsUpdater = searchHandler
 
         stackNavigator.push(
             viewController,
             navigationTitle: group.navigationTitle,
-            hasSearchBar: true
+            searchController: searchController
         )
     }
 

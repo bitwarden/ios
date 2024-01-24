@@ -77,7 +77,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
         }
     }
 
-    override func receive(_ action: VaultListAction) {
+    override func receive(_ action: VaultListAction) { // swiftlint:disable:this function_body_length
         switch action {
         case .addItemPressed:
             setProfileSwitcher(visible: false)
@@ -113,7 +113,11 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
         case let .morePressed(item):
             showMoreOptionsAlert(for: item)
         case let .searchStateChanged(isSearching: isSearching):
-            guard isSearching else { return }
+            guard isSearching else {
+                state.searchText = ""
+                state.searchResults = []
+                return
+            }
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue

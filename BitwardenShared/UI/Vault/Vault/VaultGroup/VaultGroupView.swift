@@ -9,6 +9,9 @@ struct VaultGroupView: View {
     /// An object used to open urls from this view.
     @Environment(\.openURL) private var openURL
 
+    /// The GroupSearchDelegate used to bridge UIKit to SwiftUI
+    var searchHandler: GroupSearchHandler?
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
 
@@ -18,50 +21,52 @@ struct VaultGroupView: View {
     // MARK: View
 
     var body: some View {
-        LoadingView(
-            state: store.state.loadingState,
-            contents: { items in
-                if items.isEmpty {
-                    emptyView
-                } else {
-                    groupView(with: items)
+        content
+            .searchable(
+                text: store.binding(
+                    get: \.searchText,
+                    send: VaultGroupAction.searchTextChanged
+                ),
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: Localizations.search
+            )
+            .navigationTitle(store.state.group.navigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                addToolbarItem {
+                    store.send(.addItemPressed)
                 }
             }
-        )
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .searchable(
-            text: store.binding(
-                get: \.searchText,
-                send: VaultGroupAction.searchTextChanged
-            ),
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: Localizations.search
-        )
-        .navigationTitle(store.state.group.navigationTitle)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            addToolbarItem {
-                store.send(.addItemPressed)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+            .task {
+                await store.perform(.appeared)
             }
-        }
-        .task {
-            await store.perform(.appeared)
-        }
-        .task {
-            await store.perform(.streamShowWebIcons)
-        }
-        .toast(store.binding(
-            get: \.toast,
-            send: VaultGroupAction.toastShown
-        ))
-        .onChange(of: store.state.url) { newValue in
-            guard let url = newValue else { return }
-            openURL(url)
-            store.send(.clearURL)
-        }
+            .task {
+                await store.perform(.streamShowWebIcons)
+            }
+            .toast(store.binding(
+                get: \.toast,
+                send: VaultGroupAction.toastShown
+            ))
     }
 
-    // MARK: Private Views
+    // MARK: Private
+
+    @ViewBuilder private var content: some View {
+        searchOrGroup
+            .onChange(of: store.state.url) { newValue in
+                guard let url = newValue else { return }
+                openURL(url)
+                store.send(.clearURL)
+            }
+            .task(id: store.state.searchText) {
+                await store.perform(.search(store.state.searchText))
+            }
+            .task(id: store.state.searchVaultFilterType) {
+                await store.perform(.search(store.state.searchText))
+            }
+            .animation(.default, value: store.state.isSearching)
+    }
 
     /// A view that displays an empty state for this vault group.
     @ViewBuilder private var emptyView: some View {
@@ -88,6 +93,80 @@ struct VaultGroupView: View {
         }
     }
 
+    /// A view that displays either thegroup or empty interface.
+    @ViewBuilder private var groupItems: some View {
+        LoadingView(state: store.state.loadingState) { items in
+            if items.isEmpty {
+                emptyView
+            } else {
+                groupView(with: items)
+            }
+        }
+    }
+
+    /// A view that displays the search interface, including search results, an empty search
+    /// interface, and a message indicating that no results were found.
+    ///
+    @ViewBuilder private var searchContent: some View {
+        if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    searchVaultFilterRow
+
+                    ForEach(store.state.searchResults) { item in
+                        Button {
+                            store.send(.itemPressed(item))
+                        } label: {
+                            vaultItemRow(
+                                for: item,
+                                isLastInSection: store.state.searchResults.last == item
+                            )
+                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                        }
+                    }
+                }
+            }
+        } else {
+            SearchNoResultsView {
+                searchVaultFilterRow
+            }
+        }
+    }
+
+    /// The group content or search view.
+    ///
+    ///  If `store.state.isSearching` is `true`:  The view shows the `searchContentView`,
+    ///     else: The view shows the `groupItemsView`.
+    ///
+    @ViewBuilder private var searchOrGroup: some View {
+        if store.state.isSearching {
+            searchContent
+        } else {
+            groupItems
+        }
+    }
+
+    /// Displays the vault filter for search row if the user is a member of any org
+    private var searchVaultFilterRow: some View {
+        SearchVaultFilterRowView(
+            hasDivider: true, store: store.child(
+                state: { state in
+                    SearchVaultFilterRowState(
+                        organizations: state.organizations,
+                        searchVaultFilterType: state.searchVaultFilterType
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .searchVaultFilterChanged(type):
+                        return .searchVaultFilterChanged(type)
+                    }
+                },
+                mapEffect: nil
+            )
+        )
+    }
+
     // MARK: Private Methods
 
     /// A view that displays a list of the contents of this vault group.
@@ -108,27 +187,9 @@ struct VaultGroupView: View {
                         Button {
                             store.send(.itemPressed(item))
                         } label: {
-                            VaultListItemRowView(
-                                store: store.child(
-                                    state: { state in
-                                        VaultListItemRowState(
-                                            iconBaseURL: state.iconBaseURL,
-                                            item: item,
-                                            hasDivider: items.last != item,
-                                            showWebIcons: state.showWebIcons
-                                        )
-                                    },
-                                    mapAction: { action in
-                                        switch action {
-                                        case let .copyTOTPCode(code):
-                                            return .copyTOTPCode(code)
-                                        case .morePressed:
-                                            return .morePressed(item)
-                                        }
-                                    },
-                                    mapEffect: nil
-                                ),
-                                timeProvider: timeProvider
+                            vaultItemRow(
+                                for: item,
+                                isLastInSection: items.last == item
                             )
                         }
                     }
@@ -138,6 +199,62 @@ struct VaultGroupView: View {
             }
             .padding(16)
         }
+    }
+
+    /// Creates a row in the list for the provided item.
+    ///
+    /// - Parameters:
+    ///   - item: The `VaultListItem` to use when creating the view.
+    ///   - isLastInSection: A flag indicating if this item is the last one in the section.
+    ///
+    @ViewBuilder
+    private func vaultItemRow(for item: VaultListItem, isLastInSection: Bool = false) -> some View {
+        VaultListItemRowView(
+            store: store.child(
+                state: { state in
+                    VaultListItemRowState(
+                        iconBaseURL: state.iconBaseURL,
+                        item: item,
+                        hasDivider: !isLastInSection,
+                        showWebIcons: state.showWebIcons
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .copyTOTPCode(code):
+                        return .copyTOTPCode(code)
+                    case .morePressed:
+                        return .morePressed(item)
+                    }
+                },
+                mapEffect: nil
+            ),
+            timeProvider: timeProvider
+        )
+    }
+}
+
+// MARK: - GroupSearchHandler
+
+/// A helper class to bridge `UISearchController`'s  `UISearchResultsUpdating`
+///  to the SwiftUI `VaultGroupView`.
+class GroupSearchHandler: NSObject {
+    typealias HandlerStore = Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
+
+    /// The store for this group search handler.
+    var store: HandlerStore
+
+    /// Initializes the GroupSearchHandler with a given store.
+    ///
+    init(store: HandlerStore) {
+        self.store = store
+    }
+}
+
+extension GroupSearchHandler: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        store.send(.searchStateChanged(isSearching: searchController.isActive))
+        store.send(.searchTextChanged(searchController.searchBar.text ?? ""))
     }
 }
 
@@ -151,6 +268,7 @@ struct VaultGroupView: View {
                 processor: StateProcessor(
                     state: VaultGroupState(
                         loadingState: .loading,
+                        searchVaultFilterType: .allVaults,
                         vaultFilterType: .allVaults
                     )
                 )
@@ -167,6 +285,7 @@ struct VaultGroupView: View {
                 processor: StateProcessor(
                     state: VaultGroupState(
                         loadingState: .data([]),
+                        searchVaultFilterType: .allVaults,
                         vaultFilterType: .allVaults
                     )
                 )
@@ -251,6 +370,7 @@ struct VaultGroupView: View {
                                 revisionDate: Date()
                             ))!,
                         ]),
+                        searchVaultFilterType: .allVaults,
                         vaultFilterType: .allVaults
                     )
                 )
