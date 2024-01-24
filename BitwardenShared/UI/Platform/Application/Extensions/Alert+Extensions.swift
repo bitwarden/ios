@@ -61,6 +61,28 @@ extension Alert {
         )
     }
 
+    static func removeSendPasswordConfirmation(
+        completion: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.areYouSureRemoveSendPassword,
+            message: nil,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.cancel,
+                    style: .cancel
+                ),
+                AlertAction(
+                    title: Localizations.yes,
+                    style: .default,
+                    handler: { _, _ in
+                        await completion()
+                    }
+                )
+            ]
+        )
+    }
+
     /// An alert to allow the user to add or edit the name of a custom field.
     ///
     /// - Parameters:

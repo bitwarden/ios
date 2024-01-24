@@ -27,6 +27,12 @@ protocol SendService {
     ///
     func deleteSend(_ send: Send) async throws
 
+    /// Removes the password from the provided send.
+    ///
+    /// - Parameter send: The send to remove the password from.
+    ///
+    func removePasswordFromSend(_ send: Send) async throws -> Send
+
     /// Updates an existing Send for the current user in both the backend and in local storage.
     ///
     /// - Parameter send: The send to update.
@@ -133,6 +139,19 @@ extension DefaultSendService {
 
         try await sendAPIService.deleteSend(with: id)
         try await sendDataStore.deleteSend(id: id, userId: userId)
+    }
+
+    func removePasswordFromSend(_ send: Send) async throws -> Send {
+        guard let id = send.id else {
+            throw BitwardenError.dataError("Send missing id.")
+        }
+        let userId = try await stateService.getActiveAccountId()
+
+        let response = try await sendAPIService.removePasswordFromSend(with: id)
+
+        let newSend = Send(sendResponseModel: response)
+        try await sendDataStore.upsertSend(newSend, userId: userId)
+        return send
     }
 
     func updateSend(_ send: Send) async throws -> Send {

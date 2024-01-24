@@ -34,6 +34,9 @@ enum SendListItemRowEffect: Equatable {
     /// The delete button was pressed.
     case deletePressed(_ sendView: SendView)
 
+    /// The remove password button was pressed.
+    case removePassword(_ sendView: SendView)
+
     /// The share link button was pressed.
     case shareLinkPressed(_ sendView: SendView)
 }
@@ -128,6 +131,11 @@ struct SendListItemRowView: View {
             }
             Button(Localizations.edit) {
                 store.send(.editPressed(sendView))
+            }
+            if sendView.hasPassword {
+                AsyncButton(Localizations.removePassword) {
+                    await store.perform(.removePassword(sendView))
+                }
             }
             AsyncButton(Localizations.delete, role: .destructive) {
                 await store.perform(.deletePressed(sendView))

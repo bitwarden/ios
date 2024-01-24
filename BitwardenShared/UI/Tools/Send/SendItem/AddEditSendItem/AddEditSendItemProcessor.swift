@@ -56,7 +56,11 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             }
             coordinator.showAlert(alert)
         case .removePassword:
-            break
+            guard let sendView = state.originalSendView else { return }
+            let alert = Alert.removeSendPasswordConfirmation { [weak self] in
+                await self?.removePassword(sendView)
+            }
+            coordinator.showAlert(alert)
         case .savePressed:
             await saveSendItem()
         case .shareLinkPressed:
@@ -112,7 +116,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
 
     // MARK: Private Methods
 
-    /// Presents an alert asking the user if they would like to delete the provided send.
+    /// Deletes the provided send.
     ///
     /// - Parameter sendView: The send to be deleted.
     ///
@@ -139,6 +143,29 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             coordinator.navigate(to: .fileSelection(route), context: self)
         }
         coordinator.showAlert(alert)
+    }
+
+    /// Removes the password from the provided send.
+    ///
+    /// - Parameter sendView: The send to remove the password from.
+    ///
+    private func removePassword(_ sendView: SendView) async {
+        coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.removingSendPassword))
+        do {
+            let newSend = try await services.sendRepository.removePassword(from: sendView)
+            var newState = AddEditSendItemState(sendView: newSend, hasPremium: state.hasPremium)
+            newState.isOptionsExpanded = state.isOptionsExpanded
+            state = newState
+
+            coordinator.hideLoadingOverlay()
+            state.toast = Toast(text: Localizations.sendPasswordRemoved)
+        } catch {
+            let alert = Alert.networkResponseError(error) { [weak self] in
+                await self?.removePassword(sendView)
+            }
+            coordinator.hideLoadingOverlay()
+            coordinator.showAlert(alert)
+        }
     }
 
     /// Saves the current send item.

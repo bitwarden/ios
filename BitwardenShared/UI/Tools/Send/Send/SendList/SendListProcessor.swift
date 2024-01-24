@@ -60,6 +60,11 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                     await self?.deleteSend(sendView)
                 }
                 coordinator.showAlert(alert)
+            case let .removePassword(sendView):
+                let alert = Alert.removeSendPasswordConfirmation { [weak self] in
+                    await self?.removePassword(sendView)
+                }
+                coordinator.showAlert(alert)
             case let .shareLinkPressed(sendView):
                 guard let url = try? await services.sendRepository.shareURL(for: sendView) else { return }
                 coordinator.navigate(to: .share(url: url))
@@ -123,6 +128,25 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         } catch {
             let alert = Alert.networkResponseError(error) { [weak self] in
                 await self?.deleteSend(sendView)
+            }
+            coordinator.hideLoadingOverlay()
+            coordinator.showAlert(alert)
+        }
+    }
+
+    /// Removes the password from the provided send.
+    ///
+    /// - Parameter sendView: The send to remove the password from.
+    ///
+    private func removePassword(_ sendView: SendView) async {
+        coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.removingSendPassword))
+        do {
+            _ = try await services.sendRepository.removePassword(from: sendView)
+            coordinator.hideLoadingOverlay()
+            state.toast = Toast(text: Localizations.sendPasswordRemoved)
+        } catch {
+            let alert = Alert.networkResponseError(error) { [weak self] in
+                await self?.removePassword(sendView)
             }
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(alert)
