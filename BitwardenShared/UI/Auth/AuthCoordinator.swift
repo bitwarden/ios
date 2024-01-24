@@ -112,8 +112,8 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             )
         case .loginOptions:
             showLoginOptions()
-        case .loginWithDevice:
-            showLoginWithDevice()
+        case let .loginWithDevice(email):
+            showLoginWithDevice(email: email)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
         case .selfHosted:
@@ -274,10 +274,11 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     }
 
     /// Shows the login with device screen.
-    private func showLoginWithDevice() {
+    private func showLoginWithDevice(email: String) {
         let processor = LoginWithDeviceProcessor(
             coordinator: asAnyCoordinator(),
-            state: LoginWithDeviceState()
+            services: services,
+            state: LoginWithDeviceState(email: email)
         )
         let store = Store(processor: processor)
         let view = LoginWithDeviceView(store: store)

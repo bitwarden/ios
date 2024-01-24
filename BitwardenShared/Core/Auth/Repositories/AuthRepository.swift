@@ -39,6 +39,12 @@ protocol AuthRepository: AnyObject {
     ///
     func getFingerprintPhrase(userId: String?) async throws -> String
 
+    /// Initiates the login with device process.
+    ///
+    /// - Parameter email: The user's email.
+    ///
+    func initiateLoginWithDevice(email: String) async throws -> String
+
     /// Logs the user out of the active account.
     ///
     func logout() async throws
@@ -177,6 +183,11 @@ extension DefaultAuthRepository: AuthRepository {
             throw StateServiceError.noAccounts
         }
         return match
+    }
+
+    func initiateLoginWithDevice(email: String) async throws -> String {
+        let request = try await clientAuth.newAuthRequest(email: email)
+        return request.fingerprint
     }
 
     func logout() async throws {
