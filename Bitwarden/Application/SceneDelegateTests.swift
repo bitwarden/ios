@@ -43,6 +43,7 @@ class SceneDelegateTests: BitwardenTestCase {
         subject.scene(scene, willConnectTo: session, options: options)
 
         XCTAssertNotNil(appProcessor.coordinator)
+        XCTAssertNotNil(subject.privacyWindow)
         XCTAssertNotNil(subject.window)
         XCTAssertTrue(appModule.appCoordinator.isStarted)
     }
@@ -63,7 +64,28 @@ class SceneDelegateTests: BitwardenTestCase {
         subject.scene(scene, willConnectTo: session, options: options)
 
         XCTAssertNil(appProcessor.coordinator)
+        XCTAssertNil(subject.privacyWindow)
         XCTAssertNil(subject.window)
         XCTAssertFalse(appModule.appCoordinator.isStarted)
+    }
+
+    /// `sceneWillResignActive(_:)` sets the privacy window's alpha to 1,
+    /// which hides the app behind the privacy window in the app switcher.
+    func test_sceneWillResignActive() {
+        let appProcessor = AppProcessor(
+            appModule: appModule,
+            services: ServiceContainer(errorReporter: MockErrorReporter())
+        )
+        (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
+
+        let session = TestInstanceFactory.create(UISceneSession.self)
+        let scene = TestInstanceFactory.create(UIWindowScene.self, properties: [
+            "session": session,
+        ])
+        let options = TestInstanceFactory.create(UIScene.ConnectionOptions.self)
+        subject.scene(scene, willConnectTo: session, options: options)
+
+        subject.sceneWillResignActive(scene)
+        XCTAssertEqual(subject.privacyWindow?.alpha, 1)
     }
 }

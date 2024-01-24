@@ -5,6 +5,9 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     // MARK: Properties
 
+    /// Window shown when the app is backgrounded to prevent private information from being visible in the app switcher.
+    var privacyWindow: UIWindow?
+
     /// The main window for this scene.
     var window: UIWindow?
 
@@ -44,5 +47,46 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         appWindow.rootViewController = rootViewController
         appWindow.makeKeyAndVisible()
         window = appWindow
+
+        // Privacy window.
+        privacyWindow = UIWindow(windowScene: windowScene)
+        privacyWindow?.windowLevel = UIWindow.Level.alert + 1
+
+        let viewController = UIViewController()
+        let hostingController = UIHostingController(rootView: PrivacyView())
+        viewController.view.addConstrained(subview: hostingController.view)
+        privacyWindow?.rootViewController = viewController
+        privacyWindow?.isHidden = false
+        privacyWindow?.alpha = 0
+    }
+
+    func sceneWillResignActive(_ scene: UIScene) {
+        privacyWindow?.alpha = 1
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        UIView.animate(withDuration: UI.duration(0.4)) {
+            self.privacyWindow?.alpha = 0
+        }
+    }
+}
+
+// MARK: - PrivacyView
+
+/// The screen shown when the app is backgrounded to prevent private information
+/// from being visible in the app switcher.
+///
+public struct PrivacyView: View {
+    public var body: some View {
+        HStack {
+            Spacer()
+            VStack {
+                Spacer()
+                Image(decorative: Asset.Images.logo)
+                Spacer()
+            }
+            Spacer()
+        }
+        .background(Color(asset: Asset.Colors.backgroundPrimary))
     }
 }
