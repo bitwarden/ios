@@ -34,11 +34,13 @@ struct PasswordHistoryListView: View {
                         AsyncButton(Localizations.clear) {
                             await store.perform(.clearList)
                         }
+                        .accessibilityIdentifier("ClearPasswordList")
                     } label: {
                         Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
                             .resizable()
                             .frame(width: 19, height: 19)
                             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                            .accessibilityIdentifier("Options")
                     }
                 }
 
@@ -63,6 +65,7 @@ struct PasswordHistoryListView: View {
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                         .multilineTextAlignment(.center)
                         .padding(16)
+                        .accessibilityIdentifier("NoPasswordsDisplayedLabel")
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, minHeight: geometry.size.height)
@@ -79,12 +82,14 @@ struct PasswordHistoryListView: View {
                         passwordHistory,
                         hasDivider: passwordHistory != store.state.passwordHistory.last
                     )
+                    .accessibilityIdentifier("GeneratedPasswordRow")
                 }
             }
             .background(Asset.Colors.backgroundPrimary.swiftUIColor)
             .cornerRadius(16)
             .padding(16)
         }
+
     }
 
     /// Return a view for a single row in the password history list.
