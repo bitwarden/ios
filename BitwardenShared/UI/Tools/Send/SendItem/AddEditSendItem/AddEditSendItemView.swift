@@ -47,8 +47,20 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 if store.state.mode == .edit {
                     Menu {
-                        // TODO: BIT-1266 Add Menu items
-                        Text("Coming soon, in BIT-1266")
+                        AsyncButton(Localizations.shareLink) {
+                            await store.perform(.shareLinkPressed)
+                        }
+                        AsyncButton(Localizations.copyLink) {
+                            await store.perform(.copyLinkPressed)
+                        }
+                        if store.state.originalSendView?.hasPassword ?? false {
+                            AsyncButton(Localizations.removePassword) {
+                                await store.perform(.removePassword)
+                            }
+                        }
+                        AsyncButton(Localizations.delete, role: .destructive) {
+                            await store.perform(.deletePressed)
+                        }
                     } label: {
                         Asset.Images.verticalKabob.swiftUIImage
                             .resizable()
@@ -65,6 +77,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 }
             }
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: AddEditSendItemAction.toastShown
+        ))
         .animation(.easeInOut(duration: 0.2), value: store.state.type)
         .animation(.easeInOut(duration: 0.2), value: store.state.deletionDate)
         .animation(.easeInOut(duration: 0.2), value: store.state.expirationDate)

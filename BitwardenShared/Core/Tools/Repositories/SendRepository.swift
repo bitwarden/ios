@@ -29,6 +29,25 @@ protocol SendRepository: AnyObject {
     ///
     func deleteSend(_ sendView: SendView) async throws
 
+    /// Validates the user's active account has access to premium features.
+    ///
+    /// - Returns: Whether the active account has premium.
+    ///
+    func doesActiveAccountHavePremium() async throws -> Bool
+
+    /// Performs an API request to sync the user's send data. The publishers in the repository can
+    /// be used to subscribe to the send data, which are updated as a result of the request.
+    ///
+    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
+    ///
+    func fetchSync(isManualRefresh: Bool) async throws
+
+    /// Performs an API request to remove the password on the provided send.
+    ///
+    /// - Parameter sendView: The send to remove the password from.
+    ///
+    func removePassword(from sendView: SendView) async throws -> SendView
+
     /// Creates the share URL for a given `SendView`, if one can be created.
     ///
     /// - Parameter sendView: The send to create the share url for.
@@ -40,21 +59,6 @@ protocol SendRepository: AnyObject {
     /// - Parameter sendView: The send to update in the repository.
     ///
     func updateSend(_ sendView: SendView) async throws -> SendView
-
-    /// Validates the user's active account has access to premium features.
-    ///
-    /// - Returns: Whether the active account has premium.
-    ///
-    func doesActiveAccountHavePremium() async throws -> Bool
-
-    // MARK: Publishers
-
-    /// Performs an API request to sync the user's send data. The publishers in the repository can
-    /// be used to subscribe to the send data, which are updated as a result of the request.
-    ///
-    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
-    ///
-    func fetchSync(isManualRefresh: Bool) async throws
 
     // MARK: Publishers
 
@@ -158,6 +162,12 @@ class DefaultSendRepository: SendRepository {
     func deleteSend(_ sendView: SendView) async throws {
         let send = try await clientVault.sends().encrypt(send: sendView)
         try await sendService.deleteSend(send)
+    }
+
+    func removePassword(from sendView: SendView) async throws -> SendView {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        let newSend = try await sendService.removePasswordFromSend(send)
+        return try await clientVault.sends().decrypt(send: newSend)
     }
 
     func shareURL(for sendView: SendView) async throws -> URL? {

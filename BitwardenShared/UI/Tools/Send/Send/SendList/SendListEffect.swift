@@ -10,4 +10,7 @@ enum SendListEffect {
 
     /// The send list is being refreshed.
     case refresh
+
+    /// A wrapped `SendListItemRowEffect`.
+    case sendListItemRow(SendListItemRowEffect)
 }

@@ -5,10 +5,11 @@ import XCTest
 
 // MARK: - AddEditSendItemProcessorTests
 
-class AddEditSendItemProcessorTests: BitwardenTestCase {
+class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var coordinator: MockCoordinator<SendItemRoute>!
+    var pasteboardService: MockPasteboardService!
     var sendRepository: MockSendRepository!
     var subject: AddEditSendItemProcessor!
 
@@ -17,15 +18,138 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        pasteboardService = MockPasteboardService()
         sendRepository = MockSendRepository()
         subject = AddEditSendItemProcessor(
             coordinator: coordinator,
-            services: ServiceContainer.withMocks(sendRepository: sendRepository),
+            services: ServiceContainer.withMocks(
+                pasteboardService: pasteboardService,
+                sendRepository: sendRepository
+            ),
             state: AddEditSendItemState()
         )
     }
 
+    override func tearDown() {
+        super.tearDown()
+        coordinator = nil
+        pasteboardService = nil
+        sendRepository = nil
+        subject = nil
+    }
+
     // MARK: Tests
+
+    /// `perform(_:)` with `sendListItemRow(copyLinkPressed())` uses the send repository to generate
+    /// a url and copies it to the clipboard.
+    func test_perform_copyLinkPressed() async throws {
+        let sendView = SendView.fixture(id: "SEND_ID")
+        subject.state.originalSendView = sendView
+        sendRepository.shareURLResult = .success(.example)
+        await subject.perform(.copyLinkPressed)
+
+        XCTAssertEqual(sendRepository.shareURLSendView, sendView)
+        XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.valueHasBeenCopied(Localizations.sendLink)
+        )
+    }
+
+    /// `perform(_:)` with `sendListItemRow(deletePressed())` uses the send repository to delete the
+    /// send.
+    func test_perform_deletePressed() async throws {
+        let sendView = SendView.fixture(id: "SEND_ID")
+        subject.state.originalSendView = sendView
+        sendRepository.deleteSendResult = .success(())
+        await subject.perform(.deletePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+
+        XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
+        XCTAssertEqual(coordinator.routes.last, .deleted)
+    }
+
+    /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
+    /// the password from a send.
+    func test_perform_deletePressed_networkError() async throws {
+        let sendView = SendView.fixture(id: "SEND_ID")
+        subject.state.originalSendView = sendView
+        sendRepository.deleteSendResult = .failure(URLError(.timedOut))
+        await subject.perform(.deletePressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+
+        XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
+
+        sendRepository.deleteSendResult = .success(())
+        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await errorAlert.tapAction(title: Localizations.tryAgain)
+
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown.last?.title,
+            Localizations.deleting
+        )
+        XCTAssertEqual(coordinator.routes.last, .deleted)
+    }
+
+    /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
+    /// the password from a send.
+    func test_perform_removePassword_success() async throws {
+        let sendView = SendView.fixture(id: "SEND_ID")
+        subject.state.originalSendView = sendView
+        sendRepository.removePasswordFromSendResult = .success(sendView)
+        await subject.perform(.removePassword)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+
+        XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown.last?.title,
+            Localizations.removingSendPassword
+        )
+        XCTAssertEqual(subject.state.toast?.text, Localizations.sendPasswordRemoved)
+    }
+
+    /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
+    /// the password from a send.
+    func test_perform_sendListItemRow_removePassword_networkError() async throws {
+        let sendView = SendView.fixture(id: "SEND_ID")
+        subject.state.originalSendView = sendView
+        sendRepository.removePasswordFromSendResult = .failure(URLError(.timedOut))
+        await subject.perform(.removePassword)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+
+        XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
+
+        sendRepository.removePasswordFromSendResult = .success(sendView)
+        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await errorAlert.tapAction(title: Localizations.tryAgain)
+
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown.last?.title,
+            Localizations.removingSendPassword
+        )
+        XCTAssertEqual(subject.state.toast?.text, Localizations.sendPasswordRemoved)
+    }
+
+    /// `perform(_:)` with `shareLinkPressed` uses the send repository to generate a url and
+    /// navigates to the `.share` route.
+    func test_perform_shareLinkPressed() async throws {
+        let sendView = SendView.fixture(id: "SEND_ID")
+        subject.state.originalSendView = sendView
+        sendRepository.shareURLResult = .success(.example)
+        await subject.perform(.shareLinkPressed)
+
+        XCTAssertEqual(sendRepository.shareURLSendView, sendView)
+        XCTAssertEqual(coordinator.routes.last, .share(url: .example))
+    }
 
     /// `fileSelectionCompleted()` updates the state with the new file values.
     func test_fileSelectionCompleted() {
@@ -324,6 +448,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.type, .file)
     }
 
+    /// `receive(_:)` with `.toastShown` updates the toast value in the state.
+    func test_receive_toastShown() {
+        subject.state.toast = Toast(text: "toasty")
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
+    }
+
     /// `receive(_:)` with `.typeChanged` and no premium access does not update the type.
     func test_receive_typeChanged_notHasPremium() {
         subject.state.hasPremium = false
@@ -335,4 +466,4 @@ class AddEditSendItemProcessorTests: BitwardenTestCase {
         ])
         XCTAssertEqual(subject.state.type, .text)
     }
-}
+} // swiftlint:disable:this file_length

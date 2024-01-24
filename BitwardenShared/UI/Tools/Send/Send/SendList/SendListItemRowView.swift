@@ -18,8 +18,27 @@ struct SendListItemRowState: Equatable {
 
 /// Actions that can be sent from a `SendListItemRowView`.
 enum SendListItemRowAction: Equatable {
+    /// The edit button was pressed.
+    case editPressed(_ sendView: SendView)
+
     /// The item was pressed.
     case sendListItemPressed(SendListItem)
+}
+
+// MARK: - SendListItemRowEffect
+
+enum SendListItemRowEffect: Equatable {
+    /// The copy link button was pressed.
+    case copyLinkPressed(_ sendView: SendView)
+
+    /// The delete button was pressed.
+    case deletePressed(_ sendView: SendView)
+
+    /// The remove password button was pressed.
+    case removePassword(_ sendView: SendView)
+
+    /// The share link button was pressed.
+    case shareLinkPressed(_ sendView: SendView)
 }
 
 // MARK: - SendListItemView
@@ -30,7 +49,7 @@ struct SendListItemRowView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<SendListItemRowState, SendListItemRowAction, Void>
+    @ObservedObject var store: Store<SendListItemRowState, SendListItemRowAction, SendListItemRowEffect>
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -104,8 +123,23 @@ struct SendListItemRowView: View {
     @ViewBuilder
     private func optionsMenu(for sendView: SendView) -> some View {
         Menu {
-            // TODO: BIT-1266 Add Menu items
-            Text("Coming soon, in BIT-1266")
+            AsyncButton(Localizations.shareLink) {
+                await store.perform(.shareLinkPressed(sendView))
+            }
+            AsyncButton(Localizations.copyLink) {
+                await store.perform(.copyLinkPressed(sendView))
+            }
+            Button(Localizations.edit) {
+                store.send(.editPressed(sendView))
+            }
+            if sendView.hasPassword {
+                AsyncButton(Localizations.removePassword) {
+                    await store.perform(.removePassword(sendView))
+                }
+            }
+            AsyncButton(Localizations.delete, role: .destructive) {
+                await store.perform(.deletePressed(sendView))
+            }
         } label: {
             Asset.Images.horizontalKabob.swiftUIImage
                 .resizable()

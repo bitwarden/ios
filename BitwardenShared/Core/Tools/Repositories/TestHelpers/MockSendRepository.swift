@@ -29,6 +29,9 @@ class MockSendRepository: SendRepository {
     var deleteSendResult: Result<Void, Error> = .success(())
     var deleteSendSendView: SendView?
 
+    var removePasswordFromSendResult: Result<SendView, Error> = .success(.fixture())
+    var removePasswordFromSendSendView: SendView?
+
     var updateSendResult: Result<SendView, Error> = .success(.fixture())
     var updateSendSendView: SendView?
 
@@ -51,6 +54,11 @@ class MockSendRepository: SendRepository {
     func deleteSend(_ sendView: SendView) async throws {
         deleteSendSendView = sendView
         try deleteSendResult.get()
+    }
+
+    func removePassword(from sendView: SendView) async throws -> SendView {
+        removePasswordFromSendSendView = sendView
+        return try removePasswordFromSendResult.get()
     }
 
     func updateSend(_ sendView: SendView) async throws -> SendView {
