@@ -11,7 +11,7 @@ enum VaultAutofillListAction: Equatable {
     /// The cancel button was tapped.
     case cancelTapped
 
-    /// A forwarded profile switcher action
+    /// A forwarded profile switcher action.
     case profileSwitcherAction(ProfileSwitcherAction)
 
     /// The text in the search bar was changed.

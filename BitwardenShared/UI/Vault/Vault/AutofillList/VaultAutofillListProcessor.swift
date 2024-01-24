@@ -92,7 +92,7 @@ class VaultAutofillListProcessor: StateProcessor<
             state.searchText = ""
             state.ciphersForSearch = []
             state.showNoResults = false
-            state.profileSwitcherState.isVisible = !isSearching
+            state.profileSwitcherState.isVisible = false
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .toastShown(newValue):
