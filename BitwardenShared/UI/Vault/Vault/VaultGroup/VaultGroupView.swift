@@ -42,6 +42,9 @@ struct VaultGroupView: View {
                 await store.perform(.appeared)
             }
             .task {
+                await store.perform(.streamOrganizations)
+            }
+            .task {
                 await store.perform(.streamShowWebIcons)
             }
             .toast(store.binding(

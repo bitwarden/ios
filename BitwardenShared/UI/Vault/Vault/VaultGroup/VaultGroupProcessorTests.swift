@@ -307,6 +307,39 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
+    /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
+    func test_perform_streamOrganizations() {
+        let task = Task {
+            await subject.perform(.streamOrganizations)
+        }
+
+        let organizations = [
+            Organization.fixture(id: "1", name: "Organization1"),
+            Organization.fixture(id: "2", name: "Organization2"),
+        ]
+
+        vaultRepository.organizationsSubject.value = organizations
+
+        waitFor { !subject.state.organizations.isEmpty }
+        task.cancel()
+
+        XCTAssertEqual(subject.state.organizations, organizations)
+    }
+
+    /// `perform(_:)` with `.streamOrganizations` records any errors.
+    func test_perform_streamOrganizations_error() {
+        let task = Task {
+            await subject.perform(.streamOrganizations)
+        }
+
+        vaultRepository.organizationsSubject.send(completion: .failure(BitwardenTestError.example))
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
     /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
     /// web icons parameter from the state service.
     func test_perform_streamShowWebIcons() {

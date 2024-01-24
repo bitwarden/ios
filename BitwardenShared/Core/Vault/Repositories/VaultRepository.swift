@@ -373,7 +373,7 @@ class DefaultVaultRepository {
             .lowercased()
             .folding(options: .diacriticInsensitive, locale: .current)
 
-        var isMatchingCipher: (CipherView) -> Bool = isActive
+        let isMatchingCipher: (CipherView) -> Bool = isActive
             ? { $0.deletedDate == nil }
             : { $0.deletedDate != nil }
 

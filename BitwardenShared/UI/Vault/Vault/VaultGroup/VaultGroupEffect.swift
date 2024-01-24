@@ -11,6 +11,9 @@ enum VaultGroupEffect: Equatable {
     /// Searches based on the keyword.
     case search(String)
 
+    /// Stream the list of organizations for the user.
+    case streamOrganizations
+
     /// Stream the show web icons setting.
     case streamShowWebIcons
 }

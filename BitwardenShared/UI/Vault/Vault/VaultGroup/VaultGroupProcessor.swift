@@ -82,6 +82,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             let results = await searchGroup(for: text)
             state.searchResults = results
             searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: results)
+        case .streamOrganizations:
+            await streamOrganizations()
         case .streamShowWebIcons:
             for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
@@ -204,6 +206,17 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             showEdit: state.group != .trash,
             action: handleMoreOptionsAction
         ))
+    }
+
+    /// Streams the user's organizations.
+    private func streamOrganizations() async {
+        do {
+            for try await organizations in try await services.vaultRepository.organizationsPublisher() {
+                state.organizations = organizations
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Stream the vault list.

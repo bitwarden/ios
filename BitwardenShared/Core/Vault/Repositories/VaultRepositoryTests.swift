@@ -371,7 +371,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `refreshTOTPCode(:)` rethrows errors.
     func test_refreshTOTPCode_error() async throws {
-        let newCode = "999232"
         clientVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
         let keyModel = try XCTUnwrap(TOTPKeyModel(authenticatorKey: .base32Key))
         await assertAsyncThrows(error: BitwardenTestError.example) {
