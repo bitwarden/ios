@@ -18,7 +18,7 @@ struct CustomFieldState: Equatable, Hashable, Identifiable {
     var isPasswordVisible: Bool = false
 
     /// The type of value that the field is linked to for a linked field type.
-    let linkedIdType: LinkedIdType?
+    var linkedIdType: LinkedIdType?
 
     /// The field's name.
     var name: String?

@@ -96,7 +96,7 @@ extension LinkedIdType {
         case .loginUsername:
             Localizations.username
         case .loginPassword:
-            Localizations.passkey
+            Localizations.password
         case .cardCardholderName:
             Localizations.cardholderName
         case .cardExpMonth:
@@ -148,5 +148,60 @@ extension LinkedIdType {
         case .identityFullName:
             Localizations.fullName
         }
+    }
+
+    /// Returns an array of LinkedIdType for a given CipherType.
+    /// - Parameter cipherType: The CipherType for which the LinkedIdType values are requested.
+    /// - Returns: An array of LinkedIdType values associated with the provided CipherType.
+    ///
+    static func getLinkedIdType(for cipherType: CipherType) -> [LinkedIdType] {
+        switch cipherType {
+        case .card:
+            [
+                .cardCardholderName,
+                .cardExpMonth,
+                .cardExpYear,
+                .cardCode,
+                .cardBrand,
+                .cardNumber,
+            ]
+        case .identity:
+            [
+                .identityTitle,
+                .identityMiddleName,
+                .identityAddress1,
+                .identityAddress2,
+                .identityAddress3,
+                .identityCity,
+                .identityState,
+                .identityPostalCode,
+                .identityCountry,
+                .identityCompany,
+                .identityEmail,
+                .identityPhone,
+                .identitySsn,
+                .identityUsername,
+                .identityPassportNumber,
+                .identityLicenseNumber,
+                .identityFirstName,
+                .identityLastName,
+                .identityFullName,
+            ]
+        case .login:
+            [
+                .loginUsername,
+                .loginPassword,
+            ]
+        case .secureNote:
+            []
+        }
+    }
+}
+
+// MARK: - Identifiable
+
+extension LinkedIdType: Identifiable {
+    public var id: String {
+        "\(rawValue)"
     }
 }
