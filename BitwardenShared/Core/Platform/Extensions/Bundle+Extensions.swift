@@ -1,6 +1,11 @@
 import Foundation
 
 extension Bundle {
+    /// Return's the app's action extension identifier.
+    var appExtensionIdentifier: String {
+        "\(bundleIdentifier!).find-login-action-extension"
+    }
+
     /// Returns the app's name.
     var appName: String {
         infoDictionary?["CFBundleName"] as? String ?? ""

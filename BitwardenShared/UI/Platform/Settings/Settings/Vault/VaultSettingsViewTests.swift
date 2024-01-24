@@ -6,7 +6,7 @@ import XCTest
 class VaultSettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<Void, VaultSettingsAction, Void>!
+    var processor: MockProcessor<VaultSettingsState, VaultSettingsAction, Void>!
     var subject: VaultSettingsView!
 
     // MARK: Setup & Teardown
@@ -14,7 +14,7 @@ class VaultSettingsViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: ())
+        processor = MockProcessor(state: VaultSettingsState())
         let store = Store(processor: processor)
 
         subject = VaultSettingsView(store: store)

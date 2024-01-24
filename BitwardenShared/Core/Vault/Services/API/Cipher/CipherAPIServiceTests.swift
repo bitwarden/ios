@@ -125,6 +125,18 @@ class CipherAPIServiceTests: XCTestCase {
         )
     }
 
+    /// `deleteAttachment(withID:cipherId:)` performs the delete attachment request.
+    func test_deleteAttachment() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        _ = try await subject.deleteAttachment(withID: "456", cipherId: "123")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .delete)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/attachment/456")
+    }
+
     /// `deleteCipher()` performs the delete cipher request.
     func test_deleteCipher() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
@@ -156,7 +168,7 @@ class CipherAPIServiceTests: XCTestCase {
         let response = try await subject.saveAttachment(
             cipherId: "42",
             fileName: "The Answer",
-            fileSize: "lots",
+            fileSize: 10000,
             key: "🔑"
         )
 
@@ -210,8 +222,8 @@ class CipherAPIServiceTests: XCTestCase {
                     type: .login,
                     viewPassword: true
                 ),
-                fileUploadType: 1,
-                url: "https://bitwardenxx5keu3w.blob.core.windows.net/attachments-v2/etc"
+                fileUploadType: .azure,
+                url: URL(string: "https://bitwardenxx5keu3w.blob.core.windows.net/attachments-v2/etc")!
             )
         )
     }

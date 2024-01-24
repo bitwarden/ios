@@ -6,8 +6,11 @@ class MockAuthRepository: AuthRepository {
     var allowBiometricUnlock: Bool?
     var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var clearPinsCalled = false
     var deleteAccountCalled = false
+    var encryptedPin: String = "123"
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
+    var isPinUnlockAvailable = false
     var lockVaultUserId: String?
     var logoutCalled = false
     var logoutUserId: String?
@@ -15,10 +18,25 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthEmail: String?
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
+    var pinProtectedUserKey = "123"
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var setPinProtectedUserKeyToMemoryCalled = false
     var unlockVaultPassword: String?
+    var unlockVaultPIN: String?
+    var unlockWithPasswordResult: Result<Void, Error> = .success(())
+    var unlockWithPINResult: Result<Void, Error> = .success(())
+
     var unlockVaultResult: Result<Void, Error> = .success(())
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
+
+    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws {
+        allowBiometricUnlock = enabled
+        try allowBiometricUnlockResult.get()
+    }
+
+    func clearPins() async throws {
+        clearPinsCalled = true
+    }
 
     func deleteAccount(passwordText _: String) async throws {
         deleteAccountCalled = true
@@ -32,12 +50,16 @@ class MockAuthRepository: AuthRepository {
         try activeAccountResult.get()
     }
 
-    func getAccount(for _: String) async throws -> BitwardenShared.Account {
+    func getAccount(for _: String) async throws -> Account {
         try accountForItemResult.get()
     }
 
     func getFingerprintPhrase(userId _: String?) async throws -> String {
         try fingerprintPhraseResult.get()
+    }
+
+    func isPinUnlockAvailable() async throws -> Bool {
+        isPinUnlockAvailable
     }
 
     func passwordStrength(email: String, password: String) async -> UInt8 {
@@ -64,14 +86,23 @@ class MockAuthRepository: AuthRepository {
         try setActiveAccountResult.get()
     }
 
-    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws {
-        allowBiometricUnlock = enabled
-        try allowBiometricUnlockResult.get()
+    func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
+        encryptedPin = pin
+        pinProtectedUserKey = pin
     }
 
-    func unlockVault(password: String) async throws {
+    func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
+        setPinProtectedUserKeyToMemoryCalled = true
+    }
+
+    func unlockVaultWithPIN(pin: String) async throws {
+        unlockVaultPIN = pin
+        try unlockWithPINResult.get()
+    }
+
+    func unlockVaultWithPassword(password: String) async throws {
         unlockVaultPassword = password
-        try unlockVaultResult.get()
+        try unlockWithPasswordResult.get()
     }
 
     func unlockVaultWithBiometrics() async throws {

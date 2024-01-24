@@ -139,7 +139,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             )
 
             // Unlock the vault.
-            try await services.authRepository.unlockVault(password: state.masterPassword)
+            try await services.authRepository.unlockVaultWithPassword(password: state.masterPassword)
 
             // Complete the login flow.
             coordinator.hideLoadingOverlay()
@@ -150,7 +150,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             switch error {
             case let .captchaRequired(hCaptchaSiteCode):
                 launchCaptchaFlow(with: hCaptchaSiteCode)
-            case let .twoFactorRequired(authMethodsData, _):
+            case let .twoFactorRequired(authMethodsData, _, _):
                 coordinator.navigate(to: .twoFactor(state.username, state.masterPassword, authMethodsData))
             }
         } catch {

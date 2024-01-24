@@ -11,6 +11,7 @@ class MockEnvironmentService: EnvironmentService {
     var eventsURL = URL(string: "https://example.com/events")!
     var iconsURL = URL(string: "https://example.com/icons")!
     var identityURL = URL(string: "https://example.com/identity")!
+    var sendShareURL = URL(string: "https://example.com/#/send")!
     var webVaultURL = URL(string: "https://example.com")!
 
     func loadURLsForActiveAccount() async {

@@ -18,6 +18,9 @@ protocol EnvironmentService {
     /// The URL for the identity API.
     var identityURL: URL { get }
 
+    /// The URL for sharing a send.
+    var sendShareURL: URL { get }
+
     /// The URL for the web vault.
     var webVaultURL: URL { get }
 
@@ -96,6 +99,10 @@ extension DefaultEnvironmentService {
 
     var eventsURL: URL {
         environmentUrls.eventsURL
+    }
+
+    var sendShareURL: URL {
+        environmentUrls.sendShareURL
     }
 
     var webVaultURL: URL {

@@ -23,6 +23,16 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Delete an attachment from a cipher.
+    ///
+    /// - Parameters:
+    ///   - attachmentId: The id of the attachment to delete.
+    ///   - cipherId: The id of the cipher that owns the attachment.
+    ///
+    /// - Returns: The updated cipher view with one less attachment.
+    ///
+    func deleteAttachment(withId attachmentId: String, cipherId: String) async throws -> CipherView?
+
     /// Delete a cipher from the user's vault.
     ///
     /// - Parameter id: The cipher id that to be deleted.
@@ -103,17 +113,6 @@ protocol VaultRepository: AnyObject {
     ///
     func saveAttachment(cipherView: CipherView, fileData: Data, fileName: String) async throws -> CipherView
 
-    /// A publisher for a user's cipher objects based on the specified search text and filter type.
-    ///
-    /// - Parameters:
-    ///     - searchText:  The search text to filter the cipher list.
-    ///     - filterType: The vault filter type to apply to the cipher list.
-    /// - Returns: A publisher for the user's ciphers.
-    func searchCipherPublisher(
-        searchText: String,
-        filterType: VaultFilterType
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>>
-
     /// Shares a cipher with an organization.
     ///
     /// - Parameter cipher: The cipher to share.
@@ -131,6 +130,12 @@ protocol VaultRepository: AnyObject {
     /// - Parameter cipher: The cipher that the user is updating.
     ///
     func updateCipher(_ cipherView: CipherView) async throws
+
+    /// Updates the list of collections for a cipher in the user's vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is updating.
+    ///
+    func updateCipherCollections(_ cipher: CipherView) async throws
 
     /// Validates the user's entered master password to determine if it matches the stored hash.
     ///
@@ -172,11 +177,29 @@ protocol VaultRepository: AnyObject {
     ///
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>>
 
-    /// Updates the list of collections for a cipher in the user's vault.
+    /// A publisher for searching a user's cipher objects for autofill. This only includes login ciphers.
     ///
-    /// - Parameter cipher: The cipher that the user is updating.
+    /// - Parameters:
+    ///     - searchText:  The search text to filter the cipher list.
+    ///     - filterType: The vault filter type to apply to the cipher list.
+    /// - Returns: A publisher for searching the user's ciphers for autofill.
     ///
-    func updateCipherCollections(_ cipher: CipherView) async throws
+    func searchCipherAutofillPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>>
+
+    /// A publisher for searching a user's cipher objects based on the specified search text and filter type.
+    ///
+    /// - Parameters:
+    ///     - searchText:  The search text to filter the cipher list.
+    ///     - filterType: The vault filter type to apply to the cipher list.
+    /// - Returns: A publisher searching for the user's ciphers.
+    ///
+    func searchVaultListPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>>
 
     /// A publisher for the vault list which returns a list of sections and items that are
     /// displayed in the vault.
@@ -309,6 +332,58 @@ class DefaultVaultRepository {
     }
 
     // MARK: Private
+
+    /// A publisher for searching a user's ciphers based on the specified search text and filter type.
+    ///
+    /// - Parameters:
+    ///   - searchText:  The search text to filter the cipher list.
+    ///   - filterType: The vault filter type to apply to the cipher list.
+    ///   - cipherFilter: An optional additional filter to apply to the cipher list.
+    /// - Returns: A publisher searching for the user's ciphers.
+    ///
+    private func searchPublisher(
+        searchText: String,
+        filterType: VaultFilterType,
+        cipherFilter: ((CipherView) -> Bool)? = nil
+    ) async throws -> AnyPublisher<[CipherView], Error> {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .folding(options: .diacriticInsensitive, locale: .current)
+
+        return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [CipherView] in
+            // Convert the Ciphers to CipherViews and filter appropriately.
+            let activeCiphers = try await ciphers.asyncMap { cipher in
+                try await self.clientVault.ciphers().decrypt(cipher: cipher)
+            }
+            .filter { cipher in
+                filterType.cipherFilter(cipher) &&
+                    cipher.deletedDate == nil &&
+                    (cipherFilter?(cipher) ?? true)
+            }
+
+            var matchedCiphers: [CipherView] = []
+            var lowPriorityMatchedCiphers: [CipherView] = []
+
+            // Search the ciphers.
+            activeCiphers.forEach { cipherView in
+                if cipherView.name.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+                    matchedCiphers.append(cipherView)
+                } else if query.count >= 8, cipherView.id?.starts(with: query) == true {
+                    lowPriorityMatchedCiphers.append(cipherView)
+                } else if cipherView.subtitle?.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    lowPriorityMatchedCiphers.append(cipherView)
+                } else if cipherView.login?.uris?.contains(where: { $0.uri?.contains(query) == true }) == true {
+                    lowPriorityMatchedCiphers.append(cipherView)
+                }
+            }
+
+            // Return the result.
+            return matchedCiphers.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } +
+                lowPriorityMatchedCiphers
+        }.eraseToAnyPublisher()
+    }
 
     /// Returns a list of TOTP type items from a SyncResponseModel.
     ///
@@ -579,6 +654,18 @@ extension DefaultVaultRepository: VaultRepository {
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
+    func deleteAttachment(withId attachmentId: String, cipherId: String) async throws -> CipherView? {
+        // Delete the attachment and then decrypt the resulting updated cipher.
+        if let updatedCipher = try await cipherService.deleteAttachmentWithServer(
+            attachmentId: attachmentId,
+            cipherId: cipherId
+        ) {
+            return try await clientVault.ciphers().decrypt(cipher: updatedCipher)
+        }
+        // This would only return nil if the cipher somehow doesn't exist in the datastore anymore.
+        return nil
+    }
+
     func doesActiveAccountHavePremium() async throws -> Bool {
         // Check if the user has a premium account personally.
         let account = try await stateService.getActiveAccount()
@@ -671,46 +758,6 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.shareCipherWithServer(encryptedCipher)
     }
 
-    func searchCipherPublisher(
-        searchText: String,
-        filterType: VaultFilterType
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-            .folding(options: .diacriticInsensitive, locale: .current)
-
-        return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [VaultListItem] in
-            // Convert the Ciphers to CipherViews and filter appropriately.
-            let activeCiphers = try await ciphers.asyncMap { cipher in
-                try await self.clientVault.ciphers().decrypt(cipher: cipher)
-            }
-            .filter { filterType.cipherFilter($0) && $0.deletedDate == nil }
-
-            var matchedCiphers: [CipherView] = []
-            var lowPriorityMatchedCiphers: [CipherView] = []
-
-            // Search the ciphers.
-            activeCiphers.forEach { cipherView in
-                if cipherView.name.lowercased()
-                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
-                    matchedCiphers.append(cipherView)
-                } else if query.count >= 8, cipherView.id?.starts(with: query) == true {
-                    lowPriorityMatchedCiphers.append(cipherView)
-                } else if cipherView.subtitle?.lowercased()
-                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
-                    lowPriorityMatchedCiphers.append(cipherView)
-                } else if cipherView.login?.uris?.contains(where: { $0.uri?.contains(query) == true }) == true {
-                    lowPriorityMatchedCiphers.append(cipherView)
-                }
-            }
-
-            // Return the result.
-            let result = matchedCiphers.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } +
-                lowPriorityMatchedCiphers
-            return result.compactMap { VaultListItem(cipherView: $0) }
-        }.eraseToAnyPublisher().values
-    }
-
     func softDeleteCipher(_ cipher: CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
         let softDeletedCipher = cipher.update(deletedDate: timeProvider.presentTime)
@@ -777,6 +824,27 @@ extension DefaultVaultRepository: VaultRepository {
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
         try await organizationService.organizationsPublisher().eraseToAnyPublisher().values
+    }
+
+    func searchCipherAutofillPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
+        try await searchPublisher(searchText: searchText, filterType: filterType) { cipher in
+            cipher.type == .login
+        }
+        .eraseToAnyPublisher()
+        .values
+    }
+
+    func searchVaultListPublisher(
+        searchText: String,
+        filterType: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
+        try await searchPublisher(searchText: searchText, filterType: filterType)
+            .map { $0.compactMap(VaultListItem.init) }
+            .eraseToAnyPublisher()
+            .values
     }
 
     func vaultListPublisher(

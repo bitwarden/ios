@@ -137,6 +137,17 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.alternateAccounts, [alternate])
     }
 
+    /// `setIsVisible(_:)` sets the visibility of the profiles view and updates accessibility focus.
+    func test_isVisible() {
+        subject.setIsVisible(true)
+        XCTAssertTrue(subject.isVisible)
+
+        subject.hasSetAccessibilityFocus = true
+        subject.setIsVisible(false)
+        XCTAssertFalse(subject.hasSetAccessibilityFocus)
+        XCTAssertFalse(subject.isVisible)
+    }
+
     /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
     func test_shouldSetAccessibilityFocus_addAccount() {
         let account = ProfileSwitcherItem()

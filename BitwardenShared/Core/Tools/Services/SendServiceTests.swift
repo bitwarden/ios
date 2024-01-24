@@ -3,6 +3,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length type_body_length function_body_length
+
 class SendServiceTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -50,8 +52,32 @@ class SendServiceTests: BitwardenTestCase {
 
         let send = Send.fixture()
         let data = Data("example".utf8)
-        try await subject.addFileSend(send, data: data)
+        let result = try await subject.addFileSend(send, data: data)
 
+        XCTAssertEqual(
+            result,
+            .fixture(
+                accessCount: 0,
+                accessId: "access id",
+                deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33, second: 0),
+                disabled: false,
+                expirationDate: nil,
+                file: nil,
+                hideEmail: false,
+                id: "fc483c22-443c-11ee-be56-0242ac120002",
+                key: "encrypted key",
+                maxAccessCount: nil,
+                name: "encrypted name",
+                notes: nil,
+                password: nil,
+                revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
+                text: .init(
+                    hidden: false,
+                    text: "encrypted text"
+                ),
+                type: .text
+            )
+        )
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(
             sendDataStore.upsertSendValue,
@@ -91,7 +117,7 @@ class SendServiceTests: BitwardenTestCase {
         let send = Send.fixture()
         let data = Data("example".utf8)
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            try await subject.addFileSend(send, data: data)
+            _ = try await subject.addFileSend(send, data: data)
         }
 
         XCTAssertEqual(client.requests.count, 1)
@@ -99,7 +125,8 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertNil(sendDataStore.upsertSendUserId)
     }
 
-    /// `addFileSend()` with an upload failure deletes the send on the backend.
+    /// `addFileSend()` with an upload failure deletes the send on the backend
+    /// and throws the error.
     func test_addFileSend_success_uploadFailure() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "ID"))
         client.results = [
@@ -110,7 +137,9 @@ class SendServiceTests: BitwardenTestCase {
 
         let send = Send.fixture()
         let data = Data("example".utf8)
-        try await subject.addFileSend(send, data: data)
+        await assertAsyncThrows {
+            _ = try await subject.addFileSend(send, data: data)
+        }
 
         XCTAssertEqual(client.requests.count, 3)
         XCTAssertNil(sendDataStore.upsertSendValue)
@@ -131,8 +160,32 @@ class SendServiceTests: BitwardenTestCase {
             .httpSuccess(testData: APITestData.sendResponse),
         ]
 
-        try await subject.addTextSend(.fixture())
+        let result = try await subject.addTextSend(.fixture())
 
+        XCTAssertEqual(
+            result,
+            .fixture(
+                accessCount: 0,
+                accessId: "access id",
+                deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33, second: 0),
+                disabled: false,
+                expirationDate: nil,
+                file: nil,
+                hideEmail: false,
+                id: "fc483c22-443c-11ee-be56-0242ac120002",
+                key: "encrypted key",
+                maxAccessCount: nil,
+                name: "encrypted name",
+                notes: nil,
+                password: nil,
+                revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
+                text: .init(
+                    hidden: false,
+                    text: "encrypted text"
+                ),
+                type: .text
+            )
+        )
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             sendDataStore.upsertSendValue,
@@ -171,7 +224,7 @@ class SendServiceTests: BitwardenTestCase {
 
         let send = Send.fixture()
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            try await subject.addTextSend(send)
+            _ = try await subject.addTextSend(send)
         }
 
         XCTAssertEqual(client.requests.count, 1)
@@ -223,6 +276,40 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertNil(sendDataStore.deleteSendUserId)
     }
 
+    /// `removePasswordFromSend()` performs the remove password request and updates the value in the
+    /// data store.
+    func test_removePasswordFromSend_success() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "USER_ID"))
+        client.results = [
+            .httpSuccess(testData: APITestData.sendResponse),
+        ]
+
+        let response = try await subject.removePasswordFromSend(.fixture(id: "SEND_ID"))
+
+        XCTAssertEqual(response.id, "fc483c22-443c-11ee-be56-0242ac120002")
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            sendDataStore.upsertSendValue?.id,
+            "fc483c22-443c-11ee-be56-0242ac120002"
+        )
+        XCTAssertEqual(sendDataStore.upsertSendUserId, "USER_ID")
+    }
+
+    /// `removePasswordFromSend()` performs the remove password request and updates the value in the
+    /// data store.
+    func test_removePasswordFromSend_failure() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "USER_ID"))
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            _ = try await subject.removePasswordFromSend(.fixture(id: "SEND_ID"))
+        }
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(sendDataStore.upsertSendValue)
+        XCTAssertNil(sendDataStore.upsertSendUserId)
+    }
+
     /// `replaceSends(_:userId:)` replaces the persisted sends in the data store.
     func test_replaceSends() async throws {
         let sends: [SendResponseModel] = [
@@ -257,8 +344,32 @@ class SendServiceTests: BitwardenTestCase {
         ]
 
         let send = Send.fixture()
-        try await subject.updateSend(send)
+        let result = try await subject.updateSend(send)
 
+        XCTAssertEqual(
+            result,
+            .fixture(
+                accessCount: 0,
+                accessId: "access id",
+                deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33, second: 0),
+                disabled: false,
+                expirationDate: nil,
+                file: nil,
+                hideEmail: false,
+                id: "fc483c22-443c-11ee-be56-0242ac120002",
+                key: "encrypted key",
+                maxAccessCount: nil,
+                name: "encrypted name",
+                notes: nil,
+                password: nil,
+                revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
+                text: .init(
+                    hidden: false,
+                    text: "encrypted text"
+                ),
+                type: .text
+            )
+        )
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             sendDataStore.upsertSendValue,
@@ -297,7 +408,7 @@ class SendServiceTests: BitwardenTestCase {
 
         let send = Send.fixture()
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            try await subject.updateSend(send)
+            _ = try await subject.updateSend(send)
         }
 
         XCTAssertEqual(client.requests.count, 1)
@@ -305,3 +416,5 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertNil(sendDataStore.upsertSendUserId)
     }
 }
+
+// swiftlint:enable file_length type_body_length function_body_length

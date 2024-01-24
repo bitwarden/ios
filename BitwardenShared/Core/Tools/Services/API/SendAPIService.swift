@@ -27,6 +27,12 @@ protocol SendAPIService {
     ///
     func deleteSend(with id: String) async throws
 
+    /// Performs an API request to remove the password from a send in the user's vault.
+    ///
+    /// - Parameter id: The id of the send that the user is remove the password from.
+    ///
+    func removePasswordFromSend(with id: String) async throws -> SendResponseModel
+
     /// Performs an API request to update a send in the user's vault.
     ///
     /// - Parameter send: The send that the user is updating.
@@ -48,6 +54,10 @@ extension APIService: SendAPIService {
 
     func deleteSend(with id: String) async throws {
         _ = try await apiService.send(DeleteSendRequest(sendId: id))
+    }
+
+    func removePasswordFromSend(with id: String) async throws -> SendResponseModel {
+        try await apiService.send(RemovePasswordFromSendRequest(sendId: id))
     }
 
     func updateSend(_ send: Send) async throws -> SendResponseModel {

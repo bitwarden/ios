@@ -160,6 +160,54 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
     }
 
+    /// `.receive(_:)` with `.deletePressed(_)` presents the confirm alert and deletes the attachment.
+    func test_receive_deletePressed() async throws {
+        subject.state.cipher = .fixture()
+
+        subject.receive(.deletePressed(.fixture()))
+
+        // Confirm on the alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(vaultRepository.deleteAttachmentId, "1")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.attachmentDeleted)
+    }
+
+    /// `.receive(_:)` with `.deletePressed(_)` handles any errors.
+    func test_receive_deletePressed_error() async throws {
+        subject.state.cipher = .fixture()
+        vaultRepository.deleteAttachmentResult = .failure(BitwardenTestError.example)
+
+        subject.receive(.deletePressed(.fixture()))
+
+        // Confirm on the alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `.receive(_:)` with `.deletePressed(_)` throws an error if either element is missing its id.
+    func test_receive_deletePressed_noIdError() async throws {
+        subject.state.cipher = .fixture(id: nil)
+
+        subject.receive(.deletePressed(.fixture(id: nil)))
+
+        // Confirm on the alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(CipherAPIServiceError.updateMissingId))
+        XCTAssertEqual(errorReporter.errors.last as? CipherAPIServiceError, .updateMissingId)
+    }
+
     /// `receive(_:)` with `.dismissPressed` dismisses the view.
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)

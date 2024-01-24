@@ -57,6 +57,9 @@ protocol AddEditItemState: Sendable {
     /// The notes for this item.
     var notes: String { get set }
 
+    /// The organization ID of the cipher, if the cipher is owned by an organization.
+    var organizationId: String? { get }
+
     /// The owner of this item.
     var owner: CipherOwner? { get set }
 

@@ -50,7 +50,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
     func test_navigate_alert() {
-        let alert = BitwardenShared.Alert(
+        let alert = Alert(
             title: "title",
             message: "message",
             preferredStyle: .alert,
@@ -233,7 +233,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.
-    func test_navigate_vaultUnlock() {
+    func test_navigate_vaultUnlock() throws {
         subject.navigate(
             to: .vaultUnlock(
                 .fixture(),
@@ -242,7 +242,8 @@ class AuthCoordinatorTests: BitwardenTestCase {
         )
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
-        XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)
+        let view: VaultUnlockView = try XCTUnwrap(stackNavigator.actions.last?.view as? VaultUnlockView)
+        XCTAssertNil(view.store.state.toast)
     }
 
     /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.

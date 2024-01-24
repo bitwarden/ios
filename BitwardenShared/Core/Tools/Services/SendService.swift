@@ -13,13 +13,13 @@ protocol SendService {
     ///   - send: The send to add.
     ///   - data: The data representation of the file.
     ///
-    func addFileSend(_ send: Send, data: Data) async throws
+    func addFileSend(_ send: Send, data: Data) async throws -> Send
 
     /// Adds a new text Send for the current user in both the backend and in local storage.
     ///
     /// - Parameter send: The send to add.
     ///
-    func addTextSend(_ send: Send) async throws
+    func addTextSend(_ send: Send) async throws -> Send
 
     /// Deletes the send in both the backend and in local storage.
     ///
@@ -27,11 +27,17 @@ protocol SendService {
     ///
     func deleteSend(_ send: Send) async throws
 
+    /// Removes the password from the provided send.
+    ///
+    /// - Parameter send: The send to remove the password from.
+    ///
+    func removePasswordFromSend(_ send: Send) async throws -> Send
+
     /// Updates an existing Send for the current user in both the backend and in local storage.
     ///
     /// - Parameter send: The send to update.
     ///
-    func updateSend(_ send: Send) async throws
+    func updateSend(_ send: Send) async throws -> Send
 
     /// Replaces the persisted list of sends for the user.
     ///
@@ -91,7 +97,7 @@ class DefaultSendService: SendService {
 }
 
 extension DefaultSendService {
-    func addFileSend(_ send: Send, data: Data) async throws {
+    func addFileSend(_ send: Send, data: Data) async throws -> Send {
         let userId = try await stateService.getActiveAccountId()
 
         let response = try await sendAPIService.addFileSend(send, fileLength: data.count)
@@ -109,20 +115,22 @@ extension DefaultSendService {
             // If the file upload fails for any reason, bail out on saving this send by deleting it
             // on the server.
             try await sendAPIService.deleteSend(with: response.sendResponse.id)
-            return
+            throw error
         }
 
         let newSend = Send(sendResponseModel: response.sendResponse)
         try await sendDataStore.upsertSend(newSend, userId: userId)
+        return newSend
     }
 
-    func addTextSend(_ send: Send) async throws {
+    func addTextSend(_ send: Send) async throws -> Send {
         let userId = try await stateService.getActiveAccountId()
 
         let response = try await sendAPIService.addTextSend(send)
 
         let newSend = Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(newSend, userId: userId)
+        return newSend
     }
 
     func deleteSend(_ send: Send) async throws {
@@ -133,12 +141,26 @@ extension DefaultSendService {
         try await sendDataStore.deleteSend(id: id, userId: userId)
     }
 
-    func updateSend(_ send: Send) async throws {
+    func removePasswordFromSend(_ send: Send) async throws -> Send {
+        guard let id = send.id else {
+            throw BitwardenError.dataError("Send missing id.")
+        }
+        let userId = try await stateService.getActiveAccountId()
+
+        let response = try await sendAPIService.removePasswordFromSend(with: id)
+
+        let newSend = Send(sendResponseModel: response)
+        try await sendDataStore.upsertSend(newSend, userId: userId)
+        return newSend
+    }
+
+    func updateSend(_ send: Send) async throws -> Send {
         let userId = try await stateService.getActiveAccountId()
         let response = try await sendAPIService.updateSend(send)
 
         let newSend = Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(newSend, userId: userId)
+        return newSend
     }
 
     func replaceSends(_ sends: [SendResponseModel], userId: String) async throws {

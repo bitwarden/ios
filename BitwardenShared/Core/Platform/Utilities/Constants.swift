@@ -52,3 +52,14 @@ enum Constants {
     /// The default file name when the file name cannot be determined.
     static let unknownFileName: String = "unknown_file_name"
 }
+
+// MARK: Extension Constants
+
+extension Constants {
+    /// Uniform type identifier constants used by the app.
+    ///
+    enum UTType {
+        /// A type identifier for the app extension setup.
+        static let appExtensionSetup = "com.8bit.bitwarden.extension-setup"
+    }
+}

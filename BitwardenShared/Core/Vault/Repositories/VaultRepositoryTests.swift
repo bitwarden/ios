@@ -166,9 +166,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
-    /// `deleteCipher()` deletes cipher from back end and local storage.
+    /// `deleteAttachment(withId:cipherId)` deletes attachment from backend and local storage.
+    func test_deleteAttachment() async throws {
+        cipherService.deleteAttachmentWithServerResult = .success(.fixture(id: "2"))
+
+        let updatedCipher = try await subject.deleteAttachment(withId: "10", cipherId: "")
+
+        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "10")
+        XCTAssertEqual(updatedCipher, CipherView(cipher: .fixture(id: "2")))
+    }
+
+    /// `deleteAttachment(withId:cipherId)` returns nil if the cipher couldn't be found for some reason.
+    func test_deleteAttachment_nilResult() async throws {
+        cipherService.deleteAttachmentWithServerResult = .success(nil)
+
+        let updatedCipher = try await subject.deleteAttachment(withId: "10", cipherId: "")
+
+        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "10")
+        XCTAssertNil(updatedCipher)
+    }
+
+    /// `deleteCipher()` deletes cipher from backend and local storage.
     func test_deleteCipher() async throws {
-        client.result = .httpSuccess(testData: APITestData(data: Data()))
         cipherService.deleteWithServerResult = .success(())
         try await subject.deleteCipher("123")
         XCTAssertEqual(cipherService.deleteCipherId, "123")
@@ -408,8 +427,120 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
-    /// `searchCipherPublisher(searchText:, filterType:)` returns search matching cipher name.
-    func test_searchCipherPublisher_searchText_name() async throws {
+    /// `searchCipherAutofillPublisher(searchText:filterType:)` returns search matching cipher name.
+    func test_searchCipherAutofillPublisher_searchText_name() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "dabcd", type: .login),
+            .fixture(id: "2", name: "qwe", type: .login),
+            .fixture(id: "3", name: "Café", type: .login),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(searchText: "cafe", filterType: .allVaults)
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, [cipherView])
+    }
+
+    /// `searchCipherAutofillPublisher(searchText:filterType:)` returns matching ciphers excludes
+    /// items from trash.
+    func test_searchCipherAutofillPublisher_searchText_excludesTrashedItems() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "dabcd"),
+            .fixture(id: "2", name: "qwe"),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(id: "4", name: "Café"),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(searchText: "cafe", filterType: .allVaults)
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, [cipherView])
+    }
+
+    /// `searchCipherAutofillPublisher(searchText:filterType:)` returns search matching cipher id.
+    func test_searchCipherAutofillPublisher_searchText_id() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1223123", name: "dabcd"),
+            .fixture(id: "31232131245435234", name: "qwe"),
+            .fixture(id: "434343434", name: "Café"),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1]))
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(searchText: "312321312", filterType: .allVaults)
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, [cipherView])
+    }
+
+    /// `searchCipherAutofillPublisher(searchText:filterType:)` returns matching ciphers and only
+    /// includes login items.
+    func test_searchCipherAutofillPublisher_searchText_includesOnlyLogins() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "Café", type: .card),
+            .fixture(id: "2", name: "Café", type: .identity),
+            .fixture(id: "4", name: "Café", type: .secureNote),
+            .fixture(id: "3", name: "Café", type: .login),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(searchText: "cafe", filterType: .allVaults)
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, [cipherView])
+    }
+
+    /// `searchCipherAutofillPublisher(searchText:, filterType:)` returns search matching cipher URI.
+    func test_searchCipherAutofillPublisher_searchText_uri() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "dabcd"),
+            .fixture(id: "2", name: "qwe"),
+            .fixture(
+                id: "3",
+                login: .init(
+                    username: "name",
+                    password: "pwd",
+                    passwordRevisionDate: nil,
+                    uris: [.init(uri: "www.domain.com", match: .domain)],
+                    totp: nil,
+                    autofillOnPageLoad: nil
+                ),
+                name: "Café"
+            ),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(searchText: "domain", filterType: .allVaults)
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, [cipherView])
+    }
+
+    /// `searchCipherAutofillPublisher(searchText,filterType:)` only returns ciphers based on
+    /// search text and VaultFilterType.
+    func test_searchCipherAutofillPublisher_vaultType() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "bcd", organizationId: "testOrg"),
+            .fixture(id: "2", name: "bcdew"),
+            .fixture(id: "3", name: "dabcd"),
+        ]
+        let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.first))
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(searchText: "bcd", filterType: .organization(.fixture(id: "testOrg")))
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, [cipherView])
+    }
+
+    /// `searchVaultListPublisher(searchText:, filterType:)` returns search matching cipher name.
+    func test_searchVaultListPublisher_searchText_name() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
         cipherService.ciphersSubject.value = [
             .fixture(id: "1", name: "dabcd"),
@@ -419,14 +550,15 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
         let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
         var iterator = try await subject
-            .searchCipherPublisher(searchText: "cafe", filterType: .allVaults)
+            .searchVaultListPublisher(searchText: "cafe", filterType: .allVaults)
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
     }
 
-    /// `searchCipherPublisher(searchText:, filterType:)` returns search matching cipher name excludes items from trash.
-    func test_searchCipherPublisher_searchText_excludesTrashedItems() async throws {
+    /// `searchVaultListPublisher(searchText:, filterType:)` returns search matching cipher name
+    /// excludes items from trash.
+    func test_searchVaultListPublisher_searchText_excludesTrashedItems() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
         cipherService.ciphersSubject.value = [
             .fixture(id: "1", name: "dabcd"),
@@ -437,14 +569,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
         let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
         var iterator = try await subject
-            .searchCipherPublisher(searchText: "cafe", filterType: .allVaults)
+            .searchVaultListPublisher(searchText: "cafe", filterType: .allVaults)
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
     }
 
-    /// `searchCipherPublisher(searchText:, filterType:)` returns search matching cipher id.
-    func test_searchCipherPublisher_searchText_id() async throws {
+    /// `searchVaultListPublisher(searchText:, filterType:)` returns search matching cipher id.
+    func test_searchVaultListPublisher_searchText_id() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
         cipherService.ciphersSubject.value = [
             .fixture(id: "1223123", name: "dabcd"),
@@ -454,14 +586,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[1]))
         let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
         var iterator = try await subject
-            .searchCipherPublisher(searchText: "312321312", filterType: .allVaults)
+            .searchVaultListPublisher(searchText: "312321312", filterType: .allVaults)
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
     }
 
-    /// `searchCipherPublisher(searchText:, filterType:)` returns search matching cipher uri.
-    func test_searchCipherPublisher_searchText_uri() async throws {
+    /// `searchVaultListPublisher(searchText:, filterType:)` returns search matching cipher uri.
+    func test_searchVaultListPublisher_searchText_uri() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
         cipherService.ciphersSubject.value = [
             .fixture(id: "1", name: "dabcd"),
@@ -482,14 +614,15 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
         let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
         var iterator = try await subject
-            .searchCipherPublisher(searchText: "domain", filterType: .allVaults)
+            .searchVaultListPublisher(searchText: "domain", filterType: .allVaults)
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
     }
 
-    /// `searchCipherPublisher(searchText:, filterType:)` only returns ciphers based on search text and VaultFilterType.
-    func test_searchCipherPublisher_vaultType() async throws {
+    /// `searchVaultListPublisher(searchText:filterType:)` only returns ciphers based on search
+    /// text and VaultFilterType.
+    func test_searchVaultListPublisher_vaultType() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
         cipherService.ciphersSubject.value = [
             .fixture(id: "1", name: "bcd", organizationId: "testOrg"),
@@ -499,7 +632,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.first))
         let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
         var iterator = try await subject
-            .searchCipherPublisher(searchText: "bcd", filterType: .organization(.fixture(id: "testOrg")))
+            .searchVaultListPublisher(searchText: "bcd", filterType: .organization(.fixture(id: "testOrg")))
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)

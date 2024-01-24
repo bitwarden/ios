@@ -1,10 +1,25 @@
 import Foundation
 
+// MARK: - UnlockMethod
+
+/// The vault unlocking method.
+///
+public enum UnlockMethod {
+    /// Unlocking with biometrics.
+    case biometrics
+
+    /// Unlocking with password.
+    case password
+
+    /// Unlocking with PIN.
+    case pin
+}
+
 // MARK: - SessionTimeoutValue
 
-/// The session timeout value.
+/// An enumeration of session timeout values to choose from.
 ///
-public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
+public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menuable {
     /// Timeout immediately.
     case immediately
 
@@ -33,7 +48,7 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
     case never
 
     /// A custom timeout value.
-    case custom
+    case custom(Int)
 
     /// All of the cases to show in the menu.
     public static let allCases: [Self] = [
@@ -46,9 +61,10 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
         .fourHours,
         .onAppRestart,
         .never,
-        .custom,
+        .custom(-100),
     ]
 
+    /// The localized string representation of a `SessionTimeoutValue`.
     var localizedName: String {
         switch self {
         case .immediately:
@@ -73,18 +89,58 @@ public enum SessionTimeoutValue: CaseIterable, Equatable, Menuable {
             Localizations.custom
         }
     }
+
+    public var rawValue: Int {
+        switch self {
+        case .immediately: 0
+        case .oneMinute: 60
+        case .fiveMinutes: 300
+        case .fifteenMinutes: 900
+        case .thirtyMinutes: 1800
+        case .oneHour: 3600
+        case .fourHours: 14400
+        case .onAppRestart: -1
+        case .never: -2
+        case let .custom(customValue): customValue
+        }
+    }
+
+    public init(rawValue: Int) {
+        switch rawValue {
+        case 0:
+            self = .immediately
+        case 60:
+            self = .oneMinute
+        case 300:
+            self = .fiveMinutes
+        case 900:
+            self = .fifteenMinutes
+        case 1800:
+            self = .thirtyMinutes
+        case 3600:
+            self = .oneHour
+        case 14400:
+            self = .fourHours
+        case -1:
+            self = .onAppRestart
+        case -2:
+            self = .never
+        default:
+            self = .custom(rawValue)
+        }
+    }
 }
 
 // MARK: - SessionTimeoutAction
 
 /// The action to perform on session timeout.
 ///
-public enum SessionTimeoutAction: CaseIterable, Equatable, Menuable {
+public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuable {
     /// Lock the vault.
-    case lock
+    case lock = 0
 
     /// Log the user out.
-    case logout
+    case logout = 1
 
     /// All of the cases to show in the menu.
     public static let allCases: [SessionTimeoutAction] = [.lock, .logout]
@@ -109,15 +165,20 @@ struct AccountSecurityState: Equatable {
 
     /// The accessibility label used for the custom timeout value.
     var customTimeoutAccessibilityLabel: String {
-        customSessionTimeoutValue.timeInHoursMinutes(shouldSpellOut: true)
+        customTimeoutValue.timeInHoursMinutes(shouldSpellOut: true)
     }
 
-    /// The custom session timeout value, initially set to 1 minute.
-    var customSessionTimeoutValue: TimeInterval = 60
+    /// The custom session timeout value, initially set to 60 seconds.
+    var customTimeoutValue: Int {
+        guard case let .custom(customValue) = sessionTimeoutValue else {
+            return 60
+        }
+        return customValue
+    }
 
     /// The string representation of the custom session timeout value.
     var customTimeoutString: String {
-        customSessionTimeoutValue.timeInHoursMinutes()
+        customTimeoutValue.timeInHoursMinutes()
     }
 
     /// The URL for account fingerprint phrase external link.
@@ -128,7 +189,8 @@ struct AccountSecurityState: Equatable {
 
     /// Whether or not the custom session timeout field is shown.
     var isShowingCustomTimeout: Bool {
-        sessionTimeoutValue == .custom
+        guard case .custom = sessionTimeoutValue else { return false }
+        return true
     }
 
     /// Whether the unlock with pin code toggle is on.

@@ -3,6 +3,24 @@
 extension Alert {
     // MARK: Methods
 
+    /// An alert that asks if the user wants to navigate to the app store to leave a review.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert that asks if the user wants to navigate to the app store to leave a review.
+    ///
+    static func appStoreAlert(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.continueToAppStore,
+            message: Localizations.rateAppDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
+            ]
+        )
+    }
+
     /// Confirm allowing the device to approve login requests.
     ///
     /// - Parameter action: The action to perform if the user selects yes.
@@ -177,6 +195,26 @@ extension Alert {
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in
                     action()
+                },
+            ]
+        )
+    }
+
+    /// An alert asking if the user wants to login with their PIN upon app restart.
+    ///
+    /// - Parameter action: The action to occur if `Yes` is tapped.
+    /// - Returns: An alert asking if the user wants to login with their PIN upon app restart.
+    ///
+    static func unlockWithPINCodeAlert(action: @escaping (Bool) async -> Void) -> Alert {
+        Alert(
+            title: Localizations.unlockWithPIN,
+            message: Localizations.pinRequireMasterPasswordRestart,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .cancel) { _ in
+                    await action(false)
+                },
+                AlertAction(title: Localizations.yes, style: .default) { _ in
+                    await action(true)
                 },
             ]
         )
