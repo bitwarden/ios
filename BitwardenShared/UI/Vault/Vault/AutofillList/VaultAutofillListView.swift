@@ -14,25 +14,52 @@ struct VaultAutofillListView: View {
     // MARK: View
 
     var body: some View {
-        VaultAutofillListSearchableView(store: store)
-            .navigationBar(title: Localizations.items, titleDisplayMode: .inline)
-            .searchable(
-                text: store.binding(
-                    get: \.searchText,
-                    send: VaultAutofillListAction.searchTextChanged
-                ),
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
-            )
-            .toolbar {
-                addToolbarItem {
-                    store.send(.addTapped)
-                }
+        ZStack {
+            VaultAutofillListSearchableView(store: store)
 
-                cancelToolbarItem {
-                    store.send(.cancelTapped)
-                }
+            profileSwitcher
+        }
+        .navigationBar(title: Localizations.items, titleDisplayMode: .inline)
+        .searchable(
+            text: store.binding(
+                get: \.searchText,
+                send: VaultAutofillListAction.searchTextChanged
+            ),
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: Localizations.search
+        )
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                ProfileSwitcherToolbarView(
+                    store: store.child(
+                        state: \.profileSwitcherState,
+                        mapAction: VaultAutofillListAction.profileSwitcherAction,
+                        mapEffect: nil
+                    )
+                )
             }
+
+            addToolbarItem {
+                store.send(.addTapped)
+            }
+
+            cancelToolbarItem {
+                store.send(.cancelTapped)
+            }
+        }
+    }
+
+    // MARK: Private properties
+
+    /// A view that displays the ability to add or switch between account profiles
+    @ViewBuilder private var profileSwitcher: some View {
+        ProfileSwitcherView(
+            store: store.child(
+                state: \.profileSwitcherState,
+                mapAction: VaultAutofillListAction.profileSwitcherAction,
+                mapEffect: nil
+            )
+        )
     }
 }
 
@@ -57,6 +84,9 @@ private struct VaultAutofillListSearchableView: View {
         contentView()
             .onChange(of: isSearching) { newValue in
                 store.send(.searchStateChanged(isSearching: newValue))
+            }
+            .task {
+                await store.perform(.loadData)
             }
             .task {
                 await store.perform(.streamAutofillItems)

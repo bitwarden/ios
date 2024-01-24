@@ -13,6 +13,9 @@ struct VaultAutofillListState: Equatable {
     /// The list of cipher items matching matching the `searchText`.
     var ciphersForSearch: [CipherView] = []
 
+    /// The user's current account profile state and alternative accounts.
+    var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
+
     /// The text that the user is currently searching for.
     var searchText = ""
 
