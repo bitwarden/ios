@@ -360,12 +360,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             send: AddEditSendItemAction.hideTextByDefaultChanged
         ))
         .toggleStyle(.bitwarden)
-
-        Toggle(Localizations.shareOnSave, isOn: store.binding(
-            get: \.isShareOnSaveOn,
-            send: AddEditSendItemAction.shareOnSaveChanged
-        ))
-        .toggleStyle(.bitwarden)
     }
 
     /// The type field.
@@ -412,7 +406,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     state: AddEditSendItemState(
                         fileName: "Example File",
                         isHideTextByDefaultOn: true,
-                        isShareOnSaveOn: true,
                         name: "Sendy",
                         type: .file
                     )
@@ -429,7 +422,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 processor: StateProcessor(
                     state: AddEditSendItemState(
                         isHideTextByDefaultOn: true,
-                        isShareOnSaveOn: true,
                         name: "Sendy",
                         text: "Example text",
                         type: .text
@@ -482,7 +474,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         deletionDate: .custom,
                         expirationDate: .custom,
                         isHideTextByDefaultOn: true,
-                        isShareOnSaveOn: true,
                         isOptionsExpanded: true,
                         mode: .edit,
                         name: "Sendy",
@@ -509,7 +500,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         fileName: "example.txt",
                         fileSize: "420.42 KB",
                         isHideTextByDefaultOn: true,
-                        isShareOnSaveOn: true,
                         isOptionsExpanded: true,
                         mode: .edit,
                         name: "Sendy",

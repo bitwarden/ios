@@ -154,7 +154,6 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.fileName = "example_file.txt"
         processor.state.fileData = Data("example".utf8)
         processor.state.isHideTextByDefaultOn = true
-        processor.state.isShareOnSaveOn = true
         processor.state.deletionDate = .custom
         processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.expirationDate = .custom
@@ -195,7 +194,6 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.name = "Name"
         processor.state.text = "Text"
         processor.state.isHideTextByDefaultOn = true
-        processor.state.isShareOnSaveOn = true
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
@@ -209,7 +207,6 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.name = "Name"
         processor.state.text = "Text with lots of text that wraps to new lines when displayed."
         processor.state.isHideTextByDefaultOn = true
-        processor.state.isShareOnSaveOn = true
         processor.state.deletionDate = .custom
         processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.expirationDate = .custom
