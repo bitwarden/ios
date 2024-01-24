@@ -89,7 +89,6 @@ struct PasswordHistoryListView: View {
             .cornerRadius(16)
             .padding(16)
         }
-
     }
 
     /// Return a view for a single row in the password history list.
