@@ -39,12 +39,22 @@ extension Alert {
         )
     }
 
-    static func deleteSendConfirmation(
-        completion: @escaping () async -> Void
+    /// A confirmation alert that allows the user to confirm or cancel the action that was
+    /// triggered.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the alert.
+    ///   - message: The message of the alert.
+    ///   - confirmationHandler: The block that is executed when the the action is confirmed.
+    ///
+    static func confirmation(
+        title: String,
+        message: String? = nil,
+        confirmationHandler: @escaping () async -> Void
     ) -> Alert {
         Alert(
-            title: Localizations.areYouSureDeleteSend,
-            message: nil,
+            title: title,
+            message: message,
             alertActions: [
                 AlertAction(
                     title: Localizations.cancel,
@@ -54,29 +64,7 @@ extension Alert {
                     title: Localizations.yes,
                     style: .default,
                     handler: { _, _ in
-                        await completion()
-                    }
-                ),
-            ]
-        )
-    }
-
-    static func removeSendPasswordConfirmation(
-        completion: @escaping () async -> Void
-    ) -> Alert {
-        Alert(
-            title: Localizations.areYouSureRemoveSendPassword,
-            message: nil,
-            alertActions: [
-                AlertAction(
-                    title: Localizations.cancel,
-                    style: .cancel
-                ),
-                AlertAction(
-                    title: Localizations.yes,
-                    style: .default,
-                    handler: { _, _ in
-                        await completion()
+                        await confirmationHandler()
                     }
                 ),
             ]

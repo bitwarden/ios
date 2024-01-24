@@ -51,13 +51,13 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.sendLink))
         case .deletePressed:
             guard let sendView = state.originalSendView else { return }
-            let alert = Alert.deleteSendConfirmation { [weak self] in
+            let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
                 await self?.deleteSend(sendView)
             }
             coordinator.showAlert(alert)
         case .removePassword:
             guard let sendView = state.originalSendView else { return }
-            let alert = Alert.removeSendPasswordConfirmation { [weak self] in
+            let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
                 await self?.removePassword(sendView)
             }
             coordinator.showAlert(alert)
