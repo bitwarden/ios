@@ -321,9 +321,11 @@ protocol StateService: AnyObject {
 
     /// Sets the last active time within the app.
     ///
-    /// - Parameter userId: The user ID associated with the last active time within the app.
+    /// - Parameters:
+    ///   - date: The current time.
+    ///   - userId: The user ID associated with the last active time within the app.
     ///
-    func setLastActiveTime(userId: String?) async throws
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws
 
     /// Sets the time of the last sync for a user ID.
     ///
@@ -693,10 +695,10 @@ extension StateService {
 
     /// Sets the last active time within the app.
     ///
-    /// - Parameter date: The date of the last active time.
+    /// - Parameter date: The current time.
     ///
-    func setLastActiveTime() async throws {
-        try await setLastActiveTime(userId: nil)
+    func setLastActiveTime(_ date: Date?) async throws {
+        try await setLastActiveTime(date, userId: nil)
     }
 
     /// Sets the time of the last sync for a user ID.
@@ -825,9 +827,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
 
-    /// The service that provides the present time.
-    private let timeProvider: TimeProvider
-
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
@@ -841,16 +840,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
     ///  - dataStore: The data store that handles performing data requests.
-    ///  - timeProvider: The service that provides the present time.
     ///
     init(
         appSettingsStore: AppSettingsStore,
-        dataStore: DataStore,
-        timeProvider: TimeProvider
+        dataStore: DataStore
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
-        self.timeProvider = timeProvider
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
@@ -1112,9 +1108,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setDisableAutoTotpCopy(disableAutoTotpCopy, userId: userId)
     }
 
-    func setLastActiveTime(userId: String?) async throws {
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setLastActiveTime(timeProvider.presentTime, userId: userId)
+        appSettingsStore.setLastActiveTime(date, userId: userId)
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {

@@ -209,11 +209,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let timeProvider = CurrentTime()
 
-        let stateService = DefaultStateService(
-            appSettingsStore: appSettingsStore,
-            dataStore: dataStore,
-            timeProvider: timeProvider
-        )
+        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
 
         let biometricsService = DefaultBiometricsService(stateService: stateService)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
@@ -290,7 +286,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
+        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
