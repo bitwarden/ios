@@ -120,10 +120,10 @@ struct GeneratorState: Equatable { // swiftlint:disable:this type_body_length
                 optionFields = [
                     passwordGeneratorTypeField(),
                     sliderField(
-                        accessibilityIdSlider: "PasswordLengthSlider",
-                        accessibilityIdValue: "PasswordLengthLabel",
                         keyPath: \.passwordState.lengthDouble,
                         range: 5 ... 128,
+                        sliderAccessibilityId: "PasswordLengthSlider",
+                        sliderValueAccessibilityId: "PasswordLengthLabel",
                         title: Localizations.length,
                         step: 1
                     ),
@@ -185,6 +185,7 @@ struct GeneratorState: Equatable { // swiftlint:disable:this type_body_length
             case .catchAllEmail:
                 optionFields.append(contentsOf: [
                     textField(
+                        accessibilityId: "CatchAllEmailDomainEntry",
                         keyboardType: .URL,
                         keyPath: \.usernameState.domain,
                         textContentType: .URL,
@@ -212,11 +213,14 @@ struct GeneratorState: Equatable { // swiftlint:disable:this type_body_length
                 case .addyIO:
                     optionFields.append(contentsOf: [
                         textField(
+                            accessibilityId: "ForwardedEmailApiSecretEntry",
                             isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                             keyPath: \.usernameState.addyIOAPIAccessToken,
+                            passwordVisibilityAccessibilityId: "ShowForwardedEmailApiSecretButton",
                             title: Localizations.apiAccessToken
                         ),
                         textField(
+                            accessibilityId: "AnonAddyDomainNameEntry",
                             keyPath: \.usernameState.addyIODomainName,
                             title: Localizations.domainNameRequiredParenthesis
                         ),
@@ -257,6 +261,7 @@ struct GeneratorState: Equatable { // swiftlint:disable:this type_body_length
             case .plusAddressedEmail:
                 optionFields.append(contentsOf: [
                     textField(
+                        accessibilityId: "PlusAddressedEmailEntry",
                         keyboardType: .emailAddress,
                         keyPath: \.usernameState.email,
                         textContentType: .emailAddress,
@@ -271,10 +276,20 @@ struct GeneratorState: Equatable { // swiftlint:disable:this type_body_length
                     ])
                 }
             case .randomWord:
-                optionFields.append(contentsOf: [
-                    toggleField(keyPath: \.usernameState.capitalize, title: Localizations.capitalize),
-                    toggleField(keyPath: \.usernameState.includeNumber, title: Localizations.includeNumber),
-                ])
+                optionFields.append(
+                    contentsOf: [
+                        toggleField(
+                            accessibilityId: "CapitalizeRandomWordUsernameToggle",
+                            keyPath: \.usernameState.capitalize,
+                            title: Localizations.capitalize
+                        ),
+                        toggleField(
+                            accessibilityId: "IncludeNumberRandomWordUsernameToggle",
+                            keyPath: \.usernameState.includeNumber,
+                            title: Localizations.includeNumber
+                        ),
+                    ]
+                )
             }
         }
 

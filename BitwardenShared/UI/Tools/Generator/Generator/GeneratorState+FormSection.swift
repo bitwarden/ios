@@ -163,28 +163,28 @@ extension GeneratorState {
     /// A helper method for creating a slider field.
     ///
     /// - Parameters:
-    ///   - accessibilityIdSlider: The accessibility id for the slider.
-    ///   - accessibilityIdValue: The accessibility id for the slider value.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
     ///   - range: The range of allowable values for the slider.
+    ///   - sliderAccessibilityId: The accessibility id for the slider.
+    ///   - sliderValueAccessibilityId: The accessibility id for the slider value.
     ///   - title: The title of the field.
     ///   - step: The distance between each valid value.
     /// - Returns: A form field for a slider field.
     ///
     func sliderField(
-        accessibilityIdSlider: String? = nil,
-        accessibilityIdValue: String? = nil,
         keyPath: WritableKeyPath<GeneratorState, Double>,
         range: ClosedRange<Double>,
+        sliderAccessibilityId: String? = nil,
+        sliderValueAccessibilityId: String? = nil,
         title: String,
         step: Double
     ) -> FormField<Self> {
         FormField(fieldType: .slider(
             SliderField(
-                accessibilityIdSlider: accessibilityIdSlider,
-                accessibilityIdValue: accessibilityIdValue,
                 keyPath: keyPath,
                 range: range,
+                sliderAccessibilityId: sliderAccessibilityId,
+                sliderValueAccessibilityId: sliderValueAccessibilityId,
                 step: step,
                 title: title,
                 value: self[keyPath: keyPath]
@@ -230,6 +230,7 @@ extension GeneratorState {
     ///     text field is visible.
     ///   - keyboardType: The type of keyboard to display.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
+    ///   - passwordVisibilityAccessibilityId: The accessibility id for the password visibility button.
     ///   - textContentType: The expected type of content input in the text field. Defaults to `nil`.
     ///   - title: The title of the field.
     /// - Returns: A form field for a generated value field.
@@ -241,6 +242,7 @@ extension GeneratorState {
         isPasswordVisibleKeyPath: WritableKeyPath<GeneratorState, Bool>? = nil,
         keyboardType: UIKeyboardType = .default,
         keyPath: WritableKeyPath<GeneratorState, String>,
+        passwordVisibilityAccessibilityId: String? = nil,
         textContentType: UITextContentType? = nil,
         title: String
     ) -> FormField<Self> {
@@ -253,6 +255,7 @@ extension GeneratorState {
                 isPasswordVisibleKeyPath: isPasswordVisibleKeyPath,
                 keyboardType: keyboardType,
                 keyPath: keyPath,
+                passwordVisibilityAccessibilityId: passwordVisibilityAccessibilityId,
                 textContentType: textContentType,
                 title: title,
                 value: self[keyPath: keyPath]

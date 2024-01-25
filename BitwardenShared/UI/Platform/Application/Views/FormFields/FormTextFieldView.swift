@@ -38,6 +38,9 @@ struct FormTextField<State>: Equatable, Identifiable {
     /// if this is `nil`.
     let accessibilityId: String?
 
+    /// The accessibility id for the button to toggle password visibility.
+    let passwordVisibilityAccessibilityId: String?
+
     /// The behavior for when the input should be automatically capitalized.
     let autocapitalization: Autocapitalization
 
@@ -86,6 +89,7 @@ struct FormTextField<State>: Equatable, Identifiable {
     ///     text field is visible.
     ///   - keyboardType: The type of keyboard to display.
     ///   - keyPath: A key path for updating the backing value for the text field.
+    ///   - passwordVisibilityAccessibilityId: The accessibility id for the password visibility button.
     ///   - textContentType: The expected type of content input in the text field. Defaults to `nil`.
     ///   - title: The title of the field.
     ///   - value: The current text value.
@@ -97,6 +101,7 @@ struct FormTextField<State>: Equatable, Identifiable {
         isPasswordVisibleKeyPath: WritableKeyPath<State, Bool>? = nil,
         keyboardType: UIKeyboardType = .default,
         keyPath: WritableKeyPath<State, String>,
+        passwordVisibilityAccessibilityId: String? = nil,
         textContentType: UITextContentType? = nil,
         title: String,
         value: String
@@ -108,6 +113,7 @@ struct FormTextField<State>: Equatable, Identifiable {
         self.isPasswordVisibleKeyPath = isPasswordVisibleKeyPath
         self.keyboardType = keyboardType
         self.keyPath = keyPath
+        self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.textContentType = textContentType
         self.title = title
         self.value = value
@@ -137,7 +143,8 @@ struct FormTextFieldView<State>: View {
             text: Binding(get: { field.value }, set: action),
             isPasswordVisible: field.isPasswordVisible.map { isPasswordVisible in
                 Binding(get: { isPasswordVisible }, set: isPasswordVisibleChangedAction ?? { _ in })
-            }
+            },
+            passwordVisibilityAccessibilityId: field.passwordVisibilityAccessibilityId
         )
         .accessibilityIdentifier(field.accessibilityId ?? field.title)
         .autocorrectionDisabled(field.isAutocorrectDisabled)
