@@ -84,7 +84,7 @@ struct ProfileOrganizationResponseModel: Codable, Equatable {
     let status: OrganizationUserStatusType
 
     /// The profile's organization's type.
-    let type: Int?
+    let type: OrganizationUserType
 
     /// Whether the profile organization uses 2FA.
     let use2fa: Bool
