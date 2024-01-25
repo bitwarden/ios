@@ -38,9 +38,6 @@ struct FormTextField<State>: Equatable, Identifiable {
     /// if this is `nil`.
     let accessibilityId: String?
 
-    /// The accessibility id for the button to toggle password visibility.
-    let passwordVisibilityAccessibilityId: String?
-
     /// The behavior for when the input should be automatically capitalized.
     let autocapitalization: Autocapitalization
 
@@ -58,6 +55,9 @@ struct FormTextField<State>: Equatable, Identifiable {
 
     /// A key path for updating the backing value for the text field.
     let keyPath: WritableKeyPath<State, String>
+
+    /// The accessibility id for the button to toggle password visibility.
+    let passwordVisibilityAccessibilityId: String?
 
     /// The expected type of content input in the text field.
     let textContentType: UITextContentType?
