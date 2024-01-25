@@ -290,6 +290,9 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     }
 
     /// Shows the login with device screen.
+    ///
+    /// - Parameter email: The user's email.
+    ///
     private func showLoginWithDevice(email: String) {
         let processor = LoginWithDeviceProcessor(
             coordinator: asAnyCoordinator(),

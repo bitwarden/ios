@@ -99,12 +99,6 @@ protocol AuthRepository: AnyObject {
     ///
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws
 
-    /// Saves the pin protected user key in memory.
-    ///
-    /// - Parameter pin: The user's pin.
-    ///
-    func setPinProtectedUserKeyToMemory(_ pin: String) async throws
-
     /// Sets the active account by User Id.
     ///
     /// - Parameter userId: The user Id to be set as active.
@@ -310,12 +304,6 @@ extension DefaultAuthRepository: AuthRepository {
             pinProtectedUserKey: pinKey.pinProtectedUserKey,
             requirePasswordAfterRestart: requirePasswordAfterRestart
         )
-    }
-
-    func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
-        guard let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() else { return }
-        let pinProtectedUserKey = try await clientCrypto.derivePinUserKey(encryptedPin: pinKeyEncryptedUserKey)
-        try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
     }
 
     func unlockVaultWithBiometrics() async throws {

@@ -10,6 +10,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
     typealias Services = HasAppIdService
         & HasAuthRepository
+        & HasErrorReporter
 
     // MARK: Properties
 
@@ -43,21 +44,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
     override func perform(_ effect: LoginWithDeviceEffect) async {
         switch effect {
         case .appeared:
-            defer {
-                coordinator.hideLoadingOverlay()
-            }
-            do {
-                coordinator.showLoadingOverlay(title: Localizations.loading)
-
-                let deviceId = await services.appIdService.getOrCreateAppId()
-                let fingerprint = try await services.authRepository.initiateLoginWithDevice(
-                    deviceId: deviceId,
-                    email: state.email
-                )
-                state.fingerprintPhrase = fingerprint
-            } catch {
-                coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
-            }
+            await appeared()
         }
     }
 
@@ -65,6 +52,29 @@ final class LoginWithDeviceProcessor: StateProcessor<
         switch action {
         case .dismiss:
             coordinator.navigate(to: .dismiss)
+        }
+    }
+
+    // MARK: Private methods
+
+    /// Code block to execute when the view appears.
+    ///
+    private func appeared() async {
+        defer {
+            coordinator.hideLoadingOverlay()
+        }
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.loading)
+
+            let deviceId = await services.appIdService.getOrCreateAppId()
+            let fingerprint = try await services.authRepository.initiateLoginWithDevice(
+                deviceId: deviceId,
+                email: state.email
+            )
+            state.fingerprintPhrase = fingerprint
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
         }
     }
 }

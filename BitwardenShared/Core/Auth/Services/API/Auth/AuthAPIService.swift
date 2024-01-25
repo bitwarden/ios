@@ -97,7 +97,7 @@ extension APIService: AuthAPIService {
         fingerPrint: String,
         publicKey: String
     ) async throws {
-        let req = try await apiUnauthenticatedService.send(
+        _ = try await apiUnauthenticatedService.send(
             PasswordlessLoginRequest(
                 body: PasswordlessLoginRequestModel(
                     email: email,
@@ -109,7 +109,6 @@ extension APIService: AuthAPIService {
                 )
             )
         )
-        print("req", req)
     }
 
     func preValidateSingleSignOn(organizationIdentifier: String) async throws -> PreValidateSingleSignOnResponse {
