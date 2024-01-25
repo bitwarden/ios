@@ -12,6 +12,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     var coordinator: MockCoordinator<VaultRoute>!
     var errorReporter: MockErrorReporter!
+    var filterDelegate: MockVaultFilterDelegate!
     let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
@@ -26,6 +27,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        filterDelegate = MockVaultFilterDelegate()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(fixedDate))
@@ -46,6 +48,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 vaultFilterType: .allVaults
             )
         )
+        subject.vaultFilterDelegate = filterDelegate
     }
 
     override func tearDown() {
@@ -53,6 +56,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         coordinator = nil
         errorReporter = nil
+        filterDelegate = nil
         pasteboardService = nil
         stateService = nil
         subject = nil
@@ -591,7 +595,12 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
     func test_receive_itemPressed_group() {
         subject.receive(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
-        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .group(
+                .init(group: .card, filter: .allVaults)
+            )
+        )
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
@@ -1013,5 +1022,12 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.receive(.vaultFilterChanged(.organization(organization)))
 
         XCTAssertEqual(subject.state.vaultFilterType, .organization(organization))
+        XCTAssertEqual(filterDelegate.newFilter, .organization(organization))
+    }
+
+    /// `didSetVaultFilter(_:)` udpates the filters.
+    func test_didSetVaultFilter() {
+        subject.didSetVaultFilter(.myVault)
+        XCTAssertEqual(subject.state.vaultFilterType, .myVault)
     }
 }

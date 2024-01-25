@@ -91,7 +91,15 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+                coordinator.navigate(
+                    to: .group(
+                        .init(
+                            group: group,
+                            filter: state.vaultFilterType,
+                            filterDelegate: self
+                        )
+                    )
+                )
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
@@ -380,6 +388,12 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
             }
         }
         coordinator.showAlert(alert)
+    }
+}
+
+extension VaultListProcessor: VaultFilterDelegate {
+    func didSetVaultFilter(_ newFilter: VaultFilterType) {
+        state.vaultFilterType = newFilter
     }
 }
 

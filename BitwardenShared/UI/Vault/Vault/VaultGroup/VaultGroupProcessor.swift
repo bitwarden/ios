@@ -15,6 +15,10 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         & HasTimeProvider
         & HasVaultRepository
 
+    // MARK: Delegates
+
+    var vaultFilterDelegate: VaultFilterDelegate?
+
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
@@ -109,7 +113,15 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+                coordinator.navigate(
+                    to: .group(
+                        .init(
+                            group: group,
+                            filter: state.vaultFilterType,
+                            filterDelegate: self
+                        )
+                    )
+                )
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
@@ -130,6 +142,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             state.toast = newValue
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
+            vaultFilterDelegate?.didSetVaultFilter(newValue)
         }
     }
 
@@ -312,6 +325,12 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
         Task {
             await perform(.refresh)
         }
+    }
+}
+
+extension VaultGroupProcessor: VaultFilterDelegate {
+    func didSetVaultFilter(_ newFilter: VaultFilterType) {
+        state.vaultFilterType = newFilter
     }
 }
 

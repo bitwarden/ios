@@ -129,8 +129,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             }
         case .dismiss:
             stackNavigator.dismiss()
-        case let .group(group, filter):
-            showGroup(group, filter: filter)
+        case let .group(content):
+            showGroup(content)
         case .list:
             showList()
         case let .lockVault(account):
@@ -166,17 +166,18 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the vault group screen.
     ///
-    private func showGroup(_ group: VaultListGroup, filter: VaultFilterType) {
+    private func showGroup(_ content: VaultGroupContent) {
         let processor = VaultGroupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultGroupState(
-                group: group,
+                group: content.group,
                 iconBaseURL: services.environmentService.iconsURL,
-                searchVaultFilterType: filter,
-                vaultFilterType: filter
+                searchVaultFilterType: content.filter,
+                vaultFilterType: content.filter
             )
         )
+        processor.vaultFilterDelegate = content.filterDelegate
         let store = Store(processor: processor)
         let searchHandler = GroupSearchHandler(store: store)
         let view = VaultGroupView(
@@ -190,7 +191,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
         stackNavigator.push(
             viewController,
-            navigationTitle: group.navigationTitle,
+            navigationTitle: content.group.navigationTitle,
             searchController: searchController
         )
     }
@@ -225,4 +226,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
         stackNavigator.present(navigationController)
     }
+}
+
+/// A protocol to share vault filter settings between screens.
+///
+public protocol VaultFilterDelegate: AnyObject {
+    /// A method to inform the delegate that the vault filter has changed.
+    ///
+    /// - Parameter newFilter: The up to date vault filter.
+    ///
+    func didSetVaultFilter(_ newFilter: VaultFilterType)
 }
