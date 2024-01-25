@@ -229,7 +229,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `downloadAttachment(_:cipher:)` downloads the attachment data and saves the result to the documents directory.
     func test_downloadAttachment() async throws {
         // Set up the mock data.
-        cipherService.downloadAttachmentResult = .success(.example)
+        stateService.activeAccount = .fixture()
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
+        try Data("🪿".utf8).write(to: downloadUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
         let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
         let cipher = CipherView.fixture(attachments: [attachment])
 
@@ -239,7 +242,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         // Confirm the results.
         XCTAssertEqual(clientVault.clientCiphers.encryptedCiphers.last, cipher)
         XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
-        XCTAssertEqual(clientVault.clientAttachments.encryptedFilePaths.last, URL.example.path)
+        XCTAssertEqual(clientVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
         XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
     }
 

@@ -40,9 +40,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The services used by this processor.
     private let services: Services
 
-    /// The temporary location of a downloaded file.
-    private var temporaryFileUrl: URL?
-
     // MARK: Initialization
 
     /// Creates a new `ViewItemProcessor`.
@@ -70,9 +67,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     deinit {
         // When the view is dismissed, ensure any temporary files are deleted.
-        if let temporaryFileUrl {
-            services.vaultRepository.clearTemporaryDownload(from: temporaryFileUrl)
-        }
+        services.vaultRepository.clearTemporaryDownloads()
     }
 
     // MARK: Methods
@@ -198,7 +193,6 @@ private extension ViewItemProcessor {
             ) else {
                 return coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
             }
-            temporaryFileUrl = temporaryUrl
 
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .saveFile(temporaryUrl: temporaryUrl))

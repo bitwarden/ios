@@ -23,8 +23,8 @@ protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
-    /// Remove the temporary file located at the given path.
-    func clearTemporaryDownload(from url: URL)
+    /// Removes any temporarily downloaded attachments.
+    func clearTemporaryDownloads()
 
     /// Delete an attachment from a cipher.
     ///
@@ -627,11 +627,15 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.addCipherWithServer(cipher)
     }
 
-    func clearTemporaryDownload(from url: URL) {
-        do {
-            try FileManager.default.removeItem(at: url)
-        } catch {
-            errorReporter.log(error: error)
+    func clearTemporaryDownloads() {
+        Task {
+            do {
+                let userId = try await stateService.getActiveAccountId()
+                let url = try FileManager.default.attachmentsUrl(for: userId)
+                try FileManager.default.removeItem(at: url)
+            } catch {
+                errorReporter.log(error: error)
+            }
         }
     }
 
@@ -715,12 +719,10 @@ extension DefaultVaultRepository: VaultRepository {
         else { return nil }
 
         // Create a temporary location to write the decrypted data to.
-        let storageUrl = try FileManager.default.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: false
-        )
+        let userId = try await stateService.getActiveAccountId()
+        let storageUrl = try FileManager.default.attachmentsUrl(for: userId)
+
+        try FileManager.default.createDirectory(at: storageUrl, withIntermediateDirectories: true)
         let temporaryUrl = storageUrl.appendingPathComponent(attachmentName)
 
         // Decrypt the downloaded data and move it to the specified temporary location.
@@ -730,6 +732,9 @@ extension DefaultVaultRepository: VaultRepository {
             encryptedFilePath: downloadedUrl.path,
             decryptedFilePath: temporaryUrl.path
         )
+
+        // Remove the encrypted file.
+        try FileManager.default.removeItem(at: downloadedUrl)
 
         // Return the temporary location where the downloaded data is located.
         return temporaryUrl
