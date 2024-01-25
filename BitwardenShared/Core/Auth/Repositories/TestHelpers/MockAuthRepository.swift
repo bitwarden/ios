@@ -22,6 +22,8 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var unlockVaultFromLoginWithDevicePrivateKey: String?
+    var unlockVaultFromLoginWithDeviceResult: Result<Void, Error> = .success(())
     var unlockVaultPassword: String?
     var unlockVaultPIN: String?
     var unlockWithPasswordResult: Result<Void, Error> = .success(())
@@ -90,6 +92,11 @@ class MockAuthRepository: AuthRepository {
     func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
+    }
+
+    func unlockVaultFromLoginWithDevice(privateKey: String, key _: String) async throws {
+        unlockVaultFromLoginWithDevicePrivateKey = privateKey
+        try unlockVaultFromLoginWithDeviceResult.get()
     }
 
     func unlockVaultWithPIN(pin: String) async throws {

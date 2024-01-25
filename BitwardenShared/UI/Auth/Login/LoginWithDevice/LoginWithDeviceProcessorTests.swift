@@ -38,15 +38,23 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         subject = nil
     }
 
-    // MARK: Tests
+    /// `captchaErrored(error:)` records an error.
+    func test_captchaErrored() {
+        subject.captchaErrored(error: BitwardenTestError.example)
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
 
     /// `perform(_:)` with `.appeared` sets the fingerprint phrase in the state.
     func test_perform_appeared() async {
-        authService.initiateLoginWithDeviceResult = .success("fingerprint")
+        authService.initiateLoginWithDeviceResult = .success(("fingerprint", "id"))
 
         await subject.perform(.appeared)
 
         XCTAssertEqual(subject.state.fingerprintPhrase, "fingerprint")
+        XCTAssertEqual(subject.state.requestId, "id")
     }
 
     /// `perform(_:)` with `.appeared` handles any errors.

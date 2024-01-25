@@ -7,6 +7,12 @@ import Foundation
 /// A set of errors that could occur during authentication.
 ///
 enum AuthError: Error {
+    /// The request that should've been cached is somehow missing.
+    case missingData
+
+    /// The data that should have been cached for the login with device method was missing.
+    case missingLoginWithDeviceData
+
     /// The request that should have been cached for the two-factor authentication method was missing.
     case missingTwoFactorRequest
 
@@ -38,6 +44,10 @@ protocol AuthService {
     ///   - approve: Whether to approve the request.
     ///
     func answerLoginRequest(_ request: LoginRequest, approve: Bool) async throws
+
+    /// Check the status of the pending login request for the unauthenticated user.
+    ///
+    func checkPendingLoginRequest(withId id: String) async throws -> LoginRequest
 
     /// Deny all the pending login requests.
     ///
@@ -72,9 +82,21 @@ protocol AuthService {
     ///
     /// - Parameters email: The user's email.
     ///
-    /// - Returns: The fingerprint associated with the new login request.
+    /// - Returns: The fingerprint associated with the new login request and the id of the login
+    ///   request, used to check for a response.
     ///
-    func initiateLoginWithDevice(email: String) async throws -> String
+    func initiateLoginWithDevice(email: String) async throws -> (fingerprint: String, requestId: String)
+
+    /// Login with the response received from a login with device request.
+    ///
+    /// - Parameters:
+    ///   - loginRequest: The approved login request.
+    ///   - email: The user's email.
+    ///   - captchaToken: An optional captcha token value to add to the token request.
+    /// - Returns: <#description#>
+    ///
+    func loginWithDevice(_ loginRequest: LoginRequest, email: String, captchaToken: String?) async throws
+        -> (String, String)
 
     /// Login with the master password.
     ///
@@ -176,6 +198,10 @@ class DefaultAuthService: AuthService {
     /// reused with the code once the user has entered it.
     private var twoFactorRequest: IdentityTokenRequestModel?
 
+    /// The data generated when initiating a login with device request, which is used to
+    /// complete the login process after the request is approved.
+    private var loginWithDeviceData: AuthRequestResponse?
+
     // MARK: Initialization
 
     /// Creates a new `DefaultSingleSignOnService`.
@@ -230,6 +256,15 @@ class DefaultAuthService: AuthService {
             requestApproved: approve
         )
         _ = try await authAPIService.answerLoginRequest(loginRequest.id, requestModel: requestModel)
+    }
+
+    func checkPendingLoginRequest(withId id: String) async throws -> LoginRequest {
+        guard let loginWithDeviceData else { throw AuthError.missingLoginWithDeviceData }
+
+        return try await authAPIService.checkPendingLoginRequest(
+            withId: id,
+            accessCode: loginWithDeviceData.accessCode
+        )
     }
 
     func denyAllLoginRequests(_ requests: [LoginRequest]) async throws {
@@ -313,22 +348,45 @@ class DefaultAuthService: AuthService {
         )
     }
 
-    func initiateLoginWithDevice(email: String) async throws -> String {
+    func initiateLoginWithDevice(email: String) async throws -> (fingerprint: String, requestId: String) {
         // Get the app's id.
         let appId = await appIdService.getOrCreateAppId()
 
         // Initiate the login request and cache the result.
-        let authRequest = try await clientAuth.newAuthRequest(email: email)
-        _ = try await authAPIService.initiateLoginWithDevice(
-            accessCode: authRequest.accessCode,
+        let loginWithDeviceData = try await clientAuth.newAuthRequest(email: email)
+        let loginRequest = try await authAPIService.initiateLoginWithDevice(
+            accessCode: loginWithDeviceData.accessCode,
             deviceIdentifier: appId,
             email: email,
-            fingerPrint: authRequest.fingerprint,
-            publicKey: authRequest.publicKey
+            fingerPrint: loginWithDeviceData.fingerprint,
+            publicKey: loginWithDeviceData.publicKey
+        )
+        self.loginWithDeviceData = loginWithDeviceData
+
+        // Return the fingerprint and the request id.
+        return (fingerprint: loginWithDeviceData.fingerprint, requestId: loginRequest.id)
+    }
+
+    func loginWithDevice(
+        _ loginRequest: LoginRequest,
+        email: String,
+        captchaToken: String?
+    ) async throws -> (String, String) {
+        guard let loginWithDeviceData else { throw AuthError.missingLoginWithDeviceData }
+
+        // Get the identity token to log in to Bitwarden.
+        try await getIdentityTokenResponse(
+            authenticationMethod: .password(
+                username: email,
+                password: loginWithDeviceData.accessCode
+            ),
+            email: email,
+            captchaToken: captchaToken,
+            loginRequestId: loginRequest.id
         )
 
-        // Return the fingerprint.
-        return authRequest.fingerprint
+        // Return the information necessary to unlock the vault.
+        return (loginWithDeviceData.privateKey, loginRequest.key ?? "")
     }
 
     func loginWithMasterPassword(_ masterPassword: String, username: String, captchaToken: String?) async throws {
@@ -430,6 +488,7 @@ class DefaultAuthService: AuthService {
         authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod? = nil,
         email: String,
         captchaToken: String? = nil,
+        loginRequestId: String? = nil,
         request: IdentityTokenRequestModel? = nil
     ) async throws {
         // Get the app's id.
@@ -450,6 +509,7 @@ class DefaultAuthService: AuthService {
                     identifier: appID,
                     name: systemDevice.modelIdentifier
                 ),
+                loginRequestId: loginRequestId,
                 twoFactorCode: savedTwoFactorToken,
                 twoFactorMethod: method,
                 twoFactorRemember: remember

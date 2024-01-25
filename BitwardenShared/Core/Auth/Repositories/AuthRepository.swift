@@ -95,6 +95,12 @@ protocol AuthRepository: AnyObject {
     ///
     func setActiveAccount(userId: String) async throws -> Account
 
+    /// Attempts to unlock the user's vault using information returned from the login with device method.
+    ///
+    /// - Parameter privateKey: The private key from the login with device response.
+    ///
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws
+
     /// Attempts to unlock the user's vault with biometrics.
     ///
     func unlockVaultWithBiometrics() async throws
@@ -281,6 +287,10 @@ extension DefaultAuthRepository: AuthRepository {
             pinProtectedUserKey: pinKey.pinProtectedUserKey,
             requirePasswordAfterRestart: requirePasswordAfterRestart
         )
+    }
+
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
+        try await unlockVault(method: .authRequest(requestPrivateKey: privateKey, protectedUserKey: key))
     }
 
     func unlockVaultWithBiometrics() async throws {
