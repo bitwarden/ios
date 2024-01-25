@@ -8,8 +8,11 @@ class MockAuthRepository: AuthRepository {
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var clearPinsCalled = false
     var deleteAccountCalled = false
+    var deviceId: String = ""
+    var email: String = ""
     var encryptedPin: String = "123"
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
+    var initiateLoginWithDeviceResult: Result<String, Error> = .success("fingerprint")
     var isPinUnlockAvailable = false
     var lockVaultUserId: String?
     var logoutCalled = false
@@ -20,7 +23,6 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
-    var setPinProtectedUserKeyToMemoryCalled = false
     var unlockVaultPassword: String?
     var unlockVaultPIN: String?
     var unlockWithPasswordResult: Result<Void, Error> = .success(())
@@ -58,6 +60,12 @@ class MockAuthRepository: AuthRepository {
         try fingerprintPhraseResult.get()
     }
 
+    func initiateLoginWithDevice(deviceId: String, email: String) async throws -> String {
+        self.deviceId = deviceId
+        self.email = email
+        return try initiateLoginWithDeviceResult.get()
+    }
+
     func isPinUnlockAvailable() async throws -> Bool {
         isPinUnlockAvailable
     }
@@ -89,10 +97,6 @@ class MockAuthRepository: AuthRepository {
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
-    }
-
-    func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
-        setPinProtectedUserKeyToMemoryCalled = true
     }
 
     func unlockVaultWithPIN(pin: String) async throws {

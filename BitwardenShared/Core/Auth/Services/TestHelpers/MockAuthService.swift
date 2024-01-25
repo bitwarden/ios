@@ -4,7 +4,12 @@ import Foundation
 @testable import BitwardenShared
 
 class MockAuthService: AuthService {
+    var accessCode: String = ""
     var callbackUrlScheme: String = "callback"
+
+    var deviceIdentifier: String = ""
+    var email: String = ""
+    var fingerPrint: String = ""
 
     var generateSingleSignOnUrlResult: Result<(URL, String), Error> = .success((url: .example, state: "state"))
     var generateSingleSignOnOrgIdentifier: String?
@@ -14,6 +19,8 @@ class MockAuthService: AuthService {
 
     var hashPasswordPassword: String?
     var hashPasswordResult: Result<String, Error> = .success("hashed")
+
+    var initiateLoginWithDeviceResult: Result<Void, Error> = .success(())
 
     var loginWithMasterPasswordPassword: String?
     var loginWithMasterPasswordUsername: String?
@@ -29,7 +36,7 @@ class MockAuthService: AuthService {
     var loginWithTwoFactorCodeRemember: Bool?
     var loginWithTwoFactorCodeCaptchaToken: String?
     var loginWithTwoFactorCodeResult: Result<Account, Error> = .success(.fixture())
-
+    var publicKey: String = ""
     var resendVerificationCodeEmailResult: Result<Void, Error> = .success(())
 
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String) {
@@ -45,6 +52,22 @@ class MockAuthService: AuthService {
     func hashPassword(password: String, purpose _: HashPurpose) async throws -> String {
         hashPasswordPassword = password
         return try hashPasswordResult.get()
+    }
+
+    func initiateLoginWithDevice(
+        accessCode: String,
+        deviceIdentifier: String,
+        email: String,
+        fingerPrint: String,
+        publicKey: String
+    ) async throws {
+        self.accessCode = accessCode
+        self.deviceIdentifier = deviceIdentifier
+        self.email = email
+        self.fingerPrint = fingerPrint
+        self.publicKey = publicKey
+
+        try initiateLoginWithDeviceResult.get()
     }
 
     func loginWithMasterPassword(_ password: String, username: String, captchaToken: String?) async throws {

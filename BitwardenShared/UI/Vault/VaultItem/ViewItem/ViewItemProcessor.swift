@@ -4,6 +4,7 @@ import Foundation
 // MARK: - ViewItemProcessor
 
 /// A processor that can process `ViewItemAction`s.
+///
 final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
     // MARK: Types
 

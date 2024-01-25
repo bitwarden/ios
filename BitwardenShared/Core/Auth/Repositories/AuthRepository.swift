@@ -53,6 +53,16 @@ protocol AuthRepository: AnyObject {
     ///
     func getFingerprintPhrase(userId _: String?) async throws -> String
 
+    /// Initiates the login with device process.
+    ///
+    /// - Parameters:
+    ///   - deviceId: The device ID.
+    ///   - email: The user's email.
+    ///
+    /// - Returns: A fingerprint to use in the `PasswordlessLoginRequest`.
+    ///
+    func initiateLoginWithDevice(deviceId: String, email: String) async throws -> String
+
     /// Whether pin unlock is available.
     ///
     /// - Returns: Whether pin unlock is available.
@@ -88,12 +98,6 @@ protocol AuthRepository: AnyObject {
     ///   - requirePasswordAfterRestart: Whether to require the password after an app restart.
     ///
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws
-
-    /// Saves the pin protected user key in memory.
-    ///
-    /// - Parameter pin: The user's pin.
-    ///
-    func setPinProtectedUserKeyToMemory(_ pin: String) async throws
 
     /// Sets the active account by User Id.
     ///
@@ -257,6 +261,18 @@ extension DefaultAuthRepository: AuthRepository {
         return try await clientPlatform.userFingerprint(fingerprintMaterial: account.profile.userId)
     }
 
+    func initiateLoginWithDevice(deviceId: String, email: String) async throws -> String {
+        let request = try await clientAuth.newAuthRequest(email: email)
+        try await authService.initiateLoginWithDevice(
+            accessCode: request.accessCode,
+            deviceIdentifier: deviceId,
+            email: email,
+            fingerPrint: request.fingerprint,
+            publicKey: request.publicKey
+        )
+        return request.fingerprint
+    }
+
     func isPinUnlockAvailable() async throws -> Bool {
         try await stateService.pinProtectedUserKey() != nil
     }
@@ -288,12 +304,6 @@ extension DefaultAuthRepository: AuthRepository {
             pinProtectedUserKey: pinKey.pinProtectedUserKey,
             requirePasswordAfterRestart: requirePasswordAfterRestart
         )
-    }
-
-    func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
-        guard let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() else { return }
-        let pinProtectedUserKey = try await clientCrypto.derivePinUserKey(encryptedPin: pinKeyEncryptedUserKey)
-        try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
     }
 
     func unlockVaultWithBiometrics() async throws {
@@ -392,8 +402,10 @@ extension DefaultAuthRepository: AuthRepository {
             break
         case .decryptedKey:
             break
+        case .authRequest:
+            break
         }
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()
     }
-}
+} // swiftlint:disable:this file_length

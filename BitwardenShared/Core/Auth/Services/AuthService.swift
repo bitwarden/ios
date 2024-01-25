@@ -54,6 +54,23 @@ protocol AuthService {
     ///
     func hashPassword(password: String, purpose: HashPurpose) async throws -> String
 
+    /// Initiates the login with device proccess.
+    ///
+    /// - Parameters:
+    ///   - accessCode: The access code used in the request.
+    ///   - deviceIdentifier: The user's device ID.
+    ///   - email: The user's email.
+    ///   - fingerprint: The fingerprint used in the request.
+    ///   - publicKey: The key used in the request.
+    ///
+    func initiateLoginWithDevice(
+        accessCode: String,
+        deviceIdentifier: String,
+        email: String,
+        fingerPrint: String,
+        publicKey: String
+    ) async throws
+
     /// Login with the master password.
     ///
     /// - Parameters:
@@ -429,5 +446,21 @@ class DefaultAuthService: AuthService {
             // Re-throw the error.
             throw error
         }
+    }
+
+    func initiateLoginWithDevice(
+        accessCode: String,
+        deviceIdentifier: String,
+        email: String,
+        fingerPrint: String,
+        publicKey: String
+    ) async throws {
+        try await authAPIService.initiateLoginWithDevice(
+            accessCode: accessCode,
+            deviceIdentifier: deviceIdentifier,
+            email: email,
+            fingerPrint: fingerPrint,
+            publicKey: publicKey
+        )
     }
 } // swiftlint:disable:this file_length
