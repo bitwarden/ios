@@ -31,6 +31,9 @@ struct LoginWithDeviceView: View {
                 store.send(.dismiss)
             }
         }
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     // MARK: Private Views

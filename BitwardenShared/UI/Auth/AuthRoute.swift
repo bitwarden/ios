@@ -43,7 +43,10 @@ public enum AuthRoute: Equatable {
     case loginOptions
 
     /// A route to the login with device screen.
-    case loginWithDevice
+    ///
+    /// - Parameter email: The user's email.
+    ///
+    case loginWithDevice(email: String)
 
     /// A route to the master password hint screen for the provided username.
     ///

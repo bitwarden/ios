@@ -382,6 +382,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `initiateLoginWithDevice(email:)` initiates the login with device process.
+    func test_initiateLoginWithDevice() async throws {
+        let response = try await subject.initiateLoginWithDevice(deviceId: "123", email: "example@email.com")
+        XCTAssertEqual(response, "fingerprint")
+    }
+
     /// `passwordStrength(email:password)` returns the calculated password strength.
     func test_passwordStrength() async {
         clientAuth.passwordStrengthResult = 0
