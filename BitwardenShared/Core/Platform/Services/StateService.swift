@@ -141,6 +141,13 @@ protocol StateService: AnyObject {
     ///
     func getLastActiveTime(userId: String?) async throws -> Date?
 
+    /// Gets the time of the last sync for a user.
+    ///
+    /// - Parameter userId: The user ID associated with the last sync time.
+    /// - Returns: The user's last sync time.
+    ///
+    func getLastSyncTime(userId: String?) async throws -> Date?
+
     /// The last value of the connect to watch setting, ignoring the user id. Used for
     /// sending the status to the watch if the user is logged out.
     ///
@@ -568,6 +575,15 @@ extension StateService {
         try await getLastActiveTime(userId: nil)
     }
 
+    /// Gets the time of the last sync for a user.
+    ///
+    /// - Parameter userId: The user ID associated with the last sync time.
+    /// - Returns: The user's last sync time.
+    ///
+    func getLastSyncTime() async throws -> Date? {
+        try await getLastSyncTime(userId: nil)
+    }
+
     /// Gets the master password hash for the active account.
     ///
     /// - Returns: The user's master password hash.
@@ -980,6 +996,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.lastActiveTime(userId: userId)
+    }
+
+    func getLastSyncTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.lastSyncTime(userId: userId)
     }
 
     func getLastUserShouldConnectToWatch() async -> Bool {

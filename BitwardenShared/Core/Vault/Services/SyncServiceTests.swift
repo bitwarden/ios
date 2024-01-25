@@ -4,7 +4,7 @@ import XCTest
 
 import BitwardenSdk
 
-class SyncServiceTests: BitwardenTestCase {
+class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherService: MockCipherService!
@@ -34,6 +34,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService = MockStateService()
 
         subject = DefaultSyncService(
+            accountAPIService: APIService(client: client),
             cipherService: cipherService,
             collectionService: collectionService,
             folderService: folderService,
@@ -68,7 +69,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .syncWithCiphers)
         stateService.activeAccount = .fixture()
 
-        try await subject.fetchSync()
+        try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].method, .get)
@@ -81,12 +82,124 @@ class SyncServiceTests: BitwardenTestCase {
         )
     }
 
+    /// `fetchSync()` with `forceSync: true` performs the sync API request regardless of the
+    /// account revision or sync interval.
+    func test_fetchSync_forceSync() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId["1"] = .now
+
+        try await subject.fetchSync(forceSync: true)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].method, .get)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/sync")
+
+        try XCTAssertEqual(
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]).timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+    }
+
+    /// `fetchSync()` syncs if the last sync time is greater than 30 minutes ago and the account has
+    /// newer revisions.
+    func test_fetchSync_needsSync_lastSyncTime_older30MinsWithRevisions() async throws {
+        client.results = [
+            .httpSuccess(testData: .accountRevisionDate(Date.now)),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
+            Calendar.current.date(byAdding: .minute, value: -31, to: .now)
+        )
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertNotNil(cipherService.replaceCiphersCiphers)
+
+        try XCTAssertEqual(
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]?.timeIntervalSinceNow),
+            0,
+            accuracy: 1
+        )
+    }
+
+    /// `fetchSync()` doesn't sync if the last sync time is greater than 30 minutes but fetching
+    /// the account revision date fails.
+    func test_fetchSync_needsSync_lastSyncTime_older30Mins_revisionsError() async throws {
+        let lastSyncTime = try XCTUnwrap(
+            Calendar.current.date(byAdding: .minute, value: -31, to: .now)
+        )
+        client.result = .httpFailure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId["1"] = lastSyncTime
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(cipherService.replaceCiphersCiphers)
+
+        XCTAssertEqual(stateService.lastSyncTimeByUserId["1"], lastSyncTime)
+    }
+
+    /// `fetchSync()` doesn't syncs if the last sync time is greater than 30 minutes ago but the
+    /// account doesn't have newer revisions.
+    func test_fetchSync_needsSync_lastSyncTime_older30MinsWithoutRevisions() async throws {
+        let lastRevision = try XCTUnwrap(Calendar.current.date(byAdding: .day, value: -1, to: .now))
+        client.results = [
+            .httpSuccess(testData: .accountRevisionDate(lastRevision)),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
+            Calendar.current.date(byAdding: .minute, value: -31, to: .now)
+        )
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(cipherService.replaceCiphersCiphers)
+
+        try XCTAssertEqual(
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]?.timeIntervalSinceNow),
+            0,
+            accuracy: 1
+        )
+    }
+
+    /// `fetchSync()` doesn't sync if the last sync time is within the last 30 minutes.
+    func test_fetchSync_needsSync_lastSyncTime_newer30Mins() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
+            Calendar.current.date(byAdding: .minute, value: -29, to: .now)
+        )
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertTrue(client.requests.isEmpty)
+        XCTAssertNil(cipherService.replaceCiphersCiphers)
+    }
+
+    /// `fetchSync()` syncs if there's no existing last sync time.
+    func test_fetchSync_needsSync_noLastSyncTime() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertFalse(client.requests.isEmpty)
+        XCTAssertNotNil(cipherService.replaceCiphersCiphers)
+    }
+
     /// `fetchSync()` replaces the list of the user's ciphers.
     func test_fetchSync_ciphers() async throws {
         client.result = .httpSuccess(testData: .syncWithCipher)
         stateService.activeAccount = .fixture()
 
-        try await subject.fetchSync()
+        try await subject.fetchSync(forceSync: false)
 
         let date = Date(year: 2023, month: 8, day: 10, hour: 8, minute: 33, second: 45, nanosecond: 345_000_000)
         XCTAssertEqual(
@@ -119,7 +232,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .syncWithCiphersCollections)
         stateService.activeAccount = .fixture()
 
-        try await subject.fetchSync()
+        try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(
             collectionService.replaceCollectionsCollections,
@@ -144,7 +257,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .syncWithProfile)
         stateService.activeAccount = .fixture()
 
-        try await subject.fetchSync()
+        try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(
             stateService.updateProfileResponse,
@@ -166,7 +279,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .syncWithSends)
         stateService.activeAccount = .fixture()
 
-        try await subject.fetchSync()
+        try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(
             sendService.replaceSendsSends,
@@ -209,7 +322,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .syncWithDomains)
         stateService.activeAccount = .fixture()
 
-        try await subject.fetchSync()
+        try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(
             settingsService.replaceEquivalentDomainsDomains,
@@ -227,7 +340,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .syncWithCiphers)
         stateService.activeAccount = .fixture()
 
-        try await subject.fetchSync()
+        try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(
             folderService.replaceFoldersFolders,
@@ -247,7 +360,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
         stateService.activeAccount = .fixture()
 
-        try await subject.fetchSync()
+        try await subject.fetchSync(forceSync: false)
 
         XCTAssertTrue(organizationService.initializeOrganizationCryptoWithOrgsCalled)
         XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?.count, 2)
@@ -261,7 +374,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .syncWithPolicies)
         stateService.activeAccount = .fixture()
 
-        try await subject.fetchSync()
+        try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(policyService.replacePoliciesPolicies.count, 4)
         XCTAssertEqual(
@@ -309,7 +422,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
 
         await assertAsyncThrows {
-            try await subject.fetchSync()
+            try await subject.fetchSync(forceSync: false)
         }
     }
-}
+} // swiftlint:disable:this file_length

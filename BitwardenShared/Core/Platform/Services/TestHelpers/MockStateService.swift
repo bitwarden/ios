@@ -166,6 +166,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return lastActiveTime[userId]
     }
 
+    func getLastSyncTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return lastSyncTimeByUserId[userId]
+    }
+
     func getLoginRequest() async -> LoginRequestNotification? {
         loginRequest
     }
