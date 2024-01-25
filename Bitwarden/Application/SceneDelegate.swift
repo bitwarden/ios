@@ -52,7 +52,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         privacyWindow = UIWindow(windowScene: windowScene)
         privacyWindow?.windowLevel = UIWindow.Level.alert + 1
 
-        let viewController = UIViewController()
         let hostingController = UIHostingController(rootView: PrivacyView())
         privacyWindow?.rootViewController = hostingController
         privacyWindow?.isHidden = false
