@@ -46,6 +46,14 @@ extension TextFieldConfiguration {
         textInputAutocapitalization: .never
     )
 
+    /// A `TextFieldConfiguration` for applying common properties to PIN text fields.
+    static let pin = TextFieldConfiguration(
+        isAutocorrectionDisabled: true,
+        keyboardType: .numberPad,
+        textContentType: .password,
+        textInputAutocapitalization: .never
+    )
+
     /// A `TextFieldConfiguration` for applying common properties to URL text fields.
     static let url = TextFieldConfiguration(
         isAutocorrectionDisabled: true,
