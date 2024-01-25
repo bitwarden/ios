@@ -9,8 +9,10 @@ class HTTPLogger {
     ///
     func logRequest(_ httpRequest: HTTPRequest) {
         let formattedBody = formattedBody(httpRequest.body)
+        let formattedHeaders = formattedHeaders(httpRequest.headers)
         Logger.networking.info("""
             Request \(httpRequest.requestID): \(httpRequest.method.rawValue) \(httpRequest.url)
+            Headers: \(formattedHeaders)
             Body: \(formattedBody)
             """
         )
@@ -22,8 +24,10 @@ class HTTPLogger {
     ///
     func logResponse(_ httpResponse: HTTPResponse) {
         let formattedBody = formattedBody(httpResponse.body)
+        let formattedHeaders = formattedHeaders(httpResponse.headers)
         Logger.networking.info("""
             Response \(httpResponse.requestID): \(httpResponse.url) \(httpResponse.statusCode)
+            Headers: \(formattedHeaders)
             Body: \(formattedBody)
             """
         )
@@ -44,5 +48,24 @@ class HTTPLogger {
         }
 
         return data.debugDescription
+    }
+
+    /// Formats the headers of a request or response for logging.
+    ///
+    /// - Parameter headers: The headers from the body of a request or response to format.
+    /// - Returns: A string containing the formatted headers.
+    ///
+    private func formattedHeaders(_ headers: [String: String]) -> String {
+        guard !headers.isEmpty else { return "(empty)" }
+
+        let headersString = headers
+            .map { "  \($0): \($1)" }
+            .joined(separator: "\n")
+
+        return """
+        [
+        \(headersString)
+        ]
+        """
     }
 }

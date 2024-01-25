@@ -7,6 +7,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     var appExtensionDelegate: MockAppExtensionDelegate!
     var authRepository: MockAuthRepository!
+    var biometricsService: MockBiometricsService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var coordinator: MockCoordinator<AuthRoute>!
@@ -19,6 +20,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         appExtensionDelegate = MockAppExtensionDelegate()
         authRepository = MockAuthRepository()
+        biometricsService = MockBiometricsService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
@@ -28,6 +30,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                biometricsService: biometricsService,
                 errorReporter: errorReporter,
                 stateService: stateService
             ),
@@ -40,30 +43,51 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         appExtensionDelegate = nil
         authRepository = nil
+        biometricsService = nil
         coordinator = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
-    func test_perform_appeared_profiles_single_active() async {
-        let profile = ProfileSwitcherItem()
-        authRepository.accountsResult = .success([profile])
-        authRepository.activeAccountResult = .success(profile)
+    /// `perform(.appeared)` with a biometrics status error yields `BiometricUnlockStatus.unavailable`.
+    func test_perform_appeared_biometricUnlockStatus_error() async {
         stateService.activeAccount = .fixture()
-        await stateService.setUnsuccessfulUnlockAttempts(3)
+        struct FetchError: Error {}
+        biometricsService.biometricUnlockStatus = .failure(FetchError())
         await subject.perform(.appeared)
 
         XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
-        XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
         XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
-        XCTAssertEqual(3, subject.state.unsuccessfulUnlockAttemptsCount)
+        XCTAssertEqual(subject.state.biometricUnlockStatus, .notAvailable)
+    }
+
+    /// `perform(.appeared)` with a biometrics status error yields `BiometricUnlockStatus.unavailable`.
+    func test_perform_appeared_biometricUnlockStatus_success() async {
+        stateService.activeAccount = .fixture()
+        struct FetchError: Error {}
+        let expectedStatus = BiometricsUnlockStatus.available(.touchID, enabled: true, hasValidIntegrity: false)
+        biometricsService.biometricUnlockStatus = .success(expectedStatus)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
+        XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
+        XCTAssertEqual(subject.state.biometricUnlockStatus, expectedStatus)
+    }
+
+    /// `perform(.appeared)` without profiles for the profile switcher.
+    func test_perform_appeared_empty() async {
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(
+            subject.state.profileSwitcherState,
+            ProfileSwitcherState.empty()
+        )
     }
 
     /// `perform(.appeared)`
     ///  Mismatched active account and accounts should yield an empty profile switcher state.
-    func test_perform_appeared_mismatch() async {
+    func test_perform_appeared_profiles_mismatch() async {
         let profile = ProfileSwitcherItem()
         authRepository.accountsResult = .success([])
         authRepository.activeAccountResult = .success(profile)
@@ -75,14 +99,16 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
-    /// `perform(.appeared)` without profiles for the profile switcher.
-    func test_perform_appeared_empty() async {
+    /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
+    func test_perform_appeared_profiles_single_active() async {
+        let profile = ProfileSwitcherItem()
+        authRepository.accountsResult = .success([profile])
+        authRepository.activeAccountResult = .success(profile)
         await subject.perform(.appeared)
 
-        XCTAssertEqual(
-            subject.state.profileSwitcherState,
-            ProfileSwitcherState.empty()
-        )
+        XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
+        XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
+        XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
     }
 
     /// `perform(.appeared)` refreshes the profile switcher and disables add account when running
@@ -105,18 +131,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
-    /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
-    func test_perform_appeared_single_active() async {
-        let profile = ProfileSwitcherItem()
-        authRepository.accountsResult = .success([profile])
-        authRepository.activeAccountResult = .success(profile)
-        await subject.perform(.appeared)
-
-        XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
-        XCTAssertEqual(profile, subject.state.profileSwitcherState.activeAccountProfile)
-        XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
-    }
-
     /// `perform(.appeared)` sets the state property for whether the app is running in an extension.
     func test_perform_appeared_setsIsInAppExtension() async {
         appExtensionDelegate.isInAppExtension = true
@@ -126,6 +140,15 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         appExtensionDelegate.isInAppExtension = false
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isInAppExtension)
+    }
+
+    /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
+    func test_perform_appeared_unlockAttempts() async {
+        stateService.activeAccount = .fixture()
+        await stateService.setUnsuccessfulUnlockAttempts(3)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(3, subject.state.unsuccessfulUnlockAttemptsCount)
     }
 
     /// `perform(.appeared)`
@@ -210,16 +233,22 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `perform(_:)` with `.unlockVault` attempts to unlock the vault with the entered password.
     func test_perform_unlockVault() async throws {
+        stateService.activeAccount = Account.fixture()
+        stateService.pinProtectedUserKeyValue["1"] = "123"
+        stateService.pinKeyEncryptedUserKeyValue["1"] = "123"
         subject.state.masterPassword = "password"
 
         await subject.perform(.unlockVault)
 
+        XCTAssertEqual(authRepository.pinProtectedUserKey, "123")
+        XCTAssertEqual(authRepository.encryptedPin, "123")
         XCTAssertEqual(authRepository.unlockVaultPassword, "password")
         XCTAssertEqual(coordinator.routes.last, .complete)
     }
 
     /// `perform(_:)` with `.unlockVault` shows an alert if the master password is empty.
-    func test_perform_unlockVault_InputValidationError() async throws {
+    func test_perform_unlockVault_InputValidationError_noPassword() async throws {
+        subject.state.unlockMethod = .password
         await subject.perform(.unlockVault)
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
@@ -231,12 +260,26 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
+    /// `perform(_:)` with `.unlockVault` shows an alert if the PIN is empty.
+    func test_perform_unlockVault_InputValidationError_noPIN() async throws {
+        subject.state.unlockMethod = .pin
+        await subject.perform(.unlockVault)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(
+            alert,
+            Alert.inputValidationAlert(error: InputValidationError(
+                message: Localizations.validationFieldRequired(Localizations.pin)
+            ))
+        )
+    }
+
     /// `perform(_:)` with `.unlockVault` shows an alert if the master password was incorrect.
     func test_perform_unlockVault_invalidPasswordError() async throws {
         subject.state.masterPassword = "password"
 
         struct VaultUnlockError: Error {}
-        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+        authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
 
         await subject.perform(.unlockVault)
 
@@ -252,7 +295,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         stateService.activeAccount = .fixture()
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
         struct VaultUnlockError: Error {}
-        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+        authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
 
         // 1st unsuccessful attempt
         await subject.perform(.unlockVault)
@@ -312,12 +355,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockVault` logs error if force logout fails after the 5th unsuccessful attempts.
     func test_perform_unlockVault_invalidPassword_logoutError() async throws {
         subject.state.masterPassword = "password"
-        stateService.activeAccount = .fixture()
+        stateService.activeAccount = .fixtureAccountLogin()
         subject.state.unsuccessfulUnlockAttemptsCount = 4
         await stateService.setUnsuccessfulUnlockAttempts(5)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 4)
         struct VaultUnlockError: Error {}
-        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+        authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
         struct LogoutError: Error, Equatable {}
         authRepository.logoutResult = .failure(LogoutError())
 
@@ -334,7 +377,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.masterPassword = "password"
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
         struct VaultUnlockError: Error {}
-        authRepository.unlockVaultResult = .failure(VaultUnlockError())
+        authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
         stateService.activeAccount = .fixture()
         var attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
         XCTAssertEqual(attemptsInUserDefaults, 0)
@@ -348,11 +391,110 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
         XCTAssertEqual(attemptsInUserDefaults, 2)
 
-        authRepository.unlockVaultResult = .success(())
+        authRepository.unlockWithPasswordResult = .success(())
         await subject.perform(.unlockVault)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
         attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
         XCTAssertEqual(attemptsInUserDefaults, 0)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
+    func test_perform_unlockWithBiometrics_noAccount() async throws {
+        biometricsService.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .failure(StateServiceError.noActiveAccount)
+        subject.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        let route = try XCTUnwrap(coordinator.routes.last)
+        XCTAssertEqual(route, .landing)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
+    func test_perform_unlockWithBiometrics_notAvailable() async throws {
+        biometricsService.biometricUnlockStatus = .success(.notAvailable)
+        authRepository.unlockVaultWithBiometricsResult = .success(())
+        subject.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertNil(coordinator.routes.last)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
+    func test_perform_unlockWithBiometrics_notEnabled() async throws {
+        biometricsService.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: false, hasValidIntegrity: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .success(())
+        subject.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertNil(coordinator.routes.last)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
+    func test_perform_unlockWithBiometrics_invalidIntegrity() async throws {
+        biometricsService.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true, hasValidIntegrity: false)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .success(())
+        subject.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertNil(coordinator.routes.last)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    func test_perform_unlockWithBiometrics_authRepoError() async throws {
+        stateService.activeAccount = .fixture()
+        biometricsService.biometricUnlockStatus = .success(.available(.touchID, enabled: true, hasValidIntegrity: true))
+        struct BiometricsError: Error {}
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsError())
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertNil(coordinator.routes.last)
+        XCTAssertEqual(1, subject.state.unsuccessfulUnlockAttemptsCount)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    func test_perform_unlockWithBiometrics_authRepoError_maxAttempts() async throws {
+        stateService.activeAccount = .fixture()
+        subject.state.unsuccessfulUnlockAttemptsCount = 4
+        biometricsService.biometricUnlockStatus = .success(.available(.touchID, enabled: true, hasValidIntegrity: true))
+        struct BiometricsError: Error {}
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsError())
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertEqual(0, subject.state.unsuccessfulUnlockAttemptsCount)
+        XCTAssertTrue(authRepository.logoutCalled)
+        let route = try XCTUnwrap(coordinator.routes.last)
+        XCTAssertEqual(route, .landing)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed() async throws {
+        biometricsService.biometricUnlockStatus = .success(.available(.touchID, enabled: true, hasValidIntegrity: true))
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
+        authRepository.allowBiometricUnlockResult = .success(())
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertEqual(authRepository.allowBiometricUnlock, false)
+        XCTAssertNil(coordinator.routes.last)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    func test_perform_unlockWithBiometrics_success() async throws {
+        subject.state.unsuccessfulUnlockAttemptsCount = 3
+        biometricsService.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .success(())
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        let route = try XCTUnwrap(coordinator.routes.last)
+        XCTAssertEqual(route, .complete)
+        XCTAssertEqual(0, subject.state.unsuccessfulUnlockAttemptsCount)
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.
@@ -392,6 +534,40 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.routes.last, .landing)
     }
 
+    /// `receive(_:)` with `.morePressed` navigates to the login options screen and allows the user
+    /// to logout.
+    func test_receive_morePressed_logout_nextAccount() async throws {
+        stateService.accounts = [
+            .fixture(),
+            .fixtureAccountLogin(),
+        ]
+        stateService.activeAccount = .fixture()
+        subject.receive(.morePressed)
+
+        let optionsAlert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(optionsAlert.title, Localizations.options)
+        XCTAssertNil(optionsAlert.message)
+        XCTAssertEqual(optionsAlert.preferredStyle, .actionSheet)
+        XCTAssertEqual(optionsAlert.alertActions.count, 2)
+        XCTAssertEqual(optionsAlert.alertActions[0].title, Localizations.logOut)
+        XCTAssertEqual(optionsAlert.alertActions[1].title, Localizations.cancel)
+
+        await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
+
+        let logoutConfirmationAlert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
+        XCTAssertEqual(logoutConfirmationAlert.message, Localizations.logoutConfirmation)
+        XCTAssertEqual(logoutConfirmationAlert.preferredStyle, .alert)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions.count, 2)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions[0].title, Localizations.yes)
+        XCTAssertEqual(logoutConfirmationAlert.alertActions[1].title, Localizations.cancel)
+
+        await logoutConfirmationAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(coordinator.routes.last, .landing)
+    }
+
     /// `receive(_:)` with `.revealMasterPasswordFieldPressed` updates the state to reflect the changes.
     func test_receive_revealMasterPasswordFieldPressed() {
         subject.state.isMasterPasswordRevealed = false
@@ -400,6 +576,176 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         subject.receive(.revealMasterPasswordFieldPressed(false))
         XCTAssertFalse(subject.state.isMasterPasswordRevealed)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// lock the selected account.
+    func test_receive_accountLongPressed_lock() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem()
+        let otherProfile = ProfileSwitcherItem(isUnlocked: true, userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        authRepository.activeAccountResult = .success(activeProfile)
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to lock the account.
+        let lockAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await lockAction.handler?(lockAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(authRepository.lockVaultUserId, otherProfile.userId)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.accountLockedSuccessfully)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` records any errors from locking the account.
+    func test_receive_accountLongPressed_lock_error() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem()
+        let otherProfile = ProfileSwitcherItem(isUnlocked: true, userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        authRepository.activeAccountResult = .failure(BitwardenTestError.example)
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to lock the account.
+        let lockAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await lockAction.handler?(lockAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// log out of the selected account, which navigates back to the landing page for the active account.
+    func test_receive_accountLongPressed_logout_activeAccount() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem()
+        let otherProfile = ProfileSwitcherItem(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        authRepository.activeAccountResult = .success(activeProfile)
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(activeProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(authRepository.logoutUserId, activeProfile.userId)
+        XCTAssertEqual(coordinator.routes.last, .landing)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// log out of the selected account, which navigates back to the landing page for the active account.
+    func test_receive_accountLongPressed_logout_activeAccount_withAlternate() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem()
+        let otherProfile = ProfileSwitcherItem(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        authRepository.activeAccountResult = .success(activeProfile)
+        stateService.accounts = [
+            .fixture(
+                profile: .fixture(
+                    userId: "42"
+                )
+            ),
+        ]
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(activeProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(authRepository.logoutUserId, activeProfile.userId)
+        XCTAssertEqual(coordinator.routes.last, .landing)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// log out of the selected account, which displays a toast.
+    func test_receive_accountLongPressed_logout_otherAccount() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem()
+        let otherProfile = ProfileSwitcherItem(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        authRepository.activeAccountResult = .success(activeProfile)
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(authRepository.logoutUserId, otherProfile.userId)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.accountLoggedOutSuccessfully)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` records any errors from logging out the
+    /// account.
+    func test_receive_accountLongPressed_logout_error() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem()
+        let otherProfile = ProfileSwitcherItem(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        authRepository.activeAccountResult = .failure(BitwardenTestError.example)
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
@@ -625,5 +971,15 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, newPoint)
+    }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_toastShown() {
+        let toast = Toast(text: "toast!")
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
+
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
     }
 } // swiftlint:disable:this file_length

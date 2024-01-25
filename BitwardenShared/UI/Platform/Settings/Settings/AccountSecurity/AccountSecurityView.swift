@@ -37,6 +37,12 @@ struct AccountSecurityView: View {
             openURL(url)
             store.send(.clearFingerprintPhraseUrl)
         }
+        .task {
+            await store.perform(.appeared)
+        }
+        .task {
+            await store.perform(.loadData)
+        }
     }
 
     // MARK: Private views
@@ -58,8 +64,10 @@ struct AccountSecurityView: View {
                 SettingsListItem(
                     Localizations.pendingLogInRequests,
                     hasDivider: false
-                ) {}
-                    .cornerRadius(10)
+                ) {
+                    store.send(.pendingLoginRequestsTapped)
+                }
+                .cornerRadius(10)
             }
         }
     }
@@ -86,7 +94,7 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(Localizations.lockNow) {
                     Task {
-                        await store.perform(.lockVault)
+                        await store.perform(.lockVault(userInitiated: true))
                     }
                 }
 
@@ -125,8 +133,8 @@ struct AccountSecurityView: View {
                         title: Localizations.custom,
                         customTimeoutValue: store.state.customTimeoutString,
                         pickerValue: store.binding(
-                            get: \.customSessionTimeoutValue,
-                            send: AccountSecurityAction.setCustomSessionTimeoutValue
+                            get: \.customTimeoutValue,
+                            send: AccountSecurityAction.customTimeoutValueChanged
                         ),
                         customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel
                     )
@@ -153,25 +161,7 @@ struct AccountSecurityView: View {
             SectionHeaderView(Localizations.unlockOptions)
 
             VStack(spacing: 24) {
-                if store.state.biometricAuthenticationType == .touchID {
-                    Toggle(isOn: store.binding(
-                        get: \.isUnlockWithTouchIDToggleOn,
-                        send: AccountSecurityAction.toggleUnlockWithTouchID
-                    )) {
-                        Text(Localizations.unlockWith(Localizations.touchID))
-                    }
-                    .toggleStyle(.bitwarden)
-                }
-
-                if store.state.biometricAuthenticationType == .faceID {
-                    Toggle(isOn: store.binding(
-                        get: \.isUnlockWithFaceIDOn,
-                        send: AccountSecurityAction.toggleUnlockWithFaceID
-                    )) {
-                        Text(Localizations.unlockWith(Localizations.faceID))
-                    }
-                    .toggleStyle(.bitwarden)
-                }
+                biometricsSetting
 
                 Toggle(isOn: store.binding(
                     get: \.isUnlockWithPINCodeOn,
@@ -183,18 +173,51 @@ struct AccountSecurityView: View {
             }
         }
     }
+
+    /// A view for the user's biometrics setting
+    ///
+    @ViewBuilder private var biometricsSetting: some View {
+        switch store.state.biometricUnlockStatus {
+        case let .available(type, enabled: enabled, _):
+            biometricUnlockToggle(enabled: enabled, type: type)
+        default:
+            EmptyView()
+        }
+    }
+
+    /// A toggle for the user's biometric unlock preference.
+    ///
+    @ViewBuilder
+    private func biometricUnlockToggle(enabled: Bool, type: BiometricAuthenticationType) -> some View {
+        let toggleText = biometricsToggleText(type)
+        Toggle(isOn: store.bindingAsync(
+            get: { _ in enabled },
+            perform: AccountSecurityEffect.toggleUnlockWithBiometrics
+        )) {
+            Text(toggleText)
+        }
+        .accessibilityLabel(toggleText)
+        .toggleStyle(.bitwarden)
+    }
+
+    private func biometricsToggleText(_ biometryType: BiometricAuthenticationType) -> String {
+        switch biometryType {
+        case .faceID:
+            return Localizations.unlockWith(Localizations.faceID)
+        case .touchID:
+            return Localizations.unlockWith(Localizations.touchID)
+        }
+    }
 }
 
 // MARK: - Previews
 
 #if DEBUG
-struct AccountSecurityView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            AccountSecurityView(
-                store: Store(processor: StateProcessor(state: AccountSecurityState()))
-            )
-        }
+#Preview {
+    NavigationView {
+        AccountSecurityView(
+            store: Store(processor: StateProcessor(state: AccountSecurityState()))
+        )
     }
 }
 #endif

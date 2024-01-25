@@ -3,42 +3,67 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockStateService: StateService {
+class MockStateService: StateService { // swiftlint:disable:this type_body_length
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountTokens: Account.AccountTokens?
+    var accountVolatileData: [String: AccountVolatileData] = [:]
     var accountsAdded = [Account]()
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
     var accounts: [Account]?
     var allowSyncOnRefresh = [String: Bool]()
     var appLanguage: LanguageOption = .default
+    var approveLoginRequestsByUserId = [String: Bool]()
     var appTheme: AppTheme?
+    var biometricsEnabled = [String: Bool]()
+    var biometricIntegrityStates = [String: String?]()
+    var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
     var connectToWatchSubject = CurrentValueSubject<Bool, Never>(false)
-    var environmentUrls = [String: EnvironmentUrlData]()
+    var timeProvider = MockTimeProvider(.currentTime)
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var environmentUrls = [String: EnvironmentUrlData]()
+    var lastActiveTime = [String: Date]()
+    var getAccountEncryptionKeysError: Error?
+    var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var getBiometricIntegrityStateError: Error?
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
     var masterPasswordHashes = [String: String]()
+    var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pinKeyEncryptedUserKeyValue = [String: String]()
+    var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var rememberedOrgIdentifier: String?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
-    var rememberedOrgIdentifier: String?
+    var timeoutAction = [String: SessionTimeoutAction]()
+    var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var setBiometricIntegrityStateError: Error?
+    var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
+    var vaultTimeout = [String: SessionTimeoutValue]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
 
-    func addAccount(_ account: BitwardenShared.Account) async {
+    func addAccount(_ account: Account) async {
         accountsAdded.append(account)
         activeAccount = account
+    }
+
+    func clearPins() async throws {
+        let userId = try getActiveAccount().profile.userId
+        accountVolatileData.removeValue(forKey: userId)
+        pinProtectedUserKeyValue[userId] = nil
+        pinKeyEncryptedUserKeyValue[userId] = nil
     }
 
     func deleteAccount() async throws {
@@ -48,6 +73,9 @@ class MockStateService: StateService {
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
+        if let error = getAccountEncryptionKeysError {
+            throw error
+        }
         let userId = try userId ?? getActiveAccount().profile.userId
         guard let encryptionKeys = accountEncryptionKeys[userId]
         else {
@@ -56,7 +84,7 @@ class MockStateService: StateService {
         return encryptionKeys
     }
 
-    func getAccounts() async throws -> [BitwardenShared.Account] {
+    func getAccounts() async throws -> [Account] {
         guard let accounts else { throw StateServiceError.noAccounts }
         return accounts
     }
@@ -82,6 +110,11 @@ class MockStateService: StateService {
 
     func getActiveAccountId() async throws -> String {
         try getActiveAccount().profile.userId
+    }
+
+    func getApproveLoginRequests(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return approveLoginRequestsByUserId[userId] ?? false
     }
 
     func getAppTheme() async -> AppTheme {
@@ -120,9 +153,19 @@ class MockStateService: StateService {
         return environmentUrls[userId]
     }
 
+    func getLastActiveTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return lastActiveTime[userId]
+    }
+
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return masterPasswordHashes[userId]
+    }
+
+    func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return notificationsLastRegistrationDates[userId]
     }
 
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
@@ -138,6 +181,15 @@ class MockStateService: StateService {
         showWebIcons
     }
 
+    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return timeoutAction[userId] ?? .lock
+    }
+
+    func getTwoFactorToken(email: String) async -> String? {
+        twoFactorTokens[email]
+    }
+
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccount().profile.userId
         return unsuccessfulUnlockAttempts[userId] ?? 0
@@ -148,9 +200,24 @@ class MockStateService: StateService {
         return usernameGenerationOptions[userId]
     }
 
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return vaultTimeout[userId] ?? .immediately
+    }
+
     func logoutAccount(userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         accountsLoggedOut.append(userId)
+    }
+
+    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return pinKeyEncryptedUserKeyValue[userId] ?? nil
+    }
+
+    func pinProtectedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        return pinProtectedUserKeyValue[userId] ?? nil
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
@@ -169,6 +236,11 @@ class MockStateService: StateService {
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
+    }
+
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        approveLoginRequestsByUserId[userId] = approveLoginRequests
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {
@@ -197,9 +269,24 @@ class MockStateService: StateService {
         disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
     }
 
+    func setEncryptedPin(_ pin: String) async throws {
+        let userId = try getActiveAccount().profile.userId
+        accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = pin
+    }
+
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         self.environmentUrls[userId] = environmentUrls
+    }
+
+    func setIsAuthenticated() {
+        activeAccount = .fixture()
+        accountEncryptionKeys["1"] = .init(encryptedPrivateKey: "", encryptedUserKey: "")
+    }
+
+    func setLastActiveTime(userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        lastActiveTime[userId] = timeProvider.presentTime
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
@@ -216,9 +303,39 @@ class MockStateService: StateService {
         masterPasswordHashes[userId] = hash
     }
 
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        notificationsLastRegistrationDates[userId] = date
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPinKeys(
+        pinKeyEncryptedUserKey: String,
+        pinProtectedUserKey: String,
+        requirePasswordAfterRestart: Bool
+    ) async throws {
+        let userId = try getActiveAccount().profile.userId
+        pinProtectedUserKeyValue[userId] = pinProtectedUserKey
+        pinKeyEncryptedUserKeyValue[userId] = pinKeyEncryptedUserKey
+
+        if requirePasswordAfterRestart {
+            accountVolatileData[
+                userId,
+                default: AccountVolatileData()
+            ].pinProtectedUserKey = pinProtectedUserKey
+        }
+    }
+
+    func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
+        let userId = try getActiveAccount().profile.userId
+        accountVolatileData[
+            userId,
+            default: AccountVolatileData()
+        ].pinProtectedUserKey = pin
     }
 
     func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {
@@ -229,8 +346,17 @@ class MockStateService: StateService {
         self.showWebIcons = showWebIcons
     }
 
+    func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        timeoutAction[userId] = action
+    }
+
     func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
+    }
+
+    func setTwoFactorToken(_ token: String?, email: String) async {
+        twoFactorTokens[email] = token
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
@@ -241,6 +367,11 @@ class MockStateService: StateService {
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         usernameGenerationOptions[userId] = options
+    }
+
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccount().profile.userId
+        vaultTimeout[userId] = value
     }
 
     func activeAccountIdPublisher() async -> AnyPublisher<String?, Never> {
@@ -263,3 +394,35 @@ class MockStateService: StateService {
         showWebIconsSubject.eraseToAnyPublisher()
     }
 }
+
+// MARK: Biometrics
+
+extension MockStateService {
+    func getBiometricAuthenticationEnabled() async throws -> Bool {
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        try getBiometricAuthenticationEnabledResult.get()
+        return biometricsEnabled[activeAccount.profile.userId] ?? false
+    }
+
+    func getBiometricIntegrityState() async throws -> String? {
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        if let getBiometricIntegrityStateError {
+            throw getBiometricIntegrityStateError
+        }
+        return biometricIntegrityStates[activeAccount.profile.userId] ?? nil
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        try setBiometricAuthenticationEnabledResult.get()
+        biometricsEnabled[activeAccount.profile.userId] = isEnabled
+    }
+
+    func setBiometricIntegrityState(_ base64EncodedState: String?) async throws {
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        if let setBiometricIntegrityStateError {
+            throw setBiometricIntegrityStateError
+        }
+        biometricIntegrityStates[activeAccount.profile.userId] = base64EncodedState
+    }
+} // swiftlint:disable:this file_length

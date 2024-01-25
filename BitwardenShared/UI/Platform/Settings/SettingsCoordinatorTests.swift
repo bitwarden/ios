@@ -91,6 +91,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UIHostingController<AppExtensionView>)
     }
 
+    /// `navigate(to:)` with `.appExtensionSetup` pushes the app extension view onto the stack navigator.
+    func test_navigateTo_appExtensionSetup() throws {
+        subject.navigate(to: .appExtensionSetup)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UIActivityViewController)
+    }
+
     /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
     func test_navigateTo_autoFill() throws {
         subject.navigate(to: .autoFill)
@@ -138,16 +147,27 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
     func test_navigateTo_lockVault() throws {
-        subject.navigate(to: .lockVault(account: .fixture()))
+        subject.navigate(to: .lockVault(account: .fixture(), userInitiated: true))
 
         XCTAssertTrue(delegate.didLockVaultCalled)
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
-    func test_navigateTo_logout() throws {
-        subject.navigate(to: .logout)
+    func test_navigateTo_logout_userInitiated() throws {
+        subject.navigate(to: .logout(userInitiated: true))
 
-        XCTAssertTrue(delegate.didLogoutCalled)
+        waitFor(delegate.didLogoutCalled)
+        let userInitiated = try XCTUnwrap(delegate.wasLogoutUserInitiated)
+        XCTAssertTrue(userInitiated)
+    }
+
+    /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
+    func test_navigateTo_logout_systemInitiated() throws {
+        subject.navigate(to: .logout(userInitiated: false))
+
+        waitFor(delegate.didLogoutCalled)
+        let userInitiated = try XCTUnwrap(delegate.wasLogoutUserInitiated)
+        XCTAssertFalse(userInitiated)
     }
 
     /// `navigate(to:)` with `.folders` pushes the folders view onto the stack navigator.
@@ -175,6 +195,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
         XCTAssertTrue(action.view is UIHostingController<PasswordAutoFillView>)
+    }
+
+    /// `navigate(to:)` with `.pendingLoginRequests()` presents the pending login requests view.
+    func test_navigateTo_pendingLoginRequests() throws {
+        subject.navigate(to: .pendingLoginRequests)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<PendingRequestsView>)
     }
 
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
@@ -228,9 +257,11 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
+    var capturedOtherAccounts: [Account]?
     var didDeleteAccountCalled = false
     var didLockVaultCalled = false
     var didLogoutCalled = false
+    var wasLogoutUserInitiated: Bool?
 
     func didDeleteAccount(otherAccounts _: [Account]?) {
         didDeleteAccountCalled = true
@@ -240,7 +271,9 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
         didLockVaultCalled = true
     }
 
-    func didLogout() {
+    func didLogout(userInitiated: Bool, otherAccounts: [Account]?) {
+        capturedOtherAccounts = otherAccounts
+        wasLogoutUserInitiated = userInitiated
         didLogoutCalled = true
     }
 }

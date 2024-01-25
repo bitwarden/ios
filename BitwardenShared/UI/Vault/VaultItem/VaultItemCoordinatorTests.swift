@@ -5,6 +5,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - VaultItemCoordinatorTests
 
 class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -109,6 +111,35 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(view.store.state.type, .card)
     }
 
+    /// `navigate(to:)` with `.addItem` with a group collection pushes the add item view onto the
+    /// stack navigator and sets the collection and organization's ID on the new item.
+    func test_navigateTo_addItem_withGroupCollection() throws {
+        subject.navigate(to: .addItem(group: .collection(id: "12345", name: "Test", organizationId: "org-12345")))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is AddEditItemView)
+
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertEqual(view.store.state.type, .login)
+        XCTAssertEqual(view.store.state.collectionIds, ["12345"])
+        XCTAssertEqual(view.store.state.organizationId, "org-12345")
+    }
+
+    /// `navigate(to:)` with `.addItem` with a group folder pushes the add item view onto the stack
+    /// navigator and sets the folder's ID on the new item.
+    func test_navigateTo_addItem_withGroupFolder() throws {
+        subject.navigate(to: .addItem(group: .folder(id: "12345", name: "Test")))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is AddEditItemView)
+
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertEqual(view.store.state.type, .login)
+        XCTAssertEqual(view.store.state.folderId, "12345")
+    }
+
     /// `navigate(to:)` with `.cloneItem()`  triggers the show clone item flow.
     func test_navigateTo_cloneItem_nonPremium() throws {
         vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
@@ -151,7 +182,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.attachments()` navigates to the attachments view..
     func test_navigateTo_attachments() throws {
-        subject.navigate(to: .attachments)
+        subject.navigate(to: .attachments(.fixture()))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
@@ -459,4 +490,4 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     func didCancelScan() {
         didCancel = true
     }
-} // swiftlint:disable:this file_length
+}

@@ -8,5 +8,7 @@
             "Email":
             "sh***@example.com"
         }
-    }
+    },
+    "SsoEmail2faSessionToken": "exampleToken",
+    "CaptchaBypassToken": "BWCaptchaBypass_ABCXYZ"
 }

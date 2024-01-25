@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - AuthServiceTests
 
-class AuthServiceTests: BitwardenTestCase {
+class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var accountAPIService: AccountAPIService!
@@ -13,6 +13,7 @@ class AuthServiceTests: BitwardenTestCase {
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var clientGenerators: MockClientGenerators!
+    var clientPlatform: MockClientPlatform!
     var environmentService: MockEnvironmentService!
     var stateService: MockStateService!
     var subject: DefaultAuthService!
@@ -29,6 +30,7 @@ class AuthServiceTests: BitwardenTestCase {
         authAPIService = APIService(client: client)
         clientAuth = MockClientAuth()
         clientGenerators = MockClientGenerators()
+        clientPlatform = MockClientPlatform()
         environmentService = MockEnvironmentService()
         stateService = MockStateService()
         systemDevice = MockSystemDevice()
@@ -39,6 +41,7 @@ class AuthServiceTests: BitwardenTestCase {
             authAPIService: authAPIService,
             clientAuth: clientAuth,
             clientGenerators: clientGenerators,
+            clientPlatform: clientPlatform,
             environmentService: environmentService,
             stateService: stateService,
             systemDevice: systemDevice
@@ -54,6 +57,7 @@ class AuthServiceTests: BitwardenTestCase {
         client = nil
         clientAuth = nil
         clientGenerators = nil
+        clientPlatform = nil
         environmentService = nil
         stateService = nil
         subject = nil
@@ -91,6 +95,16 @@ class AuthServiceTests: BitwardenTestCase {
         ]
         XCTAssertEqual(expectedUrlComponents?.url, result.0)
         XCTAssertEqual("PASSWORD", result.1)
+    }
+
+    /// `getPendingLoginRequests()` returns all the active pending login requests.
+    func test_getPendingLoginRequests() async throws {
+        stateService.activeAccount = .fixture()
+        client.result = .httpSuccess(testData: .authRequestSuccess)
+
+        let result = try await subject.getPendingLoginRequests()
+
+        XCTAssertEqual(result, [.fixture(fingerprintPhrase: "a-fingerprint-phrase-string-placeholder")])
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` logs in with the password.
@@ -151,7 +165,45 @@ class AuthServiceTests: BitwardenTestCase {
         )
     }
 
-    /// `loginWithSingleSignOn(code:)` returns an account if the vault is still locked after authenticating.
+    /// `loginWithMasterPassword(_:username:captchaToken:)` handles a two-factor auth error.
+    func test_loginWithMasterPassword_twoFactorError() async throws {
+        // Set up the mock data.
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenTwoFactorError.data
+            ),
+        ]
+        appSettingsStore.appId = "App id"
+        await stateService.setTwoFactorToken("some token", email: "email@example.com")
+        clientAuth.hashPasswordResult = .success("hashed password")
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // Attempt to login.
+        let authMethodsData = ["1": ["Email": "sh***@example.com"]]
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(
+                authMethodsData,
+                "exampleToken",
+                "BWCaptchaBypass_ABCXYZ"
+            )
+        ) {
+            try await subject.loginWithMasterPassword(
+                "Password1234!",
+                username: "email@example.com",
+                captchaToken: nil
+            )
+        }
+
+        // Verify the results.
+        let cachedToken = await stateService.getTwoFactorToken(email: "email@example.com")
+        XCTAssertNil(cachedToken)
+    }
+
+    /// `loginWithSingleSignOn(code:email:)` returns an account if the vault is still locked after authenticating.
     func test_loginSingleSignOn_vaultLocked() async throws {
         // Set up the mock data.
         appSettingsStore.appId = "App id"
@@ -160,7 +212,7 @@ class AuthServiceTests: BitwardenTestCase {
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
-        let account = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code")
+        let account = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
 
         // Verify the results.
         let tokenRequest = IdentityTokenRequestModel(
@@ -190,5 +242,111 @@ class AuthServiceTests: BitwardenTestCase {
         )
 
         XCTAssertEqual(account, .fixtureAccountLogin())
+    }
+
+    /// `loginWithTwoFactorCode(email:code:method:remember:captchaToken:)` uses the cached request but with two factor
+    /// codes added in to authenticate.
+    func test_loginWithTwoFactorCode() async throws {
+        // Set up the mock data.
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenTwoFactorError.data
+            ),
+            .httpSuccess(testData: .identityTokenSuccessTwoFactorToken),
+        ]
+        appSettingsStore.appId = "App id"
+        await stateService.setTwoFactorToken("some token", email: "email@example.com")
+        clientAuth.hashPasswordResult = .success("hashed password")
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // First login with the master password so that the request will be saved.
+        let authMethodsData = ["1": ["Email": "sh***@example.com"]]
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(
+                authMethodsData,
+                "exampleToken",
+                "BWCaptchaBypass_ABCXYZ"
+            )
+        ) {
+            try await subject.loginWithMasterPassword(
+                "Password1234!",
+                username: "email@example.com",
+                captchaToken: nil
+            )
+        }
+
+        // Login with the two-factor code.
+        let account = try await subject.loginWithTwoFactorCode(
+            email: "email@example.com",
+            code: "just_a_lil_code",
+            method: .email,
+            remember: true
+        )
+
+        // Verify the results.
+        let cachedToken = await stateService.getTwoFactorToken(email: "email@example.com")
+        XCTAssertNotNil(cachedToken)
+
+        XCTAssertEqual(stateService.accountsAdded, [.fixtureAccountLogin()])
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys,
+            [
+                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    encryptedPrivateKey: "PRIVATE_KEY",
+                    encryptedUserKey: "KEY"
+                ),
+            ]
+        )
+
+        XCTAssertEqual(account, .fixtureAccountLogin())
+    }
+
+    /// `resendVerificationCodeEmail()` throws an error if there is no cached request model to use.
+    func test_resendVerificationCodeEmail_noCache() async throws {
+        await assertAsyncThrows(error: AuthError.unableToResendEmail) {
+            try await subject.resendVerificationCodeEmail()
+        }
+    }
+
+    /// `resendVerificationCodeEmail()` runs successfully.
+    func test_resendVerificationCodeEmail_success() async throws {
+        // Set up the mock data.
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenTwoFactorError.data
+            ),
+            .httpSuccess(testData: .emptyResponse),
+        ]
+        appSettingsStore.appId = "App id"
+        await stateService.setTwoFactorToken("some token", email: "email@example.com")
+        clientAuth.hashPasswordResult = .success("hashed password")
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // First login with the master password so that the resend email request will be saved.
+        let authMethodsData = ["1": ["Email": "sh***@example.com"]]
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(
+                authMethodsData,
+                "exampleToken",
+                "BWCaptchaBypass_ABCXYZ"
+            )
+        ) {
+            try await subject.loginWithMasterPassword(
+                "Password1234!",
+                username: "email@example.com",
+                captchaToken: nil
+            )
+        }
+
+        // Ensure the resend email request runs successfully.
+        try await subject.resendVerificationCodeEmail()
     }
 }

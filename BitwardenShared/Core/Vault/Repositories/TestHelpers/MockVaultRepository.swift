@@ -14,6 +14,9 @@ class MockVaultRepository: VaultRepository {
     var ciphersAutofillSubject = CurrentValueSubject<[CipherView], Error>([])
     var cipherDetailsSubject = CurrentValueSubject<CipherView?, Error>(.fixture())
 
+    var deleteAttachmentId: String?
+    var deleteAttachmentResult: Result<CipherView?, Error> = .success(.fixture())
+
     var deletedCipher = [String]()
     var deleteCipherResult: Result<Void, Error> = .success(())
 
@@ -56,7 +59,12 @@ class MockVaultRepository: VaultRepository {
     var restoredCipher = [CipherView]()
     var restoreCipherResult: Result<Void, Error> = .success(())
 
-    var searchCipherSubject = CurrentValueSubject<[VaultListItem], Error>([])
+    var saveAttachmentFileName: String?
+    var saveAttachmentResult: Result<CipherView, Error> = .success(.fixture())
+
+    var searchCipherAutofillSubject = CurrentValueSubject<[CipherView], Error>([])
+
+    var searchVaultListSubject = CurrentValueSubject<[VaultListItem], Error>([])
 
     var shareCipherCiphers = [CipherView]()
     var shareCipherResult: Result<Void, Error> = .success(())
@@ -104,6 +112,11 @@ class MockVaultRepository: VaultRepository {
         uri _: String?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
         ciphersAutofillSubject.eraseToAnyPublisher().values
+    }
+
+    func deleteAttachment(withId attachmentId: String, cipherId _: String) async throws -> CipherView? {
+        deleteAttachmentId = attachmentId
+        return try deleteAttachmentResult.get()
     }
 
     func deleteCipher(_ id: String) async throws {
@@ -169,11 +182,23 @@ class MockVaultRepository: VaultRepository {
         try restoreCipherResult.get()
     }
 
-    func searchCipherPublisher(
+    func saveAttachment(cipherView _: CipherView, fileData _: Data, fileName: String) async throws -> CipherView {
+        saveAttachmentFileName = fileName
+        return try saveAttachmentResult.get()
+    }
+
+    func searchCipherAutofillPublisher(
+        searchText _: String,
+        filterType _: VaultFilterType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
+        searchCipherAutofillSubject.eraseToAnyPublisher().values
+    }
+
+    func searchVaultListPublisher(
         searchText _: String,
         filterType _: VaultFilterType
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
-        searchCipherSubject.eraseToAnyPublisher().values
+        searchVaultListSubject.eraseToAnyPublisher().values
     }
 
     func shareCipher(_ cipher: CipherView) async throws {

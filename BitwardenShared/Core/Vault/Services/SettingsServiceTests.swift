@@ -64,14 +64,14 @@ class SettingsServiceTests: XCTestCase {
         )
     }
 
-    /// `replaceCiphers(_:userId:)` replaces the persisted domains in the data store.
+    /// `replaceEquivalentDomains(_:userId:)` replaces the persisted domains in the data store.
     func test_replaceEquivalentDomains() async throws {
         try await subject.replaceEquivalentDomains(domains, userId: "1")
 
         XCTAssertEqual(settingsDataStore.replaceDomainsDomains, domains)
     }
 
-    /// `replaceCiphers(_:userId:)` deletes the persisted domains in the data store if the data is `nil`.
+    /// `replaceEquivalentDomains(_:userId:)` deletes the persisted domains in the data store if the data is `nil`.
     func test_replaceEquivalentDomains_nil() async throws {
         try await subject.replaceEquivalentDomains(nil, userId: "1")
 

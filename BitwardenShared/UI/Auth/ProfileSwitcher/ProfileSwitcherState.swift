@@ -42,7 +42,7 @@ struct ProfileSwitcherState: Equatable {
 
     /// The visibility of the add account row.
     var showsAddAccount: Bool {
-        !shouldAlwaysHideAddAccount && accounts.count < Constants.maxAcccounts
+        !shouldAlwaysHideAddAccount && accounts.count < Constants.maxAccounts
     }
 
     // MARK: Initialization
@@ -93,5 +93,16 @@ struct ProfileSwitcherState: Equatable {
         }
 
         return isVisible && !hasSetAccessibilityFocus
+    }
+
+    /// Sets the visibility of the profiles view and updates accessibility focus
+    ///
+    /// - Parameter visible: the intended visibility of the view
+    ///
+    mutating func setIsVisible(_ visible: Bool) {
+        if !visible {
+            hasSetAccessibilityFocus = false
+        }
+        isVisible = visible
     }
 }

@@ -6,18 +6,24 @@ import Foundation
 /// An object that is notified when specific circumstances in the add/edit/delete item view have occurred.
 ///
 protocol CipherItemOperationDelegate: AnyObject {
-    /// Called when the cipher item has been successfully deleted.
+    /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
 
     /// Called when the cipher item has been successfully restored.
     func itemRestored()
+
+    /// Called when the cipher item has been successfully soft deleted.
+    func itemSoftDeleted()
 }
 
 // MARK: - AddEditItemProcessor
 
 /// The processor used to manage state and handle actions for the add item screen.
-final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
-    StateProcessor<AddEditItemState, AddEditItemAction, AddEditItemEffect> {
+final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_body_length
+    AddEditItemState,
+    AddEditItemAction,
+    AddEditItemEffect
+> {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -57,6 +63,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
+
         super.init(state: state)
     }
 
@@ -77,7 +84,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         case .setupTotpPressed:
             await setupTotp()
         case .deletePressed:
-            await showDeleteConfirmation()
+            await showSoftDeleteConfirmation()
         }
     }
 
@@ -87,6 +94,8 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             updateCardState(&state, for: cardFieldAction)
         case let .collectionToggleChanged(newValue, collectionId):
             state.toggleCollection(newValue: newValue, collectionId: collectionId)
+        case let .customField(action):
+            handleCustomFieldAction(action)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
         case let .favoriteChanged(newValue):
@@ -137,6 +146,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
             state.loginState.totpState = .init(newValue)
         case let .typeChanged(newValue):
             state.type = newValue
+            state.customFieldsState = AddEditCustomFieldsState(cipherType: newValue, customFields: [])
         case let .uriChanged(newValue, index: index):
             guard state.loginState.uris.count > index else { return }
             state.loginState.uris[index].uri = newValue
@@ -165,6 +175,55 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         }
     }
 
+    /// Handles an action associated with the `AddEditCustomFieldsAction`.
+    ///
+    /// - Parameter action: The action that was sent from the `AddEditCustomFieldsView`.
+    ///
+    private func handleCustomFieldAction(_ action: AddEditCustomFieldsAction) {
+        switch action {
+        case let .booleanFieldChanged(newValue, index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields[index].value = String(newValue).lowercased()
+        case let .customFieldAdded(type, name):
+            var customFieldState = CustomFieldState(name: name, type: type)
+            if type == .linked {
+                customFieldState.linkedIdType = LinkedIdType.getLinkedIdType(for: state.type).first
+            }
+            state.customFieldsState.customFields.append(customFieldState)
+        case let .customFieldChanged(newValue, index: index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields[index].value = newValue
+        case let .customFieldNameChanged(index, newValue):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields[index].name = newValue
+        case let .editCustomFieldNamePressed(index: index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            presentEditCustomFieldNameAlert(oldName: state.customFieldsState.customFields[index].name, index: index)
+        case let .moveDownCustomFieldPressed(index: index):
+            guard state.customFieldsState.customFields.indices.contains(index),
+                  index != state.customFieldsState.customFields.indices.last else { return }
+            state.customFieldsState.customFields.swapAt(index, index + 1)
+        case let .moveUpCustomFieldPressed(index: index):
+            guard state.customFieldsState.customFields.indices.contains(index),
+                  index != state.customFieldsState.customFields.indices.first else { return }
+            state.customFieldsState.customFields.swapAt(index, index - 1)
+        case .newCustomFieldPressed:
+            presentCustomFieldAlert()
+        case let .removeCustomFieldPressed(index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields.remove(at: index)
+        case let .selectedCustomFieldType(type):
+            presentNameCustomFieldAlert(fieldType: type)
+        case let .selectedLinkedIdType(index, idType):
+            guard state.customFieldsState.customFields.indices.contains(index),
+                  state.customFieldsState.customFields[index].type == .linked else { return }
+            state.customFieldsState.customFields[index].linkedIdType = idType
+        case let .togglePasswordVisibilityChanged(isPasswordVisible, index):
+            guard state.customFieldsState.customFields.indices.contains(index) else { return }
+            state.customFieldsState.customFields[index].isPasswordVisible = isPasswordVisible
+        }
+    }
+
     /// Handles an action associated with the `VaultItemManagementMenuAction` menu.
     ///
     /// - Parameter action: The action that was sent from the menu.
@@ -172,7 +231,7 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
     private func handleMenuAction(_ action: VaultItemManagementMenuAction) {
         switch action {
         case .attachments:
-            coordinator.navigate(to: .attachments)
+            coordinator.navigate(to: .attachments(state.cipher))
         case .clone:
             // we don't show clone option in edit item state
             break
@@ -270,11 +329,61 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         }
     }
 
-    /// Builds an alert for creating a new custom field and then routes the coordinator
+    /// Builds an actions sheet for creating a new custom field and then routes the coordinator
     /// to the `.alert` route.
     ///
     private func presentCustomFieldAlert() {
-        // TODO: BIT-368 Navigate to an `.alert` route with the custom field alert
+        let fieldTypes: [FieldType] = state.type != .secureNote ? [.text, .hidden, .boolean, .linked]
+            : [.text, .hidden, .boolean]
+        let actions = fieldTypes.map { type in
+            AlertAction(title: type.localizedName, style: .default) { [weak self] _ in
+                guard let self else { return }
+                receive(
+                    .customField(
+                        .selectedCustomFieldType(type)
+                    )
+                )
+            }
+        }
+
+        let alertActions = actions + [AlertAction(title: Localizations.cancel, style: .cancel)]
+
+        let alert = Alert(
+            title: Localizations.selectTypeField,
+            message: nil,
+            preferredStyle: .actionSheet,
+            alertActions: alertActions
+        )
+        coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Builds an alert to edit  name of a custom field and then routes the coordinator
+    /// to the `.alert` route.
+    ///
+    private func presentEditCustomFieldNameAlert(oldName: String?, index: Int) {
+        let alert = Alert.nameCustomFieldAlert(text: oldName) { [weak self] name in
+            guard let self else { return }
+            receive(
+                .customField(
+                    .customFieldNameChanged(
+                        index: index,
+                        newValue: name
+                    )
+                )
+            )
+        }
+        coordinator.navigate(to: .alert(alert))
+    }
+
+    /// Builds an alert to name a new custom field and then routes the coordinator
+    /// to the `.alert` route.
+    ///
+    private func presentNameCustomFieldAlert(fieldType: FieldType) {
+        let alert = Alert.nameCustomFieldAlert { [weak self] name in
+            guard let self else { return }
+            receive(.customField(.customFieldAdded(fieldType, name)))
+        }
+        coordinator.navigate(to: .alert(alert))
     }
 
     /// Builds and navigates to an alert for overwriting an existing value for the specified type.
@@ -351,13 +460,13 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
 
     /// Soft Deletes the item currently stored in `state`.
     ///
-    private func deleteItem() async {
+    private func softDeleteItem() async {
         defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(title: Localizations.softDeleting)
             try await services.vaultRepository.softDeleteCipher(state.cipher)
             coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemDeleted()
+                self?.delegate?.itemSoftDeleted()
             })))
         } catch {
             coordinator.showAlert(.networkResponseError(error))
@@ -365,12 +474,12 @@ final class AddEditItemProcessor: // swiftlint:disable:this type_body_length
         }
     }
 
-    /// Shows delete cipher confirmation alert.
+    /// Shows a soft delete cipher confirmation alert.
     ///
-    private func showDeleteConfirmation() async {
-        let alert = Alert.deleteCipherConfirmation { [weak self] in
+    private func showSoftDeleteConfirmation() async {
+        let alert = Alert.deleteCipherConfirmation(isSoftDelete: true) { [weak self] in
             guard let self else { return }
-            await deleteItem()
+            await softDeleteItem()
         }
         coordinator.showAlert(alert)
     }

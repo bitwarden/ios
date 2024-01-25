@@ -69,7 +69,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     ///   - suggestedName: The name suggested by the system, if one was provided.
     ///
     private func selected(image: UIImage, suggestedName: String?) {
-        let fileName = suggestedName ?? {
+        var fileName = suggestedName ?? {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyyMMddHHmmss"
             return "photo_\(formatter.string(from: Date())).jpg"
@@ -81,6 +81,11 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
             imageData = image.jpegData(compressionQuality: 1)
         } else {
             imageData = image.pngData()
+            if !fileName.hasSuffix(".png") {
+                // PHPickerViewController may not provide the filename along with an extension, so
+                // we need to provide one.
+                fileName.append(".png")
+            }
         }
         guard let imageData else { return }
         delegate?.fileSelectionCompleted(fileName: fileName, data: imageData)

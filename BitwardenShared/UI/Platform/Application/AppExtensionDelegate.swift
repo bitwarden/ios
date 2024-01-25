@@ -4,6 +4,9 @@ import BitwardenSdk
 /// an app extension.
 ///
 public protocol AppExtensionDelegate: AnyObject {
+    /// The app's route that the app should navigate to after auth has been completed.
+    var authCompletionRoute: AppRoute { get }
+
     /// Whether the app is running within an extension.
     var isInAppExtension: Bool { get }
 
@@ -21,4 +24,14 @@ public protocol AppExtensionDelegate: AnyObject {
     /// A cancel button was tapped to exit the extension.
     ///
     func didCancel()
+}
+
+public extension AppExtensionDelegate {
+    /// The autofill request should be completed with the specified username and password.
+    ///
+    /// - Parameters:
+    ///   - username: The username to fill.
+    ///   - password: The password to fill.
+    ///
+    func completeAutofillRequest(username: String, password: String) {}
 }

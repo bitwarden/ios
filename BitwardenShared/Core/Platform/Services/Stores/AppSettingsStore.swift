@@ -45,6 +45,22 @@ protocol AppSettingsStore: AnyObject {
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
 
+    /// Whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter userId: The user ID associated with the approve logins setting.
+    ///
+    /// - Returns: Whether the user has decided to allow the device to approve login requests.
+    ///
+    func approveLoginRequests(userId: String) -> Bool
+
+    /// The system biometric integrity state `Data`, base64 encoded.
+    ///
+    /// - Parameter userId: The user ID associated with the Biometric Integrity State.
+    /// - Returns: A base64 encoded `String`
+    ///  representing the last known Biometric Integrity State `Data` for the userID.
+    ///
+    func biometricIntegrityState(userId: String) -> String?
+
     /// Gets the time after which the clipboard should be cleared.
     ///
     /// - Parameter userId: The user ID associated with the clipboard clearing time.
@@ -68,6 +84,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func defaultUriMatchType(userId: String) -> UriMatchType?
 
+    /// Gets the disable auto-copy TOTP value for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the disable auto-copy TOTP value.
+    ///
+    func disableAutoTotpCopy(userId: String) -> Bool
+
     /// Gets the encrypted private key for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the encrypted private key.
@@ -80,11 +102,22 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedUserKey(userId: String) -> String?
 
-    /// Gets the disable auto-copy TOTP value for the user ID.
+    /// The user's last active time within the app.
+    /// This value is set when the app is backgrounded.
     ///
-    /// - Parameter userId: The user ID associated with the disable auto-copy TOTP value.
+    /// - Parameter userId: The user ID associated with the last active time within the app.
     ///
-    func disableAutoTotpCopy(userId: String) -> Bool
+    func lastActiveTime(userId: String) -> Date?
+
+    /// Get the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter userId: The user ID associated with the biometric authentication preference.
+    ///
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool
 
     /// Gets the time of the last sync for the user ID.
     ///
@@ -96,8 +129,16 @@ protocol AppSettingsStore: AnyObject {
     /// Gets the master password hash for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the master password hash.
+    /// - Returns: The master password hash for the user.
     ///
     func masterPasswordHash(userId: String) -> String?
+
+    /// Gets the last date the user successfully registered for push notifications.
+    ///
+    /// - Parameter userId: The user ID associated with the last notifications registration date.
+    /// - Returns: The last notifications registration date for the user.
+    ///
+    func notificationsLastRegistrationDate(userId: String) -> Date?
 
     /// Gets the password generation options for a user ID.
     ///
@@ -106,19 +147,19 @@ protocol AppSettingsStore: AnyObject {
     ///
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions?
 
-    /// Gets the username generation options for a user ID.
+    /// The user's pin protected user key.
     ///
-    /// - Parameter userId: The user ID associated with the username generation options.
-    /// - Returns: The username generation options for the user ID.
+    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
+    /// - Returns: The pin protected user key.
     ///
-    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
+    func pinKeyEncryptedUserKey(userId: String) -> String?
 
-    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    /// The pin protected user key.
     ///
-    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
-    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    /// - Parameter userId: The user ID associated with the pin protected user key.
+    /// - Returns: The pin protected user key.
     ///
-    func unsuccessfulUnlockAttempts(userId: String) -> Int?
+    func pinProtectedUserKey(userId: String) -> String?
 
     /// Whether the vault should sync on refreshing.
     ///
@@ -127,6 +168,32 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync on refresh setting.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
+
+    /// Sets whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameters:
+    ///   - approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
+    ///   - userId: The user ID associated with the approve logins setting.
+    ///
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String)
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameters:
+    ///   - isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///   - userId: The user ID associated with the biometric authentication preference.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
+
+    /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
+    ///
+    /// - Parameters:
+    ///   - base64EncodedIntegrityState: The biometric integrity state `Data`, encoded as a base64 `String`.
+    ///   - userId: The user ID associated with the Biometric Integrity State.
+    ///
+    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String)
 
     /// Sets the time after which the clipboard should be cleared.
     ///
@@ -178,6 +245,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setEncryptedUserKey(key: String?, userId: String)
 
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameters:
+    ///   - date: The date of the last active time.
+    ///   - userId: The user ID associated with the last active time within the app.
+    ///
+    func setLastActiveTime(_ date: Date?, userId: String)
+
     /// Sets the time of the last sync for the user ID.
     ///
     /// - Parameters:
@@ -194,6 +269,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String)
 
+    /// Sets the last notifications registration date for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The last notifications registration date.
+    ///   - userId: The user ID associated with the last notifications registration date.
+    ///
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String)
+
     /// Sets the password generation options for a user ID.
     ///
     /// - Parameters:
@@ -201,6 +284,38 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
+
+    /// Sets the pin key encrypted user key.
+    ///
+    /// - Parameters:
+    ///   - key: A pin key encrypted user key derived from the user's pin.
+    ///   - userId: The user ID.
+    ///
+    func setPinKeyEncryptedUserKey(key: String?, userId: String)
+
+    /// Sets the pin protected user key.
+    ///
+    /// - Parameters:
+    ///  - key: A pin protected user key derived from the user's pin.
+    ///   - userId: The user ID.
+    ///
+    func setPinProtectedUserKey(key: String?, userId: String)
+
+    /// Sets the user's timeout action.
+    ///
+    /// - Parameters:
+    ///   - key: The action taken when a session has timed out.
+    ///   - userId: The user ID associated with the session timeout action.
+    ///
+    func setTimeoutAction(key: SessionTimeoutAction, userId: String)
+
+    /// Sets the two-factor token.
+    ///
+    /// - Parameters:
+    ///   - token: The two-factor token.
+    ///   - email: The user's email address.
+    ///
+    func setTwoFactorToken(_ token: String?, email: String)
 
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
@@ -210,6 +325,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
 
+    /// Sets the user's session timeout date.
+    ///
+    /// - Parameters:
+    ///   - key: The session timeout date.
+    ///   - userId: The user ID associated with the session timeout date.
+    ///
+    func setVaultTimeout(key: Int, userId: String)
+
     /// Sets the username generation options for a user ID.
     ///
     /// - Parameters:
@@ -217,6 +340,41 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
+
+    /// Returns the action taken upon a session timeout.
+    ///
+    /// - Parameter userId: The user ID associated with the session timeout action.
+    /// - Returns: The  user's session timeout action.
+    ///
+    func timeoutAction(userId: String) -> Int?
+
+    /// Get the two-factor token associated with a user's email..
+    ///
+    /// - Parameter email: The user's email.
+    /// - Returns: The two-factor token.
+    ///
+    func twoFactorToken(email: String) -> String?
+
+    /// Gets the username generation options for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the username generation options.
+    /// - Returns: The username generation options for the user ID.
+    ///
+    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
+
+    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    ///
+    func unsuccessfulUnlockAttempts(userId: String) -> Int?
+
+    /// Returns the session timeout date.
+    ///
+    /// - Parameter userId: The user ID associated with the session timeout date.
+    /// - Returns: The user's session timeout date.
+    ///
+    func vaultTimeout(userId: String) -> Int?
 
     // MARK: Publishers
 
@@ -237,7 +395,7 @@ class DefaultAppSettingsStore {
     /// The `UserDefaults` instance to persist settings.
     let userDefaults: UserDefaults
 
-    /// A subject containing a `String?` for the userId of the active account..
+    /// A subject containing a `String?` for the userId of the active account.
     lazy var activeAccountIdSubject = CurrentValueSubject<String?, Never>(state?.activeUserId)
 
     // MARK: Initialization
@@ -340,7 +498,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case allowSyncOnRefresh(userId: String)
         case appId
         case appLocale
+        case approveLoginRequests(userId: String)
         case appTheme
+        case biometricAuthEnabled(userId: String)
+        case biometricIntegrityState(userId: String)
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
         case defaultUriMatch(userId: String)
@@ -348,16 +509,23 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case disableWebIcons
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
-        case lastUserShouldConnectToWatch
+        case lastActiveTime(userId: String)
         case lastSync(userId: String)
+        case lastUserShouldConnectToWatch
         case masterPasswordHash(userId: String)
+        case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
+        case pinKeyEncryptedUserKey(userId: String)
+        case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentUrls
         case rememberedEmail
         case rememberedOrgIdentifier
         case state
+        case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
+        case vaultTimeout(userId: String)
+        case vaultTimeoutAction(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -369,8 +537,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "appId"
             case .appLocale:
                 key = "appLocale"
+            case let .approveLoginRequests(userId):
+                key = "approvePasswordlessLogins_\(userId)"
             case .appTheme:
                 key = "theme"
+            case let .biometricAuthEnabled(userId):
+                key = "biometricUnlock_\(userId)"
+            case let .biometricIntegrityState(userId):
+                key = "biometricIntegritySource_\(userId)"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
@@ -385,14 +559,22 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "masterKeyEncryptedUserKey_\(userId)"
             case let .encryptedPrivateKey(userId):
                 key = "encPrivateKey_\(userId)"
-            case .lastUserShouldConnectToWatch:
-                key = "lastUserShouldConnectToWatch"
+            case let .lastActiveTime(userId):
+                key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
+            case .lastUserShouldConnectToWatch:
+                key = "lastUserShouldConnectToWatch"
             case let .masterPasswordHash(userId):
                 key = "keyHash_\(userId)"
+            case let .notificationsLastRegistrationDate(userId):
+                key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
+            case let .pinKeyEncryptedUserKey(userId):
+                key = "pinKeyEncryptedUserKey_\(userId)"
+            case let .pinProtectedUserKey(userId):
+                key = "pinProtectedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
             case .rememberedEmail:
@@ -401,10 +583,16 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedOrgIdentifier"
             case .state:
                 key = "state"
+            case let .twoFactorToken(email):
+                key = "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
                 key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
+            case let .vaultTimeout(userId):
+                key = "vaultTimeout_\(userId)"
+            case let .vaultTimeoutAction(userId):
+                key = "vaultTimeoutAction_\(userId)"
             }
             return "bwPreferencesStorage:\(key)"
         }
@@ -462,6 +650,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .allowSyncOnRefresh(userId: userId))
     }
 
+    func approveLoginRequests(userId: String) -> Bool {
+        fetch(for: .approveLoginRequests(userId: userId))
+    }
+
+    func biometricIntegrityState(userId: String) -> String? {
+        fetch(for: .biometricIntegrityState(userId: userId))
+    }
+
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
            let value = ClearClipboardValue(rawValue: rawValue) {
@@ -474,6 +670,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .connectToWatch(userId: userId))
     }
 
+    func defaultUriMatchType(userId: String) -> UriMatchType? {
+        fetch(for: .defaultUriMatch(userId: userId))
+    }
+
+    func disableAutoTotpCopy(userId: String) -> Bool {
+        fetch(for: .disableAutoTotpCopy(userId: userId))
+    }
+
     func encryptedPrivateKey(userId: String) -> String? {
         fetch(for: .encryptedPrivateKey(userId: userId))
     }
@@ -482,12 +686,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .encryptedUserKey(userId: userId))
     }
 
-    func defaultUriMatchType(userId: String) -> UriMatchType? {
-        fetch(for: .defaultUriMatch(userId: userId))
+    func lastActiveTime(userId: String) -> Date? {
+        fetch(for: .lastActiveTime(userId: userId))
     }
 
-    func disableAutoTotpCopy(userId: String) -> Bool {
-        fetch(for: .disableAutoTotpCopy(userId: userId))
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool {
+        fetch(for: .biometricAuthEnabled(userId: userId))
     }
 
     func lastSyncTime(userId: String) -> Date? {
@@ -498,20 +702,36 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .masterPasswordHash(userId: userId))
     }
 
+    func notificationsLastRegistrationDate(userId: String) -> Date? {
+        fetch(for: .notificationsLastRegistrationDate(userId: userId)).map { Date(timeIntervalSince1970: $0) }
+    }
+
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
 
-    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
-        fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
+    func pinKeyEncryptedUserKey(userId: String) -> String? {
+        fetch(for: .pinKeyEncryptedUserKey(userId: userId))
     }
 
-    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
-        fetch(for: .usernameGenerationOptions(userId: userId))
+    func pinProtectedUserKey(userId: String) -> String? {
+        fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String) {
+        store(approveLoginRequests, for: .approveLoginRequests(userId: userId))
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
+        store(isEnabled, for: .biometricAuthEnabled(userId: userId))
+    }
+
+    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
+        store(base64EncodedIntegrityState, for: .biometricIntegrityState(userId: userId))
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
@@ -538,6 +758,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .encryptedUserKey(userId: userId))
     }
 
+    func setLastActiveTime(_ date: Date?, userId: String) {
+        store(date, for: .lastActiveTime(userId: userId))
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
     }
@@ -546,12 +770,56 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(hash, for: .masterPasswordHash(userId: userId))
     }
 
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
+        store(date?.timeIntervalSince1970, for: .notificationsLastRegistrationDate(userId: userId))
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         store(options, for: .passwordGenerationOptions(userId: userId))
     }
 
+    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
+        store(key, for: .pinKeyEncryptedUserKey(userId: userId))
+    }
+
+    func setPinProtectedUserKey(key: String?, userId: String) {
+        store(key, for: .pinProtectedUserKey(userId: userId))
+    }
+
+    func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
+        store(key, for: .vaultTimeoutAction(userId: userId))
+    }
+
+    func setTwoFactorToken(_ token: String?, email: String) {
+        store(token, for: .twoFactorToken(email: email))
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         store(options, for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func setVaultTimeout(key: Int, userId: String) {
+        store(key, for: .vaultTimeout(userId: userId))
+    }
+
+    func timeoutAction(userId: String) -> Int? {
+        fetch(for: .vaultTimeoutAction(userId: userId))
+    }
+
+    func twoFactorToken(email: String) -> String? {
+        fetch(for: .twoFactorToken(email: email))
+    }
+
+    func vaultTimeout(userId: String) -> Int? {
+        fetch(for: .vaultTimeout(userId: userId))
+    }
+
+    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+        fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
+    }
+
+    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
+        fetch(for: .usernameGenerationOptions(userId: userId))
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {

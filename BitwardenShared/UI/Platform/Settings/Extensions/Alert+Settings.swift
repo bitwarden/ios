@@ -3,7 +3,47 @@
 extension Alert {
     // MARK: Methods
 
+    /// An alert that asks if the user wants to navigate to the app store to leave a review.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert that asks if the user wants to navigate to the app store to leave a review.
+    ///
+    static func appStoreAlert(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.continueToAppStore,
+            message: Localizations.rateAppDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
+            ]
+        )
+    }
+
+    /// Confirm allowing the device to approve login requests.
+    ///
+    /// - Parameter action: The action to perform if the user selects yes.
+    ///
+    /// - Returns: An alert confirming allowing the device to approve login requests.
+    ///
+    static func confirmApproveLoginRequests(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.approveLoginRequests,
+            message: Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+            ]
+        )
+    }
+
     /// Confirm deleting the folder.
+    ///
+    /// - Parameter action: The action to perform if the user selects yes.
+    ///
+    /// - Returns: An alert to confirm deleting the folder.
+    ///
     static func confirmDeleteFolder(action: @MainActor @escaping () async -> Void) -> Alert {
         Alert(
             title: Localizations.doYouReallyWantToDelete,
@@ -11,6 +51,23 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
+    /// Confirm denying all the login requests.
+    ///
+    /// - Parameter action: The action to perform if the user selects yes.
+    ///
+    /// - Returns: An alert to confirm denying all the login requests.
+    ///
+    static func confirmDenyingAllRequests(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.areYouSureYouWantToDeclineAllPendingLogInRequests,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
             ]
         )
     }
@@ -27,7 +84,7 @@ extension Alert {
         Alert(
             title: Localizations.exportVaultConfirmationTitle,
             message: encrypted ?
-                (Localizations.encExportKeyWarning + "\n\n" + Localizations.encExportAccountWarning) :
+                (Localizations.encExportKeyWarning + .newLine + Localizations.encExportAccountWarning) :
                 Localizations.exportVaultWarning,
             alertActions: [
                 AlertAction(title: Localizations.exportVault, style: .default) { _ in await action() },
@@ -138,6 +195,26 @@ extension Alert {
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in
                     action()
+                },
+            ]
+        )
+    }
+
+    /// An alert asking if the user wants to login with their PIN upon app restart.
+    ///
+    /// - Parameter action: The action to occur if `Yes` is tapped.
+    /// - Returns: An alert asking if the user wants to login with their PIN upon app restart.
+    ///
+    static func unlockWithPINCodeAlert(action: @escaping (Bool) async -> Void) -> Alert {
+        Alert(
+            title: Localizations.unlockWithPIN,
+            message: Localizations.pinRequireMasterPasswordRestart,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .cancel) { _ in
+                    await action(false)
+                },
+                AlertAction(title: Localizations.yes, style: .default) { _ in
+                    await action(true)
                 },
             ]
         )

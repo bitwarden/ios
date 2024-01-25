@@ -13,13 +13,13 @@ struct CountdownDatePicker: UIViewRepresentable {
         // MARK: Properties
 
         /// The count down duration, in seconds.
-        private let duration: Binding<TimeInterval>
+        private let duration: Binding<Int>
 
         // MARK: Methods
 
         @objc
         func changed(_ sender: UIDatePicker) {
-            duration.wrappedValue = sender.countDownDuration
+            duration.wrappedValue = Int(sender.countDownDuration)
         }
 
         // MARK: Initialization
@@ -28,7 +28,7 @@ struct CountdownDatePicker: UIViewRepresentable {
         ///
         /// - Parameter duration: The count down duration.
         ///
-        init(duration: Binding<TimeInterval>) {
+        init(duration: Binding<Int>) {
             self.duration = duration
         }
     }
@@ -38,7 +38,7 @@ struct CountdownDatePicker: UIViewRepresentable {
     // MARK: Properties
 
     /// The count down durration.
-    @Binding var duration: TimeInterval
+    @Binding var duration: Int
 
     // MARK: Methods
 
@@ -54,6 +54,6 @@ struct CountdownDatePicker: UIViewRepresentable {
     }
 
     func updateUIView(_ datePicker: UIDatePicker, context: Context) {
-        datePicker.countDownDuration = duration
+        datePicker.countDownDuration = TimeInterval(duration)
     }
 }

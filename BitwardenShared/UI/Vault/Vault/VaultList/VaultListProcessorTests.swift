@@ -67,6 +67,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.toast)
 
         subject.itemDeleted()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.itemDeleted)
+    }
+
+    /// `itemSoftDeleted()` delegate method shows the expected toast.
+    func test_delegate_itemSoftDeleted() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemSoftDeleted()
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemSoftDeleted)
     }
 
@@ -157,7 +165,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(.search)` with a keyword should update search results in state.
     func test_perform_search() async {
         let searchResult: [CipherView] = [.fixture(name: "example")]
-        vaultRepository.searchCipherSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
+        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
         await subject.perform(.search("example"))
 
         XCTAssertEqual(subject.state.searchResults.count, 1)
@@ -169,7 +177,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(.search)` throws error and error is logged.
     func test_perform_search_error() async {
-        vaultRepository.searchCipherSubject.send(completion: .failure(BitwardenTestError.example))
+        vaultRepository.searchVaultListSubject.send(completion: .failure(BitwardenTestError.example))
         await subject.perform(.search("example"))
 
         XCTAssertEqual(subject.state.searchResults.count, 0)
@@ -270,6 +278,165 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(!errorReporter.errors.isEmpty)
         task.cancel()
 
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// lock the selected account, which navigates back to the vault unlock page for the active account.
+    func test_receive_accountLongPressed_lock_activeAccount() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem(isUnlocked: true, userId: "1")
+        let otherProfile = ProfileSwitcherItem(isUnlocked: true, userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        stateService.activeAccount = .fixture()
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(activeProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to lock the account.
+        let lockAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await lockAction.handler?(lockAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(authRepository.lockVaultUserId, activeProfile.userId)
+        XCTAssertEqual(coordinator.routes.last, .lockVault(account: .fixture()))
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// lock the selected account, which displays a toast.
+    func test_receive_accountLongPressed_lock_otherAccount() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem(userId: "1")
+        let otherProfile = ProfileSwitcherItem(isUnlocked: true, userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        stateService.activeAccount = .fixture()
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to lock the account.
+        let lockAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await lockAction.handler?(lockAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(authRepository.lockVaultUserId, otherProfile.userId)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.accountLockedSuccessfully)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` records any errors from locking the account.
+    func test_receive_accountLongPressed_lock_error() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem(userId: "1")
+        let otherProfile = ProfileSwitcherItem(isUnlocked: true, userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        stateService.activeAccount = nil
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to lock the account.
+        let lockAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await lockAction.handler?(lockAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// log out of the selected account, which navigates back to the landing page for the active account.
+    func test_receive_accountLongPressed_logout_activeAccount() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem()
+        let otherProfile = ProfileSwitcherItem(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        authRepository.activeAccountResult = .success(activeProfile)
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(activeProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(authRepository.logoutUserId, activeProfile.userId)
+        XCTAssertEqual(coordinator.routes.last, .logout(userInitiated: true))
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// log out of the selected account, which displays a toast.
+    func test_receive_accountLongPressed_logout_otherAccount() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem()
+        let otherProfile = ProfileSwitcherItem(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        authRepository.activeAccountResult = .success(activeProfile)
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
+        XCTAssertEqual(authRepository.logoutUserId, otherProfile.userId)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.accountLoggedOutSuccessfully)
+    }
+
+    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` records any errors from logging out the
+    /// account.
+    func test_receive_accountLongPressed_logout_error() async throws {
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem()
+        let otherProfile = ProfileSwitcherItem(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            isVisible: true
+        )
+        authRepository.activeAccountResult = .failure(BitwardenTestError.example)
+
+        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the results.
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 

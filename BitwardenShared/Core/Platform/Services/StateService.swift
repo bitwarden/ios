@@ -20,6 +20,10 @@ protocol StateService: AnyObject {
     ///
     func addAccount(_ account: Account) async
 
+    /// Clears the pins stored on device and in memory.
+    ///
+    func clearPins() async throws
+
     /// Deletes the current active account.
     ///
     func deleteAccount() async throws
@@ -38,8 +42,9 @@ protocol StateService: AnyObject {
     func getAccounts() async throws -> [Account]
 
     /// Gets the account id or the active account id for a possible id.
-    /// - Parameter userId: The possible user Id of an account
-    /// - Returns: The user account id or the active id
+    ///
+    /// - Parameter userId: The possible user Id of an account.
+    /// - Returns: The user account id or the active id.
     ///
     func getAccountIdOrActiveId(userId: String?) async throws -> String
 
@@ -62,11 +67,33 @@ protocol StateService: AnyObject {
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
 
+    /// Gets whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter userId: The user ID associated with the setting. Defaults to the active account if `nil`.
+    ///
+    /// - Returns: Whether the user has decided to allow the device to approve login requests.
+    ///
+    func getApproveLoginRequests(userId: String?) async throws -> Bool
+
     /// Get the app theme.
     ///
     /// - Returns: The app theme.
     ///
     func getAppTheme() async -> AppTheme
+
+    /// Get the active user's Biometric Authentication Preference.
+    ///
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func getBiometricAuthenticationEnabled() async throws -> Bool
+
+    /// Gets the BiometricIntegrityState for the active user.
+    ///
+    /// - Returns: An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
+    ///
+    func getBiometricIntegrityState() async throws -> String?
 
     /// Gets the clear clipboard value for an account.
     ///
@@ -105,6 +132,14 @@ protocol StateService: AnyObject {
     ///
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
 
+    /// Gets the user's last active time within the app.
+    /// This value is set when the app is backgrounded.
+    ///
+    /// - Parameter userId: The user ID associated with the last active time within the app.
+    /// - Returns: The date of the last active time.
+    ///
+    func getLastActiveTime(userId: String?) async throws -> Date?
+
     /// The last value of the connect to watch setting, ignoring the user id. Used for
     /// sending the status to the watch if the user is logged out.
     ///
@@ -118,6 +153,13 @@ protocol StateService: AnyObject {
     /// - Returns: The user's master password hash.
     ///
     func getMasterPasswordHash(userId: String?) async throws -> String?
+
+    /// Gets the last notifications registration date for a user ID.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: The last notifications registration date.
+    ///
+    func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date?
 
     /// Gets the password generation options for a user ID.
     ///
@@ -138,6 +180,20 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
+    /// Gets the session timeout action.
+    ///
+    /// - Parameter userId: The user ID for the account.
+    /// - Returns: The action to perform when a session timeout occurs.
+    ///
+    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction
+
+    /// Get the two-factor token (non-nil if the user selected the "remember me" option).
+    ///
+    /// - Parameter email: The user's email address.
+    /// - Returns: The two-factor token.
+    ///
+    func getTwoFactorToken(email: String) async -> String?
+
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
@@ -153,6 +209,13 @@ protocol StateService: AnyObject {
     ///
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions?
 
+    /// Gets the session timeout value.
+    ///
+    /// - Parameter userId: The user ID for the account.
+    /// - Returns: The session timeout value.
+    ///
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue
+
     /// Logs the user out of an account.
     ///
     /// - Parameter userId: The user ID of the account to log out of. Defaults to the active
@@ -160,10 +223,24 @@ protocol StateService: AnyObject {
     ///
     func logoutAccount(userId: String?) async throws
 
+    /// The user's pin key encrypted user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
+    /// - Returns: The user's pin key encrypted user key.
+    ///
+    func pinKeyEncryptedUserKey(userId: String?) async throws -> String?
+
+    /// The pin protected user key.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key.
+    /// - Returns: The user's pin protected user key.
+    ///
+    func pinProtectedUserKey(userId: String?) async throws -> String?
+
     /// Sets the account encryption keys for an account.
     ///
     /// - Parameters:
-    ///   - encryptionKeys:  The account encryption keys.
+    ///   - encryptionKeys: The account encryption keys.
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
@@ -182,11 +259,33 @@ protocol StateService: AnyObject {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
 
+    /// Sets whether the user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameters:
+    ///   - approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
+    ///   - userId: The user ID associated with the setting. Defaults to the active account if `nil`.
+    ///
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws
+
     /// Sets the app theme.
     ///
     /// - Parameter appTheme: The new app theme.
     ///
     func setAppTheme(_ appTheme: AppTheme) async
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
+
+    /// Sets the BiometricIntegrityState for the active user.
+    ///
+    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
+    ///
+    func setBiometricIntegrityState(_ base64State: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -220,6 +319,12 @@ protocol StateService: AnyObject {
     ///
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws
 
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameter userId: The user ID associated with the last active time within the app.
+    ///
+    func setLastActiveTime(userId: String?) async throws
+
     /// Sets the time of the last sync for a user ID.
     ///
     /// - Parameters:
@@ -236,6 +341,14 @@ protocol StateService: AnyObject {
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws
 
+    /// Sets the last notifications registration date for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The last notifications registration date.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws
+
     /// Sets the password generation options for a user ID.
     ///
     /// - Parameters:
@@ -243,6 +356,25 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws
+
+    /// Set's the pin keys.
+    ///
+    /// - Parameters:
+    ///   - pinKeyEncryptedUserKey: The user's encrypted pin.
+    ///   - pinProtectedUserKey: The user's pin protected user key.
+    ///   - requirePasswordAfterRestart: Whether to require password after app restart.
+    ///
+    func setPinKeys(
+        pinKeyEncryptedUserKey: String,
+        pinProtectedUserKey: String,
+        requirePasswordAfterRestart: Bool
+    ) async throws
+
+    /// Sets the pin protected user key to memory.
+    ///
+    /// - Parameter pin: The user's pin.
+    ///
+    func setPinProtectedUserKeyToMemory(_ pin: String) async throws
 
     /// Sets the environment URLs used prior to user authentication.
     ///
@@ -256,6 +388,14 @@ protocol StateService: AnyObject {
     ///
     func setShowWebIcons(_ showWebIcons: Bool) async
 
+    /// Sets the session timeout action.
+    ///
+    /// - Parameters:
+    ///   - action: The action to take when the user's session times out.
+    ///   - userId: The user ID associated with the timeout action.
+    ///
+    func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws
+
     /// Sets a new access and refresh token for an account.
     ///
     /// - Parameters:
@@ -264,6 +404,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
+
+    /// Sets the user's two-factor token.
+    ///
+    /// - Parameters:
+    ///   - token: The two-factor token.
+    ///   - email: The user's email address.
+    ///
+    func setTwoFactorToken(_ token: String?, email: String) async
 
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
@@ -279,6 +427,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws
+
+    /// Sets the session timeout value.
+    ///
+    /// - Parameters:
+    ///   - value: The value that dictates how many seconds in the future a timeout should occur.
+    ///   - userId: The user ID associated with the timeout value.
+    ///
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
 
     // MARK: Publishers
 
@@ -330,6 +486,16 @@ extension StateService {
         try await getAllowSyncOnRefresh(userId: nil)
     }
 
+    /// Gets whether the current user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter userId: The user ID associated with the setting. Defaults to the active account if `nil`.
+    ///
+    /// - Returns: Whether the current user has decided to allow the device to approve login requests.
+    ///
+    func getApproveLoginRequests() async throws -> Bool {
+        try await getApproveLoginRequests(userId: nil)
+    }
+
     /// Gets the clear clipboard value for the active account.
     ///
     /// - Returns: The clear clipboard value.
@@ -370,6 +536,15 @@ extension StateService {
         try await getEnvironmentUrls(userId: nil)
     }
 
+    /// Gets the user's last active time within the app.
+    /// This value is set when the app is backgrounded.
+    ///
+    /// - Returns: The date of the last active time.
+    ///
+    func getLastActiveTime() async throws -> Date? {
+        try await getLastActiveTime(userId: nil)
+    }
+
     /// Gets the master password hash for the active account.
     ///
     /// - Returns: The user's master password hash.
@@ -378,12 +553,28 @@ extension StateService {
         try await getMasterPasswordHash(userId: nil)
     }
 
+    /// Gets the last notifications registration date for the active account.
+    ///
+    /// - Returns: The last notifications registration date for the active account.
+    ///
+    func getNotificationsLastRegistrationDate() async throws -> Date? {
+        try await getNotificationsLastRegistrationDate(userId: nil)
+    }
+
     /// Gets the password generation options for the active account.
     ///
     /// - Returns: The password generation options for the user ID.
     ///
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions? {
         try await getPasswordGenerationOptions(userId: nil)
+    }
+
+    /// Gets the session timeout action.
+    ///
+    /// - Returns: The action to perform when a session timeout occurs.
+    ///
+    func getTimeoutAction() async throws -> SessionTimeoutAction {
+        try await getTimeoutAction(userId: nil)
     }
 
     /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
@@ -405,10 +596,43 @@ extension StateService {
         try await getUsernameGenerationOptions(userId: nil)
     }
 
+    /// Gets the session timeout value.
+    ///
+    /// - Returns: The session timeout value.
+    ///
+    func getVaultTimeout() async throws -> SessionTimeoutValue {
+        try await getVaultTimeout(userId: nil)
+    }
+
+    /// Whether the user is authenticated or not.
+    ///
+    /// - Returns: Whether the user is authenticated.
+    ///
+    func isAuthenticated() async -> Bool {
+        let accountKeys = try? await getAccountEncryptionKeys()
+        return accountKeys != nil
+    }
+
     /// Logs the user out of the active account.
     ///
     func logoutAccount() async throws {
         try await logoutAccount(userId: nil)
+    }
+
+    /// The user's pin protected user key.
+    ///
+    /// - Returns: The pin protected user key.
+    ///
+    func pinKeyEncryptedUserKey() async throws -> String? {
+        try await pinKeyEncryptedUserKey(userId: nil)
+    }
+
+    /// The pin protected user key.
+    ///
+    /// - Returns: The pin protected user key.
+    ///
+    func pinProtectedUserKey() async throws -> String? {
+        try await pinProtectedUserKey(userId: nil)
     }
 
     /// Sets the account encryption keys for the active account.
@@ -425,6 +649,14 @@ extension StateService {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await setAllowSyncOnRefresh(allowSyncOnRefresh, userId: nil)
+    }
+
+    /// Sets whether the current user has decided to allow the device to approve login requests.
+    ///
+    /// - Parameter approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
+    ///
+    func setApproveLoginRequests(_ approveLoginRequests: Bool) async throws {
+        try await setApproveLoginRequests(approveLoginRequests, userId: nil)
     }
 
     /// Sets the clear clipboard value for the active account.
@@ -459,6 +691,14 @@ extension StateService {
         try await setDisableAutoTotpCopy(disableAutoTotpCopy, userId: nil)
     }
 
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameter date: The date of the last active time.
+    ///
+    func setLastActiveTime() async throws {
+        try await setLastActiveTime(userId: nil)
+    }
+
     /// Sets the time of the last sync for a user ID.
     ///
     /// - Parameter date: The time of the last sync (as the number of seconds since the Unix epoch).]
@@ -475,12 +715,28 @@ extension StateService {
         try await setMasterPasswordHash(hash, userId: nil)
     }
 
+    /// Sets the last notifications registration date for the active account.
+    ///
+    /// - Parameter date: The last notifications registration date.
+    ///
+    func setNotificationsLastRegistrationDate(_ date: Date?) async throws {
+        try await setNotificationsLastRegistrationDate(date, userId: nil)
+    }
+
     /// Sets the password generation options for the active account.
     ///
     /// - Parameter options: The user's password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?) async throws {
         try await setPasswordGenerationOptions(options, userId: nil)
+    }
+
+    /// Sets the session timeout action.
+    ///
+    /// - Parameter action: The action to take when the user's session times out.
+    ///
+    func setTimeoutAction(action: SessionTimeoutAction) async throws {
+        try await setTimeoutAction(action: action, userId: nil)
     }
 
     /// Sets a new access and refresh token for the active account.
@@ -508,6 +764,14 @@ extension StateService {
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?) async throws {
         try await setUsernameGenerationOptions(options, userId: nil)
     }
+
+    /// Sets the session timeout value.
+    ///
+    /// - Parameter value: The value that dictates how many seconds in the future a timeout should occur.
+    ///
+    func setVaultTimeout(value: SessionTimeoutValue) async throws {
+        try await setVaultTimeout(value: value, userId: nil)
+    }
 }
 
 // MARK: - StateServiceError
@@ -520,13 +784,16 @@ enum StateServiceError: Error {
 
     /// There isn't an active account.
     case noActiveAccount
+
+    /// The user has no pin protected user key.
+    case noPinProtectedUserKey
 }
 
 // MARK: - DefaultStateService
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService {
+actor DefaultStateService: StateService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -543,6 +810,9 @@ actor DefaultStateService: StateService {
 
     // MARK: Private Properties
 
+    /// The data stored in memory.
+    var accountVolatileData: [String: AccountVolatileData] = [:]
+
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
 
@@ -555,6 +825,9 @@ actor DefaultStateService: StateService {
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
 
+    /// The service that provides the present time.
+    private let timeProvider: TimeProvider
+
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
@@ -566,12 +839,18 @@ actor DefaultStateService: StateService {
     /// Initialize a `DefaultStateService`.
     ///
     /// - Parameters:
-    ///   - appSettingsStore: The service that persists app settings.
-    ///   - dataStore: The data store that handles performing data requests.
+    ///  - appSettingsStore: The service that persists app settings.
+    ///  - dataStore: The data store that handles performing data requests.
+    ///  - timeProvider: The service that provides the present time.
     ///
-    init(appSettingsStore: AppSettingsStore, dataStore: DataStore) {
+    init(
+        appSettingsStore: AppSettingsStore,
+        dataStore: DataStore,
+        timeProvider: TimeProvider
+    ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
+        self.timeProvider = timeProvider
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
@@ -585,6 +864,13 @@ actor DefaultStateService: StateService {
 
         state.accounts[account.profile.userId] = account
         state.activeUserId = account.profile.userId
+    }
+
+    func clearPins() async throws {
+        let userId = try getActiveAccountUserId()
+        accountVolatileData.removeValue(forKey: userId)
+        appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
+        appSettingsStore.setPinKeyEncryptedUserKey(key: nil, userId: userId)
     }
 
     func deleteAccount() async throws {
@@ -640,6 +926,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
     }
 
+    func getApproveLoginRequests(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.approveLoginRequests(userId: userId)
+    }
+
     func getAppTheme() async -> AppTheme {
         AppTheme(appSettingsStore.appTheme)
     }
@@ -669,6 +960,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
     }
 
+    func getLastActiveTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.lastActiveTime(userId: userId)
+    }
+
     func getLastUserShouldConnectToWatch() async -> Bool {
         appSettingsStore.lastUserShouldConnectToWatch
     }
@@ -676,6 +972,11 @@ actor DefaultStateService: StateService {
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.masterPasswordHash(userId: userId)
+    }
+
+    func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.notificationsLastRegistrationDate(userId: userId)
     }
 
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
@@ -691,6 +992,19 @@ actor DefaultStateService: StateService {
         !appSettingsStore.disableWebIcons
     }
 
+    func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
+        let userId = try userId ?? getActiveAccountUserId()
+        guard let rawValue = appSettingsStore.timeoutAction(userId: userId),
+              let timeoutAction = SessionTimeoutAction(rawValue: rawValue) else {
+            return .lock
+        }
+        return timeoutAction
+    }
+
+    func getTwoFactorToken(email: String) async -> String? {
+        appSettingsStore.twoFactorToken(email: email)
+    }
+
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId) ?? 0
@@ -701,26 +1015,46 @@ actor DefaultStateService: StateService {
         return appSettingsStore.usernameGenerationOptions(userId: userId)
     }
 
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
+        let userId = try userId ?? getActiveAccountId()
+        guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
+            return .fifteenMinutes
+        }
+        return SessionTimeoutValue(rawValue: rawValue)
+    }
+
     func logoutAccount(userId: String?) async throws {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
 
-        let userId = try userId ?? getActiveAccountUserId()
-        state.accounts.removeValue(forKey: userId)
-        if state.activeUserId == userId {
+        let knownUserId: String = try userId ?? getActiveAccountUserId()
+        state.accounts.removeValue(forKey: knownUserId)
+        if state.activeUserId == knownUserId {
             // Find the next account to make the active account.
             state.activeUserId = state.accounts.first?.key
         }
 
-        appSettingsStore.setDefaultUriMatchType(nil, userId: userId)
-        appSettingsStore.setDisableAutoTotpCopy(nil, userId: userId)
-        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: userId)
-        appSettingsStore.setEncryptedUserKey(key: nil, userId: userId)
-        appSettingsStore.setLastSyncTime(nil, userId: userId)
-        appSettingsStore.setMasterPasswordHash(nil, userId: userId)
-        appSettingsStore.setPasswordGenerationOptions(nil, userId: userId)
+        appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
+        appSettingsStore.setBiometricIntegrityState(nil, userId: knownUserId)
+        appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
+        appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
+        appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
+        appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
+        appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
+        appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
+        appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
 
-        try await dataStore.deleteDataForUser(userId: userId)
+        try await dataStore.deleteDataForUser(userId: knownUserId)
+    }
+
+    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.pinKeyEncryptedUserKey(userId: userId)
+    }
+
+    func pinProtectedUserKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedUserKey(userId: userId)
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
@@ -741,6 +1075,11 @@ actor DefaultStateService: StateService {
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
+    }
+
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setApproveLoginRequests(approveLoginRequests, userId: userId)
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {
@@ -773,6 +1112,11 @@ actor DefaultStateService: StateService {
         appSettingsStore.setDisableAutoTotpCopy(disableAutoTotpCopy, userId: userId)
     }
 
+    func setLastActiveTime(userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setLastActiveTime(timeProvider.presentTime, userId: userId)
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastSyncTime(date, userId: userId)
@@ -784,9 +1128,34 @@ actor DefaultStateService: StateService {
         appSettingsStore.setMasterPasswordHash(hash, userId: userId)
     }
 
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setNotificationsLastRegistrationDate(date, userId: userId)
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPasswordGenerationOptions(options, userId: userId)
+    }
+
+    func setPinKeys(
+        pinKeyEncryptedUserKey: String,
+        pinProtectedUserKey: String,
+        requirePasswordAfterRestart: Bool
+    ) async throws {
+        if requirePasswordAfterRestart {
+            try await setPinProtectedUserKeyToMemory(pinProtectedUserKey)
+        } else {
+            try appSettingsStore.setPinProtectedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
+        }
+        try appSettingsStore.setPinKeyEncryptedUserKey(key: pinKeyEncryptedUserKey, userId: getActiveAccountUserId())
+    }
+
+    func setPinProtectedUserKeyToMemory(_ pinProtectedUserKey: String) async throws {
+        try accountVolatileData[
+            getActiveAccountUserId(),
+            default: AccountVolatileData()
+        ].pinProtectedUserKey = pinProtectedUserKey
     }
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
@@ -796,6 +1165,11 @@ actor DefaultStateService: StateService {
     func setShowWebIcons(_ showWebIcons: Bool) async {
         appSettingsStore.disableWebIcons = !showWebIcons
         showWebIconsSubject.send(showWebIcons)
+    }
+
+    func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setTimeoutAction(key: action, userId: userId)
     }
 
     func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {
@@ -812,6 +1186,10 @@ actor DefaultStateService: StateService {
         appSettingsStore.state = state
     }
 
+    func setTwoFactorToken(_ token: String?, email: String) async {
+        appSettingsStore.setTwoFactorToken(token, email: email)
+    }
+
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
@@ -820,6 +1198,11 @@ actor DefaultStateService: StateService {
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
+    }
+
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setVaultTimeout(key: value.rawValue, userId: userId)
     }
 
     // MARK: Publishers
@@ -870,5 +1253,38 @@ actor DefaultStateService: StateService {
             throw StateServiceError.noActiveAccount
         }
         return activeUserId
+    }
+}
+
+// MARK: - AccountVolatileData
+
+/// The data stored in memory.
+///
+struct AccountVolatileData {
+    /// The pin protected user key.
+    var pinProtectedUserKey: String = ""
+}
+
+// MARK: Biometrics
+
+extension DefaultStateService {
+    func getBiometricAuthenticationEnabled() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
+    }
+
+    func getBiometricIntegrityState() async throws -> String? {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.biometricIntegrityState(userId: userId)
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+
+    func setBiometricIntegrityState(_ base64State: String?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricIntegrityState(base64State, userId: userId)
     }
 }

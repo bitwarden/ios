@@ -1,10 +1,14 @@
 import Combine
+import Foundation
 
 @testable import BitwardenShared
 
 class MockVaultTimeoutService: VaultTimeoutService {
-    /// The store of locked status for known accounts
-    var timeoutStore = [String: Bool]()
+    var account: Account = .fixture()
+    var lastActiveTime = [String: Date]()
+    var shouldSessionTimeout = [String: Bool]()
+    var timeProvider = MockTimeProvider(.currentTime)
+    var vaultTimeout = [String: SessionTimeoutValue]()
 
     /// ids set as locked
     var lockedIds = [String?]()
@@ -14,6 +18,9 @@ class MockVaultTimeoutService: VaultTimeoutService {
 
     /// ids set as unlocked
     var unlockedIds = [String?]()
+
+    /// The store of locked status for known accounts
+    var timeoutStore = [String: Bool]()
 
     func isLocked(userId: String) throws -> Bool {
         guard let pair = timeoutStore.first(where: { $0.key == userId }) else {
@@ -26,6 +33,18 @@ class MockVaultTimeoutService: VaultTimeoutService {
         lockedIds.append(userId)
         guard let userId else { return }
         timeoutStore[userId] = true
+    }
+
+    func setLastActiveTime(userId: String) async throws {
+        lastActiveTime[userId] = timeProvider.presentTime
+    }
+
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+        vaultTimeout[account.profile.userId] = value
+    }
+
+    func shouldSessionTimeout(userId: String) async throws -> Bool {
+        shouldSessionTimeout[userId] ?? false
     }
 
     func unlockVault(userId: String?) async {

@@ -5,7 +5,11 @@ import SwiftUI
 
 /// The processor used to manage state and handle actions for the vault list screen.
 ///
-final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, VaultListEffect> {
+final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_body_length
+    VaultListState,
+    VaultListAction,
+    VaultListEffect
+> {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -47,6 +51,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         switch effect {
         case .appeared:
             await refreshVault(isManualRefresh: false)
+            await requestNotificationPermissions()
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -92,6 +97,8 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             }
         case let .profileSwitcherAction(profileAction):
             switch profileAction {
+            case let .accountLongPressed(account):
+                didLongPressProfileSwitcherItem(account)
             case let .accountPressed(account):
                 didTapProfileSwitcherItem(account)
             case .addAccountPressed:
@@ -127,6 +134,60 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
     /// Navigates to login to initiate the add account flow.
     private func addAccount() {
         coordinator.navigate(to: .addAccount)
+    }
+
+    /// Handles a long press of an account in the profile switcher.
+    ///
+    /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
+    ///
+    private func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) {
+        state.profileSwitcherState.isVisible = false
+        coordinator.showAlert(.accountOptions(account, lockAction: {
+            do {
+                // Lock the vault of the selected account.
+                let activeAccount = try await self.services.stateService.getActiveAccount()
+                await self.services.authRepository.lockVault(userId: account.userId)
+
+                // If the selected item was the currently active account, redirect the user
+                // to the unlock vault view.
+                if account.userId == activeAccount.profile.userId {
+                    self.coordinator.navigate(to: .lockVault(account: activeAccount))
+                } else {
+                    // Otherwise, show the toast that the account was locked successfully.
+                    self.state.toast = Toast(text: Localizations.accountLockedSuccessfully)
+
+                    // Update the profile switcher view.
+                    await self.refreshProfileState()
+                }
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
+        }, logoutAction: {
+            // Confirm logging out.
+            self.coordinator.showAlert(.logoutConfirmation {
+                do {
+                    // Log out of the selected account.
+                    let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
+                    try await self.services.authRepository.logout(
+                        userId: account.userId
+                    )
+
+                    // If the selected item was the currently active account, redirect the user
+                    // to the landing page.
+                    if account.userId == activeAccountId {
+                        self.coordinator.navigate(to: .logout(userInitiated: true))
+                    } else {
+                        // Otherwise, show the toast that the account was logged out successfully.
+                        self.state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
+
+                        // Update the profile switcher view.
+                        await self.refreshProfileState()
+                    }
+                } catch {
+                    self.services.errorReporter.log(error: error)
+                }
+            })
+        }))
     }
 
     /// Handles a tap of an account in the profile switcher.
@@ -176,6 +237,25 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         }
     }
 
+    /// Request permission to send push notifications if the user hasn't granted or denied permissions before.
+    private func requestNotificationPermissions() async {
+        // Don't do anything if the user has already responded to the permission request.
+        let notificationSettings = await UNUserNotificationCenter.current().notificationSettings()
+        guard notificationSettings.authorizationStatus == .notDetermined else { return }
+
+        // Show the explanation alert before asking for permissions.
+        coordinator.showAlert(
+            .pushNotificationsInformation {
+                do {
+                    _ = try await UNUserNotificationCenter.current()
+                        .requestAuthorization(options: [.alert, .sound, .badge])
+                } catch {
+                    self.services.errorReporter.log(error: error)
+                }
+            }
+        )
+    }
+
     /// Searches the vault using the provided string, and returns any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the vault.
@@ -186,7 +266,7 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
             return []
         }
         do {
-            let result = try await services.vaultRepository.searchCipherPublisher(
+            let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 filterType: state.searchVaultFilterType
             )
@@ -199,8 +279,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
         return []
     }
 
-    /// Sets the visibility of the profiles view and updates accessibility focus
-    /// - Parameter visible: the intended visibility of the view
+    /// Sets the visibility of the profiles view and updates accessbility focus.
+    ///
+    /// - Parameter visible: the intended visibility of the view.
+    ///
     private func setProfileSwitcher(visible: Bool) {
         if !visible {
             state.profileSwitcherState.hasSetAccessibilityFocus = false
@@ -301,6 +383,10 @@ final class VaultListProcessor: StateProcessor<VaultListState, VaultListAction, 
 
 extension VaultListProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
+        state.toast = Toast(text: Localizations.itemDeleted)
+    }
+
+    func itemSoftDeleted() {
         state.toast = Toast(text: Localizations.itemSoftDeleted)
     }
 
@@ -324,4 +410,4 @@ enum MoreOptionsAction {
 
     /// Navigate to view the item with the given `id`.
     case view(id: String)
-}
+} // swiftlint:disable:this file_length

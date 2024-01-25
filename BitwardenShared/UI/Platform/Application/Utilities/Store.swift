@@ -129,6 +129,30 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
         )
     }
 
+    /// Creates a `Binding` whose value is set from the store's state asynchronously. When the value is changed,
+    /// the specified effect is sent to the store so that the processor can update its state.
+    ///
+    /// - Parameters:
+    ///   - get: A closure that provides a value for the binding from the store's state.
+    ///   - stateToEffect: A closure that provides a mapping from the binding's value to an effect
+    ///     that is sent to the store when the value changes.
+    /// - Returns: A `Binding` whose value is set from the store's state which triggers an effect
+    ///     to be sent back to the store when the value changes.
+    ///
+    open func bindingAsync<LocalState>(
+        get: @escaping (State) -> LocalState,
+        perform stateToEffect: @escaping (LocalState) -> Effect
+    ) -> Binding<LocalState> {
+        Binding(
+            get: { get(self.state) },
+            set: { value, _ in
+                Task {
+                    await self.perform(stateToEffect(value))
+                }
+            }
+        )
+    }
+
     /// Creates a `Binding` whose value is set from the store's state. This binding is only used for _retrieving_
     /// values, and cannot be used to set values in the state. This binding should only be used when a value in a
     /// store's state needs to be observed, but not updated.

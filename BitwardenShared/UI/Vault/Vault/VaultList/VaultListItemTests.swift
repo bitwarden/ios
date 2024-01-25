@@ -51,7 +51,7 @@ class VaultListItemTests: BitwardenTestCase {
             Asset.Images.creditCard.name
         )
         XCTAssertEqual(
-            VaultListItem(id: "", itemType: .group(.collection(id: "", name: ""), 1)).icon.name,
+            VaultListItem(id: "", itemType: .group(.collection(id: "", name: "", organizationId: "1"), 1)).icon.name,
             Asset.Images.collections.name
         )
         XCTAssertEqual(

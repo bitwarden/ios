@@ -6,11 +6,12 @@ import XCTest
 
 // MARK: - SendRepositoryTests
 
-class SendRepositoryTests: BitwardenTestCase {
+class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
     var clientVaultService: MockClientVaultService!
+    var environmentService: MockEnvironmentService!
     var organizationService: MockOrganizationService!
     var clientSends: MockClientSends!
     var sendService: MockSendService!
@@ -25,6 +26,7 @@ class SendRepositoryTests: BitwardenTestCase {
         client = MockHTTPClient()
         clientSends = MockClientSends()
         clientVaultService = MockClientVaultService()
+        environmentService = MockEnvironmentService()
         organizationService = MockOrganizationService()
         clientVaultService.clientSends = clientSends
         sendService = MockSendService()
@@ -32,6 +34,7 @@ class SendRepositoryTests: BitwardenTestCase {
         syncService = MockSyncService()
         subject = DefaultSendRepository(
             clientVault: clientVaultService,
+            environmentService: environmentService,
             organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
@@ -53,14 +56,77 @@ class SendRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `addSend()` successfully encrypts the send view and uses the send service to add it.
-    func test_addSend_success() async throws {
-        sendService.addSendResult = .success(())
+    /// `addFileSend()` successfully encrypts the send view and uses the send service to add it.
+    func test_addFileSend_success() async throws {
+        let sendResult = Send.fixture(id: "SEND_ID")
+        sendService.addFileSendResult = .success(sendResult)
         let sendView = SendView.fixture()
-        try await subject.addSend(sendView)
+        let data = Data("example".utf8)
+
+        let result = try await subject.addFileSend(sendView, data: data)
+
+        XCTAssertEqual(result, SendView(send: sendResult))
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendService.addFileSendSend, Send(sendView: sendView))
+    }
+
+    /// `addFileSend()` rethrows any errors encountered.
+    func test_addFileSend_failure() async {
+        sendService.addFileSendResult = .failure(BitwardenTestError.example)
+        let sendView = SendView.fixture()
+        let data = Data("example".utf8)
+
+        await assertAsyncThrows {
+            _ = try await subject.addFileSend(sendView, data: data)
+        }
 
         XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
-        XCTAssertEqual(sendService.addSendSend, Send(sendView: sendView))
+    }
+
+    /// `addTextSend()` successfully encrypts the send view and uses the send service to add it.
+    func test_addTextSend_success() async throws {
+        let sendResult = Send.fixture(id: "SEND_ID")
+        sendService.addTextSendResult = .success(sendResult)
+        let sendView = SendView.fixture()
+        let result = try await subject.addTextSend(sendView)
+
+        XCTAssertEqual(result, SendView(send: sendResult))
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendService.addTextSendSend, Send(sendView: sendView))
+    }
+
+    /// `addTextSend()` rethrows any errors encountered.
+    func test_addTextSend_failure() async {
+        sendService.addTextSendResult = .failure(BitwardenTestError.example)
+        let sendView = SendView.fixture()
+
+        await assertAsyncThrows {
+            _ = try await subject.addTextSend(sendView)
+        }
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+    }
+
+    /// `deleteSend()` successfully encrypts the send view and uses the send service to delete it.
+    func test_deleteSend_success() async throws {
+        sendService.deleteSendResult = .success(())
+        let sendView = SendView.fixture()
+        try await subject.deleteSend(sendView)
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(sendService.deleteSendSend, Send(sendView: sendView))
+    }
+
+    /// `deleteSend()` rethrows any errors encountered.
+    func test_deleteSend_failure() async {
+        sendService.deleteSendResult = .failure(BitwardenTestError.example)
+        let sendView = SendView.fixture()
+
+        await assertAsyncThrows {
+            try await subject.deleteSend(sendView)
+        }
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
     }
 
     /// `doesActiveAccountHavePremium()` with premium personally and no organizations returns true.
@@ -68,18 +134,6 @@ class SendRepositoryTests: BitwardenTestCase {
         stateService.activeAccount = .fixture(profile: .fixture(hasPremiumPersonally: true))
         let hasPremium = try await subject.doesActiveAccountHavePremium()
         XCTAssertTrue(hasPremium)
-    }
-
-    /// `addSend()` rethrows any errors encountered.
-    func test_addSend_failure() async {
-        sendService.addSendResult = .failure(BitwardenTestError.example)
-        let sendView = SendView.fixture()
-
-        await assertAsyncThrows {
-            try await subject.addSend(sendView)
-        }
-
-        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
     }
 
     /// `doesActiveAccountHavePremium()` with no premium personally and no organizations returns
@@ -180,6 +234,108 @@ class SendRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    /// `removePassword(from:)` successfully encrypts the send view and uses the send service to
+    /// remove the password from it.
+    func test_removePassword_success() async throws {
+        let sendView = SendView.fixture(id: "SEND_ID")
+        sendService.removePasswordFromSendResult = .success(.fixture(id: "SEND_ID"))
+
+        let response = try await subject.removePassword(from: sendView)
+
+        XCTAssertEqual(response.id, "SEND_ID")
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertEqual(clientSends.decryptedSends, [.fixture(id: "SEND_ID")])
+        XCTAssertEqual(sendService.removePasswordFromSendSend, Send(sendView: sendView))
+    }
+
+    /// `removePassword(from:)` rethrows any errors encountered.
+    func test_removePassword_failure() async {
+        sendService.removePasswordFromSendResult = .failure(BitwardenTestError.example)
+        let sendView = SendView.fixture()
+
+        await assertAsyncThrows {
+            _ = try await subject.removePassword(from: sendView)
+        }
+
+        XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
+        XCTAssertTrue(clientSends.decryptedSends.isEmpty)
+    }
+
+    /// `searchSendPublisher(searchText:)` returns search matching send name.
+    func test_searchSendPublisher_searchText_name() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        sendService.sendsSubject.value = [
+            .fixture(
+                id: "1",
+                name: "Shakespeare quote",
+                text: .fixture(text: "To be or not to be?")
+            ),
+            .fixture(id: "2", name: "Cactus"),
+            .fixture(
+                file: .fixture(fileName: "grumpy_cat.png"),
+                id: "3",
+                name: "A picture of a cute cát"
+            ),
+        ]
+        let sendView = SendView(send: sendService.sendsSubject.value[2])
+        let expectedSearchResult = try [XCTUnwrap(SendListItem(sendView: sendView))]
+        var iterator = try await subject
+            .searchSendPublisher(searchText: "cat")
+            .makeAsyncIterator()
+        let sends = try await iterator.next()
+        XCTAssertEqual(sends, expectedSearchResult)
+    }
+
+    /// `searchSendPublisher(searchText:)` returns search matching text send's value.
+    func test_searchSendPublisher_searchText_text() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        sendService.sendsSubject.value = [
+            .fixture(
+                id: "1",
+                name: "Shakespeare quote",
+                text: .fixture(text: "To be or not to be?")
+            ),
+            .fixture(id: "2", name: "Cactus"),
+            .fixture(
+                file: .fixture(fileName: "grumpy_cat.png"),
+                id: "3",
+                name: "A picture of a cute cat"
+            ),
+        ]
+        let sendView = SendView(send: sendService.sendsSubject.value[0])
+        let expectedSearchResult = try [XCTUnwrap(SendListItem(sendView: sendView))]
+        var iterator = try await subject
+            .searchSendPublisher(searchText: "or not")
+            .makeAsyncIterator()
+        let sends = try await iterator.next()
+        XCTAssertEqual(sends, expectedSearchResult)
+    }
+
+    /// `searchSendPublisher(searchText:)` returns search matching text send's value.
+    func test_searchSendPublisher_searchText_fileName() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        sendService.sendsSubject.value = [
+            .fixture(
+                id: "1",
+                name: "Shakespeare quote",
+                text: .fixture(text: "To be or not to be?")
+            ),
+            .fixture(id: "2", name: "Cactus"),
+            .fixture(
+                file: .fixture(fileName: "grumpy_cat.png"),
+                id: "3",
+                name: "A picture of a cute cat"
+            ),
+        ]
+        let sendView = SendView(send: sendService.sendsSubject.value[2])
+        let expectedSearchResult = try [XCTUnwrap(SendListItem(sendView: sendView))]
+        var iterator = try await subject
+            .searchSendPublisher(searchText: "grumpy")
+            .makeAsyncIterator()
+        let sends = try await iterator.next()
+        XCTAssertEqual(sends, expectedSearchResult)
+    }
+
     /// `sendListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the sends tab.
     func test_sendListPublisher_withoutValues() async throws {
@@ -225,11 +381,23 @@ class SendRepositoryTests: BitwardenTestCase {
         }
     }
 
+    /// `shareURL()` successfully generates a share url for the send view.
+    func test_shareURL() async throws {
+        let sendView = SendView.fixture(accessId: "ACCESS_ID", key: "KEY")
+        environmentService.webVaultURL = .example
+        let url = try await subject.shareURL(for: sendView)
+
+        XCTAssertEqual(url?.absoluteString, "https://example.com/#/send/ACCESS_ID/KEY")
+    }
+
     /// `updateSend()` successfully encrypts the send view and uses the send service to update it.
     func test_updateSend() async throws {
+        let sendResult = Send.fixture(id: "SEND_ID")
+        sendService.updateSendResult = .success(sendResult)
         let sendView = SendView.fixture()
-        try await subject.updateSend(sendView)
+        let result = try await subject.updateSend(sendView)
 
+        XCTAssertEqual(result, SendView(send: sendResult))
         XCTAssertEqual(clientSends.encryptedSendViews, [sendView])
         XCTAssertEqual(sendService.updateSendSend, Send(sendView: sendView))
     }
@@ -262,4 +430,4 @@ class SendRepositoryTests: BitwardenTestCase {
             }
         }
     }
-}
+} // swiftlint:disable:this file_length

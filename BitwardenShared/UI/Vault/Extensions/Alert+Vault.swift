@@ -4,6 +4,23 @@ import UIKit
 // MARK: - Alert+Vault
 
 extension Alert {
+    /// Present an alert confirming deleting an attachment.
+    ///
+    /// - Parameter action: The action to perform if the user confirms.
+    ///
+    /// - Returns: An alert confirming deleting an attachment.
+    ///
+    static func confirmDeleteAttachment(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.doYouReallyWantToDelete,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
     /// An alert presenting the user with options to select a file.
     ///
     /// - Parameter handler: A block that is executed when one of the selections is made.
@@ -135,6 +152,21 @@ extension Alert {
             message: nil,
             preferredStyle: .actionSheet,
             alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
+        )
+    }
+
+    /// An alert that informs the user about receiving push notifications.
+    ///
+    /// - Parameter action: The action to perform when the user clicks through.
+    /// - Returns: An alert that informs the user about receiving push notifications.
+    ///
+    static func pushNotificationsInformation(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.enableAutomaticSyncing,
+            message: Localizations.pushNotificationAlert,
+            alertActions: [
+                AlertAction(title: Localizations.okGotIt, style: .default) { _, _ in await action() },
+            ]
         )
     }
 }

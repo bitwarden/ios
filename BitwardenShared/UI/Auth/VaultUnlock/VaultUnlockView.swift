@@ -9,10 +9,12 @@ struct VaultUnlockView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect>
 
-    /// The text to display in the footer of the master password text field.
+    /// The text to display in the footer of the password/pin text field.
     var footerText: String {
         """
-        \(Localizations.vaultLockedMasterPassword)
+        \(store.state.unlockMethod == .pin
+            ? Localizations.vaultLockedPIN
+            : Localizations.vaultLockedMasterPassword)
         \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
         """
     }
@@ -46,25 +48,19 @@ struct VaultUnlockView: View {
         .task {
             await store.perform(.appeared)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultUnlockAction.toastShown
+        ))
     }
 
     /// the scrollable content of the view.
     @ViewBuilder var scrollView: some View {
         ScrollView {
             VStack(spacing: 24) {
-                BitwardenTextField(
-                    title: Localizations.masterPassword,
-                    text: store.binding(
-                        get: \.masterPassword,
-                        send: VaultUnlockAction.masterPasswordChanged
-                    ),
-                    footer: footerText,
-                    isPasswordVisible: store.binding(
-                        get: \.isMasterPasswordRevealed,
-                        send: VaultUnlockAction.revealMasterPasswordFieldPressed
-                    )
-                )
-                .textFieldConfiguration(.password)
+                textField
+
+                biometricAuthButton
 
                 Button {
                     Task { await store.perform(.unlockVault) }
@@ -93,6 +89,18 @@ struct VaultUnlockView: View {
         )
     }
 
+    /// A button to trigger a biometric auth unlock.
+    @ViewBuilder private var biometricAuthButton: some View {
+        if case let .available(biometryType, true, true) = store.state.biometricUnlockStatus {
+            AsyncButton {
+                Task { await store.perform(.unlockVaultWithBiometrics) }
+            } label: {
+                biometricUnlockText(biometryType)
+            }
+            .buttonStyle(.secondary(shouldFillWidth: true))
+        }
+    }
+
     /// A view that displays the ability to add or switch between account profiles
     @ViewBuilder private var profileSwitcher: some View {
         ProfileSwitcherView(
@@ -108,6 +116,49 @@ struct VaultUnlockView: View {
                 }
             )
         )
+    }
+
+    /// The text field for the pin or password.
+    @ViewBuilder private var textField: some View {
+        switch store.state.unlockMethod {
+        case .password:
+            BitwardenTextField(
+                title: Localizations.masterPassword,
+                text: store.binding(
+                    get: \.masterPassword,
+                    send: VaultUnlockAction.masterPasswordChanged
+                ),
+                footer: footerText,
+                isPasswordVisible: store.binding(
+                    get: \.isMasterPasswordRevealed,
+                    send: VaultUnlockAction.revealMasterPasswordFieldPressed
+                )
+            )
+            .textFieldConfiguration(.password)
+        case .pin:
+            BitwardenTextField(
+                title: Localizations.pin,
+                text: store.binding(
+                    get: \.pin,
+                    send: VaultUnlockAction.pinChanged
+                ),
+                footer: footerText,
+                isPasswordVisible: store.binding(
+                    get: \.isPinRevealed,
+                    send: VaultUnlockAction.revealPinFieldPressed
+                )
+            )
+            .textFieldConfiguration(.password)
+        }
+    }
+
+    private func biometricUnlockText(_ biometryType: BiometricAuthenticationType) -> some View {
+        switch biometryType {
+        case .faceID:
+            Text(Localizations.useFaceIDToUnlock)
+        case .touchID:
+            Text(Localizations.useFingerprintToUnlock)
+        }
     }
 }
 
@@ -127,6 +178,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                 activeAccountId: nil,
                                 isVisible: false
                             ),
+                            unlockMethod: .password,
                             webVaultHost: "vault.bitwarden.com"
                         )
                     )
@@ -151,6 +203,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                 activeAccountId: "123",
                                 isVisible: false
                             ),
+                            unlockMethod: .pin,
                             webVaultHost: "vault.bitwarden.com"
                         )
                     )
@@ -176,6 +229,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                 activeAccountId: "123",
                                 isVisible: true
                             ),
+                            unlockMethod: .password,
                             webVaultHost: "vault.bitwarden.com"
                         )
                     )

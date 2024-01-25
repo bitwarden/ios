@@ -1,5 +1,6 @@
 import BitwardenSdk
 import Combine
+import Foundation
 
 @testable import BitwardenShared
 
@@ -8,11 +9,21 @@ import Combine
 class MockSendService: SendService {
     // MARK: Properties
 
-    var addSendSend: Send?
-    var addSendResult: Result<Void, Error> = .success(())
+    var addFileSendData: Data?
+    var addFileSendSend: Send?
+    var addFileSendResult: Result<Send, Error> = .success(.fixture())
+
+    var addTextSendSend: Send?
+    var addTextSendResult: Result<Send, Error> = .success(.fixture())
+
+    var deleteSendSend: Send?
+    var deleteSendResult: Result<Void, Error> = .success(())
 
     var updateSendSend: Send?
-    var updateSendResult: Result<Void, Error> = .success(())
+    var updateSendResult: Result<Send, Error> = .success(.fixture())
+
+    var removePasswordFromSendResult: Result<Send, Error> = .success(.fixture())
+    var removePasswordFromSendSend: Send?
 
     var replaceSendsSends: [SendResponseModel]?
     var replaceSendsUserId: String?
@@ -21,14 +32,30 @@ class MockSendService: SendService {
 
     // MARK: Methods
 
-    func addSend(_ send: Send) async throws {
-        addSendSend = send
-        try addSendResult.get()
+    func addFileSend(_ send: Send, data: Data) async throws -> Send {
+        addFileSendData = data
+        addFileSendSend = send
+        return try addFileSendResult.get()
     }
 
-    func updateSend(_ send: Send) async throws {
+    func addTextSend(_ send: Send) async throws -> Send {
+        addTextSendSend = send
+        return try addTextSendResult.get()
+    }
+
+    func deleteSend(_ send: Send) async throws {
+        deleteSendSend = send
+        try deleteSendResult.get()
+    }
+
+    func updateSend(_ send: Send) async throws -> Send {
         updateSendSend = send
-        try updateSendResult.get()
+        return try updateSendResult.get()
+    }
+
+    func removePasswordFromSend(_ send: Send) async throws -> Send {
+        removePasswordFromSendSend = send
+        return try removePasswordFromSendResult.get()
     }
 
     func replaceSends(_ sends: [SendResponseModel], userId: String) async throws {

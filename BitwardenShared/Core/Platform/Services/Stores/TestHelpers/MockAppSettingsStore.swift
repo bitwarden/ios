@@ -7,21 +7,32 @@ class MockAppSettingsStore: AppSettingsStore {
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
     var appLocale: String?
+    var approveLoginRequestsByUserId = [String: Bool]()
     var appTheme: String?
+    var biometricAuthenticationEnabled = [String: Bool?]()
+    var biometricIntegrityStates = [String: String?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
+    var timeProvider = MockTimeProvider(.currentTime)
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var disableWebIcons = false
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
+    var lastActiveTime = [String: Date]()
     var lastUserShouldConnectToWatch = false
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
+    var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pinKeyEncryptedUserKey = [String: String]()
+    var pinProtectedUserKey = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
+    var timeoutAction = [String: Int]()
+    var twoFactorTokens = [String: String]()
+    var vaultTimeout = [String: Int?]()
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)
@@ -35,6 +46,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
+    }
+
+    func approveLoginRequests(userId: String) -> Bool {
+        approveLoginRequestsByUserId[userId] ?? false
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -61,6 +76,10 @@ class MockAppSettingsStore: AppSettingsStore {
         encryptedUserKeys[userId]
     }
 
+    func lastActiveTime(userId: String) -> Date? {
+        lastActiveTime[userId]
+    }
+
     func lastSyncTime(userId: String) -> Date? {
         lastSyncTimeByUserId[userId]
     }
@@ -69,20 +88,32 @@ class MockAppSettingsStore: AppSettingsStore {
         masterPasswordHashes[userId]
     }
 
+    func notificationsLastRegistrationDate(userId: String) -> Date? {
+        notificationsLastRegistrationDates[userId]
+    }
+
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         passwordGenerationOptions[userId]
     }
 
-    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
-        unsuccessfulUnlockAttempts[userId]
+    func pinKeyEncryptedUserKey(userId: String) -> String? {
+        pinKeyEncryptedUserKey[userId]
     }
 
-    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
-        usernameGenerationOptions[userId]
+    func pinProtectedUserKey(userId: String) -> String? {
+        pinProtectedUserKey[userId]
+    }
+
+    func twoFactorToken(email: String) -> String? {
+        twoFactorTokens[email]
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
+    }
+
+    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String) {
+        approveLoginRequestsByUserId[userId] = approveLoginRequests
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
@@ -117,6 +148,10 @@ class MockAppSettingsStore: AppSettingsStore {
         encryptedUserKeys[userId] = key
     }
 
+    func setLastActiveTime(_ date: Date?, userId: String) {
+        lastActiveTime[userId] = timeProvider.presentTime
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String) {
         lastSyncTimeByUserId[userId] = date
     }
@@ -125,12 +160,32 @@ class MockAppSettingsStore: AppSettingsStore {
         masterPasswordHashes[userId] = hash
     }
 
+    func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
+        notificationsLastRegistrationDates[userId] = date
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         guard let options else {
             passwordGenerationOptions.removeValue(forKey: userId)
             return
         }
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
+        pinKeyEncryptedUserKey[userId] = key
+    }
+
+    func setPinProtectedUserKey(key: String?, userId: String) {
+        pinProtectedUserKey[userId] = key
+    }
+
+    func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
+        timeoutAction[userId] = key.rawValue
+    }
+
+    func setTwoFactorToken(_ token: String?, email: String) {
+        twoFactorTokens[email] = token
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
@@ -145,7 +200,55 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId] = options
     }
 
+    func setVaultTimeout(key: Int, userId: String) {
+        vaultTimeout[userId] = key
+    }
+
+    func timeoutAction(userId: String) -> Int? {
+        timeoutAction[userId]
+    }
+
+    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+        unsuccessfulUnlockAttempts[userId]
+    }
+
+    func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
+        usernameGenerationOptions[userId]
+    }
+
+    func vaultTimeout(userId: String) -> Int? {
+        vaultTimeout[userId] ?? 0
+    }
+
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
         activeIdSubject.eraseToAnyPublisher()
+    }
+}
+
+// MARK: Biometrics
+
+extension MockAppSettingsStore {
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool {
+        (biometricAuthenticationEnabled[userId] ?? false) ?? false
+    }
+
+    func biometricIntegrityState(userId: String) -> String? {
+        biometricIntegrityStates[userId] ?? nil
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
+        guard isEnabled != nil else {
+            biometricAuthenticationEnabled.removeValue(forKey: userId)
+            return
+        }
+        biometricAuthenticationEnabled[userId] = isEnabled
+    }
+
+    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
+        guard let base64EncodedIntegrityState else {
+            biometricIntegrityStates.removeValue(forKey: userId)
+            return
+        }
+        biometricIntegrityStates[userId] = base64EncodedIntegrityState
     }
 }

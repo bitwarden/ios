@@ -50,7 +50,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
     func test_navigate_alert() {
-        let alert = BitwardenShared.Alert(
+        let alert = Alert(
             title: "title",
             message: "message",
             preferredStyle: .alert,
@@ -233,11 +233,35 @@ class AuthCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.
-    func test_navigate_vaultUnlock() {
-        subject.navigate(to: .vaultUnlock(.fixture()))
+    func test_navigate_vaultUnlock() throws {
+        subject.navigate(
+            to: .vaultUnlock(
+                .fixture(),
+                didSwitchAccountAutomatically: false
+            )
+        )
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
-        XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)
+        let view: VaultUnlockView = try XCTUnwrap(stackNavigator.actions.last?.view as? VaultUnlockView)
+        XCTAssertNil(view.store.state.toast)
+    }
+
+    /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.
+    func test_navigate_vaultUnlock_withToast() throws {
+        subject.navigate(
+            to: .vaultUnlock(
+                .fixture(),
+                didSwitchAccountAutomatically: true
+            )
+        )
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
+        let view: VaultUnlockView = try XCTUnwrap(stackNavigator.actions.last?.view as? VaultUnlockView)
+        waitFor(view.store.state.toast != nil)
+        XCTAssertEqual(
+            view.store.state.toast?.text,
+            Localizations.accountSwitchedAutomatically
+        )
     }
 
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.

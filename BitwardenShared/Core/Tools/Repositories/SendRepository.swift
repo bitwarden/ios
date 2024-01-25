@@ -9,25 +9,31 @@ import Foundation
 protocol SendRepository: AnyObject {
     // MARK: Methods
 
-    /// Adds a new Send to the repository.
+    /// Adds a new file Send to the repository.
+    ///
+    /// - Parameters:
+    ///   - sendView: The send to add to the repository.
+    ///   - data: The data representation of the file for this send.
+    ///
+    func addFileSend(_ sendView: SendView, data: Data) async throws -> SendView
+
+    /// Adds a new text Send to the repository.
     ///
     /// - Parameter sendView: The send to add to the repository.
     ///
-    func addSend(_ sendView: SendView) async throws
+    func addTextSend(_ sendView: SendView) async throws -> SendView
 
-    /// Updates an existing Send in the repository.
+    /// Deletes a Send from the repository.
     ///
-    /// - Parameter sendView: The send to update in the repository.
+    /// - Parameter sendView: The send to delete from the repository.
     ///
-    func updateSend(_ sendView: SendView) async throws
+    func deleteSend(_ sendView: SendView) async throws
 
     /// Validates the user's active account has access to premium features.
     ///
     /// - Returns: Whether the active account has premium.
     ///
     func doesActiveAccountHavePremium() async throws -> Bool
-
-    // MARK: Publishers
 
     /// Performs an API request to sync the user's send data. The publishers in the repository can
     /// be used to subscribe to the send data, which are updated as a result of the request.
@@ -36,7 +42,34 @@ protocol SendRepository: AnyObject {
     ///
     func fetchSync(isManualRefresh: Bool) async throws
 
+    /// Performs an API request to remove the password on the provided send.
+    ///
+    /// - Parameter sendView: The send to remove the password from.
+    ///
+    func removePassword(from sendView: SendView) async throws -> SendView
+
+    /// Creates the share URL for a given `SendView`, if one can be created.
+    ///
+    /// - Parameter sendView: The send to create the share url for.
+    ///
+    func shareURL(for sendView: SendView) async throws -> URL?
+
+    /// Updates an existing Send in the repository.
+    ///
+    /// - Parameter sendView: The send to update in the repository.
+    ///
+    func updateSend(_ sendView: SendView) async throws -> SendView
+
     // MARK: Publishers
+
+    /// A publisher for a user's send objects based on the specified search text.
+    ///
+    /// - Parameter searchText:  The search text to filter the send list.
+    /// - Returns: A publisher for the user's sends.
+    ///
+    func searchSendPublisher(
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>>
 
     /// A publisher for all the sends in the user's account.
     ///
@@ -52,6 +85,9 @@ class DefaultSendRepository: SendRepository {
 
     /// The client used by the application to handle vault encryption and decryption tasks.
     let clientVault: ClientVaultService
+
+    /// The service used to retrieve urls for the active account's environment.
+    let environmentService: EnvironmentService
 
     /// The service used to manage syncing and updates to the user's organizations.
     let organizationService: OrganizationService
@@ -71,6 +107,7 @@ class DefaultSendRepository: SendRepository {
     ///
     /// - Parameters:
     ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - environmentService: The service used to retrieve urls for the active account's environment.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - sendService: The service used to sync and store sends.
     ///   - stateService: The service used by the application to manage account state.
@@ -78,12 +115,14 @@ class DefaultSendRepository: SendRepository {
     ///
     init(
         clientVault: ClientVaultService,
+        environmentService: EnvironmentService,
         organizationService: OrganizationService,
         sendService: SendService,
         stateService: StateService,
         syncService: SyncService
     ) {
         self.clientVault = clientVault
+        self.environmentService = environmentService
         self.organizationService = organizationService
         self.sendService = sendService
         self.stateService = stateService
@@ -107,14 +146,41 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: Data Methods
 
-    func addSend(_ sendView: SendView) async throws {
+    func addFileSend(_ sendView: SendView, data: Data) async throws -> SendView {
         let send = try await clientVault.sends().encrypt(send: sendView)
-        try await sendService.addSend(send)
+        let file = try await clientVault.sends().encryptBuffer(send: send, buffer: data)
+        let newSend = try await sendService.addFileSend(send, data: file)
+        return try await clientVault.sends().decrypt(send: newSend)
     }
 
-    func updateSend(_ sendView: SendView) async throws {
+    func addTextSend(_ sendView: SendView) async throws -> SendView {
         let send = try await clientVault.sends().encrypt(send: sendView)
-        try await sendService.updateSend(send)
+        let newSend = try await sendService.addTextSend(send)
+        return try await clientVault.sends().decrypt(send: newSend)
+    }
+
+    func deleteSend(_ sendView: SendView) async throws {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        try await sendService.deleteSend(send)
+    }
+
+    func removePassword(from sendView: SendView) async throws -> SendView {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        let newSend = try await sendService.removePasswordFromSend(send)
+        return try await clientVault.sends().decrypt(send: newSend)
+    }
+
+    func shareURL(for sendView: SendView) async throws -> URL? {
+        guard let accessId = sendView.accessId, let key = sendView.key else { return nil }
+        let sharePath = "/\(accessId)/\(key)"
+        let url = URL(string: environmentService.sendShareURL.absoluteString.appending(sharePath))
+        return url
+    }
+
+    func updateSend(_ sendView: SendView) async throws -> SendView {
+        let send = try await clientVault.sends().encrypt(send: sendView)
+        let newSend = try await sendService.updateSend(send)
+        return try await clientVault.sends().decrypt(send: newSend)
     }
 
     // MARK: API Methods
@@ -127,6 +193,43 @@ class DefaultSendRepository: SendRepository {
     }
 
     // MARK: Publishers
+
+    func searchSendPublisher(
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .folding(options: .diacriticInsensitive, locale: .current)
+
+        return try await sendService.sendsPublisher().asyncTryMap { sends -> [SendListItem] in
+            // Convert the Sends to SendViews and filter appropriately.
+            let activeSends = try await sends.asyncMap { send in
+                try await self.clientVault.sends().decrypt(send: send)
+            }
+
+            var matchedSends: [SendView] = []
+            var lowPriorityMatchedSends: [SendView] = []
+
+            // Search the sends.
+            activeSends.forEach { sendView in
+                if sendView.name.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+                    matchedSends.append(sendView)
+                } else if sendView.text?.text?.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    lowPriorityMatchedSends.append(sendView)
+                } else if sendView.file?.fileName.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    lowPriorityMatchedSends.append(sendView)
+                }
+            }
+
+            // Return the result.
+            let result = matchedSends.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } +
+                lowPriorityMatchedSends
+            return result.compactMap { SendListItem(sendView: $0) }
+        }.eraseToAnyPublisher().values
+    }
 
     func sendListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
         try await sendService.sendsPublisher()

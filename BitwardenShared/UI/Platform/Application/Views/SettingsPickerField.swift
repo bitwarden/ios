@@ -17,7 +17,7 @@ struct SettingsPickerField: View {
     let hasDivider: Bool
 
     /// The date picker value.
-    @Binding var pickerValue: TimeInterval
+    @Binding var pickerValue: Int
 
     /// Whether or not to show the date picker.
     @SwiftUI.State var showTimePicker = false
@@ -85,7 +85,7 @@ struct SettingsPickerField: View {
     init(
         title: String,
         customTimeoutValue: String,
-        pickerValue: Binding<TimeInterval>,
+        pickerValue: Binding<Int>,
         hasDivider: Bool = true,
         customTimeoutAccessibilityLabel: String
     ) {
@@ -103,7 +103,7 @@ struct SettingsPickerField: View {
     SettingsPickerField(
         title: "Custom",
         customTimeoutValue: "1:00",
-        pickerValue: .constant(1.0),
+        pickerValue: .constant(1),
         customTimeoutAccessibilityLabel: "one hour, zero minutes"
     )
 }

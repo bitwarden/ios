@@ -5,6 +5,26 @@ import Foundation
 
 @testable import BitwardenShared
 
+extension AttachmentView {
+    static func fixture(
+        fileName: String? = nil,
+        id: String? = "1",
+        key: String? = nil,
+        size: String? = nil,
+        sizeName: String? = nil,
+        url: String? = nil
+    ) -> AttachmentView {
+        .init(
+            id: id,
+            url: url,
+            size: size,
+            sizeName: sizeName,
+            fileName: fileName,
+            key: key
+        )
+    }
+}
+
 extension Cipher {
     static func fixture(
         attachments: [Attachment]? = nil,

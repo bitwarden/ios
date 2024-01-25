@@ -12,7 +12,7 @@ import UIKit
 ///             & HasExampleRepository
 ///     }
 ///
-public class ServiceContainer: Services {
+public class ServiceContainer: Services { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The service used by the application to make API requests.
@@ -50,6 +50,12 @@ public class ServiceContainer: Services {
 
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
+
+    /// The service used by the application to access the system's notification center.
+    let notificationCenterService: NotificationCenterService
+
+    /// The service used by the application to handle notifications.
+    let notificationService: NotificationService
 
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
@@ -108,6 +114,8 @@ public class ServiceContainer: Services {
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
+    ///   - notificaitonCenterService: The service used by the application to access the system's notification center.
+    ///   - notificationService: The service used by the application to handle notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
@@ -135,6 +143,8 @@ public class ServiceContainer: Services {
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
+        notificationCenterService: NotificationCenterService,
+        notificationService: NotificationService,
         pasteboardService: PasteboardService,
         sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
@@ -161,6 +171,8 @@ public class ServiceContainer: Services {
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
+        self.notificationCenterService = notificationCenterService
+        self.notificationService = notificationService
         self.pasteboardService = pasteboardService
         self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
@@ -186,22 +198,26 @@ public class ServiceContainer: Services {
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
 
-        let biometricsService = DefaultBiometricsService()
         let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
-        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+
+        let timeProvider = CurrentTime()
+
+        let stateService = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore,
+            timeProvider: timeProvider
+        )
+
+        let biometricsService = DefaultBiometricsService(stateService: stateService)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
+        let policyService = DefaultPolicyService(policyDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
         let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
-
-        let cipherService = DefaultCipherService(
-            cipherAPIService: apiService,
-            cipherDataStore: dataStore,
-            stateService: stateService
-        )
+        let notificationCenterService = DefaultNotificationCenterService()
 
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
@@ -216,7 +232,15 @@ public class ServiceContainer: Services {
             stateService: stateService
         )
 
+        let cipherService = DefaultCipherService(
+            cipherAPIService: apiService,
+            cipherDataStore: dataStore,
+            fileAPIService: apiService,
+            stateService: stateService
+        )
+
         let sendService = DefaultSendService(
+            fileAPIService: apiService,
             sendAPIService: apiService,
             sendDataStore: dataStore,
             stateService: stateService
@@ -236,17 +260,26 @@ public class ServiceContainer: Services {
             collectionService: collectionService,
             folderService: folderService,
             organizationService: organizationService,
+            policyService: policyService,
             sendService: sendService,
             settingsService: settingsService,
             stateService: stateService,
             syncAPIService: apiService
         )
 
+        let notificationService = DefaultNotificationService(
+            appIdService: appIdService,
+            authAPIService: apiService,
+            errorReporter: errorReporter,
+            notificationAPIService: apiService,
+            stateService: stateService,
+            syncService: syncService
+        )
+
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-
-        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
+        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
@@ -259,6 +292,7 @@ public class ServiceContainer: Services {
             authAPIService: apiService,
             clientAuth: clientService.clientAuth(),
             clientGenerators: clientService.clientGenerator(),
+            clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
             stateService: stateService,
             systemDevice: UIDevice.current
@@ -267,6 +301,7 @@ public class ServiceContainer: Services {
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
+            biometricsService: biometricsService,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             clientPlatform: clientService.clientPlatform(),
@@ -285,6 +320,7 @@ public class ServiceContainer: Services {
 
         let sendRepository = DefaultSendRepository(
             clientVault: clientService.clientVault(),
+            environmentService: environmentService,
             organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
@@ -301,8 +337,6 @@ public class ServiceContainer: Services {
             vaultTimeoutService: vaultTimeoutService
         )
 
-        let timeProvider = CurrentTime()
-
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
             cipherService: cipherService,
@@ -314,8 +348,10 @@ public class ServiceContainer: Services {
             errorReporter: errorReporter,
             folderService: folderService,
             organizationService: organizationService,
+            settingsService: settingsService,
             stateService: stateService,
             syncService: syncService,
+            timeProvider: timeProvider,
             vaultTimeoutService: vaultTimeoutService
         )
 
@@ -332,6 +368,8 @@ public class ServiceContainer: Services {
             environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
+            notificationCenterService: notificationCenterService,
+            notificationService: notificationService,
             pasteboardService: pasteboardService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
@@ -362,6 +400,10 @@ extension ServiceContainer {
         apiService
     }
 
+    var fileAPIService: FileAPIService {
+        apiService
+    }
+
     var clientAuth: ClientAuthProtocol {
         clientService.clientAuth()
     }
@@ -373,4 +415,4 @@ extension ServiceContainer {
     var clientPlatform: ClientPlatformProtocol {
         clientService.clientPlatform()
     }
-}
+} // swiftlint:disable:this file_length

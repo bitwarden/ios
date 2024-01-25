@@ -164,16 +164,15 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     /// `singleSignOnCompleted(code:)` navigates to the two-factor view if two-factor authentication is needed.
     func test_singleSignOnCompleted_twoFactorError() async throws {
         // Set up the mock data.
-        let authMethodsData = [String: [String: String]]()
         authService.generateSingleSignOnUrlResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(authMethodsData)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil)
         )
         subject.state.identifierText = "BestOrganization"
 
         await subject.perform(.loginTapped)
 
         // Verify the results.
-        XCTAssertEqual(coordinator.routes.last, .twoFactor("", nil, authMethodsData))
+        XCTAssertEqual(coordinator.routes.last, .twoFactor("", nil, AuthMethodsData()))
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the vault unlock view if the vault is still locked.
@@ -190,7 +189,18 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.vaultUnlock(.fixtureAccountLogin(), animated: false), .dismiss])
+        XCTAssertEqual(
+            coordinator.routes,
+            [
+                .vaultUnlock(
+                    .fixtureAccountLogin(),
+                    animated: false,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: false
+                ),
+                .dismiss,
+            ]
+        )
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the complete route if the vault is unlocked.

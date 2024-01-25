@@ -7,10 +7,42 @@ import XCTest
 class VaultListGroupTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `collectionId` returns the collection's ID, if the group is a collection.
+    func test_collectionId() {
+        XCTAssertNil(VaultListGroup.card.collectionId)
+        XCTAssertEqual(
+            VaultListGroup.collection(id: "1234", name: "Collection 🗂️", organizationId: "ABCD").collectionId,
+            "1234"
+        )
+        XCTAssertNil(VaultListGroup.folder(id: "4321", name: "Folder 📁").collectionId)
+        XCTAssertNil(VaultListGroup.identity.collectionId)
+        XCTAssertNil(VaultListGroup.login.collectionId)
+        XCTAssertNil(VaultListGroup.secureNote.collectionId)
+        XCTAssertNil(VaultListGroup.totp.collectionId)
+        XCTAssertNil(VaultListGroup.trash.collectionId)
+    }
+
+    /// `folderId` returns the folders's ID, if the group is a folder.
+    func test_folderId() {
+        XCTAssertNil(VaultListGroup.card.folderId)
+        XCTAssertNil(
+            VaultListGroup.collection(id: "1234", name: "Collection 🗂️", organizationId: "ABCD").folderId
+        )
+        XCTAssertEqual(VaultListGroup.folder(id: "4321", name: "Folder 📁").folderId, "4321")
+        XCTAssertNil(VaultListGroup.identity.folderId)
+        XCTAssertNil(VaultListGroup.login.folderId)
+        XCTAssertNil(VaultListGroup.secureNote.folderId)
+        XCTAssertNil(VaultListGroup.totp.folderId)
+        XCTAssertNil(VaultListGroup.trash.folderId)
+    }
+
     /// `name` returns the display name of the group.
     func test_name() {
         XCTAssertEqual(VaultListGroup.card.name, "Card")
-        XCTAssertEqual(VaultListGroup.collection(id: "", name: "Collection 🗂️").name, "Collection 🗂️")
+        XCTAssertEqual(
+            VaultListGroup.collection(id: "", name: "Collection 🗂️", organizationId: "1").name,
+            "Collection 🗂️"
+        )
         XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").name, "Folder 📁")
         XCTAssertEqual(VaultListGroup.identity.name, "Identity")
         XCTAssertEqual(VaultListGroup.login.name, "Login")
@@ -22,12 +54,30 @@ class VaultListGroupTests: BitwardenTestCase {
     /// `navigationTitle` returns the navigation title of the group.
     func test_navigationTitle() {
         XCTAssertEqual(VaultListGroup.card.navigationTitle, Localizations.cards)
-        XCTAssertEqual(VaultListGroup.collection(id: "", name: "Collection 🗂️").navigationTitle, "Collection 🗂️")
+        XCTAssertEqual(
+            VaultListGroup.collection(id: "", name: "Collection 🗂️", organizationId: "1").navigationTitle,
+            "Collection 🗂️"
+        )
         XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").navigationTitle, "Folder 📁")
         XCTAssertEqual(VaultListGroup.identity.navigationTitle, Localizations.identities)
         XCTAssertEqual(VaultListGroup.login.navigationTitle, Localizations.logins)
         XCTAssertEqual(VaultListGroup.secureNote.navigationTitle, Localizations.secureNotes)
         XCTAssertEqual(VaultListGroup.totp.navigationTitle, Localizations.verificationCodes)
         XCTAssertEqual(VaultListGroup.trash.navigationTitle, Localizations.trash)
+    }
+
+    /// `organizationId` returns the organization's ID of the collection, if the group is a collection.
+    func test_organizationId() {
+        XCTAssertNil(VaultListGroup.card.organizationId)
+        XCTAssertEqual(
+            VaultListGroup.collection(id: "1234", name: "Collection 🗂️", organizationId: "ABCD").organizationId,
+            "ABCD"
+        )
+        XCTAssertNil(VaultListGroup.folder(id: "4321", name: "Folder 📁").organizationId)
+        XCTAssertNil(VaultListGroup.identity.organizationId)
+        XCTAssertNil(VaultListGroup.login.organizationId)
+        XCTAssertNil(VaultListGroup.secureNote.organizationId)
+        XCTAssertNil(VaultListGroup.totp.organizationId)
+        XCTAssertNil(VaultListGroup.trash.organizationId)
     }
 }

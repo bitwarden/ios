@@ -13,6 +13,15 @@ enum VaultUnlockAction: Equatable {
     /// A forwarded profile switcher action.
     case profileSwitcherAction(ProfileSwitcherAction)
 
+    /// The value for the PIN was changed.
+    case pinChanged(String)
+
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// The reveal master password field button was pressed.
     case revealMasterPasswordFieldPressed(Bool)
+
+    /// The reveal PIN field button was pressed.
+    case revealPinFieldPressed(Bool)
 }

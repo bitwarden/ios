@@ -4,7 +4,7 @@ import Foundation
 
 /// Actions handled by the `AccountSecurityProcessor`.
 ///
-enum AccountSecurityAction {
+enum AccountSecurityAction: Equatable {
     /// Clears the account fingerprint phrase URL after the web app has been opened.
     case clearFingerprintPhraseUrl
 
@@ -17,6 +17,9 @@ enum AccountSecurityAction {
     /// The logout button was pressed.
     case logout
 
+    /// The pending login requests button was tapped.
+    case pendingLoginRequestsTapped
+
     /// The session timeout action has changed.
     case sessionTimeoutActionChanged(SessionTimeoutAction)
 
@@ -24,19 +27,13 @@ enum AccountSecurityAction {
     case sessionTimeoutValueChanged(SessionTimeoutValue)
 
     /// Sets the custom session timeout value.
-    case setCustomSessionTimeoutValue(TimeInterval)
+    case customTimeoutValueChanged(Int)
 
     /// Approve login requests was toggled.
     case toggleApproveLoginRequestsToggle(Bool)
 
-    /// Unlock with face ID was toggled.
-    case toggleUnlockWithFaceID(Bool)
-
     /// Unlock with pin code was toggled.
     case toggleUnlockWithPINCode(Bool)
-
-    /// Unlock with touch ID was toggled.
-    case toggleUnlockWithTouchID(Bool)
 
     /// The two step login button was pressed.
     case twoStepLoginPressed

@@ -1,0 +1,21 @@
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJBcHBsaWNhdGlvbiJdfQ.KDqC8kUaOAgBiUY8eeLa0a4xYWN8GmheXTFXmataFwM",
+  "expires_in": 3600,
+  "token_type": "Bearer",
+  "refresh_token": "REFRESH_TOKEN",
+  "scope": "api offline_access",
+  "PrivateKey": "PRIVATE_KEY",
+  "Key": "KEY",
+  "MasterPasswordPolicy": null,
+  "ForcePasswordReset": false,
+  "ResetMasterPassword": false,
+  "Kdf": 0,
+  "KdfIterations": 600000,
+  "KdfMemory": null,
+  "KdfParallelism": null,
+  "UserDecryptionOptions": {
+    "HasMasterPassword": true,
+    "Object": "userDecryptionOptions"
+  },
+  "TwoFactorToken": "CfDJ8JNLNVrtXX1MhxfQbUGL4xcSc23gpdf1JYsXLQvvf3wblYutRFxvzJFSy3oTm8Qtxio7cKRRClAapu9F7I8fPqx4RmaNyup9N1IO6jQIxRTLAbpY6xTk6O5RA6s1lJ1Ru1v55OhTW5h8LFq3oYBdSvqRcOhqtGDDXzt/ibMEFYVohE0MLafKHZ9lQ94S1dNoMWXg8lnw6k0h0tV3lkNrMZ0u8uwv6/9yY/DCrAFEtEd3"
+}
