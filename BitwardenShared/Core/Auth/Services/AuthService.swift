@@ -54,9 +54,14 @@ protocol AuthService {
     ///
     func hashPassword(password: String, purpose: HashPurpose) async throws -> String
 
-    /// Initiates the login with device process.
+    /// Initiates the login with device proccess.
     ///
-    /// - Parameter email: The user's email.
+    /// - Parameters:
+    ///   - accessCode: The access code used in the request.
+    ///   - deviceIdentifier: The user's device ID.
+    ///   - email: The user's email.
+    ///   - fingerprint: The fingerprint used in the request.
+    ///   - publicKey: The key used in the request.
     ///
     func initiateLoginWithDevice(
         accessCode: String,
@@ -442,6 +447,7 @@ class DefaultAuthService: AuthService {
             throw error
         }
     }
+
     func initiateLoginWithDevice(
         accessCode: String,
         deviceIdentifier: String,

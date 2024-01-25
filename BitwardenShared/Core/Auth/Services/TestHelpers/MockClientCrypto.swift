@@ -8,10 +8,11 @@ class MockClientCrypto: ClientCryptoProtocol {
     var derivePinKeyResult: Result<DerivePinKeyResponse, Error> = .success(
         DerivePinKeyResponse(pinProtectedUserKey: "", encryptedPin: "")
     )
-    var encryptedPin: String?
 
     var derivePinUserKeyPin: String?
     var derivePinUserKeyResult: Result<EncString, Error> = .success("ENCRYPTED_USER_KEY")
+
+    var encryptedPin: String?
 
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
 
