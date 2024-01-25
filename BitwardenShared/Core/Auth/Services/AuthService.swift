@@ -40,6 +40,18 @@ protocol AuthService {
     /// - Returns: A hash value of the password .
     func hashPassword(password: String, purpose: HashPurpose) async throws -> String
 
+    /// Initiates the login with device process.
+    ///
+    /// - Parameter email: The user's email.
+    ///
+    func initiateLoginWithDevice(
+        accessCode: String,
+        deviceIdentifier: String,
+        email: String,
+        fingerPrint: String,
+        publicKey: String
+    ) async throws
+
     /// Login with the master password.
     ///
     /// - Parameters:
@@ -265,5 +277,21 @@ class DefaultAuthService: AuthService {
         // Save the encryption keys.
         let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
         try await stateService.setAccountEncryptionKeys(encryptionKeys)
+    }
+
+    func initiateLoginWithDevice(
+        accessCode: String,
+        deviceIdentifier: String,
+        email: String,
+        fingerPrint: String,
+        publicKey: String
+    ) async throws {
+        try await authAPIService.initiateLoginWithDevice(
+            accessCode: accessCode,
+            deviceIdentifier: deviceIdentifier,
+            email: email,
+            fingerPrint: fingerPrint,
+            publicKey: publicKey
+        )
     }
 }

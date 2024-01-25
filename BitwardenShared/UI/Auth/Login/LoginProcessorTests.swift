@@ -238,8 +238,9 @@ class LoginProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.loginWithDevicePressed` navigates to the login with device screen.
     func test_receive_loginWithDevicePressed() {
+        subject.state.username = "example@email.com"
         subject.receive(.loginWithDevicePressed)
-        XCTAssertEqual(coordinator.routes.last, .loginWithDevice)
+        XCTAssertEqual(coordinator.routes.last, .loginWithDevice(email: "example@email.com"))
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.

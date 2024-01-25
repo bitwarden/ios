@@ -16,6 +16,23 @@ protocol AuthAPIService {
     ///
     func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse
 
+    /// Initiates the login with device proccess.
+    ///
+    /// - Parameters:
+    ///   - accessCode: The access code used in the request.
+    ///   - deviceIdentifier: The user's device ID.
+    ///   - email: The user's email.
+    ///   - fingerprint: The fingerprint used in the request.
+    ///   - publicKey: The key used in the request.
+    ///
+    func initiateLoginWithDevice(
+        accessCode: String,
+        deviceIdentifier: String,
+        email: String,
+        fingerPrint: String,
+        publicKey: String
+    ) async throws
+
     /// Queries the API to pre-validate single-sign on for the requested organization identifier.
     ///
     /// - Parameter organizationIdentifier: The organization identifier.
@@ -39,6 +56,28 @@ extension APIService: AuthAPIService {
 
     func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse {
         try await apiUnauthenticatedService.send(SingleSignOnDetailsRequest(email: email))
+    }
+
+    func initiateLoginWithDevice(
+        accessCode: String,
+        deviceIdentifier: String,
+        email: String,
+        fingerPrint: String,
+        publicKey: String
+    ) async throws {
+        let req = try await apiUnauthenticatedService.send(
+            PasswordlessLoginRequest(
+                body: PasswordlessLoginRequestModel(
+                    email: email,
+                    publicKey: publicKey,
+                    deviceIdentifier: deviceIdentifier,
+                    accessCode: accessCode,
+                    type: 0,
+                    fingerprintPhrase: fingerPrint
+                )
+            )
+        )
+        print("req", req)
     }
 
     func preValidateSingleSignOn(organizationIdentifier: String) async throws -> PreValidateSingleSignOnResponse {

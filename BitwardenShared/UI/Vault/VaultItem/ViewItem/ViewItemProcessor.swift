@@ -4,7 +4,9 @@ import Foundation
 // MARK: - ViewItemProcessor
 
 /// A processor that can process `ViewItemAction`s.
-final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
+///
+final class ViewItemProcessor: // swiftlint:disable:this type_body_length
+    StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
     // MARK: Types
 
     typealias Services = HasAPIService

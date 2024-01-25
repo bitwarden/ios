@@ -8,7 +8,8 @@ final class LoginWithDeviceProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasAuthRepository
+    typealias Services = HasAppIdService
+        & HasAuthRepository
 
     // MARK: Properties
 
@@ -47,10 +48,15 @@ final class LoginWithDeviceProcessor: StateProcessor<
             }
             do {
                 coordinator.showLoadingOverlay(title: Localizations.loading)
-                let fingerprint = try await services.authRepository.initiateLoginWithDevice(email: state.email)
+
+                let deviceId = await services.appIdService.getOrCreateAppId()
+                let fingerprint = try await services.authRepository.initiateLoginWithDevice(
+                    deviceId: deviceId,
+                    email: state.email
+                )
                 state.fingerprintPhrase = fingerprint
             } catch {
-                print(error)
+                coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
             }
         }
     }

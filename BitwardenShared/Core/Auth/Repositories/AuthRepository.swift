@@ -41,9 +41,13 @@ protocol AuthRepository: AnyObject {
 
     /// Initiates the login with device process.
     ///
-    /// - Parameter email: The user's email.
+    /// - Parameters:
+    ///   - deviceId: The device ID.
+    ///   - email: The user's email.
     ///
-    func initiateLoginWithDevice(email: String) async throws -> String
+    /// - Returns: A fingerprint to use in the `PasswordlessLoginRequest`.
+    ///
+    func initiateLoginWithDevice(deviceId: String, email: String) async throws -> String
 
     /// Logs the user out of the active account.
     ///
@@ -185,8 +189,15 @@ extension DefaultAuthRepository: AuthRepository {
         return match
     }
 
-    func initiateLoginWithDevice(email: String) async throws -> String {
+    func initiateLoginWithDevice(deviceId: String, email: String) async throws -> String {
         let request = try await clientAuth.newAuthRequest(email: email)
+        try await authService.initiateLoginWithDevice(
+            accessCode: request.accessCode,
+            deviceIdentifier: deviceId,
+            email: email,
+            fingerPrint: request.fingerprint,
+            publicKey: request.publicKey
+        )
         return request.fingerprint
     }
 
