@@ -148,7 +148,7 @@ struct VaultUnlockView: View {
                     send: VaultUnlockAction.revealPinFieldPressed
                 )
             )
-            .textFieldConfiguration(.password)
+            .textFieldConfiguration(.pin)
         }
     }
 
