@@ -12,6 +12,22 @@ struct VaultGroupState: Equatable {
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
+    /// Whether a collection group is empty.
+    var isEmptyCollection: Bool {
+        // If the group is a collection
+        guard case .collection = group else {
+            return false
+        }
+
+        // And the collection is empty
+        guard loadingState.data != nil else {
+            return false
+        }
+
+        // Return true
+        return true
+    }
+
     /// The current loading state.
     var loadingState: LoadingState<[VaultListItem]> = .loading
 
