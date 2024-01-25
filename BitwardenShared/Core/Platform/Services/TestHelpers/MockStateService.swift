@@ -284,7 +284,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountEncryptionKeys["1"] = .init(encryptedPrivateKey: "", encryptedUserKey: "")
     }
 
-    func setLastActiveTime(userId: String?) async throws {
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         lastActiveTime[userId] = timeProvider.presentTime
     }

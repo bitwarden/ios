@@ -248,7 +248,7 @@ protocol AppSettingsStore: AnyObject {
     /// Sets the last active time within the app.
     ///
     /// - Parameters:
-    ///   - date: The date of the last active time.
+    ///   - date: The current time.
     ///   - userId: The user ID associated with the last active time within the app.
     ///
     func setLastActiveTime(_ date: Date?, userId: String)
@@ -687,7 +687,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func lastActiveTime(userId: String) -> Date? {
-        fetch(for: .lastActiveTime(userId: userId))
+        fetch(for: .lastActiveTime(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
@@ -759,7 +759,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) {
-        store(date, for: .lastActiveTime(userId: userId))
+        store(date?.timeIntervalSince1970, for: .lastActiveTime(userId: userId))
     }
 
     func setLastSyncTime(_ date: Date?, userId: String) {

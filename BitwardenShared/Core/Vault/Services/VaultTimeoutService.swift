@@ -75,9 +75,6 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// The state service used by this Default Service.
     private var stateService: StateService
 
-    /// Provides the current time.
-    private var timeProvider: TimeProvider
-
     /// The store of locked status for known accounts
     var timeoutStore = [String: Bool]()
 
@@ -88,13 +85,10 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     /// Creates a new `DefaultVaultTimeoutService`.
     ///
-    /// - Parameters:
-    ///  - stateService: The StateService used by DefaultVaultTimeoutService.
-    ///  - timeProvider: Provides the current time.
+    /// - Parameter stateService: The StateService used by DefaultVaultTimeoutService.
     ///
-    init(stateService: StateService, timeProvider: TimeProvider) {
+    init(stateService: StateService) {
         self.stateService = stateService
-        self.timeProvider = timeProvider
     }
 
     // MARK: Methods
@@ -117,7 +111,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func setLastActiveTime(userId: String) async throws {
-        try await stateService.setLastActiveTime(userId: userId)
+        try await stateService.setLastActiveTime(Date(), userId: userId)
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
@@ -131,7 +125,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         if vaultTimeout == .onAppRestart { return true }
         if vaultTimeout == .never { return false }
 
-        if timeProvider.presentTime.timeIntervalSince(lastActiveTime) >= TimeInterval(vaultTimeout.rawValue) {
+        if Date().timeIntervalSince(lastActiveTime) >= TimeInterval(vaultTimeout.rawValue) {
             return true
         }
         return false
