@@ -108,6 +108,8 @@ class GeneratorViewTests: BitwardenTestCase {
         let field = SliderField<GeneratorState>(
             keyPath: \.passwordState.lengthDouble,
             range: 5 ... 128,
+            sliderAccessibilityId: "slider",
+            sliderValueAccessibilityId: "sliderValue",
             step: 1,
             title: Localizations.length,
             value: 14
@@ -123,6 +125,7 @@ class GeneratorViewTests: BitwardenTestCase {
     /// Updating the stepper value dispatches the `.stepperValueChanged` action.
     func test_stepperValueChanged() throws {
         let field = StepperField<GeneratorState>(
+            accessibilityId: "stepper",
             keyPath: \.passwordState.minimumNumber,
             range: 0 ... 5,
             title: Localizations.minNumbers,
@@ -157,6 +160,7 @@ class GeneratorViewTests: BitwardenTestCase {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
         }
         let field = ToggleField<GeneratorState>(
+            accessibilityId: "toggle",
             accessibilityLabel: Localizations.lowercaseAtoZ,
             isOn: true,
             keyPath: \.passwordState.containsLowercase,

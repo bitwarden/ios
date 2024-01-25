@@ -710,6 +710,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         SliderField<GeneratorState>(
             keyPath: keyPath,
             range: 5 ... 128,
+            sliderAccessibilityId: "slider",
+            sliderValueAccessibilityId: "sliderValue",
             step: 1,
             title: Localizations.length,
             value: 14
@@ -719,6 +721,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// Creates a `StepperField` with the specified key path.
     private func stepperField(keyPath: WritableKeyPath<GeneratorState, Int>) -> StepperField<GeneratorState> {
         StepperField<GeneratorState>(
+            accessibilityId: "stepper",
             keyPath: keyPath,
             range: 0 ... 5,
             title: Localizations.minNumbers,
@@ -738,6 +741,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// Creates a `ToggleField` with the specified key path.
     private func toggleField(keyPath: WritableKeyPath<GeneratorState, Bool>) -> ToggleField<GeneratorState> {
         ToggleField<GeneratorState>(
+            accessibilityId: "toggle",
             accessibilityLabel: Localizations.lowercaseAtoZ,
             isOn: true,
             keyPath: keyPath,
