@@ -15,6 +15,9 @@ struct AddEditSendItemState: Equatable {
         /// A mode for editing a preexisting send.
         case edit
 
+        /// A mode for adding a new send using the share extension.
+        case shareExtension
+
         /// The navigation title to use for this mode.
         var navigationTitle: String {
             switch self {
@@ -22,6 +25,8 @@ struct AddEditSendItemState: Equatable {
                 Localizations.addSend
             case .edit:
                 Localizations.editSend
+            case .shareExtension:
+                Localizations.addSend
             }
         }
     }
@@ -70,11 +75,11 @@ struct AddEditSendItemState: Equatable {
     /// A flag indicating if this item's text should be hidden by default.
     var isHideTextByDefaultOn = false
 
-    /// A flag indicating if the password is visible.
-    var isPasswordVisible = false
-
     /// A flag indicating if the options section is expanded.
     var isOptionsExpanded = false
+
+    /// A flag indicating if the password is visible.
+    var isPasswordVisible = false
 
     /// The key for this send.
     var key: String?
@@ -130,8 +135,8 @@ extension AddEditSendItemState {
             isDeactivateThisSendOn: sendView.disabled,
             isHideMyEmailOn: sendView.hideEmail,
             isHideTextByDefaultOn: sendView.text?.hidden ?? false,
-            isPasswordVisible: false,
             isOptionsExpanded: false,
+            isPasswordVisible: false,
             key: sendView.key,
             maximumAccessCount: sendView.maxAccessCount.map(Int.init) ?? 0,
             mode: .edit,

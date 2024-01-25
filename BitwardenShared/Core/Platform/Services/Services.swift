@@ -166,7 +166,7 @@ protocol HasNotificationCenterService {
 
 /// Protocol for an object that provides a `SendRepository`.
 ///
-protocol HasSendRepository {
+public protocol HasSendRepository {
     /// The repository used by the application to manage send data for the UI layer.
     var sendRepository: SendRepository { get }
 }

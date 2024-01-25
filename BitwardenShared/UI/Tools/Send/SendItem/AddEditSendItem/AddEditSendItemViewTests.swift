@@ -141,6 +141,15 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    func test_snapshot_file_withValues_prefilled() {
+        processor.state.type = .file
+        processor.state.name = "Name"
+        processor.state.fileName = "example_file.txt"
+        processor.state.fileData = Data("example".utf8)
+        processor.state.mode = .shareExtension
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     func test_snapshot_file_withOptions_empty() {
         processor.state.type = .file
         processor.state.isOptionsExpanded = true
