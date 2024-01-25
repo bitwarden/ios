@@ -40,6 +40,20 @@ class LoginWithDeviceViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
 
+    /// Tapping the resend notification button performs the `.resendNotification` effect.
+    func test_resendNotificationButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.resendNotification)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .resendNotification)
+    }
+
+    /// Tapping the view all login options button dispatches the `.dismiss` action.
+    func test_viewAllLoginOptionsButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.viewAllLoginOptions)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+    }
+
     // MARK: Snapshots
 
     /// The default view renders correctly.

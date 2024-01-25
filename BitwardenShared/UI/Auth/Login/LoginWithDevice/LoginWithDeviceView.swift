@@ -82,12 +82,14 @@ struct LoginWithDeviceView: View {
         }
     }
 
-    /// The button to resent the notification.
+    /// The button to resend the login notification.
     private var resendNotificationButton: some View {
-        Button(Localizations.resendNotification) {}
-            .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
-            .accessibilityIdentifier("ResendNotificationButton")
+        AsyncButton(Localizations.resendNotification) {
+            await store.perform(.resendNotification)
+        }
+        .styleGuide(.body)
+        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+        .accessibilityIdentifier("ResendNotificationButton")
     }
 
     /// The title text.
