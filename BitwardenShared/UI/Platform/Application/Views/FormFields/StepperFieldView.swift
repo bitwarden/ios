@@ -7,6 +7,10 @@ import SwiftUI
 struct StepperField<State>: Equatable, Identifiable {
     // MARK: Properties
 
+    /// The accessibility id for the stepper. The `id` will be used as the accessibility id
+    /// if this is `nil`.
+    let accessibilityId: String?
+
     /// A key path for updating the backing value for the stepper field.
     let keyPath: WritableKeyPath<State, Int>
 
@@ -55,6 +59,7 @@ struct StepperFieldView<State>: View {
                     Text(String(field.value))
                         .styleGuide(.body, monoSpacedDigit: true)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .accessibilityIdentifier(field.accessibilityId ?? field.id)
                 }
                 .padding(.trailing, 4)
             }

@@ -163,6 +163,8 @@ extension GeneratorState {
     /// A helper method for creating a slider field.
     ///
     /// - Parameters:
+    ///   - accessibilityIdSlider: The accessibility id for the slider.
+    ///   - accessibilityIdValue: The accessibility id for the slider value.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
     ///   - range: The range of allowable values for the slider.
     ///   - title: The title of the field.
@@ -170,6 +172,8 @@ extension GeneratorState {
     /// - Returns: A form field for a slider field.
     ///
     func sliderField(
+        accessibilityIdSlider: String? = nil,
+        accessibilityIdValue: String? = nil,
         keyPath: WritableKeyPath<GeneratorState, Double>,
         range: ClosedRange<Double>,
         title: String,
@@ -177,6 +181,8 @@ extension GeneratorState {
     ) -> FormField<Self> {
         FormField(fieldType: .slider(
             SliderField(
+                accessibilityIdSlider: accessibilityIdSlider,
+                accessibilityIdValue: accessibilityIdValue,
                 keyPath: keyPath,
                 range: range,
                 step: step,
@@ -189,18 +195,21 @@ extension GeneratorState {
     /// A helper method for creating a stepper field.
     ///
     /// - Parameters:
+    ///   - accessibilityId: The accessibility id for the stepper value. The `id` will be used as the accessibility id
     ///   - keyPath: A key path for updating the backing value for the stepper field.
     ///   - range: The range of allowable values for the stepper.
     ///   - title: The title of the field.
     /// - Returns: A form field for a stepper field.
     ///
     func stepperField(
+        accessibilityId: String? = nil,
         keyPath: WritableKeyPath<GeneratorState, Int>,
         range: ClosedRange<Int>,
         title: String
     ) -> FormField<Self> {
         FormField(fieldType: .stepper(
             StepperField(
+                accessibilityId: accessibilityId,
                 keyPath: keyPath,
                 range: range,
                 title: title,
@@ -251,6 +260,7 @@ extension GeneratorState {
     /// A helper method for creating a toggle field.
     ///
     /// - Parameters:
+    ///   - accessibilityId: The accessibility id for the toggle. The `id` will be used as the accessibility id
     ///   - accessibilityLabel: The accessibility label for the toggle. The title will be used as
     ///     the accessibility label if this is `nil`.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
@@ -258,12 +268,14 @@ extension GeneratorState {
     /// - Returns: A form field for a toggle field.
     ///
     func toggleField(
+        accessibilityId: String? = nil,
         accessibilityLabel: String? = nil,
         keyPath: WritableKeyPath<GeneratorState, Bool>,
         title: String
     ) -> FormField<Self> {
         FormField(fieldType: .toggle(
             ToggleField(
+                accessibilityId: accessibilityId,
                 accessibilityLabel: accessibilityLabel,
                 isOn: self[keyPath: keyPath],
                 keyPath: keyPath,

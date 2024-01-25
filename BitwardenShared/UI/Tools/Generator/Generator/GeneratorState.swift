@@ -110,42 +110,54 @@ struct GeneratorState: Equatable {
                 optionFields = [
                     passwordGeneratorTypeField(),
                     sliderField(
+                        accessibilityIdSlider: "PasswordLengthSlider",
+                        accessibilityIdValue: "PasswordLengthLabel",
                         keyPath: \.passwordState.lengthDouble,
                         range: 5 ... 128,
                         title: Localizations.length,
                         step: 1
                     ),
                     toggleField(
+                        accessibilityId: "UppercaseAtoZToggle",
                         accessibilityLabel: Localizations.uppercaseAtoZ,
                         keyPath: \.passwordState.containsUppercase,
                         title: "A-Z"
                     ),
                     toggleField(
+                        accessibilityId: "LowercaseAtoZToggle",
                         accessibilityLabel: Localizations.lowercaseAtoZ,
                         keyPath: \.passwordState.containsLowercase,
                         title: "a-z"
                     ),
                     toggleField(
+                        accessibilityId: "NumbersZeroToNineToggle",
                         accessibilityLabel: Localizations.numbersZeroToNine,
                         keyPath: \.passwordState.containsNumbers,
                         title: "0-9"
                     ),
                     toggleField(
+                        accessibilityId: "SpecialCharactersToggle",
                         accessibilityLabel: Localizations.specialCharacters,
                         keyPath: \.passwordState.containsSpecial,
                         title: "!@#$%^&*"
                     ),
                     stepperField(
+                        accessibilityId: "MinNumberValueLabel",
                         keyPath: \.passwordState.minimumNumber,
                         range: 0 ... 5,
                         title: Localizations.minNumbers
                     ),
                     stepperField(
+                        accessibilityId: "MinSpecialValueLabel",
                         keyPath: \.passwordState.minimumSpecial,
                         range: 0 ... 5,
                         title: Localizations.minSpecial
                     ),
-                    toggleField(keyPath: \.passwordState.avoidAmbiguous, title: Localizations.avoidAmbiguousCharacters),
+                    toggleField(
+                        accessibilityId: "AvoidAmbiguousCharsToggle",
+                        keyPath: \.passwordState.avoidAmbiguous,
+                        title: Localizations.avoidAmbiguousCharacters
+                    ),
                 ]
             }
         case .username:
