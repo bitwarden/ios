@@ -30,7 +30,7 @@ extension ProfileOrganizationResponseModel {
         selfHost: Bool = false,
         ssoBound: Bool = false,
         status: OrganizationUserStatusType = .confirmed,
-        type: Int? = nil,
+        type: OrganizationUserType = .user,
         use2fa: Bool = false,
         useActivateAutofillPolicy: Bool = false,
         useApi: Bool = false,
