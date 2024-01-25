@@ -95,16 +95,26 @@ struct GeneratorState: Equatable { // swiftlint:disable:this type_body_length
                 optionFields = [
                     passwordGeneratorTypeField(),
                     stepperField(
+                        accessibilityId: "NumberOfWordsLabel",
                         keyPath: \.passwordState.numberOfWords,
                         range: 3 ... 20,
                         title: Localizations.numberOfWords
                     ),
                     textField(
+                        accessibilityId: "WordSeparatorEntry",
                         keyPath: \.passwordState.wordSeparator,
                         title: Localizations.wordSeparator
                     ),
-                    toggleField(keyPath: \.passwordState.capitalize, title: Localizations.capitalize),
-                    toggleField(keyPath: \.passwordState.includeNumber, title: Localizations.includeNumber),
+                    toggleField(
+                        accessibilityId: "CapitalizePassphraseToggle",
+                        keyPath: \.passwordState.capitalize,
+                        title: Localizations.capitalize
+                    ),
+                    toggleField(
+                        accessibilityId: "IncludeNumbersToggle",
+                        keyPath: \.passwordState.includeNumber,
+                        title: Localizations.includeNumber
+                    ),
                 ]
             case .password:
                 optionFields = [

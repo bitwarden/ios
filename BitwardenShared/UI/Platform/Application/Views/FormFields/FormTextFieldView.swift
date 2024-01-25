@@ -34,6 +34,10 @@ struct FormTextField<State>: Equatable, Identifiable {
 
     // MARK: Properties
 
+    /// The accessibility id for the text field. The `title` will be used as the accessibility id
+    /// if this is `nil`.
+    let accessibilityId: String?
+
     /// The behavior for when the input should be automatically capitalized.
     let autocapitalization: Autocapitalization
 
@@ -72,6 +76,7 @@ struct FormTextField<State>: Equatable, Identifiable {
     /// Initialize a `FormTextField`.
     ///
     /// - Parameters:
+    ///   - accessibilityId: The accessibility id for the text field.
     ///   - autocapitalization: The behavior for when the input should be automatically capitalized.
     ///     Defaults to `.sentences`.
     ///   - isAutocorrectDisabled: Whether autocorrect is disabled in the text field. Defaults to
@@ -85,6 +90,7 @@ struct FormTextField<State>: Equatable, Identifiable {
     ///   - title: The title of the field.
     ///   - value: The current text value.
     init(
+        accessibilityId: String? = nil,
         autocapitalization: Autocapitalization = .sentences,
         isAutocorrectDisabled: Bool = false,
         isPasswordVisible: Bool? = nil,
@@ -95,6 +101,7 @@ struct FormTextField<State>: Equatable, Identifiable {
         title: String,
         value: String
     ) {
+        self.accessibilityId = accessibilityId
         self.autocapitalization = autocapitalization
         self.isAutocorrectDisabled = isAutocorrectDisabled
         self.isPasswordVisible = isPasswordVisible
@@ -132,6 +139,7 @@ struct FormTextFieldView<State>: View {
                 Binding(get: { isPasswordVisible }, set: isPasswordVisibleChangedAction ?? { _ in })
             }
         )
+        .accessibilityIdentifier(field.accessibilityId ?? field.title)
         .autocorrectionDisabled(field.isAutocorrectDisabled)
         .keyboardType(field.keyboardType)
         .textContentType(field.textContentType)

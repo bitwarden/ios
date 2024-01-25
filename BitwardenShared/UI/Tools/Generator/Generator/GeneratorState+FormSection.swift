@@ -221,6 +221,7 @@ extension GeneratorState {
     /// A helper method for creating a text field.
     ///
     /// - Parameters:
+    ///   - accessibilityId: The accessibility id for the text field.
     ///   - autocapitalization: The behavior for when the input should be automatically capitalized.
     ///     Defaults to `.never`.
     ///   - isAutocorrectDisabled: Whether autocorrect is disabled in the text field. Defaults to
@@ -234,6 +235,7 @@ extension GeneratorState {
     /// - Returns: A form field for a generated value field.
     ///
     func textField(
+        accessibilityId: String? = nil,
         autocapitalization: FormTextField<Self>.Autocapitalization = .never,
         isAutocorrectDisabled: Bool = true,
         isPasswordVisibleKeyPath: WritableKeyPath<GeneratorState, Bool>? = nil,
@@ -244,6 +246,7 @@ extension GeneratorState {
     ) -> FormField<Self> {
         FormField(fieldType: .text(
             FormTextField(
+                accessibilityId: accessibilityId,
                 autocapitalization: autocapitalization,
                 isAutocorrectDisabled: isAutocorrectDisabled,
                 isPasswordVisible: isPasswordVisibleKeyPath.map { self[keyPath: $0] },
