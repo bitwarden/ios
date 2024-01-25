@@ -26,7 +26,7 @@ public enum GeneratorType: CaseIterable, Equatable, Menuable {
 
 /// An object that defines the current state of a `GeneratorView`.
 ///
-struct GeneratorState: Equatable {
+struct GeneratorState: Equatable { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// The presentation mode for the generator. Used to determine if specific UI elements are shown.
