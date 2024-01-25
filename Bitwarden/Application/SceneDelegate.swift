@@ -54,8 +54,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let viewController = UIViewController()
         let hostingController = UIHostingController(rootView: PrivacyView())
-        viewController.view.addConstrained(subview: hostingController.view)
-        privacyWindow?.rootViewController = viewController
+        privacyWindow?.rootViewController = hostingController
         privacyWindow?.isHidden = false
         privacyWindow?.alpha = 0
     }
