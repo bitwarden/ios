@@ -27,6 +27,23 @@ class AuthAPIServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `answerLoginRequest(_:requestModel:)` successfully decodes the answer login request response.
+    func test_answerLoginRequest() async throws {
+        client.result = .httpSuccess(testData: .authRequestSuccess)
+
+        let response = try await subject.answerLoginRequest(
+            "1",
+            requestModel: .init(
+                deviceIdentifier: "2",
+                key: "key",
+                masterPasswordHash: nil,
+                requestApproved: true
+            )
+        )
+
+        XCTAssertEqual(response, .fixture())
+    }
+
     /// `getIdentityToken()` successfully decodes the identity token response.
     func test_getIdentityToken() async throws {
         client.result = .httpSuccess(testData: .identityTokenSuccess)
@@ -64,9 +81,18 @@ class AuthAPIServiceTests: BitwardenTestCase {
         }
     }
 
+    /// `getPendingLoginRequest(withId:)` successfully decodes the pending login request response.
+    func test_getPendingLoginRequest() async throws {
+        client.result = .httpSuccess(testData: .authRequestSuccess)
+
+        let response = try await subject.getPendingLoginRequest(withId: "10")
+
+        XCTAssertEqual(response, .fixture())
+    }
+
     /// `getPendingLoginRequests()` successfully decodes the pending login requests response.
     func test_getPendingLoginRequests() async throws {
-        client.result = .httpSuccess(testData: .authRequestSuccess)
+        client.result = .httpSuccess(testData: .authRequestsSuccess)
 
         let response = try await subject.getPendingLoginRequests()
 
@@ -83,6 +109,21 @@ class AuthAPIServiceTests: BitwardenTestCase {
             response,
             SingleSignOnDetailsResponse(organizationIdentifier: "TeamLivefront", ssoAvailable: true)
         )
+    }
+
+    /// `initiateLoginWithDevice()` successfully decodes the initiate login with device response.
+    func test_initiateLoginWithDevice() async throws {
+        client.result = .httpSuccess(testData: .authRequestSuccess)
+
+        let response = try await subject.initiateLoginWithDevice(
+            accessCode: "",
+            deviceIdentifier: "",
+            email: "",
+            fingerPrint: "",
+            publicKey: ""
+        )
+
+        XCTAssertEqual(response, .fixture())
     }
 
     /// `preValidateSingleSignOn(organizationIdentifier:)` successfully decodes the pre-validate

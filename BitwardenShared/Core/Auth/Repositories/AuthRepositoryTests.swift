@@ -360,7 +360,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `getFingerprintPhrase(userId:)` gets the account's fingerprint phrase.
+    /// `getFingerprintPhrase()` gets the account's fingerprint phrase.
     func test_getFingerprintPhrase() async throws {
         let account = Account.fixture()
         stateService.accounts = [account]
@@ -370,22 +370,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedUserKey: "USER_KEY"
         ))
 
-        let phrase = try await subject.getFingerprintPhrase(userId: account.profile.userId)
+        let phrase = try await subject.getFingerprintPhrase()
         XCTAssertEqual(clientPlatform.fingerprintMaterialString, account.profile.userId)
         XCTAssertEqual(try clientPlatform.fingerprintResult.get(), phrase)
     }
 
-    /// `getFingerprintPhrase(userId:)` throws an error if there is no active account.
+    /// `getFingerprintPhrase()` throws an error if there is no active account.
     func test_getFingerprintPhrase_throws() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getFingerprintPhrase(userId: "")
+            _ = try await subject.getFingerprintPhrase()
         }
-    }
-
-    /// `initiateLoginWithDevice(email:)` initiates the login with device process.
-    func test_initiateLoginWithDevice() async throws {
-        let response = try await subject.initiateLoginWithDevice(deviceId: "123", email: "example@email.com")
-        XCTAssertEqual(response, "fingerprint")
     }
 
     /// `passwordStrength(email:password)` returns the calculated password strength.

@@ -4,23 +4,25 @@ import Foundation
 @testable import BitwardenShared
 
 class MockClientAuth: ClientAuthProtocol {
-    var approveAuthRequestResult: Result<String, Error> = .success("asymmetricEncString")
+    var approveAuthRequestPublicKey: String?
+    var approveAuthRequestResult: Result<AsymmetricEncString, Error> = .success("")
+
+    var hashPasswordEmail: String?
+    var hashPasswordPassword: String?
+    var hashPasswordKdfParams: Kdf?
+    var hashPasswordPurpose: HashPurpose?
     var hashPasswordResult: Result<String, Error> = .success("hash password")
+
+    var makeRegisterKeysEmail: String?
+    var makeRegisterKeysPassword: String?
+    var makeRegisterKeysKdf: Kdf?
     var makeRegisterKeysResult: Result<RegisterKeyResponse, Error> = .success(RegisterKeyResponse(
         masterPasswordHash: "masterPasswordHash",
         encryptedUserKey: "encryptedUserKey",
         keys: RsaKeyPair(public: "public", private: "private")
     ))
 
-    var hashPasswordEmail: String?
-    var hashPasswordPassword: String?
-    var hashPasswordKdfParams: Kdf?
-    var hashPasswordPurpose: HashPurpose?
-
-    var makeRegisterKeysEmail: String?
-    var makeRegisterKeysPassword: String?
-    var makeRegisterKeysKdf: Kdf?
-
+    var newAuthRequestEmail: String?
     var newAuthRequestResult: Result<AuthRequestResponse, Error> = .success(
         AuthRequestResponse(
             privateKey: "private",
@@ -44,7 +46,8 @@ class MockClientAuth: ClientAuthProtocol {
     var validatePasswordResult: Bool = false
 
     func approveAuthRequest(publicKey: String) async throws -> AsymmetricEncString {
-        try approveAuthRequestResult.get()
+        approveAuthRequestPublicKey = publicKey
+        return try approveAuthRequestResult.get()
     }
 
     func hashPassword(email: String, password: String, kdfParams: Kdf, purpose: HashPurpose) async throws -> String {
@@ -65,7 +68,8 @@ class MockClientAuth: ClientAuthProtocol {
     }
 
     func newAuthRequest(email: String) async throws -> AuthRequestResponse {
-        try newAuthRequestResult.get()
+        newAuthRequestEmail = email
+        return try newAuthRequestResult.get()
     }
 
     func passwordStrength(password: String, email: String, additionalInputs: [String]) async -> UInt8 {
