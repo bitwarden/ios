@@ -50,6 +50,7 @@ struct ToggleFieldView<State>: View {
                 field.title,
                 isOn: Binding(get: { field.isOn }, set: action)
             )
+            .accessibilityIdentifier(field.accessibilityId ?? field.id)
             .accessibilityLabel(field.accessibilityLabel ?? field.title)
             .toggleStyle(.bitwarden)
             .padding(.bottom, 16)
