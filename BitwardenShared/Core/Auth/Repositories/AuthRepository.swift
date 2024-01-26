@@ -116,10 +116,10 @@ protocol AuthRepository: AnyObject {
     /// Sets the SessionTimeoutValue.
     ///
     /// - Parameters:
-    ///   - value: The timeout value.
+    ///   - newValue: The timeout value.
     ///   - userId: The user's ID.
     ///
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
+    func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws
 
     /// Attempts to unlock the user's vault with biometrics.
     ///
@@ -159,10 +159,10 @@ extension AuthRepository {
 
     /// Sets the SessionTimeoutValue upon the app being backgrounded.
     ///
-    /// - Parameter value: The timeout value.
+    /// - Parameter newValue: The timeout value.
     ///
-    func setVaultTimeout(value: SessionTimeoutValue) async throws {
-        try await setVaultTimeout(value: value, userId: nil)
+    func setVaultTimeout(value newValue: SessionTimeoutValue) async throws {
+        try await setVaultTimeout(value: newValue, userId: nil)
     }
 }
 
@@ -352,12 +352,12 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+    func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws {
         // Ensure we have a user id.
         let id = try await userIdOrActive(userId)
         let currentValue = try? await vaultTimeoutService.sessionTimeoutValue(userId: id)
         // Set or delete the never lock key according to the current and new values.
-        if case .never = value {
+        if case .never = newValue {
             try await keychainService.setUserAuthKey(
                 for: .neverLock(
                     userId: id
@@ -372,7 +372,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         // Then configure the vault timeout service with the correct value.
         try await vaultTimeoutService.setVaultTimeout(
-            value: value,
+            value: newValue,
             userId: id
         )
     }
