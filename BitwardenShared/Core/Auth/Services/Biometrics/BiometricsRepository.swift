@@ -19,17 +19,17 @@ protocol BiometricsRepository: AnyObject {
     ///     Should be called following a successful launch when biometric unlock is enabled.
     func configureBiometricIntegrity() async throws
 
-    /// Returns the status for user BiometricAuthentication.
-    ///
-    /// - Returns: The a `BiometricAuthorizationStatus`.
-    ///
-    func getBiometricUnlockStatus() async throws -> BiometricsUnlockStatus
-
     /// Sets the biometric unlock preference for the active user.
     ///
     /// - Parameter authKey: An optional `String` representing the user auth key. If nil, Biometric Unlock is disabled.
     ///
     func setBiometricUnlockKey(authKey: String?) async throws
+
+    /// Returns the status for user BiometricAuthentication.
+    ///
+    /// - Returns: The a `BiometricAuthorizationStatus`.
+    ///
+    func getBiometricUnlockStatus() async throws -> BiometricsUnlockStatus
 
     /// Attempts to retrieve a user's auth key with biometrics.
     ///
@@ -80,10 +80,22 @@ class DefaultBiometricsRepository: BiometricsRepository {
         }
     }
 
+    func setBiometricUnlockKey(authKey: String?) async throws {
+        guard let authKey else {
+            try await stateService.setBiometricAuthenticationEnabled(false)
+            try await stateService.setBiometricIntegrityState(nil)
+            try? await deleteUserAuthKey()
+            return
+        }
+
+        try await setUserBiometricAuthKey(value: authKey)
+        try await stateService.setBiometricAuthenticationEnabled(true)
+    }
+
     func getBiometricUnlockStatus() async throws -> BiometricsUnlockStatus {
         let biometryStatus = biometricsService.getBiometricAuthStatus()
         if case .lockedOut = biometryStatus {
-            throw BiometricsServiceError.deleteAuthKeyFailed
+            throw BiometricsServiceError.biometryLocked
         }
         let hasEnabledBiometricUnlock = try await stateService.getBiometricAuthenticationEnabled()
         let hasValidIntegrityState = await isBiometricIntegrityValid()
@@ -102,18 +114,6 @@ class DefaultBiometricsRepository: BiometricsRepository {
              .unknownError:
             return .notAvailable
         }
-    }
-
-    func setBiometricUnlockKey(authKey: String?) async throws {
-        guard let authKey else {
-            try await stateService.setBiometricAuthenticationEnabled(false)
-            try await stateService.setBiometricIntegrityState(nil)
-            try? await deleteUserAuthKey()
-            return
-        }
-
-        try await setUserBiometricAuthKey(value: authKey)
-        try await stateService.setBiometricAuthenticationEnabled(true)
     }
 
     func getUserAuthKey() async throws -> String {
