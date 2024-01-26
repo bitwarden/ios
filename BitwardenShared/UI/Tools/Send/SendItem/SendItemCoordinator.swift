@@ -35,7 +35,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
     let services: Services
 
     /// The stack navigator that is managed by this coordinator.
-    let stackNavigator: StackNavigator
+    weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -94,12 +94,12 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             hasPremium: hasPremium
         )
         let processor = AddEditSendItemProcessor(
-            coordinator: self,
+            coordinator: asAnyCoordinator(),
             services: services,
             state: state
         )
         let view = AddEditSendItemView(store: Store(processor: processor))
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 
     /// Shows the edit item screen.
@@ -114,12 +114,12 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             hasPremium: hasPremium
         )
         let processor = AddEditSendItemProcessor(
-            coordinator: self,
+            coordinator: asAnyCoordinator(),
             services: services,
             state: state
         )
         let view = AddEditSendItemView(store: Store(processor: processor))
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 
     /// Navigates to the specified `FileSelectionRoute`.
@@ -132,6 +132,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
         route: FileSelectionRoute,
         delegate: FileSelectionDelegate
     ) {
+        guard let stackNavigator else { return }
         let coordinator = module.makeFileSelectionCoordinator(
             delegate: delegate,
             stackNavigator: stackNavigator
@@ -150,6 +151,6 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             activityItems: items,
             applicationActivities: nil
         )
-        stackNavigator.present(viewController)
+        stackNavigator?.present(viewController)
     }
 }

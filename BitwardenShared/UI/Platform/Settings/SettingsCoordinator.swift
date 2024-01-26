@@ -59,7 +59,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     let services: Services
 
     /// The stack navigator that is managed by this coordinator.
-    let stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -91,7 +91,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         case let .addEditFolder(folder):
             showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
         case let .alert(alert):
-            stackNavigator.present(alert)
+            stackNavigator?.present(alert)
         case .appearance:
             showAppearance()
         case .appExtension:
@@ -103,11 +103,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         case .deleteAccount:
             showDeleteAccount()
         case let .didDeleteAccount(otherAccounts):
-            stackNavigator.dismiss {
+            stackNavigator?.dismiss {
                 self.delegate?.didDeleteAccount(otherAccounts: otherAccounts ?? nil)
             }
         case .dismiss:
-            stackNavigator.dismiss()
+            stackNavigator?.dismiss()
         case .exportVault:
             showExportVault()
         case .folders:
@@ -152,7 +152,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = AboutView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator.push(viewController, navigationTitle: Localizations.about)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.about)
     }
 
     /// Shows the account security screen.
@@ -167,7 +167,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = AccountSecurityView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator.push(viewController, navigationTitle: Localizations.accountSecurity)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.accountSecurity)
     }
 
     /// Shows the add or edit folder screen.
@@ -184,7 +184,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
         let view = AddEditFolderView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator.present(navController)
+        stackNavigator?.present(navController)
     }
 
     /// Shows the appearance screen.
@@ -199,7 +199,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = AppearanceView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator.push(viewController, navigationTitle: Localizations.appearance)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.appearance)
     }
 
     /// Shows the app extension screen.
@@ -212,7 +212,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = AppExtensionView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator.push(viewController, navigationTitle: Localizations.appExtension)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.appExtension)
     }
 
     /// Shows the app extension setup screen.
@@ -235,7 +235,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
                     activityType?.rawValue == Bundle.main.appExtensionIdentifier
             )
         }
-        stackNavigator.present(viewController)
+        stackNavigator?.present(viewController)
     }
 
     /// Shows the auto-fill screen.
@@ -249,7 +249,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = AutoFillView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator.push(viewController, navigationTitle: Localizations.autofill)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.autofill)
     }
 
     /// Shows the delete account screen.
@@ -262,7 +262,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
         let view = DeleteAccountView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator.present(navController)
+        stackNavigator?.present(navController)
     }
 
     /// Shows the export vault screen.
@@ -274,7 +274,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
         let view = ExportVaultView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator.present(navController)
+        stackNavigator?.present(navController)
     }
 
     /// Shows the folders screen.
@@ -288,7 +288,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = FoldersView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator.push(viewController, navigationTitle: Localizations.folders)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.folders)
     }
 
     /// Shows the other settings screen.
@@ -303,7 +303,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = OtherSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator.push(viewController, navigationTitle: Localizations.other)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.other)
     }
 
     /// Shows the password auto-fill screen.
@@ -312,7 +312,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = PasswordAutoFillView()
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator.push(viewController, navigationTitle: Localizations.passwordAutofill)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.passwordAutofill)
     }
 
     /// Shows the pending login requests screen.
@@ -325,7 +325,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
         let view = PendingRequestsView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator.present(navController)
+        stackNavigator?.present(navController)
     }
 
     /// Shows the select language screen.
@@ -339,7 +339,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
         let view = SelectLanguageView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator.present(navController)
+        stackNavigator?.present(navController)
     }
 
     /// Shows the settings screen.
@@ -350,7 +350,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             state: SettingsState()
         )
         let view = SettingsView(store: Store(processor: processor))
-        stackNavigator.push(view)
+        stackNavigator?.push(view)
     }
 
     /// Shows the vault screen.
@@ -363,6 +363,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = VaultSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator.push(viewController, navigationTitle: Localizations.vault)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.vault)
     }
 }

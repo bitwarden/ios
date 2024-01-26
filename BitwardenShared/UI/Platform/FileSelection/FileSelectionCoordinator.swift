@@ -21,7 +21,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     let services: Services
 
     /// The navigator that is used to present each of the flows within this coordinator.
-    let stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Intialization
 
@@ -100,7 +100,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
                 viewController.sourceType = .camera
                 viewController.allowsEditing = false
                 viewController.delegate = self
-                stackNavigator.present(viewController)
+                stackNavigator?.present(viewController)
             } else {
                 // TODO: BIT-1466 Present an alert about camera permissions being needed.
             }
@@ -114,7 +114,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
         viewController.allowsMultipleSelection = false
         viewController.shouldShowFileExtensions = true
         viewController.delegate = self
-        stackNavigator.present(viewController)
+        stackNavigator?.present(viewController)
     }
 
     /// Shows the photo library screen.
@@ -125,7 +125,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
         configuration.selectionLimit = 1
         let viewController = PHPickerViewController(configuration: configuration)
         viewController.delegate = self
-        stackNavigator.present(viewController)
+        stackNavigator?.present(viewController)
     }
 }
 

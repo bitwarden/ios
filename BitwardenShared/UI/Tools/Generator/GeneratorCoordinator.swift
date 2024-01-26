@@ -47,7 +47,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Properties
 
     /// The stack navigator that is managed by this coordinator.
-    let stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -80,7 +80,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         case let .complete(type, value):
             delegate?.didCompleteGenerator(for: type, with: value)
         case .dismiss:
-            stackNavigator.dismiss()
+            stackNavigator?.dismiss()
         case let .generator(type, emailWebsite):
             showGenerator(for: type, emailWebsite: emailWebsite)
         case .generatorHistory:
@@ -112,7 +112,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
             state: state
         )
         let view = GeneratorView(store: Store(processor: processor))
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 
     /// Shows the generator password history screen.
@@ -123,6 +123,6 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         coordinator.start()
         coordinator.navigate(to: .passwordHistoryList(.generator))
 
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 }

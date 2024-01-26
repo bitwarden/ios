@@ -283,7 +283,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
     func test_show_hide_loadingOverlay() throws {
         stackNavigator.rootViewController = UIViewController()
-        try setKeyWindowRoot(viewController: XCTUnwrap(subject.stackNavigator.rootViewController))
+        try setKeyWindowRoot(viewController: XCTUnwrap(subject.stackNavigator?.rootViewController))
 
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
 
