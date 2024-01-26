@@ -17,7 +17,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
 
     // MARK: Delegates
 
-    var vaultFilterDelegate: VaultFilterDelegate?
+    weak var vaultFilterDelegate: VaultFilterDelegate?
 
     // MARK: Private Properties
 
