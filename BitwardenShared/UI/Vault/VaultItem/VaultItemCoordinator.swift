@@ -363,7 +363,7 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
     ///
     private func showViewItem(id: String, delegate: CipherItemOperationDelegate?) {
         let processor = ViewItemProcessor(
-            coordinator: self,
+            coordinator: asAnyCoordinator(),
             delegate: delegate,
             itemId: id,
             services: services,

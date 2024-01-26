@@ -40,6 +40,8 @@ public protocol Coordinator<Route>: AnyObject {
     func start()
 }
 
+// swiftlint:disable weak_navigator
+
 /// A protocol for an object that has a `Navigator`.
 ///
 protocol HasNavigator {
@@ -50,6 +52,7 @@ protocol HasNavigator {
 
 /// A protocol for an object that has a `StackNavigator`.
 ///
+@MainActor
 protocol HasStackNavigator: HasNavigator {
     /// A weak reference to this item's `StackNavigator`. This value should be `weak`, otherwise a
     /// retain cycle might be introduced.
@@ -58,6 +61,7 @@ protocol HasStackNavigator: HasNavigator {
 
 /// A protocol for an object that has a `TabNavigator`.
 ///
+@MainActor
 protocol HasTabNavigator: HasNavigator {
     /// A weak reference to this item's `TabNavigator`. This value should be `weak`, otherwise a
     /// retain cycle might be introduced.
@@ -66,6 +70,7 @@ protocol HasTabNavigator: HasNavigator {
 
 /// A protocol for an object that has a `RootNavigator`.
 ///
+@MainActor
 protocol HasRootNavigator: HasNavigator {
     /// A weak reference to this item's `RootNavigator`. This value should be `weak`, otherwise a
     /// retain cycle might be introduced.
@@ -139,3 +144,5 @@ extension HasRootNavigator {
     /// The root navigator.
     var navigator: Navigator? { rootNavigator }
 }
+
+// swiftlint:enable weak_navigator
