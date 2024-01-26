@@ -39,6 +39,9 @@ private struct MainSendListView: View {
             search
                 .hidden(!isSearching)
         }
+        .onChange(of: isSearching) { newValue in
+            store.send(.searchStateChanged(isSearching: newValue))
+        }
     }
 
     // MARK: Private views

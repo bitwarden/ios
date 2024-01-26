@@ -859,6 +859,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
 
+    /// `receive(_:)` with `.searchStateChanged` updates the state when the search state changes.
+    func test_receive_searchStateChanged() {
+        subject.receive(.searchStateChanged(isSearching: true))
+        subject.receive(.searchTextChanged("File"))
+        subject.receive(.searchStateChanged(isSearching: false))
+        XCTAssertTrue(subject.state.searchText.isEmpty)
+    }
+
     /// `receive(_:)` with `.searchTextChanged` without a matching search term updates the state correctly.
     func test_receive_searchTextChanged_withoutResult() {
         subject.state.searchText = ""

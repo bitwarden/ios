@@ -223,6 +223,14 @@ class SendListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.infoUrl, ExternalLinksConstants.sendInfo)
     }
 
+    /// `receive(_:)` with `.searchStateChanged` updates the state when the search state changes.
+    func test_receive_searchStateChanged() {
+        subject.receive(.searchStateChanged(isSearching: true))
+        subject.receive(.searchTextChanged("Send"))
+        subject.receive(.searchStateChanged(isSearching: false))
+        XCTAssertTrue(subject.state.searchText.isEmpty)
+    }
+
     /// `receive(_:)` with `.searchTextChanged` updates the state correctly.
     func test_receive_searchTextChanged() {
         subject.state.searchText = ""

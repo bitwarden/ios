@@ -80,6 +80,11 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             state.infoUrl = nil
         case .infoButtonPressed:
             state.infoUrl = ExternalLinksConstants.sendInfo
+        case let .searchStateChanged(isSearching):
+            guard isSearching else {
+                state.searchText = ""
+                return
+            }
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .sendListItemRow(rowAction):

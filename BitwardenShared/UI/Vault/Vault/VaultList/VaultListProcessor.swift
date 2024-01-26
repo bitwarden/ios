@@ -113,7 +113,10 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
         case let .morePressed(item):
             showMoreOptionsAlert(for: item)
         case let .searchStateChanged(isSearching: isSearching):
-            guard isSearching else { return }
+            guard isSearching else {
+                state.searchText = ""
+                return
+            }
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue

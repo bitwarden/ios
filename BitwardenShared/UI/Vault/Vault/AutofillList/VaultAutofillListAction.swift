@@ -14,7 +14,10 @@ enum VaultAutofillListAction: Equatable {
     /// A forwarded profile switcher action.
     case profileSwitcherAction(ProfileSwitcherAction)
 
-    /// The text in the search bar was changed.
+    /// The search bar focus changed.
+    ///
+    /// - Parameter isSearching: Whether the user is currently searching.
+    ///
     case searchStateChanged(isSearching: Bool)
 
     /// The text in the search bar was changed.
