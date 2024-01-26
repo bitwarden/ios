@@ -113,6 +113,7 @@ private struct VaultMainView: View {
                             )
                             .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                         }
+                        .accessibilityIdentifier("CipherCell")
                     }
                 }
             }
@@ -123,7 +124,7 @@ private struct VaultMainView: View {
         }
     }
 
-    /// Displays the vault filter for search row if the user is a member of any org
+    /// Displays the vault filter for search row if the user is a member of any org.
     private var searchVaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: true, store: store.child(
@@ -288,6 +289,7 @@ struct VaultListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
+            .accessibilityIdentifier("SearchFieldEntry")
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
