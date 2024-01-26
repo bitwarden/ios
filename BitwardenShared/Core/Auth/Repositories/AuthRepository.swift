@@ -427,8 +427,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     /// Attempts to unlock the vault with a given method.
     ///
-    /// - Parameters:
-    ///   - method: The unlocking `InitUserCryptoMethod` method.
+    /// - Parameter method: The unlocking `InitUserCryptoMethod` method.
     ///
     private func unlockVault(method: InitUserCryptoMethod) async throws {
         let account = try await stateService.getActiveAccount()
