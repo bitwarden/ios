@@ -161,8 +161,7 @@ extension AuthRepository {
 
     /// Sets the SessionTimeoutValue upon the app being backgrounded.
     ///
-    /// - Parameters:
-    ///   - value: The timeout value.
+    /// - Parameter value: The timeout value.
     ///
     func setVaultTimeout(value: SessionTimeoutValue) async throws {
         try await setVaultTimeout(value: value, userId: nil)
