@@ -59,6 +59,12 @@ public enum SettingsRoute: Equatable, Hashable {
     ///
     case lockVault(account: Account, userInitiated: Bool)
 
+    /// A route to view a login request.
+    ///
+    /// - Parameter request: The login request to display.
+    ///
+    case loginRequest(_ request: LoginRequest)
+
     /// A route to log the user out.
     ///
     /// - Parameter userInitiated: Did a user action initiate the logout.

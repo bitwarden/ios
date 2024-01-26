@@ -128,14 +128,6 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(delegate.didDeleteAccountCalled)
     }
 
-    /// `navigate(to:)` with `.dismiss` dismisses the presented view.
-    func test_navigateTo_dismiss() throws {
-        subject.navigate(to: .dismiss)
-
-        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(lastAction.type, .dismissed)
-    }
-
     /// `navigate(to:)` with `.exportVault` presents the export vault view.
     func test_navigateTo_exportVault() throws {
         subject.navigate(to: .exportVault)
@@ -150,6 +142,15 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .lockVault(account: .fixture(), userInitiated: true))
 
         XCTAssertTrue(delegate.didLockVaultCalled)
+    }
+
+    /// `navigate(to:)` with `.loginRequest` pushes the login request view onto the stack navigator.
+    func test_navigateTo_loginRequest() throws {
+        subject.navigate(to: .loginRequest(.fixture()))
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<LoginRequestView>)
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.

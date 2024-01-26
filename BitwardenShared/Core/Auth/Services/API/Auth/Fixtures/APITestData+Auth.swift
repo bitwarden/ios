@@ -1,7 +1,8 @@
 extension APITestData {
     // MARK: Identity Token
 
-    static let authRequestSuccess = loadFromJsonBundle(resource: "AuthRequests")
+    static let authRequestSuccess = loadFromJsonBundle(resource: "AuthRequest")
+    static let authRequestsSuccess = loadFromJsonBundle(resource: "AuthRequests")
     static let emptyResponse = APITestData(data: "{}".data(using: .utf8)!)
     static let identityTokenSuccess = loadFromJsonBundle(resource: "IdentityTokenSuccess")
     static let identityTokenSuccessTwoFactorToken = loadFromJsonBundle(resource: "IdentityTokenSuccessTwoFactorToken")
