@@ -425,7 +425,7 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
-    /// Attempts to unlocks the vault with a given method.
+    /// Attempts to unlock the vault with a given method.
     ///
     /// - Parameters:
     ///   - method: The unlocking `InitUserCryptoMethod` method.
