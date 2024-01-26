@@ -204,6 +204,15 @@ class GeneratorViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
+    /// Test a snapshot of the password generation view with a policy in effect.
+    func test_snapshot_generatorViewPassword_policyInEffect() {
+        processor.state.isPolicyInEffect = true
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
+    }
+
     /// Test a snapshot of the catch-all username generation view.
     func test_snapshot_generatorViewUsernameCatchAll() {
         processor.state.generatorType = .username

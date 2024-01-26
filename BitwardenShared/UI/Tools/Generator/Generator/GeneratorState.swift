@@ -70,6 +70,9 @@ struct GeneratorState: Equatable {
     /// The generated value (password, passphrase or username).
     var generatedValue: String = ""
 
+    /// Whether there's a password generation policy in effect.
+    var isPolicyInEffect = false
+
     /// The options used to generate a password.
     var passwordState = PasswordState()
 
