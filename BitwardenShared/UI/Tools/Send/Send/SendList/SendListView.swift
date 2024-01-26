@@ -82,7 +82,7 @@ private struct MainSendListView: View {
             LazyVStack(alignment: .leading, spacing: 20) {
                 ForEach(store.state.sections) { section in
                     sendItemSectionView(
-                        title: section.name,
+                        sectionName: section.name,
                         isCountDisplayed: section.isCountDisplayed,
                         items: section.items
                     )
@@ -101,7 +101,7 @@ private struct MainSendListView: View {
                 LazyVStack(spacing: 0) {
                     if !store.state.searchResults.isEmpty {
                         sendItemSectionView(
-                            title: nil,
+                            sectionName: nil,
                             isCountDisplayed: false,
                             items: store.state.searchResults
                         )
@@ -118,22 +118,22 @@ private struct MainSendListView: View {
     /// Creates a section that appears in the sends list.
     ///
     /// - Parameters:
-    ///   - title: The title of the section.
+    ///   - sectionName: The title of the section.
     ///   - isCountDisplayed: A flag indicating if the count should be displayed
     ///     in this section's title.
     ///   - items: The `SendListItem`s in this section.
     ///
     @ViewBuilder
     private func sendItemSectionView(
-        title: String?,
+        sectionName: String?,
         isCountDisplayed: Bool,
         items: [SendListItem]
     ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
-            if title != nil || isCountDisplayed {
+            if sectionName != nil || isCountDisplayed {
                 HStack(alignment: .firstTextBaseline) {
-                    if let title {
-                        SectionHeaderView(title)
+                    if let sectionName {
+                        SectionHeaderView(sectionName)
                     }
                     Spacer()
                     if isCountDisplayed {
@@ -149,7 +149,8 @@ private struct MainSendListView: View {
                             state: { _ in
                                 SendListItemRowState(
                                     item: item,
-                                    hasDivider: items.last != item
+                                    hasDivider: items.last != item,
+                                    sectionName: sectionName ?? ""
                                 )
                             },
                             mapAction: SendListAction.sendListItemRow,

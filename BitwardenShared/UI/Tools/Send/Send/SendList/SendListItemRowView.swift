@@ -7,11 +7,33 @@ import SwiftUI
 struct SendListItemRowState: Equatable {
     // MARK: Properties
 
+    /// The accessibility identifier for the send cell.
+    var accessibilityIdentifier: String? {
+        guard sectionName == Localizations.types else {
+            return "SendCell"
+        }
+        switch item.itemType {
+        case .send:
+            break
+        case let .group(type, _):
+            if type.localizedName == Localizations.text {
+                return "SendTextFilter"
+            }
+            if type.localizedName == Localizations.file {
+                return "SendFileFilter"
+            }
+        }
+        return nil
+    }
+
     /// The item displayed in this row.
     var item: SendListItem
 
     /// A flag indicating if this row should display a divider on the bottom edge.
     var hasDivider: Bool
+
+    /// The section this list item row is in.
+    var sectionName: String
 }
 
 // MARK: - SendListItemRowAction
@@ -59,6 +81,7 @@ struct SendListItemRowView: View {
                 } label: {
                     buttonLabel(for: store.state.item)
                 }
+                .accessibilityIdentifier(store.state.accessibilityIdentifier ?? "SendCell")
 
                 if case let .send(sendView) = store.state.item.itemType {
                     optionsMenu(for: sendView)
@@ -129,6 +152,7 @@ struct SendListItemRowView: View {
             AsyncButton(Localizations.copyLink) {
                 await store.perform(.copyLinkPressed(sendView))
             }
+            .accessibilityIdentifier("Copy")
             Button(Localizations.edit) {
                 store.send(.editPressed(sendView))
             }
@@ -146,6 +170,7 @@ struct SendListItemRowView: View {
                 .frame(width: 22, height: 22)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
         }
+        .accessibilityIdentifier("Options")
     }
 
     /// The label for a send.
@@ -218,7 +243,8 @@ struct SendListItemRowView: View {
                 processor: StateProcessor(
                     state: SendListItemRowState(
                         item: SendListItem(id: "1", itemType: .group(.text, 42)),
-                        hasDivider: true
+                        hasDivider: true, 
+                        sectionName: "TYPES"
                     )
                 )
             )
@@ -228,7 +254,8 @@ struct SendListItemRowView: View {
                 processor: StateProcessor(
                     state: SendListItemRowState(
                         item: SendListItem(id: "1", itemType: .group(.file, 42)),
-                        hasDivider: true
+                        hasDivider: true,
+                        sectionName: "ALL SENDS"
                     )
                 )
             )
@@ -259,7 +286,8 @@ struct SendListItemRowView: View {
                                 expirationDate: Date().advanced(by: -1)
                             ))
                         ),
-                        hasDivider: true
+                        hasDivider: true,
+                        sectionName: "ALL SENDS"
                     )
                 )
             )
@@ -290,7 +318,8 @@ struct SendListItemRowView: View {
                                 expirationDate: Date().advanced(by: 100)
                             ))
                         ),
-                        hasDivider: false
+                        hasDivider: false,
+                        sectionName: "ALL SENDS"
                     )
                 )
             )
