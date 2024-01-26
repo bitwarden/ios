@@ -7,6 +7,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<SettingsRoute>!
     var errorReporter: MockErrorReporter!
+    var policyService: MockPolicyService!
     var settingsRepository: MockSettingsRepository!
     var subject: ExportVaultProcessor!
 
@@ -17,9 +18,11 @@ class ExportVaultProcessorTests: BitwardenTestCase {
 
         coordinator = MockCoordinator<SettingsRoute>()
         errorReporter = MockErrorReporter()
+        policyService = MockPolicyService()
         settingsRepository = MockSettingsRepository()
         let services = ServiceContainer.withMocks(
             errorReporter: errorReporter,
+            policyService: policyService,
             settingsRepository: settingsRepository
         )
 
@@ -34,6 +37,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
 
         coordinator = nil
         errorReporter = nil
+        policyService = nil
         settingsRepository = nil
         subject = nil
     }
@@ -60,6 +64,16 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         await exportAction.handler?(exportAction, [])
 
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `loadData` loads the initial data for the view.
+    func test_perform_loadData() async {
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.disableIndividualVaultExport)
+
+        policyService.policyAppliesToUserResult[.disablePersonalVaultExport] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.disableIndividualVaultExport)
     }
 
     /// `.receive()` with `.dismiss` dismisses the view.

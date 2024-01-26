@@ -9,7 +9,6 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var cancellables: Set<AnyCancellable>!
     var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
-    var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
 
@@ -18,8 +17,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         cancellables = []
         stateService = MockStateService()
-        timeProvider = MockTimeProvider(.currentTime)
-        subject = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
+        subject = DefaultVaultTimeoutService(stateService: stateService)
     }
 
     override func tearDown() {
@@ -28,7 +26,6 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         cancellables = nil
         subject = nil
         stateService = nil
-        timeProvider = nil
     }
 
     // MARK: Tests
@@ -173,7 +170,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         try await subject.setLastActiveTime(userId: account.profile.userId)
         XCTAssertEqual(
             stateService.lastActiveTime[account.profile.userId]!.timeIntervalSince1970,
-            timeProvider.presentTime.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
             accuracy: 1.0
         )
     }
@@ -206,7 +203,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_shouldSessionTimeout_false() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.lastActiveTime[account.profile.userId] = timeProvider.presentTime
+        stateService.lastActiveTime[account.profile.userId] = Date()
         stateService.vaultTimeout[account.profile.userId] = .custom(120)
         let shouldTimeout = try await subject.shouldSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
@@ -216,7 +213,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_shouldSessionTimeout_never() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.lastActiveTime[account.profile.userId] = timeProvider.presentTime
+        stateService.lastActiveTime[account.profile.userId] = Date()
         stateService.vaultTimeout[account.profile.userId] = .never
         let shouldTimeout = try await subject.shouldSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
@@ -226,7 +223,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_shouldSessionTimeout_true_onAppRestart() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.lastActiveTime[account.profile.userId] = timeProvider.presentTime
+        stateService.lastActiveTime[account.profile.userId] = Date()
         stateService.vaultTimeout[account.profile.userId] = .onAppRestart
         let shouldTimeout = try await subject.shouldSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)

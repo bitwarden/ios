@@ -20,6 +20,7 @@ typealias Services = HasAPIService
     & HasNotificationCenterService
     & HasNotificationService
     & HasPasteboardService
+    & HasPolicyService
     & HasSendRepository
     & HasSettingsRepository
     & HasStateService
@@ -162,6 +163,13 @@ protocol HasPasteboardService {
 protocol HasNotificationCenterService {
     /// The service used by the application to access the system's notification center.
     var notificationCenterService: NotificationCenterService { get }
+}
+
+/// Protocol for an object that provides a `PolicyService`.
+///
+protocol HasPolicyService {
+    /// The service for managing the polices for the user.
+    var policyService: PolicyService { get }
 }
 
 /// Protocol for an object that provides a `SendRepository`.

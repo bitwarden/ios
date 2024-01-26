@@ -1,6 +1,6 @@
 /// API model for organization permissions.
 ///
-struct Permissions: Codable, Equatable {
+struct Permissions: Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// Whether the user can access event logs.
@@ -44,4 +44,27 @@ struct Permissions: Codable, Equatable {
 
     /// Whether the user can manager users.
     let manageUsers: Bool
+}
+
+extension Permissions {
+    /// Initialize `Permissions` with default values.
+    ///
+    init() {
+        self.init(
+            accessEventLogs: false,
+            accessImportExport: false,
+            accessReports: false,
+            createNewCollections: false,
+            deleteAnyCollection: false,
+            deleteAssignedCollections: false,
+            editAnyCollection: false,
+            editAssignedCollections: false,
+            manageGroups: false,
+            managePolicies: false,
+            manageResetPassword: false,
+            manageScim: false,
+            manageSso: false,
+            manageUsers: false
+        )
+    }
 }

@@ -9,7 +9,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var appSettingsStore: MockAppSettingsStore!
     var dataStore: DataStore!
     var subject: DefaultStateService!
-    var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
 
@@ -18,13 +17,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore = MockAppSettingsStore()
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
-        timeProvider = MockTimeProvider(.currentTime)
 
-        subject = DefaultStateService(
-            appSettingsStore: appSettingsStore,
-            dataStore: dataStore,
-            timeProvider: timeProvider
-        )
+        subject = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
     }
 
     override func tearDown() {
@@ -33,7 +27,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore = nil
         dataStore = nil
         subject = nil
-        timeProvider = nil
     }
 
     // MARK: Tests
@@ -417,11 +410,11 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        try await subject.setLastActiveTime(userId: "1")
+        try await subject.setLastActiveTime(Date(), userId: "1")
         let lastActiveTime = try await subject.getLastActiveTime(userId: "1")
         XCTAssertEqual(
             lastActiveTime!.timeIntervalSince1970,
-            timeProvider.presentTime.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
             accuracy: 1.0
         )
     }
@@ -1068,10 +1061,10 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        try await subject.setLastActiveTime(userId: "1")
+        try await subject.setLastActiveTime(Date(), userId: "1")
         XCTAssertEqual(
             appSettingsStore.lastActiveTime["1"]!.timeIntervalSince1970,
-            timeProvider.presentTime.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
             accuracy: 1.0
         )
     }

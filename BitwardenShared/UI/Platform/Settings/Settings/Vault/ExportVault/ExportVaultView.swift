@@ -8,20 +8,28 @@ struct ExportVaultView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ExportVaultState, ExportVaultAction, Void>
+    @ObservedObject var store: Store<ExportVaultState, ExportVaultAction, ExportVaultEffect>
 
     // MARK: View
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            if store.state.disableIndividualVaultExport {
+                InfoContainer(Localizations.disablePersonalVaultExportPolicyInEffect)
+            }
+
             fileFormatField
 
             passwordField
 
             exportVaultButton
         }
+        .disabled(store.state.disableIndividualVaultExport)
         .scrollView()
         .navigationBar(title: Localizations.exportVault, titleDisplayMode: .inline)
+        .task {
+            await store.perform(.loadData)
+        }
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
@@ -75,4 +83,14 @@ struct ExportVaultView: View {
 
 #Preview {
     ExportVaultView(store: Store(processor: StateProcessor(state: ExportVaultState())))
+}
+
+#Preview("Disabled Export") {
+    ExportVaultView(
+        store: Store(
+            processor: StateProcessor(
+                state: ExportVaultState(disableIndividualVaultExport: true)
+            )
+        )
+    )
 }

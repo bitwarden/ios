@@ -585,7 +585,10 @@ struct VaultListView_Previews: PreviewProvider {
                                     id: "",
                                     key: nil,
                                     name: "Org",
+                                    permissions: Permissions(),
                                     status: .confirmed,
+                                    type: .user,
+                                    usePolicies: true,
                                     usersGetPremium: false
                                 ),
                             ]
