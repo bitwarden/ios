@@ -217,7 +217,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         )
     }
 
-    /// `getBiometricUnlockStatus` tracks all biometrics compeonents.
+    /// `getBiometricUnlockStatus` tracks all biometrics components.
     func test_getBiometricUnlockStatus_success() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
