@@ -11,11 +11,9 @@ protocol AuthRepository: AnyObject {
 
     /// Enables or disables biometric unlock for the active user.
     ///
-    /// - Parameters:
-    ///   - enabled: Whether or not the the user wants biometric auth enabled.
+    /// - Parameter enabled: Whether or not the the user wants biometric auth enabled.
     ///     If `true`, the userAuthKey is stored to the keychain and the user preference is set to false.
     ///     If `false`, any userAuthKey is deleted from the keychain and the user preference is set to false.
-    ///   - userId: The user Id to be configured.
     ///
     func allowBioMetricUnlock(_ enabled: Bool) async throws
 
