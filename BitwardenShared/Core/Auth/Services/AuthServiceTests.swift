@@ -408,4 +408,4 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Ensure the resend email request runs successfully.
         try await subject.resendVerificationCodeEmail()
     }
-}
+} // swiftlint:disable:this file_length

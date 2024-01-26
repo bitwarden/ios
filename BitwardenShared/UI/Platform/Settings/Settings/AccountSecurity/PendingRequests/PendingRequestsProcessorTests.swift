@@ -119,6 +119,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     func test_receive_requestTapped() {
         subject.receive(.requestTapped(.fixture()))
         XCTAssertEqual(coordinator.routes.last, .loginRequest(.fixture()))
+        XCTAssertNotNil(coordinator.contexts.last as? PendingRequestsProcessor)
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
