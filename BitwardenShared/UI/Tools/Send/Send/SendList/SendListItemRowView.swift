@@ -7,7 +7,7 @@ import SwiftUI
 struct SendListItemRowState: Equatable {
     // MARK: Properties
 
-    /// The accessibility identifier for the send cell.
+    /// The accessibility identifier for the `SendListItem`.
     var accessibilityIdentifier: String? {
         guard sectionName == Localizations.types else {
             return "SendCell"
