@@ -585,7 +585,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// The user's password options are saved when any of the password options are changed.
-    func test_saveGeneratorOptions_password() {
+    func test_saveGeneratorOptions_password() { // swiftlint:disable:this function_body_length
         // Wait for the initial loading of the generation options to complete before making changes.
         waitFor { generatorRepository.getPasswordGenerationOptionsCalled }
 
