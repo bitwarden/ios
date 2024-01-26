@@ -373,7 +373,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
-    /// `setBiometricUnlockKey` can store a user key to the keychain and track the availbility in state.
+    /// `setBiometricUnlockKey` can store a user key to the keychain and track the availability in state.
     func test_setBiometricUnlockKey_withValue_success() async throws {
         stateService.activeAccount = .fixture()
         stateService.setBiometricAuthenticationEnabledResult = .success(())
