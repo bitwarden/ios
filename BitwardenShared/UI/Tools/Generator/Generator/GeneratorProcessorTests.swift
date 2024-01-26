@@ -624,7 +624,12 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor { generatorRepository.passwordGenerationOptions.length == 30 }
         XCTAssertEqual(generatorRepository.passwordGenerationOptions.length, 30)
 
-        subject.receive(.stepperValueChanged(field: stepperField(accessibilityId: "MinNumberValueLabel", keyPath: \.passwordState.minimumNumber), value: 4))
+        subject.receive(
+            .stepperValueChanged(
+                field: stepperField(accessibilityId: "MinNumberValueLabel", keyPath: \.passwordState.minimumNumber),
+                value: 4
+            )
+        )
         waitFor { generatorRepository.passwordGenerationOptions.minNumber == 4 }
         XCTAssertEqual(generatorRepository.passwordGenerationOptions.minNumber, 4)
 
@@ -685,10 +690,15 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor { generatorRepository.usernameGenerationOptions.duckDuckGoApiKey == "API_KEY" }
         XCTAssertEqual(generatorRepository.usernameGenerationOptions.duckDuckGoApiKey, "API_KEY")
 
-        subject.receive(.toggleValueChanged(
-            field: toggleField(accessibilityId: "CapitalizeRandomWordUsernameToggle", keyPath: \.usernameState.capitalize),
-            isOn: true
-        ))
+        subject.receive(
+            .toggleValueChanged(
+                field: toggleField(
+                    accessibilityId: "CapitalizeRandomWordUsernameToggle",
+                    keyPath: \.usernameState.capitalize
+                ),
+                isOn: true
+            )
+        )
         waitFor { generatorRepository.usernameGenerationOptions.capitalizeRandomWordUsername == true }
         XCTAssertEqual(generatorRepository.usernameGenerationOptions.capitalizeRandomWordUsername, true)
     }
