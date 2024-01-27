@@ -41,6 +41,7 @@ struct AutoFillView: View {
                 }
                 .toggleStyle(.bitwarden)
                 .styleGuide(.body)
+                .accessibilityIdentifier("CopyTotpAutomaticallySwitch")
 
                 Text(Localizations.copyTotpAutomaticallyDescription)
                     .styleGuide(.subheadline)
@@ -60,6 +61,7 @@ struct AutoFillView: View {
                 )
                 .cornerRadius(10)
                 .padding(.bottom, 8)
+                .accessibilityIdentifier("DefaultUriMatchDetectionChooser")
 
                 Text(Localizations.defaultUriMatchDetectionDescription)
                     .styleGuide(.subheadline)
