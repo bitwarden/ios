@@ -37,6 +37,16 @@ extension Alert {
         _ error: Error,
         _ tryAgain: (() async -> Void)? = nil
     ) -> Alert {
+        if let responseError = error as? ResponseValidationError {
+            if let errorResponse = try? ResponseValidationErrorModel(response: responseError.response) {
+                let message = errorResponse.errorModel.message
+                return defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: message
+                )
+            }
+        }
+
         switch error {
         case let ServerError.error(errorResponse):
             return defaultAlert(
@@ -48,7 +58,7 @@ extension Alert {
                 title: Localizations.anErrorHasOccurred,
                 message: message
             )
-        case let error as URLError where error.code == .notConnectedToInternet:
+        case let error as URLError where error.code == .notConnectedToInternet || error.code == .networkConnectionLost:
             return internetConnectionError(tryAgain)
         case let error as URLError where error.code == .timedOut:
             return defaultAlert(
