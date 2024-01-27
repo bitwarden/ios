@@ -79,6 +79,7 @@ struct AppearanceView: View {
             }
             .toggleStyle(.bitwarden)
             .styleGuide(.body)
+            .accessibilityIdentifier("ShowWebsiteIconsSwitch")
 
             Text(Localizations.showWebsiteIconsDescription)
                 .styleGuide(.subheadline)
