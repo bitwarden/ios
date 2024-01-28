@@ -48,6 +48,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setBiometricIntegrityStateError: Error?
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
+    var updateProfileResponse: ProfileResponseModel?
+    var updateProfileUserId: String?
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var vaultTimeout = [String: SessionTimeoutValue]()
 
@@ -64,6 +66,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountVolatileData.removeValue(forKey: userId)
         pinProtectedUserKeyValue[userId] = nil
         pinKeyEncryptedUserKeyValue[userId] = nil
+    }
+
+    func updateProfile(from response: ProfileResponseModel, userId: String) async {
+        updateProfileResponse = response
+        updateProfileUserId = userId
     }
 
     func deleteAccount() async throws {

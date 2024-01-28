@@ -4,7 +4,7 @@ public struct Account: Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// The account's profile details.
-    let profile: AccountProfile
+    var profile: AccountProfile
 
     /// The account's settings.
     var settings: AccountSettings
@@ -75,19 +75,19 @@ extension Account {
         // MARK: Properties
 
         /// The account's avatar color.
-        let avatarColor: String?
+        var avatarColor: String?
 
         /// The account's email.
-        let email: String
+        var email: String
 
         /// Whether the email has been verified.
-        let emailVerified: Bool?
+        var emailVerified: Bool?
 
         /// The reasoning for why a forced password reset may be required.
         let forcePasswordResetReason: ForcePasswordResetReason?
 
         /// Whether the account has premium
-        let hasPremiumPersonally: Bool?
+        var hasPremiumPersonally: Bool?
 
         /// The number of iterations to use when calculating a password hash.
         let kdfIterations: Int?
@@ -102,7 +102,7 @@ extension Account {
         let kdfType: KdfType?
 
         /// The account's name.
-        let name: String?
+        var name: String?
 
         /// The organization identifier for the account.
         let orgIdentifier: String?
