@@ -46,6 +46,12 @@ enum SendListItemRowEffect: Equatable {
 /// A view that displays details about a `SendListItem`, to be used as a row in a list.
 ///
 struct SendListItemRowView: View {
+    // MARK: Private Properties
+
+    /// The width of the icon displayed on the leading edge of the screen, scaled to match
+    /// DynamicType.
+    @ScaledMetric private var scaledIconWidth = 22
+
     // MARK: Properties
 
     /// The `Store` for this view.
@@ -68,7 +74,7 @@ struct SendListItemRowView: View {
 
             if store.state.hasDivider {
                 Divider()
-                    .padding(.leading, 22 + 16 + 16)
+                    .padding(.leading, scaledIconWidth + 16 + 16)
             }
         }
     }
@@ -83,8 +89,7 @@ struct SendListItemRowView: View {
     private func buttonLabel(for item: SendListItem) -> some View {
         HStack(spacing: 16) {
             Image(decorative: item.icon)
-                .resizable()
-                .frame(width: 22, height: 22)
+                .scaledFrame(width: 22, height: 22)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                 .padding(.vertical, 19)
 
@@ -142,8 +147,7 @@ struct SendListItemRowView: View {
             }
         } label: {
             Asset.Images.horizontalKabob.swiftUIImage
-                .resizable()
-                .frame(width: 22, height: 22)
+                .scaledFrame(width: 22, height: 22)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
         }
     }
@@ -161,43 +165,7 @@ struct SendListItemRowView: View {
                     .lineLimit(1)
                     .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
 
-                HStack(spacing: 8) {
-                    if sendView.disabled {
-                        Asset.Images.exclamationTriangle.swiftUIImage
-                            .resizable()
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                    }
-
-                    if sendView.hasPassword {
-                        Asset.Images.key.swiftUIImage
-                            .resizable()
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                    }
-
-                    if let maxAccessCount = sendView.maxAccessCount,
-                       sendView.accessCount >= maxAccessCount {
-                        Asset.Images.doNot.swiftUIImage
-                            .resizable()
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                    }
-
-                    if let expirationDate = sendView.expirationDate, expirationDate < Date() {
-                        Asset.Images.clock.swiftUIImage
-                            .resizable()
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                    }
-
-                    if sendView.deletionDate < Date() {
-                        Asset.Images.trash.swiftUIImage
-                            .resizable()
-                            .frame(width: 16, height: 16)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                    }
-                }
+                iconStack(for: sendView)
             }
 
             Text(sendView.revisionDate.formatted(date: .abbreviated, time: .shortened))
@@ -208,6 +176,50 @@ struct SendListItemRowView: View {
         .padding(.vertical, 9)
 
         Spacer()
+    }
+
+    private func icons(
+        for sendView: SendView
+    ) -> [(assets: [(asset: ImageAsset, id: String)], id: String)] {
+        var icons: [ImageAsset] = []
+        if sendView.disabled {
+            icons.append(Asset.Images.exclamationTriangle)
+        }
+        if sendView.hasPassword {
+            icons.append(Asset.Images.key)
+        }
+        if let maxAccessCount = sendView.maxAccessCount,
+           sendView.accessCount >= maxAccessCount {
+            icons.append(Asset.Images.doNot)
+        }
+        if let expirationDate = sendView.expirationDate, expirationDate < Date() {
+            icons.append(Asset.Images.clock)
+        }
+        if sendView.deletionDate < Date() {
+            icons.append(Asset.Images.trash)
+        }
+        let groupedIcons = stride(from: icons.startIndex, to: icons.endIndex, by: 3)
+            .map { index in
+                Array(icons[index ..< min(index + 3, icons.endIndex)])
+                    .map { (asset: $0, id: $0.name) }
+            }
+            .map { (assets: $0, id: $0.map(\.id).joined()) }
+        return groupedIcons
+    }
+
+    @ViewBuilder
+    private func iconStack(for sendView: SendView) -> some View {
+        AccessibleHStack(alignment: .leading, spacing: 8, minVerticalDynamicTypeSize: .accessibility3) {
+            ForEach(icons(for: sendView), id: \.id) { row in
+                HStack(spacing: 8) {
+                    ForEach(row.assets, id: \.id) { image in
+                        image.asset.swiftUIImage
+                            .scaledFrame(width: 16, height: 16)
+                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    }
+                }
+            }
+        }
     }
 }
 
