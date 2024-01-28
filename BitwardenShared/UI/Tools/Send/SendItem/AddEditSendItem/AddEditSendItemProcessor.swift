@@ -11,6 +11,12 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     typealias Services = HasPasteboardService
         & HasSendRepository
 
+    // MARK: Private Properties
+
+    /// A block to execute the next time the toast is cleared. This value is cleared once the block
+    /// is executed once.
+    private var onNextToastClear: (() -> Void)?
+
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation for this processor.
@@ -43,12 +49,8 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     override func perform(_ effect: AddEditSendItemEffect) async {
         switch effect {
         case .copyLinkPressed:
-            guard let sendView = state.originalSendView,
-                  let url = try? await services.sendRepository.shareURL(for: sendView)
-            else { return }
-
-            services.pasteboardService.copy(url.absoluteString)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.sendLink))
+            guard let sendView = state.originalSendView else { return }
+            await copyLink(to: sendView)
         case .deletePressed:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
@@ -107,12 +109,23 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.text = newValue
         case let .toastShown(toast):
             state.toast = toast
+            if toast == nil {
+                onNextToastClear?()
+                onNextToastClear = nil
+            }
         case let .typeChanged(newValue):
             updateType(newValue)
         }
     }
 
     // MARK: Private Methods
+
+    private func copyLink(to sendView: SendView) async {
+        guard let url = try? await services.sendRepository.shareURL(for: sendView) else { return }
+
+        services.pasteboardService.copy(url.absoluteString)
+        state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.sendLink))
+    }
 
     /// Deletes the provided send.
     ///
@@ -194,7 +207,15 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
                 newSendView = try await services.sendRepository.updateSend(sendView)
             }
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .complete(newSendView))
+            switch state.mode {
+            case .add, .edit:
+                coordinator.navigate(to: .complete(newSendView))
+            case .shareExtension:
+                onNextToastClear = { [weak self] in
+                    self?.coordinator.navigate(to: .complete(newSendView))
+                }
+                await copyLink(to: newSendView)
+            }
         } catch {
             coordinator.showAlert(.networkResponseError(error) { [weak self] in
                 await self?.saveSendItem()
