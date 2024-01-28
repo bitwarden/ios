@@ -5,6 +5,8 @@ class MockPolicyService: PolicyService {
     var applyPasswordGenerationOptionsResult = false
     var applyPasswordGenerationOptionsTransform = { (_: inout PasswordGenerationOptions) in }
 
+    var isSendHideEmailDisabledByPolicy = false
+
     var policyAppliesToUserResult = [PolicyType: Bool]()
     var policyAppliesToUserPolicies = [PolicyType]()
 
@@ -16,6 +18,10 @@ class MockPolicyService: PolicyService {
         applyPasswordGenerationOptionsCalled = true
         applyPasswordGenerationOptionsTransform(&options)
         return applyPasswordGenerationOptionsResult
+    }
+
+    func isSendHideEmailDisabledByPolicy() async -> Bool {
+        isSendHideEmailDisabledByPolicy
     }
 
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {

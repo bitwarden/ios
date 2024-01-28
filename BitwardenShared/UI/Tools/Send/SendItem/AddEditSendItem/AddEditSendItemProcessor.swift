@@ -140,6 +140,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     ///
     private func loadData() async {
         state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
+        state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
     }
 
     /// Presents the file selection alert.

@@ -35,4 +35,9 @@ enum PolicyOptionType: String {
 
     /// A policy option for whether to include uppercase characters.
     case useUpper
+
+    // MARK: Send Options
+
+    /// A policy option for whether the send should disable the hide email option.
+    case disableHideEmail
 }

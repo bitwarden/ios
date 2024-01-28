@@ -104,10 +104,18 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_loadData_policies() async {
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.isSendDisabled)
+        XCTAssertFalse(subject.state.isSendHideEmailDisabled)
 
         policyService.policyAppliesToUserResult[.disableSend] = true
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.isSendDisabled)
+        XCTAssertFalse(subject.state.isSendHideEmailDisabled)
+
+        policyService.policyAppliesToUserResult[.disableSend] = false
+        policyService.isSendHideEmailDisabledByPolicy = true
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isSendDisabled)
+        XCTAssertTrue(subject.state.isSendHideEmailDisabled)
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove

@@ -128,6 +128,14 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.removePassword))
     }
 
+    /// Setting `isSendHideEmailDisabled` disables the hide email control within the view.
+    func test_sendHideEmailDisabled() async throws {
+        processor.state.isSendHideEmailDisabled = true
+
+        let infoContainer = try subject.inspect().find(InfoContainer<Text>.self)
+        try XCTAssertEqual(infoContainer.text().string(), Localizations.sendOptionsPolicyInEffect)
+    }
+
     /// Updating the text textfield sends the `.textChanged` action.
     func test_textTextField_updated() throws {
         let textField = try subject.inspect().find(bitwardenMultilineTextField: Localizations.text)
@@ -213,6 +221,11 @@ class AddEditSendItemViewTests: BitwardenTestCase {
 
     func test_snapshot_sendDisabled() {
         processor.state.isSendDisabled = true
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_sendHideEmailDisabled() {
+        processor.state.isSendHideEmailDisabled = true
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 

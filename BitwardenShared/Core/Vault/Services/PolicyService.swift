@@ -10,6 +10,12 @@ protocol PolicyService: AnyObject {
     ///
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool
 
+    /// Returns whether the send hide email option is disabled because of a policy.
+    ///
+    /// - Returns: Whether the send hide email option is disabled
+    ///
+    func isSendHideEmailDisabledByPolicy() async -> Bool
+
     /// Determines whether a policy applies to the active user.
     ///
     /// - Parameter policyType: The policy to check.
@@ -81,16 +87,50 @@ class DefaultPolicyService: PolicyService {
         return organization.isExemptFromPolicies
     }
 
+    /// Determines whether a policy applies to the active user.
+    ///
+    /// - Parameters:
+    ///   - policyType: The policy to check.
+    ///   - filter: An optional filter to apply to the list of policies.
+    /// - Returns: Whether the policy applies to the user.
+    ///
+    func policyAppliesToUser(_ policyType: PolicyType, filter: ((Policy) -> Bool)? = nil) async -> Bool {
+        guard let userId = try? await stateService.getActiveAccountId(),
+              let policies = try? await policiesForUser(userId: userId, type: policyType, filter: filter),
+              let organizations = try? await organizationService.fetchAllOrganizations()
+        else {
+            return false
+        }
+
+        // Determine the organizations that have this policy enabled.
+        let organizationsWithPolicy = Set(policies.map(\.organizationId))
+
+        // The policy applies if one or more organizations that the user is in are are enabled, use
+        // policies, have the policy enabled and the user is not exempt from policies.
+        return organizations.contains { organization in
+            organization.enabled &&
+                (organization.status == .accepted || organization.status == .confirmed) &&
+                organization.usePolicies &&
+                !isOrganization(organization, exemptFrom: policyType) &&
+                organizationsWithPolicy.contains(organization.id)
+        }
+    }
+
     /// Returns the list of policies that apply to the user.
     ///
     /// - Parameters:
     ///   - userId: The user ID of the user.
     ///   - type: The type of policies to return.
+    ///   - filter: An optional filter to apply to the list of policies.
     /// - Returns: The list of the user's policies.
     ///
-    private func policiesForUser(userId: String, type: PolicyType) async throws -> [Policy] {
+    private func policiesForUser(
+        userId: String,
+        type: PolicyType,
+        filter: ((Policy) -> Bool)? = nil
+    ) async throws -> [Policy] {
         let policyFilter: (Policy) -> Bool = { policy in
-            policy.enabled && policy.type == type
+            policy.enabled && policy.type == type && filter?(policy) ?? true
         }
 
         if let policies = policiesByUserId[userId] {
@@ -165,26 +205,14 @@ extension DefaultPolicyService {
         return true
     }
 
+    func isSendHideEmailDisabledByPolicy() async -> Bool {
+        await policyAppliesToUser(.sendOptions) { policy in
+            policy[.disableHideEmail]?.boolValue == true
+        }
+    }
+
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {
-        guard let userId = try? await stateService.getActiveAccountId(),
-              let policies = try? await policiesForUser(userId: userId, type: policyType),
-              let organizations = try? await organizationService.fetchAllOrganizations()
-        else {
-            return false
-        }
-
-        // Determine the organizations that have this policy enabled.
-        let organizationsWithPolicy = Set(policies.map(\.organizationId))
-
-        // The policy applies if one or more organizations that the user is in are are enabled, use
-        // policies, have the policy enabled and the user is not exempt from policies.
-        return organizations.contains { organization in
-            organization.enabled &&
-                (organization.status == .accepted || organization.status == .confirmed) &&
-                organization.usePolicies &&
-                !isOrganization(organization, exemptFrom: policyType) &&
-                organizationsWithPolicy.contains(organization.id)
-        }
+        await policyAppliesToUser(policyType, filter: nil)
     }
 
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws {
