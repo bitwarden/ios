@@ -2,18 +2,18 @@
 
 /// Data model for a section of items in the send list.
 ///
-struct SendListSection: Equatable, Identifiable {
+public struct SendListSection: Equatable, Identifiable {
     // MARK: Properties
 
     /// The identifier for the section.
-    let id: String
+    public let id: String
 
     /// A flag indicating if the count for this section should be displayed.
-    let isCountDisplayed: Bool
+    public let isCountDisplayed: Bool
 
     /// The list of items in the section.
-    let items: [SendListItem]
+    public let items: [SendListItem]
 
     /// The name of the section, displayed as section header.
-    let name: String
+    public let name: String
 }
