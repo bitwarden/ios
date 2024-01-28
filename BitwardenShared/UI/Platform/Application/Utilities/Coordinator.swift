@@ -44,6 +44,7 @@ public protocol Coordinator<Route>: AnyObject {
 
 /// A protocol for an object that has a `Navigator`.
 ///
+@MainActor
 protocol HasNavigator {
     /// A weak reference to this item's `Navigator`. This value should be `weak`, otherwise a retain
     /// cycle might be introduced.
