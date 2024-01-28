@@ -8,6 +8,9 @@ struct SendListState {
     /// The info URL to open.
     var infoUrl: URL?
 
+    /// Whether sends are disabled via a policy.
+    var isSendDisabled = false
+
     /// The text that the user is currently searching for.
     var searchText: String = ""
 

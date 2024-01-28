@@ -9,6 +9,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     // MARK: Types
 
     typealias Services = HasPasteboardService
+        & HasPolicyService
         & HasSendRepository
 
     // MARK: Properties
@@ -55,6 +56,8 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
                 await self?.deleteSend(sendView)
             }
             coordinator.showAlert(alert)
+        case .loadData:
+            await loadData()
         case .removePassword:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
@@ -131,6 +134,12 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(alert)
         }
+    }
+
+    /// Load any initial data for the view.
+    ///
+    private func loadData() async {
+        state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
     }
 
     /// Presents the file selection alert.

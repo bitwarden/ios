@@ -2,8 +2,8 @@
 
 /// Effects that can be processed by a `SendListProcessor`.
 enum SendListEffect {
-    /// The send list appeared on screen.
-    case appeared
+    /// Any initial data for the view should be loaded.
+    case loadData
 
     /// Searches based on the keyword.
     case search(String)
@@ -13,4 +13,7 @@ enum SendListEffect {
 
     /// A wrapped `SendListItemRowEffect`.
     case sendListItemRow(SendListItemRowEffect)
+
+    /// Stream the send list for the user.
+    case streamSendList
 }

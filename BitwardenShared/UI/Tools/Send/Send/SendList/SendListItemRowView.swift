@@ -22,6 +22,9 @@ struct SendListItemRowState: Equatable {
         }
     }
 
+    /// Whether sends are disabled via a policy.
+    var isSendDisabled = false
+
     /// The item displayed in this row.
     var item: SendListItem
 
@@ -140,21 +143,24 @@ struct SendListItemRowView: View {
     @ViewBuilder
     private func optionsMenu(for sendView: SendView) -> some View {
         Menu {
-            AsyncButton(Localizations.shareLink) {
-                await store.perform(.shareLinkPressed(sendView))
-            }
-            AsyncButton(Localizations.copyLink) {
-                await store.perform(.copyLinkPressed(sendView))
-            }
-            .accessibilityIdentifier("Copy")
-            Button(Localizations.edit) {
-                store.send(.editPressed(sendView))
-            }
-            if sendView.hasPassword {
-                AsyncButton(Localizations.removePassword) {
-                    await store.perform(.removePassword(sendView))
+            if !store.state.isSendDisabled {
+                AsyncButton(Localizations.shareLink) {
+                    await store.perform(.shareLinkPressed(sendView))
+                }
+                AsyncButton(Localizations.copyLink) {
+                    await store.perform(.copyLinkPressed(sendView))
+                }
+                .accessibilityIdentifier("Copy")
+                Button(Localizations.edit) {
+                    store.send(.editPressed(sendView))
+                }
+                if sendView.hasPassword {
+                    AsyncButton(Localizations.removePassword) {
+                        await store.perform(.removePassword(sendView))
+                    }
                 }
             }
+
             AsyncButton(Localizations.delete, role: .destructive) {
                 await store.perform(.deletePressed(sendView))
             }
