@@ -26,7 +26,7 @@ public enum GeneratorType: CaseIterable, Equatable, Menuable {
 
 /// An object that defines the current state of a `GeneratorView`.
 ///
-struct GeneratorState: Equatable {
+struct GeneratorState: Equatable { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// The presentation mode for the generator. Used to determine if specific UI elements are shown.
@@ -95,16 +95,26 @@ struct GeneratorState: Equatable {
                 optionFields = [
                     passwordGeneratorTypeField(),
                     stepperField(
+                        accessibilityId: "NumberOfWordsLabel",
                         keyPath: \.passwordState.numberOfWords,
                         range: 3 ... 20,
                         title: Localizations.numberOfWords
                     ),
                     textField(
+                        accessibilityId: "WordSeparatorEntry",
                         keyPath: \.passwordState.wordSeparator,
                         title: Localizations.wordSeparator
                     ),
-                    toggleField(keyPath: \.passwordState.capitalize, title: Localizations.capitalize),
-                    toggleField(keyPath: \.passwordState.includeNumber, title: Localizations.includeNumber),
+                    toggleField(
+                        accessibilityId: "CapitalizePassphraseToggle",
+                        keyPath: \.passwordState.capitalize,
+                        title: Localizations.capitalize
+                    ),
+                    toggleField(
+                        accessibilityId: "IncludeNumbersToggle",
+                        keyPath: \.passwordState.includeNumber,
+                        title: Localizations.includeNumber
+                    ),
                 ]
             case .password:
                 optionFields = [
@@ -112,40 +122,52 @@ struct GeneratorState: Equatable {
                     sliderField(
                         keyPath: \.passwordState.lengthDouble,
                         range: 5 ... 128,
+                        sliderAccessibilityId: "PasswordLengthSlider",
+                        sliderValueAccessibilityId: "PasswordLengthLabel",
                         title: Localizations.length,
                         step: 1
                     ),
                     toggleField(
+                        accessibilityId: "UppercaseAtoZToggle",
                         accessibilityLabel: Localizations.uppercaseAtoZ,
                         keyPath: \.passwordState.containsUppercase,
                         title: "A-Z"
                     ),
                     toggleField(
+                        accessibilityId: "LowercaseAtoZToggle",
                         accessibilityLabel: Localizations.lowercaseAtoZ,
                         keyPath: \.passwordState.containsLowercase,
                         title: "a-z"
                     ),
                     toggleField(
+                        accessibilityId: "NumbersZeroToNineToggle",
                         accessibilityLabel: Localizations.numbersZeroToNine,
                         keyPath: \.passwordState.containsNumbers,
                         title: "0-9"
                     ),
                     toggleField(
+                        accessibilityId: "SpecialCharactersToggle",
                         accessibilityLabel: Localizations.specialCharacters,
                         keyPath: \.passwordState.containsSpecial,
                         title: "!@#$%^&*"
                     ),
                     stepperField(
+                        accessibilityId: "MinNumberValueLabel",
                         keyPath: \.passwordState.minimumNumber,
                         range: 0 ... 5,
                         title: Localizations.minNumbers
                     ),
                     stepperField(
+                        accessibilityId: "MinSpecialValueLabel",
                         keyPath: \.passwordState.minimumSpecial,
                         range: 0 ... 5,
                         title: Localizations.minSpecial
                     ),
-                    toggleField(keyPath: \.passwordState.avoidAmbiguous, title: Localizations.avoidAmbiguousCharacters),
+                    toggleField(
+                        accessibilityId: "AvoidAmbiguousCharsToggle",
+                        keyPath: \.passwordState.avoidAmbiguous,
+                        title: Localizations.avoidAmbiguousCharacters
+                    ),
                 ]
             }
         case .username:
@@ -163,6 +185,7 @@ struct GeneratorState: Equatable {
             case .catchAllEmail:
                 optionFields.append(contentsOf: [
                     textField(
+                        accessibilityId: "CatchAllEmailDomainEntry",
                         keyboardType: .URL,
                         keyPath: \.usernameState.domain,
                         textContentType: .URL,
@@ -190,11 +213,14 @@ struct GeneratorState: Equatable {
                 case .addyIO:
                     optionFields.append(contentsOf: [
                         textField(
+                            accessibilityId: "ForwardedEmailApiSecretEntry",
                             isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                             keyPath: \.usernameState.addyIOAPIAccessToken,
+                            passwordVisibilityAccessibilityId: "ShowForwardedEmailApiSecretButton",
                             title: Localizations.apiAccessToken
                         ),
                         textField(
+                            accessibilityId: "AnonAddyDomainNameEntry",
                             keyPath: \.usernameState.addyIODomainName,
                             title: Localizations.domainNameRequiredParenthesis
                         ),
@@ -235,6 +261,7 @@ struct GeneratorState: Equatable {
             case .plusAddressedEmail:
                 optionFields.append(contentsOf: [
                     textField(
+                        accessibilityId: "PlusAddressedEmailEntry",
                         keyboardType: .emailAddress,
                         keyPath: \.usernameState.email,
                         textContentType: .emailAddress,
@@ -249,10 +276,20 @@ struct GeneratorState: Equatable {
                     ])
                 }
             case .randomWord:
-                optionFields.append(contentsOf: [
-                    toggleField(keyPath: \.usernameState.capitalize, title: Localizations.capitalize),
-                    toggleField(keyPath: \.usernameState.includeNumber, title: Localizations.includeNumber),
-                ])
+                optionFields.append(
+                    contentsOf: [
+                        toggleField(
+                            accessibilityId: "CapitalizeRandomWordUsernameToggle",
+                            keyPath: \.usernameState.capitalize,
+                            title: Localizations.capitalize
+                        ),
+                        toggleField(
+                            accessibilityId: "IncludeNumberRandomWordUsernameToggle",
+                            keyPath: \.usernameState.includeNumber,
+                            title: Localizations.includeNumber
+                        ),
+                    ]
+                )
             }
         }
 

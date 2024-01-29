@@ -52,6 +52,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
                         .accessibilityIdentifier(selectionAccessibilityID ?? "")
                         .multilineTextAlignment(.trailing)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .accessibilityIdentifier(selectionAccessibilityID ?? "")
                 }
             }
             .styleGuide(.body)
