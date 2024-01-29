@@ -134,40 +134,25 @@ class DefaultNotificationService: NotificationService {
         }
     }
 
-    func messageReceived( // swiftlint:disable:this function_body_length cyclomatic_complexity
+    func messageReceived(
         _ message: [AnyHashable: Any],
         notificationDismissed: Bool?,
         notificationTapped: Bool?
     ) async {
         do {
             // First attempt to decode the message as a response.
-            if let content = message["notificationData"] as? String,
-               let jsonData = content.data(using: .utf8),
-               let loginRequestData = try? JSONDecoder.pascalOrSnakeCaseDecoder.decode(
-                   LoginRequestPushNotification.self,
-                   from: jsonData
-               ) {
-                if notificationDismissed == true { return await handleNotificationDismissed() }
-                if notificationTapped == true { return await handleNotificationTapped(loginRequestData) }
-            }
+            if await handleLoginRequestResponse(
+                message,
+                notificationDismissed: notificationDismissed,
+                notificationTapped: notificationTapped
+            ) { return }
 
             // Proceed to treat the message as new notification.
-            let appId = await appIdService.getOrCreateAppId()
-            let isAuthenticated = await stateService.isAuthenticated()
+            guard await stateService.isAuthenticated(),
+                  let notificationData = try await decodePayload(message),
+                  let type = notificationData.type
+            else { return }
             let userId = try await stateService.getActiveAccountId()
-
-            // Decode the content of the message.
-            guard let messageData = message["aps"] as? [AnyHashable: Any],
-                  let messageContent = messageData["data"] as? [AnyHashable: Any]
-            else { return }
-            let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
-            let notificationData = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
-
-            guard let type = notificationData.type,
-                  notificationData.payload?.isEmpty == false,
-                  notificationData.contextId != appId,
-                  isAuthenticated
-            else { return }
 
             // Handle the notification according to the type of data.
             switch type {
@@ -210,53 +195,7 @@ class DefaultNotificationService: NotificationService {
                     // TODO: BIT-1528 "SyncDeleteSendAsync"
                 }
             case .authRequest:
-                let approveLoginRequests = try? await stateService.getApproveLoginRequests()
-                guard let data: LoginRequestNotification = notificationData.data(),
-                      approveLoginRequests == true
-                else { return }
-
-                // Save the notification data.
-                await stateService.setLoginRequest(data)
-
-                // Get the email of the account that the login request is coming from.
-                let loginSourceAccount = try await stateService.getAccounts()
-                    .first(where: { $0.profile.userId == data.userId })
-                let loginSourceEmail = loginSourceAccount?.profile.email ?? ""
-
-                // Assemble the data to add to the in-app banner notification.
-                let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
-                    timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
-                    userEmail: loginSourceEmail
-                ))
-
-                // Create an in-app banner notification to tell the user about the login request.
-                let content = UNMutableNotificationContent()
-                content.title = Localizations.logInRequested
-                content.body = Localizations.confimLogInAttempForX(loginSourceEmail)
-                content.categoryIdentifier = "dismissableCategory"
-                if let loginRequestData,
-                   let loginRequestEncoded = String(data: loginRequestData, encoding: .utf8) {
-                    content.userInfo = ["notificationData": loginRequestEncoded]
-                }
-                let category = UNNotificationCategory(
-                    identifier: "dismissableCategory",
-                    actions: [.init(identifier: "Clear", title: Localizations.clear, options: [.foreground])],
-                    intentIdentifiers: [],
-                    options: [.customDismissAction]
-                )
-                UNUserNotificationCenter.current().setNotificationCategories([category])
-                let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
-                try await UNUserNotificationCenter.current().add(request)
-
-                // If the request is for the existing account, show the login request view automatically.
-                guard let loginRequest = try await authService.getPendingLoginRequest(withId: data.id).first
-                else { return }
-                if data.userId == userId {
-                    delegate?.showLoginRequest(loginRequest)
-                } else if let loginSourceAccount {
-                    // Otherwise, show an alert asking the user if they want to switch accounts.
-                    delegate?.switchAccounts(to: loginSourceAccount, for: loginRequest, showAlert: true)
-                }
+                try await handleLoginRequest(notificationData, userId: userId)
             case .authRequestResponse:
                 // No action necessary, since the LoginWithDeviceProcessor already checks for updates
                 // every few seconds.
@@ -268,6 +207,116 @@ class DefaultNotificationService: NotificationService {
     }
 
     // MARK: Private Methods
+
+    /// A helper function to decode the push notification payload.
+    ///
+    /// - Parameter message: The content of the push notification.
+    ///
+    /// - Returns: The decoded push notification data.
+    ///
+    private func decodePayload(_ message: [AnyHashable: Any]) async throws -> PushNotificationData? {
+        // Decode the content of the message.
+        guard let messageData = message["aps"] as? [AnyHashable: Any],
+              let messageContent = messageData["data"] as? [AnyHashable: Any]
+        else { return nil }
+        let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
+        let notificationData = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
+
+        // Verify that the payload is not empty and that the context is correct.
+        let appId = await appIdService.getOrCreateAppId()
+        guard notificationData.payload?.isEmpty == false,
+              notificationData.contextId != appId
+        else { return nil }
+        return notificationData
+    }
+
+    /// A helper method to handle a login request push notification.
+    ///
+    /// - Parameters:
+    ///   - notificationData: The decoded payload from the push notification.
+    ///   - userId: The user's id.
+    ///
+    private func handleLoginRequest(_ notificationData: PushNotificationData, userId: String) async throws {
+        let approveLoginRequests = try await stateService.getApproveLoginRequests()
+        guard let data: LoginRequestNotification = notificationData.data(),
+              approveLoginRequests == true
+        else { return }
+
+        // Save the notification data.
+        await stateService.setLoginRequest(data)
+
+        // Get the email of the account that the login request is coming from.
+        let loginSourceAccount = try await stateService.getAccounts()
+            .first(where: { $0.profile.userId == data.userId })
+        let loginSourceEmail = loginSourceAccount?.profile.email ?? ""
+
+        // Assemble the data to add to the in-app banner notification.
+        let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
+            timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
+            userEmail: loginSourceEmail
+        ))
+
+        // Create an in-app banner notification to tell the user about the login request.
+        let content = UNMutableNotificationContent()
+        content.title = Localizations.logInRequested
+        content.body = Localizations.confimLogInAttempForX(loginSourceEmail)
+        content.categoryIdentifier = "dismissableCategory"
+        if let loginRequestData,
+           let loginRequestEncoded = String(data: loginRequestData, encoding: .utf8) {
+            content.userInfo = ["notificationData": loginRequestEncoded]
+        }
+        let category = UNNotificationCategory(
+            identifier: "dismissableCategory",
+            actions: [.init(identifier: "Clear", title: Localizations.clear, options: [.foreground])],
+            intentIdentifiers: [],
+            options: [.customDismissAction]
+        )
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
+        try await UNUserNotificationCenter.current().add(request)
+
+        // If the request is for the existing account, show the login request view automatically.
+        guard let loginRequest = try await authService.getPendingLoginRequest(withId: data.id).first
+        else { return }
+        if data.userId == userId {
+            delegate?.showLoginRequest(loginRequest)
+        } else if let loginSourceAccount {
+            // Otherwise, show an alert asking the user if they want to switch accounts.
+            delegate?.switchAccounts(to: loginSourceAccount, for: loginRequest, showAlert: true)
+        }
+    }
+
+    /// Attempt to decode the notification data as a response to a login notification banner.
+    ///
+    /// - Parameters:
+    ///   - message: The content of the push notification.
+    ///   - notificationDismissed: `true` if a notification banner has been dismissed.
+    ///   - notificationTapped: `true` if a notification banner has been tapped.
+    ///
+    /// - Returns: `true` if the message was able to be decoded as a response.
+    ///
+    private func handleLoginRequestResponse(
+        _ message: [AnyHashable: Any],
+        notificationDismissed: Bool?,
+        notificationTapped: Bool?
+    ) async -> Bool {
+        if let content = message["notificationData"] as? String,
+           let jsonData = content.data(using: .utf8),
+           let loginRequestData = try? JSONDecoder.pascalOrSnakeCaseDecoder.decode(
+               LoginRequestPushNotification.self,
+               from: jsonData
+           ) {
+            if notificationDismissed == true {
+                await handleNotificationDismissed()
+                return true
+            }
+            if notificationTapped == true {
+                await handleNotificationTapped(loginRequestData)
+                return true
+            }
+        }
+        return false
+    }
 
     /// Handle a banner notification being dismissed.
     private func handleNotificationDismissed() async {

@@ -103,7 +103,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
 
         let okAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
         await okAction.handler?(okAction, [])
-//        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `.perform(_:)` with `.reloadData` handles any errors.
@@ -121,13 +121,13 @@ class LoginRequestProcessorTests: BitwardenTestCase {
 
         let okAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
         await okAction.handler?(okAction, [])
-//        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `.receive(_:)` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {
         subject.receive(.dismiss)
-//        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 }
 
