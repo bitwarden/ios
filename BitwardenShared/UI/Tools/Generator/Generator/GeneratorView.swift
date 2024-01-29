@@ -197,6 +197,7 @@ struct GeneratorView: View {
             .buttonStyle(.accessory)
             .accessibilityLabel(Localizations.learnMore)
         }
+        .accessibilityIdentifier("UsernameTypePicker")
     }
 }
 
