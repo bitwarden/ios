@@ -243,7 +243,7 @@ struct SendListItemRowView: View {
                 processor: StateProcessor(
                     state: SendListItemRowState(
                         item: SendListItem(id: "1", itemType: .group(.text, 42)),
-                        hasDivider: true, 
+                        hasDivider: true,
                         sectionName: "TYPES"
                     )
                 )
