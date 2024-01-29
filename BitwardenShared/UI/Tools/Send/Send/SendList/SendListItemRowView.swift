@@ -11,16 +11,15 @@ struct SendListItemRowState: Equatable {
     var accessibilityIdentifier: String {
         switch item.itemType {
         case .send:
-            break
+            return "SendCell"
         case let .group(type, _):
-            if type == .text {
+            switch type {
+            case .text:
                 return "SendTextFilter"
-            }
-            if type == .file {
+            case .file:
                 return "SendFileFilter"
             }
         }
-        return "SendCell"
     }
 
     /// The item displayed in this row.
