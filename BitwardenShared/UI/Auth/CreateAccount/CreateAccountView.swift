@@ -93,11 +93,11 @@ struct CreateAccountView: View {
                     send: CreateAccountAction.passwordTextChanged
                 ),
                 accessibilityIdentifier: "MasterPasswordEntry",
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordVisible: store.binding(
                     get: \.arePasswordsVisible,
                     send: CreateAccountAction.togglePasswordVisibility
-                ),
-                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle"
+                )
             )
             .textFieldConfiguration(.password)
         }
@@ -130,11 +130,11 @@ struct CreateAccountView: View {
                 send: CreateAccountAction.retypePasswordTextChanged
             ),
             accessibilityIdentifier: "ConfirmMasterPasswordEntry",
+            passwordVisibilityAccessibilityId: "ConfirmPasswordVisibilityToggle",
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,
                 send: CreateAccountAction.togglePasswordVisibility
-            ),
-            passwordVisibilityAccessibilityId: "ConfirmPasswordVisibilityToggle"
+            )
         )
         .textFieldConfiguration(.password)
     }

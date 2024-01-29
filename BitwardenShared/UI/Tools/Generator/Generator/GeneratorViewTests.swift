@@ -163,6 +163,7 @@ class GeneratorViewTests: BitwardenTestCase {
         let field = ToggleField<GeneratorState>(
             accessibilityId: "LowercaseAtoZToggle",
             accessibilityLabel: Localizations.lowercaseAtoZ,
+            isDisabled: false,
             isOn: true,
             keyPath: \.passwordState.containsLowercase,
             title: "a-z"
@@ -207,6 +208,15 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.passwordState.passwordGeneratorType = .password
         processor.state.presentationMode = .inPlace
         assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    /// Test a snapshot of the password generation view with a policy in effect.
+    func test_snapshot_generatorViewPassword_policyInEffect() {
+        processor.state.isPolicyInEffect = true
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
     }
 
     /// Test a snapshot of the catch-all username generation view.

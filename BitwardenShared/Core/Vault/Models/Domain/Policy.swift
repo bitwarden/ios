@@ -37,3 +37,11 @@ extension Policy {
         self.init(responseModel: model)
     }
 }
+
+extension Policy {
+    /// A subscript to get a policy option type from the `data` dictionary.
+    ///
+    subscript(_ optionType: PolicyOptionType) -> AnyCodable? {
+        data?[optionType.rawValue]
+    }
+}
