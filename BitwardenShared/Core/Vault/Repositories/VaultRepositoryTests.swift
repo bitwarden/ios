@@ -226,6 +226,33 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(hasPremium)
     }
 
+    /// `downloadAttachment(_:cipher:)` downloads the attachment data and saves the result to the documents directory.
+    func test_downloadAttachment() async throws {
+        // Set up the mock data.
+        stateService.activeAccount = .fixture()
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
+        try Data("🪿".utf8).write(to: downloadUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
+        let cipher = CipherView.fixture(attachments: [attachment])
+
+        // Test.
+        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipher)
+
+        // Confirm the results.
+        XCTAssertEqual(clientVault.clientCiphers.encryptedCiphers.last, cipher)
+        XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
+        XCTAssertEqual(clientVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
+        XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
+    }
+
+    /// `downloadAttachment(_:cipher:)` throws an error for nil id's.
+    func test_downloadAttachment_nilId() async throws {
+        await assertAsyncThrows {
+            _ = try await subject.downloadAttachment(.fixture(id: nil), cipher: .fixture(id: nil))
+        }
+    }
+
     /// `fetchCipher(withId:)` returns the cipher if it exists and `nil` otherwise.
     func test_fetchCipher() async throws {
         var cipher = try await subject.fetchCipher(withId: "1")

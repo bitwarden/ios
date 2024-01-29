@@ -14,6 +14,8 @@ class MockVaultRepository: VaultRepository {
     var ciphersAutofillSubject = CurrentValueSubject<[CipherView], Error>([])
     var cipherDetailsSubject = CurrentValueSubject<CipherView?, Error>(.fixture())
 
+    var clearTemporaryDownloadsCalled = false
+
     var deleteAttachmentId: String?
     var deleteAttachmentResult: Result<CipherView?, Error> = .success(.fixture())
 
@@ -22,6 +24,9 @@ class MockVaultRepository: VaultRepository {
 
     var doesActiveAccountHavePremiumCalled = false
     var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
+
+    var downloadAttachmentAttachment: AttachmentView?
+    var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
 
     var fetchCipherId: String?
     var fetchCipherResult: Result<CipherView?, Error> = .success(nil)
@@ -114,6 +119,10 @@ class MockVaultRepository: VaultRepository {
         ciphersAutofillSubject.eraseToAnyPublisher().values
     }
 
+    func clearTemporaryDownloads() {
+        clearTemporaryDownloadsCalled = true
+    }
+
     func deleteAttachment(withId attachmentId: String, cipherId _: String) async throws -> CipherView? {
         deleteAttachmentId = attachmentId
         return try deleteAttachmentResult.get()
@@ -127,6 +136,11 @@ class MockVaultRepository: VaultRepository {
     func doesActiveAccountHavePremium() async throws -> Bool {
         doesActiveAccountHavePremiumCalled = true
         return try doesActiveAccountHavePremiumResult.get()
+    }
+
+    func downloadAttachment(_ attachment: AttachmentView, cipher _: CipherView) async throws -> URL? {
+        downloadAttachmentAttachment = attachment
+        return try downloadAttachmentResult.get()
     }
 
     func fetchCipher(withId id: String) async throws -> CipherView? {

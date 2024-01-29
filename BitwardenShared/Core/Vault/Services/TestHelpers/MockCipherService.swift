@@ -1,5 +1,6 @@
 import BitwardenSdk
 import Combine
+import Foundation
 
 @testable import BitwardenShared
 
@@ -11,6 +12,9 @@ class MockCipherService: CipherService {
 
     var deleteAttachmentWithServerAttachmentId: String?
     var deleteAttachmentWithServerResult: Result<Cipher?, Error> = .success(.fixture())
+
+    var downloadAttachmentId: String?
+    var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
 
     var fetchCipherId: String?
     var fetchCipherResult: Result<Cipher?, Error> = .success(nil)
@@ -54,6 +58,11 @@ class MockCipherService: CipherService {
     func deleteCipherWithServer(id: String) async throws {
         deleteCipherId = id
         try deleteWithServerResult.get()
+    }
+
+    func downloadAttachment(withId id: String, cipherId _: String) async throws -> URL? {
+        downloadAttachmentId = id
+        return try downloadAttachmentResult.get()
     }
 
     func fetchCipher(withId id: String) async throws -> Cipher? {
