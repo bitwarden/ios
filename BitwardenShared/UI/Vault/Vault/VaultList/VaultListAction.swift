@@ -26,7 +26,7 @@ enum VaultListAction: Equatable {
     /// A forwarded profile switcher action
     case profileSwitcherAction(ProfileSwitcherAction)
 
-    /// The text in the search bar was changed.
+    /// The user has started or stopped searching.
     case searchStateChanged(isSearching: Bool)
 
     /// The text in the search bar was changed.
