@@ -66,9 +66,37 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
     // MARK: Tests
 
+    /// `answerLoginRequest(_:approve:)` encrypts the key and answers the login request.
+    func test_answerLoginRequest() async throws {
+        // Set up the mock data.
+        client.result = .httpSuccess(testData: .authRequestSuccess)
+        appSettingsStore.appId = "App id"
+
+        // Test.
+        try await subject.answerLoginRequest(.fixture(), approve: true)
+
+        // Confirm the results.
+        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey=")
+        XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
+    }
+
     /// `callbackUrlScheme` has the expected value.
     func test_callbackUrlScheme() {
         XCTAssertEqual(subject.callbackUrlScheme, "bitwarden")
+    }
+
+    /// `denyAllLoginRequests(_:)` denies all the login requests.
+    func test_denyAllLoginRequests() async throws {
+        // Set up the mock data.
+        client.result = .httpSuccess(testData: .authRequestSuccess)
+        appSettingsStore.appId = "App id"
+
+        // Test.
+        try await subject.denyAllLoginRequests([.fixture()])
+
+        // Confirm the results.
+        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey=")
+        XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
     }
 
     /// `generateSingleSignOnUrl(from:)` generates the expected url.
@@ -97,14 +125,45 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual("PASSWORD", result.1)
     }
 
+    /// `getPendingLoginRequests(withId:)` returns the specific pending login request.
+    func test_getPendingLoginRequest() async throws {
+        stateService.activeAccount = .fixture()
+        client.result = .httpSuccess(testData: .authRequestSuccess)
+
+        let result = try await subject.getPendingLoginRequest(withId: "1")
+
+        XCTAssertEqual(result, [.fixture(fingerprintPhrase: "a-fingerprint-phrase-string-placeholder")])
+    }
+
     /// `getPendingLoginRequests()` returns all the active pending login requests.
     func test_getPendingLoginRequests() async throws {
         stateService.activeAccount = .fixture()
-        client.result = .httpSuccess(testData: .authRequestSuccess)
+        client.result = .httpSuccess(testData: .authRequestsSuccess)
 
         let result = try await subject.getPendingLoginRequests()
 
         XCTAssertEqual(result, [.fixture(fingerprintPhrase: "a-fingerprint-phrase-string-placeholder")])
+    }
+
+    /// `initiateLoginWithDevice(email:)` calls the sdk method and returns a fingerprint.
+    func test_initiateLoginWithDevice() async throws {
+        // Set up the mock data.
+        client.result = .httpSuccess(testData: .authRequestSuccess)
+        appSettingsStore.appId = "App id"
+        clientAuth.newAuthRequestResult = .success(.init(
+            privateKey: "",
+            publicKey: "",
+            fingerprint: "fingerprint",
+            accessCode: ""
+        ))
+
+        // Test.
+        let fingerprint = try await subject.initiateLoginWithDevice(email: "example@email.com")
+
+        // Verify the results.
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(clientAuth.newAuthRequestEmail, "example@email.com")
+        XCTAssertEqual(fingerprint, "fingerprint")
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` logs in with the password.
@@ -146,7 +205,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
         XCTAssertEqual(clientAuth.hashPasswordEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "hashed password")
         XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
 
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
@@ -246,7 +305,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
     /// `loginWithTwoFactorCode(email:code:method:remember:captchaToken:)` uses the cached request but with two factor
     /// codes added in to authenticate.
-    func test_loginWithTwoFactorCode() async throws {
+    func test_loginWithTwoFactorCode() async throws { // swiftlint:disable:this function_body_length
         // Set up the mock data.
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
@@ -301,6 +360,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 ),
             ]
         )
+        XCTAssertEqual(
+            stateService.masterPasswordHashes,
+            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
+        )
 
         XCTAssertEqual(account, .fixtureAccountLogin())
     }
@@ -349,4 +412,4 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Ensure the resend email request runs successfully.
         try await subject.resendVerificationCodeEmail()
     }
-}
+} // swiftlint:disable:this file_length

@@ -24,6 +24,7 @@ extension View {
     func cancelToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel, action: action)
+                .accessibilityIdentifier("CLOSE")
         }
     }
 

@@ -1,6 +1,8 @@
 import LocalAuthentication
 import XCTest
 
+// swiftlint:disable file_length
+
 @testable import BitwardenShared
 
 // MARK: - BiometricsRepositoryTests

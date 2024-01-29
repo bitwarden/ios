@@ -12,7 +12,6 @@ class MockAuthRepository: AuthRepository {
     var email: String = ""
     var encryptedPin: String = "123"
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
-    var initiateLoginWithDeviceResult: Result<String, Error> = .success("fingerprint")
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailable = false
     var lockVaultUserId: String?
@@ -60,14 +59,8 @@ class MockAuthRepository: AuthRepository {
         try accountForItemResult.get()
     }
 
-    func getFingerprintPhrase(userId _: String?) async throws -> String {
+    func getFingerprintPhrase() async throws -> String {
         try fingerprintPhraseResult.get()
-    }
-
-    func initiateLoginWithDevice(deviceId: String, email: String) async throws -> String {
-        self.deviceId = deviceId
-        self.email = email
-        return try initiateLoginWithDeviceResult.get()
     }
 
     func isLocked(userId: String?) async throws -> Bool {
@@ -103,7 +96,7 @@ class MockAuthRepository: AuthRepository {
         return try setActiveAccountResult.get()
     }
 
-    func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
+    func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
     }

@@ -40,23 +40,34 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `loginRequestAnswered(approved:)` shows the toast and reloads the data.
+    func test_loginRequestAnswered() {
+        let task = Task {
+            subject.loginRequestAnswered(approved: true)
+        }
+
+        waitFor(authService.getPendingLoginRequestCalled)
+        task.cancel()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.loginApproved)
+    }
+
     /// `perform(_:)` with `.loadData` loads the pending requests for the view.
     func test_perform_loadData() async {
-        authService.getPendingLoginRequestsResult = .success([.fixture()])
+        authService.getPendingLoginRequestResult = .success([.fixture()])
 
         await subject.perform(.loadData)
 
-        XCTAssertTrue(authService.getPendingLoginRequestsCalled)
+        XCTAssertTrue(authService.getPendingLoginRequestCalled)
         XCTAssertEqual(subject.state.loadingState, .data([.fixture()]))
     }
 
     /// `perform(_:)` with `.loadData` handles any errors from loading the data.
     func test_perform_loadData_error() async {
-        authService.getPendingLoginRequestsResult = .failure(BitwardenTestError.example)
+        authService.getPendingLoginRequestResult = .failure(BitwardenTestError.example)
 
         await subject.perform(.loadData)
 
-        XCTAssertTrue(authService.getPendingLoginRequestsCalled)
+        XCTAssertTrue(authService.getPendingLoginRequestCalled)
         XCTAssertEqual(subject.state.loadingState, .data([]))
         XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
@@ -65,6 +76,8 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     /// `.receive(_:)` with `.declineAllRequestsTapped` shows the confirmation alert
     /// and declines all the requests.
     func test_receive_declineAllRequestsTapped() async throws {
+        subject.state.loadingState = .data([.fixture()])
+
         subject.receive(.declineAllRequestsTapped)
 
         // Confirm on the alert.
@@ -72,15 +85,17 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
         await confirmAction.handler?(confirmAction, [])
 
         // Verify the results.
-        // TODO: BIT-441
-//        XCTAssertTrue(authService.getPendingLoginRequestsCalled)
-//        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.loading)
-//        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(authService.getPendingLoginRequestCalled)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.loading)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
     }
 
     /// `.receive(_:)` with `.declineAllRequestsTapped` shows the confirmation alert
     /// and handles any errors from declining all the requests.
     func test_receive_declineAllRequestsTapped_error() async throws {
+        subject.state.loadingState = .data([.fixture()])
+        authService.denyAllLoginRequestsResult = .failure(BitwardenTestError.example)
+
         subject.receive(.declineAllRequestsTapped)
 
         // Confirm on the alert.
@@ -88,12 +103,10 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
         await confirmAction.handler?(confirmAction, [])
 
         // Verify the results.
-        // TODO: BIT-441
-//        XCTAssertTrue(authService.getPendingLoginRequestsCalled)
-//        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.loading)
-//        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-//        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-//        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.loading)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view
@@ -105,7 +118,8 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.requestTapped(_)` shows the login request view.
     func test_receive_requestTapped() {
         subject.receive(.requestTapped(.fixture()))
-        // TODO: BIT-807
+        XCTAssertEqual(coordinator.routes.last, .loginRequest(.fixture()))
+        XCTAssertNotNil(coordinator.contexts.last as? PendingRequestsProcessor)
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.

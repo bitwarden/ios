@@ -209,8 +209,7 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func showAccountFingerprintPhraseAlert() async {
         do {
-            let userId = try await services.stateService.getActiveAccountId()
-            let phrase = try await services.authRepository.getFingerprintPhrase(userId: userId)
+            let phrase = try await services.authRepository.getFingerprintPhrase()
 
             coordinator.navigate(to: .alert(
                 .displayFingerprintPhraseAlert({
@@ -289,8 +288,8 @@ final class AccountSecurityProcessor: StateProcessor<
                         self.state.isUnlockWithPINCodeOn = isOn
                     } catch {
                         self.coordinator.navigate(to: .alert(.defaultAlert(
-                            title: Localizations.anErrorHasOccurred)
-                        ))
+                            title: Localizations.anErrorHasOccurred
+                        )))
                     }
                 }))
             })))

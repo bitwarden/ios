@@ -11,7 +11,8 @@ protocol AuthRepository: AnyObject {
 
     /// Enables or disables biometric unlock for the active user.
     ///
-    /// - Parameter enabled: Whether or not the the user wants biometric auth enabled.
+    /// - Parameters:
+    ///   - enabled: Whether or not the the user wants biometric auth enabled.
     ///     If `true`, the userAuthKey is stored to the keychain and the user preference is set to false.
     ///     If `false`, any userAuthKey is deleted from the keychain and the user preference is set to false.
     ///
@@ -47,22 +48,11 @@ protocol AuthRepository: AnyObject {
     ///
     func getAccount(for userId: String) async throws -> Account
 
-    /// Gets the account's unique fingerprint phrase.
+    /// Gets the current account's unique fingerprint phrase.
     ///
-    /// - Parameter userId: The user Id used in generating a fingerprint phrase.
     /// - Returns: The account fingerprint phrase.
     ///
-    func getFingerprintPhrase(userId _: String?) async throws -> String
-
-    /// Initiates the login with device process.
-    ///
-    /// - Parameters:
-    ///   - deviceId: The device ID.
-    ///   - email: The user's email.
-    ///
-    /// - Returns: A fingerprint to use in the `PasswordlessLoginRequest`.
-    ///
-    func initiateLoginWithDevice(deviceId: String, email: String) async throws -> String
+    func getFingerprintPhrase() async throws -> String
 
     /// Whether pin unlock is available.
     ///
@@ -296,21 +286,9 @@ extension DefaultAuthRepository: AuthRepository {
         return match
     }
 
-    func getFingerprintPhrase(userId _: String?) async throws -> String {
-        let account = try await stateService.getActiveAccount()
-        return try await clientPlatform.userFingerprint(fingerprintMaterial: account.profile.userId)
-    }
-
-    func initiateLoginWithDevice(deviceId: String, email: String) async throws -> String {
-        let request = try await clientAuth.newAuthRequest(email: email)
-        try await authService.initiateLoginWithDevice(
-            accessCode: request.accessCode,
-            deviceIdentifier: deviceId,
-            email: email,
-            fingerPrint: request.fingerprint,
-            publicKey: request.publicKey
-        )
-        return request.fingerprint
+    func getFingerprintPhrase() async throws -> String {
+        let userId = try await stateService.getActiveAccountId()
+        return try await clientPlatform.userFingerprint(fingerprintMaterial: userId)
     }
 
     func isLocked(userId: String?) async throws -> Bool {

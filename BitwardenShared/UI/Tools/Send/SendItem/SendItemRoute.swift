@@ -1,6 +1,18 @@
 import BitwardenSdk
 import Foundation
 
+// MARK: - AddSendContentType
+
+/// Values describing content that can be used to pre-fill the add send screen.
+///
+public enum AddSendContentType: Equatable, Hashable {
+    /// A file type, with the provided name and data.
+    case file(fileName: String, fileData: Data)
+
+    /// A text type, with the provided string value.
+    case text(String)
+}
+
 // MARK: - SendItemRoute
 
 /// The route to a specific screen in the send item flow.
@@ -8,9 +20,11 @@ import Foundation
 public enum SendItemRoute: Equatable, Hashable {
     /// A route to the add item screen.
     ///
-    /// - Parameter hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameters:
+    ///   - content: Initial content to pre-fill the add send screen with.
+    ///   - hasPremium: A flag indicating if the active account has premium access.
     ///
-    case add(hasPremium: Bool)
+    case add(content: AddSendContentType?, hasPremium: Bool)
 
     /// A route specifing that the send item flow has been cancelled.
     case cancel
