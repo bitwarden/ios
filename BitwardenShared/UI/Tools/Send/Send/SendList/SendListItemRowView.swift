@@ -9,9 +9,6 @@ struct SendListItemRowState: Equatable {
 
     /// The accessibility identifier for the `SendListItem`.
     var accessibilityIdentifier: String {
-        guard sectionName == Localizations.types else {
-            return "SendCell"
-        }
         switch item.itemType {
         case .send:
             break
@@ -31,9 +28,6 @@ struct SendListItemRowState: Equatable {
 
     /// A flag indicating if this row should display a divider on the bottom edge.
     var hasDivider: Bool
-
-    /// The section this list item row is in.
-    var sectionName: String
 }
 
 // MARK: - SendListItemRowAction
@@ -243,8 +237,7 @@ struct SendListItemRowView: View {
                 processor: StateProcessor(
                     state: SendListItemRowState(
                         item: SendListItem(id: "1", itemType: .group(.text, 42)),
-                        hasDivider: true,
-                        sectionName: "TYPES"
+                        hasDivider: true
                     )
                 )
             )
@@ -254,8 +247,7 @@ struct SendListItemRowView: View {
                 processor: StateProcessor(
                     state: SendListItemRowState(
                         item: SendListItem(id: "1", itemType: .group(.file, 42)),
-                        hasDivider: true,
-                        sectionName: "ALL SENDS"
+                        hasDivider: true
                     )
                 )
             )
@@ -286,8 +278,7 @@ struct SendListItemRowView: View {
                                 expirationDate: Date().advanced(by: -1)
                             ))
                         ),
-                        hasDivider: true,
-                        sectionName: "ALL SENDS"
+                        hasDivider: true
                     )
                 )
             )
@@ -318,8 +309,7 @@ struct SendListItemRowView: View {
                                 expirationDate: Date().advanced(by: 100)
                             ))
                         ),
-                        hasDivider: false,
-                        sectionName: "ALL SENDS"
+                        hasDivider: false
                     )
                 )
             )

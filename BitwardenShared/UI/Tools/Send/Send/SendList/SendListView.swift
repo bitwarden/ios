@@ -149,8 +149,7 @@ private struct MainSendListView: View {
                             state: { _ in
                                 SendListItemRowState(
                                     item: item,
-                                    hasDivider: items.last != item,
-                                    sectionName: sectionName ?? ""
+                                    hasDivider: items.last != item
                                 )
                             },
                             mapAction: SendListAction.sendListItemRow,
