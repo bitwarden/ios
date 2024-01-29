@@ -1,26 +1,103 @@
+import BitwardenShared
 import Social
 import UIKit
 
-class ShareViewController: SLComposeServiceViewController {
-    // Automatically generated SLComposeServiceViewController. Should be updated to match our use.
+// MARK: - ShareViewController
 
-    override func isContentValid() -> Bool {
-        // Do validation of contentText and/or NSExtensionContext attachments here
-        true
+/// The main interface for the Share Extension. Handles item decoding and app processor
+/// initialization.
+///
+class ShareViewController: UIViewController {
+    // MARK: Properties
+
+    /// The app's theme.
+    var appTheme: AppTheme = .default
+
+    var authCompletionRoute: AppRoute = .sendItem(.add(content: nil, hasPremium: false))
+
+    /// The processor that manages application level logic.
+    private var appProcessor: AppProcessor?
+
+    /// A helper class for processing the input items from the extension.
+    private let shareExtensionHelper = ShareExtensionHelper()
+
+    // MARK: View Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        guard let inputItems = extensionContext?.inputItems as? [NSExtensionItem] else {
+            close()
+            return
+        }
+
+        Task {
+            guard let content = await shareExtensionHelper.processInputItems(inputItems) else {
+                close()
+                return
+            }
+            await initializeApp(with: content)
+        }
     }
 
-    override func didSelectPost() {
-        // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext
-        // attachments.
+    // MARK: Private
 
-        // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's
-        // -didSelectPost, which will similarly complete the extension context.
-        extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+    /// Closes the extension.
+    ///
+    private func close() {
+        extensionContext?.completeRequest(returningItems: nil)
     }
 
-    override func configurationItems() -> [Any]! {
-        // To add configuration options via table cells at the bottom of the sheet, return an array of
-        // SLComposeSheetConfigurationItem here.
-        []
+    /// Sets up and initializes the app and UI.
+    ///
+    private func initializeApp(with content: AddSendContentType) async {
+        let errorReporter = OSLogErrorReporter()
+        let services = ServiceContainer(errorReporter: errorReporter)
+        let appModule = DefaultAppModule(appExtensionDelegate: self, services: services)
+        let appProcessor = AppProcessor(appModule: appModule, services: services)
+        self.appProcessor = appProcessor
+
+        let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
+
+        authCompletionRoute = .sendItem(.add(content: content, hasPremium: hasPremium ?? false))
+
+        appProcessor.start(
+            appContext: .appExtension,
+            initialRoute: nil,
+            navigator: self,
+            window: nil
+        )
+    }
+}
+
+// MARK: - AppExtensionDelegate
+
+extension ShareViewController: AppExtensionDelegate {
+    var isInAppExtension: Bool { true }
+
+    var uri: String? { nil }
+
+    func didCancel() {
+        close()
+    }
+}
+
+// MARK: - RootNavigator
+
+extension ShareViewController: RootNavigator {
+    var rootViewController: UIViewController? { self }
+
+    func show(child: Navigator) {
+        if let fromViewController = children.first {
+            fromViewController.willMove(toParent: nil)
+            fromViewController.view.removeFromSuperview()
+            fromViewController.removeFromParent()
+        }
+
+        if let toViewController = child.rootViewController {
+            addChild(toViewController)
+            view.addConstrained(subview: toViewController.view)
+            toViewController.didMove(toParent: self)
+        }
     }
 }

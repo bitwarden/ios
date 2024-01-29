@@ -136,7 +136,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The deletion date field.
     @ViewBuilder private var deletionDate: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if store.state.mode == .add {
+            if store.state.mode == .add || store.state.mode == .shareExtension {
                 BitwardenMenuField(
                     title: Localizations.deletionDate,
                     accessibilityIdentifier: "SendDeletionOptionsPicker",
@@ -177,7 +177,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The expiration date field.
     @ViewBuilder private var expirationDate: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if store.state.mode == .add {
+            if store.state.mode == .add || store.state.mode == .shareExtension {
                 BitwardenMenuField(
                     title: Localizations.expirationDate,
                     accessibilityIdentifier: "SendExpirationOptionsPicker",
@@ -235,7 +235,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
             switch store.state.mode {
-            case .add:
+            case .add, .shareExtension:
                 HStack(spacing: 0) {
                     Spacer()
 
@@ -248,11 +248,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Button(Localizations.chooseFile) {
-                        store.send(.chooseFilePressed)
+                    if store.state.mode == .add {
+                        Button(Localizations.chooseFile) {
+                            store.send(.chooseFilePressed)
+                        }
+                        .buttonStyle(.tertiary())
+                        .accessibilityIdentifier("SendChooseFileButton")
                     }
-                    .accessibilityIdentifier("SendChooseFileButton")
-                    .buttonStyle(.tertiary())
 
                     Text(Localizations.maxFileSize)
                         .styleGuide(.subheadline)

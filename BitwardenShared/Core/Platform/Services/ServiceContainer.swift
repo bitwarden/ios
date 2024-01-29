@@ -64,7 +64,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let policyService: PolicyService
 
     /// The repository used by the application to manage send data for the UI layer.
-    let sendRepository: SendRepository
+    public let sendRepository: SendRepository
 
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository

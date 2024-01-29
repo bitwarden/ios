@@ -3,10 +3,10 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - VaultMainView
+// MARK: - SearchableVaultListView
 
 /// The main view of the vault.
-private struct VaultMainView: View {
+private struct SearchableVaultListView: View {
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
@@ -113,6 +113,7 @@ private struct VaultMainView: View {
                             )
                             .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                         }
+                        .accessibilityIdentifier("CipherCell")
                     }
                 }
             }
@@ -123,7 +124,7 @@ private struct VaultMainView: View {
         }
     }
 
-    /// Displays the vault filter for search row if the user is a member of any org
+    /// Displays the vault filter for search row if the user is a member of any org.
     private var searchVaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: true, store: store.child(
@@ -276,7 +277,7 @@ struct VaultListView: View {
 
     var body: some View {
         ZStack {
-            VaultMainView(
+            SearchableVaultListView(
                 store: store,
                 timeProvider: timeProvider
             )
@@ -288,6 +289,7 @@ struct VaultListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
+            .accessibilityIdentifier("SearchFieldEntry")
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }

@@ -6,7 +6,7 @@ import Foundation
 
 /// A protocol for a `SendRepository` which manages access to the data needed by the UI layer.
 ///
-protocol SendRepository: AnyObject {
+public protocol SendRepository: AnyObject {
     // MARK: Methods
 
     /// Adds a new file Send to the repository.

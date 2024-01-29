@@ -127,13 +127,16 @@ extension StackNavigator {
     ///   - viewController: The view controller to push onto the stack.
     ///   - animated: Whether the transition should be animated. Defaults to `UI.animated`.
     ///   - navigationTitle: The navigation title to pre-populate the navigation bar so that it doesn't flash.
-    ///   - hasSearchBar: Whether or not to pre-populate the navigation bar with a search bar.
+    ///   - searchController: If non-nil, pre-populate the navigation bar with a search bar backed by the
+    ///         supplied UISearchController.
+    ///     Normal SwiftUI search contorls will not work if this value is supplied. Tracking the searchController
+    ///     behavior must be done through a UISearchControllerDelegate or a UISearchResultsUpdating object.
     ///
     func push(
         _ viewController: UIViewController,
         animated: Bool = UI.animated,
         navigationTitle: String? = nil,
-        hasSearchBar: Bool = false
+        searchController: UISearchController? = nil
     ) {
         if let navigationTitle {
             // Preset some navigation item values so that the navigation bar does not flash oddly once
@@ -147,8 +150,7 @@ extension StackNavigator {
             // resolved its root view's navigation bar modifiers.
             viewController.navigationItem.largeTitleDisplayMode = .never
             viewController.navigationItem.title = navigationTitle
-            if hasSearchBar {
-                let searchController = UISearchController()
+            if let searchController {
                 if #available(iOS 16.0, *) {
                     viewController.navigationItem.preferredSearchBarPlacement = .stacked
                 }

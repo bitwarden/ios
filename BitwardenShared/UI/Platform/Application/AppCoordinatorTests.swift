@@ -204,6 +204,34 @@ class AppCoordinatorTests: BitwardenTestCase {
         )
     }
 
+    /// `navigate(to:)` with `.sendItem(.add(content:hasPremium:))` starts the send item coordinator
+    /// and navigates to the proper route.
+    func test_navigateTo_sendItem() {
+        subject.navigate(to: .sendItem(.add(content: nil, hasPremium: false)))
+
+        XCTAssertTrue(module.sendItemCoordinator.isStarted)
+        XCTAssertEqual(
+            module.sendItemCoordinator.routes,
+            [.add(content: nil, hasPremium: false)]
+        )
+    }
+
+    /// `navigate(to:)` with `.sendItem()` twice uses the existing coordinator, rather than
+    /// creating a new one.
+    func test_navigateTo_sendItem_twice() {
+        subject.navigate(to: .sendItem(.add(content: nil, hasPremium: false)))
+        subject.navigate(to: .sendItem(.add(content: .text("test"), hasPremium: true)))
+
+        XCTAssertTrue(module.sendItemCoordinator.isStarted)
+        XCTAssertEqual(
+            module.sendItemCoordinator.routes,
+            [
+                .add(content: nil, hasPremium: false),
+                .add(content: .text("test"), hasPremium: true),
+            ]
+        )
+    }
+
     /// `navigate(to:)` with `.tab(.vault(.list))` starts the tab coordinator and navigates to the proper tab route.
     func test_navigateTo_tab() {
         subject.navigate(to: .tab(.vault(.list)))

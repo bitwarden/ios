@@ -61,6 +61,7 @@ struct AppearanceView: View {
                 )
             )
             .cornerRadius(10)
+            .accessibilityIdentifier("ThemeChooser")
 
             Text(Localizations.themeDescription)
                 .styleGuide(.subheadline)
@@ -79,6 +80,7 @@ struct AppearanceView: View {
             }
             .toggleStyle(.bitwarden)
             .styleGuide(.body)
+            .accessibilityIdentifier("ShowWebsiteIconsSwitch")
 
             Text(Localizations.showWebsiteIconsDescription)
                 .styleGuide(.subheadline)

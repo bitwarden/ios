@@ -42,8 +42,8 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `navigate(to:)` with `.add()` shows the add item screen.
-    func test_navigateTo_add_hasPremium() throws {
-        subject.navigate(to: .add(hasPremium: true))
+    func test_navigateTo_add_noContent_hasPremium() throws {
+        subject.navigate(to: .add(content: nil, hasPremium: true))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -53,14 +53,52 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.addItem` shows the add send item screen.
-    func test_navigateTo_add_notHasPremium() throws {
-        subject.navigate(to: .add(hasPremium: false))
+    func test_navigateTo_add_noContent_notHasPremium() throws {
+        subject.navigate(to: .add(content: nil, hasPremium: false))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         let view = try XCTUnwrap(action.view as? AddEditSendItemView)
         XCTAssertFalse(view.store.state.hasPremium)
         XCTAssertEqual(view.store.state.mode, .add)
+    }
+
+    /// `navigate(to:)` with `.add()` shows the add item screen with prefilled text content.
+    func test_navigateTo_add_textContent() throws {
+        subject.navigate(to: .add(content: .text("test"), hasPremium: true))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? AddEditSendItemView)
+        XCTAssertTrue(view.store.state.hasPremium)
+        XCTAssertEqual(view.store.state.mode, .shareExtension)
+        XCTAssertEqual(view.store.state.type, .text)
+        XCTAssertEqual(view.store.state.text, "test")
+        XCTAssertNil(view.store.state.fileName)
+        XCTAssertNil(view.store.state.fileData)
+    }
+
+    /// `navigate(to:)` with `.add()` shows the add send item screen with prefilled text content.
+    func test_navigateTo_add_fileContent() throws {
+        subject.navigate(
+            to: .add(
+                content: .file(
+                    fileName: "test file",
+                    fileData: Data("test data".utf8)
+                ),
+                hasPremium: false
+            )
+        )
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? AddEditSendItemView)
+        XCTAssertFalse(view.store.state.hasPremium)
+        XCTAssertEqual(view.store.state.mode, .shareExtension)
+        XCTAssertEqual(view.store.state.type, .file)
+        XCTAssertEqual(view.store.state.text, "")
+        XCTAssertEqual(view.store.state.fileName, "test file")
+        XCTAssertEqual(view.store.state.fileData, Data("test data".utf8))
     }
 
     /// `navigate(to:)` with `.cancel` notifies the delegate.

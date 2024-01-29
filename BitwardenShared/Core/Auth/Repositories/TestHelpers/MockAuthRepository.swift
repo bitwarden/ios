@@ -12,7 +12,6 @@ class MockAuthRepository: AuthRepository {
     var email: String = ""
     var encryptedPin: String = "123"
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
-    var initiateLoginWithDeviceResult: Result<String, Error> = .success("fingerprint")
     var isPinUnlockAvailable = false
     var lockVaultUserId: String?
     var logoutCalled = false
@@ -31,7 +30,7 @@ class MockAuthRepository: AuthRepository {
     var unlockVaultResult: Result<Void, Error> = .success(())
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
 
-    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws {
+    func allowBioMetricUnlock(_ enabled: Bool, userId _: String?) async throws {
         allowBiometricUnlock = enabled
         try allowBiometricUnlockResult.get()
     }
@@ -56,14 +55,8 @@ class MockAuthRepository: AuthRepository {
         try accountForItemResult.get()
     }
 
-    func getFingerprintPhrase(userId _: String?) async throws -> String {
+    func getFingerprintPhrase() async throws -> String {
         try fingerprintPhraseResult.get()
-    }
-
-    func initiateLoginWithDevice(deviceId: String, email: String) async throws -> String {
-        self.deviceId = deviceId
-        self.email = email
-        return try initiateLoginWithDeviceResult.get()
     }
 
     func isPinUnlockAvailable() async throws -> Bool {
@@ -94,7 +87,7 @@ class MockAuthRepository: AuthRepository {
         try setActiveAccountResult.get()
     }
 
-    func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
+    func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
     }

@@ -22,11 +22,11 @@ public struct LoginRequest: JSONResponse, Equatable {
     /// The key of the login request.
     let key: String?
 
-    /// The origin of the login request.
-    let origin: String
-
     /// The master password hash of the login request.
     let masterPasswordHash: String?
+
+    /// The origin of the login request.
+    let origin: String
 
     /// The public key of the login request.
     let publicKey: String
@@ -45,6 +45,23 @@ public struct LoginRequest: JSONResponse, Equatable {
 
     /// The response date, if the login request has already been approved or denied.
     let responseDate: Date?
+
+    // MARK: Computed Properties
+
+    /// Whether the request has been answered.
+    var isAnswered: Bool {
+        requestApproved != nil && responseDate != nil
+    }
+
+    /// Whether the request has expired.
+    var isExpired: Bool {
+        let expirationDate = Calendar.current.date(
+            byAdding: .minute,
+            value: Constants.loginRequestTimeoutMinutes,
+            to: creationDate
+        ) ?? Date()
+        return expirationDate < Date()
+    }
 }
 
 extension LoginRequest: Identifiable {}

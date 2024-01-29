@@ -56,7 +56,7 @@ class SendCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UINavigationController)
 
         XCTAssertTrue(module.sendItemCoordinator.isStarted)
-        XCTAssertEqual(module.sendItemCoordinator.routes.last, .add(hasPremium: true))
+        XCTAssertEqual(module.sendItemCoordinator.routes.last, .add(content: nil, hasPremium: true))
     }
 
     /// `navigate(to:)` with `.addItem` and without a delegate does not present the add send item
@@ -80,7 +80,7 @@ class SendCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UINavigationController)
 
         XCTAssertTrue(module.sendItemCoordinator.isStarted)
-        XCTAssertEqual(module.sendItemCoordinator.routes.last, .add(hasPremium: false))
+        XCTAssertEqual(module.sendItemCoordinator.routes.last, .add(content: nil, hasPremium: false))
     }
 
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
@@ -94,7 +94,7 @@ class SendCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UINavigationController)
 
         XCTAssertTrue(module.sendItemCoordinator.isStarted)
-        XCTAssertEqual(module.sendItemCoordinator.routes.last, .add(hasPremium: false))
+        XCTAssertEqual(module.sendItemCoordinator.routes.last, .add(content: nil, hasPremium: false))
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the current modally presented screen.

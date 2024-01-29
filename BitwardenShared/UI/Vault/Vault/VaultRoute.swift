@@ -35,7 +35,7 @@ public enum VaultRoute: Equatable, Hashable {
     case dismiss
 
     /// A route to the vault item list screen for the specified group.
-    case group(_ group: VaultListGroup, filter: VaultFilterType)
+    case group(VaultGroupContent)
 
     /// A route to the vault list screen.
     case list
@@ -63,4 +63,25 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameter id: The id of the item to display.
     ///
     case viewItem(id: String)
+}
+
+public struct VaultGroupContent: Equatable, Hashable {
+    var group: VaultListGroup
+
+    var filter: VaultFilterType
+
+    @AlwaysEqual var filterDelegate: VaultFilterDelegate?
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(group)
+        hasher.combine(filter)
+    }
+}
+
+@propertyWrapper
+struct AlwaysEqual<Value>: Equatable {
+    var wrappedValue: Value
+    static func == (lhs: AlwaysEqual<Value>, rhs: AlwaysEqual<Value>) -> Bool {
+        true
+    }
 }

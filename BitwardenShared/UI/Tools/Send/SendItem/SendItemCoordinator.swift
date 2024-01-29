@@ -63,8 +63,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: SendItemRoute, context: AnyObject?) {
         switch route {
-        case let .add(hasPremium):
-            showAddItem(hasPremium: hasPremium)
+        case let .add(content, hasPremium):
+            showAddItem(content: content, hasPremium: hasPremium)
         case .cancel:
             delegate?.sendItemCancelled()
         case .deleted:
@@ -87,12 +87,27 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the add item screen.
     ///
-    /// - Parameter hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameters:
+    ///   - content: Optional content to pre-fill the add item screen.
+    ///   - hasPremium: A flag indicating if the active account has premium access.
     ///
-    private func showAddItem(hasPremium: Bool) {
-        let state = AddEditSendItemState(
+    private func showAddItem(content: AddSendContentType?, hasPremium: Bool) {
+        var state = AddEditSendItemState(
             hasPremium: hasPremium
         )
+        switch content {
+        case let .file(fileName, fileData):
+            state.fileName = fileName
+            state.fileData = fileData
+            state.type = .file
+            state.mode = .shareExtension
+        case let .text(text):
+            state.text = text
+            state.type = .text
+            state.mode = .shareExtension
+        case nil:
+            break
+        }
         let processor = AddEditSendItemProcessor(
             coordinator: self,
             services: services,

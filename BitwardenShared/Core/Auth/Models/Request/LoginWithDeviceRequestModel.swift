@@ -1,12 +1,12 @@
 import Foundation
 import Networking
 
-// MARK: - PasswordlessLoginRequestModel
+// MARK: - LoginWithDeviceRequestModel
 
-/// A request for sending a passwordless login request, which can be approved/denied on the user's
-/// second device.
+/// A request for sending a login with device request, which can be approved/denied on the user's
+/// other device.
 ///
-struct PasswordlessLoginRequestModel: JSONRequestBody, Equatable {
+struct LoginWithDeviceRequestModel: JSONRequestBody, Equatable {
     // MARK: Static Properties
 
     static let encoder = JSONEncoder()

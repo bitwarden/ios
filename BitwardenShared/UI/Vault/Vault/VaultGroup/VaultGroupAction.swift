@@ -25,10 +25,19 @@ enum VaultGroupAction: Equatable {
     ///
     case morePressed(_ item: VaultListItem)
 
+    /// The user has started or stopped searching.
+    case searchStateChanged(isSearching: Bool)
+
     /// The search bar's text was changed.
     ///
     case searchTextChanged(String)
 
+    /// The selected vault filter for search changed.
+    case searchVaultFilterChanged(VaultFilterType)
+
     /// The toast was shown or hidden.
     case toastShown(Toast?)
+
+    /// The selected vault filter changed.
+    case vaultFilterChanged(VaultFilterType)
 }

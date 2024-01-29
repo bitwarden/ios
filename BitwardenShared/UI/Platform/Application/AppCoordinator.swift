@@ -1,3 +1,4 @@
+import BitwardenSdk
 import UIKit
 
 // MARK: - AppCoordinator
@@ -10,6 +11,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// The types of modules used by this coordinator.
     typealias Module = AuthModule
         & ExtensionSetupModule
+        & FileSelectionModule
+        & SendItemModule
         & TabModule
         & VaultModule
 
@@ -62,6 +65,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             showAuth(route: authRoute)
         case let .extensionSetup(extensionSetupRoute):
             showExtensionSetup(route: extensionSetupRoute)
+        case let .sendItem(sendItemRoute):
+            showSendItem(route: sendItemRoute)
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         case let .vault(vaultRoute):
@@ -106,6 +111,26 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         } else {
             let stackNavigator = UINavigationController()
             let coordinator = module.makeExtensionSetupCoordinator(
+                stackNavigator: stackNavigator
+            )
+            coordinator.start()
+            coordinator.navigate(to: route)
+            childCoordinator = coordinator
+            rootNavigator.show(child: stackNavigator)
+        }
+    }
+
+    /// Shows the send item route (not in a tab). This is used within the app extensions.
+    ///
+    /// - Parameter route: The `SendItemRoute` to show.
+    ///
+    private func showSendItem(route: SendItemRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<SendItemRoute> {
+            coordinator.navigate(to: route)
+        } else {
+            let stackNavigator = UINavigationController()
+            let coordinator = module.makeSendItemCoordinator(
+                delegate: self,
                 stackNavigator: stackNavigator
             )
             coordinator.start()
@@ -168,6 +193,22 @@ extension AppCoordinator: AuthCoordinatorDelegate {
         case .mainApp:
             showTab(route: .vault(.list))
         }
+    }
+}
+
+// MARK: - SendItemDelegate
+
+extension AppCoordinator: SendItemDelegate {
+    func sendItemCancelled() {
+        appExtensionDelegate?.didCancel()
+    }
+
+    func sendItemCompleted(with sendView: BitwardenSdk.SendView) {
+        appExtensionDelegate?.didCancel()
+    }
+
+    func sendItemDeleted() {
+        appExtensionDelegate?.didCancel()
     }
 }
 

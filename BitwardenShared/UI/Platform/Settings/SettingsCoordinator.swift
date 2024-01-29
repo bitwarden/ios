@@ -32,7 +32,7 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the settings tab.
 ///
-final class SettingsCoordinator: Coordinator, HasStackNavigator {
+final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Services = HasAccountAPIService
@@ -82,7 +82,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: SettingsRoute, context: AnyObject?) {
+    func navigate(to route: SettingsRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .about:
             showAbout()
@@ -107,13 +107,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
                 self.delegate?.didDeleteAccount(otherAccounts: otherAccounts ?? nil)
             }
         case .dismiss:
-            stackNavigator.dismiss()
+            stackNavigator.rootViewController?.topmostViewController().dismiss(animated: true)
         case .exportVault:
             showExportVault()
         case .folders:
             showFolders()
         case let .lockVault(account, _):
             delegate?.didLockVault(account: account)
+        case let .loginRequest(request):
+            showLoginRequest(request, delegate: context as? LoginRequestDelegate)
         case let .logout(userInitiated):
             Task {
                 let accounts = try? await services.stateService.getAccounts()
@@ -289,6 +291,24 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator.push(viewController, navigationTitle: Localizations.folders)
+    }
+
+    /// Shows the login request.
+    ///
+    /// - Parameters:
+    ///   - request: The login request to display.
+    ///   - delegate: The delegate.
+    ///
+    private func showLoginRequest(_ request: LoginRequest, delegate: LoginRequestDelegate?) {
+        let processor = LoginRequestProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: LoginRequestState(request: request)
+        )
+        let view = LoginRequestView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator.present(navController)
     }
 
     /// Shows the other settings screen.

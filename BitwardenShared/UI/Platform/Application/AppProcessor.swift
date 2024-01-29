@@ -33,7 +33,7 @@ public class AppProcessor {
         self.appModule = appModule
         self.services = services
 
-        UI.initialLanguageCode = services.appSettingsStore.appLocale
+        UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
         UI.applyDefaultAppearances()
 
         Task {

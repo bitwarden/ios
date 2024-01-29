@@ -62,7 +62,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
             guard let delegate = context as? SendItemDelegate else { return }
             Task {
                 let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-                showItem(route: .add(hasPremium: hasPremium ?? false), delegate: delegate)
+                showItem(route: .add(content: nil, hasPremium: hasPremium ?? false), delegate: delegate)
             }
         case let .dismiss(dismissAction):
             stackNavigator.dismiss(completion: dismissAction?.action)
