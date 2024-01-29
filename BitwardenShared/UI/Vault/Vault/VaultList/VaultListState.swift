@@ -25,11 +25,11 @@ struct VaultListState: Equatable {
     /// The text that the user is currently searching for.
     var searchText = ""
 
-    /// Whether to show the special web icons.
-    var showWebIcons = true
-
     /// The search vault filter used to display a single or all vaults for the user.
     var searchVaultFilterType: VaultFilterType = .allVaults
+
+    /// Whether to show the special web icons.
+    var showWebIcons = true
 
     /// A toast message to show in the view.
     var toast: Toast?

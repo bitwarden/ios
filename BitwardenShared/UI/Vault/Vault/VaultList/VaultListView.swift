@@ -3,10 +3,10 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - VaultMainView
+// MARK: - SearchableVaultListView
 
 /// The main view of the vault.
-private struct VaultMainView: View {
+private struct SearchableVaultListView: View {
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
@@ -276,7 +276,7 @@ struct VaultListView: View {
 
     var body: some View {
         ZStack {
-            VaultMainView(
+            SearchableVaultListView(
                 store: store,
                 timeProvider: timeProvider
             )
