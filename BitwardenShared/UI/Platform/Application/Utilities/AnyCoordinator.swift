@@ -23,6 +23,9 @@ open class AnyCoordinator<Route>: Coordinator {
     /// A closure that wraps the `showLoadingOverlay(_:)` method.
     private let doShowLoadingOverlay: (LoadingOverlayState) -> Void
 
+    /// A closure that wraps the `showToast(_:)` method.
+    private let doShowToast: (String) -> Void
+
     /// A closure that wraps the `start()` method.
     private let doStart: () -> Void
 
@@ -47,6 +50,7 @@ open class AnyCoordinator<Route>: Coordinator {
         doPrepareAndRedirect = { await coordinator.prepareAndRedirect($0) }
         doShowAlert = { coordinator.showAlert($0) }
         doShowLoadingOverlay = { coordinator.showLoadingOverlay($0) }
+        doShowToast = { coordinator.showToast($0) }
         doStart = { coordinator.start() }
     }
 
@@ -78,6 +82,10 @@ open class AnyCoordinator<Route>: Coordinator {
 
     open func prepareAndRedirect(_ route: Route) async -> Route {
         await doPrepareAndRedirect(route)
+    }
+
+    open func showToast(_ text: String) {
+        doShowToast(text)
     }
 
     open func start() {

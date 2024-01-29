@@ -11,6 +11,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var authService: MockAuthService!
     var coordinator: MockCoordinator<VaultRoute>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -27,6 +28,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         super.setUp()
 
         authRepository = MockAuthRepository()
+        authService = MockAuthService()
         errorReporter = MockErrorReporter()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
@@ -35,6 +37,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
+            authService: authService,
             errorReporter: errorReporter,
             pasteboardService: pasteboardService,
             stateService: stateService,
@@ -52,6 +55,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         super.tearDown()
 
         authRepository = nil
+        authService = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -91,6 +95,21 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.appeared)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` handles any pending login requests for the user to address.
+    func test_perform_appeared_checkPendingLoginRequests() async {
+        // Set up the mock data.
+        stateService.activeAccount = .fixture()
+        stateService.loginRequest = .init(id: "2", userId: Account.fixture().profile.userId)
+        authService.getPendingLoginRequestResult = .success([.fixture()])
+
+        // Test.
+        await subject.perform(.appeared)
+
+        // Verify the results.
+        XCTAssertEqual(coordinator.routes.last, .loginRequest(.fixture()))
+        XCTAssertNil(stateService.loginRequest)
     }
 
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.

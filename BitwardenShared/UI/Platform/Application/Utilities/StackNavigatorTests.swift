@@ -74,7 +74,7 @@ class StackNavigatorTests: BitwardenTestCase {
     }
 
     /// `dismiss(animated:)` dismisses the hosted view and executes a block of code
-    /// when dismission is complete.
+    /// when dismissing is complete.
     func test_dismiss_completion() {
         var isBlockExecuted = false
 

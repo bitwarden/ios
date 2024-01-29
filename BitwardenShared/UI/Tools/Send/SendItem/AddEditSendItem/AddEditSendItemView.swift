@@ -111,6 +111,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     }
                 }
             }
+            .accessibilityIdentifier("SendMaxAccessCountEntry")
 
             Divider()
 
@@ -138,6 +139,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             if store.state.mode == .add || store.state.mode == .shareExtension {
                 BitwardenMenuField(
                     title: Localizations.deletionDate,
+                    accessibilityIdentifier: "SendDeletionOptionsPicker",
                     options: SendDeletionDateType.allCases,
                     selection: store.binding(
                         get: \.deletionDate,
@@ -178,6 +180,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             if store.state.mode == .add || store.state.mode == .shareExtension {
                 BitwardenMenuField(
                     title: Localizations.expirationDate,
+                    accessibilityIdentifier: "SendExpirationOptionsPicker",
                     options: SendExpirationDateType.allCases,
                     selection: store.binding(
                         get: \.expirationDate,
@@ -217,6 +220,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     Button(Localizations.clear) {
                         store.send(.clearExpirationDatePressed)
                     }
+                    .accessibilityIdentifier("Clear")
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
                 }
             }
@@ -237,6 +241,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
                     Text(store.state.fileName ?? Localizations.noFileChosen)
                         .styleGuide(.callout)
+                        .accessibilityIdentifier(store.state.fileName != nil ? "SendCurrentFileNameLabel" : "")
                         .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
 
                     Spacer()
@@ -248,6 +253,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             store.send(.chooseFilePressed)
                         }
                         .buttonStyle(.tertiary())
+                        .accessibilityIdentifier("SendChooseFileButton")
                     }
 
                     Text(Localizations.maxFileSize)
@@ -287,7 +293,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 get: \.name,
                 send: AddEditSendItemAction.nameChanged
             ),
-            footer: Localizations.nameInfo
+            footer: Localizations.nameInfo,
+            accessibilityIdentifier: "SendNameEntry"
         )
     }
 
@@ -306,6 +313,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 send: AddEditSendItemAction.passwordChanged
             ),
             footer: Localizations.passwordInfo,
+            accessibilityIdentifier: "SendNewPasswordEntry",
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
                 send: AddEditSendItemAction.passwordVisibleChanged
@@ -327,12 +335,14 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             send: AddEditSendItemAction.hideMyEmailChanged
         ))
         .toggleStyle(.bitwarden)
+        .accessibilityIdentifier("SendHideEmailSwitch")
 
         Toggle(Localizations.disableSend, isOn: store.binding(
             get: \.isDeactivateThisSendOn,
             send: AddEditSendItemAction.deactivateThisSendChanged
         ))
         .toggleStyle(.bitwarden)
+        .accessibilityIdentifier("SendDeactivateSwitch")
     }
 
     /// The options button.
@@ -352,6 +362,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             .padding(.vertical, 12)
             .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
+        .accessibilityIdentifier("SendShowHideOptionsButton")
     }
 
     /// The save button.
@@ -360,6 +371,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             await store.perform(.savePressed)
         }
         .buttonStyle(.primary())
+        .accessibilityIdentifier("Done")
     }
 
     /// The attributes for a text type send.
@@ -370,7 +382,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 get: \.text,
                 send: AddEditSendItemAction.textChanged
             ),
-            footer: Localizations.typeTextInfo
+            footer: Localizations.typeTextInfo,
+            accessibilityIdentifier: "SendTextContentEntry"
         )
 
         Toggle(Localizations.hideTextByDefault, isOn: store.binding(
@@ -378,6 +391,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             send: AddEditSendItemAction.hideTextByDefaultChanged
         ))
         .toggleStyle(.bitwarden)
+        .accessibilityIdentifier("SendHideTextByDefaultToggle")
     }
 
     /// The type field.
@@ -394,6 +408,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 ForEach(SendType.allCases, id: \.self) { sendType in
                     Text(sendType.localizedName)
                         .tag(sendType)
+                        .accessibilityIdentifier(sendType == .file ? "SendFileButton" : "SendTextButton")
                 }
             }
             .pickerStyle(SegmentedPickerStyle())

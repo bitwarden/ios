@@ -28,6 +28,12 @@ public protocol VaultCoordinatorDelegate: AnyObject {
     ///  - Parameter userId: The userId of the selected account.
     ///
     func didTapAccount(userId: String)
+
+    /// Present the login request view.
+    ///
+    /// - Parameter loginRequest: The login request.
+    ///
+    func presentLoginRequest(_ loginRequest: LoginRequest)
 }
 
 // MARK: - VaultCoordinator
@@ -41,6 +47,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & VaultItemModule
 
     typealias Services = HasAuthRepository
+        & HasAuthService
         & HasCameraService
         & HasEnvironmentService
         & HasErrorReporter
@@ -131,6 +138,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showGroup(content)
         case .list:
             showList()
+        case let .loginRequest(loginRequest):
+            delegate?.presentLoginRequest(loginRequest)
         case let .lockVault(account):
             delegate?.didLockVault(account: account)
         case let .logout(userInitiated):

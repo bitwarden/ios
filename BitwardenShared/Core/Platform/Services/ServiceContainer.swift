@@ -295,15 +295,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             syncAPIService: apiService
         )
 
-        let notificationService = DefaultNotificationService(
-            appIdService: appIdService,
-            authAPIService: apiService,
-            errorReporter: errorReporter,
-            notificationAPIService: apiService,
-            stateService: stateService,
-            syncService: syncService
-        )
-
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
@@ -324,6 +315,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             stateService: stateService,
             systemDevice: UIDevice.current
+        )
+
+        let notificationService = DefaultNotificationService(
+            appIdService: appIdService,
+            authService: authService,
+            errorReporter: errorReporter,
+            notificationAPIService: apiService,
+            stateService: stateService,
+            syncService: syncService
         )
 
         let authRepository = DefaultAuthRepository(

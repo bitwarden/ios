@@ -45,6 +45,12 @@ public protocol Coordinator<Route>: AnyObject {
     ///
     func showLoadingOverlay(_ state: LoadingOverlayState)
 
+    /// Shows the toast.
+    ///
+    /// - Parameter text: The text of the toast to display.
+    ///
+    func showToast(_ text: String)
+
     /// Starts the coordinator, displaying its content.
     ///
     func start()
@@ -154,6 +160,14 @@ extension Coordinator where Self: HasNavigator {
     ///
     func showLoadingOverlay(_ state: LoadingOverlayState) {
         navigator.showLoadingOverlay(state)
+    }
+
+    /// Shows the toast.
+    ///
+    /// - Parameter text: The text of the toast to display.
+    ///
+    func showToast(_ text: String) {
+        navigator.showToast(Toast(text: text))
     }
 }
 
