@@ -21,6 +21,7 @@ protocol BiometricsRepository: AnyObject {
     func configureBiometricIntegrity() async throws
 
     /// Sets the biometric unlock preference for the active user.
+    ///   If permissions have not been requested, this request should trigger the system permisisons dialog.
     ///
     /// - Parameter authKey: An optional `String` representing the user auth key. If nil, Biometric Unlock is disabled.
     ///
@@ -82,7 +83,8 @@ class DefaultBiometricsRepository: BiometricsRepository {
     }
 
     func setBiometricUnlockKey(authKey: String?) async throws {
-        guard let authKey else {
+        guard let authKey,
+              try await biometricsService.evaluateBiometricPolicy() else {
             try await stateService.setBiometricAuthenticationEnabled(false)
             try await stateService.setBiometricIntegrityState(nil)
             try? await deleteUserAuthKey()

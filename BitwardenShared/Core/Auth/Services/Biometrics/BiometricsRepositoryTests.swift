@@ -377,6 +377,25 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
+    /// `setBiometricUnlockKey` A failure in evaluating the biometrics policy clears any integrity state or auth key.
+    func test_setBiometricUnlockKey_evaluationFalse() async throws {
+        stateService.activeAccount = .fixture()
+        try? await stateService.setBiometricAuthenticationEnabled(true)
+        stateService.biometricIntegrityStates = [
+            "1": "SomeState",
+        ]
+        keychainService.mockStorage = [
+            "biometric_key_1": "storedKey",
+        ]
+        biometricsService.evaluationResult = false
+        stateService.setBiometricAuthenticationEnabledResult = .success(())
+        keychainService.deleteResult = .success(())
+        try await subject.setBiometricUnlockKey(authKey: nil)
+        waitFor(keychainService.mockStorage.isEmpty)
+        let result = try XCTUnwrap(stateService.biometricsEnabled["1"])
+        XCTAssertFalse(result)
+    }
+
     /// `setBiometricUnlockKey` can remove a user key from the keychain and track the availbility in state.
     func test_setBiometricUnlockKey_nilValue_success() async throws {
         stateService.activeAccount = .fixture()
