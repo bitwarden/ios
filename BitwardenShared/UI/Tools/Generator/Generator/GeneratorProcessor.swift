@@ -123,15 +123,11 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.usernameState.usernameGeneratorType = usernameGeneratorType
         }
 
-        if shouldGenerateNewValue || action.shouldPersistGeneratorOptions {
+        if shouldGenerateNewValue {
             generateValueTask?.cancel()
             generateValueTask = Task {
-                if shouldGenerateNewValue {
-                    await generateValue()
-                }
-                if action.shouldPersistGeneratorOptions {
-                    await saveGeneratorOptions()
-                }
+                await generateValue()
+                await saveGeneratorOptions()
             }
         }
     }
