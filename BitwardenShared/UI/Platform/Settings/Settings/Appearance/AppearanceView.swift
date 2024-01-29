@@ -61,6 +61,7 @@ struct AppearanceView: View {
                 )
             )
             .cornerRadius(10)
+            .accessibilityIdentifier("ThemeChooser")
 
             Text(Localizations.themeDescription)
                 .styleGuide(.subheadline)
