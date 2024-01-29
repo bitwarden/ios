@@ -308,6 +308,22 @@ struct GeneratorState: Equatable {
 
     // MARK: Methods
 
+    /// Returns whether changing the slider value should generate a new value.
+    /// - Parameters:
+    ///   - value: The updated value of the slider.
+    ///   - keyPath: The key path to the field in which the slider value was changed.
+    /// - Returns: `true` if a new value should be generated or `false` otherwise.
+    ///
+    func shouldGenerateNewValueOnSliderValueChanged(_ value: Double, keyPath: KeyPath<GeneratorState, Double>) -> Bool {
+        switch keyPath {
+        case \.passwordState.lengthDouble:
+            guard let minLength = policyOptions?.length else { return true }
+            return Int(value) >= minLength && Int(value) != passwordState.length
+        default:
+            return true
+        }
+    }
+
     /// Returns whether changing the text value should generate a new value.
     ///
     /// - Parameter keyPath: The key path to the field in which the text value was changed.

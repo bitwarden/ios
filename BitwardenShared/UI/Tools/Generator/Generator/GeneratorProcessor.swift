@@ -88,6 +88,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)
         case let .sliderValueChanged(field, value):
+            guard state.shouldGenerateNewValueOnSliderValueChanged(value, keyPath: field.keyPath) else {
+                shouldGenerateNewValue = false
+                break
+            }
             state[keyPath: field.keyPath] = value
         case let .stepperValueChanged(field, value):
             state[keyPath: field.keyPath] = value
@@ -261,7 +265,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             )
         }
     }
-
 
     /// Validates any password options to ensure the combination of options are valid and applies
     /// any policies to ensure a generated password conforms to the set policies.

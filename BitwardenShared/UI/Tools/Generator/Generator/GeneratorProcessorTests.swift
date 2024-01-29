@@ -538,6 +538,24 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.passwordState.length, 30)
     }
 
+    /// `receive(_:)` with `.sliderValueChanged` doesn't generate a new value if the slider value is
+    /// below the policy minimum.
+    func test_receive_sliderValueChanged_withPolicy() {
+        subject.state.policyOptions = PasswordGenerationOptions(length: 20)
+
+        let field = sliderField(keyPath: \.passwordState.lengthDouble)
+
+        subject.receive(.sliderValueChanged(field: field, value: 10))
+        XCTAssertNil(generatorRepository.passwordGeneratorRequest)
+
+        subject.receive(.sliderValueChanged(field: field, value: 19))
+        XCTAssertNil(generatorRepository.passwordGeneratorRequest)
+
+        subject.receive(.sliderValueChanged(field: field, value: 20))
+        waitFor(generatorRepository.passwordGeneratorRequest != nil)
+        XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.length, 20)
+    }
+
     /// `receive(_:)` with `.stepperValueChanged` updates the state's value for the stepper field.
     func test_receive_stepperValueChanged() {
         let field = stepperField(keyPath: \.passwordState.minimumNumber)
