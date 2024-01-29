@@ -13,6 +13,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasAuthService
         & HasErrorReporter
         & HasPasteboardService
         & HasStateService
@@ -52,6 +53,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
         case .appeared:
             await refreshVault(isManualRefresh: false)
             await requestNotificationPermissions()
+            await checkPendingLoginRequests()
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -77,7 +79,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
         }
     }
 
-    override func receive(_ action: VaultListAction) {
+    override func receive(_ action: VaultListAction) { // swiftlint:disable:this function_body_length
         switch action {
         case .addItemPressed:
             setProfileSwitcher(visible: false)
@@ -91,7 +93,15 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+                coordinator.navigate(
+                    to: .group(
+                        .init(
+                            group: group,
+                            filter: state.vaultFilterType,
+                            filterDelegate: self
+                        )
+                    )
+                )
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
@@ -113,7 +123,11 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
         case let .morePressed(item):
             showMoreOptionsAlert(for: item)
         case let .searchStateChanged(isSearching: isSearching):
-            guard isSearching else { return }
+            guard isSearching else {
+                state.searchText = ""
+                state.searchResults = []
+                return
+            }
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
@@ -134,6 +148,30 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
     /// Navigates to login to initiate the add account flow.
     private func addAccount() {
         coordinator.navigate(to: .addAccount)
+    }
+
+    /// Check if there are any pending login requests for the user to deal with.
+    private func checkPendingLoginRequests() async {
+        do {
+            // If the user had previously received a notification for a login request
+            // but hasn't been able to view it yet, open the request now.
+            let userId = try await services.stateService.getActiveAccountId()
+            if let loginRequestData = await services.stateService.getLoginRequest(),
+               loginRequestData.userId == userId {
+                // Show the login request if it's still valid.
+                if let loginRequest = try await services.authService.getPendingLoginRequest(withId: loginRequestData.id)
+                    .first,
+                    !loginRequest.isAnswered,
+                    !loginRequest.isExpired {
+                    coordinator.navigate(to: .loginRequest(loginRequest))
+                }
+
+                // Since the request has been handled, remove it from local storage.
+                await services.stateService.setLoginRequest(nil)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Handles a long press of an account in the profile switcher.
@@ -279,7 +317,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
         return []
     }
 
-    /// Sets the visibility of the profiles view and updates accessbility focus.
+    /// Sets the visibility of the profiles view and updates accessibility focus.
     ///
     /// - Parameter visible: the intended visibility of the view.
     ///
@@ -376,6 +414,12 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
             }
         }
         coordinator.showAlert(alert)
+    }
+}
+
+extension VaultListProcessor: VaultFilterDelegate {
+    func didSetVaultFilter(_ newFilter: VaultFilterType) {
+        state.vaultFilterType = newFilter
     }
 }
 

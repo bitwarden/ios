@@ -7,6 +7,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var delegate: MockSettingsCoordinatorDelegate!
+    var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: SettingsCoordinator!
 
@@ -16,10 +17,12 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         super.setUp()
 
         delegate = MockSettingsCoordinatorDelegate()
+        module = MockAppModule()
         stackNavigator = MockStackNavigator()
 
         subject = SettingsCoordinator(
             delegate: delegate,
+            module: module,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
@@ -29,6 +32,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         super.tearDown()
 
         delegate = nil
+        module = nil
         stackNavigator = nil
         subject = nil
     }
@@ -128,12 +132,12 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(delegate.didDeleteAccountCalled)
     }
 
-    /// `navigate(to:)` with `.dismiss` dismisses the presented view.
-    func test_navigateTo_dismiss() throws {
+    /// `navigate(to:)` with `.dismiss` dismisses the view.
+    func test_navigate_dismiss() throws {
         subject.navigate(to: .dismiss)
 
-        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(lastAction.type, .dismissed)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissed)
     }
 
     /// `navigate(to:)` with `.exportVault` presents the export vault view.
@@ -150,6 +154,18 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .lockVault(account: .fixture(), userInitiated: true))
 
         XCTAssertTrue(delegate.didLockVaultCalled)
+    }
+
+    /// `navigate(to:)` with `.loginRequest` pushes the login request view onto the stack navigator.
+    func test_navigateTo_loginRequest() throws {
+        subject.navigate(to: .loginRequest(.fixture()))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(module.loginRequestCoordinator.isStarted)
+        XCTAssertEqual(module.loginRequestCoordinator.routes.last, .loginRequest(.fixture()))
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.

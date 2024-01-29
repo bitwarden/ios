@@ -8,6 +8,8 @@ class MockAuthRepository: AuthRepository {
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var clearPinsCalled = false
     var deleteAccountCalled = false
+    var deviceId: String = ""
+    var email: String = ""
     var encryptedPin: String = "123"
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
     var isPinUnlockAvailable = false
@@ -20,7 +22,6 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
-    var setPinProtectedUserKeyToMemoryCalled = false
     var unlockVaultPassword: String?
     var unlockVaultPIN: String?
     var unlockWithPasswordResult: Result<Void, Error> = .success(())
@@ -29,7 +30,7 @@ class MockAuthRepository: AuthRepository {
     var unlockVaultResult: Result<Void, Error> = .success(())
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
 
-    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws {
+    func allowBioMetricUnlock(_ enabled: Bool, userId _: String?) async throws {
         allowBiometricUnlock = enabled
         try allowBiometricUnlockResult.get()
     }
@@ -54,7 +55,7 @@ class MockAuthRepository: AuthRepository {
         try accountForItemResult.get()
     }
 
-    func getFingerprintPhrase(userId _: String?) async throws -> String {
+    func getFingerprintPhrase() async throws -> String {
         try fingerprintPhraseResult.get()
     }
 
@@ -86,13 +87,9 @@ class MockAuthRepository: AuthRepository {
         try setActiveAccountResult.get()
     }
 
-    func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
+    func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
-    }
-
-    func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
-        setPinProtectedUserKeyToMemoryCalled = true
     }
 
     func unlockVaultWithPIN(pin: String) async throws {

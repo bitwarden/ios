@@ -1,3 +1,5 @@
+import BitwardenSdk
+import SwiftUI
 import UIKit
 
 // MARK: - AppCoordinator
@@ -10,6 +12,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// The types of modules used by this coordinator.
     typealias Module = AuthModule
         & ExtensionSetupModule
+        & FileSelectionModule
+        & LoginRequestModule
+        & SendItemModule
         & TabModule
         & VaultModule
 
@@ -62,6 +67,10 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             showAuth(route: authRoute)
         case let .extensionSetup(extensionSetupRoute):
             showExtensionSetup(route: extensionSetupRoute)
+        case let .loginRequest(loginRequest):
+            showLoginRequest(loginRequest)
+        case let .sendItem(sendItemRoute):
+            showSendItem(route: sendItemRoute)
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         case let .vault(vaultRoute):
@@ -115,6 +124,26 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         }
     }
 
+    /// Shows the send item route (not in a tab). This is used within the app extensions.
+    ///
+    /// - Parameter route: The `SendItemRoute` to show.
+    ///
+    private func showSendItem(route: SendItemRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<SendItemRoute> {
+            coordinator.navigate(to: route)
+        } else {
+            let stackNavigator = UINavigationController()
+            let coordinator = module.makeSendItemCoordinator(
+                delegate: self,
+                stackNavigator: stackNavigator
+            )
+            coordinator.start()
+            coordinator.navigate(to: route)
+            childCoordinator = coordinator
+            rootNavigator.show(child: stackNavigator)
+        }
+    }
+
     /// Shows the tab route.
     ///
     /// - Parameter route: The tab route to show.
@@ -133,6 +162,31 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.start()
             coordinator.navigate(to: route)
             childCoordinator = coordinator
+        }
+    }
+
+    /// Show the login request.
+    ///
+    /// - Parameter loginRequest: The login request to show.
+    ///
+    private func showLoginRequest(_ loginRequest: LoginRequest) {
+        DispatchQueue.main.async {
+            // Make sure that the user is authenticated and not currently viewing the login request view.
+            guard self.childCoordinator is AnyCoordinator<TabRoute> else { return }
+            let currentView = self.rootNavigator.rootViewController?.topmostViewController()
+            guard !(currentView is UIHostingController<LoginRequestView>) else { return }
+
+            // Create the login request view.
+            let navigationController = UINavigationController()
+            let coordinator = self.module.makeLoginRequestCoordinator(stackNavigator: navigationController)
+            coordinator.start()
+            coordinator.navigate(to: .loginRequest(loginRequest), context: self)
+
+            // Present the login request view.
+            self.rootNavigator.rootViewController?.topmostViewController().present(
+                navigationController,
+                animated: true
+            )
         }
     }
 
@@ -168,6 +222,34 @@ extension AppCoordinator: AuthCoordinatorDelegate {
         case .mainApp:
             showTab(route: .vault(.list))
         }
+    }
+}
+
+// MARK: - LoginRequestDelegate
+
+extension AppCoordinator: LoginRequestDelegate {
+    /// Show a toast over the current window with the result of answering the login request.
+    ///
+    /// - Parameter approved: Whether the login request was approved or denied.
+    ///
+    func loginRequestAnswered(approved: Bool) {
+        showToast(approved ? Localizations.loginApproved : Localizations.logInDenied)
+    }
+}
+
+// MARK: - SendItemDelegate
+
+extension AppCoordinator: SendItemDelegate {
+    func sendItemCancelled() {
+        appExtensionDelegate?.didCancel()
+    }
+
+    func sendItemCompleted(with sendView: BitwardenSdk.SendView) {
+        appExtensionDelegate?.didCancel()
+    }
+
+    func sendItemDeleted() {
+        appExtensionDelegate?.didCancel()
     }
 }
 
@@ -217,5 +299,9 @@ extension AppCoordinator: VaultCoordinatorDelegate {
 
     func didTapAccount(userId: String) {
         showAuth(route: .switchAccount(userId: userId))
+    }
+
+    func presentLoginRequest(_ loginRequest: LoginRequest) {
+        showLoginRequest(loginRequest)
     }
 }

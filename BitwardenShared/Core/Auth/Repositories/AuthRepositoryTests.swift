@@ -360,7 +360,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `getFingerprintPhrase(userId:)` gets the account's fingerprint phrase.
+    /// `getFingerprintPhrase()` gets the account's fingerprint phrase.
     func test_getFingerprintPhrase() async throws {
         let account = Account.fixture()
         stateService.accounts = [account]
@@ -370,16 +370,32 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedUserKey: "USER_KEY"
         ))
 
-        let phrase = try await subject.getFingerprintPhrase(userId: account.profile.userId)
+        let phrase = try await subject.getFingerprintPhrase()
         XCTAssertEqual(clientPlatform.fingerprintMaterialString, account.profile.userId)
         XCTAssertEqual(try clientPlatform.fingerprintResult.get(), phrase)
     }
 
-    /// `getFingerprintPhrase(userId:)` throws an error if there is no active account.
+    /// `getFingerprintPhrase()` throws an error if there is no active account.
     func test_getFingerprintPhrase_throws() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getFingerprintPhrase(userId: "")
+            _ = try await subject.getFingerprintPhrase()
         }
+    }
+
+    /// `isPinUnlockAvailable` returns the value from the state service.
+    func test_isPinUnlockAvailable() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.pinProtectedUserKeyValue = ["1": "something"]
+
+        let value = try await subject.isPinUnlockAvailable()
+
+        XCTAssertTrue(value)
+    }
+
+    /// `lockVault(userId:)` locks the vault for the specified user id.
+    func test_lockVault() async {
+        await subject.lockVault(userId: "10")
+        XCTAssertEqual(vaultTimeoutService.lockedIds, ["10"])
     }
 
     /// `passwordStrength(email:password)` returns the calculated password strength.
@@ -453,6 +469,22 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `setPins(_:requirePasswordAfterRestart:)` sets the user's pins.
+    func test_setPins() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        clientCrypto.derivePinKeyResult = .success(DerivePinKeyResponse(pinProtectedUserKey: "12", encryptedPin: "34"))
+
+        let userId = account.profile.userId
+        try await subject.setPins("123", requirePasswordAfterRestart: true)
+        XCTAssertEqual(stateService.pinProtectedUserKeyValue[userId], "12")
+        XCTAssertEqual(stateService.pinKeyEncryptedUserKeyValue[userId], "34")
+        XCTAssertEqual(stateService.accountVolatileData[
+            userId,
+            default: AccountVolatileData()
+        ].pinProtectedUserKey, "12")
+    }
+
     /// `unlockVaultWithPassword(password:)` unlocks the vault with the user's password.
     func test_unlockVault() async throws {
         stateService.activeAccount = .fixture()
@@ -508,12 +540,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(authService.hashPasswordPassword, "password")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
         XCTAssertTrue(biometricsService.didConfigureBiometricIntegrity)
-    }
-
-    /// `lockVault(userId:)` locks the vault for the specified user id.
-    func test_lockVault() async {
-        await subject.lockVault(userId: "10")
-        XCTAssertEqual(vaultTimeoutService.lockedIds, ["10"])
     }
 
     /// `unlockVaultWithBiometrics()` throws an error if the vault is unable to be unlocked.
@@ -654,24 +680,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `.setPins(_:)` sets the user's pins.
-    func test_setPins() async throws {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        clientCrypto.derivePinKeyResult = .success(DerivePinKeyResponse(pinProtectedUserKey: "12", encryptedPin: "34"))
-
-        let userId = account.profile.userId
-        try await subject.setPins("123", requirePasswordAfterRestart: true)
-        XCTAssertEqual(stateService.pinProtectedUserKeyValue[userId], "12")
-        XCTAssertEqual(stateService.pinKeyEncryptedUserKeyValue[userId], "34")
-        XCTAssertEqual(stateService.accountVolatileData[
-            userId,
-            default: AccountVolatileData()
-        ].pinProtectedUserKey, "12")
-    }
-
-    /// `unlockWithPIN(_:)` unlocks the vault with the user's PIN.
-    func test_unlockWithPIN() async throws {
+    /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN.
+    func test_unlockVaultWithPIN() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
 
@@ -696,5 +706,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             )
         )
         XCTAssertEqual(vaultTimeoutService.timeoutStore, ["1": false])
+    }
+
+    /// `unlockVaultWithPIN(_:)` throws an error if there's no pin.
+    func test_unlockVaultWithPIN_error() async throws {
+        stateService.activeAccount = .fixture()
+        await assertAsyncThrows(error: StateServiceError.noPinProtectedUserKey) {
+            try await subject.unlockVaultWithPIN(pin: "123")
+        }
     }
 } // swiftlint:disable:this file_length

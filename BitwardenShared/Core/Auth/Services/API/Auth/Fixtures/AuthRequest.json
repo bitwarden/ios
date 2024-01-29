@@ -1,0 +1,12 @@
+{
+    "id": "1",
+    "publicKey": "reallyLongPublicKey",
+    "requestDeviceType": "iOS",
+    "requestIpAddress": "11.22.333.444",
+    "key": "reallyLongKey",
+    "masterPasswordHash": "reallyLongMasterPasswordHash",
+    "creationDate": "3000-01-01T00:00:00.00Z",
+    "origin": "vault.bitwarden.com",
+    "object": "auth-request"
+}
+

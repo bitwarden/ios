@@ -1,14 +1,29 @@
-import Foundation
-
 /// A protocol for an API service used to make auth requests.
 ///
 protocol AuthAPIService {
+    /// Approves or denies a pending login request.
+    ///
+    /// - Parameters:
+    ///   - id: The id of the login request.
+    ///   - requestModel: The body of the API request.
+    ///
+    /// - Returns: The updated `LoginRequest`.
+    ///
+    func answerLoginRequest(_ id: String, requestModel: AnswerLoginRequestRequestModel) async throws -> LoginRequest
+
     /// Performs the identity token request and returns the response.
     ///
     /// - Parameter request: The user's authentication details.
     /// - Returns: The identity token response containing an access token.
     ///
     func getIdentityToken(_ request: IdentityTokenRequestModel) async throws -> IdentityTokenResponseModel
+
+    /// Gets a pending login requests.
+    ///
+    /// - Parameter id: The id of the request to fetch.
+    /// - Returns: The pending login request.
+    ///
+    func getPendingLoginRequest(withId id: String) async throws -> LoginRequest
 
     /// Gets the pending login requests.
     ///
@@ -23,6 +38,25 @@ protocol AuthAPIService {
     /// - Returns: A `SingleSignOnDetailsResponse`.
     ///
     func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse
+
+    /// Initiates the login with device process.
+    ///
+    /// - Parameters:
+    ///   - accessCode: The access code used in the request.
+    ///   - deviceIdentifier: The user's device ID.
+    ///   - email: The user's email.
+    ///   - fingerprint: The fingerprint used in the request.
+    ///   - publicKey: The key used in the request.
+    ///
+    /// - Returns: The new pending login requests.
+    ///
+    func initiateLoginWithDevice(
+        accessCode: String,
+        deviceIdentifier: String,
+        email: String,
+        fingerPrint: String,
+        publicKey: String
+    ) async throws -> LoginRequest
 
     /// Queries the API to pre-validate single-sign on for the requested organization identifier.
     ///
@@ -47,8 +81,16 @@ protocol AuthAPIService {
 }
 
 extension APIService: AuthAPIService {
+    func answerLoginRequest(_ id: String, requestModel: AnswerLoginRequestRequestModel) async throws -> LoginRequest {
+        try await apiService.send(AnswerLoginRequestRequest(id: id, requestModel: requestModel))
+    }
+
     func getIdentityToken(_ request: IdentityTokenRequestModel) async throws -> IdentityTokenResponseModel {
         try await identityService.send(IdentityTokenRequest(requestModel: request))
+    }
+
+    func getPendingLoginRequest(withId id: String) async throws -> LoginRequest {
+        try await apiService.send(PendingLoginRequest(id: id))
     }
 
     func getPendingLoginRequests() async throws -> [LoginRequest] {
@@ -56,21 +98,33 @@ extension APIService: AuthAPIService {
         try await apiService.send(PendingLoginsRequest())
             .data
             .filter { request in
-                let isAnswered = request.requestApproved != nil && request.responseDate != nil
-
-                let expirationDate = Calendar.current.date(
-                    byAdding: .minute,
-                    value: Constants.loginRequestTimeoutMinutes,
-                    to: request.creationDate
-                ) ?? Date()
-                let isExpired = expirationDate < Date()
-
-                return !isAnswered && !isExpired
+                !request.isAnswered && !request.isExpired
             }
     }
 
     func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse {
         try await apiUnauthenticatedService.send(SingleSignOnDetailsRequest(email: email))
+    }
+
+    func initiateLoginWithDevice(
+        accessCode: String,
+        deviceIdentifier: String,
+        email: String,
+        fingerPrint: String,
+        publicKey: String
+    ) async throws -> LoginRequest {
+        try await apiUnauthenticatedService.send(
+            LoginWithDeviceRequest(
+                body: LoginWithDeviceRequestModel(
+                    email: email,
+                    publicKey: publicKey,
+                    deviceIdentifier: deviceIdentifier,
+                    accessCode: accessCode,
+                    type: 0,
+                    fingerprintPhrase: fingerPrint
+                )
+            )
+        )
     }
 
     func preValidateSingleSignOn(organizationIdentifier: String) async throws -> PreValidateSingleSignOnResponse {

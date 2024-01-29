@@ -93,14 +93,17 @@ struct GeneratorView: View {
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.generatorTypeChanged(newValue))
                     }
+                    .accessibilityIdentifier("GeneratorTypePicker")
                 case let .menuPasswordGeneratorType(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.passwordGeneratorTypeChanged(newValue))
                     }
+                    .accessibilityIdentifier("PasswordTypePicker")
                 case let .menuUsernameForwardedEmailService(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.usernameForwardedEmailServiceChanged(newValue))
                     }
+                    .accessibilityIdentifier("ServiceTypePicker")
                 case let .menuUsernameGeneratorType(menuField):
                     menuUsernameGeneratorTypeView(field: menuField)
                 case let .slider(sliderField):
@@ -148,6 +151,7 @@ struct GeneratorView: View {
     func generatedValueView(field: GeneratorState.GeneratedValueField<GeneratorState>) -> some View {
         BitwardenField {
             PasswordText(password: field.value, isPasswordVisible: true)
+                .accessibilityIdentifier("GeneratedPasswordLabel")
         } accessoryContent: {
             Button {
                 store.send(.copyGeneratedValue)
@@ -157,6 +161,7 @@ struct GeneratorView: View {
                     .frame(width: 16, height: 16)
             }
             .buttonStyle(.accessory)
+            .accessibilityIdentifier("CopyValueButton")
             .accessibilityLabel(Localizations.copyPassword)
 
             Button {
@@ -167,6 +172,7 @@ struct GeneratorView: View {
                     .frame(width: 16, height: 16)
             }
             .buttonStyle(.accessory)
+            .accessibilityIdentifier("RegenerateValueButton")
             .accessibilityLabel(Localizations.generatePassword)
         }
     }
@@ -191,6 +197,7 @@ struct GeneratorView: View {
             .buttonStyle(.accessory)
             .accessibilityLabel(Localizations.learnMore)
         }
+        .accessibilityIdentifier("UsernameTypePicker")
     }
 }
 

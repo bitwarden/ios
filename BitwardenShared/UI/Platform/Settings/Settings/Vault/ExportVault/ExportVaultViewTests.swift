@@ -6,7 +6,7 @@ import XCTest
 class ExportVaultViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<ExportVaultState, ExportVaultAction, Void>!
+    var processor: MockProcessor<ExportVaultState, ExportVaultAction, ExportVaultEffect>!
     var subject: ExportVaultView!
 
     // MARK: Setup & Teardown
@@ -34,6 +34,20 @@ class ExportVaultViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+    }
+
+    /// Setting `disableIndividualVaultExport` disables the controls within the view.
+    func test_disableIndividualVaultExport() throws {
+        processor.state.disableIndividualVaultExport = true
+
+        let button = try subject.inspect().find(button: Localizations.exportVault)
+        XCTAssertTrue(button.isDisabled())
+
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.fileFormat)
+        XCTAssertTrue(menuField.isDisabled())
+
+        let textfield = try subject.inspect().find(viewWithId: Localizations.masterPassword).textField()
+        XCTAssertTrue(textfield.isDisabled())
     }
 
     /// Tapping the export vault button sends the `.exportVault` action.
@@ -80,6 +94,12 @@ class ExportVaultViewTests: BitwardenTestCase {
     /// The populated view renders correctly.
     func test_snapshot_populated() {
         processor.state.passwordText = "password"
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// The vault export disabled view renders correctly.
+    func test_snapshot_vaultExportDisabled() {
+        processor.state.disableIndividualVaultExport = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

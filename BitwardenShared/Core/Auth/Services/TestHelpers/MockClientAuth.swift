@@ -4,24 +4,34 @@ import Foundation
 @testable import BitwardenShared
 
 class MockClientAuth: ClientAuthProtocol {
-    var hashPasswordResult: Result<String, Error> = .success("hash password")
-    var makeRegisterKeysResult: Result<RegisterKeyResponse, Error> = .success(RegisterKeyResponse(
-        masterPasswordHash: "masterPasswordHash",
-        encryptedUserKey: "encryptedUserKey",
-        keys: RsaKeyPair(public: "public", private: "private")
-    ))
-    var satisfiesPolicyResult = true
-    var passwordStrengthResult = UInt8(2)
+    var approveAuthRequestPublicKey: String?
+    var approveAuthRequestResult: Result<AsymmetricEncString, Error> = .success("")
 
     var hashPasswordEmail: String?
     var hashPasswordPassword: String?
     var hashPasswordKdfParams: Kdf?
     var hashPasswordPurpose: HashPurpose?
+    var hashPasswordResult: Result<String, Error> = .success("hash password")
 
     var makeRegisterKeysEmail: String?
     var makeRegisterKeysPassword: String?
     var makeRegisterKeysKdf: Kdf?
+    var makeRegisterKeysResult: Result<RegisterKeyResponse, Error> = .success(RegisterKeyResponse(
+        masterPasswordHash: "masterPasswordHash",
+        encryptedUserKey: "encryptedUserKey",
+        keys: RsaKeyPair(public: "public", private: "private")
+    ))
 
+    var newAuthRequestEmail: String?
+    var newAuthRequestResult: Result<AuthRequestResponse, Error> = .success(
+        AuthRequestResponse(
+            privateKey: "private",
+            publicKey: "public",
+            fingerprint: "fingerprint",
+            accessCode: "12345"
+        )
+    )
+    var passwordStrengthResult = UInt8(2)
     var passwordStrengthPassword: String?
     var passwordStrengthEmail: String?
     var passwordStrengthAdditionalInputs: [String]?
@@ -29,10 +39,16 @@ class MockClientAuth: ClientAuthProtocol {
     var satisfiesPolicyPassword: String?
     var satisfiesPolicyStrength: UInt8?
     var satisfiesPolicyPolicy: MasterPasswordPolicyOptions?
+    var satisfiesPolicyResult = true
 
     var validatePasswordPassword: String?
     var validatePasswordPasswordHash: String?
     var validatePasswordResult: Bool = false
+
+    func approveAuthRequest(publicKey: String) async throws -> AsymmetricEncString {
+        approveAuthRequestPublicKey = publicKey
+        return try approveAuthRequestResult.get()
+    }
 
     func hashPassword(email: String, password: String, kdfParams: Kdf, purpose: HashPurpose) async throws -> String {
         hashPasswordEmail = email
@@ -49,6 +65,11 @@ class MockClientAuth: ClientAuthProtocol {
         makeRegisterKeysKdf = kdf
 
         return try makeRegisterKeysResult.get()
+    }
+
+    func newAuthRequest(email: String) async throws -> AuthRequestResponse {
+        newAuthRequestEmail = email
+        return try newAuthRequestResult.get()
     }
 
     func passwordStrength(password: String, email: String, additionalInputs: [String]) async -> UInt8 {

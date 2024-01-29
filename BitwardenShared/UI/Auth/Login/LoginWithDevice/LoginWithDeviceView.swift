@@ -31,6 +31,9 @@ struct LoginWithDeviceView: View {
                 store.send(.dismiss)
             }
         }
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     // MARK: Private Views
@@ -47,6 +50,7 @@ struct LoginWithDeviceView: View {
             }
             .styleGuide(.subheadline)
             .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .accessibilityIdentifier("ViewAllLoginOptionsButton")
         }
     }
 
@@ -68,11 +72,13 @@ struct LoginWithDeviceView: View {
             Text(Localizations.fingerprintPhrase)
                 .styleGuide(.body, weight: .semibold)
                 .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .accessibilityIdentifier("FingerprintValueLabel")
 
             Text(store.state.fingerprintPhrase ?? "")
                 .styleGuide(.bodyMonospaced)
                 .foregroundStyle(Asset.Colors.fingerprint.swiftUIColor)
                 .multilineTextAlignment(.leading)
+                .accessibilityIdentifier("FingerprintPhraseValue")
         }
     }
 
@@ -81,6 +87,7 @@ struct LoginWithDeviceView: View {
         Button(Localizations.resendNotification) {}
             .styleGuide(.body)
             .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .accessibilityIdentifier("ResendNotificationButton")
     }
 
     /// The title text.

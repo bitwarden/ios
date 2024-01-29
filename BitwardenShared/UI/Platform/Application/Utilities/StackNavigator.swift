@@ -127,13 +127,16 @@ extension StackNavigator {
     ///   - viewController: The view controller to push onto the stack.
     ///   - animated: Whether the transition should be animated. Defaults to `UI.animated`.
     ///   - navigationTitle: The navigation title to pre-populate the navigation bar so that it doesn't flash.
-    ///   - hasSearchBar: Whether or not to pre-populate the navigation bar with a search bar.
+    ///   - searchController: If non-nil, pre-populate the navigation bar with a search bar backed by the
+    ///         supplied UISearchController.
+    ///     Normal SwiftUI search contorls will not work if this value is supplied. Tracking the searchController
+    ///     behavior must be done through a UISearchControllerDelegate or a UISearchResultsUpdating object.
     ///
     func push(
         _ viewController: UIViewController,
         animated: Bool = UI.animated,
         navigationTitle: String? = nil,
-        hasSearchBar: Bool = false
+        searchController: UISearchController? = nil
     ) {
         if let navigationTitle {
             // Preset some navigation item values so that the navigation bar does not flash oddly once
@@ -147,8 +150,7 @@ extension StackNavigator {
             // resolved its root view's navigation bar modifiers.
             viewController.navigationItem.largeTitleDisplayMode = .never
             viewController.navigationItem.title = navigationTitle
-            if hasSearchBar {
-                let searchController = UISearchController()
+            if let searchController {
                 if #available(iOS 16.0, *) {
                     viewController.navigationItem.preferredSearchBarPlacement = .stacked
                 }
@@ -191,7 +193,7 @@ extension StackNavigator {
         _ view: Content,
         animated: Bool = UI.animated,
         overFullscreen: Bool = false,
-        onCompletion: (() -> Void)? = nil
+        onCompletion _: (() -> Void)? = nil
     ) {
         present(
             view,
@@ -259,10 +261,12 @@ extension UINavigationController: StackNavigator {
     public func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {
         let viewController = UIHostingController(rootView: view)
         viewController.hidesBottomBarWhenPushed = hidesBottomBar
+        let animated = self.view.window != nil ? animated : false
         push(viewController, animated: animated)
     }
 
     public func push(_ viewController: UIViewController, animated: Bool) {
+        let animated = view.window != nil ? animated : false
         pushViewController(viewController, animated: animated)
     }
 
@@ -278,6 +282,7 @@ extension UINavigationController: StackNavigator {
             controller.modalPresentationStyle = .overFullScreen
             controller.view.backgroundColor = .clear
         }
+        let animated = self.view.window != nil ? animated : false
         present(controller, animated: animated, onCompletion: onCompletion)
     }
 
@@ -304,6 +309,7 @@ extension UINavigationController: StackNavigator {
     }
 
     public func replace<Content: View>(_ view: Content, animated: Bool) {
+        let animated = self.view.window != nil ? animated : false
         setViewControllers([UIHostingController(rootView: view)], animated: animated)
     }
 }
