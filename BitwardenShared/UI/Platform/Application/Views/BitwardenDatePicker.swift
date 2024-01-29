@@ -107,7 +107,7 @@ struct BitwardenDatePicker: View {
     ///   - selection: The binding for the optional date value to display within this component.
     ///   - displayComponents: The date components to display in this picker.
     ///   - accessibilityIdentifier: The accessibility identifier for the picker.
-    ///   
+    ///
     init(
         selection: Binding<Date?>,
         displayComponents: DatePicker.Components = .date,
