@@ -8,17 +8,20 @@ import SwiftUI
 struct SettingsMenuField<T>: View where T: Menuable {
     // MARK: Properties
 
+    /// The accessibility ID for the menu field.
+    let accessibilityIdentifier: String?
+
     /// Whether the menu field should have a bottom divider.
     let hasDivider: Bool
 
     /// The selection chosen from the menu.
     @Binding var selection: T
 
+    /// The accessibility ID for the picker selection.
+    let selectionAccessibilityID: String?
+
     /// The options displayed in the menu.
     let options: [T]
-
-    /// The accessibility identifier for the currently selected option label.
-    let selectedOptionAccessibilityIdentifier: String
 
     /// The title of the menu field.
     let title: String
@@ -46,12 +49,14 @@ struct SettingsMenuField<T>: View where T: Menuable {
                     Spacer()
 
                     Text(selection.localizedName)
+                        .accessibilityIdentifier(selectionAccessibilityID ?? "")
                         .multilineTextAlignment(.trailing)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .accessibilityIdentifier(selectedOptionAccessibilityIdentifier)
+                        .accessibilityIdentifier(selectionAccessibilityID ?? "")
                 }
             }
             .styleGuide(.body)
+            .accessibilityIdentifier(accessibilityIdentifier ?? "")
             .id(title)
             .padding(.horizontal, 16)
 
@@ -69,20 +74,23 @@ struct SettingsMenuField<T>: View where T: Menuable {
     ///   - title: The title of the menu field.
     ///   - options: The options that the user can choose between.
     ///   - hasDivider: Whether the menu field should have a bottom divider.
+    ///   - accessibilityIdentifier: The accessibility ID for the menu field.
+    ///   - selectionAccessibilityID: The accessibility ID for the picker selection.
     ///   - selection: A `Binding` for the currently selected option.
-    ///   - selectedOptionAccessibilityIdentifier: An accessibility identifier for the currently selected option label.
     ///
     init(
         title: String,
         options: [T],
         hasDivider: Bool = true,
-        selection: Binding<T>,
-        selectedOptionAccessibilityIdentifier: String? = nil
+        accessibilityIdentifier: String? = nil,
+        selectionAccessibilityID: String? = nil,
+        selection: Binding<T>
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.hasDivider = hasDivider
         self.options = options
-        self.selectedOptionAccessibilityIdentifier = selectedOptionAccessibilityIdentifier ?? ""
         _selection = selection
+        self.selectionAccessibilityID = selectionAccessibilityID
         self.title = title
     }
 }

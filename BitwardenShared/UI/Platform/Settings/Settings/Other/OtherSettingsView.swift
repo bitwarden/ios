@@ -64,11 +64,11 @@ struct OtherSettingsView: View {
                 title: Localizations.clearClipboard,
                 options: ClearClipboardValue.allCases,
                 hasDivider: false,
+                selectionAccessibilityID: "ClearClipboardAfterLabel",
                 selection: store.binding(
                     get: \.clearClipboardValue,
                     send: OtherSettingsAction.clearClipboardValueChanged
-                ),
-                selectedOptionAccessibilityIdentifier: "ClearClipboardAfterLabel"
+                )
             )
             .cornerRadius(10)
             .accessibilityIdentifier("ClearClipboardChooser")
