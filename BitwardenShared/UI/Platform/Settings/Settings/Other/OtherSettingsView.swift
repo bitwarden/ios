@@ -48,6 +48,7 @@ struct OtherSettingsView: View {
             }
             .toggleStyle(.bitwarden)
             .styleGuide(.body)
+            .accessibilityIdentifier("SyncOnRefreshSwitch")
 
             Text(Localizations.enableSyncOnRefreshDescription)
                 .styleGuide(.footnote)
@@ -66,9 +67,11 @@ struct OtherSettingsView: View {
                 selection: store.binding(
                     get: \.clearClipboardValue,
                     send: OtherSettingsAction.clearClipboardValueChanged
-                )
+                ),
+                selectedOptionAccessibilityIdentifier: "ClearClipboardAfterLabel"
             )
             .cornerRadius(10)
+            .accessibilityIdentifier("ClearClipboardChooser")
 
             Text(Localizations.clearClipboardDescription)
                 .styleGuide(.footnote)
@@ -99,12 +102,15 @@ struct OtherSettingsView: View {
                 Text(Localizations.syncNow)
             }
             .buttonStyle(.tertiary())
+            .accessibilityIdentifier("SyncNowButton")
 
             Group {
                 if let lastSyncDate = store.state.lastSyncDate {
                     FormattedDateTimeView(label: Localizations.lastSync, separator: "", date: lastSyncDate)
+                        .accessibilityIdentifier("LastSyncLabel")
                 } else {
                     Text(Localizations.lastSync + " --")
+                        .accessibilityIdentifier("LastSyncLabel")
                 }
             }
             .styleGuide(.footnote)
