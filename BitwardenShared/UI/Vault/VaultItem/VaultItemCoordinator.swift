@@ -1,6 +1,8 @@
 import BitwardenSdk
 import SwiftUI
 
+// swiftlint:disable file_length
+
 // MARK: - VaultItemCoordinator
 
 /// A coordinator that manages navigation for displaying, editing, and adding individual vault items.
