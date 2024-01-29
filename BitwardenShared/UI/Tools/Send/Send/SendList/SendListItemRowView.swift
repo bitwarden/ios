@@ -59,12 +59,12 @@ struct SendListItemRowView: View {
                 } label: {
                     buttonLabel(for: store.state.item)
                 }
-                .accessibilityIdentifier("SendCell")
 
                 if case let .send(sendView) = store.state.item.itemType {
                     optionsMenu(for: sendView)
                 }
             }
+            .accessibilityIdentifier("SendCell")
             .padding(.horizontal, 16)
 
             if store.state.hasDivider {
