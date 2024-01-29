@@ -27,7 +27,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         & HasAuthAPIService
         & HasAuthRepository
         & HasAuthService
-        & HasBiometricsService
+        & HasBiometricsRepository
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
@@ -166,24 +166,30 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             updatedRoute = await prepareAndRedirect(route)
         }
         navigate(to: updatedRoute, context: context)
+        // If the initial route was `didDeleteAccount`, show an alert after navigating to the redirect.
         if route == .didDeleteAccount {
             navigate(to: .alert(Alert.accountDeletedAlert()), context: context)
         }
     }
 
+    /// Prepare the coordinator asynchronously for a redirected `AuthRoute` based on current state
+    ///
+    /// - Parameter route: The proposed `AuthRoute`.
+    /// - Returns: Either the supplied route or a new route if the coordinator state demands a different route.
+    ///
     func prepareAndRedirect(_ route: AuthRoute) async -> AuthRoute {
         switch route {
         case .didDeleteAccount:
-            return await deleteAccountRedirect()
+            await deleteAccountRedirect()
         case let .didLogout(userInitiated):
-            return await logoutRedirect(userInitiated: userInitiated)
+            await logoutRedirect(userInitiated: userInitiated)
         case .didStart:
             // Go to the initial auth route redirect.
-            return await preparedStartRoute()
+            await preparedStartRoute()
         case let .didTimeout(userId):
-            return await timeoutRedirect(userId: userId)
+            await timeoutRedirect(userId: userId)
         case let .switchAccount(isUserInitiated, userId):
-            return await switchAccountRedirect(
+            await switchAccountRedirect(
                 isUserInitiated: isUserInitiated,
                 userId: userId
             )
@@ -193,7 +199,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             attemptAutomaticBiometricUnlock,
             didSwitchAccountAutomatically
         ):
-            return await vaultUnlockRedirect(
+            await vaultUnlockRedirect(
                 activeAccount,
                 animated: animated,
                 attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
@@ -213,7 +219,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
              .selfHosted,
              .singleSignOn,
              .twoFactor:
-            return route
+            route
         }
     }
 
@@ -223,7 +229,11 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
 
     // MARK: Private Methods
 
-    /// Configures the app with an active account
+    /// Configures the app with an active account.
+    ///
+    /// - Parameter shouldSwitchAutomatically: Should the app switch to the next available account
+    ///     if there is no active account?
+    /// - Returns: The account model currently set as active.
     ///
     private func configureActiveAccount(shouldSwitchAutomatically: Bool) async throws -> Account {
         if let active = try? await services.stateService.getActiveAccount() {
@@ -236,36 +246,66 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
     }
 
+    /// Handles the `.didDeleteAccount`route and redirects the user to the correct screen
+    ///     based on alternate accounts state. If the user has an alternate account,
+    ///     they will go to the unlock sequence for that account.
+    ///     Otherwise, the user will be directed to the landing screen.
+    ///
+    /// - Returns: A redirect to either `.landing` or `prepareAndRedirect(.vaultUnlock)`.
+    ///
     private func deleteAccountRedirect() async -> AuthRoute {
+        // Ensure that the active account id is nil, otherwise, handle a failed account deletion by directing
+        // The user to the unlock flow.
         let oldActiveId = try? await services.stateService.getActiveAccountId()
+        // Try to set the next available account.
         guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
+            // If no other accounts are available, go to landing.
             return .landing
         }
-        // Get the redirect for this route
+        // Setup the unlock route for the newly active account.
         let redirect = AuthRoute.vaultUnlock(
             activeAccount,
             animated: false,
             attemptAutomaticBiometricUnlock: true,
             didSwitchAccountAutomatically: oldActiveId != activeAccount.profile.userId
         )
-        // Recursively handle any subsequent redirects.
+        // Handle any vault unlock redirects for this active account.
         return await prepareAndRedirect(redirect)
     }
 
+    /// Handles the `.didLogout()`route and redirects the user to the correct screen
+    ///     based on whether the user initiated this logout. If the user initiated the logout has an alternate account,
+    ///     they will be switched to the alternate and go to the unlock sequence for that account.
+    ///     Otherwise, the user will be directed to the landing screen.
+    ///
+    ///     - Parameter userInitiated: Did a user action initiate this logout?
+    ///         If `true`, the app should attempt to switch to the next available account.
+    ///     - Returns: A redirect to either `.landing` or `prepareAndRedirect(.vaultUnlock)`.
+    ///
     private func logoutRedirect(userInitiated: Bool) async -> AuthRoute {
+        // Ensure that the active account id is nil, otherwise, handle a logout by directing
+        // The user to the unlock flow.
         let oldActiveId = try? await services.stateService.getActiveAccountId()
+        // Try to get/set the available account. If `userInitiated`, attempt to switch to the next available account.
         guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: userInitiated) else {
             return .landing
         }
+        // Setup the unlock route for the newly active account.
         let vaultUnlock = AuthRoute.vaultUnlock(
             activeAccount,
             animated: false,
             attemptAutomaticBiometricUnlock: true,
             didSwitchAccountAutomatically: oldActiveId != activeAccount.profile.userId
         )
+        // Handle any vault unlock redirects for this active account.
         return await prepareAndRedirect(vaultUnlock)
     }
 
+    /// Handles the `.didStart`route and redirects the user to the correct screen based on active account state.
+    ///
+    ///   - Returns: A redirect to either `.landing`,  `prepareAndRedirect(.didTimeout())`,
+    ///      or `prepareAndRedirect(.vaultUnlock())`.
+    ///
     private func preparedStartRoute() async -> AuthRoute {
         guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
             // If no account can be set to active, go to the landing screen.
@@ -288,15 +328,22 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         return await prepareAndRedirect(vaultUnlock)
     }
 
+    /// Handles the `.didTimeout`route and redirects the user to the correct screen based on active account state.
+    ///
+    ///   - Returns: A redirect to either `.didTimeout()`, `.landing`, or `prepareAndRedirect(.vaultUnlock())`.
+    ///
     private func timeoutRedirect(userId: String) async -> Route {
         do {
-            // Ensure the timeout interval isn't `.never`.
+            // Ensure the timeout interval isn't `.never` and that the user has a timeout action.
             let vaultTimeoutInterval = try await services.vaultTimeoutService.sessionTimeoutValue(userId: userId)
             guard vaultTimeoutInterval != .never,
                   let action = try? await services.stateService.getTimeoutAction(userId: userId) else {
+                // If we have timed out a user with `.never` as a timeout or no timeout action,
+                // no redirect is needed.
                 return .didTimeout(userId: userId)
             }
 
+            // Check the timeout action for the user.
             switch action {
             case .lock:
                 // If there is a timeout and the user has a lock vault action,
@@ -664,51 +711,6 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
                 didSwitchAccountAutomatically: didSwitchAccountAutomatically
             )
         }
-    }
-}
-
-public struct Splash: View, Equatable {
-    // MARK: Properties
-
-    /// The background color
-    ///
-    let backgroundColor: Color
-
-    /// Should the nav bar be hidden?
-    ///
-    let hidesNavBar: Bool
-
-    /// Should the view display the logo?
-    ///
-    let showsLogo: Bool
-
-    public var body: some View {
-        ZStack {
-            backgroundColor
-                .ignoresSafeArea()
-
-            if showsLogo {
-                Asset.Images.logo.swiftUIImage
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 238)
-            }
-        }
-        .ignoresSafeArea()
-        .navigationBarHidden(hidesNavBar)
-        .navigationBarBackButtonHidden(hidesNavBar)
-    }
-
-    // MARK: Initializers
-
-    public init(
-        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor,
-        hidesNavBar: Bool = true,
-        showsLogo: Bool = true
-    ) {
-        self.backgroundColor = backgroundColor
-        self.hidesNavBar = hidesNavBar
-        self.showsLogo = showsLogo
     }
 }
 

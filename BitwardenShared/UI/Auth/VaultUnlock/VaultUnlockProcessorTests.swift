@@ -490,6 +490,19 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertNil(coordinator.routes.last)
     }
 
+    /// `perform(_:)` with `.unlockWithBiometrics` handles user cancellation.
+    func test_perform_unlockWithBiometrics_userCancelled() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true, hasValidIntegrity: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.biometryCancelled)
+        authRepository.allowBiometricUnlockResult = .success(())
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertNil(authRepository.allowBiometricUnlock)
+        XCTAssertNil(coordinator.routes.last)
+    }
+
     /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
     func test_perform_unlockWithBiometrics_success() async throws {
         subject.state.unsuccessfulUnlockAttemptsCount = 3

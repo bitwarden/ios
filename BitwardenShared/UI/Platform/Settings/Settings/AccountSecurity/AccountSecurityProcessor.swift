@@ -13,7 +13,7 @@ final class AccountSecurityProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasAuthRepository
-        & HasBiometricsService
+        & HasBiometricsRepository
         & HasClientAuth
         & HasErrorReporter
         & HasSettingsRepository

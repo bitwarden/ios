@@ -1,4 +1,5 @@
 import BitwardenSdk
+import LocalAuthentication
 
 // MARK: - BiometricsStatus
 
@@ -130,6 +131,27 @@ class DefaultBiometricsRepository: BiometricsRepository {
                 try await stateService.setBiometricIntegrityState(base64State)
             }
             return string
+        } catch let error as KeychainServiceError {
+            switch error {
+            case .keyNotFound,
+                 .missingBundleId:
+                throw BiometricsServiceError.getAuthKeyFailed
+            case let .osStatusError(status):
+                switch status {
+                case kLAErrorBiometryLockout:
+                    throw BiometricsServiceError.biometryLocked
+                case errSecUserCanceled,
+                     kLAErrorAppCancel,
+                     kLAErrorSystemCancel,
+                     kLAErrorUserCancel:
+                    throw BiometricsServiceError.biometryCancelled
+                case kLAErrorBiometryDisconnected,
+                     kLAErrorUserFallback:
+                    throw BiometricsServiceError.biometryFailed
+                default:
+                    throw BiometricsServiceError.getAuthKeyFailed
+                }
+            }
         } catch {
             throw BiometricsServiceError.getAuthKeyFailed
         }

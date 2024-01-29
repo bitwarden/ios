@@ -1,3 +1,4 @@
+import LocalAuthentication
 import XCTest
 
 @testable import BitwardenShared
@@ -277,6 +278,68 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
                 active.profile.userId: integrity.base64EncodedString(),
             ]
         )
+    }
+
+    /// `getUserAuthKey` retrieves the key from keychain and updates integrity state.
+    func test_getUserAuthKey_lockedError() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        let integrity = Data("Face/Off".utf8)
+        biometricsService.biometricIntegrityState = integrity
+        stateService.biometricsEnabled = [
+            active.profile.userId: true,
+        ]
+        // -8 is the code for kLAErrorBiometryLockout.
+        keychainService.getResult = .failure(KeychainServiceError.osStatusError(-8))
+        await assertAsyncThrows(error: BiometricsServiceError.biometryLocked) {
+            _ = try await subject.getUserAuthKey()
+        }
+    }
+
+    /// `getUserAuthKey` retrieves the key from keychain and updates integrity state.
+    func test_getUserAuthKey_biometryFailed() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        let integrity = Data("Face/Off".utf8)
+        biometricsService.biometricIntegrityState = integrity
+        stateService.biometricsEnabled = [
+            active.profile.userId: true,
+        ]
+        keychainService.getResult = .failure(KeychainServiceError.osStatusError(kLAErrorBiometryDisconnected))
+        await assertAsyncThrows(error: BiometricsServiceError.biometryFailed) {
+            _ = try await subject.getUserAuthKey()
+        }
+    }
+
+    /// `getUserAuthKey` retrieves the key from keychain and updates integrity state.
+    func test_getUserAuthKey_cancelled() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        let integrity = Data("Face/Off".utf8)
+        biometricsService.biometricIntegrityState = integrity
+        stateService.biometricsEnabled = [
+            active.profile.userId: true,
+        ]
+        // Send the user cancelled code.
+        keychainService.getResult = .failure(KeychainServiceError.osStatusError(errSecUserCanceled))
+        await assertAsyncThrows(error: BiometricsServiceError.biometryCancelled) {
+            _ = try await subject.getUserAuthKey()
+        }
+    }
+
+    /// `getUserAuthKey` retrieves the key from keychain and updates integrity state.
+    func test_getUserAuthKey_unknownError() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        let integrity = Data("Face/Off".utf8)
+        biometricsService.biometricIntegrityState = integrity
+        stateService.biometricsEnabled = [
+            active.profile.userId: true,
+        ]
+        keychainService.getResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BiometricsServiceError.getAuthKeyFailed) {
+            _ = try await subject.getUserAuthKey()
+        }
     }
 
     /// `setBiometricUnlockKey` throws when there is no active account.

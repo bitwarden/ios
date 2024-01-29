@@ -38,7 +38,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     typealias Services = HasAccountAPIService
         & HasAuthRepository
         & HasAuthService
-        & HasBiometricsService
+        & HasBiometricsRepository
         & HasClientAuth
         & HasErrorReporter
         & HasPasteboardService

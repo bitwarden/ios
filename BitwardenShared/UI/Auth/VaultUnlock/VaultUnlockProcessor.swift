@@ -10,7 +10,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
     // MARK: Types
 
     typealias Services = HasAuthRepository
-        & HasBiometricsService
+        & HasBiometricsRepository
         & HasErrorReporter
         & HasStateService
 
@@ -345,6 +345,10 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
             // If the user has locked biometry, logout immediately.
             if case .biometryLocked = error {
                 await logoutUser(userInitiated: true)
+                return
+            }
+            if case .biometryCancelled = error {
+                // Do nothing if the user cancels.
                 return
             }
             // There is no biometric auth key stored, set user preference to false.

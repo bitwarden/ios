@@ -8,9 +8,6 @@ import Foundation
 enum VaultTimeoutServiceError: Error {
     /// There are no known accounts.
     case noAccountFound
-
-    /// There is an unhandled timeout action.
-    case unhandledTimeoutAction(Int)
 }
 
 // MARK: - VaultTimeoutService
@@ -99,8 +96,8 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Creates a new `DefaultVaultTimeoutService`.
     ///
     /// - Parameters:
-    ///  - stateService: The StateService used by DefaultVaultTimeoutService.
-    ///  - timeProvider: Provides the current time.
+    ///   - stateService: The StateService used by DefaultVaultTimeoutService.
+    ///   - timeProvider: Provides the current time.
     ///
     init(stateService: StateService, timeProvider: TimeProvider) {
         self.stateService = stateService

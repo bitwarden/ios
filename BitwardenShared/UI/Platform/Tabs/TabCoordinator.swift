@@ -72,11 +72,6 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
     // MARK: Methods
 
-    func defaultRoute() async -> TabRoute? {
-        // No default route for the tab coordinator.
-        nil
-    }
-
     func navigate(to route: TabRoute, context: AnyObject?) {
         tabNavigator.selectedIndex = route.index
         switch route {

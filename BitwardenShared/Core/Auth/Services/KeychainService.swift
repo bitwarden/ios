@@ -9,6 +9,9 @@ enum KeychainItem: Equatable {
     /// The keychain item for the neverLock user auth key.
     case neverLock(userId: String)
 
+    /// The `SecAccessControlCreateFlags` protection level for this keychain item.
+    ///     If `nil`, no extra protection is applied.
+    ///
     var protection: SecAccessControlCreateFlags? {
         switch self {
         case .biometrics:
@@ -18,6 +21,8 @@ enum KeychainItem: Equatable {
         }
     }
 
+    /// The storage key for this keychain item.
+    ///
     var storageKey: String {
         switch self {
         case let .biometrics(userId: id):
@@ -145,7 +150,10 @@ class DefaultKeychainService: KeychainService {
         )
 
         guard accessControl != nil,
-              error == nil else { throw BiometricsServiceError.setAuthKeyFailed }
+              error == nil
+        else {
+            throw BiometricsServiceError.setAuthKeyFailed
+        }
 
         let query = [
             kSecClass: kSecClassGenericPassword,

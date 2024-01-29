@@ -359,9 +359,7 @@ extension DefaultAuthRepository: AuthRepository {
         // Set or delete the never lock key according to the current and new values.
         if case .never = newValue {
             try await keychainService.setUserAuthKey(
-                for: .neverLock(
-                    userId: id
-                ),
+                for: .neverLock(userId: id),
                 value: clientCrypto.getUserEncryptionKey()
             )
         } else if currentValue == .never {
