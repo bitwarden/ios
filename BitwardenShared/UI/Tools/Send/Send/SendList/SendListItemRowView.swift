@@ -8,7 +8,7 @@ struct SendListItemRowState: Equatable {
     // MARK: Properties
 
     /// The accessibility identifier for the `SendListItem`.
-    var accessibilityIdentifier: String? {
+    var accessibilityIdentifier: String {
         guard sectionName == Localizations.types else {
             return "SendCell"
         }
@@ -23,7 +23,7 @@ struct SendListItemRowState: Equatable {
                 return "SendFileFilter"
             }
         }
-        return nil
+        return "SendCell"
     }
 
     /// The item displayed in this row.
@@ -81,7 +81,7 @@ struct SendListItemRowView: View {
                 } label: {
                     buttonLabel(for: store.state.item)
                 }
-                .accessibilityIdentifier(store.state.accessibilityIdentifier ?? "SendCell")
+                .accessibilityIdentifier(store.state.accessibilityIdentifier)
 
                 if case let .send(sendView) = store.state.item.itemType {
                     optionsMenu(for: sendView)
