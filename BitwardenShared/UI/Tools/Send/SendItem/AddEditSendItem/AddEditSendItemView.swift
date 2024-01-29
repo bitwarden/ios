@@ -107,11 +107,11 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     if store.state.maximumAccessCount > 0 {
                         Text("\(store.state.maximumAccessCount)")
                             .styleGuide(.body, monoSpacedDigit: true)
-                            .accessibilityIdentifier("SendMaxAccessCountEntry")
                             .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                     }
                 }
             }
+            .accessibilityIdentifier("SendMaxAccessCountEntry")
 
             Divider()
 
@@ -241,7 +241,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
                     Text(store.state.fileName ?? Localizations.noFileChosen)
                         .styleGuide(.callout)
-                        .accessibilityIdentifier("SendCurrentFileNameLabel")
+                        .accessibilityIdentifier(store.state.fileName != nil ? "SendCurrentFileNameLabel" : "")
                         .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
 
                     Spacer()
