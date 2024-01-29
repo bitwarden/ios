@@ -193,7 +193,7 @@ extension StackNavigator {
         _ view: Content,
         animated: Bool = UI.animated,
         overFullscreen: Bool = false,
-        onCompletion: (() -> Void)? = nil
+        onCompletion _: (() -> Void)? = nil
     ) {
         present(
             view,
@@ -261,10 +261,12 @@ extension UINavigationController: StackNavigator {
     public func push<Content: View>(_ view: Content, animated: Bool, hidesBottomBar: Bool) {
         let viewController = UIHostingController(rootView: view)
         viewController.hidesBottomBarWhenPushed = hidesBottomBar
+        let animated = self.view.window != nil ? animated : false
         push(viewController, animated: animated)
     }
 
     public func push(_ viewController: UIViewController, animated: Bool) {
+        let animated = view.window != nil ? animated : false
         pushViewController(viewController, animated: animated)
     }
 
@@ -280,6 +282,7 @@ extension UINavigationController: StackNavigator {
             controller.modalPresentationStyle = .overFullScreen
             controller.view.backgroundColor = .clear
         }
+        let animated = self.view.window != nil ? animated : false
         present(controller, animated: animated, onCompletion: onCompletion)
     }
 
@@ -306,6 +309,7 @@ extension UINavigationController: StackNavigator {
     }
 
     public func replace<Content: View>(_ view: Content, animated: Bool) {
+        let animated = self.view.window != nil ? animated : false
         setViewControllers([UIHostingController(rootView: view)], animated: animated)
     }
 }

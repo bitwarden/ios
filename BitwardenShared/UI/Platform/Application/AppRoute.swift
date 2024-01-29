@@ -9,6 +9,9 @@ public enum AppRoute: Equatable {
     /// A route to the extension setup interface.
     case extensionSetup(ExtensionSetupRoute)
 
+    /// A route to show a login request.
+    case loginRequest(LoginRequest)
+
     /// A route to the send interface.
     case sendItem(SendItemRoute)
 

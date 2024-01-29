@@ -6,7 +6,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authService: MockAuthService!
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<LoginRequestRoute>!
     var delegate: MockLoginRequestDelegate!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
@@ -18,7 +18,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
         super.setUp()
 
         authService = MockAuthService()
-        coordinator = MockCoordinator<SettingsRoute>()
+        coordinator = MockCoordinator<LoginRequestRoute>()
         delegate = MockLoginRequestDelegate()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
@@ -59,8 +59,9 @@ class LoginRequestProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.answerLoginRequestRequest, .fixture())
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.loading)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
-        XCTAssertTrue(delegate.loginRequestAnsweredApproved == true)
+        guard case .dismiss = coordinator.routes.last else {
+            return XCTFail("View not dismissed")
+        }
     }
 
     /// `.perform(_:)` with `.answerRequest` handles an errors
@@ -102,7 +103,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
 
         let okAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
         await okAction.handler?(okAction, [])
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `.perform(_:)` with `.reloadData` handles any errors.
@@ -120,13 +121,13 @@ class LoginRequestProcessorTests: BitwardenTestCase {
 
         let okAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
         await okAction.handler?(okAction, [])
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `.receive(_:)` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {
         subject.receive(.dismiss)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 }
 

@@ -8,6 +8,7 @@ class AppProcessorTests: BitwardenTestCase {
 
     var appModule: MockAppModule!
     var appSettingStore: MockAppSettingsStore!
+    var coordinator: MockCoordinator<AppRoute>!
     var errorReporter: MockErrorReporter!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
@@ -24,6 +25,7 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = MockAppModule()
         appSettingStore = MockAppSettingsStore()
+        coordinator = MockCoordinator<AppRoute>()
         errorReporter = MockErrorReporter()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
@@ -43,6 +45,7 @@ class AppProcessorTests: BitwardenTestCase {
                 vaultTimeoutService: vaultTimeoutService
             )
         )
+        subject.coordinator = coordinator.asAnyCoordinator()
     }
 
     override func tearDown() {
@@ -50,6 +53,7 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = nil
         appSettingStore = nil
+        coordinator = nil
         errorReporter = nil
         notificationCenterService = nil
         notificationService = nil
@@ -154,6 +158,12 @@ class AppProcessorTests: BitwardenTestCase {
                 didSwitchAccountAutomatically: false
             ))
         )
+    }
+
+    /// `showLoginRequest(_:)` navigates to show the login request view.
+    func test_showLoginRequest() {
+        subject.showLoginRequest(.fixture())
+        XCTAssertEqual(coordinator.routes.last, .loginRequest(.fixture()))
     }
 
     /// `start(navigator:)` builds the AppCoordinator and navigates to vault unlock if there's an

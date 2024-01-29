@@ -24,6 +24,7 @@ extension DefaultAppModule: SettingsModule {
     ) -> AnyCoordinator<SettingsRoute> {
         SettingsCoordinator(
             delegate: delegate,
+            module: self,
             services: services,
             stackNavigator: stackNavigator
         ).asAnyCoordinator()

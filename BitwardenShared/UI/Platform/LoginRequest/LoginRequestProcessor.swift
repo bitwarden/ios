@@ -26,7 +26,7 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<LoginRequestRoute>
 
     /// The delegate that is notified when login requests have been answered.
     private weak var delegate: LoginRequestDelegate?
@@ -48,7 +48,7 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<LoginRequestRoute>,
         delegate: LoginRequestDelegate?,
         services: Services,
         state: LoginRequestState
@@ -81,7 +81,7 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
     override func receive(_ action: LoginRequestAction) {
         switch action {
         case .dismiss:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         }
     }
 
@@ -103,8 +103,10 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
 
             // Dismiss the view and pass the success to the delegate.
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .dismiss)
-            delegate?.loginRequestAnswered(approved: approve)
+            let dismissAction = DismissAction {
+                self.delegate?.loginRequestAnswered(approved: approve)
+            }
+            coordinator.navigate(to: .dismiss(dismissAction))
         } catch {
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(.networkResponseError(error))
@@ -132,12 +134,12 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
             // Show an alert and dismiss the view if the request has expired or been answered.
             guard !request.isExpired else {
                 return coordinator.showAlert(.requestExpired {
-                    self.coordinator.navigate(to: .dismiss)
+                    self.coordinator.navigate(to: .dismiss())
                 })
             }
             guard !request.isAnswered else {
                 return coordinator.showAlert(.requestAnswered {
-                    self.coordinator.navigate(to: .dismiss)
+                    self.coordinator.navigate(to: .dismiss())
                 })
             }
 

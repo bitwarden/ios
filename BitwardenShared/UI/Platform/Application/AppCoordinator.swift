@@ -1,4 +1,5 @@
 import BitwardenSdk
+import SwiftUI
 import UIKit
 
 // MARK: - AppCoordinator
@@ -12,6 +13,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     typealias Module = AuthModule
         & ExtensionSetupModule
         & FileSelectionModule
+        & LoginRequestModule
         & SendItemModule
         & TabModule
         & VaultModule
@@ -59,12 +61,14 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: AppRoute, context: AnyObject?) {
+    func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
         case let .auth(authRoute):
             showAuth(route: authRoute)
         case let .extensionSetup(extensionSetupRoute):
             showExtensionSetup(route: extensionSetupRoute)
+        case let .loginRequest(loginRequest):
+            showLoginRequest(loginRequest)
         case let .sendItem(sendItemRoute):
             showSendItem(route: sendItemRoute)
         case let .tab(tabRoute):
@@ -161,6 +165,31 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         }
     }
 
+    /// Show the login request.
+    ///
+    /// - Parameter loginRequest: The login request to show.
+    ///
+    private func showLoginRequest(_ loginRequest: LoginRequest) {
+        DispatchQueue.main.async {
+            // Make sure that the user is authenticated and not currently viewing the login request view.
+            guard self.childCoordinator is AnyCoordinator<TabRoute> else { return }
+            let currentView = self.rootNavigator.rootViewController?.topmostViewController()
+            guard !(currentView is UIHostingController<LoginRequestView>) else { return }
+
+            // Create the login request view.
+            let navigationController = UINavigationController()
+            let coordinator = self.module.makeLoginRequestCoordinator(stackNavigator: navigationController)
+            coordinator.start()
+            coordinator.navigate(to: .loginRequest(loginRequest), context: self)
+
+            // Present the login request view.
+            self.rootNavigator.rootViewController?.topmostViewController().present(
+                navigationController,
+                animated: true
+            )
+        }
+    }
+
     /// Shows the vault route (not in a tab). This is used within the app extensions.
     ///
     /// - Parameter route: The vault route to show.
@@ -193,6 +222,18 @@ extension AppCoordinator: AuthCoordinatorDelegate {
         case .mainApp:
             showTab(route: .vault(.list))
         }
+    }
+}
+
+// MARK: - LoginRequestDelegate
+
+extension AppCoordinator: LoginRequestDelegate {
+    /// Show a toast over the current window with the result of answering the login request.
+    ///
+    /// - Parameter approved: Whether the login request was approved or denied.
+    ///
+    func loginRequestAnswered(approved: Bool) {
+        showToast(approved ? Localizations.loginApproved : Localizations.logInDenied)
     }
 }
 
@@ -258,5 +299,9 @@ extension AppCoordinator: VaultCoordinatorDelegate {
 
     func didTapAccount(userId: String) {
         showAuth(route: .switchAccount(userId: userId))
+    }
+
+    func presentLoginRequest(_ loginRequest: LoginRequest) {
+        showLoginRequest(loginRequest)
     }
 }
