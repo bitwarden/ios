@@ -8,7 +8,6 @@ protocol PolicyService: AnyObject {
     /// - Parameter options: The options to apply the policy to.
     /// - Returns: Whether the password generation policy is in effect.
     ///
-    @discardableResult
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool
 
     /// Determines whether a policy applies to the active user.
