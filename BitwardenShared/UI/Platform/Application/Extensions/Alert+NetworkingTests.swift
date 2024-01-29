@@ -63,7 +63,11 @@ class AlertNetworkingTests: BitwardenTestCase {
     /// `ResponseValidationError` builds an alert to display a server error message.
     func test_responseValidationError() throws {
         let response = HTTPResponse.failure(statusCode: 400, body: APITestData.responseValidationError.data)
-        let error = ResponseValidationError(response: response)
+        let error = try ServerError.validationError(
+            validationErrorResponse: ResponseValidationErrorModel(
+                response: response
+            )
+        )
         let subject = Alert.networkResponseError(error)
 
         XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)

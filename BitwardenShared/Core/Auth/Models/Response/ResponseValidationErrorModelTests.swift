@@ -20,8 +20,7 @@ class ResponseValidationErrorModelTests: BitwardenTestCase {
     /// Tests the successful decoding of a JSON response.
     func test_decode_success() throws {
         let json = APITestData.responseValidationError.data
-        let decoder = JSONDecoder()
-        let subject = try decoder.decode(ResponseValidationErrorModel.self, from: json)
+        let subject = try ResponseValidationErrorModel.decoder.decode(ResponseValidationErrorModel.self, from: json)
         XCTAssertEqual(subject.errorModel.message, "Username or password is incorrect. Try again.")
     }
 }

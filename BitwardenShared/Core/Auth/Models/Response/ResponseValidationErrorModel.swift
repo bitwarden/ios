@@ -6,13 +6,6 @@ import Networking
 /// An Response validation error returned from an API request.
 ///
 struct ResponseValidationErrorModel: Codable, Equatable {
-    /// Coding keys for the this  struct. These keys match the keys in the JSON response.
-    enum CodingKeys: String, CodingKey {
-        case error
-        case errorDescription = "error_description"
-        case errorModel = "ErrorModel"
-    }
-
     // MARK: Properties
 
     /// A string that represents the error code.
@@ -26,12 +19,6 @@ struct ResponseValidationErrorModel: Codable, Equatable {
 }
 
 struct ErrorModel: Codable, Equatable {
-    /// Coding keys for the this  struct. These keys match the keys in  the JSON response.
-    enum CodingKeys: String, CodingKey {
-        case message = "Message"
-        case object = "Object"
-    }
-
     // MARK: Properties
 
     /// A string that provides a message about the error.
@@ -43,4 +30,6 @@ struct ErrorModel: Codable, Equatable {
 
 // MARK: JSONResponse
 
-extension ResponseValidationErrorModel: JSONResponse {}
+extension ResponseValidationErrorModel: JSONResponse {
+    static var decoder = JSONDecoder.pascalOrSnakeCaseDecoder
+}

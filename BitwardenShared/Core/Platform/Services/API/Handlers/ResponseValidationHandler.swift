@@ -24,6 +24,11 @@ class ResponseValidationHandler: ResponseHandler {
                 throw ServerError.error(errorResponse: errorResponse)
             }
 
+            // If the response can be parsed, throw an error containing the response message.
+            if let validationErrorResponse = try? ResponseValidationErrorModel(response: response) {
+                throw ServerError.validationError(validationErrorResponse: validationErrorResponse)
+            }
+
             // Otherwise, throw a generic response validation error.
             throw ResponseValidationError(response: response)
         }

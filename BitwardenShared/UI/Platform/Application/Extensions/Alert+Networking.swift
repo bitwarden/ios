@@ -37,21 +37,11 @@ extension Alert {
         _ error: Error,
         _ tryAgain: (() async -> Void)? = nil
     ) -> Alert {
-        if let responseError = error as? ResponseValidationError {
-            if let errorResponse = try? ResponseValidationErrorModel(response: responseError.response) {
-                let message = errorResponse.errorModel.message
-                return defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: message
-                )
-            }
-        }
-
         switch error {
-        case let ServerError.error(errorResponse):
+        case let serverError as ServerError:
             return defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: errorResponse.singleMessage()
+                message: serverError.message
             )
         case let BitwardenSdk.BitwardenError.E(message):
             return defaultAlert(
