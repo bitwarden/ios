@@ -13,10 +13,10 @@ struct SendListItemRowState: Equatable {
         case .send:
             break
         case let .group(type, _):
-            if type.localizedName == Localizations.text {
+            if type == .text {
                 return "SendTextFilter"
             }
-            if type.localizedName == Localizations.file {
+            if type == .file {
                 return "SendFileFilter"
             }
         }
