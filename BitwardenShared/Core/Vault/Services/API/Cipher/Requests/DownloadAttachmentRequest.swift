@@ -1,12 +1,12 @@
 import BitwardenSdk
 import Networking
 
-// MARK: - DeleteAttachmentRequest
+// MARK: - DownloadAttachmentRequest
 
-/// Data model for performing a delete attachment request.
+/// Data model for performing a download attachment request.
 ///
-struct DeleteAttachmentRequest: Request {
-    typealias Response = EmptyResponse
+struct DownloadAttachmentRequest: Request {
+    typealias Response = DownloadAttachmentResponse
 
     // MARK: Properties
 
@@ -17,7 +17,7 @@ struct DeleteAttachmentRequest: Request {
     var cipherId: String
 
     /// The HTTP method for this request.
-    let method = HTTPMethod.delete
+    let method = HTTPMethod.get
 
     /// The URL path for this request.
     var path: String {
@@ -26,10 +26,10 @@ struct DeleteAttachmentRequest: Request {
 
     // MARK: Initialization
 
-    /// Initialize a `DeleteAttachmentRequest`.
+    /// Initialize a `DownloadAttachmentRequest`.
     ///
     /// - Parameters:
-    ///   - attachmentId: The id of the attachment to delete.
+    ///   - attachmentId: The id of the attachment to download.
     ///   - cipherId: The id of the cipher that owns the attachment.
     ///
     init(attachmentId: String, cipherId: String) {

@@ -21,6 +21,25 @@ extension Alert {
         )
     }
 
+    /// Present an alert confirming downloading a large attachment.
+    ///
+    /// - Parameters:
+    ///   - fileSize: The size of the attachment to download.
+    ///   - action: The action to perform if the user confirms.
+    ///
+    /// - Returns: An alert confirming downloading a large attachment.
+    ///
+    static func confirmDownload(fileSize: String, action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.attachmentLargeWarning(fileSize),
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
     /// An alert presenting the user with options to select a file.
     ///
     /// - Parameter handler: A block that is executed when one of the selections is made.

@@ -51,18 +51,23 @@ class MockClientVaultService: ClientVaultService {
 // MARK: - MockClientAttachments
 
 class MockClientAttachments: ClientAttachmentsProtocol {
+    var encryptedFilePaths = [String]()
+    var decryptedBuffers = [Data]()
     var encryptedBuffers = [Data]()
 
     func decryptBuffer(cipher _: Cipher, attachment _: Attachment, buffer: Data) async throws -> Data {
-        buffer
+        decryptedBuffers.append(buffer)
+        return buffer
     }
 
     func decryptFile(
         cipher _: Cipher,
         attachment _: Attachment,
-        encryptedFilePath _: String,
+        encryptedFilePath: String,
         decryptedFilePath _: String
-    ) async throws {}
+    ) async throws {
+        encryptedFilePaths.append(encryptedFilePath)
+    }
 
     func encryptBuffer(
         cipher _: Cipher,

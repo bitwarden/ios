@@ -30,6 +30,8 @@ struct ViewItemView: View {
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
+    // MARK: View
+
     var body: some View {
         LoadingView(state: store.state.loadingState) { state in
             if let viewState = state.viewState {
@@ -76,7 +78,7 @@ struct ViewItemView: View {
         Localizations.viewItem
     }
 
-    // MARK: Private Methods
+    // MARK: Private Views
 
     /// The details of the item. This view wraps all of the different detail views for
     /// the different types of items into one variable, so that the edit button can be
@@ -165,7 +167,24 @@ struct ViewItemView_Previews: PreviewProvider {
         edit: false,
         viewPassword: false,
         localData: nil,
-        attachments: nil,
+        attachments: [
+            .init(
+                id: "1",
+                url: nil,
+                size: nil,
+                sizeName: "11.2 MB",
+                fileName: "selfieWithACat.png",
+                key: nil
+            ),
+            .init(
+                id: "2",
+                url: nil,
+                size: nil,
+                sizeName: "18.7 MB",
+                fileName: "selfieWithAPotato.png",
+                key: nil
+            ),
+        ],
         fields: nil,
         passwordHistory: nil,
         creationDate: .now,

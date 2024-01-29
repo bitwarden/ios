@@ -114,6 +114,18 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
 
+    /// Tapping the download attachment button dispatches the `.downloadAttachment(_)` action.
+    func test_downloadAttachmentButton_tap() throws {
+        let state = try XCTUnwrap(CipherItemState(
+            existing: .fixture(attachments: [.fixture(id: "2")]),
+            hasPremium: true
+        ))
+        processor.state.loadingState = .data(state)
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.download)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .downloadAttachment(.fixture(id: "2")))
+    }
+
     /// Tapping the password history button dispatches the `passwordHistoryPressed` action.
     func test_passwordHistoryButton_tap() throws {
         processor.state.loadingState = .data(loginState())
