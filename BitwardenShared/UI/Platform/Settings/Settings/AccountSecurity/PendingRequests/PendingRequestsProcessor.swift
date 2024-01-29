@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - PendingRequestsProcessor
 
 /// The processor used to manage state and handle actions for the `PendingRequestsView`.
@@ -20,6 +22,9 @@ final class PendingRequestsProcessor: StateProcessor<
     /// The services used by the processor.
     private let services: Services
 
+    /// The timer used to automatically update the login requests.
+    private var updateTimer: Timer?
+
     // MARK: Initialization
 
     /// Initializes a `PendingRequestsProcessor`.
@@ -40,6 +45,10 @@ final class PendingRequestsProcessor: StateProcessor<
         super.init(state: state)
     }
 
+    deinit {
+        updateTimer?.invalidate()
+    }
+
     // MARK: Methods
 
     override func perform(_ effect: PendingRequestsEffect) async {
@@ -54,10 +63,9 @@ final class PendingRequestsProcessor: StateProcessor<
         case .declineAllRequestsTapped:
             confirmDenyAllRequests()
         case .dismiss:
-            coordinator.navigate(to: .dismiss, context: self)
+            coordinator.navigate(to: .dismiss)
         case let .requestTapped(request):
-            // TODO: BIT-807
-            break
+            coordinator.navigate(to: .loginRequest(request), context: self)
         case let .toastShown(newValue):
             state.toast = newValue
         }
@@ -74,16 +82,16 @@ final class PendingRequestsProcessor: StateProcessor<
     /// Deny all the login requests.
     private func denyAllRequests() async {
         guard case let .data(requests) = state.loadingState else { return }
+        defer { coordinator.hideLoadingOverlay() }
         do {
             // Deny all the requests.
             coordinator.showLoadingOverlay(title: Localizations.loading)
-            // TODO: BIT-441
+            try await services.authService.denyAllLoginRequests(requests)
 
             // Refresh the view.
             await loadData()
 
             // Show the success toast.
-            coordinator.hideLoadingOverlay()
             state.toast = Toast(text: Localizations.requestsDeclined)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
@@ -94,12 +102,35 @@ final class PendingRequestsProcessor: StateProcessor<
     /// Load the pending login requests to display.
     private func loadData() async {
         do {
+            // Update the data.
             let data = try await services.authService.getPendingLoginRequests()
             state.loadingState = .data(data)
+
+            // Set or reset the timer.
+            setUpdateTimer()
         } catch {
             state.loadingState = .data([])
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Set or reset the auto-update timer.
+    private func setUpdateTimer() {
+        updateTimer?.invalidate()
+
+        // Set the timer to auto-update the data in five minutes. Repeating is not necessary,
+        // since the timer will be reset after reloading the data.
+        updateTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: false) { _ in
+            Task { await self.loadData() }
+        }
+    }
+}
+
+extension PendingRequestsProcessor: LoginRequestDelegate {
+    /// Update the data and display a success toast after a login request has been answered.
+    func loginRequestAnswered(approved: Bool) {
+        Task { await loadData() }
+        state.toast = Toast(text: approved ? Localizations.loginApproved : Localizations.logInDenied)
     }
 }

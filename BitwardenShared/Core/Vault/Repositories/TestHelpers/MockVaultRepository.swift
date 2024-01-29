@@ -196,6 +196,7 @@ class MockVaultRepository: VaultRepository {
 
     func searchVaultListPublisher(
         searchText _: String,
+        group: VaultListGroup?,
         filterType _: VaultFilterType
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
         searchVaultListSubject.eraseToAnyPublisher().values

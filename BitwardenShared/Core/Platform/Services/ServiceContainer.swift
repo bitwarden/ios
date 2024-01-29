@@ -64,7 +64,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let policyService: PolicyService
 
     /// The repository used by the application to manage send data for the UI layer.
-    let sendRepository: SendRepository
+    public let sendRepository: SendRepository
 
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
@@ -209,11 +209,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let timeProvider = CurrentTime()
 
-        let stateService = DefaultStateService(
-            appSettingsStore: appSettingsStore,
-            dataStore: dataStore,
-            timeProvider: timeProvider
-        )
+        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
 
         let biometricsService = DefaultBiometricsService(stateService: stateService)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
@@ -278,19 +274,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             syncAPIService: apiService
         )
 
-        let notificationService = DefaultNotificationService(
-            appIdService: appIdService,
-            authAPIService: apiService,
-            errorReporter: errorReporter,
-            notificationAPIService: apiService,
-            stateService: stateService,
-            syncService: syncService
-        )
-
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
+        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
@@ -307,6 +294,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             stateService: stateService,
             systemDevice: UIDevice.current
+        )
+
+        let notificationService = DefaultNotificationService(
+            appIdService: appIdService,
+            authService: authService,
+            errorReporter: errorReporter,
+            notificationAPIService: apiService,
+            stateService: stateService,
+            syncService: syncService
         )
 
         let authRepository = DefaultAuthRepository(

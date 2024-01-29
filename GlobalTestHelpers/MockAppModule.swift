@@ -8,11 +8,12 @@ class MockAppModule:
     ExtensionSetupModule,
     FileSelectionModule,
     GeneratorModule,
-    TabModule,
+    LoginRequestModule,
     PasswordHistoryModule,
     SendModule,
     SendItemModule,
     SettingsModule,
+    TabModule,
     VaultModule,
     VaultItemModule {
     var appCoordinator = MockCoordinator<AppRoute>()
@@ -21,6 +22,7 @@ class MockAppModule:
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute>()
+    var loginRequestCoordinator = MockCoordinator<LoginRequestRoute>()
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute>()
     var sendCoordinator = MockCoordinator<SendRoute>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute>()
@@ -52,7 +54,7 @@ class MockAppModule:
 
     func makeFileSelectionCoordinator(
         delegate: FileSelectionDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator _: StackNavigator
     ) -> AnyCoordinator<FileSelectionRoute> {
         fileSelectionDelegate = delegate
         return fileSelectionCoordinator.asAnyCoordinator()
@@ -63,6 +65,12 @@ class MockAppModule:
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<GeneratorRoute> {
         generatorCoordinator.asAnyCoordinator()
+    }
+
+    func makeLoginRequestCoordinator(
+        stackNavigator _: StackNavigator
+    ) -> AnyCoordinator<LoginRequestRoute> {
+        loginRequestCoordinator.asAnyCoordinator()
     }
 
     func makePasswordHistoryCoordinator(
@@ -78,8 +86,8 @@ class MockAppModule:
     }
 
     func makeSendItemCoordinator(
-        delegate: SendItemDelegate,
-        stackNavigator: StackNavigator
+        delegate _: SendItemDelegate,
+        stackNavigator _: StackNavigator
     ) -> AnyCoordinator<SendItemRoute> {
         sendItemCoordinator.asAnyCoordinator()
     }

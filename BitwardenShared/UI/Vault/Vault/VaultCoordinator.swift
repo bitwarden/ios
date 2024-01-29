@@ -30,6 +30,12 @@ public protocol VaultCoordinatorDelegate: AnyObject {
     ///  - Parameter userId: The userId of the selected account.
     ///
     func didTapAccount(userId: String)
+
+    /// Present the login request view.
+    ///
+    /// - Parameter loginRequest: The login request.
+    ///
+    func presentLoginRequest(_ loginRequest: LoginRequest)
 }
 
 // MARK: - VaultCoordinator
@@ -43,6 +49,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & VaultItemModule
 
     typealias Services = HasAuthRepository
+        & HasAuthService
         & HasCameraService
         & HasEnvironmentService
         & HasErrorReporter
@@ -129,10 +136,12 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             }
         case .dismiss:
             stackNavigator.dismiss()
-        case let .group(group, filter):
-            showGroup(group, filter: filter)
+        case let .group(content):
+            showGroup(content)
         case .list:
             showList()
+        case let .loginRequest(loginRequest):
+            delegate?.presentLoginRequest(loginRequest)
         case let .lockVault(account):
             delegate?.didLockVault(account: account)
         case let .logout(userInitiated):
@@ -166,27 +175,33 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the vault group screen.
     ///
-    private func showGroup(_ group: VaultListGroup, filter: VaultFilterType) {
+    private func showGroup(_ content: VaultGroupContent) {
         let processor = VaultGroupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultGroupState(
-                group: group,
+                group: content.group,
                 iconBaseURL: services.environmentService.iconsURL,
-                vaultFilterType: filter
+                searchVaultFilterType: content.filter,
+                vaultFilterType: content.filter
             )
         )
+        processor.vaultFilterDelegate = content.filterDelegate
         let store = Store(processor: processor)
+        let searchHandler = GroupSearchHandler(store: store)
         let view = VaultGroupView(
+            searchHandler: searchHandler,
             store: store,
             timeProvider: services.timeProvider
         )
         let viewController = UIHostingController(rootView: view)
+        let searchController = UISearchController()
+        searchController.searchResultsUpdater = searchHandler
 
         stackNavigator.push(
             viewController,
-            navigationTitle: group.navigationTitle,
-            hasSearchBar: true
+            navigationTitle: content.group.navigationTitle,
+            searchController: searchController
         )
     }
 
@@ -220,4 +235,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
         stackNavigator.present(navigationController)
     }
+}
+
+/// A protocol to share vault filter settings between screens.
+///
+public protocol VaultFilterDelegate: AnyObject {
+    /// A method to inform the delegate that the vault filter has changed.
+    ///
+    /// - Parameter newFilter: The up to date vault filter.
+    ///
+    func didSetVaultFilter(_ newFilter: VaultFilterType)
 }

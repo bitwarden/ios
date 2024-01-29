@@ -8,8 +8,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasAppIdService
-        & HasAuthRepository
+    typealias Services = HasAuthService
         & HasErrorReporter
 
     // MARK: Properties
@@ -66,11 +65,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
         do {
             coordinator.showLoadingOverlay(title: Localizations.loading)
 
-            let deviceId = await services.appIdService.getOrCreateAppId()
-            let fingerprint = try await services.authRepository.initiateLoginWithDevice(
-                deviceId: deviceId,
-                email: state.email
-            )
+            let fingerprint = try await services.authService.initiateLoginWithDevice(email: state.email)
             state.fingerprintPhrase = fingerprint
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))

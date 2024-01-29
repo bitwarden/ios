@@ -17,6 +17,9 @@ struct SettingsMenuField<T>: View where T: Menuable {
     /// The options displayed in the menu.
     let options: [T]
 
+    /// The accessibility identifier for the currently selected option label.
+    let selectedOptionAccessibilityIdentifier: String
+
     /// The title of the menu field.
     let title: String
 
@@ -45,6 +48,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
                     Text(selection.localizedName)
                         .multilineTextAlignment(.trailing)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .accessibilityIdentifier(selectedOptionAccessibilityIdentifier)
                 }
             }
             .styleGuide(.body)
@@ -66,15 +70,18 @@ struct SettingsMenuField<T>: View where T: Menuable {
     ///   - options: The options that the user can choose between.
     ///   - hasDivider: Whether the menu field should have a bottom divider.
     ///   - selection: A `Binding` for the currently selected option.
+    ///   - selectedOptionAccessibilityIdentifier: An accessibility identifier for the currently selected option label.
     ///
     init(
         title: String,
         options: [T],
         hasDivider: Bool = true,
-        selection: Binding<T>
+        selection: Binding<T>,
+        selectedOptionAccessibilityIdentifier: String? = nil
     ) {
         self.hasDivider = hasDivider
         self.options = options
+        self.selectedOptionAccessibilityIdentifier = selectedOptionAccessibilityIdentifier ?? ""
         _selection = selection
         self.title = title
     }

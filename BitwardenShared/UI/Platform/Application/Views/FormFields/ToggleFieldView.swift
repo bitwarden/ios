@@ -7,6 +7,10 @@ import SwiftUI
 struct ToggleField<State>: Equatable, Identifiable {
     // MARK: Properties
 
+    /// The accessibility id for the toggle. The `id` will be used as the accessibility id
+    /// if this is `nil`.
+    let accessibilityId: String?
+
     /// The accessibility label for the toggle. The title will be used as the accessibility label
     /// if this is `nil`.
     let accessibilityLabel: String?
@@ -49,6 +53,7 @@ struct ToggleFieldView<State>: View {
                 field.title,
                 isOn: Binding(get: { field.isOn }, set: action)
             )
+            .accessibilityIdentifier(field.accessibilityId ?? field.id)
             .accessibilityLabel(field.accessibilityLabel ?? field.title)
             .disabled(field.isDisabled)
             .toggleStyle(.bitwarden)

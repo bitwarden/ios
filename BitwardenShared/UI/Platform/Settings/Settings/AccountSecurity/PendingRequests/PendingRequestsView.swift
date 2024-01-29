@@ -109,17 +109,20 @@ struct PendingRequestsView: View {
                         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
+                        .accessibilityIdentifier("FingerprintValueLabel")
 
                     Text(pendingRequest.fingerprintPhrase ?? "")
                         .styleGuide(.caption2Monospaced)
                         .foregroundStyle(Asset.Colors.fingerprint.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
+                        .accessibilityIdentifier("FingerprintPhraseValue")
 
                     HStack {
                         Text(pendingRequest.requestDeviceType)
                             .styleGuide(.footnote)
                             .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .accessibilityIdentifier("DeviceTypeValueLabel")
 
                         Spacer()
 
@@ -159,8 +162,8 @@ struct PendingRequestsView: View {
                     fingerprintPhrase: "pineapple-on-pizza-is-the-best",
                     id: "1",
                     key: nil,
-                    origin: "",
                     masterPasswordHash: nil,
+                    origin: "",
                     publicKey: "",
                     requestAccessCode: nil,
                     requestApproved: nil,
@@ -173,8 +176,8 @@ struct PendingRequestsView: View {
                     fingerprintPhrase: "coconuts-are-underrated",
                     id: "2",
                     key: nil,
-                    origin: "",
                     masterPasswordHash: nil,
+                    origin: "",
                     publicKey: "",
                     requestAccessCode: nil,
                     requestApproved: nil,

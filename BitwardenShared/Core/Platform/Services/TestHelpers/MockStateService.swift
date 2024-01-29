@@ -28,6 +28,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var environmentUrls = [String: EnvironmentUrlData]()
     var lastActiveTime = [String: Date]()
+    var loginRequest: LoginRequestNotification?
     var getAccountEncryptionKeysError: Error?
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var getBiometricIntegrityStateError: Error?
@@ -158,6 +159,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return lastActiveTime[userId]
     }
 
+    func getLoginRequest() async -> LoginRequestNotification? {
+        loginRequest
+    }
+
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return masterPasswordHashes[userId]
@@ -284,7 +289,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountEncryptionKeys["1"] = .init(encryptedPrivateKey: "", encryptedUserKey: "")
     }
 
-    func setLastActiveTime(userId: String?) async throws {
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         lastActiveTime[userId] = timeProvider.presentTime
     }
@@ -296,6 +301,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getLastUserShouldConnectToWatch() async -> Bool {
         lastUserShouldConnectToWatch
+    }
+
+    func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
+        self.loginRequest = loginRequest
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {

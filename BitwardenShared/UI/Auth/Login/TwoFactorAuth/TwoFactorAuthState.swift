@@ -7,7 +7,7 @@ struct TwoFactorAuthState: Equatable {
     /// The selected authenticator method.
     var authMethod: TwoFactorAuthMethod = .email
 
-    /// The  auth method data returned by the API.
+    /// The auth method data returned by the API.
     var authMethodsData = AuthMethodsData()
 
     /// The available auth methods for the user.

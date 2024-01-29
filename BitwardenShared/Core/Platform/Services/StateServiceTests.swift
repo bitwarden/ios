@@ -9,7 +9,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var appSettingsStore: MockAppSettingsStore!
     var dataStore: DataStore!
     var subject: DefaultStateService!
-    var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
 
@@ -18,13 +17,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore = MockAppSettingsStore()
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
-        timeProvider = MockTimeProvider(.currentTime)
 
-        subject = DefaultStateService(
-            appSettingsStore: appSettingsStore,
-            dataStore: dataStore,
-            timeProvider: timeProvider
-        )
+        subject = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
     }
 
     override func tearDown() {
@@ -33,7 +27,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore = nil
         dataStore = nil
         subject = nil
-        timeProvider = nil
     }
 
     // MARK: Tests
@@ -112,7 +105,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(pinKeyEncryptedUserKey)
     }
 
-    /// `.deleteAccount()` deletes the active user's account, removing it from the state.
+    /// `deleteAccount()` deletes the active user's account, removing it from the state.
     func test_deleteAccount() async throws {
         let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         await subject.addAccount(newAccount)
@@ -329,6 +322,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, "Expected State")
     }
 
+    /// `getBiometricIntegrityState(:)` returns the expected value.
+    func test_getBiometricIntegrityState() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.biometricIntegrityStates = [
+            "2": "Expected State",
+        ]
+        let value = try await subject.getBiometricIntegrityState()
+        XCTAssertNil(value, "Expected State")
+    }
+
     /// `getBiometricIntegrityState(:)` returns biometric integrity state of the active user.
     func test_getBiometricIntegrityState_error() async throws {
         appSettingsStore.biometricIntegrityStates = [
@@ -337,15 +340,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.getBiometricIntegrityState()
         }
-    }
-
-    func test_getBiometricIntegrityState_nil() async throws {
-        await subject.addAccount(.fixture())
-        appSettingsStore.biometricIntegrityStates = [
-            "2": "Expected State",
-        ]
-        let value = try await subject.getBiometricIntegrityState()
-        XCTAssertNil(value, "Expected State")
     }
 
     /// `getConnectToWatch()` returns the connect to watch value for the active account.
@@ -413,17 +407,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
-    /// `.getLastActiveTime(userId:)` gets the user's last active time.
+    /// `getLastActiveTime(userId:)` gets the user's last active time.
     func test_getLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        try await subject.setLastActiveTime(userId: "1")
-        let lastActiveTime = try await subject.getLastActiveTime(userId: "1")
+        try await subject.setLastActiveTime(Date())
+        let lastActiveTime = try await subject.getLastActiveTime()
         XCTAssertEqual(
             lastActiveTime!.timeIntervalSince1970,
-            timeProvider.presentTime.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
             accuracy: 1.0
         )
+    }
+
+    /// `getLoginRequest()` gets any pending login requests.
+    func test_getLoginRequest() async {
+        let loginRequest = LoginRequestNotification(id: "1", userId: "10")
+        appSettingsStore.loginRequest = loginRequest
+        let value = await subject.getLoginRequest()
+        XCTAssertEqual(value, loginRequest)
     }
 
     /// `getMasterPasswordHash()` returns the user's master password hash.
@@ -1064,16 +1066,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(active, account1)
     }
 
-    /// `.setLastActiveTime(userId:)` sets the user's last active time.
+    /// `setLastActiveTime(userId:)` sets the user's last active time.
     func test_setLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        try await subject.setLastActiveTime(userId: "1")
+        try await subject.setLastActiveTime(Date())
+
         XCTAssertEqual(
             appSettingsStore.lastActiveTime["1"]!.timeIntervalSince1970,
-            timeProvider.presentTime.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
             accuracy: 1.0
         )
+    }
+
+    /// `setLoginRequest()` sets the pending login requests.
+    func test_setLoginRequest() async {
+        let loginRequest = LoginRequestNotification(id: "1", userId: "10")
+        await subject.setLoginRequest(loginRequest)
+        XCTAssertEqual(appSettingsStore.loginRequest, loginRequest)
     }
 
     /// `setMasterPasswordHash(_:)` sets the master password hash for a user.
@@ -1184,7 +1194,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setVaultTimeout() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        try await subject.setVaultTimeout(value: .custom(20), userId: "1")
+        try await subject.setVaultTimeout(value: .custom(20))
+
         XCTAssertEqual(appSettingsStore.vaultTimeout["1"], 20)
     }
 

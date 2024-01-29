@@ -12,7 +12,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     var coordinator: MockCoordinator<VaultRoute>!
     var errorReporter: MockErrorReporter!
-    let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 33)
+    var filterDelegate: MockVaultFilterDelegate!
+    let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: VaultGroupProcessor!
@@ -26,6 +27,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        filterDelegate = MockVaultFilterDelegate()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(fixedDate))
@@ -38,10 +40,15 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 stateService: stateService,
+                timeProvider: timeProvider,
                 vaultRepository: vaultRepository
             ),
-            state: VaultGroupState(vaultFilterType: .allVaults)
+            state: VaultGroupState(
+                searchVaultFilterType: .allVaults,
+                vaultFilterType: .allVaults
+            )
         )
+        subject.vaultFilterDelegate = filterDelegate
     }
 
     override func tearDown() {
@@ -49,6 +56,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         coordinator = nil
         errorReporter = nil
+        filterDelegate = nil
         pasteboardService = nil
         stateService = nil
         subject = nil
@@ -100,7 +108,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(_:)` with `.appeared` records any errors.
-    func test_perform_appeared_error() {
+    func test_perform_appeared_error_vaultListGroupSubjectFail() {
         vaultRepository.vaultListGroupSubject.send(completion: .failure(BitwardenTestError.example))
 
         let task = Task {
@@ -130,6 +138,212 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(.search)` with a keyword should update search results in state.
+    func test_perform_search() async {
+        let searchResult: [CipherView] = [.fixture(name: "example")]
+        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
+        await subject.perform(.search("example"))
+
+        XCTAssertEqual(subject.state.searchResults.count, 1)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            try [VaultListItem.fixture(cipherView: XCTUnwrap(searchResult.first))]
+        )
+    }
+
+    /// `perform(.search)` throws error and error is logged.
+    func test_perform_search_error() async {
+        vaultRepository.searchVaultListSubject.send(completion: .failure(BitwardenTestError.example))
+        await subject.perform(.search("example"))
+
+        XCTAssertEqual(subject.state.searchResults.count, 0)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            []
+        )
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(.search)` with a keyword should update search results in state.
+    func test_perform_search_expiredTOTP() { // swiftlint:disable:this function_body_length
+        let loginView = LoginView.fixture(totp: .base32Key)
+        let refreshed = VaultListItem(
+            id: "1",
+            itemType: .totp(
+                name: "refreshed totp",
+                totpModel: .init(
+                    id: "1",
+                    loginView: loginView,
+                    totpCode: .init(
+                        code: "654321",
+                        codeGenerationDate: timeProvider.presentTime,
+                        period: 30
+                    )
+                )
+            )
+        )
+        vaultRepository.refreshTOTPCodesResult = .success(
+            [
+                refreshed,
+            ]
+        )
+        let task = Task {
+            await subject.perform(.search("example"))
+        }
+        let expired = VaultListItem(
+            id: "1",
+            itemType: .totp(
+                name: "totp",
+                totpModel: .init(
+                    id: "1",
+                    loginView: loginView,
+                    totpCode: .init(
+                        code: "098765",
+                        codeGenerationDate: timeProvider.presentTime
+                            .addingTimeInterval(-1.5),
+                        period: 30
+                    )
+                )
+            )
+        )
+        let stable = VaultListItem(
+            id: "2",
+            itemType: .totp(
+                name: "totp",
+                totpModel: .init(
+                    id: "1",
+                    loginView: loginView,
+                    totpCode: .init(
+                        code: "111222",
+                        codeGenerationDate: timeProvider.presentTime,
+                        period: 30
+                    )
+                )
+            )
+        )
+        vaultRepository.searchVaultListSubject.send([
+            expired,
+            stable,
+        ])
+        waitFor(subject.state.searchResults.count == 2)
+        task.cancel()
+
+        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
+        XCTAssertEqual(
+            vaultRepository.refreshedTOTPCodes,
+            [expired]
+        )
+        XCTAssertEqual(
+            subject.state.searchResults,
+            [
+                refreshed,
+                stable,
+            ]
+        )
+    }
+
+    /// `perform(.search)` with a keyword should update search results in state.
+    func test_perform_search_expiredTOTP_error() { // swiftlint:disable:this function_body_length
+        let loginView = LoginView.fixture(totp: .base32Key)
+        vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
+        let task = Task {
+            await subject.perform(.search("example"))
+        }
+        let expired = VaultListItem(
+            id: "1",
+            itemType: .totp(
+                name: "totp",
+                totpModel: .init(
+                    id: "1",
+                    loginView: loginView,
+                    totpCode: .init(
+                        code: "098765",
+                        codeGenerationDate: timeProvider.presentTime
+                            .addingTimeInterval(-1.5),
+                        period: 30
+                    )
+                )
+            )
+        )
+        let stable = VaultListItem(
+            id: "2",
+            itemType: .totp(
+                name: "totp",
+                totpModel: .init(
+                    id: "1",
+                    loginView: loginView,
+                    totpCode: .init(
+                        code: "111222",
+                        codeGenerationDate: timeProvider.presentTime,
+                        period: 30
+                    )
+                )
+            )
+        )
+        vaultRepository.searchVaultListSubject.send([
+            expired,
+            stable,
+        ])
+        waitFor(subject.state.searchResults.count == 2)
+        task.cancel()
+
+        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
+        XCTAssertEqual(
+            vaultRepository.refreshedTOTPCodes,
+            [expired]
+        )
+        XCTAssertEqual(
+            subject.state.searchResults,
+            [
+                expired,
+                stable,
+            ]
+        )
+    }
+
+    /// `perform(.search)` with a empty keyword should get empty search result.
+    func test_perform_search_emptyString() async {
+        await subject.perform(.search("   "))
+        XCTAssertEqual(subject.state.searchResults.count, 0)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            []
+        )
+    }
+
+    /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
+    func test_perform_streamOrganizations() {
+        let task = Task {
+            await subject.perform(.streamOrganizations)
+        }
+
+        let organizations = [
+            Organization.fixture(id: "1", name: "Organization1"),
+            Organization.fixture(id: "2", name: "Organization2"),
+        ]
+
+        vaultRepository.organizationsSubject.value = organizations
+
+        waitFor { !subject.state.organizations.isEmpty }
+        task.cancel()
+
+        XCTAssertEqual(subject.state.organizations, organizations)
+    }
+
+    /// `perform(_:)` with `.streamOrganizations` records any errors.
+    func test_perform_streamOrganizations_error() {
+        let task = Task {
+            await subject.perform(.streamOrganizations)
+        }
+
+        vaultRepository.organizationsSubject.send(completion: .failure(BitwardenTestError.example))
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
     /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
     /// web icons parameter from the state service.
     func test_perform_streamShowWebIcons() {
@@ -143,11 +357,219 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
     }
 
+    /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
+    func test_perform_streamVaultList() throws {
+        let loginView = LoginView.fixture(totp: .base32Key)
+        let vaultListItem = VaultListItem(
+            id: "2",
+            itemType: .totp(
+                name: "totp",
+                totpModel: .init(
+                    id: "1",
+                    loginView: loginView,
+                    totpCode: .init(
+                        code: "111222",
+                        codeGenerationDate: timeProvider.presentTime,
+                        period: 30
+                    )
+                )
+            )
+        )
+        subject.state.group = .totp
+        vaultRepository.vaultListGroupSubject.send([
+            vaultListItem,
+        ])
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(subject.state.loadingState != .loading)
+        task.cancel()
+
+        let items = try XCTUnwrap(subject.state.loadingState.data)
+        XCTAssertEqual(items, [vaultListItem])
+    }
+
+    /// `perform(_:)` with `.streamVaultList` records any errors.
+    func test_perform_streamVaultList_error() throws {
+        vaultRepository.vaultListGroupSubject.send(completion: .failure(BitwardenTestError.example))
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with the correct group.
     func test_receive_addItemPressed() {
         subject.state.group = .card
         subject.receive(.addItemPressed)
         XCTAssertEqual(coordinator.routes.last, .addItem(group: .card))
+    }
+
+    /// TOTP Code expiration updates the state's TOTP codes.
+    func test_receive_appeared_totpExpired_single() throws {
+        let result = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                totpCode: .init(
+                    code: "",
+                    codeGenerationDate: .init(year: 2023, month: 12, day: 31),
+                    period: 30
+                )
+            )
+        )
+        let newResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                totpCode: .init(
+                    code: "345678",
+                    codeGenerationDate: Date(),
+                    period: 30
+                )
+            )
+        )
+        vaultRepository.refreshTOTPCodesResult = .success([
+            newResult,
+        ])
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        vaultRepository.vaultListGroupSubject.send([result])
+        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
+        waitFor(subject.state.loadingState.data == [newResult])
+        task.cancel()
+        XCTAssertEqual([result], vaultRepository.refreshedTOTPCodes)
+        let first = try XCTUnwrap(subject.state.loadingState.data?.first)
+        XCTAssertEqual(first, newResult)
+    }
+
+    /// TOTP Code expiration updates the state's TOTP codes.
+    func test_receive_appeared_totpExpired_multi() throws { // swiftlint:disable:this function_body_length
+        subject = VaultGroupProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                pasteboardService: pasteboardService,
+                timeProvider: timeProvider,
+                vaultRepository: vaultRepository
+            ),
+            state: VaultGroupState(
+                searchVaultFilterType: .allVaults,
+                vaultFilterType: .allVaults
+            )
+        )
+        let olderThanIntervalResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "olderThanIntervalResult",
+                totpCode: .init(
+                    code: "olderThanIntervalResult",
+                    codeGenerationDate: fixedDate.addingTimeInterval(-31.0),
+                    period: 30
+                )
+            )
+        )
+        let shortExpirationResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "shortExpirationResult",
+                totpCode: .init(
+                    code: "shortExpirationResult",
+                    codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 24),
+                    period: 30
+                )
+            )
+        )
+        let veryOldResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "veryOldResult",
+                totpCode: .init(
+                    code: "veryOldResult",
+                    codeGenerationDate: fixedDate.addingTimeInterval(-40.0),
+                    period: 30
+                )
+            )
+        )
+        let expectedUpdate1 = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "olderThanIntervalResult",
+                totpCode: .init(
+                    code: "olderThanIntervalResult",
+                    codeGenerationDate: fixedDate,
+                    period: 30
+                )
+            )
+        )
+        let expectedUpdate2 = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "shortExpirationResult",
+                totpCode: .init(
+                    code: "shortExpirationResult",
+                    codeGenerationDate: fixedDate,
+                    period: 30
+                )
+            )
+        )
+        let expectedUpdate3 = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "veryOldResult",
+                totpCode: .init(
+                    code: "veryOldResult",
+                    codeGenerationDate: fixedDate,
+                    period: 30
+                )
+            )
+        )
+        let newResults: [VaultListItem] = [
+            expectedUpdate1,
+            expectedUpdate2,
+            expectedUpdate3,
+            .fixtureTOTP(
+                totp: .fixture(
+                    id: "New Result",
+                    totpCode: .init(
+                        code: "New Result",
+                        codeGenerationDate: fixedDate,
+                        period: 30
+                    )
+                )
+            ),
+        ]
+        vaultRepository.refreshTOTPCodesResult = .success(newResults)
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        let stableResult = VaultListItem.fixtureTOTP(
+            totp: .fixture(
+                id: "stableResult",
+                totpCode: .init(
+                    code: "stableResult",
+                    codeGenerationDate: fixedDate.addingTimeInterval(2.0),
+                    period: 30
+                )
+            )
+        )
+        vaultRepository.vaultListGroupSubject.send([
+            olderThanIntervalResult,
+            shortExpirationResult,
+            veryOldResult,
+            stableResult,
+        ])
+        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(fixedDate, vaultRepository.refreshedTOTPTime)
+        XCTAssertEqual(
+            [
+                olderThanIntervalResult,
+                shortExpirationResult,
+                veryOldResult,
+            ],
+            vaultRepository.refreshedTOTPCodes
+                .sorted { $0.id.localizedStandardCompare($1.id) == .orderedAscending }
+        )
     }
 
     /// `receive(_:)` with `.clearURL` clears the url in the state.
@@ -173,7 +595,12 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
     func test_receive_itemPressed_group() {
         subject.receive(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
-        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .group(
+                .init(group: .card, filter: .allVaults)
+            )
+        )
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
@@ -519,161 +946,36 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(subject.state.toast)
     }
 
-    /// TOTP Code expiration updates the state's TOTP codes.
-    func test_receive_appeared_totpExpired_single() throws {
-        let result = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                totpCode: .init(
-                    code: "",
-                    codeGenerationDate: .init(year: 2023, month: 12, day: 31),
-                    period: 30
-                )
-            )
-        )
-        let newResult = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                totpCode: .init(
-                    code: "345678",
-                    codeGenerationDate: Date(),
-                    period: 30
-                )
-            )
-        )
-        vaultRepository.refreshTOTPCodesResult = .success([
-            newResult,
-        ])
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        vaultRepository.vaultListGroupSubject.send([result])
-        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
-        waitFor(subject.state.loadingState.data == [newResult])
-        task.cancel()
-        XCTAssertEqual([result], vaultRepository.refreshedTOTPCodes)
-        let first = try XCTUnwrap(subject.state.loadingState.data?.first)
-        XCTAssertEqual(first, newResult)
+    /// `receive(_:)` with `.searchStateChanged(isSearching: false)` hides the profile switcher
+    func test_receive_searchTextChanged_false_clearsSearch() {
+        subject.state.isSearching = true
+        subject.state.searchText = "text"
+        subject.state.searchResults = [
+            .fixture(),
+        ]
+        subject.receive(.searchStateChanged(isSearching: false))
+
+        XCTAssertTrue(subject.state.searchText.isEmpty)
+        XCTAssertFalse(subject.state.isSearching)
+        XCTAssertTrue(subject.state.searchResults.isEmpty)
     }
 
-    /// TOTP Code expiration updates the state's TOTP codes.
-    func test_receive_appeared_totpExpired_multi() throws { // swiftlint:disable:this function_body_length
-        subject = VaultGroupProcessor(
-            coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(
-                errorReporter: errorReporter,
-                pasteboardService: pasteboardService,
-                timeProvider: timeProvider,
-                vaultRepository: vaultRepository
-            ),
-            state: VaultGroupState(vaultFilterType: .allVaults)
-        )
-        let olderThanIntervalResult = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                id: "olderThanIntervalResult",
-                totpCode: .init(
-                    code: "olderThanIntervalResult",
-                    codeGenerationDate: fixedDate.addingTimeInterval(-31.0),
-                    period: 30
-                )
-            )
-        )
-        let shortExpirationResult = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                id: "shortExpirationResult",
-                totpCode: .init(
-                    code: "shortExpirationResult",
-                    codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 24),
-                    period: 30
-                )
-            )
-        )
-        let veryOldResult = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                id: "veryOldResult",
-                totpCode: .init(
-                    code: "veryOldResult",
-                    codeGenerationDate: fixedDate.addingTimeInterval(-40.0),
-                    period: 30
-                )
-            )
-        )
-        let expectedUpdate1 = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                id: "olderThanIntervalResult",
-                totpCode: .init(
-                    code: "olderThanIntervalResult",
-                    codeGenerationDate: fixedDate,
-                    period: 30
-                )
-            )
-        )
-        let expectedUpdate2 = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                id: "shortExpirationResult",
-                totpCode: .init(
-                    code: "shortExpirationResult",
-                    codeGenerationDate: fixedDate,
-                    period: 30
-                )
-            )
-        )
-        let expectedUpdate3 = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                id: "veryOldResult",
-                totpCode: .init(
-                    code: "veryOldResult",
-                    codeGenerationDate: fixedDate,
-                    period: 30
-                )
-            )
-        )
-        let newResults: [VaultListItem] = [
-            expectedUpdate1,
-            expectedUpdate2,
-            expectedUpdate3,
-            .fixtureTOTP(
-                totp: .fixture(
-                    id: "New Result",
-                    totpCode: .init(
-                        code: "New Result",
-                        codeGenerationDate: fixedDate,
-                        period: 30
-                    )
-                )
-            ),
-        ]
-        vaultRepository.refreshTOTPCodesResult = .success(newResults)
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        let stableResult = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                id: "stableResult",
-                totpCode: .init(
-                    code: "stableResult",
-                    codeGenerationDate: fixedDate.addingTimeInterval(2.0),
-                    period: 30
-                )
-            )
-        )
-        vaultRepository.vaultListGroupSubject.send([
-            olderThanIntervalResult,
-            shortExpirationResult,
-            veryOldResult,
-            stableResult,
-        ])
-        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
-        task.cancel()
+    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` hides the profile switcher
+    func test_receive_searchStateChanged_true_setsSearch() {
+        subject.state.isSearching = false
+        subject.receive(.searchStateChanged(isSearching: true))
 
-        XCTAssertEqual(fixedDate, vaultRepository.refreshedTOTPTime)
-        XCTAssertEqual(
-            [
-                olderThanIntervalResult,
-                shortExpirationResult,
-                veryOldResult,
-            ],
-            vaultRepository.refreshedTOTPCodes
-                .sorted { $0.id.localizedStandardCompare($1.id) == .orderedAscending }
-        )
+        XCTAssertTrue(subject.state.isSearching)
+    }
+
+    /// `receive(_:)` with `.searchVaultFilterChanged` updates the state correctly.
+    func test_receive_searchVaultFilterChanged() {
+        let organization = Organization.fixture()
+
+        subject.state.searchVaultFilterType = .myVault
+        subject.receive(.searchVaultFilterChanged(.organization(organization)))
+
+        XCTAssertEqual(subject.state.searchVaultFilterType, .organization(organization))
     }
 
     /// `receive(_:)` with `.totpCodeExpired` handles errors.
@@ -685,7 +987,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 pasteboardService: pasteboardService,
                 vaultRepository: vaultRepository
             ),
-            state: VaultGroupState(vaultFilterType: .allVaults)
+            state: VaultGroupState(
+                searchVaultFilterType: .allVaults,
+                vaultFilterType: .allVaults
+            )
         )
         struct TestError: Error, Equatable {}
         let result = VaultListItem.fixtureTOTP(
@@ -707,5 +1012,22 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
         let first = try XCTUnwrap(errorReporter.errors.first as? TestError)
         XCTAssertEqual(first, TestError())
+    }
+
+    /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.
+    func test_receive_vaultFilterChanged() {
+        let organization = Organization.fixture()
+
+        subject.state.vaultFilterType = .myVault
+        subject.receive(.vaultFilterChanged(.organization(organization)))
+
+        XCTAssertEqual(subject.state.vaultFilterType, .organization(organization))
+        XCTAssertEqual(filterDelegate.newFilter, .organization(organization))
+    }
+
+    /// `didSetVaultFilter(_:)` udpates the filters.
+    func test_didSetVaultFilter() {
+        subject.didSetVaultFilter(.myVault)
+        XCTAssertEqual(subject.state.vaultFilterType, .myVault)
     }
 }

@@ -31,6 +31,20 @@ protocol AuthService {
     /// The callback url scheme for this application.
     var callbackUrlScheme: String { get }
 
+    /// Answer (approve or deny) a pending login request.
+    ///
+    /// - Parameters:
+    ///   - request: The request to answer.
+    ///   - approve: Whether to approve the request.
+    ///
+    func answerLoginRequest(_ request: LoginRequest, approve: Bool) async throws
+
+    /// Deny all the pending login requests.
+    ///
+    /// - Parameter requests: The list of login requests to deny.
+    ///
+    func denyAllLoginRequests(_ requests: [LoginRequest]) async throws
+
     /// Generates a url for use when proceeding through the single sign on flow flow.
     ///
     /// - Parameter organizationIdentifier: The organization identifier.
@@ -40,9 +54,9 @@ protocol AuthService {
     ///
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String)
 
-    /// Get all the pending login requests.
+    /// Get a specific login request, or all the pending login requests if the id is `nil`.
     ///
-    func getPendingLoginRequests() async throws -> [LoginRequest]
+    func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest]
 
     /// Creates a hash value for the user's master password.
     ///
@@ -54,22 +68,13 @@ protocol AuthService {
     ///
     func hashPassword(password: String, purpose: HashPurpose) async throws -> String
 
-    /// Initiates the login with device proccess.
+    /// Initiates the login with device process.
     ///
-    /// - Parameters:
-    ///   - accessCode: The access code used in the request.
-    ///   - deviceIdentifier: The user's device ID.
-    ///   - email: The user's email.
-    ///   - fingerprint: The fingerprint used in the request.
-    ///   - publicKey: The key used in the request.
+    /// - Parameters email: The user's email.
     ///
-    func initiateLoginWithDevice(
-        accessCode: String,
-        deviceIdentifier: String,
-        email: String,
-        fingerPrint: String,
-        publicKey: String
-    ) async throws
+    /// - Returns: The fingerprint associated with the new login request.
+    ///
+    func initiateLoginWithDevice(email: String) async throws -> String
 
     /// Login with the master password.
     ///
@@ -111,6 +116,14 @@ protocol AuthService {
 
     /// Resend the email with the user's verification code.
     func resendVerificationCodeEmail() async throws
+}
+
+extension AuthService {
+    /// Get all the pending login requests.
+    ///
+    func getPendingLoginRequests() async throws -> [LoginRequest] {
+        try await getPendingLoginRequest(withId: nil)
+    }
 }
 
 // MARK: - DefaultAuthService
@@ -202,6 +215,29 @@ class DefaultAuthService: AuthService {
 
     // MARK: Methods
 
+    func answerLoginRequest(_ loginRequest: LoginRequest, approve: Bool) async throws {
+        let appID = await appIdService.getOrCreateAppId()
+
+        // Encrypt the login request's public key.
+        let publicKey = try loginRequest.publicKey.urlDecoded()
+        let encodedKey = try await clientAuth.approveAuthRequest(publicKey: publicKey)
+
+        // Send the API request.
+        let requestModel = AnswerLoginRequestRequestModel(
+            deviceIdentifier: appID,
+            key: encodedKey,
+            masterPasswordHash: nil,
+            requestApproved: approve
+        )
+        _ = try await authAPIService.answerLoginRequest(loginRequest.id, requestModel: requestModel)
+    }
+
+    func denyAllLoginRequests(_ requests: [LoginRequest]) async throws {
+        for request in requests {
+            try await answerLoginRequest(request, approve: false)
+        }
+    }
+
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String) {
         // First pre-validate the organization identifier and get the resulting token.
         let response = try await authAPIService.preValidateSingleSignOn(
@@ -249,9 +285,13 @@ class DefaultAuthService: AuthService {
         return (url, state)
     }
 
-    func getPendingLoginRequests() async throws -> [LoginRequest] {
+    func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest] {
         // Get the pending login requests.
-        var loginRequests = try await authAPIService.getPendingLoginRequests()
+        var loginRequests = if let id {
+            try await [authAPIService.getPendingLoginRequest(withId: id)]
+        } else {
+            try await authAPIService.getPendingLoginRequests()
+        }
 
         // Use the user's email to decode the fingerprint phrase for each request.
         let userEmail = try await stateService.getActiveAccount().profile.email
@@ -261,6 +301,34 @@ class DefaultAuthService: AuthService {
             return request
         }
         return loginRequests
+    }
+
+    func hashPassword(password: String, purpose: HashPurpose) async throws -> String {
+        let account = try await stateService.getActiveAccount()
+        return try await clientAuth.hashPassword(
+            email: account.profile.email,
+            password: password,
+            kdfParams: account.kdf.sdkKdf,
+            purpose: purpose
+        )
+    }
+
+    func initiateLoginWithDevice(email: String) async throws -> String {
+        // Get the app's id.
+        let appId = await appIdService.getOrCreateAppId()
+
+        // Initiate the login request and cache the result.
+        let authRequest = try await clientAuth.newAuthRequest(email: email)
+        _ = try await authAPIService.initiateLoginWithDevice(
+            accessCode: authRequest.accessCode,
+            deviceIdentifier: appId,
+            email: email,
+            fingerPrint: authRequest.fingerprint,
+            publicKey: authRequest.publicKey
+        )
+
+        // Return the fingerprint.
+        return authRequest.fingerprint
     }
 
     func loginWithMasterPassword(_ masterPassword: String, username: String, captchaToken: String?) async throws {
@@ -281,22 +349,6 @@ class DefaultAuthService: AuthService {
             ),
             email: username,
             captchaToken: captchaToken
-        )
-
-        // Save the master password.
-        try await stateService.setMasterPasswordHash(hashPassword(
-            password: masterPassword,
-            purpose: .localAuthorization
-        ))
-    }
-
-    func hashPassword(password: String, purpose: HashPurpose) async throws -> String {
-        let account = try await stateService.getActiveAccount()
-        return try await clientAuth.hashPassword(
-            email: account.profile.email,
-            password: password,
-            kdfParams: account.kdf.sdkKdf,
-            purpose: purpose
         )
     }
 
@@ -374,7 +426,7 @@ class DefaultAuthService: AuthService {
     ///   - captchaToken: The optional captcha token. Defaults to `nil`.
     ///   - request: The cached request, if resending a login request with two-factor codes. Defaults to `nil`.
     ///
-    private func getIdentityTokenResponse(
+    private func getIdentityTokenResponse( // swiftlint:disable:this function_body_length
         authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod? = nil,
         email: String,
         captchaToken: String? = nil,
@@ -423,6 +475,14 @@ class DefaultAuthService: AuthService {
             // Save the encryption keys.
             let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
             try await stateService.setAccountEncryptionKeys(encryptionKeys)
+
+            // Save the master password, if applicable.
+            if case let .password(_, password) = request.authenticationMethod {
+                try await stateService.setMasterPasswordHash(hashPassword(
+                    password: password,
+                    purpose: .localAuthorization
+                ))
+            }
         } catch let error as IdentityTokenRequestError {
             if case let .twoFactorRequired(_, ssoToken, captchaBypassToken) = error {
                 // If the token request require two-factor authentication, cache the request so that
@@ -432,7 +492,7 @@ class DefaultAuthService: AuthService {
 
                 // Form the resend email request in case the user needs to resend the verification code email.
                 var passwordHash: String?
-                if case let .password(_, password) = authenticationMethod { passwordHash = password }
+                if case let .password(_, password) = request?.authenticationMethod { passwordHash = password }
                 resendEmailModel = .init(
                     deviceIdentifier: appID,
                     email: email,
@@ -446,21 +506,5 @@ class DefaultAuthService: AuthService {
             // Re-throw the error.
             throw error
         }
-    }
-
-    func initiateLoginWithDevice(
-        accessCode: String,
-        deviceIdentifier: String,
-        email: String,
-        fingerPrint: String,
-        publicKey: String
-    ) async throws {
-        _ = try await authAPIService.initiateLoginWithDevice(
-            accessCode: accessCode,
-            deviceIdentifier: deviceIdentifier,
-            email: email,
-            fingerPrint: fingerPrint,
-            publicKey: publicKey
-        )
     }
 } // swiftlint:disable:this file_length
