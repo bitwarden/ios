@@ -137,7 +137,7 @@ struct AccountSecurityView: View {
                 SettingsMenuField(
                     title: Localizations.sessionTimeout,
                     options: SessionTimeoutValue.allCases,
-                    pickerAccessibilityID: "VaultTimeoutChooser",
+                    accessibilityIdentifier: "VaultTimeoutChooser",
                     selectionAccessibilityID: "SessionTimeoutStatusLabel",
                     selection: store.binding(
                         get: \.sessionTimeoutValue,
@@ -161,7 +161,7 @@ struct AccountSecurityView: View {
                     title: Localizations.sessionTimeoutAction,
                     options: SessionTimeoutAction.allCases,
                     hasDivider: false,
-                    pickerAccessibilityID: "VaultTimeoutActionChooser",
+                    accessibilityIdentifier: "VaultTimeoutActionChooser",
                     selectionAccessibilityID: "SessionTimeoutActionStatusLabel",
                     selection: store.binding(
                         get: \.sessionTimeoutAction,
