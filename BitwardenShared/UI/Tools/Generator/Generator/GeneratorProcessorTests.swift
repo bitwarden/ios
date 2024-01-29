@@ -40,12 +40,12 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject = nil
     }
 
-    func setUpSubject(generatorRepository: MockGeneratorRepository? = nil) {
+    func setUpSubject() {
         subject = GeneratorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                generatorRepository: generatorRepository ?? self.generatorRepository,
+                generatorRepository: generatorRepository,
                 pasteboardService: pasteboardService,
                 policyService: policyService
             ),
@@ -97,7 +97,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `init` loads the password generation options and updates the state
     /// based on the previously selected options.
     func test_init_loadsPasswordOptions_withValues() {
-        let generatorRepository = MockGeneratorRepository()
         generatorRepository.getPasswordGenerationOptionsResult = .success(PasswordGenerationOptions(
             allowAmbiguousChar: false,
             capitalize: true,
@@ -116,7 +115,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             wordSeparator: "*"
         ))
 
-        setUpSubject(generatorRepository: generatorRepository)
+        setUpSubject()
         waitFor { subject.didLoadGeneratorOptions }
 
         XCTAssertEqual(
@@ -164,7 +163,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             options.uppercase = true
         }
 
-        setUpSubject(generatorRepository: generatorRepository)
+        setUpSubject()
         waitFor { subject.didLoadGeneratorOptions }
 
         XCTAssertEqual(
@@ -305,7 +304,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.appeared` loads the username generation options and updates the state
     /// based on the previously selected options.
     func test_init_loadsUsernameOptions_withValues() {
-        let generatorRepository = MockGeneratorRepository()
         generatorRepository.getUsernameGenerationOptionsResult = .success(UsernameGenerationOptions(
             anonAddyApiAccessToken: "ADDYIO_API_TOKEN",
             anonAddyDomainName: "bitwarden.com",
@@ -323,7 +321,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             type: .randomWord
         ))
 
-        setUpSubject(generatorRepository: generatorRepository)
+        setUpSubject()
         waitFor { subject.state.usernameState.usernameGeneratorType == .randomWord }
 
         XCTAssertEqual(
