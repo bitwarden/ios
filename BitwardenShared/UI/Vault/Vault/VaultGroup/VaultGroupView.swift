@@ -12,13 +12,6 @@ struct VaultGroupView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
 
-    /// The string to use in the empty view.
-    var noItemsString: String {
-        store.state.isEmptyCollection
-            ? Localizations.noItemsCollection
-            : Localizations.noItems
-    }
-
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
@@ -77,12 +70,12 @@ struct VaultGroupView: View {
                 VStack(spacing: 24) {
                     Spacer()
 
-                    Text(noItemsString)
+                    Text(store.state.noItemsString)
                         .multilineTextAlignment(.center)
                         .styleGuide(.callout)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
-                    if !store.state.isEmptyCollection {
+                    if store.state.showAddItemButton {
                         Button(Localizations.addAnItem) {
                             store.send(.addItemPressed)
                         }

@@ -6,33 +6,53 @@ import Foundation
 struct VaultGroupState: Equatable {
     // MARK: Properties
 
+    /// Whether there is data for the vault group.
+    var emptyData: Bool = false
+
     /// The `VaultListGroup` being displayed.
     var group: VaultListGroup = .login
 
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
-    /// Whether a collection group is empty.
-    var isEmptyCollection: Bool {
-        // If the group is a collection
-        guard case .collection = group else {
-            return false
+    /// The current loading state.
+    var loadingState: LoadingState<[VaultListItem]> = .loading {
+        didSet {
+            emptyData = loadingState.data.isEmptyOrNil ? true : false
         }
-
-        // And the collection is empty
-        guard loadingState.data != nil else {
-            return false
-        }
-
-        // Return true
-        return true
     }
 
-    /// The current loading state.
-    var loadingState: LoadingState<[VaultListItem]> = .loading
+    /// The string to use in the empty view.
+    var noItemsString: String {
+        if showAddItemButton {
+            return Localizations.noItems
+        } else {
+            if case .collection = group {
+                return Localizations.noItemsCollection
+            }
+            if case .trash = group {
+                return Localizations.noItemsTrash
+            }
+        }
+        return ""
+    }
 
     /// The text in the search bar.
     var searchText = ""
+
+    /// Whether to show the add item button.
+    var showAddItemButton: Bool {
+        // If there is no data.
+        guard emptyData else { return false }
+
+        // If the group is a collection or trash, return false.
+        if case .collection = group {
+            return false
+        } else if case .trash = group {
+            return false
+        }
+        return true
+    }
 
     /// Whether to show the special web icons.
     var showWebIcons = true
