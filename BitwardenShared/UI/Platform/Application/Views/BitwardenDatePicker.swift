@@ -15,6 +15,9 @@ struct BitwardenDatePicker: View {
 
     // MARK: Properties
 
+    /// The accessibility identifier for the date picker.
+    var accessibilityIdentifier: String?
+
     /// The date value being displayed and selected.
     @Binding var selection: Date?
 
@@ -54,6 +57,7 @@ struct BitwardenDatePicker: View {
                     // simultaniously allowing to still recieve touch events. This is the lowest
                     // opacity value that still allows user interaction.
                     .opacity(0.011)
+                    .accessibilityIdentifier(accessibilityIdentifier ?? "")
 
                 HStack {
                     Spacer()
@@ -102,14 +106,17 @@ struct BitwardenDatePicker: View {
     /// - Parameters:
     ///   - selection: The binding for the optional date value to display within this component.
     ///   - displayComponents: The date components to display in this picker.
-    ///
+    ///   - accessibilityIdentifier: The accessibility identifier for the picker.
+    ///   
     init(
         selection: Binding<Date?>,
-        displayComponents: DatePicker.Components = .date
+        displayComponents: DatePicker.Components = .date,
+        accessibilityIdentifier: String? = nil
     ) {
         _selection = selection
         let nonNilStartValue = selection.wrappedValue ?? Date()
         _nonNilSelection = .init(initialValue: nonNilStartValue)
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.displayComponents = displayComponents
         datePickerSize = .zero
     }
@@ -119,10 +126,12 @@ struct BitwardenDatePicker: View {
     /// - Parameters:
     ///   - selection: The binding for the date value to display within this component.
     ///   - displayComponents: The date components to display in this picker.
+    ///   - accessibilityIdentifier: The accessibility identifier for the picker.
     ///
     init(
         selection: Binding<Date>,
-        displayComponents: DatePicker.Components = .date
+        displayComponents: DatePicker.Components = .date,
+        accessibilityIdentifier: String? = nil
     ) {
         _selection = Binding(
             get: {
@@ -133,6 +142,7 @@ struct BitwardenDatePicker: View {
         )
         let nonNilStartValue = selection.wrappedValue
         _nonNilSelection = .init(initialValue: nonNilStartValue)
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.displayComponents = displayComponents
         datePickerSize = .zero
     }

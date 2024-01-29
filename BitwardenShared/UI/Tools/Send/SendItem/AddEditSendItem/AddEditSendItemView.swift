@@ -153,7 +153,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             get: \.customDeletionDate,
                             send: AddEditSendItemAction.customDeletionDateChanged
                         ),
-                        displayComponents: .date
+                        displayComponents: .date,
+                        accessibilityIdentifier: "SendCustomDeletionDatePicker"
                     )
 
                     BitwardenDatePicker(
@@ -193,7 +194,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             get: \.customExpirationDate,
                             send: AddEditSendItemAction.customExpirationDateChanged
                         ),
-                        displayComponents: .date
+                        displayComponents: .date,
+                        accessibilityIdentifier: "SendCustomExpirationDatePicker"
                     )
 
                     BitwardenDatePicker(
@@ -218,6 +220,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         store.send(.clearExpirationDatePressed)
                     }
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .accessibilityIdentifier("SendClearExpirationDateButton")
                 }
             }
         }
