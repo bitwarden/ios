@@ -91,6 +91,7 @@ struct AboutView: View {
             Text(Localizations.submitCrashLogs)
         }
         .toggleStyle(.bitwarden)
+        .styleGuide(.body)
         .accessibilityIdentifier("SubmitCrashLogsSwitch")
     }
 }
