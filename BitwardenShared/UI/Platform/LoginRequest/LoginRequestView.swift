@@ -55,6 +55,7 @@ struct LoginRequestView: View {
             await store.perform(.answerRequest(approve: true))
         }
         .buttonStyle(.primary())
+        .accessibilityIdentifier("ConfirmLoginButton")
     }
 
     /// The deny login button.
@@ -63,6 +64,7 @@ struct LoginRequestView: View {
             await store.perform(.answerRequest(approve: false))
         }
         .buttonStyle(.tertiary())
+        .accessibilityIdentifier("DenyLoginButton")
     }
 
     /// The device type title and details.
@@ -76,6 +78,7 @@ struct LoginRequestView: View {
                 .styleGuide(.body)
                 .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.leading)
+                .accessibilityIdentifier("DeviceTypeValueLabel")
         }
     }
 
@@ -90,6 +93,7 @@ struct LoginRequestView: View {
         .styleGuide(.body)
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.leading)
+        .accessibilityIdentifier("LogInAttemptByLabel")
     }
 
     /// The fingerprint phrase title and display.
@@ -98,11 +102,13 @@ struct LoginRequestView: View {
             Text(Localizations.fingerprintPhrase)
                 .styleGuide(.body, weight: .semibold)
                 .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .accessibilityIdentifier("FingerprintValueLabel")
 
             Text(store.state.request.fingerprintPhrase ?? "")
                 .styleGuide(.bodyMonospaced)
                 .foregroundStyle(Asset.Colors.fingerprint.swiftUIColor)
                 .multilineTextAlignment(.leading)
+                .accessibilityIdentifier("FingerprintPhraseValue")
         }
     }
 
