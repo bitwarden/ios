@@ -64,6 +64,7 @@ struct SendListItemRowView: View {
                     optionsMenu(for: sendView)
                 }
             }
+            .accessibilityIdentifier("SendCell")
             .padding(.horizontal, 16)
 
             if store.state.hasDivider {
