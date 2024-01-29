@@ -7,6 +7,21 @@ import SwiftUI
 struct SendListItemRowState: Equatable {
     // MARK: Properties
 
+    /// The accessibility identifier for the `SendListItem`.
+    var accessibilityIdentifier: String {
+        switch item.itemType {
+        case .send:
+            return "SendCell"
+        case let .group(type, _):
+            switch type {
+            case .text:
+                return "SendTextFilter"
+            case .file:
+                return "SendFileFilter"
+            }
+        }
+    }
+
     /// The item displayed in this row.
     var item: SendListItem
 
@@ -59,6 +74,7 @@ struct SendListItemRowView: View {
                 } label: {
                     buttonLabel(for: store.state.item)
                 }
+                .accessibilityIdentifier(store.state.accessibilityIdentifier)
 
                 if case let .send(sendView) = store.state.item.itemType {
                     optionsMenu(for: sendView)
@@ -130,6 +146,7 @@ struct SendListItemRowView: View {
             AsyncButton(Localizations.copyLink) {
                 await store.perform(.copyLinkPressed(sendView))
             }
+            .accessibilityIdentifier("Copy")
             Button(Localizations.edit) {
                 store.send(.editPressed(sendView))
             }
@@ -147,6 +164,7 @@ struct SendListItemRowView: View {
                 .frame(width: 22, height: 22)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
         }
+        .accessibilityIdentifier("Options")
     }
 
     /// The label for a send.
