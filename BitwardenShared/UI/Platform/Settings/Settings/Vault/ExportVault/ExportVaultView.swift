@@ -69,11 +69,11 @@ struct ExportVaultView: View {
             ),
             footer: Localizations.exportVaultMasterPasswordDescription,
             accessibilityIdentifier: "MasterPasswordEntry",
+            passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
                 send: ExportVaultAction.togglePasswordVisibility
-            ),
-            passwordVisibilityAccessibilityId: "PasswordVisibilityToggle"
+            )
         )
         .textFieldConfiguration(.password)
     }

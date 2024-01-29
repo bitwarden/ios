@@ -455,7 +455,7 @@ class DefaultAuthService: AuthService {
         fingerPrint: String,
         publicKey: String
     ) async throws {
-        try await authAPIService.initiateLoginWithDevice(
+        _ = try await authAPIService.initiateLoginWithDevice(
             accessCode: accessCode,
             deviceIdentifier: deviceIdentifier,
             email: email,

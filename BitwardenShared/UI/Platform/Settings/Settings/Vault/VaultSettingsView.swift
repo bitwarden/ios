@@ -36,10 +36,12 @@ struct VaultSettingsView: View {
             SettingsListItem(Localizations.folders) {
                 store.send(.foldersTapped)
             }
+            .accessibilityIdentifier("FoldersLabel")
 
             SettingsListItem(Localizations.exportVault) {
                 store.send(.exportVaultTapped)
             }
+            .accessibilityIdentifier("ExportVaultLabel")
 
             SettingsListItem(Localizations.importItems, hasDivider: false) {
                 store.send(.importItemsTapped)
@@ -48,6 +50,7 @@ struct VaultSettingsView: View {
                     .resizable()
                     .frame(width: 22, height: 22)
             }
+            .accessibilityIdentifier("ImportItemsLinkItemView")
         }
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
