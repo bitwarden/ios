@@ -122,9 +122,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         if shouldGenerateNewValue || action.shouldPersistGeneratorOptions {
             generateValueTask?.cancel()
             generateValueTask = Task {
-                if state.generatorType == .password {
-                    await validatePasswordOptionsAndApplyPolicies()
-                }
                 if shouldGenerateNewValue {
                     await generateValue()
                 }
@@ -139,10 +136,12 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     /// Generate a new passphrase.
     ///
-    func generatePassphrase() async {
+    /// - Parameter settings: The passphrase generator settings used to generate a new password.
+    ///
+    func generatePassphrase(settings: PassphraseGeneratorRequest) async {
         do {
             let passphrase = try await services.generatorRepository.generatePassphrase(
-                settings: state.passwordState.passphraseGeneratorRequest
+                settings: settings
             )
             try Task.checkCancellation()
             try await setGeneratedValue(passphrase)
@@ -155,10 +154,12 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     /// Generate a new password.
     ///
-    func generatePassword() async {
+    /// - Parameter settings: The password generator settings used to generate a new password.
+    ///
+    func generatePassword(settings: PasswordGeneratorRequest) async {
         do {
             let password = try await services.generatorRepository.generatePassword(
-                settings: state.passwordState.passwordGeneratorRequest
+                settings: settings
             )
             try Task.checkCancellation()
             try await setGeneratedValue(password)
@@ -197,11 +198,12 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     func generateValue() async {
         switch state.generatorType {
         case .password:
+            let passwordState = await validatePasswordOptionsAndApplyPolicies()
             switch state.passwordState.passwordGeneratorType {
             case .passphrase:
-                await generatePassphrase()
+                await generatePassphrase(settings: passwordState.passphraseGeneratorRequest)
             case .password:
-                await generatePassword()
+                await generatePassword(settings: passwordState.passwordGeneratorRequest)
             }
         case .username:
             await generateUsername()
@@ -260,13 +262,26 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         }
     }
 
+
     /// Validates any password options to ensure the combination of options are valid and applies
     /// any policies to ensure a generated password conforms to the set policies.
     ///
-    func validatePasswordOptionsAndApplyPolicies() async {
+    /// - Returns: A copy of the validated state, which can be used to generate a new password or
+    ///     passphrase.
+    ///
+    func validatePasswordOptionsAndApplyPolicies() async -> GeneratorState.PasswordState {
         state.passwordState.validateOptions()
         var passwordOptions = state.passwordState.passwordGenerationOptions
-        _ = try? await services.policyService.applyPasswordGenerationPolicy(options: &passwordOptions)
+        state.isPolicyInEffect = await (try? services.policyService
+            .applyPasswordGenerationPolicy(options: &passwordOptions)) ?? false
         state.passwordState.update(with: passwordOptions)
+
+        var policyOptions = PasswordGenerationOptions()
+        _ = try? await services.policyService.applyPasswordGenerationPolicy(options: &policyOptions)
+        state.policyOptions = policyOptions
+
+        // Return the validated state to prevent any race conditions of the state being updated
+        // before the value is generated.
+        return state.passwordState
     }
 }

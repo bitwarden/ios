@@ -158,6 +158,7 @@ class GeneratorViewTests: BitwardenTestCase {
         }
         let field = ToggleField<GeneratorState>(
             accessibilityLabel: Localizations.lowercaseAtoZ,
+            isDisabled: false,
             isOn: true,
             keyPath: \.passwordState.containsLowercase,
             title: "a-z"

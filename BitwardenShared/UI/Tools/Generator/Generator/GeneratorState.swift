@@ -76,6 +76,9 @@ struct GeneratorState: Equatable {
     /// The options used to generate a password.
     var passwordState = PasswordState()
 
+    /// The policy options in effect.
+    var policyOptions: PasswordGenerationOptions?
+
     /// The mode the generator is currently in. This value determines if the UI should show specific
     /// elements.
     var presentationMode: PresentationMode = .tab
@@ -106,8 +109,16 @@ struct GeneratorState: Equatable {
                         keyPath: \.passwordState.wordSeparator,
                         title: Localizations.wordSeparator
                     ),
-                    toggleField(keyPath: \.passwordState.capitalize, title: Localizations.capitalize),
-                    toggleField(keyPath: \.passwordState.includeNumber, title: Localizations.includeNumber),
+                    toggleField(
+                        isDisabled: policyOptions?.capitalize != nil,
+                        keyPath: \.passwordState.capitalize,
+                        title: Localizations.capitalize
+                    ),
+                    toggleField(
+                        isDisabled: policyOptions?.includeNumber != nil,
+                        keyPath: \.passwordState.includeNumber,
+                        title: Localizations.includeNumber
+                    ),
                 ]
             case .password:
                 optionFields = [
@@ -120,21 +131,25 @@ struct GeneratorState: Equatable {
                     ),
                     toggleField(
                         accessibilityLabel: Localizations.uppercaseAtoZ,
+                        isDisabled: policyOptions?.uppercase != nil,
                         keyPath: \.passwordState.containsUppercase,
                         title: "A-Z"
                     ),
                     toggleField(
                         accessibilityLabel: Localizations.lowercaseAtoZ,
+                        isDisabled: policyOptions?.lowercase != nil,
                         keyPath: \.passwordState.containsLowercase,
                         title: "a-z"
                     ),
                     toggleField(
                         accessibilityLabel: Localizations.numbersZeroToNine,
+                        isDisabled: policyOptions?.number != nil,
                         keyPath: \.passwordState.containsNumbers,
                         title: "0-9"
                     ),
                     toggleField(
                         accessibilityLabel: Localizations.specialCharacters,
+                        isDisabled: policyOptions?.special != nil,
                         keyPath: \.passwordState.containsSpecial,
                         title: "!@#$%^&*"
                     ),

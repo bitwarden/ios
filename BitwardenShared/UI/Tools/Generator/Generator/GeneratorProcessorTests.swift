@@ -823,6 +823,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     private func toggleField(keyPath: WritableKeyPath<GeneratorState, Bool>) -> ToggleField<GeneratorState> {
         ToggleField<GeneratorState>(
             accessibilityLabel: Localizations.lowercaseAtoZ,
+            isDisabled: false,
             isOn: true,
             keyPath: keyPath,
             title: "a-z"

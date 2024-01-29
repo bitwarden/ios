@@ -253,18 +253,21 @@ extension GeneratorState {
     /// - Parameters:
     ///   - accessibilityLabel: The accessibility label for the toggle. The title will be used as
     ///     the accessibility label if this is `nil`.
+    ///   - isDisabled: Whether the toggle is disabled.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
     ///   - title: The title of the field.
     /// - Returns: A form field for a toggle field.
     ///
     func toggleField(
         accessibilityLabel: String? = nil,
+        isDisabled: Bool = false,
         keyPath: WritableKeyPath<GeneratorState, Bool>,
         title: String
     ) -> FormField<Self> {
         FormField(fieldType: .toggle(
             ToggleField(
                 accessibilityLabel: accessibilityLabel,
+                isDisabled: isDisabled,
                 isOn: self[keyPath: keyPath],
                 keyPath: keyPath,
                 title: title
