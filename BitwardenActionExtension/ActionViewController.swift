@@ -70,14 +70,14 @@ class ActionViewController: UIViewController {
 
 extension ActionViewController: AppExtensionDelegate {
     var authCompletionRoute: AppRoute {
-        if actionExtensionHelper.isAppExtensionSetup {
-            AppRoute.extensionSetup(.extensionActivation(type: .appExtension))
-        } else {
-            AppRoute.vault(.autofillList)
-        }
+        actionExtensionHelper.authCompletionRoute
     }
 
     var isInAppExtension: Bool { true }
+
+    var isInAppExtensionSaveLoginFlow: Bool {
+        actionExtensionHelper.isProviderSaveLogin
+    }
 
     var uri: String? { actionExtensionHelper.uri }
 

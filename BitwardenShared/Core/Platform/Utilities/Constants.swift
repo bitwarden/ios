@@ -68,12 +68,45 @@ extension Constants {
     /// Uniform type identifier constants used by the app.
     ///
     enum UTType {
+        /// A type identifier for the app extension change password action.
+        static let appExtensionChangePasswordAction = "org.appextension.change-password-action"
+
+        /// A type identifier for the app extension fill browser action.
+        static let appExtensionFillBrowserAction = "org.appextension.fill-browser-action"
+
+        /// A type identifier for the app extension fill webview action.
+        static let appExtensionFillWebViewAction = "org.appextension.fill-webview-action"
+
+        /// A type identifier for the app extension find login action.
+        static let appExtensionFindLoginAction = "org.appextension.find-login-action"
+
+        /// A type identifier for the app extension save login action.
+        static let appExtensionSaveLogin = "org.appextension.save-login-action"
+
         /// A type identifier for the app extension setup.
         static let appExtensionSetup = "com.8bit.bitwarden.extension-setup"
     }
-    
+
+    /// An app extension key for notes for a login.
+    static let appExtensionNotesKey = "notes"
+
+    /// An app extension key for the previous password when changing a password.
+    static let appExtensionOldPasswordKey = "old_password"
+
+    /// An app extension key for password generator options.
+    static let appExtensionPasswordGeneratorOptionsKey = "password_generator_options"
+
+    /// An app extension key for a password.
+    static let appExtensionPasswordKey = "password"
+
+    /// An app extension key for a login title.
+    static let appExtensionTitleKey = "login_title"
+
     /// An app extension key for the autofill URL.
     static let appExtensionUrlStringKey = "url_string"
+
+    /// An app extension key for a username.
+    static let appExtensionUsernameKey = "username"
 
     /// An app extension key for the page details JSON.
     static let appExtensionWebViewPageDetails = "pageDetails"

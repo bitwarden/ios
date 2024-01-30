@@ -114,7 +114,7 @@ extension CredentialProviderViewController: AppExtensionDelegate {
         }
     }
 
-    func completeAutofillRequest(username: String, password: String) {
+    func completeAutofillRequest(username: String, password: String, fields: [(String, String)]?) {
         let passwordCredential = ASPasswordCredential(user: username, password: password)
         extensionContext.completeRequest(withSelectedCredential: passwordCredential)
     }

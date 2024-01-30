@@ -6,12 +6,39 @@ import UniformTypeIdentifiers
 
 /// A helper class for processing the input items of the action extension.
 ///
-public class ActionExtensionHelper {
+public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
     // MARK: Properties
+
+    /// The app's route that the app should navigate to after auth has been completed.
+    public var authCompletionRoute: AppRoute {
+        if isAppExtensionSetup {
+            AppRoute.extensionSetup(.extensionActivation(type: .appExtension))
+        } else if isProviderSaveLogin {
+            AppRoute.vault(
+                .addItem(
+                    allowTypeSelection: false,
+                    group: .login,
+                    newCipherOptions: NewCipherOptions(
+                        name: context.loginTitle,
+                        password: context.password,
+                        uri: context.urlString,
+                        username: context.username
+                    )
+                )
+            )
+        } else {
+            AppRoute.vault(.autofillList)
+        }
+    }
 
     /// Whether the app extension setup provider was included in the input items.
     public var isAppExtensionSetup: Bool {
         context.providerType == Constants.UTType.appExtensionSetup
+    }
+
+    /// Wether the app extension save login provider was included in the input items.
+    public var isProviderSaveLogin: Bool {
+        context.providerType == Constants.UTType.appExtensionSaveLogin
     }
 
     /// The URL of the page or app to determine matching ciphers.
@@ -49,6 +76,12 @@ public class ActionExtensionHelper {
                 Logger.appExtension.debug("Input provider: \(provider, privacy: .public)")
 
                 if processWebUrlProvider(provider) ||
+                    processFindLoginProvider(provider) ||
+                    processFindLoginBrowserProvider(provider, type: Constants.UTType.appExtensionFillBrowserAction) ||
+                    processFindLoginBrowserProvider(provider, type: Constants.UTType.appExtensionFillWebViewAction) ||
+                    processFindLoginBrowserProvider(provider, type: UTType.url.identifier) ||
+                    processSaveLoginProvider(provider) ||
+                    processChangePasswordProvider(provider) ||
                     processExtensionSetupProvider(provider) {
                     processed = true
                     break
@@ -66,9 +99,14 @@ public class ActionExtensionHelper {
     /// - Parameters:
     ///   - username: The username of cipher that the user selected to autofill.
     ///   - password: The password of cipher that the user selected to autofill.
+    ///   - fields: A list of additional fields to fill.
     /// - Returns: A dictionary of the item data used to complete the extension request.
     ///
-    public func itemDataToCompleteRequest(username: String, password: String) -> [String: Any] {
+    public func itemDataToCompleteRequest(
+        username: String,
+        password: String,
+        fields: [(String, String)]
+    ) -> [String: Any] {
         var itemData = [String: Any]()
 
         if context.providerType == UTType.propertyList.identifier {
@@ -76,7 +114,7 @@ public class ActionExtensionHelper {
                 pageDetails: context.pageDetails,
                 fillUsername: username,
                 fillPassword: password,
-                fillFields: [] // TODO
+                fillFields: fields
             )
             do {
                 let scriptJsonData = try JSONEncoder().encode(fillScript)
@@ -87,12 +125,103 @@ public class ActionExtensionHelper {
             } catch {
                 Logger.application.error("Error encoding fill script. Error: \(error, privacy: .public)")
             }
+        } else if context.providerType == Constants.UTType.appExtensionFindLoginAction ||
+            context.providerType == Constants.UTType.appExtensionSaveLogin {
+            itemData[Constants.appExtensionUsernameKey] = username
+            itemData[Constants.appExtensionPasswordKey] = password
+        } else if context.providerType == Constants.UTType.appExtensionFillBrowserAction ||
+            context.providerType == Constants.UTType.appExtensionFillWebViewAction {
+            let fillScript = FillScript(
+                pageDetails: context.pageDetails,
+                fillUsername: username,
+                fillPassword: password,
+                fillFields: fields
+            )
+            do {
+                let scriptJsonData = try JSONEncoder().encode(fillScript)
+                if let scriptJson = String(data: scriptJsonData, encoding: .utf8) {
+                    let scriptDictionary = [Constants.appExtensionWebViewPageFillScript: scriptJson]
+                    itemData[Constants.appExtensionWebViewPageFillScript] = scriptDictionary
+                }
+            } catch {
+                Logger.application.error("Error encoding fill script. Error: \(error, privacy: .public)")
+            }
+        } else if context.providerType == Constants.UTType.appExtensionChangePasswordAction {
+            itemData[Constants.appExtensionPasswordKey] = ""
+            itemData[Constants.appExtensionOldPasswordKey] = password
         }
 
         return itemData
     }
 
     // MARK: Private
+
+    /// Decodes the `PageDetails` object from the dictionary.
+    ///
+    /// - Parameter dictionary: The dictionary containing the item provider's data.
+    /// - Returns: The decoded `PageDetails` object.
+    ///
+    private func decodePageDetails(from dictionary: [AnyHashable: Any]) -> PageDetails? {
+        guard let pageDetailsJson = dictionary[Constants.appExtensionWebViewPageDetails] as? String else {
+            Logger.appExtension.error(
+                """
+                Error unable to find JSON string for the \(Constants.appExtensionWebViewPageDetails) key.
+                """
+            )
+            return nil
+        }
+
+        do {
+            return try JSONDecoder().decode(PageDetails.self, from: Data(pageDetailsJson.utf8))
+        } catch {
+            Logger.appExtension.error("Error decoding page details JSON. Error: \(error, privacy: .public)")
+            return nil
+        }
+    }
+
+    /// Decodes the `PasswordGenerationOptions` object from the dictionary
+    ///
+    /// - Parameter dictionary: The dictionary containing the item provider's data.
+    /// - Returns: The decoded `PageDetails` object.
+    ///
+    private func decodePasswordOptions(from dictionary: [AnyHashable: Any]) -> PasswordGenerationOptions? {
+        guard let passwordOptionsDictionary = dictionary[Constants.appExtensionPasswordGeneratorOptionsKey]
+            as? [AnyHashable: Any] else { return nil }
+
+        do {
+            let passwordOptionsData = try JSONSerialization.data(withJSONObject: passwordOptionsDictionary)
+            return try JSONDecoder().decode(PasswordGenerationOptions.self, from: passwordOptionsData)
+        } catch {
+            Logger.appExtension.error("Error decoding password options JSON. Error: \(error, privacy: .public)")
+            return nil
+        }
+    }
+
+    /// Processes a potential `NSItemProvider` to determine if it conforms to the change password
+    /// action type.
+    ///
+    /// - Parameter itemProvider: The `NSItemProvider` to process.
+    /// - Returns: Whether the item provider conforms to the change password action type.
+    ///
+    private func processChangePasswordProvider(_ itemProvider: NSItemProvider) -> Bool {
+        processItemProvider(
+            itemProvider,
+            type: Constants.UTType.appExtensionChangePasswordAction,
+            dictionaryHandler: { dictionary in
+                defer { self.context.didFinishLoadingItem = true }
+
+                self.context.loginTitle = dictionary[Constants.appExtensionTitleKey] as? String
+                self.context.notes = dictionary[Constants.appExtensionNotesKey] as? String
+                self.context.oldPassword = dictionary[Constants.appExtensionOldPasswordKey] as? String
+                self.context.password = dictionary[Constants.appExtensionPasswordKey] as? String
+                self.context.passwordOptions = self.decodePasswordOptions(from: dictionary)
+                self.context.urlString = dictionary[Constants.appExtensionUrlStringKey] as? String
+                self.context.username = dictionary[Constants.appExtensionUsernameKey] as? String
+
+                Logger.appExtension.debug("Processed change password provider")
+            }
+        )
+    }
 
     /// Processes a potential `NSItemProvider` to determine if it conforms to the app extension
     /// setup type.
@@ -105,9 +234,69 @@ public class ActionExtensionHelper {
             return false
         }
         defer { context.didFinishLoadingItem = true }
+
         context.providerType = Constants.UTType.appExtensionSetup
+
         Logger.appExtension.debug("Processed extension setup provider")
         return true
+    }
+
+    /// Processes a potential `NSItemProvider` to determine if it conforms to the find login browser
+    /// action type.
+    ///
+    /// - Parameters:
+    ///   - itemProvider: The `NSItemProvider` to process.
+    ///   - type: The type identifier to check that the item provider conforms to.
+    /// - Returns: Whether the item provider conforms to the change password action type.
+    ///
+    private func processFindLoginBrowserProvider(_ itemProvider: NSItemProvider, type: String) -> Bool {
+        processItemProvider(itemProvider, type: type) { dictionary in
+            defer { self.context.didFinishLoadingItem = true }
+
+            self.context.urlString = dictionary[Constants.appExtensionUrlStringKey] as? String
+            self.context.pageDetails = self.decodePageDetails(from: dictionary)
+
+            Logger.appExtension.debug(
+                """
+                Processed find login browser provider. \
+                URL: \(String(describing: self.context.urlString), privacy: .public)")
+                """
+            )
+        } urlHandler: { url in
+            defer { self.context.didFinishLoadingItem = true }
+
+            self.context.urlString = url.absoluteString
+
+            Logger.appExtension.debug(
+                """
+                Processed find login browser provider. URL: \(url.absoluteString, privacy: .public)
+                """
+            )
+        }
+    }
+
+    /// Processes a potential `NSItemProvider` to determine if it conforms to the find login action type.
+    ///
+    /// - Parameter itemProvider: The `NSItemProvider` to process.
+    /// - Returns: Whether the item provider conforms to the find login action type.
+    ///
+    private func processFindLoginProvider(_ itemProvider: NSItemProvider) -> Bool {
+        processItemProvider(
+            itemProvider,
+            type: Constants.UTType.appExtensionFindLoginAction,
+            dictionaryHandler: { dictionary in
+                defer { self.context.didFinishLoadingItem = true }
+
+                self.context.urlString = dictionary[Constants.appExtensionUrlStringKey] as? String
+
+                Logger.appExtension.debug(
+                    """
+                    Processed find login provider. \
+                    URL: \(String(describing: self.context.urlString), privacy: .public)")
+                    """
+                )
+            }
+        )
     }
 
     /// Processes a `NSItemProvider` to determine if it conforms to the specified type, loads the
@@ -136,7 +325,11 @@ public class ActionExtensionHelper {
 
             self.context.providerType = type
 
-            Logger.appExtension.debug("Loaded item for type \(type). Item: \(String(describing: item), privacy: .public)")
+            Logger.appExtension.debug(
+                """
+                Loaded item for type \(type). Item: \(String(describing: item), privacy: .public)
+                """
+            )
 
             switch item {
             case let item as URL:
@@ -151,6 +344,30 @@ public class ActionExtensionHelper {
         return true
     }
 
+    /// Processes a potential `NSItemProvider` to determine if it conforms to the save login action type.
+    ///
+    /// - Parameter itemProvider: The `NSItemProvider` to process.
+    /// - Returns: Whether the item provider conforms to the save login action type.
+    ///
+    private func processSaveLoginProvider(_ itemProvider: NSItemProvider) -> Bool {
+        processItemProvider(
+            itemProvider,
+            type: Constants.UTType.appExtensionSaveLogin,
+            dictionaryHandler: { dictionary in
+                defer { self.context.didFinishLoadingItem = true }
+
+                self.context.loginTitle = dictionary[Constants.appExtensionTitleKey] as? String
+                self.context.notes = dictionary[Constants.appExtensionNotesKey] as? String
+                self.context.password = dictionary[Constants.appExtensionPasswordKey] as? String
+                self.context.passwordOptions = self.decodePasswordOptions(from: dictionary)
+                self.context.urlString = dictionary[Constants.appExtensionUrlStringKey] as? String
+                self.context.username = dictionary[Constants.appExtensionUsernameKey] as? String
+
+                Logger.appExtension.debug("Processed save login browser provider")
+            }
+        )
+    }
+
     /// Processes a potential `NSItemProvider` to determine if it conforms to a property list type
     /// to autofill credentials on a web page
     ///
@@ -158,25 +375,20 @@ public class ActionExtensionHelper {
     /// - Returns: Whether the item provider conforms to the property list type.
     ///
     private func processWebUrlProvider(_ itemProvider: NSItemProvider) -> Bool {
-        processItemProvider(itemProvider, type: UTType.propertyList.identifier) { (dictionary: [String: Any]) in
+        processItemProvider(itemProvider, type: UTType.propertyList.identifier, dictionaryHandler: { dictionary in
             defer { self.context.didFinishLoadingItem = true }
+
             guard let result = dictionary[NSExtensionJavaScriptPreprocessingResultsKey] as? [String: String]
             else { return }
 
             self.context.urlString = result[Constants.appExtensionUrlStringKey]
-            if let json = result[Constants.appExtensionWebViewPageDetails] {
-                Logger.appExtension.debug("Processing web URL provider. JSON: \(json, privacy: .public)")
-                do {
-                    let pageDetails = try JSONDecoder().decode(PageDetails.self, from: Data(json.utf8))
-                    Logger.appExtension
-                        .debug("Processing web URL provider. Page details: \(String(describing: pageDetails), privacy: .public)")
-                    self.context.pageDetails = pageDetails
-                } catch {
-                    Logger.appExtension.error("Error decoding page details JSON. Error: \(error, privacy: .public)")
-                }
-            }
+            self.context.pageDetails = self.decodePageDetails(from: result)
 
-            Logger.appExtension.debug("Processing web URL provider. URL: \(self.context.urlString ?? "nil", privacy: .public)")
-        }
+            Logger.appExtension.debug(
+                """
+                Processing web URL provider. URL: \(self.context.urlString ?? "nil", privacy: .public)
+                """
+            )
+        })
     }
 }
