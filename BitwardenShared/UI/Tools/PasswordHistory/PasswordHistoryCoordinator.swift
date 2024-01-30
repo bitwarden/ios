@@ -17,7 +17,7 @@ class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
     let services: Services
 
     /// The stack navigator that is managed by this coordinator.
-    var stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -40,7 +40,7 @@ class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: PasswordHistoryRoute, context _: AnyObject?) {
         switch route {
         case .dismiss:
-            stackNavigator.dismiss()
+            stackNavigator?.dismiss()
         case let .passwordHistoryList(source):
             showPasswordHistoryListView(source)
         }
@@ -61,6 +61,6 @@ class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
             state: PasswordHistoryListState(source: source)
         )
         let view = PasswordHistoryListView(store: Store(processor: processor))
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 }

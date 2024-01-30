@@ -20,7 +20,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     weak var rootNavigator: (any RootNavigator)?
 
     /// The tab navigator that is managed by this coordinator.
-    var tabNavigator: TabNavigator
+    private(set) weak var tabNavigator: TabNavigator?
 
     // MARK: Private Properties
 
@@ -73,7 +73,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     // MARK: Methods
 
     func navigate(to route: TabRoute, context: AnyObject?) {
-        tabNavigator.selectedIndex = route.index
+        tabNavigator?.selectedIndex = route.index
         switch route {
         case let .vault(vaultRoute):
             show(vaultRoute: vaultRoute, context: context)
@@ -93,7 +93,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     }
 
     func start() {
-        guard let rootNavigator, let settingsDelegate, let vaultDelegate else { return }
+        guard let rootNavigator, let tabNavigator, let settingsDelegate, let vaultDelegate else { return }
 
         rootNavigator.show(child: tabNavigator)
 

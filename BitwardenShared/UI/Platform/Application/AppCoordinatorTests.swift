@@ -267,7 +267,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
     func test_show_hide_loadingOverlay() throws {
         rootNavigator.rootViewController = UIViewController()
-        try setKeyWindowRoot(viewController: XCTUnwrap(subject.rootNavigator.rootViewController))
+        try setKeyWindowRoot(viewController: XCTUnwrap(subject.rootNavigator?.rootViewController))
 
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
 

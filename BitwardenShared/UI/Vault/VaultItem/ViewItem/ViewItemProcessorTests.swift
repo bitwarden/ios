@@ -33,7 +33,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             vaultRepository: vaultRepository
         )
         subject = ViewItemProcessor(
-            coordinator: coordinator,
+            coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             itemId: "id",
             services: services,

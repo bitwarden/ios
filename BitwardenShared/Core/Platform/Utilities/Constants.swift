@@ -49,6 +49,9 @@ enum Constants {
     /// The maximum number of passwords stored in history.
     static let maxPasswordsInHistory = 100
 
+    /// The maximum size of files for upload.
+    static let maxFileSizeBytes = 104_857_600
+
     /// A default value for the minimum number of characters required when creating a password.
     static let minimumPasswordCharacters = 12
 

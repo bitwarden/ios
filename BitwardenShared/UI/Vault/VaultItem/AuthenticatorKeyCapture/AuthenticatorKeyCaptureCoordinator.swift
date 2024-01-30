@@ -57,7 +57,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     let services: Services
 
     /// The stack navigator that is managed by this coordinator.
-    let stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -81,6 +81,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     // MARK: Methods
 
     func handleEvent(_ event: AuthenticatorKeyCaptureEvent, context: AnyObject?) async {
+        guard let stackNavigator else { return }
         if stackNavigator.isEmpty || delegate == nil {
             await showScanCode()
         } else {
@@ -99,7 +100,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
                 with: value.content
             )
         case let .dismiss(onDismiss):
-            stackNavigator.dismiss(completion: {
+            stackNavigator?.dismiss(completion: {
                 onDismiss?.action()
             })
         case let .addManual(entry: authKey):
@@ -108,6 +109,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
                 with: authKey
             )
         case .manualKeyEntry:
+            guard let stackNavigator else { return }
             if stackNavigator.isEmpty || delegate == nil {
                 showManualTotp()
             } else {
@@ -160,7 +162,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
             cameraSession: session,
             store: store
         )
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 
     /// Shows the totp manual setup screen.
@@ -176,6 +178,6 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         let view = ManualEntryView(
             store: Store(processor: processor)
         )
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 }

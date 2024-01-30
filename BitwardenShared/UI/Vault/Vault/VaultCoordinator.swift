@@ -85,7 +85,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Properties
 
     /// The stack navigator that is managed by this coordinator.
-    var stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -142,7 +142,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 )
             }
         case let .alert(alert):
-            stackNavigator.present(alert)
+            stackNavigator?.present(alert)
         case .autofillList:
             showAutofillList()
         case let .editItem(cipher):
@@ -154,7 +154,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 )
             }
         case .dismiss:
-            stackNavigator.dismiss()
+            stackNavigator?.dismiss()
         case let .group(content):
             showGroup(content)
         case .list:
@@ -182,7 +182,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             state: VaultAutofillListState()
         )
         let view = VaultAutofillListView(store: Store(processor: processor))
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 
     /// Shows the vault group screen.
@@ -210,7 +210,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         let searchController = UISearchController()
         searchController.searchResultsUpdater = searchHandler
 
-        stackNavigator.push(
+        stackNavigator?.push(
             viewController,
             navigationTitle: content.group.navigationTitle,
             searchController: searchController
@@ -232,7 +232,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             store: store,
             timeProvider: services.timeProvider
         )
-        stackNavigator.replace(view, animated: false)
+        stackNavigator?.replace(view, animated: false)
     }
 
     /// Presents a vault item coordinator, which will navigate to the provided route.
@@ -245,7 +245,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         coordinator.start()
         coordinator.navigate(to: route, context: delegate)
 
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 }
 

@@ -99,6 +99,10 @@ extension DefaultSyncService {
             try await organizationService.replaceOrganizations(organizations, userId: userId)
         }
 
+        if let profile = response.profile {
+            await stateService.updateProfile(from: profile, userId: userId)
+        }
+
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)
         try await folderService.replaceFolders(response.folders, userId: userId)

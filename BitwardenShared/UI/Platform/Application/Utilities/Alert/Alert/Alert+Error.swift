@@ -14,7 +14,7 @@ extension Alert {
     /// - Returns a default styled alert.
     ///
     static func defaultAlert(
-        title: String,
+        title: String? = nil,
         message: String? = nil,
         alertActions: [AlertAction]? = nil
     ) -> Alert {
