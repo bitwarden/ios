@@ -7,7 +7,9 @@ struct VaultGroupState: Equatable {
     // MARK: Properties
 
     /// Whether there is data for the vault group.
-    var emptyData: Bool = false
+    var emptyData: Bool {
+        loadingState.data.isEmptyOrNil
+    }
 
     /// The `VaultListGroup` being displayed.
     var group: VaultListGroup = .login
@@ -16,39 +18,40 @@ struct VaultGroupState: Equatable {
     var iconBaseURL: URL?
 
     /// The current loading state.
-    var loadingState: LoadingState<[VaultListItem]> = .loading {
-        didSet {
-            emptyData = loadingState.data.isEmptyOrNil ? true : false
-        }
-    }
+    var loadingState: LoadingState<[VaultListItem]> = .loading
 
     /// The string to use in the empty view.
     var noItemsString: String {
-        if showAddItemButton {
+        switch group {
+        case .collection:
+            return Localizations.noItemsCollection
+        case .trash:
+            return Localizations.noItemsTrash
+        default:
             return Localizations.noItems
-        } else {
-            if case .collection = group {
-                return Localizations.noItemsCollection
-            }
-            if case .trash = group {
-                return Localizations.noItemsTrash
-            }
         }
-        return ""
     }
 
     /// The text in the search bar.
     var searchText = ""
 
-    /// Whether to show the add item button.
+    /// Whether to show the add item button in the view.
     var showAddItemButton: Bool {
-        // If there is no data.
+        // Don't show if there is data.
         guard emptyData else { return false }
 
-        // If the group is a collection or trash, return false.
+        // If the collection or trash are empty, return false.
         if case .collection = group {
             return false
         } else if case .trash = group {
+            return false
+        }
+        return true
+    }
+
+    /// Whether to show the add item button in the toolbar.
+    var showAddToolbarItem: Bool {
+        if case .trash = group, emptyData {
             return false
         }
         return true

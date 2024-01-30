@@ -40,7 +40,7 @@ struct VaultGroupView: View {
         .navigationTitle(store.state.group.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            addToolbarItem {
+            addToolbarItem(hidden: !store.state.showAddToolbarItem) {
                 store.send(.addItemPressed)
             }
         }
