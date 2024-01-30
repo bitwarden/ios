@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class PolicyServiceTests: BitwardenTestCase {
+class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var organizationService: MockOrganizationService!
@@ -175,6 +175,60 @@ class PolicyServiceTests: BitwardenTestCase {
                 uppercase: true
             )
         )
+    }
+
+    /// `isSendHideEmailDisabledByPolicy()` returns whether the send's hide email option is disabled.
+    func test_isSendHideEmailDisabledByPolicy() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [PolicyOptionType.disableHideEmail.rawValue: .bool(true)],
+                    type: .sendOptions
+                ),
+            ]
+        )
+
+        let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
+        XCTAssertTrue(isDisabled)
+    }
+
+    /// `isSendHideEmailDisabledByPolicy()` returns false if there's no policies.
+    func test_isSendHideEmailDisabledByPolicy_noPolicies() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([])
+
+        let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
+        XCTAssertFalse(isDisabled)
+    }
+
+    /// `isSendHideEmailDisabledByPolicy()` returns false if the disable hide email option is disabled.
+    func test_isSendHideEmailDisabledByPolicy_optionDisabled() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [PolicyOptionType.disableHideEmail.rawValue: .bool(false)],
+                    type: .sendOptions
+                ),
+            ]
+        )
+
+        let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
+        XCTAssertFalse(isDisabled)
+    }
+
+    /// `isSendHideEmailDisabledByPolicy()` returns false if the policy doesn't contain any custom data.
+    func test_isSendHideEmailDisabledByPolicy_optionNoData() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .sendOptions)])
+
+        let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
+        XCTAssertFalse(isDisabled)
     }
 
     /// `policyAppliesToUser(_:)` returns whether the policy applies to the user.
