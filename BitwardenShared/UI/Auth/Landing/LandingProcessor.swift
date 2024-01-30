@@ -17,7 +17,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<AuthRoute>
+    private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// The services required by this processor.
     private let services: Services
@@ -32,7 +32,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: LandingState
     ) {
@@ -113,10 +113,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             do {
                 // Lock the vault of the selected account.
                 let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
-                await self.services.authRepository.lockVault(userId: account.userId)
+                await self.coordinator.handleEvent(.action(.lockVault(userId: account.userId)))
 
-                // No navigation is necessary, since the user is already on the landing view
-                // view, but if it was the non-active account, display a success toast
+                // No navigation is necessary, since the user is already on the unlock
+                // vault view, but if it was the non-active account, display a success toast
                 // and update the profile switcher view.
                 if account.userId != activeAccountId {
                     self.state.toast = Toast(text: Localizations.accountLockedSuccessfully)
@@ -127,19 +127,23 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             }
         }, logoutAction: {
             // Confirm logging out.
-            self.coordinator.showAlert(.logoutConfirmation {
+            self.coordinator.showAlert(.logoutConfirmation { [weak self] in
+                guard let self else { return }
                 do {
-                    let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
-                    try await self.services.authRepository.logout(userId: account.userId)
+                    // Log out of the selected account.
+                    let activeAccountId = try await services.authRepository.getActiveAccount().userId
+                    await coordinator.handleEvent(.action(.logout(userId: account.userId, userInitiated: true)))
 
-                    // No navigation is necessary, since the user is already on the landing view, but if it was the
-                    // non-active account, display a success toast and update the profile switcher view.
-                    if activeAccountId != account.userId {
-                        self.state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
-                        await self.refreshProfileState()
+                    // If that account was not active,
+                    // show a toast that the account was logged out successfully.
+                    if account.userId != activeAccountId {
+                        state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
+
+                        // Update the profile switcher view.
+                        await refreshProfileState()
                     }
                 } catch {
-                    self.services.errorReporter.log(error: error)
+                    services.errorReporter.log(error: error)
                 }
             })
         }))
@@ -150,12 +154,17 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     ///
     private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
         defer { state.profileSwitcherState.isVisible = false }
-        coordinator.navigate(
-            to: .switchAccount(
-                isUserInitiated: true,
-                userId: selectedAccount.userId
+        guard selectedAccount.userId != state.profileSwitcherState.activeAccountId else { return }
+        Task {
+            await coordinator.handleEvent(
+                .action(
+                    .switchAccount(
+                        isAutomatic: false,
+                        userId: selectedAccount.userId
+                    )
+                )
             )
-        )
+        }
     }
 
     /// Sets the region to the last used region.

@@ -30,7 +30,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
-    private let coordinator: any Coordinator<VaultItemRoute>
+    private let coordinator: any Coordinator<VaultItemRoute, VaultItemEvent>
 
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
@@ -53,7 +53,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<VaultItemRoute>,
+        coordinator: any Coordinator<VaultItemRoute, VaultItemEvent>,
         delegate: CipherItemOperationDelegate?,
         itemId: String,
         services: Services,

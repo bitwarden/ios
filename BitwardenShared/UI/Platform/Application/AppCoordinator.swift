@@ -61,6 +61,15 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     // MARK: Methods
 
+    func handleEvent(_ event: AppEvent, context: AnyObject?) async {
+        switch event {
+        case .didStart:
+            await handleAuthEvent(.didStart)
+        case let .didTimeout(userId):
+            await handleAuthEvent(.didTimeout(userId: userId))
+        }
+    }
+
     func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
         case let .auth(authRoute):
@@ -85,16 +94,23 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     // MARK: Private Methods
 
+    /// Handle an auth event.
+    ///
+    /// - Parameter event: The auth event to handle.
+    ///
+    private func handleAuthEvent(_ authEvent: AuthEvent) async {
+        let router = module.makeAuthRouter()
+        let route = await router.handleAndRoute(authEvent)
+        showAuth(route)
+    }
+
     /// Shows the auth route.
     ///
     /// - Parameter route: The auth route to show.
     ///
     private func showAuth(_ authRoute: AuthRoute) {
-        if let coordinator = childCoordinator as? AnyCoordinator<AuthRoute> {
-            Task {
-                let route = await coordinator.prepareAndRedirect(authRoute)
-                coordinator.navigate(to: route)
-            }
+        if let coordinator = childCoordinator as? AnyCoordinator<AuthRoute, AuthEvent> {
+            coordinator.navigate(to: authRoute)
         } else {
             let navigationController = UINavigationController()
             let coordinator = module.makeAuthCoordinator(
@@ -103,12 +119,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
                 stackNavigator: navigationController
             )
 
-            Task {
-                let route = await coordinator.prepareAndRedirect(authRoute)
-                coordinator.start()
-                childCoordinator = coordinator
-                coordinator.navigate(to: route)
-            }
+            coordinator.start()
+            childCoordinator = coordinator
+            coordinator.navigate(to: authRoute)
         }
     }
 
@@ -117,7 +130,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// - Parameter route: The extension setup route to show.
     ///
     private func showExtensionSetup(route: ExtensionSetupRoute) {
-        if let coordinator = childCoordinator as? AnyCoordinator<ExtensionSetupRoute> {
+        if let coordinator = childCoordinator as? AnyCoordinator<ExtensionSetupRoute, Void> {
             coordinator.navigate(to: route)
         } else {
             let stackNavigator = UINavigationController()
@@ -136,7 +149,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// - Parameter route: The `SendItemRoute` to show.
     ///
     private func showSendItem(route: SendItemRoute) {
-        if let coordinator = childCoordinator as? AnyCoordinator<SendItemRoute> {
+        if let coordinator = childCoordinator as? AnyCoordinator<SendItemRoute, Void> {
             coordinator.navigate(to: route)
         } else {
             let stackNavigator = UINavigationController()
@@ -156,7 +169,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// - Parameter route: The tab route to show.
     ///
     private func showTab(route: TabRoute) {
-        if let coordinator = childCoordinator as? AnyCoordinator<TabRoute> {
+        if let coordinator = childCoordinator as? AnyCoordinator<TabRoute, Void> {
             coordinator.navigate(to: route)
         } else {
             let tabNavigator = UITabBarController()
@@ -179,7 +192,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     private func showLoginRequest(_ loginRequest: LoginRequest) {
         DispatchQueue.main.async {
             // Make sure that the user is authenticated and not currently viewing the login request view.
-            guard self.childCoordinator is AnyCoordinator<TabRoute> else { return }
+            guard self.childCoordinator is AnyCoordinator<TabRoute, Void> else { return }
             let currentView = self.rootNavigator.rootViewController?.topmostViewController()
             guard !(currentView is UIHostingController<LoginRequestView>) else { return }
 
@@ -202,7 +215,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// - Parameter route: The vault route to show.
     ///
     private func showVault(route: VaultRoute) {
-        if let coordinator = childCoordinator as? AnyCoordinator<VaultRoute> {
+        if let coordinator = childCoordinator as? AnyCoordinator<VaultRoute, AuthAction> {
             coordinator.navigate(to: route)
         } else {
             let stackNavigator = UINavigationController()
@@ -264,39 +277,76 @@ extension AppCoordinator: SendItemDelegate {
 
 extension AppCoordinator: SettingsCoordinatorDelegate {
     func didDeleteAccount() {
-        showAuth(.didDeleteAccount)
+        Task {
+            await handleAuthEvent(.didDeleteAccount)
+        }
     }
 
-    func didLockVault(account: Account) {
-        showAuth(
-            .vaultUnlock(
-                account,
-                animated: false,
-                attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
+    func lockVault(userId: String?) {
+        Task {
+            await handleAuthEvent(
+                .action(
+                    .lockVault(userId: userId)
+                )
             )
-        )
+        }
     }
 
-    func didLogout(userInitiated: Bool) {
-        showAuth(.didLogout(userInitiated: userInitiated))
+    func logout(userId: String?, userInitiated: Bool) {
+        Task {
+            await handleAuthEvent(
+                .action(
+                    .logout(userId: userId, userInitiated: userInitiated)
+                )
+            )
+        }
+    }
+
+    func switchAccount(isAutomatic: Bool, userId: String) {
+        Task {
+            await handleAuthEvent(
+                .action(
+                    .switchAccount(
+                        isAutomatic: isAutomatic,
+                        userId: userId
+                    )
+                )
+            )
+        }
     }
 }
 
 // MARK: - VaultCoordinatorDelegate
 
 extension AppCoordinator: VaultCoordinatorDelegate {
+    func switchAccount(userId: String, isAutomatic: Bool) {
+        Task {
+            await handleAuthEvent(
+                .action(
+                    .switchAccount(
+                        isAutomatic: isAutomatic,
+                        userId: userId
+                    )
+                )
+            )
+        }
+    }
+
     func didTapAddAccount() {
         showAuth(.landing)
     }
 
     func didTapAccount(userId: String) {
-        showAuth(
-            .switchAccount(
-                isUserInitiated: true,
-                userId: userId
+        Task {
+            await handleAuthEvent(
+                .action(
+                    .switchAccount(
+                        isAutomatic: false,
+                        userId: userId
+                    )
+                )
             )
-        )
+        }
     }
 
     func presentLoginRequest(_ loginRequest: LoginRequest) {

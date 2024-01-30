@@ -15,14 +15,14 @@ protocol VaultModule {
     func makeVaultCoordinator(
         delegate: VaultCoordinatorDelegate,
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<VaultRoute>
+    ) -> AnyCoordinator<VaultRoute, AuthAction>
 }
 
 extension DefaultAppModule: VaultModule {
     func makeVaultCoordinator(
         delegate: VaultCoordinatorDelegate,
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<VaultRoute> {
+    ) -> AnyCoordinator<VaultRoute, AuthAction> {
         VaultCoordinator(
             appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,

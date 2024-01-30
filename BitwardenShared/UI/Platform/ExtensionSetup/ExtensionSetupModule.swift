@@ -12,7 +12,7 @@ protocol ExtensionSetupModule {
     ///
     func makeExtensionSetupCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<ExtensionSetupRoute>
+    ) -> AnyCoordinator<ExtensionSetupRoute, Void>
 }
 
 // MARK: - DefaultAppModule
@@ -20,7 +20,7 @@ protocol ExtensionSetupModule {
 extension DefaultAppModule: ExtensionSetupModule {
     func makeExtensionSetupCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<ExtensionSetupRoute> {
+    ) -> AnyCoordinator<ExtensionSetupRoute, Void> {
         ExtensionSetupCoordinator(
             appExtensionDelegate: appExtensionDelegate,
             stackNavigator: stackNavigator

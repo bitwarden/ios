@@ -25,22 +25,22 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     // MARK: Private Properties
 
     /// The coordinator used to navigate to `GeneratorRoute`s.
-    private var generatorCoordinator: AnyCoordinator<GeneratorRoute>?
+    private var generatorCoordinator: AnyCoordinator<GeneratorRoute, Void>?
 
     /// The module used to create child coordinators.
     private let module: Module
 
     /// The coordinator used to navigate to `SendRoute`s.
-    private var sendCoordinator: AnyCoordinator<SendRoute>?
+    private var sendCoordinator: AnyCoordinator<SendRoute, Void>?
 
     /// The coordinator used to navigate to `SettingsRoute`s.
-    private var settingsCoordinator: AnyCoordinator<SettingsRoute>?
+    private var settingsCoordinator: AnyCoordinator<SettingsRoute, SettingsEvent>?
 
     /// A delegate of the `SettingsCoordinator`.
     private weak var settingsDelegate: SettingsCoordinatorDelegate?
 
     /// The coordinator used to navigate to `VaultRoute`s.
-    private var vaultCoordinator: AnyCoordinator<VaultRoute>?
+    private var vaultCoordinator: AnyCoordinator<VaultRoute, AuthAction>?
 
     /// A delegate of the `VaultCoordinator`.
     private weak var vaultDelegate: VaultCoordinatorDelegate?

@@ -22,7 +22,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
-    private var coordinator: any Coordinator<VaultRoute>
+    private var coordinator: any Coordinator<VaultRoute, AuthAction>
 
     /// The services for this processor.
     private var services: Services
@@ -43,7 +43,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<VaultRoute>,
+        coordinator: any Coordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultGroupState
     ) {

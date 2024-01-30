@@ -1,17 +1,16 @@
 import SwiftUI
 import XCTest
 
-// swiftlint:disable file_length
-
 @testable import BitwardenShared
 
 // MARK: - AuthCoordinatorTests
 
-class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class AuthCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authDelegate: MockAuthDelegate!
     var authRepository: MockAuthRepository!
+    var authRouter: AuthRouter!
     var errorReporter: MockErrorReporter!
     var rootNavigator: MockRootNavigator!
     var stackNavigator: MockStackNavigator!
@@ -30,16 +29,19 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stackNavigator = MockStackNavigator()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
+        let services = ServiceContainer.withMocks(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
+        )
+        authRouter = AuthRouter(services: services)
         subject = AuthCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: authDelegate,
             rootNavigator: rootNavigator,
-            services: ServiceContainer.withMocks(
-                authRepository: authRepository,
-                errorReporter: errorReporter,
-                stateService: stateService,
-                vaultTimeoutService: vaultTimeoutService
-            ),
+            router: authRouter.asAnyRouter(),
+            services: services,
             stackNavigator: stackNavigator
         )
     }
@@ -179,15 +181,15 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelfHostedView>)
     }
 
-    /// `navigate(to:)` with `.switchAccount` with an locked account navigates to vault unlock
+    /// `handleEvent()` with `.switchAccount` with an locked account navigates to vault unlock
     func test_navigate_switchAccount_locked() {
         let account = Account.fixture()
-        authRepository.setActiveAccountResult = .success(account)
+        authRepository.altAccounts = [account]
         vaultTimeoutService.timeoutStore = [account.profile.userId: true]
         stateService.activeAccount = account
 
         let task = Task {
-            subject.navigate(to: .switchAccount(isUserInitiated: true, userId: account.profile.userId))
+            await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
         }
         waitFor(stackNavigator.actions.last?.type == .replaced)
         task.cancel()
@@ -197,12 +199,12 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigate(to:)` with `.switchAccount` with an unlocked account triggers completion
     func test_navigate_switchAccount_unlocked() {
         let account = Account.fixture()
-        authRepository.setActiveAccountResult = .success(account)
+        authRepository.altAccounts = [account]
         authRepository.isLockedResult = .success(false)
         stateService.activeAccount = account
 
         let task = Task {
-            subject.navigate(to: .switchAccount(isUserInitiated: true, userId: account.profile.userId))
+            await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
         }
         waitFor(authDelegate.didCompleteAuthCalled)
         task.cancel()
@@ -213,12 +215,12 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigate(to:)` with `.switchAccount` with an unknown lock status account navigates to vault unlock.
     func test_navigate_switchAccount_unknownLock() {
         let account = Account.fixture()
-        authRepository.setActiveAccountResult = .success(account)
+        authRepository.altAccounts = [account]
         authRepository.isLockedResult = .failure(VaultTimeoutServiceError.noAccountFound)
         stateService.activeAccount = account
 
         let task = Task {
-            subject.navigate(to: .switchAccount(isUserInitiated: true, userId: account.profile.userId))
+            await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
         }
         waitFor(stackNavigator.actions.last?.view is VaultUnlockView)
         task.cancel()
@@ -229,7 +231,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_switchAccount_notFound() {
         let account = Account.fixture()
         let task = Task {
-            subject.navigate(to: .switchAccount(isUserInitiated: true, userId: account.profile.userId))
+            await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
         }
         waitFor(stackNavigator.actions.last?.view is LandingView)
         task.cancel()
@@ -281,311 +283,6 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// `prepareAndRedirect(_ :)` redirects `.didDeleteAccount`.
-    func test_prepareAndRedirect_didDeleteAccount_noAccounts() async {
-        let route = await subject.prepareAndRedirect(.didDeleteAccount)
-        XCTAssertEqual(route, .landing)
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didDeleteAccount`.
-    func test_prepareAndRedirect_didDeleteAccount_alternateAccount() {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
-        authRepository.setActiveAccountResult = .success(alt)
-        var route: AuthRoute?
-        let task = Task {
-            route = await subject.prepareAndRedirect(.didDeleteAccount)
-        }
-        waitFor(authRepository.setActiveAccountId != nil)
-        stateService.activeAccount = alt
-        waitFor(route != nil)
-        task.cancel()
-        XCTAssertEqual(
-            route,
-            .vaultUnlock(
-                alt,
-                animated: false,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
-            )
-        )
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didLogout()`.
-    func test_prepareAndRedirect_didLogout_automatic_noAccounts() async {
-        let route = await subject.prepareAndRedirect(.didLogout(userInitiated: false))
-        XCTAssertEqual(route, .landing)
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didLogout()`.
-    func test_prepareAndRedirect_didLogout_automatic_alternateAccount() async {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
-        authRepository.setActiveAccountResult = .success(alt)
-        let route = await subject.prepareAndRedirect(.didLogout(userInitiated: false))
-        XCTAssertEqual(route, .landing)
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didLogout()`.
-    func test_prepareAndRedirect_didLogout_userInitiated_noAccounts() async {
-        let route = await subject.prepareAndRedirect(.didLogout(userInitiated: true))
-        XCTAssertEqual(route, .landing)
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didLogout()`.
-    func test_prepareAndRedirect_didLogout_userInitiated_alternateAccount() {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
-        authRepository.setActiveAccountResult = .success(alt)
-        var route: AuthRoute?
-        let task = Task {
-            route = await subject.prepareAndRedirect(.didLogout(userInitiated: true))
-        }
-        waitFor(authRepository.setActiveAccountId != nil)
-        stateService.activeAccount = alt
-        waitFor(route != nil)
-        task.cancel()
-        XCTAssertEqual(
-            route,
-            .vaultUnlock(
-                alt,
-                animated: false,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
-            )
-        )
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didStart`.
-    func test_prepareAndRedirect_didStart_noAccounts() async {
-        let route = await subject.prepareAndRedirect(.didStart)
-        XCTAssertEqual(route, .landing)
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didStart`.
-    func test_prepareAndRedirect_didStart_alternateAccount() async {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
-        authRepository.setActiveAccountResult = .success(alt)
-        let route = await subject.prepareAndRedirect(.didStart)
-        XCTAssertEqual(
-            route,
-            .vaultUnlock(
-                alt,
-                animated: false,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
-        )
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didStart`.
-    func test_prepareAndRedirect_didStart_timeoutOnAppRestart_lock() async {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
-        stateService.activeAccount = alt
-        vaultTimeoutService.vaultTimeout = [
-            alt.profile.userId: .onAppRestart,
-        ]
-        let route = await subject.prepareAndRedirect(.didStart)
-        XCTAssertEqual(
-            route,
-            .vaultUnlock(
-                alt,
-                animated: false,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
-        )
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didStart`.
-    func test_prepareAndRedirect_didStart_timeoutOnAppRestart_logout() async {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
-        stateService.activeAccount = alt
-        vaultTimeoutService.vaultTimeout = [
-            alt.profile.userId: .onAppRestart,
-        ]
-        stateService.timeoutAction = [
-            alt.profile.userId: .logout,
-        ]
-        authRepository.logoutResult = .success(())
-        let route = await subject.prepareAndRedirect(.didStart)
-        XCTAssertEqual(
-            route,
-            .landing
-        )
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didTimeout`.
-    func test_prepareAndRedirect_didTimeout_noAccounts() async {
-        let route = await subject.prepareAndRedirect(.didTimeout(userId: "123"))
-        XCTAssertEqual(route, .didTimeout(userId: "123"))
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didTimeout`.
-    func test_prepareAndRedirect_didTimeout_neverLock() async {
-        vaultTimeoutService.vaultTimeout = [
-            "123": .never,
-        ]
-        let route = await subject.prepareAndRedirect(.didTimeout(userId: "123"))
-        XCTAssertEqual(route, .didTimeout(userId: "123"))
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didStart`.
-    func test_prepareAndRedirect_didTimeout_lock() async {
-        let account = Account.fixture()
-        stateService.accounts = [
-            account,
-        ]
-        stateService.activeAccount = account
-        vaultTimeoutService.vaultTimeout = [
-            account.profile.userId: .fiveMinutes,
-        ]
-        stateService.timeoutAction = [
-            account.profile.userId: .lock,
-        ]
-        authRepository.logoutResult = .success(())
-        let route = await subject.prepareAndRedirect(.didTimeout(userId: account.profile.userId))
-        XCTAssertEqual(
-            route,
-            .vaultUnlock(
-                account,
-                animated: false,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
-        )
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didStart`.
-    func test_prepareAndRedirect_didTimeout_logout() async {
-        let account = Account.fixture()
-        stateService.accounts = [
-            account,
-        ]
-        stateService.activeAccount = account
-        vaultTimeoutService.vaultTimeout = [
-            account.profile.userId: .fiveMinutes,
-        ]
-        stateService.timeoutAction = [
-            account.profile.userId: .logout,
-        ]
-        authRepository.logoutResult = .success(())
-        let route = await subject.prepareAndRedirect(.didTimeout(userId: account.profile.userId))
-        XCTAssertEqual(
-            route,
-            .landing
-        )
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didStart`.
-    func test_prepareAndRedirect_didTimeout_logout_error() async {
-        let account = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            account,
-        ]
-        stateService.activeAccount = account
-        vaultTimeoutService.vaultTimeout = [
-            account.profile.userId: .fiveMinutes,
-        ]
-        stateService.timeoutAction = [
-            account.profile.userId: .logout,
-        ]
-        authRepository.logoutResult = .failure(BitwardenTestError.example)
-        let route = await subject.prepareAndRedirect(.didTimeout(userId: account.profile.userId))
-        XCTAssertEqual(
-            route,
-            .landing
-        )
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.didDeleteAccount`.
-    func test_prepareAndRedirect_didDeleteAccount_setActiveFail() async {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
-        authRepository.setActiveAccountResult = .failure(BitwardenTestError.example)
-        let route = await subject.prepareAndRedirect(.didDeleteAccount)
-        XCTAssertEqual(
-            route,
-            .landing
-        )
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.vaultUnlock()`.
-    func test_prepareAndRedirect_vaultUnlock_neverLock_error() async {
-        let active = Account.fixture()
-        stateService.activeAccount = active
-        authRepository.isLockedResult = .success(true)
-        vaultTimeoutService.vaultTimeout = [
-            active.profile.userId: .never,
-        ]
-        authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
-        let initialRoute = AuthRoute.vaultUnlock(
-            active,
-            animated: true,
-            attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: false
-        )
-        let route = await subject.prepareAndRedirect(
-            initialRoute
-        )
-        XCTAssertEqual(route, initialRoute)
-        let error = try? XCTUnwrap(errorReporter.errors.first as? BitwardenTestError)
-        XCTAssertEqual(BitwardenTestError.example, error)
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.vaultUnlock()`.
-    func test_prepareAndRedirect_vaultUnlock_neverLock_success() async {
-        let active = Account.fixture()
-        stateService.activeAccount = active
-        authRepository.isLockedResult = .success(true)
-        vaultTimeoutService.vaultTimeout = [
-            active.profile.userId: .never,
-        ]
-        authRepository.unlockVaultWithNeverlockResult = .success(())
-        let route = await subject.prepareAndRedirect(
-            .vaultUnlock(
-                active,
-                animated: true,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
-        )
-        XCTAssertEqual(route, .complete)
-    }
-
-    /// `prepareAndRedirect(_ :)` redirects `.vaultUnlock()`.
-    func test_prepareAndRedirect_vaultUnlock_unlocked() async {
-        let active = Account.fixture()
-        stateService.activeAccount = active
-        authRepository.isLockedResult = .success(false)
-        let route = await subject.prepareAndRedirect(
-            .vaultUnlock(
-                active,
-                animated: true,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
-        )
-        XCTAssertEqual(route, .complete)
-    }
-
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.
     func test_rootNavigator_resetWeakReference() {
         var rootNavigator: MockRootNavigator? = MockRootNavigator()
@@ -593,6 +290,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: authDelegate,
             rootNavigator: rootNavigator!,
+            router: MockRouter(routeForEvent: { _ in .landing }).asAnyRouter(),
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )

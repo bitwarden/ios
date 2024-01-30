@@ -12,13 +12,13 @@ protocol PasswordHistoryModule {
     ///
     func makePasswordHistoryCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<PasswordHistoryRoute>
+    ) -> AnyCoordinator<PasswordHistoryRoute, Void>
 }
 
 extension DefaultAppModule: PasswordHistoryModule {
     func makePasswordHistoryCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<PasswordHistoryRoute> {
+    ) -> AnyCoordinator<PasswordHistoryRoute, Void> {
         PasswordHistoryCoordinator(
             services: services,
             stackNavigator: stackNavigator

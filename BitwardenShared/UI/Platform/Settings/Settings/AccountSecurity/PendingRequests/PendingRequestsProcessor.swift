@@ -17,7 +17,7 @@ final class PendingRequestsProcessor: StateProcessor<
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The services used by the processor.
     private let services: Services
@@ -35,7 +35,7 @@ final class PendingRequestsProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
         state: PendingRequestsState
     ) {

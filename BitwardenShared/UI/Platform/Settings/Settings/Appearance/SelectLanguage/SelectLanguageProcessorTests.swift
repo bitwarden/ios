@@ -7,7 +7,7 @@ import XCTest
 class SelectLanguageProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockSelectLanguageDelegate!
     var stateService: MockStateService!
     var subject: SelectLanguageProcessor!

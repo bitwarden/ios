@@ -6,7 +6,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authService: MockAuthService!
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var subject: PendingRequestsProcessor!
 
@@ -16,7 +16,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
         super.setUp()
 
         authService = MockAuthService()
-        coordinator = MockCoordinator<SettingsRoute>()
+        coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
 
         subject = PendingRequestsProcessor(

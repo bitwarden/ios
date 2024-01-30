@@ -6,7 +6,7 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
     // MARK: Properties
 
     /// The coordinator used to manage navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     // MARK: Initialization
 
@@ -17,7 +17,7 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         state: VaultSettingsState
     ) {
         self.coordinator = coordinator

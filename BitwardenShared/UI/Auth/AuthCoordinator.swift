@@ -18,8 +18,13 @@ protocol AuthCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the authentication flow.
 ///
-final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
+final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_length
+    Coordinator,
+    HasStackNavigator,
+    HasRouter {
     // MARK: Types
+
+    typealias Router = AnyRouter<AuthEvent, AuthRoute>
 
     typealias Services = HasAccountAPIService
         & HasAppIdService
@@ -51,6 +56,9 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     /// The root navigator used to display this coordinator's interface.
     weak var rootNavigator: (any RootNavigator)?
 
+    /// The router used by this coordinator.
+    var router: AnyRouter<AuthEvent, AuthRoute>
+
     /// The services used by this coordinator.
     let services: Services
 
@@ -65,6 +73,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: The delegate for this coordinator. Used to signal when auth has been completed.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
+    ///   - router: The router used by this coordinator to handle events.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
@@ -72,12 +81,14 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         appExtensionDelegate: AppExtensionDelegate?,
         delegate: AuthCoordinatorDelegate,
         rootNavigator: RootNavigator,
+        router: AnyRouter<AuthEvent, AuthRoute>,
         services: Services,
         stackNavigator: StackNavigator
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.delegate = delegate
         self.rootNavigator = rootNavigator
+        self.router = router
         self.services = services
         self.stackNavigator = stackNavigator
     }
@@ -141,85 +152,6 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
                 attemptAutmaticBiometricUnlock: attemptAutomaticBiometricUnlock,
                 didSwitchAccountAutomatically: didSwitch
             )
-        case .didDeleteAccount,
-             .didLogout,
-             .didStart,
-             .didTimeout,
-             .switchAccount:
-            Task {
-                await navigate(
-                    asyncTo: route,
-                    withRedirect: true,
-                    context: context
-                )
-            }
-        }
-    }
-
-    func navigate(
-        asyncTo route: AuthRoute,
-        withRedirect: Bool,
-        context: AnyObject?
-    ) async {
-        var updatedRoute = route
-        if withRedirect {
-            updatedRoute = await prepareAndRedirect(route)
-        }
-        navigate(to: updatedRoute, context: context)
-        // If the initial route was `didDeleteAccount`, show an alert after navigating to the redirect.
-        if route == .didDeleteAccount {
-            navigate(to: .alert(Alert.accountDeletedAlert()), context: context)
-        }
-    }
-
-    /// Prepare the coordinator asynchronously for a redirected `AuthRoute` based on current state
-    ///
-    /// - Parameter route: The proposed `AuthRoute`.
-    /// - Returns: Either the supplied route or a new route if the coordinator state demands a different route.
-    ///
-    func prepareAndRedirect(_ route: AuthRoute) async -> AuthRoute {
-        switch route {
-        case .didDeleteAccount:
-            await deleteAccountRedirect()
-        case let .didLogout(userInitiated):
-            await logoutRedirect(userInitiated: userInitiated)
-        case .didStart:
-            // Go to the initial auth route redirect.
-            await preparedStartRoute()
-        case let .didTimeout(userId):
-            await timeoutRedirect(userId: userId)
-        case let .switchAccount(isUserInitiated, userId):
-            await switchAccountRedirect(
-                isUserInitiated: isUserInitiated,
-                userId: userId
-            )
-        case let .vaultUnlock(
-            activeAccount,
-            animated,
-            attemptAutomaticBiometricUnlock,
-            didSwitchAccountAutomatically
-        ):
-            await vaultUnlockRedirect(
-                activeAccount,
-                animated: animated,
-                attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                didSwitchAccountAutomatically: didSwitchAccountAutomatically
-            )
-        case .alert,
-             .captcha,
-             .complete,
-             .createAccount,
-             .dismiss,
-             .enterpriseSingleSignOn,
-             .landing,
-             .login,
-             .loginOptions,
-             .loginWithDevice,
-             .masterPasswordHint,
-             .selfHosted,
-             .singleSignOn,
-             .twoFactor:
-            route
         }
     }
 
@@ -244,136 +176,6 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             throw StateServiceError.noActiveAccount
         }
         return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
-    }
-
-    /// Handles the `.didDeleteAccount`route and redirects the user to the correct screen
-    ///     based on alternate accounts state. If the user has an alternate account,
-    ///     they will go to the unlock sequence for that account.
-    ///     Otherwise, the user will be directed to the landing screen.
-    ///
-    /// - Returns: A redirect to either `.landing` or `prepareAndRedirect(.vaultUnlock)`.
-    ///
-    private func deleteAccountRedirect() async -> AuthRoute {
-        // Ensure that the active account id is nil, otherwise, handle a failed account deletion by directing
-        // The user to the unlock flow.
-        let oldActiveId = try? await services.stateService.getActiveAccountId()
-        // Try to set the next available account.
-        guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
-            // If no other accounts are available, go to landing.
-            return .landing
-        }
-        // Setup the unlock route for the newly active account.
-        let redirect = AuthRoute.vaultUnlock(
-            activeAccount,
-            animated: false,
-            attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: oldActiveId != activeAccount.profile.userId
-        )
-        // Handle any vault unlock redirects for this active account.
-        return await prepareAndRedirect(redirect)
-    }
-
-    /// Handles the `.didLogout()`route and redirects the user to the correct screen
-    ///     based on whether the user initiated this logout. If the user initiated the logout has an alternate account,
-    ///     they will be switched to the alternate and go to the unlock sequence for that account.
-    ///     Otherwise, the user will be directed to the landing screen.
-    ///
-    ///     - Parameter userInitiated: Did a user action initiate this logout?
-    ///         If `true`, the app should attempt to switch to the next available account.
-    ///     - Returns: A redirect to either `.landing` or `prepareAndRedirect(.vaultUnlock)`.
-    ///
-    private func logoutRedirect(userInitiated: Bool) async -> AuthRoute {
-        // Ensure that the active account id is nil, otherwise, handle a logout by directing
-        // The user to the unlock flow.
-        let oldActiveId = try? await services.stateService.getActiveAccountId()
-        // Try to get/set the available account. If `userInitiated`, attempt to switch to the next available account.
-        guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: userInitiated) else {
-            return .landing
-        }
-        // Setup the unlock route for the newly active account.
-        let vaultUnlock = AuthRoute.vaultUnlock(
-            activeAccount,
-            animated: false,
-            attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: oldActiveId != activeAccount.profile.userId
-        )
-        // Handle any vault unlock redirects for this active account.
-        return await prepareAndRedirect(vaultUnlock)
-    }
-
-    /// Handles the `.didStart`route and redirects the user to the correct screen based on active account state.
-    ///
-    ///   - Returns: A redirect to either `.landing`,  `prepareAndRedirect(.didTimeout())`,
-    ///      or `prepareAndRedirect(.vaultUnlock())`.
-    ///
-    private func preparedStartRoute() async -> AuthRoute {
-        guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
-            // If no account can be set to active, go to the landing screen.
-            return .landing
-        }
-        // Check for the `onAppRestart` timeout condition.
-        let vaultTimeout = try? await services.vaultTimeoutService
-            .sessionTimeoutValue(userId: activeAccount.profile.userId)
-        if vaultTimeout == .onAppRestart {
-            return await prepareAndRedirect(.didTimeout(userId: activeAccount.profile.userId))
-        }
-        let vaultUnlock = AuthRoute.vaultUnlock(
-            activeAccount,
-            animated: false,
-            attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: false
-        )
-
-        // Redirect the vault unlock screen if needed.
-        return await prepareAndRedirect(vaultUnlock)
-    }
-
-    /// Handles the `.didTimeout`route and redirects the user to the correct screen based on active account state.
-    ///
-    ///   - Returns: A redirect to either `.didTimeout()`, `.landing`, or `prepareAndRedirect(.vaultUnlock())`.
-    ///
-    private func timeoutRedirect(userId: String) async -> Route {
-        do {
-            // Ensure the timeout interval isn't `.never` and that the user has a timeout action.
-            let vaultTimeoutInterval = try await services.vaultTimeoutService.sessionTimeoutValue(userId: userId)
-            guard vaultTimeoutInterval != .never,
-                  let action = try? await services.stateService.getTimeoutAction(userId: userId) else {
-                // If we have timed out a user with `.never` as a timeout or no timeout action,
-                // no redirect is needed.
-                return .didTimeout(userId: userId)
-            }
-
-            // Check the timeout action for the user.
-            switch action {
-            case .lock:
-                // If there is a timeout and the user has a lock vault action,
-                //  return `.vaultUnlock`.
-                await services.authRepository.lockVault(userId: userId)
-                guard let activeAccount = try? await services.stateService.getActiveAccount(),
-                      activeAccount.profile.userId == userId else {
-                    return .didTimeout(userId: userId)
-                }
-                let vaultUnlock = AuthRoute.vaultUnlock(
-                    activeAccount,
-                    animated: false,
-                    attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: false
-                )
-                // Redirect the vault unlock
-                return await prepareAndRedirect(vaultUnlock)
-            case .logout:
-                // If there is a timeout and the user has a logout vault action,
-                //  log out the user.
-                try await services.authRepository.logout(userId: userId)
-
-                // Go to landing.
-                return .landing
-            }
-        } catch {
-            services.errorReporter.log(error: error)
-            // Go to landing.
-            return .landing
-        }
     }
 
     /// Shows the captcha screen.
@@ -624,92 +426,6 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         stackNavigator.replace(view, animated: animated)
         if didSwitchAccountAutomatically {
             processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
-        }
-    }
-
-    /// Configures state and suggests a redirect for the switch accounts route.
-    ///
-    /// - Parameters:
-    ///   - isUserInitiated: Did the user trigger the account switch?
-    ///   - userId: The user Id of the selected account.
-    /// - Returns: A suggested route for the active account with state pre-configured.
-    ///
-    private func switchAccountRedirect(isUserInitiated: Bool, userId: String) async -> AuthRoute {
-        if let account = try? await services.stateService.getActiveAccount(),
-           userId == account.profile.userId {
-            return await prepareAndRedirect(
-                .vaultUnlock(
-                    account,
-                    animated: false,
-                    attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: false
-                )
-            )
-        }
-        do {
-            let activeAccount = try await services.authRepository.setActiveAccount(userId: userId)
-            let redirect = AuthRoute.vaultUnlock(
-                activeAccount,
-                animated: false,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: !isUserInitiated
-            )
-            return await prepareAndRedirect(redirect)
-        } catch {
-            services.errorReporter.log(error: error)
-            return .landing
-        }
-    }
-
-    /// Configures state and suggests a redirect for the `.vaultUnlock` route.
-    ///
-    /// - Parameters:
-    ///     - activeAccount: The active account.
-    ///     - animated: If the suggested route can be animated, use this value.
-    ///     - shouldAttemptAutomaticBiometricUnlock: If the route uses automatic bioemtrics unlock,
-    ///         this value enables or disables the feature.
-    ///     - shouldAttemptAccountSwitch: Should the application automatically switch accounts for the user?
-    /// - Returns: A suggested route for the active account with state pre-configured.
-    ///
-    private func vaultUnlockRedirect(
-        _ activeAccount: Account,
-        animated: Bool,
-        attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
-    ) async -> AuthRoute {
-        let userId = activeAccount.profile.userId
-        do {
-            // Check for Never Lock.
-            let isLocked = try? await services.authRepository.isLocked(userId: userId)
-            let vaultTimeout = try? await services.vaultTimeoutService.sessionTimeoutValue(userId: userId)
-
-            switch (vaultTimeout, isLocked) {
-            case (.never, true):
-                // If the user has enabled Never Lock, but the vault is locked,
-                //  unlock the vault and return `.complete`.
-                try await services.authRepository.unlockVaultWithNeverlockKey()
-                return .complete
-            case (_, false):
-                // If the  vault is unlocked, return `.complete`.
-                return .complete
-            default:
-                // Otherwise, return `.vaultUnlock`.
-                return .vaultUnlock(
-                    activeAccount,
-                    animated: animated,
-                    attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
-                )
-            }
-        } catch {
-            // In case of an error, go to `.vaultUnlock` for the active user.
-            services.errorReporter.log(error: error)
-            return .vaultUnlock(
-                activeAccount,
-                animated: animated,
-                attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                didSwitchAccountAutomatically: didSwitchAccountAutomatically
-            )
         }
     }
 }

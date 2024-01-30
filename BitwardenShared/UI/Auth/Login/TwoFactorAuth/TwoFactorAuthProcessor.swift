@@ -15,7 +15,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<AuthRoute>
+    private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// The services used by the processor.
     private let services: Services
@@ -30,7 +30,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: TwoFactorAuthState
     ) {

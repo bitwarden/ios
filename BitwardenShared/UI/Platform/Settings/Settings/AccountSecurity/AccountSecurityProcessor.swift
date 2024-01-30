@@ -24,7 +24,7 @@ final class AccountSecurityProcessor: StateProcessor<
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The services used by this processor.
     private var services: Services
@@ -39,7 +39,7 @@ final class AccountSecurityProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
         state: AccountSecurityState
     ) {
@@ -58,8 +58,14 @@ final class AccountSecurityProcessor: StateProcessor<
             await appeared()
         case .loadData:
             await loadData()
-        case let .lockVault(userIntiated):
-            await lockVault(userInitiated: userIntiated)
+        case .lockVault:
+            await coordinator.handleEvent(
+                .authAction(
+                    .lockVault(
+                        userId: nil
+                    )
+                )
+            )
         case let .toggleUnlockWithBiometrics(isOn):
             await setBioMetricAuth(isOn)
         }
@@ -150,21 +156,6 @@ final class AccountSecurityProcessor: StateProcessor<
         }
     }
 
-    /// Locks the user's vault
-    ///
-    ///
-    ///
-    private func lockVault(userInitiated: Bool) async {
-        do {
-            let account = try await services.stateService.getActiveAccount()
-            await services.authRepository.lockVault(userId: account.profile.userId)
-            coordinator.navigate(to: .lockVault(account: account, userInitiated: userInitiated))
-        } catch {
-            coordinator.navigate(to: .logout(userInitiated: userInitiated))
-            services.errorReporter.log(error: error)
-        }
-    }
-
     /// Sets the session timeout action.
     ///
     /// - Parameter action: The action that occurs upon a session timeout.
@@ -224,12 +215,13 @@ final class AccountSecurityProcessor: StateProcessor<
     /// Shows an alert asking the user to confirm that they want to logout.
     private func showLogoutConfirmation() {
         let alert = Alert.logoutConfirmation {
-            do {
-                try await self.services.authRepository.logout()
-            } catch {
-                self.services.errorReporter.log(error: error)
+            Task {
+                await self.coordinator.handleEvent(
+                    .authAction(
+                        .logout(userId: nil, userInitiated: true)
+                    )
+                )
             }
-            self.coordinator.navigate(to: .logout(userInitiated: true))
         }
         coordinator.navigate(to: .alert(alert))
     }

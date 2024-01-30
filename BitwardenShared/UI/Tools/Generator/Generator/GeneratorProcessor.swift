@@ -13,7 +13,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<GeneratorRoute>
+    private let coordinator: AnyCoordinator<GeneratorRoute, Void>
 
     /// The key path of the currently focused text field.
     private var focusedKeyPath: KeyPath<GeneratorState, String>?
@@ -34,7 +34,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<GeneratorRoute>,
+        coordinator: AnyCoordinator<GeneratorRoute, Void>,
         services: Services,
         state: GeneratorState
     ) {

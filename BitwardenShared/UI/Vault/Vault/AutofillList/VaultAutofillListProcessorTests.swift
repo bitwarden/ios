@@ -8,7 +8,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     var appExtensionDelegate: MockAppExtensionDelegate!
     var authRepository: MockAuthRepository!
-    var coordinator: MockCoordinator<VaultRoute>!
+    var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var subject: VaultAutofillListProcessor!
     var vaultRepository: MockVaultRepository!
@@ -79,8 +79,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.loadData` loads the profile switcher state.
     func test_perform_loadData_profileSwitcher() async {
-        authRepository.accountsResult = .success([.anneAccount])
-        authRepository.activeAccountResult = .success(.anneAccount)
+        authRepository.profileSwitcherItemsResult = .success([.anneAccount])
+        authRepository.activeProfileSwitcherItemResult = .success(.anneAccount)
 
         await subject.perform(.loadData)
 
@@ -89,7 +89,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.loadData` logs an error if one occurs when loading the profile switcher.
     func test_perform_loadData_profileSwitcher_error() async {
-        authRepository.accountsResult = .failure(StateServiceError.noAccounts)
+        authRepository.profileSwitcherItemsResult = .failure(StateServiceError.noAccounts)
 
         await subject.perform(.loadData)
 

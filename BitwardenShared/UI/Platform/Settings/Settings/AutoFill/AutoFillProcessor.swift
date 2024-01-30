@@ -11,7 +11,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The services used by this processor.
     private var services: Services
@@ -26,7 +26,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
         state: AutoFillState
     ) {

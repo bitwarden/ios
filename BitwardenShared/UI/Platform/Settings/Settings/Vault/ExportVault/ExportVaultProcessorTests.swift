@@ -5,7 +5,7 @@ import XCTest
 class ExportVaultProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var policyService: MockPolicyService!
     var settingsRepository: MockSettingsRepository!
@@ -16,7 +16,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        coordinator = MockCoordinator<SettingsRoute>()
+        coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         policyService = MockPolicyService()
         settingsRepository = MockSettingsRepository()

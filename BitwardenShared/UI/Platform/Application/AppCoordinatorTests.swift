@@ -11,6 +11,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     var appExtensionDelegate: MockAppExtensionDelegate!
     var module: MockAppModule!
     var rootNavigator: MockRootNavigator!
+    var router: MockRouter<AuthEvent, AuthRoute>!
     var subject: AppCoordinator!
 
     // MARK: Setup & Teardown
@@ -19,7 +20,9 @@ class AppCoordinatorTests: BitwardenTestCase {
         super.setUp()
 
         appExtensionDelegate = MockAppExtensionDelegate()
+        router = MockRouter(routeForEvent: { _ in .landing })
         module = MockAppModule()
+        module.authRouter = router
         rootNavigator = MockRootNavigator()
 
         subject = AppCoordinator(
@@ -71,50 +74,46 @@ class AppCoordinatorTests: BitwardenTestCase {
     /// `didDeleteAccount(otherAccounts:)` navigates to the `didDeleteAccount` route.
     func test_didDeleteAccount() {
         subject.didDeleteAccount()
-        waitFor(!module.authCoordinator.routes.isEmpty)
+        waitFor(!router.events.isEmpty)
         XCTAssertEqual(
-            module.authCoordinator.routes,
+            router.events,
             [
                 .didDeleteAccount,
             ]
         )
     }
 
-    /// `didLockVault(_:, _:, _:)`  starts the auth coordinator and navigates to the login route.
+    /// `lockVault(_:)` passes the lock event to the router.
     func test_didLockVault() {
         let account: Account = .fixtureAccountLogin()
 
-        subject.didLockVault(account: .fixtureAccountLogin())
+        subject.lockVault(userId: account.profile.userId)
 
         waitFor(module.authCoordinator.isStarted)
+        waitFor(!router.events.isEmpty)
         XCTAssertEqual(
-            module.authCoordinator.routes,
+            router.events,
             [
-                .vaultUnlock(
-                    account,
-                    animated: false,
-                    attemptAutomaticBiometricUnlock: false,
-                    didSwitchAccountAutomatically: false
-                ),
+                .action(.lockVault(userId: account.profile.userId)),
             ]
         )
     }
 
-    /// `didLogout()` starts the auth coordinator and navigates to the `.didLogout` route.
+    /// `logout()` passes the event to the router.
     func test_didLogout_automatic() {
-        subject.didLogout(userInitiated: false)
+        subject.logout(userId: "123", userInitiated: false)
         waitFor(module.authCoordinator.isStarted)
-        XCTAssertEqual(module.authCoordinator.routes, [.didLogout(userInitiated: false)])
+        XCTAssertEqual(router.events, [.action(.logout(userId: "123", userInitiated: false))])
     }
 
     /// `didLogout()` starts the auth coordinator and navigates to the `.didLogout` route.
     func test_didLogout_userInitiated() {
-        let expectedRoute = AuthRoute.didLogout(userInitiated: true)
-        subject.didLogout(userInitiated: true)
+        let expectedEvent = AuthEvent.action(.logout(userId: "123", userInitiated: true))
+        subject.logout(userId: "123", userInitiated: true)
         waitFor(module.authCoordinator.isStarted)
         XCTAssertEqual(
-            module.authCoordinator.routes,
-            [expectedRoute]
+            router.events,
+            [expectedEvent]
         )
     }
 
@@ -123,11 +122,13 @@ class AppCoordinatorTests: BitwardenTestCase {
         subject.didTapAccount(userId: "123")
         waitFor(module.authCoordinator.isStarted)
         XCTAssertEqual(
-            module.authCoordinator.routes,
+            router.events,
             [
-                .switchAccount(
-                    isUserInitiated: true,
-                    userId: "123"
+                .action(
+                    .switchAccount(
+                        isAutomatic: false,
+                        userId: "123"
+                    )
                 ),
             ]
         )

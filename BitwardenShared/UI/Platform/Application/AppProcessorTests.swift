@@ -8,10 +8,11 @@ class AppProcessorTests: BitwardenTestCase {
 
     var appModule: MockAppModule!
     var appSettingStore: MockAppSettingsStore!
-    var coordinator: MockCoordinator<AppRoute>!
+    var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
+    var router: MockRouter<AuthEvent, AuthRoute>!
     var stateService: MockStateService!
     var subject: AppProcessor!
     var syncService: MockSyncService!
@@ -23,9 +24,12 @@ class AppProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        router = MockRouter(routeForEvent: { _ in .landing })
         appModule = MockAppModule()
+        coordinator = MockCoordinator()
+        appModule.authRouter = router
+        appModule.appCoordinator = coordinator
         appSettingStore = MockAppSettingsStore()
-        coordinator = MockCoordinator<AppRoute>()
         errorReporter = MockErrorReporter()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
@@ -127,10 +131,10 @@ class AppProcessorTests: BitwardenTestCase {
         notificationCenterService.willEnterForegroundSubject.send()
         waitFor(vaultTimeoutService.shouldSessionTimeout[account.profile.userId] == true)
 
-        waitFor(appModule.appCoordinator.routes.last != .auth(.didStart))
+        waitFor(coordinator.events.count > 1)
         XCTAssertEqual(
-            appModule.appCoordinator.routes.last,
-            .auth(.didTimeout(userId: account.profile.userId))
+            coordinator.events.last,
+            .didTimeout(userId: account.profile.userId)
         )
     }
 
@@ -164,7 +168,9 @@ class AppProcessorTests: BitwardenTestCase {
 
         subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
+        waitFor(!coordinator.events.isEmpty)
+
         XCTAssertTrue(appModule.appCoordinator.isStarted)
-        XCTAssertEqual(appModule.appCoordinator.routes, [.auth(.didStart)])
+        XCTAssertEqual(appModule.appCoordinator.events, [.didStart])
     }
 }

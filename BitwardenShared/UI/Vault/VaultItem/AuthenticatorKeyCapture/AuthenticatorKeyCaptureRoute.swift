@@ -16,7 +16,11 @@ public enum AuthenticatorKeyCaptureRoute: Equatable, Hashable {
 
     /// A route to the manual entry view.
     case manualKeyEntry
+}
 
-    /// A route to the scan code view.
-    case scanCode
+/// A route to a specific screen in the authenticator key capture flow.
+///
+public enum AuthenticatorKeyCaptureEvent: Equatable {
+    /// When the app should show the scan code view.
+    case showScanCode
 }

@@ -11,7 +11,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     // MARK: Initialization
 
@@ -22,7 +22,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         state: SettingsState
     ) {
         self.coordinator = coordinator

@@ -36,7 +36,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultItemRoute>
+    private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
@@ -55,7 +55,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///   - state: The initial state for the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultItemRoute>,
+        coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: CipherItemOperationDelegate?,
         services: Services,
         state: AddEditItemState
@@ -501,7 +501,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
-            await coordinator.navigate(asyncTo: .scanCode, withRedirect: false, context: self)
+            await coordinator.handleEvent(.showScanCode, context: self)
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }
@@ -526,7 +526,7 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 
 extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteCapture(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         with value: String
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
@@ -553,15 +553,22 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         coordinator.navigate(to: .alert(.totpScanFailureAlert()))
     }
 
-    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+    func showCameraScan(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
         guard services.cameraService.deviceSupportsCamera() else { return }
         let dismissAction = DismissAction(action: { [weak self] in
-            self?.coordinator.navigate(to: .scanCode, context: self)
+            guard let self else { return }
+            Task {
+                await self.coordinator.handleEvent(.showScanCode, context: self)
+            }
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 
-    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+    func showManualEntry(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
         let dismissAction = DismissAction(action: { [weak self] in
             self?.coordinator.navigate(to: .setupTotpManual, context: self)
         })

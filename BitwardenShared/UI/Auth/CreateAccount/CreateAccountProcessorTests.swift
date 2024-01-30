@@ -13,7 +13,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
-    var coordinator: MockCoordinator<AuthRoute>!
+    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var subject: CreateAccountProcessor!
 
     // MARK: Setup & Teardown
@@ -24,7 +24,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         captchaService = MockCaptchaService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
-        coordinator = MockCoordinator<AuthRoute>()
+        coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         subject = CreateAccountProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
