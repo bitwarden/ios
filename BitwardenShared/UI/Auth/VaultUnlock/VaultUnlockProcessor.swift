@@ -135,7 +135,11 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
         }
     }
 
-    /// Navigates to the appropriate location following a logout.
+    /// Navigates to the appropriate location following a logout event.
+    ///
+    /// - Parameters:
+    ///   - accountId: The id of the account that was logged out.
+    ///   - userInitiated: Did the user initiate this logout?
     ///
     private func navigateFollowingLogout(
         accountId: String,

@@ -407,13 +407,3 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator.push(viewController, navigationTitle: Localizations.vault)
     }
 }
-
-// MARK: - SettingsEvent
-
-enum SettingsEvent: Equatable {
-    /// When an `AuthAction` occurs.
-    case authAction(AuthAction)
-
-    /// When the user has deleted their account.
-    case didDeleteAccount
-}

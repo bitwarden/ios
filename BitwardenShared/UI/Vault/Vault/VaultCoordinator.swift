@@ -41,7 +41,7 @@ public protocol VaultCoordinatorDelegate: AnyObject {
     ///
     /// - Parameters:
     ///   - userId: The user Id of the account.
-    ///   - isUserInitiated: Did the user trigger the account switch?
+    ///   - isAutomatic: Did the system trigger the account switch?
     ///
     func switchAccount(userId: String, isAutomatic: Bool)
 }

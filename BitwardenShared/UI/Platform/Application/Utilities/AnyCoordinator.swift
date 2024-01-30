@@ -5,7 +5,7 @@
 open class AnyCoordinator<Route, Event>: Coordinator {
     // MARK: Properties
 
-    /// A closure that wraps the `navigate(asyncTo:)` method.
+    /// A closure that wraps the `handleEvent(_:,_:)` method.
     private let doHandleEvent: (Event, AnyObject?) async -> Void
 
     /// A closure that wraps the `hideLoadingOverlay()` method.
