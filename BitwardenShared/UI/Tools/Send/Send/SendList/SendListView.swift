@@ -57,6 +57,10 @@ private struct MainSendListView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
+                    if store.state.isSendDisabled {
+                        InfoContainer(Localizations.sendDisabledWarning)
+                    }
+
                     Spacer()
 
                     Text(Localizations.noSends)
@@ -69,7 +73,7 @@ private struct MainSendListView: View {
 
                     Spacer()
                 }
-                .padding(.horizontal, 16)
+                .padding(16)
                 .frame(minHeight: reader.size.height)
             }
             .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
@@ -80,6 +84,10 @@ private struct MainSendListView: View {
     @ViewBuilder private var list: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 20) {
+                if store.state.isSendDisabled {
+                    InfoContainer(Localizations.sendDisabledWarning)
+                }
+
                 ForEach(store.state.sections) { section in
                     sendItemSectionView(
                         sectionName: section.name,
@@ -148,6 +156,7 @@ private struct MainSendListView: View {
                         store: store.child(
                             state: { _ in
                                 SendListItemRowState(
+                                    isSendDisabled: store.state.isSendDisabled,
                                     item: item,
                                     hasDivider: items.last != item
                                 )
@@ -211,7 +220,8 @@ struct SendListView: View {
                 get: \.toast,
                 send: SendListAction.toastShown
             ))
-            .task { await store.perform(.appeared) }
+            .task { await store.perform(.loadData) }
+            .task { await store.perform(.streamSendList) }
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }

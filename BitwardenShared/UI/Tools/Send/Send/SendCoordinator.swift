@@ -16,6 +16,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasErrorReporter
         & HasPasteboardService
+        & HasPolicyService
         & HasSendRepository
 
     // MARK: - Private Properties

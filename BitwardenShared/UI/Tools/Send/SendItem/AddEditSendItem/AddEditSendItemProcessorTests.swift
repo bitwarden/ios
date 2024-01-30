@@ -10,6 +10,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     var coordinator: MockCoordinator<SendItemRoute, Void>!
     var pasteboardService: MockPasteboardService!
+    var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
     var subject: AddEditSendItemProcessor!
 
@@ -19,11 +20,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         super.setUp()
         coordinator = MockCoordinator()
         pasteboardService = MockPasteboardService()
+        policyService = MockPolicyService()
         sendRepository = MockSendRepository()
         subject = AddEditSendItemProcessor(
             coordinator: coordinator,
             services: ServiceContainer.withMocks(
                 pasteboardService: pasteboardService,
+                policyService: policyService,
                 sendRepository: sendRepository
             ),
             state: AddEditSendItemState()
@@ -34,6 +37,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         super.tearDown()
         coordinator = nil
         pasteboardService = nil
+        policyService = nil
         sendRepository = nil
         subject = nil
     }
@@ -94,6 +98,16 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             Localizations.deleting
         )
         XCTAssertEqual(coordinator.routes.last, .deleted)
+    }
+
+    /// `perform(_:)` with `loadData` loads the policy data for the view.
+    func test_perform_loadData_policies() async {
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isSendDisabled)
+
+        policyService.policyAppliesToUserResult[.disableSend] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.isSendDisabled)
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove

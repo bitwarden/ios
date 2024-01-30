@@ -1,4 +1,5 @@
 import SnapshotTesting
+import SwiftUI
 import ViewInspector
 import XCTest
 
@@ -112,6 +113,21 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .savePressed)
     }
 
+    /// Setting `isSendDisabled` disables the controls within the view.
+    func test_sendDisabled() async throws {
+        processor.state.isSendDisabled = true
+
+        let infoContainer = try subject.inspect().find(InfoContainer<Text>.self)
+        try XCTAssertEqual(infoContainer.text().string(), Localizations.sendDisabledWarning)
+
+        let saveButton = try subject.inspect().find(asyncButton: Localizations.save)
+        XCTAssertTrue(saveButton.isDisabled())
+
+        XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.shareLink))
+        XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.copyLink))
+        XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.removePassword))
+    }
+
     /// Updating the text textfield sends the `.textChanged` action.
     func test_textTextField_updated() throws {
         let textField = try subject.inspect().find(bitwardenMultilineTextField: Localizations.text)
@@ -193,6 +209,11 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
         assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot_sendDisabled() {
+        processor.state.isSendDisabled = true
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_text_empty() {

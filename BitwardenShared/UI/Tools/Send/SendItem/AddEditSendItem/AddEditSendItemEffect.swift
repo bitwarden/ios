@@ -9,10 +9,13 @@ enum AddEditSendItemEffect: Equatable {
     /// The delete button was pressed.
     case deletePressed
 
+    /// Any initial data for the view should be loaded.
+    case loadData
+
     /// The remove password button was pressed.
     case removePassword
 
-    /// The save buton was pressed.
+    /// The save button was pressed.
     case savePressed
 
     /// The share link button was pressed.

@@ -81,6 +81,9 @@ struct AddEditSendItemState: Equatable {
     /// A flag indicating if the password is visible.
     var isPasswordVisible = false
 
+    /// Whether sends are disabled via a policy.
+    var isSendDisabled = false
+
     /// The key for this send.
     var key: String?
 

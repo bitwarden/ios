@@ -10,6 +10,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 
     typealias Services = HasErrorReporter
         & HasPasteboardService
+        & HasPolicyService
         & HasSendRepository
 
     // MARK: Private properties
@@ -43,8 +44,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 
     override func perform(_ effect: SendListEffect) async {
         switch effect {
-        case .appeared:
-            await streamSendList()
+        case .loadData:
+            await loadData()
         case let .search(text):
             state.searchResults = await searchSends(for: text)
         case .refresh:
@@ -69,6 +70,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                 guard let url = try? await services.sendRepository.shareURL(for: sendView) else { return }
                 coordinator.navigate(to: .share(url: url))
             }
+        case .streamSendList:
+            await streamSendList()
         }
     }
 
@@ -132,6 +135,12 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(alert)
         }
+    }
+
+    /// Load any initial data for the view.
+    ///
+    private func loadData() async {
+        state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
     }
 
     /// Removes the password from the provided send.
