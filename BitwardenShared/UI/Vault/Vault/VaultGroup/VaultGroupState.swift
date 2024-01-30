@@ -63,7 +63,7 @@ struct VaultGroupState: Equatable {
 
     /// Whether to show the add item button in the toolbar.
     var showAddToolbarItem: Bool {
-        if case .trash = group, emptyData {
+        if case .trash = group {
             return false
         }
         return true
