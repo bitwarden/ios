@@ -120,6 +120,10 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
 
     // MARK: Private Methods
 
+    /// Copies the share link for the provided send.
+    ///
+    /// - Parameter sendView: The send to copy the link to.
+    ///
     private func copyLink(to sendView: SendView) async {
         guard let url = try? await services.sendRepository.shareURL(for: sendView) else { return }
 
