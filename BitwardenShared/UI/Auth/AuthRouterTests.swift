@@ -795,7 +795,11 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         let active = Account.fixture()
         authRepository.activeAccount = active
         authRepository.isLockedResult = .success(false)
-        let route = await subject.handleAndRoute(.action(.switchAccount(isAutomatic: true, userId: active.profile.userId)))
+        let route = await subject.handleAndRoute(
+            .action(
+                .switchAccount(isAutomatic: true, userId: active.profile.userId)
+            )
+        )
         XCTAssertEqual(route, .complete)
     }
 
