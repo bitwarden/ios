@@ -141,7 +141,7 @@ extension Coordinator where Self: HasNavigator {
     /// - Parameter text: The text of the toast to display.
     ///
     func showToast(_ text: String) {
-        navigator.showToast(Toast(text: text))
+        navigator?.showToast(Toast(text: text))
     }
 }
 

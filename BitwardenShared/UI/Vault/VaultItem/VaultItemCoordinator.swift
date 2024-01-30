@@ -363,7 +363,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     private func showSaveFile(_ temporaryUrl: URL) {
         let documentController = UIDocumentPickerViewController(forExporting: [temporaryUrl])
-        stackNavigator.present(documentController)
+        stackNavigator?.present(documentController)
     }
 
     /// Shows the view item screen.
@@ -400,4 +400,4 @@ extension View {
                 .navigationViewStyle(.stack)
         }
     }
-}
+} // swiftlint:disable:this file_length

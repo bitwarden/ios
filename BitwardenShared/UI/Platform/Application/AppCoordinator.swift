@@ -141,7 +141,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.start()
             coordinator.navigate(to: route)
             childCoordinator = coordinator
-            rootNavigator.show(child: stackNavigator)
+            rootNavigator?.show(child: stackNavigator)
         }
     }
 
@@ -175,7 +175,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         DispatchQueue.main.async {
             // Make sure that the user is authenticated and not currently viewing the login request view.
             guard self.childCoordinator is AnyCoordinator<TabRoute> else { return }
-            let currentView = self.rootNavigator.rootViewController?.topmostViewController()
+            let currentView = self.rootNavigator?.rootViewController?.topmostViewController()
             guard !(currentView is UIHostingController<LoginRequestView>) else { return }
 
             // Create the login request view.
@@ -185,7 +185,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: .loginRequest(loginRequest), context: self)
 
             // Present the login request view.
-            self.rootNavigator.rootViewController?.topmostViewController().present(
+            self.rootNavigator?.rootViewController?.topmostViewController().present(
                 navigationController,
                 animated: true
             )

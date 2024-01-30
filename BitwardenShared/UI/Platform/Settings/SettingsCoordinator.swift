@@ -315,7 +315,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let coordinator = module.makeLoginRequestCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .loginRequest(loginRequest), context: delegate)
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the other settings screen.
