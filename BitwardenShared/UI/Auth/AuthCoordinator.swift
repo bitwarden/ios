@@ -54,7 +54,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     let services: Services
 
     /// The stack navigator that is managed by this coordinator.
-    var stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -98,7 +98,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         case .createAccount:
             showCreateAccount()
         case .dismiss:
-            stackNavigator.dismiss()
+            stackNavigator?.dismiss()
         case let .enterpriseSingleSignOn(email):
             showEnterpriseSingleSignOn(email: email)
         case .landing:
@@ -146,6 +146,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     }
 
     func start() {
+        guard let stackNavigator else { return }
         rootNavigator?.show(child: stackNavigator)
     }
 
@@ -221,7 +222,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             )
         )
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator.present(navController)
+        stackNavigator?.present(navController)
     }
 
     /// Shows the enterprise single sign-on screen.
@@ -238,12 +239,13 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         let view = SingleSignOnView(store: store)
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the landing screen.
     ///
     private func showLanding() {
+        guard let stackNavigator else { return }
         if stackNavigator.popToRoot(animated: UI.animated).isEmpty {
             let processor = LandingProcessor(
                 coordinator: asAnyCoordinator(),
@@ -262,6 +264,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     /// - Parameter state: The `LoginState` to initialize the login screen with.
     ///
     private func showLogin(state: LoginState) {
+        guard let stackNavigator else { return }
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
 
         let processor = LoginProcessor(
@@ -286,7 +289,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     /// Shows the login options screen.
     private func showLoginOptions() {
         let view = Text("Login Options")
-        stackNavigator.push(view)
+        stackNavigator?.push(view)
     }
 
     /// Shows the login with device screen.
@@ -303,7 +306,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         let view = LoginWithDeviceView(store: store)
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the master password hint screen for the provided username.
@@ -320,7 +323,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         let view = PasswordHintView(store: store)
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the self-hosted settings view.
@@ -332,7 +335,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         )
         let view = SelfHostedView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator.present(navController)
+        stackNavigator?.present(navController)
     }
 
     /// Shows the single sign on screen.
@@ -396,7 +399,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         let view = TwoFactorAuthView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the vault unlock view.
@@ -421,7 +424,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         )
         processor.shouldAttemptAutomaticBiometricUnlock = attemptAutmaticBiometricUnlock
         let view = VaultUnlockView(store: Store(processor: processor))
-        stackNavigator.replace(view, animated: animated)
+        stackNavigator?.replace(view, animated: animated)
         if didSwitchAccountAutomatically {
             processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
         }
@@ -432,6 +435,6 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
 
 extension AuthCoordinator: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for _: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        stackNavigator.rootViewController?.view.window ?? UIWindow()
+        stackNavigator?.rootViewController?.view.window ?? UIWindow()
     }
 } // swiftlint:disable:this file_length
