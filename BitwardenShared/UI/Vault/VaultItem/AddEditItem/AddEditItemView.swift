@@ -120,6 +120,7 @@ struct AddEditItemView: View {
             if case .add = store.state.configuration, store.state.allowTypeSelection {
                 BitwardenMenuField(
                     title: Localizations.type,
+                    accessibilityIdentifier: "ItemTypePicker",
                     options: CipherType.allCases,
                     selection: store.binding(
                         get: \.type,
@@ -230,6 +231,7 @@ private extension AddEditItemView {
             SectionView(Localizations.ownership) {
                 BitwardenMenuField(
                     title: Localizations.whoOwnsThisItem,
+                    accessibilityIdentifier: "ItemOwnershipPicker",
                     options: store.state.ownershipOptions,
                     selection: store.binding(
                         get: { _ in owner },
@@ -255,6 +257,7 @@ private extension AddEditItemView {
                                     Text(collection.name)
                                 }
                                 .toggleStyle(.bitwarden)
+                                .accessibilityIdentifier("CollectionItemCell")
                             }
                         }
                     }
