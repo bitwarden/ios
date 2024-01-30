@@ -41,7 +41,7 @@ public extension AppExtensionDelegate {
     /// - Parameters:
     ///   - username: The username to fill.
     ///   - password: The password to fill.
-    ///   - fields: A list of additional fields to file.
+    ///   - fields: A list of additional fields to fill.
     ///
     func completeAutofillRequest(username: String, password: String, fields: [(String, String)]?) {}
 }
