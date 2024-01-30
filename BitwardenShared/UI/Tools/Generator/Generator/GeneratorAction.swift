@@ -82,29 +82,4 @@ extension GeneratorAction {
             return false
         }
     }
-
-    /// Whether the action should result in the processor persisting the user's generator options.
-    var shouldPersistGeneratorOptions: Bool {
-        switch self {
-        case .copyGeneratedValue,
-             .dismissPressed,
-             .generatorTypeChanged,
-             .refreshGeneratedValue,
-             .selectButtonPressed,
-             .showPasswordHistory,
-             .textFieldFocusChanged,
-             .textFieldIsPasswordVisibleChanged,
-             .toastShown:
-            return false
-        case .emailTypeChanged,
-             .passwordGeneratorTypeChanged,
-             .sliderValueChanged,
-             .stepperValueChanged,
-             .textValueChanged,
-             .toggleValueChanged,
-             .usernameForwardedEmailServiceChanged,
-             .usernameGeneratorTypeChanged:
-            return true
-        }
-    }
 }

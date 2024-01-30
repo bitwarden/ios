@@ -62,12 +62,13 @@ struct VaultUnlockView: View {
 
                 biometricAuthButton
 
-                Button {
-                    Task { await store.perform(.unlockVault) }
+                AsyncButton {
+                    await store.perform(.unlockVault)
                 } label: {
                     Text(Localizations.unlock)
                 }
                 .buttonStyle(.primary(shouldFillWidth: true))
+                .accessibilityIdentifier("UnlockVaultButton")
             }
             .padding(16)
         }
@@ -129,6 +130,8 @@ struct VaultUnlockView: View {
                     send: VaultUnlockAction.masterPasswordChanged
                 ),
                 footer: footerText,
+                accessibilityIdentifier: "MasterPasswordEntry",
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: VaultUnlockAction.revealMasterPasswordFieldPressed
@@ -143,6 +146,8 @@ struct VaultUnlockView: View {
                     send: VaultUnlockAction.pinChanged
                 ),
                 footer: footerText,
+                accessibilityIdentifier: "PinEntry",
+                passwordVisibilityAccessibilityId: "PinVisibilityToggle",
                 isPasswordVisible: store.binding(
                     get: \.isPinRevealed,
                     send: VaultUnlockAction.revealPinFieldPressed

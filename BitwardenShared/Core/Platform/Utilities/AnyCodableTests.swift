@@ -6,6 +6,16 @@ import XCTest
 class AnyCodableTests: BitwardenTestCase {
     // MARK: Properties
 
+    /// `boolValue` returns the bool associated value if the type is a `bool`.
+    func test_boolValue() {
+        XCTAssertEqual(AnyCodable.bool(true).boolValue, true)
+        XCTAssertEqual(AnyCodable.bool(false).boolValue, false)
+
+        XCTAssertNil(AnyCodable.int(2).boolValue)
+        XCTAssertNil(AnyCodable.null.boolValue)
+        XCTAssertNil(AnyCodable.string("abc").boolValue)
+    }
+
     /// `AnyCodable` can be used to decode JSON.
     func test_decode() throws {
         let json = """
@@ -72,5 +82,25 @@ class AnyCodableTests: BitwardenTestCase {
             }
             """
         )
+    }
+
+    /// `intValue` returns the int associated value if the type is an `int`.
+    func test_intValue() {
+        XCTAssertEqual(AnyCodable.int(1).intValue, 1)
+        XCTAssertEqual(AnyCodable.int(5).intValue, 5)
+
+        XCTAssertNil(AnyCodable.bool(false).intValue)
+        XCTAssertNil(AnyCodable.null.intValue)
+        XCTAssertNil(AnyCodable.string("abc").intValue)
+    }
+
+    /// `stringValue` returns the string associated value if the type is a `string`.
+    func test_stringValue() {
+        XCTAssertEqual(AnyCodable.string("abc").stringValue, "abc")
+        XCTAssertEqual(AnyCodable.string("example").stringValue, "example")
+
+        XCTAssertNil(AnyCodable.bool(false).stringValue)
+        XCTAssertNil(AnyCodable.int(2).stringValue)
+        XCTAssertNil(AnyCodable.null.stringValue)
     }
 }

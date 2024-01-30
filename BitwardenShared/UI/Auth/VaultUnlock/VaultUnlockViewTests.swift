@@ -87,9 +87,9 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Tapping the vault unlock button dispatches the `.unlockVault` action.
-    func test_vaultUnlockButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.unlock)
-        try button.tap()
+    func test_vaultUnlockButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.unlock)
+        try await button.tap()
         waitFor(!processor.effects.isEmpty)
         XCTAssertEqual(processor.effects.last, .unlockVault)
     }
