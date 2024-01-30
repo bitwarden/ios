@@ -32,6 +32,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     typealias Services = HasErrorReporter
         & HasGeneratorRepository
         & HasPasteboardService
+        & HasPolicyService
 
     // MARK: Private Properties
 

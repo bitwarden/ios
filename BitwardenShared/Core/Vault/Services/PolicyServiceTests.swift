@@ -15,6 +15,23 @@ class PolicyServiceTests: BitwardenTestCase {
         .fixture(id: "2"),
     ]
 
+    let passwordGeneratorPolicy = Policy.fixture(
+        data: [
+            PolicyOptionType.capitalize.rawValue: .bool(true),
+            PolicyOptionType.defaultType.rawValue: .string(PasswordGeneratorType.passphrase.rawValue),
+            PolicyOptionType.includeNumber.rawValue: .bool(false),
+            PolicyOptionType.minLength.rawValue: .int(30),
+            PolicyOptionType.minNumbers.rawValue: .int(3),
+            PolicyOptionType.minNumberWords.rawValue: .int(4),
+            PolicyOptionType.minSpecial.rawValue: .int(2),
+            PolicyOptionType.useLower.rawValue: .bool(true),
+            PolicyOptionType.useNumbers.rawValue: .bool(false),
+            PolicyOptionType.useSpecial.rawValue: .bool(true),
+            PolicyOptionType.useUpper.rawValue: .bool(false),
+        ],
+        type: .passwordGenerator
+    )
+
     // MARK: Setup & Teardown
 
     override func setUp() {
@@ -41,6 +58,124 @@ class PolicyServiceTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
+    /// options when there's multiple policies.
+    func test_applyPasswordGenerationOptions_multiplePolicies() async throws {
+        stateService.activeAccount = .fixture()
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [
+                        PolicyOptionType.capitalize.rawValue: .bool(false),
+                        PolicyOptionType.includeNumber.rawValue: .bool(true),
+                        PolicyOptionType.minLength.rawValue: .int(20),
+                        PolicyOptionType.minNumbers.rawValue: .int(5),
+                    ],
+                    type: .passwordGenerator
+                ),
+                passwordGeneratorPolicy,
+            ]
+        )
+
+        var options = PasswordGenerationOptions()
+        let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
+
+        XCTAssertTrue(appliedPolicy)
+        XCTAssertEqual(
+            options,
+            PasswordGenerationOptions(
+                capitalize: true,
+                includeNumber: true,
+                length: 30,
+                lowercase: true,
+                minNumber: 5,
+                minSpecial: 2,
+                number: nil,
+                numWords: 4,
+                special: true,
+                type: .passphrase,
+                uppercase: nil
+            )
+        )
+    }
+
+    /// `applyPasswordGenerationOptions(options:)` doesn't modify the password generation options
+    /// when there's no policies.
+    func test_applyPasswordGenerationOptions_noPolicies() async throws {
+        stateService.activeAccount = .fixture()
+
+        let options = PasswordGenerationOptions(length: 10, lowercase: true, number: true, uppercase: false)
+        var policyEnforcedOptions = options
+        let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &policyEnforcedOptions)
+
+        XCTAssertFalse(appliedPolicy)
+        XCTAssertEqual(policyEnforcedOptions, options)
+    }
+
+    /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
+    /// options.
+    func test_applyPasswordGenerationOptions_policy() async throws {
+        stateService.activeAccount = .fixture()
+        policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
+
+        var options = PasswordGenerationOptions()
+        let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
+
+        XCTAssertTrue(appliedPolicy)
+        XCTAssertEqual(
+            options,
+            PasswordGenerationOptions(
+                capitalize: true,
+                includeNumber: nil,
+                length: 30,
+                lowercase: true,
+                minNumber: 3,
+                minSpecial: 2,
+                number: nil,
+                numWords: 4,
+                special: true,
+                type: .passphrase,
+                uppercase: nil
+            )
+        )
+    }
+
+    /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
+    /// options when there's existing options.
+    func test_applyPasswordGenerationOptions_policy_existingOptions() async throws {
+        stateService.activeAccount = .fixture()
+        policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
+
+        var options = PasswordGenerationOptions(
+            capitalize: false,
+            includeNumber: true,
+            length: 45,
+            minSpecial: 5,
+            special: false,
+            type: .password,
+            uppercase: true
+        )
+        let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
+
+        XCTAssertTrue(appliedPolicy)
+        XCTAssertEqual(
+            options,
+            PasswordGenerationOptions(
+                capitalize: true,
+                includeNumber: true,
+                length: 45,
+                lowercase: true,
+                minNumber: 3,
+                minSpecial: 5,
+                number: nil,
+                numWords: 4,
+                special: true,
+                type: .password,
+                uppercase: true
+            )
+        )
+    }
 
     /// `policyAppliesToUser(_:)` returns whether the policy applies to the user.
     func test_policyAppliesToUser() async {

@@ -17,6 +17,11 @@ struct GeneratorView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                if store.state.isPolicyInEffect {
+                    InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
+                        .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
+                }
+
                 ForEach(store.state.formSections) { section in
                     sectionView(section)
                 }

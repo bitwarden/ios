@@ -15,6 +15,9 @@ struct ToggleField<State>: Equatable, Identifiable {
     /// if this is `nil`.
     let accessibilityLabel: String?
 
+    /// Whether the toggle is disabled.
+    let isDisabled: Bool
+
     /// The current toggle value.
     let isOn: Bool
 
@@ -52,6 +55,7 @@ struct ToggleFieldView<State>: View {
             )
             .accessibilityIdentifier(field.accessibilityId ?? field.id)
             .accessibilityLabel(field.accessibilityLabel ?? field.title)
+            .disabled(field.isDisabled)
             .toggleStyle(.bitwarden)
             .padding(.bottom, 16)
             .padding(.top, 4)
