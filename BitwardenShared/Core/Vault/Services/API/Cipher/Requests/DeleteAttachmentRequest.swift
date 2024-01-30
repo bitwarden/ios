@@ -1,6 +1,8 @@
 import BitwardenSdk
 import Networking
 
+// MARK: - DeleteAttachmentRequest
+
 /// Data model for performing a delete attachment request.
 ///
 struct DeleteAttachmentRequest: Request {

@@ -128,10 +128,9 @@ struct BitwardenTextField<TrailingContent: View>: View {
     ///   - footer: The footer text displayed below the text field.
     ///   - text: The text entered into the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
+    ///   - passwordVisibilityAccessibilityId: The accessibility ID for the button to toggle password visibility.
     ///   - canViewPassword: Whether the password can be viewed.
     ///   - isPasswordVisible: Whether the password is visible.
-    ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
-    ///     button to toggle password visibility.
     ///   - placeholder: An optional placeholder to display in the text field.
     ///
     init(
@@ -139,9 +138,9 @@ struct BitwardenTextField<TrailingContent: View>: View {
         text: Binding<String>,
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
+        passwordVisibilityAccessibilityId: String? = nil,
         canViewPassword: Bool = true,
         isPasswordVisible: Binding<Bool>? = nil,
-        passwordVisibilityAccessibilityId: String? = nil,
         placeholder: String? = nil,
         @ViewBuilder trailingContent: () -> TrailingContent
     ) {
@@ -165,10 +164,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     ///   - footer: The footer text displayed below the text field.
     ///   - text: The text entered into the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
+    ///   - passwordVisibilityAccessibilityId: The accessibility ID for the button to toggle password visibility.
     ///   - canViewPassword: Whether the password can be viewed.
     ///   - isPasswordVisible: Whether the password is visible.
-    ///   - passwordVisibilityAccessibilityId: The accessibility identifier for the
-    ///     button to toggle password visibility.
     ///   - placeholder: An optional placeholder to display in the text field.
     ///
     init(
@@ -176,9 +174,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         text: Binding<String>,
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
+        passwordVisibilityAccessibilityId: String? = nil,
         canViewPassword: Bool = true,
         isPasswordVisible: Binding<Bool>? = nil,
-        passwordVisibilityAccessibilityId: String? = nil,
         placeholder: String? = nil
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier

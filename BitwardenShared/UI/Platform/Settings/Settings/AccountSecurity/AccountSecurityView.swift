@@ -59,11 +59,13 @@ struct AccountSecurityView: View {
                 Text(Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices)
             }
             .toggleStyle(.bitwarden)
+            .accessibilityIdentifier("ApproveLoginRequestsSwitch")
 
             if store.state.isApproveLoginRequestsToggleOn {
                 SettingsListItem(
                     Localizations.pendingLogInRequests,
-                    hasDivider: false
+                    hasDivider: false,
+                    accessibilityIdentifier: "PendingLogInRequestsLabel"
                 ) {
                     store.send(.pendingLoginRequestsTapped)
                 }
@@ -78,13 +80,19 @@ struct AccountSecurityView: View {
             SectionHeaderView(Localizations.other)
 
             VStack(spacing: 0) {
-                SettingsListItem(Localizations.accountFingerprintPhrase) {
+                SettingsListItem(
+                    Localizations.accountFingerprintPhrase,
+                    accessibilityIdentifier: "AccountFingerprintPhraseLabel"
+                ) {
                     Task {
                         await store.perform(.accountFingerprintPhrasePressed)
                     }
                 }
 
-                SettingsListItem(Localizations.twoStepLogin) {
+                SettingsListItem(
+                    Localizations.twoStepLogin,
+                    accessibilityIdentifier: "TwoStepLoginLinkItemView"
+                ) {
                     store.send(.twoStepLoginPressed)
                 } trailingContent: {
                     Image(asset: Asset.Images.externalLink2)
@@ -92,19 +100,26 @@ struct AccountSecurityView: View {
                         .frame(width: 22, height: 22)
                 }
 
-                SettingsListItem(Localizations.lockNow) {
+                SettingsListItem(
+                    Localizations.lockNow,
+                    accessibilityIdentifier: "LockNowLabel"
+                ) {
                     Task {
                         await store.perform(.lockVault(userInitiated: true))
                     }
                 }
 
-                SettingsListItem(Localizations.logOut) {
+                SettingsListItem(
+                    Localizations.logOut,
+                    accessibilityIdentifier: "LogOutLabel"
+                ) {
                     store.send(.logout)
                 }
 
                 SettingsListItem(
                     Localizations.deleteAccount,
-                    hasDivider: false
+                    hasDivider: false,
+                    accessibilityIdentifier: "DeleteAccountLabel"
                 ) {
                     store.send(.deleteAccountPressed)
                 }
@@ -122,6 +137,8 @@ struct AccountSecurityView: View {
                 SettingsMenuField(
                     title: Localizations.sessionTimeout,
                     options: SessionTimeoutValue.allCases,
+                    accessibilityIdentifier: "VaultTimeoutChooser",
+                    selectionAccessibilityID: "SessionTimeoutStatusLabel",
                     selection: store.binding(
                         get: \.sessionTimeoutValue,
                         send: AccountSecurityAction.sessionTimeoutValueChanged
@@ -144,6 +161,8 @@ struct AccountSecurityView: View {
                     title: Localizations.sessionTimeoutAction,
                     options: SessionTimeoutAction.allCases,
                     hasDivider: false,
+                    accessibilityIdentifier: "VaultTimeoutActionChooser",
+                    selectionAccessibilityID: "SessionTimeoutActionStatusLabel",
                     selection: store.binding(
                         get: \.sessionTimeoutAction,
                         send: AccountSecurityAction.sessionTimeoutActionChanged
@@ -170,6 +189,7 @@ struct AccountSecurityView: View {
                     Text(Localizations.unlockWithPIN)
                 }
                 .toggleStyle(.bitwarden)
+                .accessibilityIdentifier("UnlockWithPinSwitch")
             }
         }
     }
@@ -196,6 +216,7 @@ struct AccountSecurityView: View {
         )) {
             Text(toggleText)
         }
+        .accessibilityIdentifier("UnlockWithBiometricsSwitch")
         .accessibilityLabel(toggleText)
         .toggleStyle(.bitwarden)
     }

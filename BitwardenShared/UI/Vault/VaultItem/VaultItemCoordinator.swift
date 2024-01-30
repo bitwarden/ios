@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A coordinator that manages navigation for displaying, editing, and adding individual vault items.
 ///
-class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
+class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Module = FileSelectionModule
@@ -90,6 +90,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
             showMoveToOrganization(cipher: cipher, delegate: context as? MoveToOrganizationProcessorDelegate)
         case let .passwordHistory(passwordHistory):
             showPasswordHistory(passwordHistory)
+        case let .saveFile(temporaryUrl):
+            showSaveFile(temporaryUrl)
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
@@ -355,6 +357,15 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
         stackNavigator?.present(navigationController)
     }
 
+    /// Present the `UIDocumentPickerViewController` that allows users to save the newly downloaded file.
+    ///
+    /// - Parameter temporaryUrl: The temporary url where the file is currently stored.
+    ///
+    private func showSaveFile(_ temporaryUrl: URL) {
+        let documentController = UIDocumentPickerViewController(forExporting: [temporaryUrl])
+        stackNavigator.present(documentController)
+    }
+
     /// Shows the view item screen.
     ///
     /// - Parameters:
@@ -377,6 +388,8 @@ class VaultItemCoordinator: Coordinator, HasStackNavigator { // swiftlint:disabl
         stackNavigator?.replace(view)
     }
 }
+
+// MARK: - View Extension
 
 extension View {
     @ViewBuilder var navStackWrapped: some View {

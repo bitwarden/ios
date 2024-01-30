@@ -7,8 +7,15 @@ class MockAppSettingsStore: AppSettingsStore {
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
     var appLocale: String?
-    var approveLoginRequestsByUserId = [String: Bool]()
     var appTheme: String?
+    var disableWebIcons = false
+    var lastUserShouldConnectToWatch = false
+    var loginRequest: LoginRequestNotification?
+    var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var rememberedEmail: String?
+    var rememberedOrgIdentifier: String?
+
+    var approveLoginRequestsByUserId = [String: Bool]()
     var biometricAuthenticationEnabled = [String: Bool?]()
     var biometricIntegrityStates = [String: String?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -16,20 +23,15 @@ class MockAppSettingsStore: AppSettingsStore {
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var timeProvider = MockTimeProvider(.currentTime)
     var disableAutoTotpCopyByUserId = [String: Bool]()
-    var disableWebIcons = false
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var lastActiveTime = [String: Date]()
-    var lastUserShouldConnectToWatch = false
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinKeyEncryptedUserKey = [String: String]()
     var pinProtectedUserKey = [String: String]()
-    var preAuthEnvironmentUrls: EnvironmentUrlData?
-    var rememberedEmail: String?
-    var rememberedOrgIdentifier: String?
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
     var vaultTimeout = [String: Int?]()
@@ -148,7 +150,7 @@ class MockAppSettingsStore: AppSettingsStore {
         encryptedUserKeys[userId] = key
     }
 
-    func setLastActiveTime(_ date: Date?, userId: String) {
+    func setLastActiveTime(_: Date?, userId: String) {
         lastActiveTime[userId] = timeProvider.presentTime
     }
 

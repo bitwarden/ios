@@ -740,9 +740,26 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try XCTAssertEqual(subject.usernameGeneratorRequest(), .word(capitalize: true, includeNumber: true))
     }
 
+    /// `shouldGenerateNewValueOnTextValueChanged(_:keyPath:)` returns whether a new value should be
+    /// generated when the key path's slider value changes.
+    func test_shouldGenerateNewValueOnSliderValueChanged() {
+        var subject = GeneratorState()
+
+        XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(128, keyPath: \.passwordState.lengthDouble))
+        XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(50, keyPath: \.passwordState.lengthDouble))
+        XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(5, keyPath: \.passwordState.lengthDouble))
+
+        subject.policyOptions = PasswordGenerationOptions(length: 20)
+        XCTAssertFalse(subject.shouldGenerateNewValueOnSliderValueChanged(5, keyPath: \.passwordState.lengthDouble))
+        XCTAssertFalse(subject.shouldGenerateNewValueOnSliderValueChanged(19, keyPath: \.passwordState.lengthDouble))
+        XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(20, keyPath: \.passwordState.lengthDouble))
+        XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(21, keyPath: \.passwordState.lengthDouble))
+        XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(128, keyPath: \.passwordState.lengthDouble))
+    }
+
     /// `shouldGenerateNewValueOnTextValueChanged(keyPath:)` returns whether a new value should be
     /// generated when the key path's text value changes.
-    func testShouldGenerateNewValueOnTextValueChanged() {
+    func test_shouldGenerateNewValueOnTextValueChanged() {
         let subject = GeneratorState()
 
         XCTAssertTrue(subject.shouldGenerateNewValueOnTextValueChanged(keyPath: \.passwordState.wordSeparator))

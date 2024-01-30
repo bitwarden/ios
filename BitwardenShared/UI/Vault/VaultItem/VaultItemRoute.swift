@@ -78,11 +78,17 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case passwordHistory(_ passwordHistory: [PasswordHistoryView])
 
-    /// A route to the manual totp screen for setting up TOTP.
-    case setupTotpManual
+    /// A route to the file saving view.
+    ///
+    /// - Parameter temporaryUrl: The url where the file is currently stored.
+    ///
+    case saveFile(temporaryUrl: URL)
 
     /// A route to the scan code screen. Defaults to `.setupTotpManual` if camera is unavailable.
     case scanCode
+
+    /// A route to the manual totp screen for setting up TOTP.
+    case setupTotpManual
 
     /// A route to the view item screen.
     ///

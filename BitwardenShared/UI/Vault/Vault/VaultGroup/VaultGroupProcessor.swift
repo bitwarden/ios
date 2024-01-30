@@ -1,6 +1,8 @@
 import BitwardenSdk
 import Foundation
 
+// swiftlint:disable file_length
+
 // MARK: - VaultGroupProcessor
 
 /// A `Processor` that can process `VaultGroupAction`s and `VaultGroupEffect`s.
@@ -13,6 +15,10 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         & HasTimeProvider
         & HasVaultRepository
 
+    // MARK: Delegates
+
+    weak var vaultFilterDelegate: VaultFilterDelegate?
+
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
@@ -21,8 +27,11 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     /// The services for this processor.
     private var services: Services
 
-    /// An object to manage TOTP code expirations and batch refresh calls.
-    private var totpExpirationManager: TOTPExpirationManager?
+    /// An object to manage TOTP code expirations and batch refresh calls for the group.
+    private var groupTotpExpirationManager: TOTPExpirationManager?
+
+    /// An object to manage TOTP code expirations and batch refresh calls for search results.
+    private var searchTotpExpirationManager: TOTPExpirationManager?
 
     // MARK: Initialization
 
@@ -42,7 +51,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         self.services = services
 
         super.init(state: state)
-        totpExpirationManager = .init(
+        groupTotpExpirationManager = .init(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
@@ -51,11 +60,20 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                 }
             }
         )
+        searchTotpExpirationManager = .init(
+            timeProvider: services.timeProvider,
+            onExpiration: { [weak self] expiredSearchItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(searchItems: expiredSearchItems)
+                }
+            }
+        )
     }
 
     deinit {
-        totpExpirationManager?.cleanup()
-        totpExpirationManager = nil
+        groupTotpExpirationManager?.cleanup()
+        groupTotpExpirationManager = nil
     }
 
     // MARK: Methods
@@ -66,10 +84,18 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             await streamVaultList()
         case .refresh:
             await refreshVaultGroup()
+        case let .search(text):
+            let results = await searchGroup(for: text)
+            state.searchResults = results
+            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: results)
+        case .streamOrganizations:
+            await streamOrganizations()
         case .streamShowWebIcons:
             for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
             }
+        case .streamVaultList:
+            await streamVaultList()
         }
     }
 
@@ -87,16 +113,36 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             case .cipher:
                 coordinator.navigate(to: .viewItem(id: item.id), context: self)
             case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+                coordinator.navigate(
+                    to: .group(
+                        .init(
+                            group: group,
+                            filter: state.vaultFilterType,
+                            filterDelegate: self
+                        )
+                    )
+                )
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
         case let .morePressed(item):
             showMoreOptionsAlert(for: item)
+        case let .searchStateChanged(isSearching):
+            if !isSearching {
+                state.searchText = ""
+                state.searchResults = []
+                searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: [])
+            }
+            state.isSearching = isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
+        case let .searchVaultFilterChanged(newValue):
+            state.searchVaultFilterType = newValue
         case let .toastShown(newValue):
             state.toast = newValue
+        case let .vaultFilterChanged(newValue):
+            state.vaultFilterType = newValue
+            vaultFilterDelegate?.didSetVaultFilter(newValue)
         }
     }
 
@@ -109,8 +155,22 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         do {
             let refreshedItems = try await services.vaultRepository.refreshTOTPCodes(for: items)
             let allItems = currentItems.updated(with: refreshedItems)
-            totpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
+            groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
             state.loadingState = .data(allItems)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Refreshes TOTP Codes for the search results.
+    ///
+    private func refreshTOTPCodes(searchItems: [VaultListItem]) async {
+        let currentSearchResults = state.searchResults
+        do {
+            let refreshedSearchResults = try await services.vaultRepository.refreshTOTPCodes(for: searchItems)
+            let allSearchResults = currentSearchResults.updated(with: refreshedSearchResults)
+            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: allSearchResults)
+            state.searchResults = allSearchResults
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -125,6 +185,30 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Searches the vault using the provided string, and returns any matching results.
+    ///
+    /// - Parameter searchText: The string to use when searching the vault.
+    /// - Returns: An array of `VaultListItem`s. If no results can be found, an empty array will be returned.
+    ///
+    private func searchGroup(for searchText: String) async -> [VaultListItem] {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return []
+        }
+        do {
+            let result = try await services.vaultRepository.searchVaultListPublisher(
+                searchText: searchText,
+                group: state.group,
+                filterType: state.vaultFilterType
+            )
+            for try await ciphers in result {
+                return ciphers
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+        return []
     }
 
     /// Show the more options alert for the selected item.
@@ -143,6 +227,17 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         ))
     }
 
+    /// Streams the user's organizations.
+    private func streamOrganizations() async {
+        do {
+            for try await organizations in try await services.vaultRepository.organizationsPublisher() {
+                state.organizations = organizations
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Stream the vault list.
     private func streamVaultList() async {
         do {
@@ -150,7 +245,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                 group: state.group,
                 filter: state.vaultFilterType
             ) {
-                totpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList)
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList)
                 state.loadingState = .data(vaultList)
             }
         } catch {
@@ -230,6 +325,12 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
         Task {
             await perform(.refresh)
         }
+    }
+}
+
+extension VaultGroupProcessor: VaultFilterDelegate {
+    func didSetVaultFilter(_ newFilter: VaultFilterType) {
+        state.vaultFilterType = newFilter
     }
 }
 

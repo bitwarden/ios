@@ -66,6 +66,11 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         super.init(state: state)
     }
 
+    deinit {
+        // When the view is dismissed, ensure any temporary files are deleted.
+        services.vaultRepository.clearTemporaryDownloads()
+    }
+
     // MARK: Methods
 
     override func perform(_ effect: ViewItemEffect) async {
@@ -115,6 +120,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             state.loadingState = .data(cipherState)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
+        case let .downloadAttachment(attachment):
+            confirmDownload(attachment)
         case .editPressed:
             editItem()
         case let .morePressed(menuAction):
@@ -146,12 +153,54 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 private extension ViewItemProcessor {
     // MARK: Private Methods
 
+    /// Present an alert to confirm downloading large attachments.
+    ///
+    /// - Parameter attachment: The attachment to download.
+    ///
+    private func confirmDownload(_ attachment: AttachmentView) {
+        // If the attachment is larger than 10 MB, make the user confirm downloading it.
+        if let sizeName = attachment.sizeName,
+           let size = Int(attachment.size ?? ""),
+           size >= Constants.largeFileSize {
+            coordinator.showAlert(.confirmDownload(fileSize: sizeName) {
+                await self.downloadAttachment(attachment)
+            })
+        } else {
+            Task { await downloadAttachment(attachment) }
+        }
+    }
+
     /// Copies a value to the pasteboard.
     ///
     /// - Parameter value: The string to be copied.
     ///
-    func copyValue(_ value: String) {
+    private func copyValue(_ value: String) {
         services.pasteboardService.copy(value)
+    }
+
+    /// Download the attachment.
+    ///
+    /// - Parameter attachment: The attachment to download.
+    ///
+    private func downloadAttachment(_ attachment: AttachmentView) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            guard case let .data(cipherState) = state.loadingState else { return }
+            coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.downloading))
+
+            guard let temporaryUrl = try await services.vaultRepository.downloadAttachment(
+                attachment,
+                cipher: cipherState.cipher
+            ) else {
+                return coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
+            }
+
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .saveFile(temporaryUrl: temporaryUrl))
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Triggers the edit state for the item currently stored in `state`.

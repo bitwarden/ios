@@ -51,19 +51,19 @@ struct LoginView: View {
                     send: LoginAction.masterPasswordChanged
                 ),
                 accessibilityIdentifier: "MasterPasswordEntry",
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: LoginAction.revealMasterPasswordFieldPressed
-                ),
-                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle"
+                )
             )
             .textFieldConfiguration(.password)
 
             Button(Localizations.getMasterPasswordwordHint) {
                 store.send(.getMasterPasswordHintPressed)
             }
-            .accessibilityIdentifier("GetMasterPasswordHintLabel")
             .styleGuide(.subheadline)
+            .accessibilityIdentifier("GetMasterPasswordHintLabel")
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
     }

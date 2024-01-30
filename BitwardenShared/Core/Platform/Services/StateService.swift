@@ -147,6 +147,12 @@ protocol StateService: AnyObject {
     ///
     func getLastUserShouldConnectToWatch() async -> Bool
 
+    /// Get any pending login request data.
+    ///
+    /// - Returns: The pending login request data from a push notification.
+    ///
+    func getLoginRequest() async -> LoginRequestNotification?
+
     /// Gets the master password hash for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the master password hash.
@@ -334,6 +340,12 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the last sync time.
     ///
     func setLastSyncTime(_ date: Date?, userId: String?) async throws
+
+    /// Set pending login request data from a push notification.
+    ///
+    /// - Parameter loginRequest: The pending login request data.
+    ///
+    func setLoginRequest(_ loginRequest: LoginRequestNotification?) async
 
     /// Sets the master password hash for a user ID.
     ///
@@ -965,6 +977,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.lastUserShouldConnectToWatch
     }
 
+    func getLoginRequest() async -> LoginRequestNotification? {
+        appSettingsStore.loginRequest
+    }
+
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.masterPasswordHash(userId: userId)
@@ -1117,6 +1133,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastSyncTime(date, userId: userId)
         lastSyncTimeByUserIdSubject.value[userId] = date
+    }
+
+    func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
+        appSettingsStore.loginRequest = loginRequest
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {

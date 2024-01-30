@@ -95,3 +95,14 @@ struct LoginRequestNotification: Codable, Equatable {
     /// The user id associated with the login request.
     let userId: String
 }
+
+// MARK: - LoginRequestPushNotification
+
+/// The data structure of the information attached to the in-app foreground notification.
+struct LoginRequestPushNotification: Codable, Equatable {
+    /// How long until the request times out.
+    let timeoutInMinutes: Int
+
+    /// The email of the account sending the login request.
+    let userEmail: String
+}

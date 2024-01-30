@@ -11,6 +11,9 @@ import SwiftUI
 struct BitwardenMultilineTextField: View {
     // MARK: Properties
 
+    /// The accessibility identifier for the text field.
+    let accessibilityIdentifier: String?
+
     /// The title of the text field.
     let title: String?
 
@@ -34,6 +37,7 @@ struct BitwardenMultilineTextField: View {
                     axis: .vertical
                 )
                 .styleGuide(.body, includeLineSpacing: false)
+                .accessibilityIdentifier(accessibilityIdentifier ?? "")
                 .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
                 .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
                 .scrollDisabled(true)
@@ -42,6 +46,7 @@ struct BitwardenMultilineTextField: View {
                     text: $text
                 )
                 .styleGuide(.body, includeLineSpacing: false)
+                .accessibilityIdentifier(accessibilityIdentifier ?? "")
                 .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
                 .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
             }
@@ -56,12 +61,15 @@ struct BitwardenMultilineTextField: View {
     ///   - title: The title of the text field.
     ///   - text: The text entered into the text field.
     ///   - footer: The footer text displayed below the text field.
+    ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///
     init(
         title: String?,
         text: Binding<String>,
-        footer: String?
+        footer: String?,
+        accessibilityIdentifier: String? = nil
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.title = title
         self.footer = footer
         _text = text

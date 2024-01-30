@@ -165,6 +165,8 @@ extension GeneratorState {
     /// - Parameters:
     ///   - keyPath: A key path for getting and setting the backing value for the field.
     ///   - range: The range of allowable values for the slider.
+    ///   - sliderAccessibilityId: The accessibility id for the slider.
+    ///   - sliderValueAccessibilityId: The accessibility id for the slider value.
     ///   - title: The title of the field.
     ///   - step: The distance between each valid value.
     /// - Returns: A form field for a slider field.
@@ -172,6 +174,8 @@ extension GeneratorState {
     func sliderField(
         keyPath: WritableKeyPath<GeneratorState, Double>,
         range: ClosedRange<Double>,
+        sliderAccessibilityId: String? = nil,
+        sliderValueAccessibilityId: String? = nil,
         title: String,
         step: Double
     ) -> FormField<Self> {
@@ -179,6 +183,8 @@ extension GeneratorState {
             SliderField(
                 keyPath: keyPath,
                 range: range,
+                sliderAccessibilityId: sliderAccessibilityId,
+                sliderValueAccessibilityId: sliderValueAccessibilityId,
                 step: step,
                 title: title,
                 value: self[keyPath: keyPath]
@@ -189,18 +195,21 @@ extension GeneratorState {
     /// A helper method for creating a stepper field.
     ///
     /// - Parameters:
+    ///   - accessibilityId: The accessibility id for the stepper value. The `id` will be used as the accessibility id
     ///   - keyPath: A key path for updating the backing value for the stepper field.
     ///   - range: The range of allowable values for the stepper.
     ///   - title: The title of the field.
     /// - Returns: A form field for a stepper field.
     ///
     func stepperField(
+        accessibilityId: String? = nil,
         keyPath: WritableKeyPath<GeneratorState, Int>,
         range: ClosedRange<Int>,
         title: String
     ) -> FormField<Self> {
         FormField(fieldType: .stepper(
             StepperField(
+                accessibilityId: accessibilityId,
                 keyPath: keyPath,
                 range: range,
                 title: title,
@@ -212,6 +221,7 @@ extension GeneratorState {
     /// A helper method for creating a text field.
     ///
     /// - Parameters:
+    ///   - accessibilityId: The accessibility id for the text field.
     ///   - autocapitalization: The behavior for when the input should be automatically capitalized.
     ///     Defaults to `.never`.
     ///   - isAutocorrectDisabled: Whether autocorrect is disabled in the text field. Defaults to
@@ -220,27 +230,32 @@ extension GeneratorState {
     ///     text field is visible.
     ///   - keyboardType: The type of keyboard to display.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
+    ///   - passwordVisibilityAccessibilityId: The accessibility id for the password visibility button.
     ///   - textContentType: The expected type of content input in the text field. Defaults to `nil`.
     ///   - title: The title of the field.
     /// - Returns: A form field for a generated value field.
     ///
     func textField(
+        accessibilityId: String? = nil,
         autocapitalization: FormTextField<Self>.Autocapitalization = .never,
         isAutocorrectDisabled: Bool = true,
         isPasswordVisibleKeyPath: WritableKeyPath<GeneratorState, Bool>? = nil,
         keyboardType: UIKeyboardType = .default,
         keyPath: WritableKeyPath<GeneratorState, String>,
+        passwordVisibilityAccessibilityId: String? = nil,
         textContentType: UITextContentType? = nil,
         title: String
     ) -> FormField<Self> {
         FormField(fieldType: .text(
             FormTextField(
+                accessibilityId: accessibilityId,
                 autocapitalization: autocapitalization,
                 isAutocorrectDisabled: isAutocorrectDisabled,
                 isPasswordVisible: isPasswordVisibleKeyPath.map { self[keyPath: $0] },
                 isPasswordVisibleKeyPath: isPasswordVisibleKeyPath,
                 keyboardType: keyboardType,
                 keyPath: keyPath,
+                passwordVisibilityAccessibilityId: passwordVisibilityAccessibilityId,
                 textContentType: textContentType,
                 title: title,
                 value: self[keyPath: keyPath]
@@ -251,20 +266,26 @@ extension GeneratorState {
     /// A helper method for creating a toggle field.
     ///
     /// - Parameters:
+    ///   - accessibilityId: The accessibility id for the toggle. The `id` will be used as the accessibility id
     ///   - accessibilityLabel: The accessibility label for the toggle. The title will be used as
     ///     the accessibility label if this is `nil`.
+    ///   - isDisabled: Whether the toggle is disabled.
     ///   - keyPath: A key path for getting and setting the backing value for the field.
     ///   - title: The title of the field.
     /// - Returns: A form field for a toggle field.
     ///
     func toggleField(
+        accessibilityId: String? = nil,
         accessibilityLabel: String? = nil,
+        isDisabled: Bool = false,
         keyPath: WritableKeyPath<GeneratorState, Bool>,
         title: String
     ) -> FormField<Self> {
         FormField(fieldType: .toggle(
             ToggleField(
+                accessibilityId: accessibilityId,
                 accessibilityLabel: accessibilityLabel,
+                isDisabled: isDisabled,
                 isOn: self[keyPath: keyPath],
                 keyPath: keyPath,
                 title: title

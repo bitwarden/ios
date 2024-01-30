@@ -182,7 +182,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
         do {
             let newSendView: SendView
             switch state.mode {
-            case .add:
+            case .add, .shareExtension:
                 switch state.type {
                 case .file:
                     guard let fileData = state.fileData else { return }

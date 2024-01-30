@@ -1,6 +1,11 @@
+import Foundation
+
 @testable import Networking
 
 class MockHTTPClient: HTTPClient {
+    var downloadRequests = [URLRequest]()
+    var downloadResults = [Result<URL, Error>]()
+
     var requests = [HTTPRequest]()
     var results = [Result<HTTPResponse, Error>]()
 
@@ -15,6 +20,15 @@ class MockHTTPClient: HTTPClient {
         }
     }
 
+    func download(from urlRequest: URLRequest) async throws -> URL {
+        downloadRequests.append(urlRequest)
+
+        guard !downloadResults.isEmpty else { throw MockClientError.noResultForDownloadRequest }
+
+        let result = downloadResults.removeFirst()
+        return try result.get()
+    }
+
     func send(_ request: HTTPRequest) async throws -> HTTPResponse {
         requests.append(request)
 
@@ -26,5 +40,6 @@ class MockHTTPClient: HTTPClient {
 }
 
 enum MockClientError: Error {
+    case noResultForDownloadRequest
     case noResultForRequest
 }

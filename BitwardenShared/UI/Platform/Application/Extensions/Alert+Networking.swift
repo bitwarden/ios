@@ -38,17 +38,17 @@ extension Alert {
         _ tryAgain: (() async -> Void)? = nil
     ) -> Alert {
         switch error {
-        case let ServerError.error(errorResponse):
+        case let serverError as ServerError:
             return defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: errorResponse.singleMessage()
+                message: serverError.message
             )
         case let BitwardenSdk.BitwardenError.E(message):
             return defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: message
             )
-        case let error as URLError where error.code == .notConnectedToInternet:
+        case let error as URLError where error.code == .notConnectedToInternet || error.code == .networkConnectionLost:
             return internetConnectionError(tryAgain)
         case let error as URLError where error.code == .timedOut:
             return defaultAlert(
