@@ -389,6 +389,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         vaultTimeout[userId] = value
     }
 
+    /// Attempts to convert a possible user id into an account, or returns the active account.
+    ///
+    /// - Parameter userId: If nil, the active account is returned. Otherwise, retrieve an account for the id.
+    ///
     func unwrapAccount(_ userId: String?) throws -> Account {
         if let userId,
            let activeAccount,
@@ -405,6 +409,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         }
     }
 
+    /// Attempts to convert a possible user id into a known account id.
+    ///
+    /// - Parameter userId: If nil, the active account id is returned. Otherwise, validate the id.
+    ///
     func unwrapUserId(_ userId: String?) throws -> String {
         if let userId {
             return userId

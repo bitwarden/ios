@@ -499,16 +499,35 @@ extension StateService {
         try await getAccountEncryptionKeys(userId: nil)
     }
 
+    /// Gets either a valid account id or the active account id.
+    ///
+    /// - Parameter userId: The possible user id.
+    ///     If `nil`, this method will attempt to return the active account id.
+    ///     If non-nil, this method will validate the user id.
+    /// - Returns: A valid user id.
+    ///
     func getAccountIdOrActiveId(userId: String?) async throws -> String {
         try await getAccount(userId: userId).profile.userId
     }
 
+    /// Gets the active account id.
+    ///
+    /// - Returns: The active user id.
+    ///
     func getActiveAccountId() async throws -> String {
         try await getActiveAccount().profile.userId
     }
 
+    /// Gets the active account.
+    ///
+    /// - Returns: The active user account.
+    ///
     func getActiveAccount() async throws -> Account {
-        try await getAccount(userId: nil)
+        do {
+            return try await getAccount(userId: nil)
+        } catch {
+            throw StateServiceError.noActiveAccount
+        }
     }
 
     /// Gets the allow sync on refresh value for the active account.
