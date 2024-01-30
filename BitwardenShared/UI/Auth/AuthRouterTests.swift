@@ -42,13 +42,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         vaultTimeoutService = nil
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didDeleteAccount`.
-    func test_handleAndRoute_didDeleteAccount_noAccounts() async {
-        let route = await subject.handleAndRoute(.didDeleteAccount)
-        XCTAssertEqual(route, .landing)
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.didDeleteAccount`.
+    /// `handleAndRoute(_ :)` redirects`.didDeleteAccount` to another account
+    ///     when there are more accounts.
     func test_handleAndRoute_didDeleteAccount_alternateAccount() {
         let alt = Account.fixtureAccountLogin()
         stateService.accounts = [
@@ -74,7 +69,30 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didLockAccount()`.
+    /// `handleAndRoute(_ :)` redirects`.didDeleteAccount` to `.landing`
+    ///     when there are no more accounts.
+    func test_handleAndRoute_didDeleteAccount_noAccounts() async {
+        let route = await subject.handleAndRoute(.didDeleteAccount)
+        XCTAssertEqual(route, .landing)
+    }
+
+    /// `handleAndRoute(_ :)` redirects`.didDeleteAccount` to `.landing`
+    ///     when an error occurs setting a new active account.
+    func test_handleAndRoute_didDeleteAccount_setActiveFail() async {
+        let alt = Account.fixtureAccountLogin()
+        stateService.accounts = [
+            alt,
+        ]
+        authRepository.setActiveAccountError = BitwardenTestError.example
+        let route = await subject.handleAndRoute(.didDeleteAccount)
+        XCTAssertEqual(
+            route,
+            .landing
+        )
+    }
+
+    /// `handleAndRoute(_ :)` delivers the locked active user to `.vaultUnlock`
+    ///     thorugh  `.didLockAccount()`.
     func test_handleAndRoute_didLockAccount_active() async {
         let alt = Account.fixtureAccountLogin()
         let active = Account.fixture()
@@ -105,7 +123,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didLockAccount()`.
+    /// `handleAndRoute(_ :)` handles `.didLockAccount()`
+    ///     without moving the user from their current position when locking an alternate account.
     func test_handleAndRoute_didLockAccount_alternate() async {
         let alt = Account.fixtureAccountLogin()
         let active = Account.fixture()
@@ -129,13 +148,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didLogout()`.
-    func test_handleAndRoute_didLogout_automatic_noAccounts() async {
-        let route = await subject.handleAndRoute(.didLogout(userId: "123", userInitiated: false))
-        XCTAssertEqual(route, .landing)
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.didLogout()`.
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.landing`
+    ///     when no accounts are present.
     func test_handleAndRoute_didLogout_automatic_alternateAccount() async {
         let alt = Account.fixtureAccountLogin()
         stateService.accounts = [
@@ -146,13 +160,15 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .landing)
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didLogout()`.
-    func test_handleAndRoute_didLogout_userInitiated_noAccounts() async {
-        let route = await subject.handleAndRoute(.didLogout(userId: "123", userInitiated: true))
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.landing`
+    ///     when no accounts are present.
+    func test_handleAndRoute_didLogout_automatic_noAccounts() async {
+        let route = await subject.handleAndRoute(.didLogout(userId: "123", userInitiated: false))
         XCTAssertEqual(route, .landing)
     }
 
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.vaultUnlock`
+    ///     when the current account is locked.
     func test_handleAndRoute_logout_userInitiated_alternateAccount_locked() async {
         let alt = Account.fixtureAccountLogin()
         let main = Account.fixture()
@@ -185,7 +201,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.complete`
+    ///     when the current account is unlocked.
     func test_handleAndRoute_logout_userInitiated_alternateAccount_unlocked() async {
         let alt = Account.fixtureAccountLogin()
         let main = Account.fixture()
@@ -213,7 +230,41 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.vaultUnlock`
+    ///     for an alternate account when the logout is user initiated and the alt is locked.
+    func test_handleAndRoute_logout_userInitiated_lockedAlt() async {
+        let alt = Account.fixtureAccountLogin()
+        authRepository.activeAccount = nil
+        authRepository.isLockedResult = .success(true)
+        authRepository.altAccounts = [
+            alt,
+        ]
+        stateService.accounts = [
+            alt,
+        ]
+
+        let route = await subject.handleAndRoute(
+            .action(
+                .logout(
+                    userId: "123",
+                    userInitiated: true
+                )
+            )
+        )
+
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                alt,
+                animated: false,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: true
+            )
+        )
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.vaultUnlock`
+    ///     when logging out the active account and the alt is locked.
     func test_handleAndRoute_logout_userInitiated_main_locked() async {
         let alt = Account.fixtureAccountLogin()
         let main = Account.fixture()
@@ -246,11 +297,13 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
-    func test_handleAndRoute_logout_userInitiated_nil_locked() async {
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.complete`
+    ///     when logging out the active account and the alternate is unlocked.
+    func test_handleAndRoute_logout_userInitiated_main_unlocked() async {
         let alt = Account.fixtureAccountLogin()
-        authRepository.activeAccount = nil
-        authRepository.isLockedResult = .success(true)
+        let main = Account.fixture()
+        authRepository.activeAccount = main
+        authRepository.isLockedResult = .success(false)
         authRepository.altAccounts = [
             alt,
         ]
@@ -261,7 +314,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         let route = await subject.handleAndRoute(
             .action(
                 .logout(
-                    userId: "123",
+                    userId: main.profile.userId,
                     userInitiated: true
                 )
             )
@@ -269,16 +322,115 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(
             route,
+            .complete
+        )
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.landing`
+    ///     when no accounts are present.
+    func test_handleAndRoute_didLogout_userInitiated_noAccounts() async {
+        let route = await subject.handleAndRoute(.didLogout(userId: "123", userInitiated: true))
+        XCTAssertEqual(route, .landing)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.lockVault()` to `.vaultUnlock`
+    ///     when the active account is locked.
+    func test_handleAndRoute_lock_active_success() async {
+        let main = Account.fixture()
+        authRepository.activeAccount = main
+        authRepository.isLockedResult = .success(true)
+
+        let route = await subject.handleAndRoute(
+            .action(
+                .lockVault(userId: main.profile.userId)
+            )
+        )
+
+        XCTAssertEqual(
+            route,
             .vaultUnlock(
-                alt,
+                main,
                 animated: false,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
+                attemptAutomaticBiometricUnlock: false,
+                didSwitchAccountAutomatically: false
             )
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
+    /// `handleAndRoute(_ :)` redirects `.lockVault()` to `.vaultUnlock`
+    ///     when an alternate account is locked but the active is also locked.
+    func test_handleAndRoute_lock_alternate_activeLocked() async {
+        let main = Account.fixture()
+        let alt = Account.fixtureAccountLogin()
+        authRepository.activeAccount = main
+        authRepository.altAccounts = [alt]
+
+        let route = await subject.handleAndRoute(
+            .action(
+                .lockVault(userId: alt.profile.userId)
+            )
+        )
+
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                main,
+                animated: false,
+                attemptAutomaticBiometricUnlock: false,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.lockVault()` to `.landing`
+    ///     when there are no accounts.
+    func test_handleAndRoute_lock_noAccounts() async {
+        authRepository.activeAccount = nil
+        authRepository.altAccounts = []
+
+        let route = await subject.handleAndRoute(
+            .action(
+                .lockVault(
+                    userId: Account.fixtureAccountLogin().profile.userId
+                )
+            )
+        )
+
+        XCTAssertEqual(
+            route,
+            .landing
+        )
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.lockVault()` to `.vaultUnlock`
+    ///     when attempting to lock an unknown alternate account and the active account is locked.
+    func test_handleAndRoute_lock_unknown() async {
+        let main = Account.fixture()
+        authRepository.activeAccount = main
+        authRepository.altAccounts = []
+
+        let route = await subject.handleAndRoute(
+            .action(
+                .lockVault(
+                    userId: Account.fixtureAccountLogin().profile.userId
+                )
+            )
+        )
+
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                main,
+                animated: false,
+                attemptAutomaticBiometricUnlock: false,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.vaultUnlock`
+    ///     for the main account when the event is user initiated, the main is locked,
+    ///     and there is no account found when requesting logout.
     func test_handleAndRoute_logout_userInitiated_notFound_locked() async {
         let main = Account.fixture()
         authRepository.activeAccount = main
@@ -308,55 +460,9 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
-    func test_handleAndRoute_logout_system_nil_locked() async {
-        let main = Account.fixture()
-        authRepository.activeAccount = nil
-        authRepository.isLockedResult = .success(true)
-        authRepository.altAccounts = []
-        stateService.accounts = [
-            main,
-        ]
-
-        let route = await subject.handleAndRoute(
-            .action(
-                .logout(
-                    userId: "123",
-                    userInitiated: false
-                )
-            )
-        )
-
-        XCTAssertEqual(
-            route,
-            .landing
-        )
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
-    func test_handleAndRoute_logout_system_active_noAlt() async {
-        let main = Account.fixture()
-        authRepository.activeAccount = main
-        authRepository.altAccounts = []
-        stateService.accounts = []
-
-        let route = await subject.handleAndRoute(
-            .action(
-                .logout(
-                    userId: main.profile.userId,
-                    userInitiated: false
-                )
-            )
-        )
-
-        XCTAssertEqual(
-            route,
-            .landing
-        )
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
-    func test_handleAndRoute_logout_system_active_noAlt_error() async {
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.vaultUnlock`
+    ///     when an error is thrown attempting to log out the active account.
+    func test_handleAndRoute_logout_system_active_error() async {
         let main = Account.fixture()
         authRepository.activeAccount = main
         authRepository.altAccounts = []
@@ -383,13 +489,14 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
-    func test_handleAndRoute_logout_system_active_nil_error() async {
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.landing`
+    ///     when the event is system initiated and there is no alternate account.
+    ///     System driven logouts do not trigger an account switch.
+    func test_handleAndRoute_logout_system_active_noAlt() async {
         let main = Account.fixture()
-        authRepository.activeAccount = nil
-        authRepository.altAccounts = [main]
-        authRepository.logoutResult = .failure(BitwardenTestError.example)
-        stateService.accounts = [.fixture()]
+        authRepository.activeAccount = main
+        authRepository.altAccounts = []
+        stateService.accounts = []
 
         let route = await subject.handleAndRoute(
             .action(
@@ -406,115 +513,20 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
-    func test_handleAndRoute_logout_userInitiated_main_unlocked() async {
-        let alt = Account.fixtureAccountLogin()
-        let main = Account.fixture()
-        authRepository.activeAccount = main
-        authRepository.isLockedResult = .success(false)
-        authRepository.altAccounts = [
-            alt,
-        ]
-        stateService.accounts = [
-            alt,
-        ]
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.landing`
+    ///     when an error is thrown attempting to log out an alternate account.
+    func test_handleAndRoute_logout_system_alternate_error() async {
+        let alt = Account.fixture()
+        authRepository.activeAccount = nil
+        authRepository.altAccounts = [alt]
+        authRepository.logoutResult = .failure(BitwardenTestError.example)
+        stateService.accounts = [.fixture()]
 
         let route = await subject.handleAndRoute(
             .action(
                 .logout(
-                    userId: main.profile.userId,
-                    userInitiated: true
-                )
-            )
-        )
-
-        XCTAssertEqual(
-            route,
-            .complete
-        )
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
-    func test_handleAndRoute_lock_main() async {
-        let main = Account.fixture()
-        authRepository.activeAccount = main
-        authRepository.isLockedResult = .success(true)
-
-        let route = await subject.handleAndRoute(
-            .action(
-                .lockVault(userId: main.profile.userId)
-            )
-        )
-
-        XCTAssertEqual(
-            route,
-            .vaultUnlock(
-                main,
-                animated: false,
-                attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
-        )
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
-    func test_handleAndRoute_lock_alternate() async {
-        let main = Account.fixture()
-        let alt = Account.fixtureAccountLogin()
-        authRepository.activeAccount = main
-        authRepository.altAccounts = [alt]
-
-        let route = await subject.handleAndRoute(
-            .action(
-                .lockVault(userId: alt.profile.userId)
-            )
-        )
-
-        XCTAssertEqual(
-            route,
-            .vaultUnlock(
-                main,
-                animated: false,
-                attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
-        )
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
-    func test_handleAndRoute_lock_unknown() async {
-        let main = Account.fixture()
-        authRepository.activeAccount = main
-        authRepository.altAccounts = []
-
-        let route = await subject.handleAndRoute(
-            .action(
-                .lockVault(
-                    userId: Account.fixtureAccountLogin().profile.userId
-                )
-            )
-        )
-
-        XCTAssertEqual(
-            route,
-            .vaultUnlock(
-                main,
-                animated: false,
-                attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
-        )
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.logout()`.
-    func test_handleAndRoute_lock_noAccounts() async {
-        authRepository.activeAccount = nil
-        authRepository.altAccounts = []
-
-        let route = await subject.handleAndRoute(
-            .action(
-                .lockVault(
-                    userId: Account.fixtureAccountLogin().profile.userId
+                    userId: alt.profile.userId,
+                    userInitiated: false
                 )
             )
         )
@@ -525,7 +537,36 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didLogout()`.
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.landing`
+    ///     when the event is system initiated and there are no accounts.
+    ///     System driven logouts do not trigger an account switch.
+    func test_handleAndRoute_logout_system_noAccounts() async {
+        let main = Account.fixture()
+        authRepository.activeAccount = nil
+        authRepository.isLockedResult = .success(true)
+        authRepository.altAccounts = []
+        stateService.accounts = [
+            main,
+        ]
+
+        let route = await subject.handleAndRoute(
+            .action(
+                .logout(
+                    userId: "123",
+                    userInitiated: false
+                )
+            )
+        )
+
+        XCTAssertEqual(
+            route,
+            .landing
+        )
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.vaultUnlock`
+    ///     by way of an account switch when the logout is user initiated
+    ///     and a locked alternate is available.
     func test_handleAndRoute_didLogout_userInitiated_alternateAccount() {
         let alt = Account.fixtureAccountLogin()
         stateService.accounts = [
@@ -556,13 +597,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didStart`.
-    func test_handleAndRoute_didStart_noAccounts() async {
-        let route = await subject.handleAndRoute(.didStart)
-        XCTAssertEqual(route, .landing)
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.didStart`.
+    /// `handleAndRoute(_ :)` redirects `.didStart` to `.vaultUnlock`
+    ///     when there are only locked accounts.
     func test_handleAndRoute_didStart_alternateAccount() async {
         let alt = Account.fixtureAccountLogin()
         stateService.accounts = [
@@ -581,21 +617,27 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didStart`.
+    /// `handleAndRoute(_ :)` redirects `.didStart` to `.landing`
+    ///     when there are no accounts.
+    func test_handleAndRoute_didStart_noAccounts() async {
+        let route = await subject.handleAndRoute(.didStart)
+        XCTAssertEqual(route, .landing)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didStart` to `.vaultUnlock`
+    ///     when the account is set to timeout on app start with a lock vault action.
     func test_handleAndRoute_didStart_timeoutOnAppRestart_lock() async {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
-        stateService.activeAccount = alt
+        let active = Account.fixtureAccountLogin()
+        authRepository.activeAccount = active
+
         vaultTimeoutService.vaultTimeout = [
-            alt.profile.userId: .onAppRestart,
+            active.profile.userId: .onAppRestart,
         ]
         let route = await subject.handleAndRoute(.didStart)
         XCTAssertEqual(
             route,
             .vaultUnlock(
-                alt,
+                active,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
                 didSwitchAccountAutomatically: false
@@ -603,7 +645,9 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didStart`.
+    /// `handleAndRoute(_ :)` redirects `.didStart` to `.landing`
+    ///     when the account is set to timeout on app start with a logout action.
+    ///     System driven logouts do not trigger an account switch.
     func test_handleAndRoute_didStart_timeoutOnAppRestart_logout() async {
         let alt = Account.fixtureAccountLogin()
         stateService.accounts = [
@@ -624,13 +668,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didTimeout`.
-    func test_handleAndRoute_didTimeout_noAccounts() async {
-        let route = await subject.handleAndRoute(.didTimeout(userId: "123"))
-        XCTAssertEqual(route, .complete)
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.didTimeout`.
+    /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.complete`
+    ///     if the account has never lock enabled.
     func test_handleAndRoute_didTimeout_neverLock() async {
         vaultTimeoutService.vaultTimeout = [
             "123": .never,
@@ -639,8 +678,16 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .complete)
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didStart`.
-    func test_handleAndRoute_didTimeout_lock() async {
+    /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.landing`
+    ///     when there are no accounts.
+    func test_handleAndRoute_didTimeout_noAccounts() async {
+        let route = await subject.handleAndRoute(.didTimeout(userId: "123"))
+        XCTAssertEqual(route, .landing)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.vaultUnlock`
+    ///     if the account session has timed out and the action is lock.
+    func test_handleAndRoute_didTimeout_sessionExpired_lock() async {
         let account = Account.fixture()
         stateService.accounts = [
             account,
@@ -665,8 +712,9 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didStart`.
-    func test_handleAndRoute_didTimeout_logout() async {
+    /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.landing`
+    ///     if the account session has timed out and the action is logout.
+    func test_handleAndRoute_didTimeout_sessionExpired_logout() async {
         let account = Account.fixture()
         stateService.accounts = [
             account,
@@ -686,8 +734,10 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didStart`.
-    func test_handleAndRoute_didTimeout_logout_error() async {
+    /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.landing`
+    ///     if the account session has timed out, the action is logout,
+    ///     and an error occurs.
+    func test_handleAndRoute_didTimeout_sessionExpired_logout_error() async {
         let account = Account.fixtureAccountLogin()
         stateService.accounts = [
             account,
@@ -701,20 +751,6 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         ]
         authRepository.logoutResult = .failure(BitwardenTestError.example)
         let route = await subject.handleAndRoute(.didTimeout(userId: account.profile.userId))
-        XCTAssertEqual(
-            route,
-            .landing
-        )
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.didDeleteAccount`.
-    func test_handleAndRoute_didDeleteAccount_setActiveFail() async {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
-        authRepository.setVaultTimeoutError = BitwardenTestError.example
-        let route = await subject.handleAndRoute(.didDeleteAccount)
         XCTAssertEqual(
             route,
             .landing

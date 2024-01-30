@@ -8,7 +8,7 @@ extension AuthRouter {
     /// - Returns: The account model currently set as active.
     ///
     func configureActiveAccount(shouldSwitchAutomatically: Bool) async throws -> Account {
-        if let active = try? await services.stateService.getActiveAccount() {
+        if let active = try? await services.authRepository.getAccount() {
             return active
         }
         guard shouldSwitchAutomatically,
@@ -229,18 +229,17 @@ extension AuthRouter {
                 // If there is a timeout and the user has a lock vault action,
                 //  return `.vaultUnlock`.
                 await services.authRepository.lockVault(userId: userId)
-                guard let activeAccount = try? await services.stateService.getActiveAccount(),
-                      activeAccount.profile.userId == userId else {
-                    return .complete
+                guard let activeAccount = try? await services.authRepository.getAccount() else {
+                    return .landing
                 }
-                // Setup the unlock route for the active account.
+                // Setup the check route for the active account.
                 let event = AuthEvent.accountBecameActive(
                     activeAccount,
                     animated: false,
                     attemptAutomaticBiometricUnlock: true,
                     didSwitchAccountAutomatically: false
                 )
-                // Redirect the vault unlock
+
                 return await handleAndRoute(event)
             case .logout:
                 // If there is a timeout and the user has a logout vault action,
