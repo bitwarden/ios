@@ -81,7 +81,7 @@ struct VaultGroupView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
-                    vaultFilterRow()
+                    vaultFilterRow
                         .padding(.top, 16)
 
                     Spacer()
@@ -157,7 +157,8 @@ struct VaultGroupView: View {
         }
     }
 
-    /// Displays the vault filter for search row if the user is a member of any org
+    /// Displays the vault filter for search row if the user is a member of any org.
+    ///
     private var searchVaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: true, store: store.child(
@@ -178,11 +179,13 @@ struct VaultGroupView: View {
         )
     }
 
-    /// Displays the vault filter row if the user is a member of any
-    @ViewBuilder
-    private func vaultFilterRow() -> some View {
+    /// Displays the vault filter row if the user is a member of any.
+    ///
+    private var vaultFilterRow: some View {
         SearchVaultFilterRowView(
-            hasDivider: false, store: store.child(
+            hasDivider: false,
+            accessibilityID: store.state.filterAccessibilityID,
+            store: store.child(
                 state: { state in
                     SearchVaultFilterRowState(
                         organizations: state.organizations,
@@ -204,11 +207,12 @@ struct VaultGroupView: View {
     // MARK: Private Methods
 
     /// A view that displays a list of the contents of this vault group.
+    ///
     @ViewBuilder
     private func groupView(with items: [VaultListItem]) -> some View {
         ScrollView {
             VStack(spacing: 20.0) {
-                vaultFilterRow()
+                vaultFilterRow
 
                 VStack(alignment: .leading, spacing: 7) {
                     HStack(alignment: .firstTextBaseline) {

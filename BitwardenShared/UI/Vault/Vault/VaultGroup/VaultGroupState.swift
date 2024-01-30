@@ -41,4 +41,28 @@ struct VaultGroupState: Equatable {
 
     /// The vault filter used to display a single or all vaults for the user.
     var vaultFilterType: VaultFilterType
+
+    // MARK: Computed Properties
+
+    /// The accessibility ID for the filter row.
+    var filterAccessibilityID: String {
+        switch group {
+        case .card:
+            return "CardFilter"
+        case .identity:
+            return "IdentityFilter"
+        case .login:
+            return "LoginFilter"
+        case .secureNote:
+            return "SecureNoteFilter"
+        case .totp:
+            return ""
+        case .collection:
+            return "CollectionFilter"
+        case .folder:
+            return "FolderFilter"
+        case .trash:
+            return "TrashFilter"
+        }
+    }
 }
