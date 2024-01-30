@@ -122,6 +122,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields in a large text.
     func test_snapshot_withFilled_large() {
-        assertSnapshots(of: subject, as: [.defaultPortraitAX5])
+        isRecording = true
+        assertSnapshots(of: subject, as: [.tallPortraitAX5(heightMultiple: 6)])
     }
 }
