@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Combine
 import Foundation
 
@@ -449,6 +450,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the timeout value.
     ///
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
+
+    /// Updates the profile information for a user.
+    ///
+    /// - Parameters:
+    ///   - response: The profile response information to use while updating.
+    ///   - userId: The id of the user this updated information belongs to.
+    ///
+    func updateProfile(from response: ProfileResponseModel, userId: String) async
 
     // MARK: Publishers
 
@@ -1219,6 +1228,20 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setVaultTimeout(key: value.rawValue, userId: userId)
+    }
+
+    func updateProfile(from response: ProfileResponseModel, userId: String) async {
+        var state = appSettingsStore.state ?? State()
+        defer { appSettingsStore.state = state }
+
+        guard var profile = state.accounts[userId]?.profile else { return }
+        profile.hasPremiumPersonally = response.premium
+        profile.avatarColor = response.avatarColor
+        profile.email = response.email ?? profile.email
+        profile.emailVerified = response.emailVerified
+        profile.name = response.name
+
+        state.accounts[userId]?.profile = profile
     }
 
     // MARK: Publishers

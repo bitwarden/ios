@@ -178,11 +178,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     /// Saves the current send item.
     ///
     private func saveSendItem() async {
-        guard !state.name.isEmpty else {
-            let alert = Alert.validationFieldRequired(fieldName: Localizations.name)
-            coordinator.showAlert(alert)
-            return
-        }
+        guard await validateSend() else { return }
 
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.saving))
         defer { coordinator.hideLoadingOverlay() }
@@ -234,6 +230,60 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             return
         }
         state.type = newValue
+    }
+
+    /// Validates that the content in the state comprises a valid send. If any validation issue is
+    /// found, an alert will be presented.
+    ///
+    /// - Returns: A flag indicating if the state holds valid information for creating a send.
+    ///
+    private func validateSend() async -> Bool {
+        guard !state.name.isEmpty else {
+            let alert = Alert.validationFieldRequired(fieldName: Localizations.name)
+            coordinator.showAlert(alert)
+            return false
+        }
+
+        // Only perform further checks for file sends.
+        guard state.type == .file else { return true }
+
+        let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
+        guard hasPremium ?? false else {
+            let alert = Alert.defaultAlert(
+                message: Localizations.sendFilePremiumRequired
+            )
+            coordinator.showAlert(alert)
+            return false
+        }
+
+        let isEmailVerified = try? await services.sendRepository.doesActiveAccountHaveVerifiedEmail()
+        guard isEmailVerified ?? false else {
+            let alert = Alert.defaultAlert(
+                message: Localizations.sendFileEmailVerificationRequired
+            )
+            coordinator.showAlert(alert)
+            return false
+        }
+
+        // Only perform further checks when adding a new file send.
+        guard state.mode == .add else { return true }
+
+        guard let fileData = state.fileData, state.fileName != nil else {
+            let alert = Alert.validationFieldRequired(fieldName: Localizations.file)
+            coordinator.showAlert(alert)
+            return false
+        }
+
+        guard fileData.count <= Constants.maxFileSizeBytes else {
+            let alert = Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.maxFileSize
+            )
+            coordinator.showAlert(alert)
+            return false
+        }
+
+        return true
     }
 }
 

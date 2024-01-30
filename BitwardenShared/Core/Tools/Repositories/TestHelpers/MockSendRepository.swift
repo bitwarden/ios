@@ -11,6 +11,8 @@ class MockSendRepository: SendRepository {
 
     var doesActivateAccountHavePremiumResult: Result<Bool, Error> = .success(true)
 
+    var doesActiveAccountHaveVerifiedEmailResult: Result<Bool, Error> = .success(true)
+
     var fetchSyncCalled = false
     var fetchSyncIsManualRefresh: Bool?
     var fetchSyncResult: Result<Void, Error> = .success(())
@@ -68,6 +70,10 @@ class MockSendRepository: SendRepository {
 
     func doesActiveAccountHavePremium() async throws -> Bool {
         try doesActivateAccountHavePremiumResult.get()
+    }
+
+    func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {
+        try doesActiveAccountHaveVerifiedEmailResult.get()
     }
 
     func fetchSync(isManualRefresh: Bool) async throws {

@@ -15,7 +15,7 @@ final class LoginRequestCoordinator: Coordinator, HasStackNavigator {
     // MARK: Properties
 
     /// The stack navigator that is managed by this coordinator.
-    var stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -38,7 +38,7 @@ final class LoginRequestCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: LoginRequestRoute, context: AnyObject?) {
         switch route {
         case let .dismiss(onDismiss):
-            stackNavigator.dismiss(animated: true, completion: {
+            stackNavigator?.dismiss(animated: true, completion: {
                 onDismiss?.action()
             })
         case let .loginRequest(loginRequest):
@@ -64,6 +64,6 @@ final class LoginRequestCoordinator: Coordinator, HasStackNavigator {
             state: LoginRequestState(request: loginRequest)
         )
         let view = LoginRequestView(store: Store(processor: processor))
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 }
