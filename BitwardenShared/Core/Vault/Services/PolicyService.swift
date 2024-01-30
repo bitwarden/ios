@@ -12,7 +12,7 @@ protocol PolicyService: AnyObject {
 
     /// Returns whether the send hide email option is disabled because of a policy.
     ///
-    /// - Returns: Whether the send hide email option is disabled
+    /// - Returns: Whether the send hide email option is disabled.
     ///
     func isSendHideEmailDisabledByPolicy() async -> Bool
 
