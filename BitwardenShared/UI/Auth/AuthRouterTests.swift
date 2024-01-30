@@ -281,7 +281,6 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `handleAndRoute(_ :)` redirects `.logout()`.
     func test_handleAndRoute_logout_userInitiated_notFound_locked() async {
         let main = Account.fixture()
-        let alt = Account.fixtureAccountLogin()
         authRepository.activeAccount = main
         authRepository.isLockedResult = .success(true)
         authRepository.altAccounts = []
@@ -312,7 +311,6 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `handleAndRoute(_ :)` redirects `.logout()`.
     func test_handleAndRoute_logout_system_nil_locked() async {
         let main = Account.fixture()
-        let alt = Account.fixtureAccountLogin()
         authRepository.activeAccount = nil
         authRepository.isLockedResult = .success(true)
         authRepository.altAccounts = []
