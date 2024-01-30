@@ -31,6 +31,11 @@ enum KeychainItem: Equatable {
             "userKeyAutoUnlock_\(id)"
         }
     }
+
+    /// The value to provide for the `kSecAttrService` key.
+    var service: String {
+        "com.8bit.bitwarden.watch.kc"
+    }
 }
 
 // MARK: - KeychainService
@@ -67,10 +72,6 @@ enum KeychainServiceError: Error, Equatable {
     ///
     case keyNotFound(KeychainItem)
 
-    /// When there is no bundle id for the application.
-    ///
-    case missingBundleId
-
     /// A passthrough for OSService Error cases.
     ///
     /// - Parameter OSStatus: The `OSStatus` returned from a keychain operation.
@@ -84,12 +85,9 @@ class DefaultKeychainService: KeychainService {
     // MARK: Methods
 
     func deleteUserAuthKey(for item: KeychainItem) async throws {
-        guard let bundleId = Bundle.main.bundleIdentifier else {
-            throw KeychainServiceError.missingBundleId
-        }
         let queryDictionary = [
             kSecClass: kSecClassGenericPassword,
-            kSecAttrService: bundleId,
+            kSecAttrService: item.service,
             kSecAttrAccount: item.storageKey,
         ] as CFDictionary
 
@@ -103,13 +101,9 @@ class DefaultKeychainService: KeychainService {
     }
 
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
-        guard let bundleId = Bundle.main.bundleIdentifier else {
-            throw KeychainServiceError.missingBundleId
-        }
-
         let searchQuery = [
             kSecClass: kSecClassGenericPassword,
-            kSecAttrService: bundleId,
+            kSecAttrService: item.service,
             kSecAttrAccount: item.storageKey,
             kSecMatchLimit: kSecMatchLimitOne,
             kSecReturnData: true,
@@ -137,10 +131,6 @@ class DefaultKeychainService: KeychainService {
     }
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {
-        guard let bundleId = Bundle.main.bundleIdentifier else {
-            throw KeychainServiceError.missingBundleId
-        }
-
         var error: Unmanaged<CFError>?
         let accessControl = SecAccessControlCreateWithFlags(
             nil,
@@ -157,7 +147,7 @@ class DefaultKeychainService: KeychainService {
 
         let query = [
             kSecClass: kSecClassGenericPassword,
-            kSecAttrService: bundleId,
+            kSecAttrService: item.service,
             kSecAttrAccount: item.storageKey,
             kSecValueData: Data(value.utf8),
             kSecAttrAccessControl: accessControl as Any,

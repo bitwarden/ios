@@ -135,8 +135,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
             return string
         } catch let error as KeychainServiceError {
             switch error {
-            case .keyNotFound,
-                 .missingBundleId:
+            case .keyNotFound:
                 throw BiometricsServiceError.getAuthKeyFailed
             case let .osStatusError(status):
                 switch status {
