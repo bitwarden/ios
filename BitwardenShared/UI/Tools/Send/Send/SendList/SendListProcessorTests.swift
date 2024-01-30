@@ -11,6 +11,7 @@ class SendListProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<SendRoute>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
     var subject: SendListProcessor!
 
@@ -20,6 +21,7 @@ class SendListProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+        policyService = MockPolicyService()
         sendRepository = MockSendRepository()
 
         subject = SendListProcessor(
@@ -27,6 +29,7 @@ class SendListProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
+                policyService: policyService,
                 sendRepository: sendRepository
             ),
             state: SendListState()
@@ -38,42 +41,21 @@ class SendListProcessorTests: BitwardenTestCase {
 
         coordinator = nil
         errorReporter = nil
+        policyService = nil
         sendRepository = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.appeared` updates the state's send list whenever it changes.
-    func test_perform_appeared() {
-        let sendListItem = SendListItem(id: "1", itemType: .group(.file, 42))
-        sendRepository.sendListSubject.send([
-            SendListSection(id: "1", isCountDisplayed: true, items: [sendListItem], name: "Name"),
-        ])
+    /// `perform(_:)` with `loadData` loads the policy data for the view.
+    func test_perform_loadData_policies() async {
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isSendDisabled)
 
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-
-        waitFor(!subject.state.sections.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(subject.state.sections.count, 1)
-        XCTAssertEqual(subject.state.sections[0].items, [sendListItem])
-    }
-
-    /// `perform(_:)` with `.appeared` records any errors.
-    func test_perform_appeared_error() {
-        sendRepository.sendListSubject.send(completion: .failure(BitwardenTestError.example))
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-
-        waitFor(!errorReporter.errors.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        policyService.policyAppliesToUserResult[.disableSend] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.isSendDisabled)
     }
 
     /// `perform(_:)` with `refresh` calls the refresh method.
@@ -198,6 +180,38 @@ class SendListProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
         XCTAssertEqual(coordinator.routes.last, .share(url: .example))
+    }
+
+    /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes.
+    func test_perform_streamSendList() {
+        let sendListItem = SendListItem(id: "1", itemType: .group(.file, 42))
+        sendRepository.sendListSubject.send([
+            SendListSection(id: "1", isCountDisplayed: true, items: [sendListItem], name: "Name"),
+        ])
+
+        let task = Task {
+            await subject.perform(.streamSendList)
+        }
+
+        waitFor(!subject.state.sections.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.sections.count, 1)
+        XCTAssertEqual(subject.state.sections[0].items, [sendListItem])
+    }
+
+    /// `perform(_:)` with `.streamSendList` records any errors.
+    func test_perform_streamSendList_error() {
+        sendRepository.sendListSubject.send(completion: .failure(BitwardenTestError.example))
+
+        let task = Task {
+            await subject.perform(.streamSendList)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
