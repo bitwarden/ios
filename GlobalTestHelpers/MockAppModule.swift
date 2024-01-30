@@ -26,7 +26,7 @@ class MockAppModule:
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
-    var sendItemCoordinator = MockCoordinator<SendItemRoute, Void>()
+    var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
     var tabCoordinator = MockCoordinator<TabRoute, Void>()
     var vaultCoordinator = MockCoordinator<VaultRoute, AuthAction>()
@@ -93,7 +93,7 @@ class MockAppModule:
     func makeSendItemCoordinator(
         delegate _: SendItemDelegate,
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<SendItemRoute, Void> {
+    ) -> AnyCoordinator<SendItemRoute, AuthAction> {
         sendItemCoordinator.asAnyCoordinator()
     }
 

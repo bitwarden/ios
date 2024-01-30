@@ -135,24 +135,6 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
         }
     }
 
-    /// Navigates to the appropriate location following a logout event.
-    ///
-    /// - Parameters:
-    ///   - accountId: The id of the account that was logged out.
-    ///   - userInitiated: Did the user initiate this logout?
-    ///
-    private func navigateFollowingLogout(
-        accountId: String,
-        userInitiated: Bool
-    ) async {
-        await coordinator.handleEvent(
-            .didLogout(
-                userId: accountId,
-                userInitiated: userInitiated
-            )
-        )
-    }
-
     /// Loads the async state data for the view
     ///
     private func loadData() async {
@@ -201,7 +183,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
         coordinator.showAlert(.accountOptions(account, lockAction: {
             do {
                 // Lock the vault of the selected account.
-                let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
+                let activeAccountId = try await self.services.authRepository.getUserId()
                 await self.coordinator.handleEvent(.action(.lockVault(userId: account.userId)))
 
                 // No navigation is necessary, since the user is already on the unlock
@@ -220,7 +202,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
                 guard let self else { return }
                 do {
                     // Log out of the selected account.
-                    let activeAccountId = try await services.authRepository.getActiveAccount().userId
+                    let activeAccountId = try await services.authRepository.getUserId()
                     await coordinator.handleEvent(.action(.logout(userId: account.userId, userInitiated: true)))
 
                     // If that account was not active,
@@ -261,21 +243,10 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
     /// Configures a profile switcher state with the current account and alternates.
     ///
     private func refreshProfileState() async {
-        var accounts = [ProfileSwitcherItem]()
-        var activeAccount: ProfileSwitcherItem?
-        do {
-            accounts = try await services.authRepository.getAccounts()
-            guard !accounts.isEmpty else { return }
-            activeAccount = try? await services.authRepository.getActiveAccount()
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: accounts,
-                activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible,
-                shouldAlwaysHideAddAccount: appExtensionDelegate?.isInAppExtension ?? false
-            )
-        } catch {
-            state.profileSwitcherState = .empty()
-        }
+        state.profileSwitcherState = await services.authRepository.getProfilesState(
+            isVisible: state.profileSwitcherState.isVisible,
+            shouldAlwaysHideAddAccount: appExtensionDelegate?.isInAppExtension ?? false
+        )
     }
 
     /// Shows an alert asking the user to confirm that they want to logout.

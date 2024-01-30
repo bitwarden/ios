@@ -1,10 +1,6 @@
 @testable import BitwardenShared
 
 class MockAuthRepository: AuthRepository {
-    var activeProfileSwitcherItemResult: Result<
-        ProfileSwitcherItem,
-        Error
-    > = .failure(StateServiceError.noActiveAccount)
     var allowBiometricUnlock: Bool?
     var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
@@ -27,7 +23,7 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
-    var profileSwitcherItemsResult: Result<[ProfileSwitcherItem], Error> = .failure(StateServiceError.noAccounts)
+    var profileSwitcherState: ProfileSwitcherState?
     var setActiveAccountId: String?
     var setActiveAccountError: Error?
     var setVaultTimeoutError: Error?
@@ -58,14 +54,6 @@ class MockAuthRepository: AuthRepository {
         deleteAccountCalled = true
     }
 
-    func getAccounts() async throws -> [ProfileSwitcherItem] {
-        try profileSwitcherItemsResult.get()
-    }
-
-    func getActiveAccount() async throws -> ProfileSwitcherItem {
-        try activeProfileSwitcherItemResult.get()
-    }
-
     func getAccount(for userId: String?) async throws -> Account {
         if let getAccountError {
             throw getAccountError
@@ -85,6 +73,23 @@ class MockAuthRepository: AuthRepository {
 
     func getFingerprintPhrase() async throws -> String {
         try fingerprintPhraseResult.get()
+    }
+
+    func getProfilesState(
+        isVisible: Bool,
+        shouldAlwaysHideAddAccount: Bool
+    ) async -> BitwardenShared.ProfileSwitcherState {
+        if let profileSwitcherState {
+            return ProfileSwitcherState(
+                accounts: profileSwitcherState.accounts,
+                activeAccountId: profileSwitcherState.activeAccountId,
+                isVisible: isVisible,
+                shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+            )
+        }
+        return .empty(
+            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+        )
     }
 
     func isLocked(userId: String?) async throws -> Bool {

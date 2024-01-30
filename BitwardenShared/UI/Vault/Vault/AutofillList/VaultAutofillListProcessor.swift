@@ -140,22 +140,10 @@ class VaultAutofillListProcessor: StateProcessor<
     /// Configures a profile switcher state with the current account and alternates.
     ///
     private func refreshProfileState() async {
-        var accounts = [ProfileSwitcherItem]()
-        var activeAccount: ProfileSwitcherItem?
-        do {
-            accounts = try await services.authRepository.getAccounts()
-            activeAccount = try? await services.authRepository.getActiveAccount()
-
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: accounts,
-                activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible,
-                shouldAlwaysHideAddAccount: true
-            )
-        } catch {
-            services.errorReporter.log(error: error)
-            state.profileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
-        }
+        state.profileSwitcherState = await services.authRepository.getProfilesState(
+            isVisible: false,
+            shouldAlwaysHideAddAccount: true
+        )
     }
 
     /// Searches the list of ciphers for those matching the search term.

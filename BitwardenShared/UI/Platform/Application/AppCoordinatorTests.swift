@@ -141,6 +141,14 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.authCoordinator.routes, [.landing])
     }
 
+    /// `handle()` triggers the contained auth action.
+    func test_handleAuthAction() async {
+        router.routeForEvent = { _ in .complete }
+        await subject.handle(.switchAccount(isAutomatic: false, userId: "123"))
+        waitFor(module.authCoordinator.isStarted)
+        XCTAssertEqual(module.authCoordinator.routes, [.complete])
+    }
+
     /// `navigate(to:)` with `.onboarding` starts the auth coordinator and navigates to the proper auth route.
     func test_navigateTo_auth() throws {
         subject.navigate(to: .auth(.landing))

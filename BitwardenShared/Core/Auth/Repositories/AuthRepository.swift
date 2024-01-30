@@ -29,18 +29,6 @@ protocol AuthRepository: AnyObject {
     ///
     func deleteAccount(passwordText: String) async throws
 
-    /// Gets all accounts.
-    ///
-    /// - Returns: The known user accounts as `[ProfileSwitcherItem]`.
-    ///
-    func getAccounts() async throws -> [ProfileSwitcherItem]
-
-    /// Gets the active account.
-    ///
-    /// - Returns: The active user account as a `ProfileSwitcherItem`.
-    ///
-    func getActiveAccount() async throws -> ProfileSwitcherItem
-
     /// Gets the account for a user id.
     ///
     /// - Parameter userId: The user Id to be mapped to an account.
@@ -87,6 +75,17 @@ protocol AuthRepository: AnyObject {
     /// - Returns: The password strength of the password.
     ///
     func passwordStrength(email: String, password: String) async -> UInt8
+
+    /// Gets the profiles state for a user.
+    /// - Parameters:
+    ///   - isVisible: Should the state be visible?
+    ///   - shouldAlwaysHideAddAccount: Should the state always hide add account?
+    /// - Returns: A ProfileSwitcherState.
+    ///
+    func getProfilesState(
+        isVisible: Bool,
+        shouldAlwaysHideAddAccount: Bool
+    ) async -> ProfileSwitcherState
 
     /// Sets the encrypted pin and the pin protected user key.
     ///
@@ -139,6 +138,14 @@ extension AuthRepository {
     ///
     func getAccount() async throws -> Account {
         try await getAccount(for: nil)
+    }
+
+    /// Gets the active user id.
+    ///
+    /// - Returns: The active user id.
+    ///
+    func getUserId() async throws -> String {
+        try await getAccount(for: nil).profile.userId
     }
 
     /// Checks the locked status of a user vault by user id
@@ -272,18 +279,6 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.remove(userId: nil)
     }
 
-    func getAccounts() async throws -> [ProfileSwitcherItem] {
-        let accounts = try await stateService.getAccounts()
-        return await accounts.asyncMap { account in
-            await profileItem(from: account)
-        }
-    }
-
-    func getActiveAccount() async throws -> ProfileSwitcherItem {
-        let active = try await stateService.getActiveAccount()
-        return await profileItem(from: active)
-    }
-
     func getAccount(for userId: String?) async throws -> Account {
         try await stateService.getAccount(userId: userId)
     }
@@ -291,6 +286,21 @@ extension DefaultAuthRepository: AuthRepository {
     func getFingerprintPhrase() async throws -> String {
         let userId = try await stateService.getActiveAccountId()
         return try await clientPlatform.userFingerprint(fingerprintMaterial: userId)
+    }
+
+    func getProfilesState(
+        isVisible: Bool,
+        shouldAlwaysHideAddAccount: Bool
+    ) async -> ProfileSwitcherState {
+        let accounts = await (try? getAccounts()) ?? []
+        guard !accounts.isEmpty else { return .empty() }
+        let activeAccount = try? await getActiveAccount()
+        return ProfileSwitcherState(
+            accounts: accounts,
+            activeAccountId: activeAccount?.userId,
+            isVisible: isVisible,
+            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+        )
     }
 
     func isLocked(userId: String?) async throws -> Bool {
@@ -381,6 +391,26 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     // MARK: Private
+
+    /// A helper function to convert state service `Account`s to `ProfileSwitcherItem`s.
+    ///
+    /// - Returns: A list of available accounts as `[ProfileSwitcherItem]`.
+    ///
+    private func getAccounts() async throws -> [ProfileSwitcherItem] {
+        let accounts = try await stateService.getAccounts()
+        return await accounts.asyncMap { account in
+            await profileItem(from: account)
+        }
+    }
+
+    /// A helper function to convert the state service active `Account` to a `ProfileSwitcherItem`.
+    ///
+    /// - Returns: The active account as a `ProfileSwitcherItem`.
+    ///
+    private func getActiveAccount() async throws -> ProfileSwitcherItem {
+        let active = try await stateService.getActiveAccount()
+        return await profileItem(from: active)
+    }
 
     /// A function to convert an `Account` to a `ProfileSwitcherItem`
     ///

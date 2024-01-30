@@ -79,22 +79,24 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.loadData` loads the profile switcher state.
     func test_perform_loadData_profileSwitcher() async {
-        authRepository.profileSwitcherItemsResult = .success([.anneAccount])
-        authRepository.activeProfileSwitcherItemResult = .success(.anneAccount)
+        authRepository.profileSwitcherState = ProfileSwitcherState(
+            accounts: [.anneAccount],
+            activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            isVisible: true
+        )
 
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.profileSwitcherState.accounts, [.anneAccount])
     }
 
-    /// `perform(_:)` with `.loadData` logs an error if one occurs when loading the profile switcher.
-    func test_perform_loadData_profileSwitcher_error() async {
-        authRepository.profileSwitcherItemsResult = .failure(StateServiceError.noAccounts)
+    /// `perform(_:)` with `.loadData` loads an empty state the profile switcher.
+    func test_perform_loadData_profileSwitcher_empty() async {
+        authRepository.profileSwitcherState = .empty()
 
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.profileSwitcherState, .empty(shouldAlwaysHideAddAccount: true))
-        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, StateServiceError.noAccounts)
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.

@@ -201,6 +201,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 // MARK: - SendListProcessor:SendItemDelegate
 
 extension SendListProcessor: SendItemDelegate {
+    func handle(_ authAction: AuthAction) async {
+        // No-Op, only for use by the AppCoordinator.
+    }
+
     func sendItemCancelled() {
         coordinator.navigate(to: .dismiss())
     }

@@ -112,7 +112,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         coordinator.showAlert(.accountOptions(account, lockAction: {
             do {
                 // Lock the vault of the selected account.
-                let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
+                let activeAccountId = try await self.services.authRepository.getUserId()
                 await self.coordinator.handleEvent(.action(.lockVault(userId: account.userId)))
 
                 // No navigation is necessary, since the user is already on the unlock
@@ -131,7 +131,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
                 guard let self else { return }
                 do {
                     // Log out of the selected account.
-                    let activeAccountId = try await services.authRepository.getActiveAccount().userId
+                    let activeAccountId = try await services.authRepository.getUserId()
                     await coordinator.handleEvent(.action(.logout(userId: account.userId, userInitiated: true)))
 
                     // If that account was not active,
@@ -187,21 +187,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     /// Configures a profile switcher state with the current account and alternates.
     ///
     private func refreshProfileState() async {
-        var accounts = [ProfileSwitcherItem]()
-        var activeAccount: ProfileSwitcherItem?
-        do {
-            accounts = try await services.authRepository.getAccounts()
-            guard !accounts.isEmpty else { return }
-            activeAccount = try? await services.authRepository.getActiveAccount()
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: accounts,
-                activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible,
-                shouldAlwaysHideAddAccount: true
-            )
-        } catch {
-            state.profileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
-        }
+        state.profileSwitcherState = await services.authRepository.getProfilesState(
+            isVisible: state.profileSwitcherState.isVisible,
+            shouldAlwaysHideAddAccount: true
+        )
     }
 
     /// Validate the currently entered email address and navigate to the login screen.

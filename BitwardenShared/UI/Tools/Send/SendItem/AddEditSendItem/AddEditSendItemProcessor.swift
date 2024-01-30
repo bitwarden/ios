@@ -5,10 +5,13 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the add/edit send item screen.
 ///
-class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect> {
+class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
+    StateProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect> {
     // MARK: Types
 
-    typealias Services = HasPasteboardService
+    typealias Services = HasAuthRepository
+        & HasErrorReporter
+        & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
 
@@ -21,7 +24,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation for this processor.
-    let coordinator: any Coordinator<SendItemRoute, Void>
+    let coordinator: any Coordinator<SendItemRoute, AuthAction>
 
     /// The services required by this processor.
     let services: Services
@@ -36,7 +39,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<SendItemRoute, Void>,
+        coordinator: any Coordinator<SendItemRoute, AuthAction>,
         services: Services,
         state: AddEditSendItemState
     ) {
@@ -60,6 +63,16 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             coordinator.showAlert(alert)
         case .loadData:
             await loadData()
+        case let .profileSwitcher(profileEffect):
+            guard case var .shareExtension(profileSwitcherState) = state.mode else { return }
+            switch profileEffect {
+            case let .rowAppeared(rowType):
+                guard profileSwitcherState.shouldSetAccessibilityFocus(for: rowType) == true else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    profileSwitcherState.hasSetAccessibilityFocus = true
+                    self.state.mode = .shareExtension(profileSwitcherState)
+                }
+            }
         case .removePassword:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
@@ -102,6 +115,8 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.password = newValue
         case let .passwordVisibleChanged(newValue):
             state.isPasswordVisible = newValue
+        case let .profileSwitcherAction(profileAction):
+            handle(profileAction)
         case let .maximumAccessCountChanged(newValue):
             state.maximumAccessCount = newValue
         case let .nameChanged(newValue):
@@ -158,6 +173,49 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     private func loadData() async {
         state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
         state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
+        await refreshProfileState()
+    }
+
+    /// Handles a tap of an account in the profile switcher
+    /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
+    ///
+    private func didTapProfileSwitcherItem(
+        _ selectedAccount: ProfileSwitcherItem,
+        switcherState: ProfileSwitcherState
+    ) {
+        var newSwitcherState = switcherState
+        newSwitcherState.isVisible = false
+        defer { state.mode = .shareExtension(newSwitcherState) }
+        guard selectedAccount.userId != newSwitcherState.activeAccountId else { return }
+        Task {
+            await coordinator.handleEvent(
+                .switchAccount(
+                    isAutomatic: false,
+                    userId: selectedAccount.userId
+                )
+            )
+        }
+    }
+
+    private func handle(_ profileAction: ProfileSwitcherAction) {
+        guard case var .shareExtension(switcherState) = state.mode else { return }
+        switch profileAction {
+        case .accountLongPressed,
+             .addAccountPressed:
+            // No-Op for the extension
+            break
+        case let .accountPressed(account):
+            didTapProfileSwitcherItem(account, switcherState: switcherState)
+        case .backgroundPressed:
+            switcherState.isVisible = false
+            state.mode = .shareExtension(switcherState)
+        case let .requestedProfileSwitcher(visible: isVisible):
+            switcherState.isVisible = isVisible
+            state.mode = .shareExtension(switcherState)
+        case let .scrollOffsetChanged(newOffset):
+            switcherState.scrollOffset = newOffset
+            state.mode = .shareExtension(switcherState)
+        }
     }
 
     /// Presents the file selection alert.
@@ -168,6 +226,17 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             coordinator.navigate(to: .fileSelection(route), context: self)
         }
         coordinator.showAlert(alert)
+    }
+
+    /// Configures a profile switcher state with the current account and alternates.
+    ///
+    private func refreshProfileState() async {
+        guard case let .shareExtension(switcherState) = state.mode else { return }
+        let newSwitcherState = await services.authRepository.getProfilesState(
+            isVisible: switcherState.isVisible,
+            shouldAlwaysHideAddAccount: true
+        )
+        state.mode = .shareExtension(newSwitcherState)
     }
 
     /// Removes the password from the provided send.

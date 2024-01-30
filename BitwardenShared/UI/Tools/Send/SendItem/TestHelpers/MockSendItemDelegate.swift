@@ -12,6 +12,12 @@ class MockSendItemDelegate: SendItemDelegate {
 
     var didSendItemDeleted = false
 
+    var handledAuthActions = [AuthAction]()
+
+    func handle(_ authAction: BitwardenShared.AuthAction) async {
+        handledAuthActions.append(authAction)
+    }
+
     func sendItemCancelled() {
         didSendItemCancelled = true
     }
