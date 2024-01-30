@@ -2,88 +2,6 @@ import Foundation
 
 // swiftlint:disable file_length
 
-// MARK: - AuthEvent
-
-public enum AuthEvent: Equatable {
-    /// When the router should check the lock status of an account and propose a route.
-    ///
-    /// - Parameters:
-    ///   - account: The account to unlock the vault for.
-    ///   - animated: Whether to animate the transition to the view.
-    ///   - attemptAutomaticBiometricUnlock: If `true` and biometric unlock is enabled/available,
-    ///     the processor should attempt an automatic biometric unlock.
-    ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
-    ///
-    case accountBecameActive(
-        Account,
-        animated: Bool,
-        attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
-    )
-
-    /// When the router should handle an AuthAction.
-    ///
-    case action(AuthAction)
-
-    /// When the router should check the lock status of an account and propose a route.
-    ///
-    /// - Parameters:
-    ///   - account: The account to unlock the vault for.
-    ///   - animated: Whether to animate the transition to the view.
-    ///   - attemptAutomaticBiometricUnlock: If `true` and biometric unlock is enabled/available,
-    ///     the processor should attempt an automatic biometric unlock.
-    ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
-    ///
-    case didLockAccount(
-        Account,
-        animated: Bool,
-        attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
-    )
-
-    /// When the user deletes an account.
-    case didDeleteAccount
-
-    /// When the user logs out from an account.
-    ///
-    /// - Parameters:
-    ///   - userId: The userId of the account that was logged out.
-    ///   - isUserInitiated: Did a user action trigger the account switch?
-    ///
-    case didLogout(userId: String, userInitiated: Bool)
-
-    /// When the app starts
-    case didStart
-
-    /// When an account has timed out.
-    case didTimeout(userId: String)
-}
-
-public enum AuthAction: Equatable {
-    /// When the app should lock an account.
-    ///
-    /// - Parameter userId: The user Id of the account.
-    ///
-    case lockVault(userId: String?)
-
-    /// When the app should logout an account vault.
-    ///
-    /// - Parameters:
-    ///   - userId: The user Id of the selected account.
-    ///   - userInitiated: Did a user action trigger the logout.
-    ///     Defaults to the active user id if nil.
-    ///
-    case logout(userId: String?, userInitiated: Bool)
-
-    /// When the app requests an account switch.
-    ///
-    /// - Parameters:
-    ///   - isAutomatic: Did the system trigger the account switch?
-    ///   - userId: The user Id of the selected account.
-    ///
-    case switchAccount(isAutomatic: Bool, userId: String)
-}
-
 // MARK: - AuthManager
 
 final class AuthRouter: NSObject, Router {
@@ -169,6 +87,11 @@ final class AuthRouter: NSObject, Router {
 
     // MARK: - Private
 
+    /// Converts an `AuthAction` into an `AuthRoute`
+    ///
+    /// - Parameter action: The supplied AuthAction.
+    /// - Returns: The correct `AuthRoute` for the action.
+    ///
     private func handleAuthAction(_ action: AuthAction) async -> AuthRoute {
         switch action {
         case let .lockVault(userId):
@@ -528,59 +451,5 @@ private extension AuthRouter {
                 didSwitchAccountAutomatically: didSwitchAccountAutomatically
             )
         }
-    }
-}
-
-/// A protocol for an object that configures state for a given event and outputs a redirected route.
-@MainActor
-public protocol Router<Event, Route>: AnyObject {
-    associatedtype Event
-    associatedtype Route
-
-    /// Prepare the coordinator for a given route and redirect if needed.
-    ///
-    /// - Parameter route: The route for which the coordinator should prepare itself.
-    /// - Returns: A redirected route for which the Coordinator is prepared.
-    ///
-    func handleAndRoute(_ event: Event) async -> Route
-}
-
-// MARK: - AnyRouter
-
-/// A type erased wrapper for a router.
-///
-open class AnyRouter<Event, Route>: Router {
-    // MARK: Properties
-
-    /// A closure that wraps the `handleAndRoute()` method.
-    private let doHandleAndRoute: (Event) async -> Route
-
-    // MARK: Initialization
-
-    /// Initializes an `AnyRouter`.
-    ///
-    /// - Parameter router: The router to wrap.
-    ///
-    public init<R: Router>(_ router: R) where R.Route == Route, R.Event == Event {
-        doHandleAndRoute = { event in
-            await router.handleAndRoute(event)
-        }
-    }
-
-    // MARK: Router
-
-    open func handleAndRoute(_ event: Event) async -> Route {
-        await doHandleAndRoute(event)
-    }
-}
-
-// MARK: - Router Extensions
-
-public extension Router {
-    /// Wraps this router in an instance of `AnyRouter`.
-    ///
-    /// - Returns: An `AnyRouter` instance wrapping this router.
-    func asAnyRouter() -> AnyRouter<Event, Route> {
-        AnyRouter(self)
     }
 }
