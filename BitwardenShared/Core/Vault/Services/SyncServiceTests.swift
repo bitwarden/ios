@@ -139,6 +139,28 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(collectionService.replaceCollectionsUserId, "1")
     }
 
+    /// `fetchSync()` updates the user's profile.
+    func test_fetchSync_profile() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfile)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync()
+
+        XCTAssertEqual(
+            stateService.updateProfileResponse,
+            .fixture(
+                culture: "en-US",
+                email: "user@bitwarden.com",
+                id: "c8aa1e36-4427-11ee-be56-0242ac120002",
+                key: "key",
+                organizations: [],
+                privateKey: "private key",
+                securityStamp: "security stamp"
+            )
+        )
+        XCTAssertEqual(stateService.updateProfileUserId, "1")
+    }
+
     /// `fetchSync()` replaces the list of the user's sends.
     func test_fetchSync_sends() async throws {
         client.result = .httpSuccess(testData: .syncWithSends)
