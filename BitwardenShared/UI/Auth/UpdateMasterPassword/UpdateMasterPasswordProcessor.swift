@@ -1,0 +1,82 @@
+import BitwardenSdk
+import Foundation
+
+// MARK: - UpdateMasterPasswordProcessor
+
+/// The processor used to manage state and handle actions for the update master password screen.
+///
+class UpdateMasterPasswordProcessor: StateProcessor<UpdateMasterPasswordState, UpdateMasterPasswordAction, UpdateMasterPasswordEffect> { // swiftlint:disable:this line_length
+    // MARK: Types
+
+    typealias Services = HasAuthRepository
+        & HasAuthService
+        & HasErrorReporter
+
+    // MARK: Private Properties
+
+    /// The `Coordinator` that handles navigation.
+    private var coordinator: AnyCoordinator<VaultRoute>
+
+    /// The services used by this processor.
+    private var services: Services
+
+    // MARK: Initialization
+
+    /// Creates a new `UpdateMasterPasswordProcessor`.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The coordinator that handles navigation.
+    ///   - state: The initial state of the processor.
+    ///
+    init(
+        coordinator: AnyCoordinator<VaultRoute>,
+        services: Services,
+        state: UpdateMasterPasswordState
+    ) {
+        self.coordinator = coordinator
+        self.services = services
+        super.init(state: state)
+    }
+
+    // MARK: Methods
+
+    override func perform(_ effect: UpdateMasterPasswordEffect) async {
+        switch effect {
+        case .appeared:
+            // TODO: BIT-789
+            break
+        case .logoutPressed:
+            // TODO: BIT-789
+            break
+        case .submitPressed:
+            await updateMasterPassword()
+        }
+    }
+
+    override func receive(_ action: UpdateMasterPasswordAction) {
+        switch action {
+        case let .currentMasterPasswordChanged(newValue):
+            state.currentMasterPassword = newValue
+        case let .masterPasswordChanged(newValue):
+            state.masterPassword = newValue
+        case let .masterPasswordHintChanged(newValue):
+            state.masterPasswordHint = newValue
+        case let .masterPasswordRetypeChanged(newValue):
+            state.masterPasswordRetype = newValue
+        case .revealCurrentMasterPasswordFieldPressed:
+            state.isCurrentMasterPasswordRevealed.toggle()
+        case .revealMasterPasswordFieldPressed:
+            state.isMasterPasswordRevealed.toggle()
+        case .revealMasterPasswordRetypeFieldPressed:
+            state.isMasterPasswordRetypeRevealed.toggle()
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// updates the master password
+    ///
+    private func updateMasterPassword() async {
+        // TODO: BIT-789
+    }
+}
