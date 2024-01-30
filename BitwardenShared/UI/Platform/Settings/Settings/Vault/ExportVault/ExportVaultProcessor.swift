@@ -1,10 +1,11 @@
 // MARK: - ExportVaultProcessor
 
 /// The processor used to manage state and handle actions for the `ExportVaultView`.
-final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAction, Void> {
+final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAction, ExportVaultEffect> {
     // MARK: Types
 
     typealias Services = HasErrorReporter
+        & HasPolicyService
         & HasSettingsRepository
 
     // MARK: Properties
@@ -33,6 +34,13 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     }
 
     // MARK: Methods
+
+    override func perform(_ effect: ExportVaultEffect) async {
+        switch effect {
+        case .loadData:
+            await loadData()
+        }
+    }
 
     override func receive(_ action: ExportVaultAction) {
         switch action {
@@ -66,6 +74,14 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
             // TODO: BIT-447
             // TODO: BIT-449
         })
+    }
+
+    /// Load any initial data for the view.
+    ///
+    private func loadData() async {
+        state.disableIndividualVaultExport = await services.policyService.policyAppliesToUser(
+            .disablePersonalVaultExport
+        )
     }
 
     /// Validate the password.

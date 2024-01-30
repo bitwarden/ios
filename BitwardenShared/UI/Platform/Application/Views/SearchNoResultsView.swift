@@ -31,6 +31,7 @@ struct SearchNoResultsView<Content: View>: View {
                             .styleGuide(.callout)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     }
+                    .accessibilityIdentifier("NoSearchResultsLabel")
                     .frame(maxWidth: .infinity, minHeight: reader.size.height, maxHeight: .infinity)
                 }
             }

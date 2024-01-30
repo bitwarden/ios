@@ -53,3 +53,23 @@ enum AnyCodable: Codable, Equatable {
         }
     }
 }
+
+extension AnyCodable {
+    /// Returns the associated bool value if the type is `bool`.
+    var boolValue: Bool? {
+        guard case let .bool(boolValue) = self else { return nil }
+        return boolValue
+    }
+
+    /// Returns the associated int value if the type is `int`.
+    var intValue: Int? {
+        guard case let .int(intValue) = self else { return nil }
+        return intValue
+    }
+
+    /// Returns the associated string value if the type is `string`.
+    var stringValue: String? {
+        guard case let .string(stringValue) = self else { return nil }
+        return stringValue
+    }
+}

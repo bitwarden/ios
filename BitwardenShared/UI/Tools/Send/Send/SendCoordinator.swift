@@ -33,7 +33,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     let services: Services
 
     /// The stack navigator that is managed by this coordinator.
-    let stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -62,10 +62,10 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
             guard let delegate = context as? SendItemDelegate else { return }
             Task {
                 let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-                showItem(route: .add(hasPremium: hasPremium ?? false), delegate: delegate)
+                showItem(route: .add(content: nil, hasPremium: hasPremium ?? false), delegate: delegate)
             }
         case let .dismiss(dismissAction):
-            stackNavigator.dismiss(completion: dismissAction?.action)
+            stackNavigator?.dismiss(completion: dismissAction?.action)
         case let .editItem(sendView):
             guard let delegate = context as? SendItemDelegate else { return }
             Task {
@@ -99,7 +99,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         )
         coordinator.start()
         coordinator.navigate(to: route)
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the list of sends.
@@ -112,7 +112,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         )
         let store = Store(processor: processor)
         let view = SendListView(store: store)
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 
     /// Presents the system share sheet for the specified items.
@@ -124,6 +124,6 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
             activityItems: items,
             applicationActivities: nil
         )
-        stackNavigator.present(viewController)
+        stackNavigator?.present(viewController)
     }
 }

@@ -200,7 +200,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)
     }
 
-    /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
+    /// Tapping the setup totp button dispatches the `.setupTotpPressed` action.
     func test_setupTotpButton_withKey_tap() async throws {
         processor.state.loginState.totpState = LoginTOTPState("JBSWY3DPEHPK3PXP")
 

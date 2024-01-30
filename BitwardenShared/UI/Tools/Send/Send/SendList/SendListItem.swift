@@ -2,11 +2,11 @@ import BitwardenSdk
 
 /// Data model for an item displayed in the vault list.
 ///
-struct SendListItem: Equatable, Identifiable {
+public struct SendListItem: Equatable, Identifiable {
     // MARK: Types
 
     /// An enumeration for the type of item being displayed by this item.
-    enum ItemType: Equatable {
+    public enum ItemType: Equatable {
         /// The wrapped item is a send.
         case send(BitwardenSdk.SendView)
 
@@ -17,10 +17,10 @@ struct SendListItem: Equatable, Identifiable {
     // MARK: Properties
 
     /// The identifier for the item.
-    let id: String
+    public let id: String
 
     /// The type of item being displayed by this item.
-    let itemType: ItemType
+    public let itemType: ItemType
 }
 
 extension SendListItem {

@@ -13,6 +13,14 @@ struct SliderField<State>: Equatable, Identifiable {
     /// The range of allowable values for the slider.
     let range: ClosedRange<Double>
 
+    /// The accessibility id for the slider. The `title` will be used as the accessibility id
+    /// if this is `nil`.
+    let sliderAccessibilityId: String?
+
+    /// The accessibility id for the slider value. The `id` will be used as the accessibility id
+    /// if this is `nil`.
+    let sliderValueAccessibilityId: String?
+
     /// The distance between each valid value.
     let step: Double
 
@@ -54,6 +62,7 @@ struct SliderFieldView<State>: View {
                 Text(String(Int(field.value)))
                     .styleGuide(.body, monoSpacedDigit: true)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .accessibilityIdentifier(field.sliderValueAccessibilityId ?? field.id)
             }
             .accessibilityHidden(true)
 
@@ -66,6 +75,7 @@ struct SliderFieldView<State>: View {
             )
             .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
             .accessibilityLabel(field.title)
+            .accessibilityIdentifier(field.sliderAccessibilityId ?? field.title)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

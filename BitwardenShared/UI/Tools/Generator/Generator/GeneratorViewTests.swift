@@ -108,6 +108,8 @@ class GeneratorViewTests: BitwardenTestCase {
         let field = SliderField<GeneratorState>(
             keyPath: \.passwordState.lengthDouble,
             range: 5 ... 128,
+            sliderAccessibilityId: "PasswordLengthSlider",
+            sliderValueAccessibilityId: "PasswordLengthLabel",
             step: 1,
             title: Localizations.length,
             value: 14
@@ -123,6 +125,7 @@ class GeneratorViewTests: BitwardenTestCase {
     /// Updating the stepper value dispatches the `.stepperValueChanged` action.
     func test_stepperValueChanged() throws {
         let field = StepperField<GeneratorState>(
+            accessibilityId: "MinNumberValueLabel",
             keyPath: \.passwordState.minimumNumber,
             range: 0 ... 5,
             title: Localizations.minNumbers,
@@ -140,6 +143,7 @@ class GeneratorViewTests: BitwardenTestCase {
     func test_textValueChanged() throws {
         processor.state.passwordState.passwordGeneratorType = .passphrase
         let field = FormTextField<GeneratorState>(
+            accessibilityId: "WordSeparatorEntry",
             autocapitalization: .never,
             isAutocorrectDisabled: true,
             keyPath: \.passwordState.wordSeparator,
@@ -157,7 +161,9 @@ class GeneratorViewTests: BitwardenTestCase {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
         }
         let field = ToggleField<GeneratorState>(
+            accessibilityId: "LowercaseAtoZToggle",
             accessibilityLabel: Localizations.lowercaseAtoZ,
+            isDisabled: false,
             isOn: true,
             keyPath: \.passwordState.containsLowercase,
             title: "a-z"
@@ -202,6 +208,15 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.passwordState.passwordGeneratorType = .password
         processor.state.presentationMode = .inPlace
         assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    /// Test a snapshot of the password generation view with a policy in effect.
+    func test_snapshot_generatorViewPassword_policyInEffect() {
+        processor.state.isPolicyInEffect = true
+        assertSnapshot(
+            matching: subject,
+            as: .defaultPortrait
+        )
     }
 
     /// Test a snapshot of the catch-all username generation view.

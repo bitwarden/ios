@@ -11,7 +11,7 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     // MARK: Properties
 
     /// The stack navigator that is managed by this coordinator.
-    var stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -50,6 +50,6 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
             state: ExtensionActivationState(extensionType: extensionType)
         )
         let view = ExtensionActivationView(store: Store(processor: processor))
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 }

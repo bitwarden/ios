@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class CipherAPIServiceTests: XCTestCase {
+class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
@@ -147,6 +147,32 @@ class CipherAPIServiceTests: XCTestCase {
         XCTAssertNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .delete)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
+    }
+
+    /// `downloadAttachment(withId:cipherId:)` performs the download attachment request and decodes the response.
+    func test_downloadAttachment() async throws {
+        client.result = .httpSuccess(testData: .downloadAttachment)
+
+        let response = try await subject.downloadAttachment(withId: "1", cipherId: "2")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .get)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/2/attachment/1")
+
+        XCTAssertEqual(response, DownloadAttachmentResponse(url: .example))
+    }
+
+    /// `getAttachmentData(from:)` performs a get data request using the url.
+    func test_getAttachmentData() async throws {
+        client.downloadResults = [.success(.example)]
+
+        let response = try await subject.downloadAttachmentData(from: .example)
+
+        XCTAssertEqual(client.downloadRequests.count, 1)
+        XCTAssertEqual(client.downloadRequests.last, URLRequest(url: .example))
+
+        XCTAssertEqual(response, .example)
     }
 
     /// `restoreCipher()` performs the restore cipher request.

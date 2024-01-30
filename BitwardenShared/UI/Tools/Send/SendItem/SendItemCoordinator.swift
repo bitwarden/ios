@@ -35,7 +35,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
     let services: Services
 
     /// The stack navigator that is managed by this coordinator.
-    let stackNavigator: StackNavigator
+    weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -63,8 +63,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: SendItemRoute, context: AnyObject?) {
         switch route {
-        case let .add(hasPremium):
-            showAddItem(hasPremium: hasPremium)
+        case let .add(content, hasPremium):
+            showAddItem(content: content, hasPremium: hasPremium)
         case .cancel:
             delegate?.sendItemCancelled()
         case .deleted:
@@ -87,19 +87,34 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the add item screen.
     ///
-    /// - Parameter hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameters:
+    ///   - content: Optional content to pre-fill the add item screen.
+    ///   - hasPremium: A flag indicating if the active account has premium access.
     ///
-    private func showAddItem(hasPremium: Bool) {
-        let state = AddEditSendItemState(
+    private func showAddItem(content: AddSendContentType?, hasPremium: Bool) {
+        var state = AddEditSendItemState(
             hasPremium: hasPremium
         )
+        switch content {
+        case let .file(fileName, fileData):
+            state.fileName = fileName
+            state.fileData = fileData
+            state.type = .file
+            state.mode = .shareExtension
+        case let .text(text):
+            state.text = text
+            state.type = .text
+            state.mode = .shareExtension
+        case nil:
+            break
+        }
         let processor = AddEditSendItemProcessor(
-            coordinator: self,
+            coordinator: asAnyCoordinator(),
             services: services,
             state: state
         )
         let view = AddEditSendItemView(store: Store(processor: processor))
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 
     /// Shows the edit item screen.
@@ -114,12 +129,12 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             hasPremium: hasPremium
         )
         let processor = AddEditSendItemProcessor(
-            coordinator: self,
+            coordinator: asAnyCoordinator(),
             services: services,
             state: state
         )
         let view = AddEditSendItemView(store: Store(processor: processor))
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 
     /// Navigates to the specified `FileSelectionRoute`.
@@ -132,6 +147,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
         route: FileSelectionRoute,
         delegate: FileSelectionDelegate
     ) {
+        guard let stackNavigator else { return }
         let coordinator = module.makeFileSelectionCoordinator(
             delegate: delegate,
             stackNavigator: stackNavigator
@@ -150,6 +166,6 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             activityItems: items,
             applicationActivities: nil
         )
-        stackNavigator.present(viewController)
+        stackNavigator?.present(viewController)
     }
 }

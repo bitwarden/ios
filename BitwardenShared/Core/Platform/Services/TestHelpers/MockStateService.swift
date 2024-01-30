@@ -28,6 +28,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var environmentUrls = [String: EnvironmentUrlData]()
     var lastActiveTime = [String: Date]()
+    var loginRequest: LoginRequestNotification?
     var getAccountEncryptionKeysError: Error?
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var getBiometricIntegrityStateError: Error?
@@ -48,6 +49,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setBiometricIntegrityStateError: Error?
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
+    var updateProfileResponse: ProfileResponseModel?
+    var updateProfileUserId: String?
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var vaultTimeout = [String: SessionTimeoutValue]()
 
@@ -64,6 +67,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountVolatileData.removeValue(forKey: userId)
         pinProtectedUserKeyValue[userId] = nil
         pinKeyEncryptedUserKeyValue[userId] = nil
+    }
+
+    func updateProfile(from response: ProfileResponseModel, userId: String) async {
+        updateProfileResponse = response
+        updateProfileUserId = userId
     }
 
     func deleteAccount() async throws {
@@ -156,6 +164,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccount().profile.userId
         return lastActiveTime[userId]
+    }
+
+    func getLoginRequest() async -> LoginRequestNotification? {
+        loginRequest
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
@@ -284,7 +296,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountEncryptionKeys["1"] = .init(encryptedPrivateKey: "", encryptedUserKey: "")
     }
 
-    func setLastActiveTime(userId: String?) async throws {
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccount().profile.userId
         lastActiveTime[userId] = timeProvider.presentTime
     }
@@ -296,6 +308,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getLastUserShouldConnectToWatch() async -> Bool {
         lastUserShouldConnectToWatch
+    }
+
+    func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
+        self.loginRequest = loginRequest
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {

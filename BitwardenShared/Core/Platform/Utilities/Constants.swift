@@ -34,23 +34,32 @@ enum Constants {
     /// A default value for the argon parallelism argument in the KDF algorithm.
     static let kdfArgonParallelism = 4
 
+    /// The value representing 10 MB of data.
+    static let largeFileSize = 10_485_760
+
     /// The number of minutes until a login request expires.
     static let loginRequestTimeoutMinutes = 15
 
     /// The maximum number of accounts permitted for a user.
-    static let maxAccounts: Int = 5
+    static let maxAccounts = 5
+
+    /// The value representing 100 MB of data.
+    static let maxFileSize = 104_857_600
 
     /// The maximum number of passwords stored in history.
     static let maxPasswordsInHistory = 100
 
+    /// The maximum size of files for upload.
+    static let maxFileSizeBytes = 104_857_600
+
     /// A default value for the minimum number of characters required when creating a password.
-    static let minimumPasswordCharacters: Int = 12
+    static let minimumPasswordCharacters = 12
 
     /// The default number of KDF iterations to perform.
-    static let pbkdf2Iterations: Int = 600_000
+    static let pbkdf2Iterations = 600_000
 
     /// The default file name when the file name cannot be determined.
-    static let unknownFileName: String = "unknown_file_name"
+    static let unknownFileName = "unknown_file_name"
 }
 
 // MARK: Extension Constants

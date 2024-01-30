@@ -15,8 +15,17 @@ public struct Organization: Equatable, Hashable {
     /// The organization's name.
     let name: String
 
+    /// The profile organization's permissions.
+    let permissions: Permissions
+
     /// The profile's organization's status.
     let status: OrganizationUserStatusType
+
+    /// The profile's organization's type.
+    let type: OrganizationUserType
+
+    /// Whether the profile's organization uses policies.
+    let usePolicies: Bool
 
     /// Whether the profile organization's users get premium.
     let usersGetPremium: Bool
@@ -30,7 +39,10 @@ extension Organization {
             id: responseModel.id,
             key: responseModel.key,
             name: name,
+            permissions: responseModel.permissions ?? Permissions(),
             status: responseModel.status,
+            type: responseModel.type,
+            usePolicies: responseModel.usePolicies,
             usersGetPremium: responseModel.usersGetPremium
         )
     }
@@ -40,5 +52,22 @@ extension Organization {
             throw DataMappingError.invalidData
         }
         self.init(responseModel: model)
+    }
+}
+
+extension Organization {
+    /// Whether the user can manage policies for the organization.
+    var canManagePolicies: Bool {
+        isAdmin || permissions.managePolicies
+    }
+
+    /// Whether the user is an admin of the organization.
+    var isAdmin: Bool {
+        [OrganizationUserType.owner, OrganizationUserType.admin].contains(type)
+    }
+
+    /// Whether the user is exempt from policies.
+    var isExemptFromPolicies: Bool {
+        canManagePolicies
     }
 }

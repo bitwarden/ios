@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Combine
 import Foundation
 
@@ -146,6 +147,12 @@ protocol StateService: AnyObject {
     /// - Returns: The last known value of the `connectToWatch` setting.
     ///
     func getLastUserShouldConnectToWatch() async -> Bool
+
+    /// Get any pending login request data.
+    ///
+    /// - Returns: The pending login request data from a push notification.
+    ///
+    func getLoginRequest() async -> LoginRequestNotification?
 
     /// Gets the master password hash for a user ID.
     ///
@@ -321,9 +328,11 @@ protocol StateService: AnyObject {
 
     /// Sets the last active time within the app.
     ///
-    /// - Parameter userId: The user ID associated with the last active time within the app.
+    /// - Parameters:
+    ///   - date: The current time.
+    ///   - userId: The user ID associated with the last active time within the app.
     ///
-    func setLastActiveTime(userId: String?) async throws
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws
 
     /// Sets the time of the last sync for a user ID.
     ///
@@ -332,6 +341,12 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the last sync time.
     ///
     func setLastSyncTime(_ date: Date?, userId: String?) async throws
+
+    /// Set pending login request data from a push notification.
+    ///
+    /// - Parameter loginRequest: The pending login request data.
+    ///
+    func setLoginRequest(_ loginRequest: LoginRequestNotification?) async
 
     /// Sets the master password hash for a user ID.
     ///
@@ -435,6 +450,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the timeout value.
     ///
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
+
+    /// Updates the profile information for a user.
+    ///
+    /// - Parameters:
+    ///   - response: The profile response information to use while updating.
+    ///   - userId: The id of the user this updated information belongs to.
+    ///
+    func updateProfile(from response: ProfileResponseModel, userId: String) async
 
     // MARK: Publishers
 
@@ -693,10 +716,10 @@ extension StateService {
 
     /// Sets the last active time within the app.
     ///
-    /// - Parameter date: The date of the last active time.
+    /// - Parameter date: The current time.
     ///
-    func setLastActiveTime() async throws {
-        try await setLastActiveTime(userId: nil)
+    func setLastActiveTime(_ date: Date?) async throws {
+        try await setLastActiveTime(date, userId: nil)
     }
 
     /// Sets the time of the last sync for a user ID.
@@ -825,9 +848,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
 
-    /// The service that provides the present time.
-    private let timeProvider: TimeProvider
-
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
@@ -841,16 +861,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
     ///  - dataStore: The data store that handles performing data requests.
-    ///  - timeProvider: The service that provides the present time.
     ///
     init(
         appSettingsStore: AppSettingsStore,
-        dataStore: DataStore,
-        timeProvider: TimeProvider
+        dataStore: DataStore
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
-        self.timeProvider = timeProvider
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
@@ -967,6 +984,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getLastUserShouldConnectToWatch() async -> Bool {
         appSettingsStore.lastUserShouldConnectToWatch
+    }
+
+    func getLoginRequest() async -> LoginRequestNotification? {
+        appSettingsStore.loginRequest
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
@@ -1112,15 +1133,19 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setDisableAutoTotpCopy(disableAutoTotpCopy, userId: userId)
     }
 
-    func setLastActiveTime(userId: String?) async throws {
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setLastActiveTime(timeProvider.presentTime, userId: userId)
+        appSettingsStore.setLastActiveTime(date, userId: userId)
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastSyncTime(date, userId: userId)
         lastSyncTimeByUserIdSubject.value[userId] = date
+    }
+
+    func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
+        appSettingsStore.loginRequest = loginRequest
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
@@ -1203,6 +1228,20 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setVaultTimeout(key: value.rawValue, userId: userId)
+    }
+
+    func updateProfile(from response: ProfileResponseModel, userId: String) async {
+        var state = appSettingsStore.state ?? State()
+        defer { appSettingsStore.state = state }
+
+        guard var profile = state.accounts[userId]?.profile else { return }
+        profile.hasPremiumPersonally = response.premium
+        profile.avatarColor = response.avatarColor
+        profile.email = response.email ?? profile.email
+        profile.emailVerified = response.emailVerified
+        profile.name = response.name
+
+        state.accounts[userId]?.profile = profile
     }
 
     // MARK: Publishers

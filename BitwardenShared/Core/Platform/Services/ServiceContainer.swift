@@ -60,8 +60,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
 
+    /// The service for managing the polices for the user.
+    let policyService: PolicyService
+
     /// The repository used by the application to manage send data for the UI layer.
-    let sendRepository: SendRepository
+    public let sendRepository: SendRepository
 
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
@@ -114,9 +117,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
-    ///   - notificaitonCenterService: The service used by the application to access the system's notification center.
+    ///   - notificationCenterService: The service used by the application to access the system's notification center.
     ///   - notificationService: The service used by the application to handle notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
+    ///   - policyService: The service for managing the polices for the user.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
@@ -146,6 +150,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         notificationCenterService: NotificationCenterService,
         notificationService: NotificationService,
         pasteboardService: PasteboardService,
+        policyService: PolicyService,
         sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
@@ -174,6 +179,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.notificationCenterService = notificationCenterService
         self.notificationService = notificationService
         self.pasteboardService = pasteboardService
+        self.policyService = policyService
         self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
@@ -203,16 +209,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let timeProvider = CurrentTime()
 
-        let stateService = DefaultStateService(
-            appSettingsStore: appSettingsStore,
-            dataStore: dataStore,
-            timeProvider: timeProvider
-        )
+        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
 
         let biometricsService = DefaultBiometricsService(stateService: stateService)
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
-        let policyService = DefaultPolicyService(policyDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
@@ -229,6 +230,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientCrypto: clientService.clientCrypto(),
             errorReporter: errorReporter,
             organizationDataStore: dataStore,
+            stateService: stateService
+        )
+
+        let policyService = DefaultPolicyService(
+            organizationService: organizationService,
+            policyDataStore: dataStore,
             stateService: stateService
         )
 
@@ -267,19 +274,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             syncAPIService: apiService
         )
 
-        let notificationService = DefaultNotificationService(
-            appIdService: appIdService,
-            authAPIService: apiService,
-            errorReporter: errorReporter,
-            notificationAPIService: apiService,
-            stateService: stateService,
-            syncService: syncService
-        )
-
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
+        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
@@ -296,6 +294,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             stateService: stateService,
             systemDevice: UIDevice.current
+        )
+
+        let notificationService = DefaultNotificationService(
+            appIdService: appIdService,
+            authService: authService,
+            errorReporter: errorReporter,
+            notificationAPIService: apiService,
+            stateService: stateService,
+            syncService: syncService
         )
 
         let authRepository = DefaultAuthRepository(
@@ -371,6 +378,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             notificationCenterService: notificationCenterService,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
+            policyService: policyService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,

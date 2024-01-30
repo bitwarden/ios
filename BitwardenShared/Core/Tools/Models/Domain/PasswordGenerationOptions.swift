@@ -49,3 +49,53 @@ struct PasswordGenerationOptions: Codable, Equatable {
     /// The separator to put between words in the passphrase.
     var wordSeparator: String?
 }
+
+extension PasswordGenerationOptions {
+    /// Sets the password's minimum length.
+    ///
+    /// - Parameter minimumLength: The password's minimum length.
+    ///
+    mutating func setMinLength(_ minimumLength: Int) {
+        if let length, length < minimumLength {
+            self.length = minimumLength
+        } else if length == nil {
+            length = minimumLength
+        }
+    }
+
+    /// Sets the password's minimum number of numbers.
+    ///
+    /// - Parameter minimumNumbers: The password's minimum number of numbers.
+    ///
+    mutating func setMinNumbers(_ minimumNumbers: Int) {
+        if let minNumber, minNumber < minimumNumbers {
+            self.minNumber = minimumNumbers
+        } else if minNumber == nil {
+            minNumber = minimumNumbers
+        }
+    }
+
+    /// Sets the password's minimum number of words.
+    ///
+    /// - Parameter minimumNumberWords: The password's minimum number of words.
+    ///
+    mutating func setMinNumberWords(_ minimumNumberWords: Int) {
+        if let numWords, numWords < minimumNumberWords {
+            self.numWords = minimumNumberWords
+        } else if numWords == nil {
+            numWords = minimumNumberWords
+        }
+    }
+
+    /// Sets the password's minimum number of special characters.
+    ///
+    /// - Parameter minimumLength: The password's minimum number of special characters.
+    ///
+    mutating func setMinSpecial(_ minimumSpecial: Int) {
+        if let minSpecial, minSpecial < minimumSpecial {
+            self.minSpecial = minimumSpecial
+        } else if minSpecial == nil {
+            minSpecial = minimumSpecial
+        }
+    }
+}
