@@ -37,7 +37,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     // MARK: Properties
 
     /// The stack navigator that is managed by this coordinator.
-    var stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -69,13 +69,13 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 delegate: context as? CipherItemOperationDelegate
             )
         case let .alert(alert):
-            stackNavigator.present(alert)
+            stackNavigator?.present(alert)
         case let .attachments(cipher):
             showAttachments(for: cipher)
         case let .cloneItem(cipher):
             showCloneItem(for: cipher, delegate: context as? CipherItemOperationDelegate)
         case let .dismiss(onDismiss):
-            stackNavigator.dismiss(animated: true, completion: {
+            stackNavigator?.dismiss(animated: true, completion: {
                 onDismiss?.action()
             })
         case let .editCollections(cipher):
@@ -136,7 +136,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: route, context: context)
         coordinator.start()
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the add item screen.
@@ -173,7 +173,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         )
         let store = Store(processor: processor)
         let view = AddEditItemView(store: store)
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 
     /// Shows the attachments screen.
@@ -188,7 +188,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         )
         let view = AttachmentsView(store: Store(processor: processor))
         let hostingController = UIHostingController(rootView: view)
-        stackNavigator.present(UINavigationController(rootViewController: hostingController))
+        stackNavigator?.present(UINavigationController(rootViewController: hostingController))
     }
 
     /// Shows the totp camera setup screen.
@@ -202,7 +202,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         )
         coordinator.start()
         await coordinator.navigate(asyncTo: .scanCode, withRedirect: false, context: nil)
-        stackNavigator.present(navigationController, overFullscreen: true)
+        stackNavigator?.present(navigationController, overFullscreen: true)
     }
 
     /// Shows the clone item screen.
@@ -214,6 +214,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     private func showCloneItem(for cipherView: CipherView, delegate: CipherItemOperationDelegate?) {
         Task {
+            guard let stackNavigator else { return }
             let hasPremium = await (
                 try? services.vaultRepository.doesActiveAccountHavePremium()
             ) ?? false
@@ -248,7 +249,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         )
         let view = EditCollectionsView(store: Store(processor: processor))
         let hostingController = UIHostingController(rootView: view)
-        stackNavigator.present(UINavigationController(rootViewController: hostingController))
+        stackNavigator?.present(UINavigationController(rootViewController: hostingController))
     }
 
     /// Shows the edit item screen.
@@ -259,6 +260,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///   - delegate: The delegate for the view.
     ///
     private func showEditItem(for cipherView: CipherView, hasPremium: Bool, delegate: CipherItemOperationDelegate?) {
+        guard let stackNavigator else { return }
         if stackNavigator.isEmpty {
             guard let state = CipherItemState(
                 existing: cipherView,
@@ -289,6 +291,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         route: FileSelectionRoute,
         delegate: FileSelectionDelegate
     ) {
+        guard let stackNavigator else { return }
         let coordinator = module.makeFileSelectionCoordinator(
             delegate: delegate,
             stackNavigator: stackNavigator
@@ -317,7 +320,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         ).asAnyCoordinator()
         coordinator.start()
         coordinator.navigate(to: .generator(staticType: type, emailWebsite: emailWebsite))
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the totp manual setup screen.
@@ -331,7 +334,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         ).asAnyCoordinator()
         coordinator.start()
         coordinator.navigate(to: .manualKeyEntry, context: nil)
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the move to organization screen.
@@ -345,7 +348,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         )
         let view = MoveToOrganizationView(store: Store(processor: processor))
         let hostingController = UIHostingController(rootView: view)
-        stackNavigator.present(UINavigationController(rootViewController: hostingController))
+        stackNavigator?.present(UINavigationController(rootViewController: hostingController))
     }
 
     /// A route to view the password history view.
@@ -357,7 +360,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .passwordHistoryList(.item(passwordHistory)))
-        stackNavigator.present(navigationController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Present the `UIDocumentPickerViewController` that allows users to save the newly downloaded file.
@@ -366,7 +369,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     private func showSaveFile(_ temporaryUrl: URL) {
         let documentController = UIDocumentPickerViewController(forExporting: [temporaryUrl])
-        stackNavigator.present(documentController)
+        stackNavigator?.present(documentController)
     }
 
     /// Shows the view item screen.
@@ -377,7 +380,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     private func showViewItem(id: String, delegate: CipherItemOperationDelegate?) {
         let processor = ViewItemProcessor(
-            coordinator: self,
+            coordinator: asAnyCoordinator(),
             delegate: delegate,
             itemId: id,
             services: services,
@@ -388,7 +391,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             store: store,
             timeProvider: services.timeProvider
         )
-        stackNavigator.replace(view)
+        stackNavigator?.replace(view)
     }
 }
 
