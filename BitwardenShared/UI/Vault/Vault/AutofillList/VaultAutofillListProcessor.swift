@@ -23,7 +23,7 @@ class VaultAutofillListProcessor: StateProcessor<
     private let autofillHelper: AutofillHelper
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultRoute>
+    private var coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
     /// The services used by this processor.
     private var services: Services
@@ -40,7 +40,7 @@ class VaultAutofillListProcessor: StateProcessor<
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
-        coordinator: AnyCoordinator<VaultRoute>,
+        coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultAutofillListState
     ) {

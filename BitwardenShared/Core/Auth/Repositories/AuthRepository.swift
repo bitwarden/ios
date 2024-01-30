@@ -41,12 +41,12 @@ protocol AuthRepository: AnyObject {
     ///
     func getActiveAccount() async throws -> ProfileSwitcherItem
 
-    /// Gets the account for a `ProfileSwitcherItem`.
+    /// Gets the account for a user id.
     ///
     /// - Parameter userId: The user Id to be mapped to an account.
     /// - Returns: The user account.
     ///
-    func getAccount(for userId: String) async throws -> Account
+    func getAccount(for userId: String?) async throws -> Account
 
     /// Gets the current account's unique fingerprint phrase.
     ///
@@ -133,6 +133,14 @@ protocol AuthRepository: AnyObject {
 }
 
 extension AuthRepository {
+    /// Gets the account for the active user id.
+    ///
+    /// - Returns: The active user account.
+    ///
+    func getAccount() async throws -> Account {
+        try await getAccount(for: nil)
+    }
+
     /// Checks the locked status of a user vault by user id
     ///
     ///  - Returns: A bool, true if locked, false if unlocked.
@@ -276,14 +284,8 @@ extension DefaultAuthRepository: AuthRepository {
         return await profileItem(from: active)
     }
 
-    func getAccount(for userId: String) async throws -> Account {
-        let accounts = try await stateService.getAccounts()
-        guard let match = accounts.first(where: { account in
-            account.profile.userId == userId
-        }) else {
-            throw StateServiceError.noAccounts
-        }
-        return match
+    func getAccount(for userId: String?) async throws -> Account {
+        try await stateService.getAccount(userId: userId)
     }
 
     func getFingerprintPhrase() async throws -> String {

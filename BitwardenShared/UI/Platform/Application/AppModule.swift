@@ -13,7 +13,7 @@ public protocol AppModule: AnyObject {
     func makeAppCoordinator(
         appContext: AppContext,
         navigator: RootNavigator
-    ) -> AnyCoordinator<AppRoute>
+    ) -> AnyCoordinator<AppRoute, AppEvent>
 }
 
 // MARK: - DefaultAppModule
@@ -50,7 +50,7 @@ extension DefaultAppModule: AppModule {
     public func makeAppCoordinator(
         appContext: AppContext,
         navigator: RootNavigator
-    ) -> AnyCoordinator<AppRoute> {
+    ) -> AnyCoordinator<AppRoute, AppEvent> {
         AppCoordinator(
             appContext: appContext,
             appExtensionDelegate: appExtensionDelegate,

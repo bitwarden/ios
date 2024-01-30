@@ -13,7 +13,7 @@ public class AppProcessor {
     let appModule: AppModule
 
     /// The root coordinator of the app.
-    var coordinator: AnyCoordinator<AppRoute>?
+    var coordinator: AnyCoordinator<AppRoute, AppEvent>?
 
     /// The services used by the app.
     let services: ServiceContainer
@@ -44,7 +44,7 @@ public class AppProcessor {
                 let shouldTimeout = try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
                 if shouldTimeout {
                     // Allow the AuthCoordinator to handle the timeout.
-                    coordinator?.navigate(to: .auth(.didTimeout(userId: userId)))
+                    await coordinator?.handleEvent(.didTimeout(userId: userId))
                 }
             }
         }
@@ -91,8 +91,10 @@ public class AppProcessor {
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
         } else {
-            // Allow the AuthCoordinator to preconfigure a route.
-            coordinator.navigate(to: .auth(.didStart))
+            // Navigate to the .didStart rotue
+            Task {
+                await coordinator.handleEvent(.didStart)
+            }
         }
     }
 

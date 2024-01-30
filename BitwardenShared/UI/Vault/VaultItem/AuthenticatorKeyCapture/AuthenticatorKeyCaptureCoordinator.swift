@@ -15,7 +15,7 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     ///   - value: The code value that was captured.
     ///
     func didCompleteCapture(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         with value: String
     )
 
@@ -23,13 +23,17 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator sending the action.
-    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>)
+    func showCameraScan(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    )
 
     /// Called when the scan flow requests the manual entry screen.
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator sending the action.
-    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>)
+    func showManualEntry(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    )
 }
 
 // MARK: - AuthenticatorKeyCaptureCoordinator
@@ -76,6 +80,15 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
+    func handleEvent(_ event: AuthenticatorKeyCaptureEvent, context: AnyObject?) async {
+        guard let stackNavigator else { return }
+        if stackNavigator.isEmpty || delegate == nil {
+            await showScanCode()
+        } else {
+            delegate?.showCameraScan(asAnyCoordinator())
+        }
+    }
+
     func navigate(
         to route: AuthenticatorKeyCaptureRoute,
         context: AnyObject?
@@ -102,31 +115,6 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
             } else {
                 delegate?.showManualEntry(asAnyCoordinator())
             }
-        case .scanCode:
-            guard let stackNavigator else { return }
-            if stackNavigator.isEmpty || delegate == nil {
-                Task {
-                    await showScanCode()
-                }
-            } else {
-                delegate?.showCameraScan(asAnyCoordinator())
-            }
-        }
-    }
-
-    func navigate(
-        asyncTo route: AuthenticatorKeyCaptureRoute,
-        withRedirect: Bool = false,
-        context: AnyObject?
-    ) async {
-        guard case .scanCode = route else {
-            navigate(to: route, context: context)
-            return
-        }
-        if let stackNavigator, stackNavigator.isEmpty {
-            await showScanCode()
-        } else {
-            delegate?.showCameraScan(asAnyCoordinator())
         }
     }
 

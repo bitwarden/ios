@@ -1,8 +1,10 @@
 @testable import BitwardenShared
 
 class MockAuthRepository: AuthRepository {
-    var accountsResult: Result<[ProfileSwitcherItem], Error> = .failure(StateServiceError.noAccounts)
-    var activeAccountResult: Result<ProfileSwitcherItem, Error> = .failure(StateServiceError.noActiveAccount)
+    var activeProfileSwitcherItemResult: Result<
+        ProfileSwitcherItem,
+        Error
+    > = .failure(StateServiceError.noActiveAccount)
     var allowBiometricUnlock: Bool?
     var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
@@ -12,6 +14,9 @@ class MockAuthRepository: AuthRepository {
     var email: String = ""
     var encryptedPin: String = "123"
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
+    var activeAccount: Account?
+    var altAccounts = [Account]()
+    var getAccountError: Error?
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailable = false
     var lockVaultUserId: String?
@@ -22,8 +27,9 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
+    var profileSwitcherItemsResult: Result<[ProfileSwitcherItem], Error> = .failure(StateServiceError.noAccounts)
     var setActiveAccountId: String?
-    var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var setActiveAccountError: Error?
     var setVaultTimeoutError: Error?
     var unlockVaultPassword: String?
     var unlockVaultPIN: String?
@@ -33,6 +39,11 @@ class MockAuthRepository: AuthRepository {
     var unlockVaultResult: Result<Void, Error> = .success(())
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
+
+    var allAccounts: [Account] {
+        let combined = [activeAccount] + altAccounts
+        return combined.compactMap { $0 }
+    }
 
     func allowBioMetricUnlock(_ enabled: Bool) async throws {
         allowBiometricUnlock = enabled
@@ -48,15 +59,28 @@ class MockAuthRepository: AuthRepository {
     }
 
     func getAccounts() async throws -> [ProfileSwitcherItem] {
-        try accountsResult.get()
+        try profileSwitcherItemsResult.get()
     }
 
     func getActiveAccount() async throws -> ProfileSwitcherItem {
-        try activeAccountResult.get()
+        try activeProfileSwitcherItemResult.get()
     }
 
-    func getAccount(for _: String) async throws -> Account {
-        try accountForItemResult.get()
+    func getAccount(for userId: String?) async throws -> Account {
+        if let getAccountError {
+            throw getAccountError
+        }
+        switch (userId, activeAccount) {
+        case let (nil, .some(active)):
+            return active
+        case (nil, nil):
+            throw StateServiceError.noActiveAccount
+        case let (id, _):
+            guard let match = allAccounts.first(where: { $0.profile.userId == id }) else {
+                throw StateServiceError.noAccounts
+            }
+            return match
+        }
     }
 
     func getFingerprintPhrase() async throws -> String {
@@ -93,7 +117,15 @@ class MockAuthRepository: AuthRepository {
 
     func setActiveAccount(userId: String) async throws -> Account {
         setActiveAccountId = userId
-        return try setActiveAccountResult.get()
+        let priorActive = activeAccount
+        if let setActiveAccountError { throw setActiveAccountError }
+        guard let match = allAccounts
+            .first(where: { $0.profile.userId == userId }) else { throw StateServiceError.noAccounts }
+        activeAccount = match
+        altAccounts = altAccounts
+            .filter { $0.profile.userId == userId }
+            + [priorActive].compactMap { $0 }
+        return match
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {

@@ -14,7 +14,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<GeneratorRoute>
+    private let coordinator: AnyCoordinator<GeneratorRoute, Void>
 
     /// A flag set once the initial generator options have been loaded.
     private(set) var didLoadGeneratorOptions = false
@@ -38,7 +38,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<GeneratorRoute>,
+        coordinator: AnyCoordinator<GeneratorRoute, Void>,
         services: Services,
         state: GeneratorState
     ) {

@@ -1,9 +1,20 @@
 /// A protocol for an object that performs navigation via routes.
 @MainActor
-public protocol Coordinator<Route>: AnyObject {
+public protocol Coordinator<Route, Event>: AnyObject {
+    // MARK: Types
+
+    associatedtype Event
     associatedtype Route
 
     // MARK: Methods
+
+    /// Handles events that may require asynchronous management.
+    ///
+    /// - Parameters:
+    ///   - event: The event for which the coordinator handle.
+    ///   - context: The context for the event.
+    ///
+    func handleEvent(_ event: Event, context: AnyObject?) async
 
     /// Hides the loading overlay view.
     ///
@@ -16,22 +27,6 @@ public protocol Coordinator<Route>: AnyObject {
     ///     - context: An object representing the context where the navigation occurred.
     ///
     func navigate(to route: Route, context: AnyObject?)
-
-    /// Navigate to the screen associated with the given `AsyncRoute` when the route may be async.
-    ///
-    /// - Parameters:
-    ///     - route:  Navigate to this `Route` with delay.
-    ///     - withRedirect: Should the route be redirected if needed?
-    ///     - context: An object representing the context where the navigation occurred.
-    ///
-    func navigate(asyncTo route: Route, withRedirect: Bool, context: AnyObject?) async
-
-    /// Prepare the coordinator for a given route and redirect if needed.
-    ///
-    /// - Parameter route: The route for which the coordinator should prepare itself.
-    /// - Returns: A redirected route for which the Coordinator is prepared.
-    ///
-    func prepareAndRedirect(_ route: Route) async -> Route
 
     /// Shows the provided alert on the `stackNavigator`.
     ///
@@ -94,9 +89,26 @@ protocol HasRootNavigator: HasNavigator {
     var rootNavigator: RootNavigator? { get }
 }
 
+/// A protocol for an object that has a `Router`.
+///
+protocol HasRouter<Event, Route> {
+    associatedtype Event
+    associatedtype Route
+
+    var router: AnyRouter<Event, Route> { get }
+}
+
 // MARK: Extensions
 
 public extension Coordinator {
+    /// Handles events that may require asynchronous management.
+    ///
+    /// - Parameter event: The event for which the coordinator handle.
+    ///
+    func handleEvent(_ event: Event) async {
+        await handleEvent(event, context: nil)
+    }
+
     /// Navigate to the screen associated with the given `Route` without context.
     ///
     /// - Parameters:
@@ -106,50 +118,13 @@ public extension Coordinator {
     func navigate(to route: Route) {
         navigate(to: route, context: nil)
     }
+}
 
-    /// Default to synchronous navigation
+extension Coordinator where Self.Event == Void {
+    /// Provide a default No-Op when a coodrinator does not use events.
     ///
-    /// - Parameters:
-    ///     - route:  Navigate to this `Route` with delay.
-    ///     - withRedirect: Should the route be redirected if needed?
-    ///     - context: An object representing the context where the navigation occurred.
-    ///
-    func navigate(asyncTo route: Route, withRedirect: Bool, context: AnyObject?) async {
-        navigate(to: route, context: context)
-    }
-
-    /// A helper for when not all parameters are needed.
-    ///
-    /// - Parameter route:  Navigate to this `Route` with delay.
-    ///
-    func navigate(asyncTo route: Route) async {
-        await navigate(asyncTo: route, withRedirect: false, context: nil)
-    }
-
-    /// A helper for when not all parameters are needed.
-    ///
-    /// - Parameters:
-    ///     - route:  Navigate to this `Route` with delay.
-    ///     - withRedirect: Should the route be redirected if needed?
-    ///
-    func navigate(asyncTo route: Route, withRedirect: Bool) async {
-        await navigate(asyncTo: route, withRedirect: withRedirect, context: nil)
-    }
-
-    /// A helper for when not all parameters are needed.
-    ///
-    /// - Parameters:
-    ///     - route:  Navigate to this `Route` with delay.
-    ///     - context: An object representing the context where the navigation occurred.
-    ///
-    func navigate(asyncTo route: Route, context: AnyObject?) async {
-        await navigate(asyncTo: route, withRedirect: false, context: context)
-    }
-
-    /// Default to no preparation and no redirect for a route.
-    ///
-    func prepareAndRedirect(_ route: Route) async -> Route {
-        route
+    func handleEvent(_ event: Void, context: AnyObject?) async {
+        // No-Op
     }
 }
 
@@ -182,6 +157,18 @@ extension Coordinator where Self: HasNavigator {
     ///
     func showToast(_ text: String) {
         navigator?.showToast(Toast(text: text))
+    }
+}
+
+extension Coordinator where Self: HasRouter {
+    /// Passes an `Event` to the router, which prepares a route
+    ///  that the coordinator uses for navigation.
+    ///
+    /// - Parameter event: The event to pass to the router.
+    ///
+    func handleEvent(_ event: Event, context: AnyObject?) async {
+        let route = await router.handleAndRoute(event)
+        navigate(to: route, context: context)
     }
 }
 

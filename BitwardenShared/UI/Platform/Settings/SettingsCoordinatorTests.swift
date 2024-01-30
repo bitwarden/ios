@@ -125,8 +125,12 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.didDeleteAccount(otherAccounts:)` calls the delegate method
     /// that performs navigation post-deletion.
     func test_navigateTo_didDeleteAccount() throws {
-        subject.navigate(to: .didDeleteAccount)
+        let task = Task {
+            await subject.handleEvent(.didDeleteAccount)
+        }
 
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
         XCTAssertTrue(delegate.didDeleteAccountCalled)
@@ -150,8 +154,8 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
-    func test_navigateTo_lockVault() throws {
-        subject.navigate(to: .lockVault(account: .fixture(), userInitiated: true))
+    func test_navigateTo_lockVault() async throws {
+        await subject.handleEvent(.authAction(.lockVault(userId: "")))
 
         XCTAssertTrue(delegate.didLockVaultCalled)
     }
@@ -170,18 +174,24 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
     func test_navigateTo_logout_userInitiated() throws {
-        subject.navigate(to: .logout(userInitiated: true))
+        let task = Task {
+            await subject.handleEvent(.authAction(.logout(userId: "123", userInitiated: true)))
+        }
 
         waitFor(delegate.didLogoutCalled)
+        task.cancel()
         let userInitiated = try XCTUnwrap(delegate.wasLogoutUserInitiated)
         XCTAssertTrue(userInitiated)
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
     func test_navigateTo_logout_systemInitiated() throws {
-        subject.navigate(to: .logout(userInitiated: false))
+        let task = Task {
+            await subject.handleEvent(.authAction(.logout(userId: "123", userInitiated: false)))
+        }
 
         waitFor(delegate.didLogoutCalled)
+        task.cancel()
         let userInitiated = try XCTUnwrap(delegate.wasLogoutUserInitiated)
         XCTAssertFalse(userInitiated)
     }
@@ -276,18 +286,31 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
     var didDeleteAccountCalled = false
     var didLockVaultCalled = false
     var didLogoutCalled = false
+    var lockedId: String?
+    var loggedOutId: String?
+    var switchAccountCalled = false
+    var switchUserId: String?
     var wasLogoutUserInitiated: Bool?
+    var wasSwitchAutomatic: Bool?
 
     func didDeleteAccount() {
         didDeleteAccountCalled = true
     }
 
-    func didLockVault(account _: Account) {
+    func lockVault(userId: String?) {
+        lockedId = userId
         didLockVaultCalled = true
     }
 
-    func didLogout(userInitiated: Bool) {
+    func logout(userId: String?, userInitiated: Bool) {
+        loggedOutId = userId
         wasLogoutUserInitiated = userInitiated
         didLogoutCalled = true
+    }
+
+    func switchAccount(isAutomatic: Bool, userId: String) {
+        switchAccountCalled = true
+        wasSwitchAutomatic = isAutomatic
+        switchUserId = userId
     }
 }

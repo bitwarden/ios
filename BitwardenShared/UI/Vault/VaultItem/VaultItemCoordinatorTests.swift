@@ -370,7 +370,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_setupTotpCamera_noConformance() async throws {
         cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
-        await subject.navigate(asyncTo: .scanCode, context: MockProcessor<Any, Any, Any>(state: ()))
+        await subject.handleEvent(.showScanCode, context: MockProcessor<Any, Any, Any>(state: ()))
         XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
@@ -378,7 +378,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_setupTotpCamera_noContext() async throws {
         cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
-        await subject.navigate(asyncTo: .scanCode, context: nil)
+        await subject.handleEvent(.showScanCode, context: nil)
         XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
@@ -389,10 +389,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         cameraService.cameraAuthorizationStatus = .authorized
         cameraService.deviceHasCamera = true
         let task = Task {
-            await subject.navigate(
-                asyncTo: .scanCode,
-                context: mockContext
-            )
+            await subject.handleEvent(.showScanCode, context: mockContext)
         }
 
         waitFor(!stackNavigator.actions.isEmpty)
@@ -455,7 +452,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 ///
 class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyCaptureDelegate {
     /// A property to capture a `AuthenticatorKeyCaptureCoordinator` call value.
-    var capturedCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>?
+    var capturedCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>?
 
     /// A property to capture a `didCompleteCapture` call value.
     var capturedScan: String?
@@ -470,19 +467,23 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
     var didRequestManual: Bool = false
 
     func didCompleteCapture(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         with value: String
     ) {
         capturedCoordinator = captureCoordinator
         capturedScan = value
     }
 
-    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+    func showCameraScan(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
         didRequestCamera = true
         capturedCoordinator = captureCoordinator
     }
 
-    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+    func showManualEntry(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
         didRequestManual = true
         capturedCoordinator = captureCoordinator
     }

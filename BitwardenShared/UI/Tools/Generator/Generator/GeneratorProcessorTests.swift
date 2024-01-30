@@ -8,7 +8,7 @@ import XCTest
 class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var coordinator: MockCoordinator<GeneratorRoute>!
+    var coordinator: MockCoordinator<GeneratorRoute, Void>!
     var errorReporter: MockErrorReporter!
     var generatorRepository: MockGeneratorRepository!
     var pasteboardService: MockPasteboardService!

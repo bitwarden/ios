@@ -11,13 +11,13 @@ protocol SendModule {
     ///
     func makeSendCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<SendRoute>
+    ) -> AnyCoordinator<SendRoute, Void>
 }
 
 extension DefaultAppModule: SendModule {
     func makeSendCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<SendRoute> {
+    ) -> AnyCoordinator<SendRoute, Void> {
         SendCoordinator(
             module: self,
             services: services,

@@ -14,7 +14,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultItemRoute>
+    private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
     /// The services used by this processor.
     private var services: Services
@@ -29,7 +29,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultItemRoute>,
+        coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         services: Services,
         state: AttachmentsState
     ) {

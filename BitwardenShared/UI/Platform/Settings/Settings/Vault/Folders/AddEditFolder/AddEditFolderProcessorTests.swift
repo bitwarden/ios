@@ -5,7 +5,7 @@ import XCTest
 class AddEditFolderProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockAddEditFolderDelegate!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
@@ -16,7 +16,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        coordinator = MockCoordinator<SettingsRoute>()
+        coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         delegate = MockAddEditFolderDelegate()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()

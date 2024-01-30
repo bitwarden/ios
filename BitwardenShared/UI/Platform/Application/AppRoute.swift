@@ -21,3 +21,11 @@ public enum AppRoute: Equatable {
     /// A route to the vault interface.
     case vault(VaultRoute)
 }
+
+public enum AppEvent: Equatable {
+    /// When the app has started.
+    case didStart
+
+    /// When an account has timed out.
+    case didTimeout(userId: String)
+}

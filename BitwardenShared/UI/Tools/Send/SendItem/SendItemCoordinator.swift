@@ -21,7 +21,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
     /// coordinator in memory.
-    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute>?
+    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute, Void>?
 
     // MARK: Properties
 

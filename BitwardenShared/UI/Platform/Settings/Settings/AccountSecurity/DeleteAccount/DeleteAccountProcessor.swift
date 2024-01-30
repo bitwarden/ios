@@ -15,7 +15,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     // MARK: Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The services used by this processor.
     private var services: Services
@@ -30,7 +30,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
         state: DeleteAccountState
     ) {
@@ -83,7 +83,9 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     /// If the user does not, they're navigated to the landing screen.
     ///
     private func navigatePostDeletion() {
-        coordinator.navigate(to: .didDeleteAccount)
+        Task {
+            await coordinator.handleEvent(.didDeleteAccount)
+        }
     }
 
     /// Shows the master password prompt when the user is attempting to delete their account.

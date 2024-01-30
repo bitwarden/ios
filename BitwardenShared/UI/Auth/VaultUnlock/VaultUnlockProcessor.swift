@@ -20,7 +20,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
     private weak var appExtensionDelegate: AppExtensionDelegate?
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<AuthRoute>
+    private var coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// A flag indicating if the processor should attempt automatic biometric unlock
     var shouldAttemptAutomaticBiometricUnlock = false
@@ -40,7 +40,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: VaultUnlockState
     ) {
@@ -135,27 +135,22 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
         }
     }
 
-    /// Navigates to the appropriate location following a logout.
+    /// Navigates to the appropriate location following a logout event.
+    ///
+    /// - Parameters:
+    ///   - accountId: The id of the account that was logged out.
+    ///   - userInitiated: Did the user initiate this logout?
     ///
     private func navigateFollowingLogout(
-        accountId: String?,
-        animated: Bool = true,
-        attemptAutomaticBiometricUnlock: Bool = true,
+        accountId: String,
         userInitiated: Bool
     ) async {
-        if userInitiated,
-           let accounts = try? await services.stateService.getAccounts(),
-           let nextAccount = accounts.first,
-           accountId != nextAccount.profile.userId {
-            coordinator.navigate(
-                to: .switchAccount(
-                    isUserInitiated: userInitiated,
-                    userId: nextAccount.profile.userId
-                )
+        await coordinator.handleEvent(
+            .didLogout(
+                userId: accountId,
+                userInitiated: userInitiated
             )
-        } else {
-            coordinator.navigate(to: .landing)
-        }
+        )
     }
 
     /// Loads the async state data for the view
@@ -183,18 +178,18 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
     ///   - userInitiated: A Bool indicating if the logout is initiated by a user action.
     ///
     private func logoutUser(resetAttempts: Bool = false, userInitiated: Bool) async {
-        let accountId = try? await services.stateService.getActiveAccountId()
-        do {
-            if resetAttempts {
-                state.unsuccessfulUnlockAttemptsCount = 0
-                await services.stateService.setUnsuccessfulUnlockAttempts(0)
-            }
-            try await services.authRepository.logout()
-            await navigateFollowingLogout(accountId: accountId, userInitiated: userInitiated)
-        } catch {
-            services.errorReporter.log(error: BitwardenError.logoutError(error: error))
-            await navigateFollowingLogout(accountId: accountId, userInitiated: userInitiated)
+        if resetAttempts {
+            state.unsuccessfulUnlockAttemptsCount = 0
+            await services.stateService.setUnsuccessfulUnlockAttempts(0)
         }
+        await coordinator.handleEvent(
+            .action(
+                .logout(
+                    userId: nil,
+                    userInitiated: userInitiated
+                )
+            )
+        )
     }
 
     /// Handles a long press of an account in the profile switcher.
@@ -207,7 +202,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
             do {
                 // Lock the vault of the selected account.
                 let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
-                await self.services.authRepository.lockVault(userId: account.userId)
+                await self.coordinator.handleEvent(.action(.lockVault(userId: account.userId)))
 
                 // No navigation is necessary, since the user is already on the unlock
                 // vault view, but if it was the non-active account, display a success toast
@@ -226,14 +221,11 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
                 do {
                     // Log out of the selected account.
                     let activeAccountId = try await services.authRepository.getActiveAccount().userId
-                    try await services.authRepository.logout(userId: account.userId)
+                    await coordinator.handleEvent(.action(.logout(userId: account.userId, userInitiated: true)))
 
-                    // If the selected item was the currently active account,
-                    //  switch to the next account or go to langing.
-                    if account.userId == activeAccountId {
-                        await navigateFollowingLogout(accountId: account.userId, userInitiated: true)
-                    } else {
-                        // Otherwise, show the toast that the account was logged out successfully.
+                    // If that account was not active,
+                    // show a toast that the account was logged out successfully.
+                    if account.userId != activeAccountId {
                         state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
 
                         // Update the profile switcher view.
@@ -251,10 +243,18 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
     /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
     ///
     private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
-        coordinator.navigate(to: .switchAccount(
-            isUserInitiated: true,
-            userId: selectedAccount.userId
-        ))
+        defer { state.profileSwitcherState.isVisible = false }
+        guard selectedAccount.userId != state.profileSwitcherState.activeAccountId else { return }
+        Task {
+            await coordinator.handleEvent(
+                .action(
+                    .switchAccount(
+                        isAutomatic: false,
+                        userId: selectedAccount.userId
+                    )
+                )
+            )
+        }
         state.profileSwitcherState.isVisible = false
     }
 

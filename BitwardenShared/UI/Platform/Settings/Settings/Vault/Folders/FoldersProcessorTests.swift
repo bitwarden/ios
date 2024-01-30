@@ -7,7 +7,7 @@ class FoldersProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var errorReporter: MockErrorReporter!
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var settingsRepository: MockSettingsRepository!
     var subject: FoldersProcessor!
 
@@ -17,7 +17,7 @@ class FoldersProcessorTests: BitwardenTestCase {
         super.setUp()
 
         errorReporter = MockErrorReporter()
-        coordinator = MockCoordinator<SettingsRoute>()
+        coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         settingsRepository = MockSettingsRepository()
         let services = ServiceContainer.withMocks(
             errorReporter: errorReporter,
