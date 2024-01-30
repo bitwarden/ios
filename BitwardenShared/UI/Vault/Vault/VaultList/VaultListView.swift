@@ -72,7 +72,7 @@ private struct SearchableVaultListView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
-                    vaultFilterRow()
+                    vaultFilterRow
                         .padding(.top, 16)
 
                     Spacer()
@@ -156,32 +156,12 @@ private struct SearchableVaultListView: View {
         }
     }
 
-    // MARK: Private Methods
-
-    /// A view that displays the main vault interface, including sections for groups and
-    /// vault items.
-    ///
-    /// - Parameter sections: The sections of the vault list to display.
-    ///
-    @ViewBuilder
-    private func vaultContents(with sections: [VaultListSection]) -> some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                vaultFilterRow()
-
-                ForEach(sections) { section in
-                    vaultItemSectionView(title: section.name, items: section.items)
-                }
-            }
-            .padding(16)
-        }
-    }
-
-    /// Displays the vault filter row if the user is a member of any
-    @ViewBuilder
-    private func vaultFilterRow() -> some View {
+    /// Displays the vault filter row if the user is a member of any.
+    private var vaultFilterRow: some View {
         SearchVaultFilterRowView(
-            hasDivider: false, store: store.child(
+            hasDivider: false,
+            accessibilityID: "ActiveFilterRow",
+            store: store.child(
                 state: { state in
                     SearchVaultFilterRowState(
                         organizations: state.organizations,
@@ -198,6 +178,27 @@ private struct SearchableVaultListView: View {
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    // MARK: Private Methods
+
+    /// A view that displays the main vault interface, including sections for groups and
+    /// vault items.
+    ///
+    /// - Parameter sections: The sections of the vault list to display.
+    ///
+    @ViewBuilder
+    private func vaultContents(with sections: [VaultListSection]) -> some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                vaultFilterRow
+
+                ForEach(sections) { section in
+                    vaultItemSectionView(title: section.name, items: section.items)
+                }
+            }
+            .padding(16)
+        }
     }
 
     /// Creates a row in the list for the provided item.
@@ -230,6 +231,7 @@ private struct SearchableVaultListView: View {
             ),
             timeProvider: timeProvider
         )
+        .accessibilityIdentifier("CipherCell")
     }
 
     /// Creates a section that appears in the vault.
@@ -289,7 +291,6 @@ struct VaultListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
-            .accessibilityIdentifier("SearchFieldEntry")
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
