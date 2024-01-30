@@ -42,6 +42,76 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         vaultTimeoutService = nil
     }
 
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.vaultUnlock`
+    ///     when `unlockVaultWithNeverlockResult` fails.
+    func test_handleAndRoute_accountBecameActive_neverLock_error() async {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        authRepository.isLockedResult = .success(true)
+        vaultTimeoutService.vaultTimeout = [
+            active.profile.userId: .never,
+        ]
+        authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
+        let initialRoute = AuthEvent.accountBecameActive(
+            active,
+            animated: true,
+            attemptAutomaticBiometricUnlock: true,
+            didSwitchAccountAutomatically: false
+        )
+        let route = await subject.handleAndRoute(
+            initialRoute
+        )
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+        let error = try? XCTUnwrap(errorReporter.errors.first as? BitwardenTestError)
+        XCTAssertEqual(BitwardenTestError.example, error)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.complete`
+    ///     when `unlockVaultWithNeverlockResult` succeeds.
+    func test_handleAndRoute_accountBecameActive_neverLock_success() async {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        authRepository.isLockedResult = .success(true)
+        vaultTimeoutService.vaultTimeout = [
+            active.profile.userId: .never,
+        ]
+        authRepository.unlockVaultWithNeverlockResult = .success(())
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+        XCTAssertEqual(route, .complete)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.complete`
+    ///     when the account is unlocked.
+    func test_handleAndRoute_accountBecameActive_unlocked() async {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        authRepository.isLockedResult = .success(false)
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+        XCTAssertEqual(route, .complete)
+    }
+
     /// `handleAndRoute(_ :)` redirects`.didDeleteAccount` to another account
     ///     when there are more accounts.
     func test_handleAndRoute_didDeleteAccount_alternateAccount() {
@@ -689,10 +759,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     ///     if the account session has timed out and the action is lock.
     func test_handleAndRoute_didTimeout_sessionExpired_lock() async {
         let account = Account.fixture()
-        stateService.accounts = [
-            account,
-        ]
-        stateService.activeAccount = account
+        authRepository.activeAccount = account
         vaultTimeoutService.vaultTimeout = [
             account.profile.userId: .fiveMinutes,
         ]
@@ -757,74 +824,20 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()`.
-    func test_handleAndRoute_accountBecameActive_neverLock_error() async {
+    /// `handleAndRoute(_ :)` redirects `.switchAccount()` to `.landing`
+    ///     when an error occurs setting the active account.
+    func test_handleAndRoute_switchAccount_error() async {
         let active = Account.fixture()
-        stateService.activeAccount = active
-        authRepository.isLockedResult = .success(true)
-        vaultTimeoutService.vaultTimeout = [
-            active.profile.userId: .never,
-        ]
-        authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
-        let initialRoute = AuthEvent.accountBecameActive(
-            active,
-            animated: true,
-            attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: false
-        )
-        let route = await subject.handleAndRoute(
-            initialRoute
-        )
-        XCTAssertEqual(
-            route,
-            .vaultUnlock(
-                active,
-                animated: true,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
-        )
-        let error = try? XCTUnwrap(errorReporter.errors.first as? BitwardenTestError)
-        XCTAssertEqual(BitwardenTestError.example, error)
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.vaultUnlock()`.
-    func test_handleAndRoute_accountBecameActive_neverLock_success() async {
-        let active = Account.fixture()
-        stateService.activeAccount = active
-        authRepository.isLockedResult = .success(true)
-        vaultTimeoutService.vaultTimeout = [
-            active.profile.userId: .never,
-        ]
-        authRepository.unlockVaultWithNeverlockResult = .success(())
-        let route = await subject.handleAndRoute(
-            .accountBecameActive(
-                active,
-                animated: true,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
-        )
-        XCTAssertEqual(route, .complete)
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.vaultUnlock()`.
-    func test_handleAndRoute_accountBecameActive_unlocked() async {
-        let active = Account.fixture()
-        stateService.activeAccount = active
+        authRepository.activeAccount = active
+        authRepository.altAccounts = [.fixture(profile: .fixture(userId: "2"))]
         authRepository.isLockedResult = .success(false)
-        let route = await subject.handleAndRoute(
-            .accountBecameActive(
-                active,
-                animated: true,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
-        )
-        XCTAssertEqual(route, .complete)
+        authRepository.setActiveAccountError = BitwardenTestError.example
+        let route = await subject.handleAndRoute(.action(.switchAccount(isAutomatic: true, userId: "2")))
+        XCTAssertEqual(route, .landing)
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didStart`.
+    /// `handleAndRoute(_ :)` redirects `.switchAccount()` to `.complete`
+    ///     when that account is already active.
     func test_handleAndRoute_switchAccount_toActive() async {
         let active = Account.fixture()
         authRepository.activeAccount = active
@@ -835,16 +848,5 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             )
         )
         XCTAssertEqual(route, .complete)
-    }
-
-    /// `handleAndRoute(_ :)` redirects `.didStart`.
-    func test_handleAndRoute_switchAccount_error() async {
-        let active = Account.fixture()
-        authRepository.activeAccount = active
-        authRepository.altAccounts = [.fixture(profile: .fixture(userId: "2"))]
-        authRepository.isLockedResult = .success(false)
-        authRepository.setActiveAccountError = BitwardenTestError.example
-        let route = await subject.handleAndRoute(.action(.switchAccount(isAutomatic: true, userId: "2")))
-        XCTAssertEqual(route, .landing)
     }
 }
