@@ -847,14 +847,14 @@
 "ContinueToX" = "Đi đến %1$@?";
 "ContinueToHelpCenter" = "Đi đến Trung tâm trợ giúp?";
 "ContinueToContactSupport" = "Vẫn liên hệ hỗ trợ?";
-"ContinueToPrivacyPolicy" = "Continue to privacy policy?";
+"ContinueToPrivacyPolicy" = "Đồng ý với chính sách bảo mật?";
 "ContinueToAppStore" = "Vẫn tiếp tục đến cửa hàng ứng dụng?";
 "TwoStepLoginDescriptionLong" = "Bảo vệ tài khoản của bạn an toàn hơn bằng cách thiết lập đăng nhập hai bước trên Bitwarden bản web.";
 "ChangeMasterPasswordDescriptionLong" = "Bạn có thể thay đổi mật khẩu chính của mình trên Bitwarden bản web.";
 "YouCanImportDataToYourVaultOnX" = "Bạn có thể nhập dữ liệu vào kho mật khẩu trên %1$@.";
 "LearnMoreAboutHowToUseBitwardenOnTheHelpCenter" = "Tìm hiểu thêm về cách sử dụng Bitwarden trong Trung tâm trợ giúp.";
 "ContactSupportDescriptionLong" = "Không tìm thấy? Hãy liên hệ với bộ phận hỗ trợ của Bitwarden trên bitwarden.com.";
-"PrivacyPolicyDescriptionLong" = "Check out our privacy policy on bitwarden.com.";
+"PrivacyPolicyDescriptionLong" = "Đọc chính sách bảo mật trên bitwarden.com.";
 "ExploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp" = "Khám phá thêm các tính năng của tài khoản Bitwarden của bạn trên bản web.";
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden cho phép bạn chia sẻ các mục trong kho mật khẩu với người khác bằng cách tạo một tổ chức. Tìm hiểu thêm trên bitwarden.com.";
 "RateAppDescriptionLong" = "Giúp người khác tìm hiểu xem Bitwarden có phù hợp với họ không. Hãy truy cập cửa hàng ứng dụng và đánh giá ngay bây giờ.";

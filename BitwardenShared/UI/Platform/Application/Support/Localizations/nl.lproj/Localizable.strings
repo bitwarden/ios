@@ -648,7 +648,7 @@
 "ResendCode" = "Code opnieuw versturen";
 "AVerificationCodeWasSentToYourEmail" = "Er is een verificatiecode naar je e-mailadres gestuurd.";
 "AnErrorOccurredWhileSendingAVerificationCodeToYourEmailPleaseTryAgain" = "Er is een fout opgetreden tijdens het verzenden van een verificatiecode naar je e-mail. Probeer het opnieuw";
-"EnterTheVerificationCodeThatWasSentToYourEmail" = "Voer de verificatiecode in die we naar je e-mail is gestuurd";
+"EnterTheVerificationCodeThatWasSentToYourEmail" = "Voer de verificatiecode in die naar je e-mail is gestuurd";
 "SubmitCrashLogs" = "Crashes rapporteren";
 "SubmitCrashLogsDescription" = "Help Bitwarden de app-stabiliteit te verbeteren door crashrapporten te versturen.";
 "OptionsExpanded" = "Opties zijn uitgebreid, tik om te storten.";
