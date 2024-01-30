@@ -34,12 +34,12 @@ struct VaultGroupView: View {
             )
             .navigationTitle(store.state.group.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
             .toolbar {
-                addToolbarItem {
+                addToolbarItem(hidden: !store.state.showAddToolbarItem) {
                     store.send(.addItemPressed)
                 }
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
             .task {
                 await store.perform(.appeared)
             }
@@ -86,20 +86,22 @@ struct VaultGroupView: View {
 
                     Spacer()
 
-                    Text(Localizations.noItems)
+                    Text(store.state.noItemsString)
                         .multilineTextAlignment(.center)
                         .styleGuide(.callout)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
-                    Button(Localizations.addAnItem) {
-                        store.send(.addItemPressed)
+                    if store.state.showAddItemButton {
+                        Button(Localizations.addAnItem) {
+                            store.send(.addItemPressed)
+                        }
+                        .buttonStyle(.tertiary())
                     }
-                    .buttonStyle(.tertiary())
 
                     Spacer()
                 }
                 .padding(.horizontal, 16)
-                .frame(minHeight: reader.size.height)
+                .frame(minWidth: reader.size.width, minHeight: reader.size.height)
             }
         }
     }
