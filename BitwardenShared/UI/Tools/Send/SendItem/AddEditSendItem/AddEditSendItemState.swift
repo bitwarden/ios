@@ -84,6 +84,9 @@ struct AddEditSendItemState: Equatable {
     /// Whether sends are disabled via a policy.
     var isSendDisabled = false
 
+    /// Whether the send hide email option is disabled via a policy.
+    var isSendHideEmailDisabled = false
+
     /// The key for this send.
     var key: String?
 

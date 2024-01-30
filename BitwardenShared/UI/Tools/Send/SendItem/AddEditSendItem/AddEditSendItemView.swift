@@ -16,6 +16,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             VStack(alignment: .leading, spacing: 16) {
                 if store.state.isSendDisabled {
                     InfoContainer(Localizations.sendDisabledWarning)
+                } else if store.state.isSendHideEmailDisabled {
+                    InfoContainer(Localizations.sendOptionsPolicyInEffect)
                 }
 
                 nameField
@@ -350,6 +352,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         ))
         .toggleStyle(.bitwarden)
         .accessibilityIdentifier("SendHideEmailSwitch")
+        .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
 
         Toggle(Localizations.disableSend, isOn: store.binding(
             get: \.isDeactivateThisSendOn,
