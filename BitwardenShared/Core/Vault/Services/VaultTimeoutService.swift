@@ -110,12 +110,17 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId) else { return true }
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
 
-        if vaultTimeout == .never { return false }
-
-        if timeProvider.presentTime.timeIntervalSince(lastActiveTime) >= TimeInterval(vaultTimeout.rawValue) {
-            return true
+        switch vaultTimeout {
+        case .never,
+             .onAppRestart:
+            // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
+            // In these cases, return false.
+            return false
+        default:
+            // Otherwise, calculate a timeout.
+            return timeProvider.presentTime.timeIntervalSince(lastActiveTime)
+                >= TimeInterval(vaultTimeout.rawValue)
         }
-        return false
     }
 
     func isLocked(userId: String) -> Bool {
