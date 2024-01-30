@@ -40,7 +40,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Perform with `.appeared` gets sets the fingerprint phrase in the state.
+    /// `perform(_:)` with `.appeared` sets the fingerprint phrase in the state.
     func test_perform_appeared() async {
         authService.initiateLoginWithDeviceResult = .success("fingerprint")
 
@@ -49,7 +49,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.fingerprintPhrase, "fingerprint")
     }
 
-    /// If an error occurs when `.appeared` is performed, an alert is shown and an error is logged.
+    /// `perform(_:)` with `.appeared` handles any errors.
     func test_perform_appeared_error() async {
         authService.initiateLoginWithDeviceResult = .failure(BitwardenTestError.example)
 
@@ -59,7 +59,16 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
-    /// Receiving `.dismiss` dismisses the view.
+    /// `perform(_:)` with `.resendNotification` updates the fingerprint phrase in the state.
+    func test_perform_resendNotification() async {
+        authService.initiateLoginWithDeviceResult = .success("fingerprint2")
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.fingerprintPhrase, "fingerprint2")
+    }
+
+    /// `receive(_:)` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 

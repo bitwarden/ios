@@ -1,6 +1,7 @@
 // MARK: - LoginWithDeviceProcessor
 
-/// The processor used to manage state and handle actions for the `LoginWithDeviceView`
+/// The processor used to manage state and handle actions for the `LoginWithDeviceView`.
+///
 final class LoginWithDeviceProcessor: StateProcessor<
     LoginWithDeviceState,
     LoginWithDeviceAction,
@@ -42,8 +43,9 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
     override func perform(_ effect: LoginWithDeviceEffect) async {
         switch effect {
-        case .appeared:
-            await appeared()
+        case .appeared,
+             .resendNotification:
+            await sendLoginWithDeviceRequest()
         }
     }
 
@@ -54,14 +56,12 @@ final class LoginWithDeviceProcessor: StateProcessor<
         }
     }
 
-    // MARK: Private methods
+    // MARK: Private Methods
 
-    /// Code block to execute when the view appears.
+    /// Create and send the login with device notification and display the resulting fingerprint.
     ///
-    private func appeared() async {
-        defer {
-            coordinator.hideLoadingOverlay()
-        }
+    private func sendLoginWithDeviceRequest() async {
+        defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(title: Localizations.loading)
 
