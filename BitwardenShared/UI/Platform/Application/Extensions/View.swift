@@ -5,13 +5,16 @@ import SwiftUI
 extension View {
     /// A `ToolbarItem` for views with an add button.
     ///
-    /// - Parameter action: The action to perform when the add button is tapped.
+    /// - Parameters:
+    ///   - hidden: Whether to hide the toolbar item.
+    ///   - action: The action to perform when the add button is tapped.
     ///
     /// - Returns: A `ToolbarItem` with an add button.
     ///
-    func addToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
+    func addToolbarItem(hidden: Bool = false, _ action: @escaping () -> Void) -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             ToolbarButton(asset: Asset.Images.plus, label: Localizations.add, action: action)
+                .hidden(hidden)
         }
     }
 

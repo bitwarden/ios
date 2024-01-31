@@ -10,6 +10,9 @@ struct SearchVaultFilterRowView: View {
     /// Whether the row should have a bottom divider.
     let hasDivider: Bool
 
+    /// The accessibility ID for the row.
+    let accessibilityID: String?
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<SearchVaultFilterRowState, SearchVaultFilterRowAction, Void>
 
@@ -38,11 +41,13 @@ struct SearchVaultFilterRowView: View {
                             .frame(width: 44, height: 44, alignment: .trailing)
                             .contentShape(Rectangle())
                     }
+                    .accessibilityIdentifier("OpenOrgFilter")
                     .accessibilityLabel(Localizations.filterByVault)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 }
                 .padding(.horizontal, 16)
                 .frame(minHeight: 60)
+                .accessibilityIdentifier(accessibilityID ?? "")
                 .background(Asset.Colors.backgroundPrimary.swiftUIColor)
 
                 if hasDivider {
@@ -50,5 +55,24 @@ struct SearchVaultFilterRowView: View {
                 }
             }
         }
+    }
+
+    // MARK: Initialization
+
+    /// Initialize a `SearchVaultFilterRowView`.
+    ///
+    /// - Parameters:
+    ///   - hasDivider: Whether the row has a divider.
+    ///   - accessibilityID: The accessibility ID for the row.
+    ///   - store: The store used to render the view.
+    ///
+    init(
+        hasDivider: Bool,
+        accessibilityID: String? = nil,
+        store: Store<SearchVaultFilterRowState, SearchVaultFilterRowAction, Void>
+    ) {
+        self.hasDivider = hasDivider
+        self.accessibilityID = accessibilityID
+        self.store = store
     }
 }

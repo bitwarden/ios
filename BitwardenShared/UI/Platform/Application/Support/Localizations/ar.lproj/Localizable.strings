@@ -76,7 +76,6 @@
 "Version" = "إصدار";
 "View" = "انظر";
 "VisitOurWebsite" = "زيارة موقعنا على الانترنت";
-"VisitOurWebsiteDescription" = "قم بزيارة موقعنا الإلكتروني للحصول على المساعدة، واقرأ الأخبار، واكتب لنا و/أو تعلم كيفية استخدام bitwarden بشكل أفضل.";
 "Website" = "موقع الويب";
 "Yes" = "نعم";
 "Account" = "حساب";
@@ -94,7 +93,6 @@
 "ChangeEmail" = "تغيير البريد الإلكتروني";
 "ChangeEmailConfirmation" = "يمكنك تغيير عنوان بريدك الإلكتروني من خزنة الويب على bitwarden.com. هل تريد زيارة الموقع الآن؟";
 "ChangeMasterPassword" = "تغيير كلمة المرور الرئيسية";
-"ChangePasswordConfirmation" = "يمكنك تغيير كلمة المرور الرئيسية من خزنة الويب في bitwarden.com. هل تريد زيارة الموقع الآن؟";
 "Close" = "إغلاق";
 "Continue" = "متابعة";
 "CreateAccount" = "إنشاء حساب";
@@ -176,7 +174,6 @@
 "SyncVaultNow" = "مزامنة الخزنة الآن";
 "TouchID" = "Touch ID معرف اتصال البصمة";
 "TwoStepLogin" = "تحديد المصادقة الثنائية";
-"TwoStepLoginConfirmation" = "تجعل المصادقة الثنائية المعامل حسابك أكثر أمانًا من خلال طلب إدخال رمز أمان مع كل معرف من تطبيق المصادقة. يمكن تنشيط تعريف العامل المزدوج في خزنة الويب في bitwarden.com هل تريد زيارة الموقع الآن؟";
 "UnlockWith" = "فتح مع %1$@";
 "UnlockWithPIN" = "إلغاء القفل باستخدام رقم التعريف الشخصي";
 "Validating" = "التحقق";
@@ -234,8 +231,7 @@
 "VerificationCodeTotp" = "رمز التحقق (TOTP)";
 "AuthenticatorKeyAdded" = "تم إضافة مفتاح المصادقة.";
 "AuthenticatorKeyReadError" = "لا يمكن قراءة مفتاح المصادقة.";
-"PointYourCameraAtTheQRCode" = "حدد الكاميرا الخاصة بك على رمز QR.
-سيتم الفحص تلقائيا.";
+"PointYourCameraAtTheQRCode" = "حدد الكاميرا الخاصة بك على رمز QR.\nسيتم الفحص تلقائيا.";
 "ScanQrTitle" = "مسح رمز QR";
 "Camera" = "الكاميرا";
 "Photos" = "الصور";
@@ -253,6 +249,7 @@
 "FeatureUnavailable" = "الميزة غير متوفرة";
 "MaxFileSize" = "الحد الأقصى لحجم الملف هو 100 ميغابايت.";
 "UpdateKey" = "لا يمكنك استخدام هذه الميزة حتى تقوم بتحديث مفتاح التشفير الخاص بك.";
+"EncryptionKeyMigrationRequiredDescriptionLong" = "مطلوب ترحيل مفتاح التشفير. الرجاء تسجيل الدخول بواسطة مخزن الويب لتحديث مفتاح التشفير الخاص بك.";
 "LearnMore" = "اعرف المزيد";
 "ApiUrl" = "رابط خادم API";
 "CustomEnvironment" = "بيئة مخصصة";
@@ -445,7 +442,6 @@
 "ThemeDescription" = "تغيير سمة لون التطبيق.";
 "ThemeDefault" = "الافتراضي (النظام)";
 "DefaultDarkTheme" = "السمة المظلمة الافتراضية";
-"DefaultDarkThemeDescription" = "اختر السمة المظلمة لاستخدامها عند استخدام السمة الافتراضية (النظام) أثناء تمكين الوضع المظلم لجهازك";
 "CopyNotes" = "نسخ الملاحظة";
 "Exit" = "الخروج";
 "ExitConfirmation" = "هل أنت متأكد من أنك تريد الخروج من Bitwarden؟";
@@ -524,8 +520,7 @@
 "MasterPasswordPolicyValidationTitle" = "كلمة المرور غير صالحة";
 "MasterPasswordPolicyValidationMessage" = "كلمة المرور لا تفي بمتطلبات المؤسسة. الرجاء التحقق من معلومات السياسة وحاول مرة أخرى.";
 "Loading" = "جار التحميل";
-"AcceptPolicies" = "بتفعيل هذا التبديل فإنك توافق على ما يلي:
-";
+"AcceptPolicies" = "بتفعيل هذا التبديل فإنك توافق على ما يلي:";
 "AcceptPoliciesError" = "لم يتم الاعتراف بشروط الخدمة وسياسة الخصوصية.";
 "TermsOfService" = "اتفاقية خدمة المستخدم";
 "PrivacyPolicy" = "سياسة الخصوصيّة";
@@ -619,7 +614,7 @@
 "LeaveOrganization" = "مغادرة المؤسسة";
 "LeaveOrganizationName" = "مغادرة %1$@؟";
 "Fido2Title" = "FIDO2 WebAuthn";
-"Fido2Instruction" = "للمتابعة، قم بتجهيز مفتاح الأمان الخاص بك FIDO2 WebAuthn ، ثم اتبع التعليمات بعد النقر فوق \'مصادقة WebAuthn\' على الشاشة التالية.";
+"Fido2Instruction" = "للمتابعة، قم بتجهيز مفتاح الأمان الخاص بك FIDO2 WebAuthn ، ثم اتبع التعليمات بعد النقر فوق 'مصادقة WebAuthn' على الشاشة التالية.";
 "Fido2Desc" = "المصادقة باستخدام FIDO2 WebAuthn ، يمكنك المصادقة باستخدام مفتاح أمان خارجي.";
 "Fido2AuthenticateWebAuthn" = "مصادقة WebAuthn";
 "Fido2ReturnToApp" = "الرجوع إلى التطبيق";
@@ -673,15 +668,14 @@
 "Totp" = "TOTP";
 "VerificationCodes" = "رموز التحقق";
 "PremiumSubscriptionRequired" = "الاشتراك المميز مطلوب";
-"CannotAddAuthenticatorKey" = "لا يمكن إضافة مفتاح المصادقة؟ ";
+"CannotAddAuthenticatorKey" = "لا يمكن إضافة مفتاح المصادقة؟";
 "ScanQRCode" = "مسح رمز QR";
-"CannotScanQRCode" = "لا يمكن مسح رمز QR؟ ";
+"CannotScanQRCode" = "لا يمكن مسح رمز QR؟";
 "AuthenticatorKeyScanner" = "مفتاح المصادقة";
 "EnterKeyManually" = "أدخل المفتاح يدوياً";
 "AddTotp" = "إضافة TOTP";
 "SetupTotp" = "إعداد TOTP";
-"OnceTheKeyIsSuccessfullyEntered" = "بمجرد إدخال المفتاح بنجاح،
-حدد إضافة TOTP لتخزين المفتاح بأمان";
+"OnceTheKeyIsSuccessfullyEntered" = "بمجرد إدخال المفتاح بنجاح،\nحدد إضافة TOTP لتخزين المفتاح بأمان";
 "NeverLockWarning" = "تعيين خيارات قفل الخاص بك إلى \"مطلقا\" يبقي خزنتك متاحةً لأي شخص لديه حق الوصول إلى جهازك. إذا كنت تستخدم هذا الخيار، يجب أن تتأكد من الحفاظ على حماية جهازك بشكل صحيح.";
 "EnvironmentPageUrlsError" = "واحد أو أكثر من عناوين URL التي تم إدخالها غير صالحة. الرجاء مراجعتها ومحاولة الحفظ مرة أخرى.";
 "GenericErrorMessage" = "لم نتمكن من معالجة طلبك. الرجاء المحاولة مرة أخرى أو الاتصال بنا.";
@@ -718,11 +712,12 @@
 "DomainNameRequiredParenthesis" = "اسم المجال (مطلوب)";
 "APIKeyRequiredParenthesis" = "مفتاح API (مطلوب)";
 "Service" = "الخدمة";
-"AnonAddy" = "AnonAddy";
+"AddyIo" = "addy.io";
 "FirefoxRelay" = "FirefoxRelay";
 "SimpleLogin" = "SimpleLogin";
 "DuckDuckGo" = "DuckDuckGo";
 "Fastmail" = "Fastmail";
+"ForwardEmail" = "ForwardEmail";
 "APIAccessToken" = "رمز الوصول API";
 "AreYouSureYouWantToOverwriteTheCurrentUsername" = "هل أنت متأكد من أنك تريد الكتابة فوق اسم المستخدم الحالي؟";
 "GenerateUsername" = "إنشاء اسم المستخدم";
@@ -739,9 +734,7 @@
 "Accept" = "قبول";
 "Decline" = "رفض";
 "LoginRequestHasAlreadyExpired" = "انتهت صلاحية طلب تسجيل الدخول.";
-"LoginAttemptFromXDoYouWantToSwitchToThisAccount" = "محاولة تسجيل الدخول من:
-%1$@
-هل تريد التبديل إلى هذا الحساب؟";
+"LoginAttemptFromXDoYouWantToSwitchToThisAccount" = "محاولة تسجيل الدخول من:\n%1$@\nهل تريد التبديل إلى هذا الحساب؟";
 "NewAroundHere" = "جديد هنا؟";
 "GetMasterPasswordwordHint" = "احصل على تلميح كلمة المرور الرئيسية";
 "LoggingInAsXOnY" = "تسجيل الدخول كـ %1$@ في %2$@";
@@ -797,7 +790,6 @@
 "RememberThisDevice" = "تذكر هذا الجهاز";
 "Passkey" = "مفتاح المرور";
 "Passkeys" = "مفاتيح المرور";
-"CreatedX" = "أُنشِئ %1$@";
 "Application" = "تطبيق";
 "YouCannotEditPasskeyApplicationBecauseItWouldInvalidateThePasskey" = "لا يمكنك تعديل تطبيق مفتاح المرور لأنه سيبطل مفتاح المرور";
 "PasskeyWillNotBeCopied" = "لن يتم نسخ مفتاح المرور";
@@ -810,11 +802,10 @@
 "InvalidAPIToken" = "رمز API غير صالح";
 "AdminApprovalRequested" = "طلبت موافقة المسؤول";
 "YourRequestHasBeenSentToYourAdmin" = "أرسلت طلبك إلى مسؤولك.";
-"YouWillBeNotifiedOnceApproved" = "سيتم إخطارك بمجرد الموافقة عليها. ";
+"YouWillBeNotifiedOnceApproved" = "سيتم إخطارك بمجرد الموافقة عليها.";
 "TroubleLoggingIn" = "مشكلة في تسجيل الدخول؟";
 "LoggingInAsX" = "تسجيل الدخول كـ %1$@";
 "VaultTimeoutActionChangedToLogOut" = "تَغيير إجراء مهلة المخزن لتسجيل الخروج";
-"ThisItemCannotBeSharedWithTheOrganizationBecauseThereIsOneAlreadyWithTheSamePasskey" = "لا يمكن مشاركة هذا العنصر مع المؤسسة لأنه يوجد بالفعل واحد مع نفس مفتاح المرور.";
 "BlockAutoFill" = "حظر التعبئة التلقائية";
 "AutoFillWillNotBeOfferedForTheseURIs" = "لن يتم تقديم التعبئة التلقائية لعناوين الـ URIs هذه.";
 "NewBlockedURI" = "عنوان URL جديد محظور";
@@ -833,13 +824,44 @@
 "LogInWithDeviceMustBeSetUpInTheSettingsOfTheBitwardenAppNeedAnotherOption" = "يجب إعداد تسجيل الدخول باستخدام الجهاز في إعدادات تطبيق Bitwarden. هل تحتاج إلى خِيار آخر؟";
 "LogInWithDevice" = "تسجيل الدخول بالجهاز";
 "LoggingInOn" = "جارٍ تسجيل الدخول";
-"ThereAreNoItemsToList" = "لا توجد أية عناصر في القائمة";
-"ToViewVerificationCodesUpgradeToPremium" = "لعرض رموز التحقق، الترقية إلى بريميوم";
-"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "إضافة عامل المصادقة الثنائية إلى عنصر لعرض رموز التحقق";
-"LogInToBitwardenOnYourIPhoneToViewVerificationCodes" = "تسجيل الدخول إلى Bitwarden على iPhone الخاص بك لعرض رموز التحقق";
-"SyncingItemsContainingVerificationCodes" = "مزامنة العناصر التي تحتوي على رموز التحقق";
-"UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "ألغ قفل Bitwarden على iPhone الخاص بك لعرض رموز التحقق";
-"SetUpBitwardenToViewItemsContainingVerificationCodes" = "إعداد Bitwarden لعرض العناصر التي تحتوي على رموز التحقق";
-"Search" = "بحث";
-"NoItemsFound" = "لم يتم العثور على أي عنصر";
-"SetUpAppleWatchPasscodeInOrderToUseBitwarden" = "إعداد رمز مرور ساعة Apple من أجل استخدام Bitwarden";
+"Vault" = "الخزنة";
+"Appearance" = "المظهر";
+"AccountSecurity" = "أمان الحساب";
+"BitwardenHelpCenter" = "مركز المساعدة Bitwarden";
+"ContactBitwardenSupport" = "اتصل بالدعم Bitwarden";
+"CopyAppInformation" = "نسخ معلومات التطبيق";
+"SyncNow" = "المزامنة الآن";
+"UnlockOptions" = "خيارات فتح القفل";
+"SessionTimeout" = "مهلة الجلسة";
+"SessionTimeoutAction" = "إجراء مهلة الجلسة";
+"AccountFingerprintPhrase" = "عبارة بصمة الحساب";
+"OneHourAndOneMinute" = "ساعة واحدة ودقيقة واحدة";
+"OneHourAndXMinute" = "ساعة واحدة و %1$@ دقيقة";
+"XHoursAndOneMinute" = "%1$@ ساعات ودقيقة واحدة";
+"XHoursAndYMinutes" = "%1$@ ساعات و %2$@ دقيقة";
+"XHours" = "%1$@ ساعات";
+"AutofillServicesExplanationLong" = "يتم استخدام إطار التعبئة التلقائية لأندرويد للمساعدة في ملء معلومات تسجيل الدخول في تطبيقات أخرى على جهازك.";
+"UseInlineAutofillExplanationLong" = "استخدم التعبئة التلقائية المضمنة إذا كانت لوحة المفاتيح المحددة تدعمها. وإلا استخدم التراكب الافتراضي.";
+"AdditionalOptions" = "خيارات إضافية";
+"ContinueToWebApp" = "متابعة إلى تطبيق الويب؟";
+"ContinueToX" = "الإستمرار إلى %1$@؟";
+"ContinueToHelpCenter" = "هل تريد المتابعة إلى مركز المساعدة؟";
+"ContinueToContactSupport" = "مواصلة الاتصال بالدعم؟";
+"ContinueToPrivacyPolicy" = "Continue to privacy policy?";
+"ContinueToAppStore" = "هل تريد المتابعة إلى متجر التطبيقات؟";
+"TwoStepLoginDescriptionLong" = "اجعل حسابك أكثر أمنا من خلال إعداد تسجيل الدخول بخطوتين في تطبيق Bitwarden على شبكة الإنترنت.";
+"ChangeMasterPasswordDescriptionLong" = "يمكنك تغيير كلمة المرور الرئيسية الخاصة بك على تطبيق ويب Bitwarden.";
+"YouCanImportDataToYourVaultOnX" = "يمكنك استيراد البيانات إلى خزانتك على %1$@.";
+"LearnMoreAboutHowToUseBitwardenOnTheHelpCenter" = "تعرف على المزيد حول كيفية استخدام Bitwarden في مركز المساعدة.";
+"ContactSupportDescriptionLong" = "لا يمكن العثور على ما تبحث عنه؟ قم بالتواصل مع دعم Bitwarden على bitwarden.com.";
+"PrivacyPolicyDescriptionLong" = "Check out our privacy policy on bitwarden.com.";
+"ExploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp" = "استكشف المزيد من الميزات لحساب Bitwarden الخاص بك على تطبيق الويب.";
+"LearnAboutOrganizationsDescriptionLong" = "يتيح لك Bitwarden مشاركة عناصر خزنتك مع الآخرين باستخدام حساب المؤسسة. تعرف على المزيد على موقع bitwarden.com على شبكة الإنترنت.";
+"RateAppDescriptionLong" = "ساعد الآخرين في معرفة ما إذا كان Bitwarden مناسبا لهم. قم بزيارة متجر التطبيقات وترك التقييم الآن.";
+"DefaultDarkThemeDescriptionLong" = "اختر السمة المظلمة لاستخدامها عند استخدام الوضع المظلم لجهازك";
+"CreatedXY" = "أنشئ %1$@، %2$@";
+"TooManyAttempts" = "لقد أجريت محاولات كثيرة";
+"AccountLoggedOutBiometricExceeded" = "تم تسجيل الخروج من الحساب.";
+"YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "تم تحديث أذونات مؤسستك ، مما يتطلب عليك تعيين كلمة مرور رئيسية.";
+"YourOrganizationRequiresYouToSetAMasterPassword" = "تتطلب مؤسستك تعيين كلمة مرور رئيسية.";
+"SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "أعدنّ ميزة إلغاء القُفْل لتغيير إجراء مهلة المخزن الخاص بك.";

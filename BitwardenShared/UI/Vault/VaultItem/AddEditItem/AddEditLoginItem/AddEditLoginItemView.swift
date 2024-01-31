@@ -36,6 +36,7 @@ struct AddEditLoginItemView: View {
             ) {
                 store.send(.generateUsernamePressed)
             }
+            .accessibilityIdentifier("GenerateUsernameButton")
         }
         .textFieldConfiguration(.username)
         .focused($focusedField, equals: .userName)

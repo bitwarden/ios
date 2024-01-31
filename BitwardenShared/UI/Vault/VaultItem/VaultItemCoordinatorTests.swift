@@ -12,6 +12,7 @@ import XCTest
 class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appExtensionDelegate: MockAppExtensionDelegate!
     var cameraService: MockCameraService!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
@@ -22,11 +23,13 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     override func setUp() {
         super.setUp()
+        appExtensionDelegate = MockAppExtensionDelegate()
         cameraService = MockCameraService()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
         vaultRepository = MockVaultRepository()
         subject = VaultItemCoordinator(
+            appExtensionDelegate: appExtensionDelegate,
             module: module,
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
@@ -38,6 +41,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     override func tearDown() {
         super.tearDown()
+        appExtensionDelegate = nil
         cameraService = nil
         module = nil
         stackNavigator = nil

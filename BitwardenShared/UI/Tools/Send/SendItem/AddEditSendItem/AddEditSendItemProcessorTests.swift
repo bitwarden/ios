@@ -10,6 +10,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     var coordinator: MockCoordinator<SendItemRoute>!
     var pasteboardService: MockPasteboardService!
+    var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
     var subject: AddEditSendItemProcessor!
 
@@ -19,11 +20,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         super.setUp()
         coordinator = MockCoordinator()
         pasteboardService = MockPasteboardService()
+        policyService = MockPolicyService()
         sendRepository = MockSendRepository()
         subject = AddEditSendItemProcessor(
             coordinator: coordinator,
             services: ServiceContainer.withMocks(
                 pasteboardService: pasteboardService,
+                policyService: policyService,
                 sendRepository: sendRepository
             ),
             state: AddEditSendItemState()
@@ -34,6 +37,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         super.tearDown()
         coordinator = nil
         pasteboardService = nil
+        policyService = nil
         sendRepository = nil
         subject = nil
     }
@@ -94,6 +98,24 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             Localizations.deleting
         )
         XCTAssertEqual(coordinator.routes.last, .deleted)
+    }
+
+    /// `perform(_:)` with `loadData` loads the policy data for the view.
+    func test_perform_loadData_policies() async {
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isSendDisabled)
+        XCTAssertFalse(subject.state.isSendHideEmailDisabled)
+
+        policyService.policyAppliesToUserResult[.disableSend] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.isSendDisabled)
+        XCTAssertFalse(subject.state.isSendHideEmailDisabled)
+
+        policyService.policyAppliesToUserResult[.disableSend] = false
+        policyService.isSendHideEmailDisabledByPolicy = true
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isSendDisabled)
+        XCTAssertTrue(subject.state.isSendHideEmailDisabled)
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
@@ -311,6 +333,45 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 message: Localizations.maxFileSize
             ),
         ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and valid input in the share extension saves the item and
+    /// copies the share link to the clipboard.
+    func test_perform_savePressed_shareExtension_validated_success() async {
+        subject.state.mode = .shareExtension
+        subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
+        subject.state.deletionDate = .custom
+        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        let sendView = SendView.fixture(
+            id: "SEND_ID",
+            name: "Name",
+            text: .fixture(text: "Text")
+        )
+        sendRepository.addTextSendResult = .success(sendView)
+        sendRepository.shareURLResult = .success(.example)
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [
+            LoadingOverlayState(title: Localizations.saving),
+        ])
+        XCTAssertEqual(sendRepository.addTextSendSendView?.name, "Name")
+        XCTAssertEqual(sendRepository.addTextSendSendView?.text?.text, "Text")
+        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(sendRepository.shareURLSendView, sendView)
+        XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.valueHasBeenCopied(Localizations.sendLink)
+        )
+
+        subject.receive(.toastShown(nil))
+
+        XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
     /// `perform(_:)` with `.savePressed` while editing and valid input updates the item.

@@ -17,7 +17,7 @@ enum VaultItemRoute: Equatable, Hashable {
         allowTypeSelection: Bool = true,
         group: VaultListGroup? = nil,
         hasPremium: Bool = false,
-        uri: String? = nil
+        newCipherOptions: NewCipherOptions? = nil
     )
 
     /// A route to display the specified alert.

@@ -9,7 +9,14 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     // MARK: Types
 
     typealias Services = HasPasteboardService
+        & HasPolicyService
         & HasSendRepository
+
+    // MARK: Private Properties
+
+    /// A block to execute the next time the toast is cleared. This value is cleared once the block
+    /// is executed once.
+    private var onNextToastClear: (() -> Void)?
 
     // MARK: Properties
 
@@ -43,18 +50,16 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     override func perform(_ effect: AddEditSendItemEffect) async {
         switch effect {
         case .copyLinkPressed:
-            guard let sendView = state.originalSendView,
-                  let url = try? await services.sendRepository.shareURL(for: sendView)
-            else { return }
-
-            services.pasteboardService.copy(url.absoluteString)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.sendLink))
+            guard let sendView = state.originalSendView else { return }
+            await copyLink(to: sendView)
         case .deletePressed:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
                 await self?.deleteSend(sendView)
             }
             coordinator.showAlert(alert)
+        case .loadData:
+            await loadData()
         case .removePassword:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
@@ -107,12 +112,27 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.text = newValue
         case let .toastShown(toast):
             state.toast = toast
+            if toast == nil {
+                onNextToastClear?()
+                onNextToastClear = nil
+            }
         case let .typeChanged(newValue):
             updateType(newValue)
         }
     }
 
     // MARK: Private Methods
+
+    /// Copies the share link for the provided send.
+    ///
+    /// - Parameter sendView: The send to copy the link to.
+    ///
+    private func copyLink(to sendView: SendView) async {
+        guard let url = try? await services.sendRepository.shareURL(for: sendView) else { return }
+
+        services.pasteboardService.copy(url.absoluteString)
+        state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.sendLink))
+    }
 
     /// Deletes the provided send.
     ///
@@ -131,6 +151,13 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(alert)
         }
+    }
+
+    /// Load any initial data for the view.
+    ///
+    private func loadData() async {
+        state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
+        state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
     }
 
     /// Presents the file selection alert.
@@ -190,7 +217,15 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
                 newSendView = try await services.sendRepository.updateSend(sendView)
             }
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .complete(newSendView))
+            switch state.mode {
+            case .add, .edit:
+                coordinator.navigate(to: .complete(newSendView))
+            case .shareExtension:
+                onNextToastClear = { [weak self] in
+                    self?.coordinator.navigate(to: .complete(newSendView))
+                }
+                await copyLink(to: newSendView)
+            }
         } catch {
             coordinator.showAlert(.networkResponseError(error) { [weak self] in
                 await self?.saveSendItem()

@@ -14,6 +14,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                if store.state.isSendDisabled {
+                    InfoContainer(Localizations.sendDisabledWarning)
+                } else if store.state.isSendHideEmailDisabled {
+                    InfoContainer(Localizations.sendOptionsPolicyInEffect)
+                }
+
                 nameField
 
                 if store.state.mode == .add {
@@ -35,6 +41,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
                 saveButton
             }
+            .disabled(store.state.isSendDisabled)
             .padding(16)
         }
         .dismissKeyboardInteractively()
@@ -43,21 +50,27 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             title: store.state.mode.navigationTitle,
             titleDisplayMode: .inline
         )
+        .task {
+            await store.perform(.loadData)
+        }
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 if store.state.mode == .edit {
                     Menu {
-                        AsyncButton(Localizations.shareLink) {
-                            await store.perform(.shareLinkPressed)
-                        }
-                        AsyncButton(Localizations.copyLink) {
-                            await store.perform(.copyLinkPressed)
-                        }
-                        if store.state.originalSendView?.hasPassword ?? false {
-                            AsyncButton(Localizations.removePassword) {
-                                await store.perform(.removePassword)
+                        if !store.state.isSendDisabled {
+                            AsyncButton(Localizations.shareLink) {
+                                await store.perform(.shareLinkPressed)
+                            }
+                            AsyncButton(Localizations.copyLink) {
+                                await store.perform(.copyLinkPressed)
+                            }
+                            if store.state.originalSendView?.hasPassword ?? false {
+                                AsyncButton(Localizations.removePassword) {
+                                    await store.perform(.removePassword)
+                                }
                             }
                         }
+
                         AsyncButton(Localizations.delete, role: .destructive) {
                             await store.perform(.deletePressed)
                         }
@@ -339,6 +352,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         ))
         .toggleStyle(.bitwarden)
         .accessibilityIdentifier("SendHideEmailSwitch")
+        .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
 
         Toggle(Localizations.disableSend, isOn: store.binding(
             get: \.isDeactivateThisSendOn,

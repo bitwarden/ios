@@ -5,4 +5,7 @@
 enum LoginWithDeviceEffect: Equatable {
     /// The view appeared.
     case appeared
+
+    /// Resend the login with device notification.
+    case resendNotification
 }
