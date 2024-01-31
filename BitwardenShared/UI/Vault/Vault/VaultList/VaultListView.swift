@@ -3,10 +3,10 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - VaultMainView
+// MARK: - SearchableVaultListView
 
 /// The main view of the vault.
-private struct VaultMainView: View {
+private struct SearchableVaultListView: View {
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
@@ -72,7 +72,7 @@ private struct VaultMainView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
-                    vaultFilterRow()
+                    vaultFilterRow
                         .padding(.top, 16)
 
                     Spacer()
@@ -113,6 +113,7 @@ private struct VaultMainView: View {
                             )
                             .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                         }
+                        .accessibilityIdentifier("CipherCell")
                     }
                 }
             }
@@ -123,7 +124,7 @@ private struct VaultMainView: View {
         }
     }
 
-    /// Displays the vault filter for search row if the user is a member of any org
+    /// Displays the vault filter for search row if the user is a member of any org.
     private var searchVaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: true, store: store.child(
@@ -155,32 +156,12 @@ private struct VaultMainView: View {
         }
     }
 
-    // MARK: Private Methods
-
-    /// A view that displays the main vault interface, including sections for groups and
-    /// vault items.
-    ///
-    /// - Parameter sections: The sections of the vault list to display.
-    ///
-    @ViewBuilder
-    private func vaultContents(with sections: [VaultListSection]) -> some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                vaultFilterRow()
-
-                ForEach(sections) { section in
-                    vaultItemSectionView(title: section.name, items: section.items)
-                }
-            }
-            .padding(16)
-        }
-    }
-
-    /// Displays the vault filter row if the user is a member of any
-    @ViewBuilder
-    private func vaultFilterRow() -> some View {
+    /// Displays the vault filter row if the user is a member of any.
+    private var vaultFilterRow: some View {
         SearchVaultFilterRowView(
-            hasDivider: false, store: store.child(
+            hasDivider: false,
+            accessibilityID: "ActiveFilterRow",
+            store: store.child(
                 state: { state in
                     SearchVaultFilterRowState(
                         organizations: state.organizations,
@@ -197,6 +178,27 @@ private struct VaultMainView: View {
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    // MARK: Private Methods
+
+    /// A view that displays the main vault interface, including sections for groups and
+    /// vault items.
+    ///
+    /// - Parameter sections: The sections of the vault list to display.
+    ///
+    @ViewBuilder
+    private func vaultContents(with sections: [VaultListSection]) -> some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                vaultFilterRow
+
+                ForEach(sections) { section in
+                    vaultItemSectionView(title: section.name, items: section.items)
+                }
+            }
+            .padding(16)
+        }
     }
 
     /// Creates a row in the list for the provided item.
@@ -229,6 +231,7 @@ private struct VaultMainView: View {
             ),
             timeProvider: timeProvider
         )
+        .accessibilityIdentifier("CipherCell")
     }
 
     /// Creates a section that appears in the vault.
@@ -276,7 +279,7 @@ struct VaultListView: View {
 
     var body: some View {
         ZStack {
-            VaultMainView(
+            SearchableVaultListView(
                 store: store,
                 timeProvider: timeProvider
             )

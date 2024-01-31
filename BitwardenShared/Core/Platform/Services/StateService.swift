@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Combine
 import Foundation
 
@@ -146,6 +147,12 @@ protocol StateService: AnyObject {
     /// - Returns: The last known value of the `connectToWatch` setting.
     ///
     func getLastUserShouldConnectToWatch() async -> Bool
+
+    /// Get any pending login request data.
+    ///
+    /// - Returns: The pending login request data from a push notification.
+    ///
+    func getLoginRequest() async -> LoginRequestNotification?
 
     /// Gets the master password hash for a user ID.
     ///
@@ -335,6 +342,12 @@ protocol StateService: AnyObject {
     ///
     func setLastSyncTime(_ date: Date?, userId: String?) async throws
 
+    /// Set pending login request data from a push notification.
+    ///
+    /// - Parameter loginRequest: The pending login request data.
+    ///
+    func setLoginRequest(_ loginRequest: LoginRequestNotification?) async
+
     /// Sets the master password hash for a user ID.
     ///
     /// - Parameters:
@@ -437,6 +450,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the timeout value.
     ///
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
+
+    /// Updates the profile information for a user.
+    ///
+    /// - Parameters:
+    ///   - response: The profile response information to use while updating.
+    ///   - userId: The id of the user this updated information belongs to.
+    ///
+    func updateProfile(from response: ProfileResponseModel, userId: String) async
 
     // MARK: Publishers
 
@@ -965,6 +986,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.lastUserShouldConnectToWatch
     }
 
+    func getLoginRequest() async -> LoginRequestNotification? {
+        appSettingsStore.loginRequest
+    }
+
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.masterPasswordHash(userId: userId)
@@ -1119,6 +1144,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         lastSyncTimeByUserIdSubject.value[userId] = date
     }
 
+    func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
+        appSettingsStore.loginRequest = loginRequest
+    }
+
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setMasterPasswordHash(hash, userId: userId)
@@ -1199,6 +1228,20 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setVaultTimeout(key: value.rawValue, userId: userId)
+    }
+
+    func updateProfile(from response: ProfileResponseModel, userId: String) async {
+        var state = appSettingsStore.state ?? State()
+        defer { appSettingsStore.state = state }
+
+        guard var profile = state.accounts[userId]?.profile else { return }
+        profile.hasPremiumPersonally = response.premium
+        profile.avatarColor = response.avatarColor
+        profile.email = response.email ?? profile.email
+        profile.emailVerified = response.emailVerified
+        profile.name = response.name
+
+        state.accounts[userId]?.profile = profile
     }
 
     // MARK: Publishers

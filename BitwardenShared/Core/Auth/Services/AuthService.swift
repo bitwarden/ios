@@ -130,7 +130,7 @@ extension AuthService {
 
 /// The default implementation of `AuthService`.
 ///
-class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_length
+class DefaultAuthService: AuthService {
     // MARK: Properties
 
     /// The API service used to make calls related to the account process.
@@ -350,12 +350,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: username,
             captchaToken: captchaToken
         )
-
-        // Save the master password.
-        try await stateService.setMasterPasswordHash(hashPassword(
-            password: masterPassword,
-            purpose: .localAuthorization
-        ))
     }
 
     func loginWithSingleSignOn(code: String, email: String) async throws -> Account? {
@@ -432,7 +426,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - captchaToken: The optional captcha token. Defaults to `nil`.
     ///   - request: The cached request, if resending a login request with two-factor codes. Defaults to `nil`.
     ///
-    private func getIdentityTokenResponse(
+    private func getIdentityTokenResponse( // swiftlint:disable:this function_body_length
         authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod? = nil,
         email: String,
         captchaToken: String? = nil,
@@ -481,6 +475,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Save the encryption keys.
             let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
             try await stateService.setAccountEncryptionKeys(encryptionKeys)
+
+            // Save the master password, if applicable.
+            if case let .password(_, password) = request.authenticationMethod {
+                try await stateService.setMasterPasswordHash(hashPassword(
+                    password: password,
+                    purpose: .localAuthorization
+                ))
+            }
         } catch let error as IdentityTokenRequestError {
             if case let .twoFactorRequired(_, ssoToken, captchaBypassToken) = error {
                 // If the token request require two-factor authentication, cache the request so that
@@ -490,7 +492,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
                 // Form the resend email request in case the user needs to resend the verification code email.
                 var passwordHash: String?
-                if case let .password(_, password) = authenticationMethod { passwordHash = password }
+                if case let .password(_, password) = request?.authenticationMethod { passwordHash = password }
                 resendEmailModel = .init(
                     deviceIdentifier: appID,
                     email: email,
@@ -504,21 +506,5 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Re-throw the error.
             throw error
         }
-    }
-
-    func initiateLoginWithDevice(
-        accessCode: String,
-        deviceIdentifier: String,
-        email: String,
-        fingerPrint: String,
-        publicKey: String
-    ) async throws {
-        try await authAPIService.initiateLoginWithDevice(
-            accessCode: accessCode,
-            deviceIdentifier: deviceIdentifier,
-            email: email,
-            fingerPrint: fingerPrint,
-            publicKey: publicKey
-        )
     }
 } // swiftlint:disable:this file_length

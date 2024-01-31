@@ -112,7 +112,16 @@ class AutofillHelper {
             services.errorReporter.log(error: error)
         }
 
-        appExtensionDelegate?.completeAutofillRequest(username: username, password: password)
+        let fields: [(String, String)]? = cipherView.fields?.compactMap { field in
+            guard let name = field.name, let value = field.value else { return nil }
+            return (name, value)
+        }
+
+        appExtensionDelegate?.completeAutofillRequest(
+            username: username,
+            password: password,
+            fields: fields
+        )
     }
 
     /// Handles the case where the username or password is missing for the cipher which prevents it

@@ -5,7 +5,7 @@
 		<key>BitwardenAppGroupIdentifier</key>
 		<string>group.$(ORGANIZATION_IDENTIFIER).bitwarden</string>
 		<key>CFBundleDisplayName</key>
-		<string>Bitwarden</string>
+		<string>Autofill with Bitwarden</string>
 		<key>CFBundleName</key>
 		<string>Bitwarden Extension</string>
 		<key>CFBundleExecutable</key>

@@ -34,6 +34,10 @@ struct FormTextField<State>: Equatable, Identifiable {
 
     // MARK: Properties
 
+    /// The accessibility id for the text field. The `title` will be used as the accessibility id
+    /// if this is `nil`.
+    let accessibilityId: String?
+
     /// The behavior for when the input should be automatically capitalized.
     let autocapitalization: Autocapitalization
 
@@ -51,6 +55,9 @@ struct FormTextField<State>: Equatable, Identifiable {
 
     /// A key path for updating the backing value for the text field.
     let keyPath: WritableKeyPath<State, String>
+
+    /// The accessibility id for the button to toggle password visibility.
+    let passwordVisibilityAccessibilityId: String?
 
     /// The expected type of content input in the text field.
     let textContentType: UITextContentType?
@@ -72,6 +79,7 @@ struct FormTextField<State>: Equatable, Identifiable {
     /// Initialize a `FormTextField`.
     ///
     /// - Parameters:
+    ///   - accessibilityId: The accessibility id for the text field.
     ///   - autocapitalization: The behavior for when the input should be automatically capitalized.
     ///     Defaults to `.sentences`.
     ///   - isAutocorrectDisabled: Whether autocorrect is disabled in the text field. Defaults to
@@ -81,26 +89,31 @@ struct FormTextField<State>: Equatable, Identifiable {
     ///     text field is visible.
     ///   - keyboardType: The type of keyboard to display.
     ///   - keyPath: A key path for updating the backing value for the text field.
+    ///   - passwordVisibilityAccessibilityId: The accessibility id for the password visibility button.
     ///   - textContentType: The expected type of content input in the text field. Defaults to `nil`.
     ///   - title: The title of the field.
     ///   - value: The current text value.
     init(
+        accessibilityId: String? = nil,
         autocapitalization: Autocapitalization = .sentences,
         isAutocorrectDisabled: Bool = false,
         isPasswordVisible: Bool? = nil,
         isPasswordVisibleKeyPath: WritableKeyPath<State, Bool>? = nil,
         keyboardType: UIKeyboardType = .default,
         keyPath: WritableKeyPath<State, String>,
+        passwordVisibilityAccessibilityId: String? = nil,
         textContentType: UITextContentType? = nil,
         title: String,
         value: String
     ) {
+        self.accessibilityId = accessibilityId
         self.autocapitalization = autocapitalization
         self.isAutocorrectDisabled = isAutocorrectDisabled
         self.isPasswordVisible = isPasswordVisible
         self.isPasswordVisibleKeyPath = isPasswordVisibleKeyPath
         self.keyboardType = keyboardType
         self.keyPath = keyPath
+        self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.textContentType = textContentType
         self.title = title
         self.value = value
@@ -128,10 +141,12 @@ struct FormTextFieldView<State>: View {
         BitwardenTextField(
             title: field.title,
             text: Binding(get: { field.value }, set: action),
+            passwordVisibilityAccessibilityId: field.passwordVisibilityAccessibilityId,
             isPasswordVisible: field.isPasswordVisible.map { isPasswordVisible in
                 Binding(get: { isPasswordVisible }, set: isPasswordVisibleChangedAction ?? { _ in })
             }
         )
+        .accessibilityIdentifier(field.accessibilityId ?? field.title)
         .autocorrectionDisabled(field.isAutocorrectDisabled)
         .keyboardType(field.keyboardType)
         .textContentType(field.textContentType)

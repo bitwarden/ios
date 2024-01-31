@@ -32,6 +32,7 @@ struct DeleteAccountView: View {
                     await store.perform(.deleteAccount)
                 }
                 .buttonStyle(.primary(isDestructive: true))
+                .accessibilityIdentifier("DELETE ACCOUNT")
 
                 Button {
                     store.send(.dismiss)
@@ -39,6 +40,7 @@ struct DeleteAccountView: View {
                     Text(Localizations.cancel)
                 }
                 .buttonStyle(.tertiary(isDestructive: true))
+                .accessibilityIdentifier("CANCEL")
             }
         }
         .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)

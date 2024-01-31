@@ -100,3 +100,10 @@ custom_rules:
     match_kinds:
       - comment
     severity: warning
+  weak_navigator:
+    name: "Weak Navigator"
+    regex: "(?<!weak )(var|let) \\w*[nN]avigator: \\w*Navigator"
+    message: "Navigator references must be weak to avoid memory leaks."
+    severity: error
+    excluded:
+      - ".*Tests\\.swift"

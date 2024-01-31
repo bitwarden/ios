@@ -10,6 +10,10 @@ public protocol AppExtensionDelegate: AnyObject {
     /// Whether the app is running within an extension.
     var isInAppExtension: Bool { get }
 
+    /// Whether the app is running the save login flow in the action extension. This flow opens the
+    /// add vault item view and completes the extension request when the item has been added.
+    var isInAppExtensionSaveLoginFlow: Bool { get }
+
     /// The URI of the credential to autofill.
     var uri: String? { get }
 
@@ -18,8 +22,9 @@ public protocol AppExtensionDelegate: AnyObject {
     /// - Parameters:
     ///   - username: The username to fill.
     ///   - password: The password to fill.
+    ///   - fields: A list of additional fields to fill.
     ///
-    func completeAutofillRequest(username: String, password: String)
+    func completeAutofillRequest(username: String, password: String, fields: [(String, String)]?)
 
     /// A cancel button was tapped to exit the extension.
     ///
@@ -27,11 +32,16 @@ public protocol AppExtensionDelegate: AnyObject {
 }
 
 public extension AppExtensionDelegate {
+    /// Whether the app is running the save login flow in the action extension. This flow opens the
+    /// add vault item view and completes the extension request when the item has been added.
+    var isInAppExtensionSaveLoginFlow: Bool { false }
+
     /// The autofill request should be completed with the specified username and password.
     ///
     /// - Parameters:
     ///   - username: The username to fill.
     ///   - password: The password to fill.
+    ///   - fields: A list of additional fields to fill.
     ///
-    func completeAutofillRequest(username: String, password: String) {}
+    func completeAutofillRequest(username: String, password: String, fields: [(String, String)]?) {}
 }

@@ -61,9 +61,9 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to view a login request.
     ///
-    /// - Parameter request: The login request to display.
+    /// - Parameter loginRequest: The login request to display.
     ///
-    case loginRequest(_ request: LoginRequest)
+    case loginRequest(_ loginRequest: LoginRequest)
 
     /// A route to log the user out.
     ///

@@ -29,6 +29,16 @@ protocol CipherService {
     ///
     func deleteCipherWithServer(id: String) async throws
 
+    /// Download the data of an attachment.
+    ///
+    /// - Parameters:
+    ///   - id: The id of the attachment to download.
+    ///   - cipherId: The id of the cipher that owns the attachment.
+    ///
+    /// - Returns: The url of the temporary file location if it was able to be downloaded.
+    ///
+    func downloadAttachment(withId id: String, cipherId: String) async throws -> URL?
+
     /// Attempt to fetch a cipher for the current user with the given id.
     ///
     /// - Parameter id: The id of the cipher to find.
@@ -183,6 +193,14 @@ extension DefaultCipherService {
 
         // Delete cipher from local storage.
         try await cipherDataStore.deleteCipher(id: id, userId: userId)
+    }
+
+    func downloadAttachment(withId id: String, cipherId: String) async throws -> URL? {
+        // Get the url that contains the downloadable data for the attachment.
+        let response = try await cipherAPIService.downloadAttachment(withId: id, cipherId: cipherId)
+
+        // Download the data from the url.
+        return try await cipherAPIService.downloadAttachmentData(from: response.url)
     }
 
     func fetchCipher(withId id: String) async throws -> Cipher? {

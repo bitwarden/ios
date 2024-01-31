@@ -10,6 +10,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     var coordinator: MockCoordinator<SendItemRoute>!
     var pasteboardService: MockPasteboardService!
+    var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
     var subject: AddEditSendItemProcessor!
 
@@ -19,11 +20,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         super.setUp()
         coordinator = MockCoordinator()
         pasteboardService = MockPasteboardService()
+        policyService = MockPolicyService()
         sendRepository = MockSendRepository()
         subject = AddEditSendItemProcessor(
             coordinator: coordinator,
             services: ServiceContainer.withMocks(
                 pasteboardService: pasteboardService,
+                policyService: policyService,
                 sendRepository: sendRepository
             ),
             state: AddEditSendItemState()
@@ -34,6 +37,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         super.tearDown()
         coordinator = nil
         pasteboardService = nil
+        policyService = nil
         sendRepository = nil
         subject = nil
     }
@@ -94,6 +98,24 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             Localizations.deleting
         )
         XCTAssertEqual(coordinator.routes.last, .deleted)
+    }
+
+    /// `perform(_:)` with `loadData` loads the policy data for the view.
+    func test_perform_loadData_policies() async {
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isSendDisabled)
+        XCTAssertFalse(subject.state.isSendHideEmailDisabled)
+
+        policyService.policyAppliesToUserResult[.disableSend] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.isSendDisabled)
+        XCTAssertFalse(subject.state.isSendHideEmailDisabled)
+
+        policyService.policyAppliesToUserResult[.disableSend] = false
+        policyService.isSendHideEmailDisabledByPolicy = true
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isSendDisabled)
+        XCTAssertTrue(subject.state.isSendHideEmailDisabled)
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
@@ -211,8 +233,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
-    /// `perform(_:)` with `.savePressed` and invalid input shows a validation alert.
-    func test_perform_savePressed_add_unvalidated() async {
+    /// `perform(_:)` with `.savePressed` and no name shows a validation alert.
+    func test_perform_savePressed_add_noName() async {
         subject.state.name = ""
         await subject.perform(.savePressed)
 
@@ -220,6 +242,96 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertNil(sendRepository.addTextSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
             .validationFieldRequired(fieldName: Localizations.name),
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and no premium shows a validation alert.
+    func test_perform_savePressed_add_file_noPremium() async {
+        sendRepository.doesActivateAccountHavePremiumResult = .success(false)
+        subject.state.name = "Name"
+        subject.state.fileData = Data("example".utf8)
+        subject.state.fileName = "filename"
+        subject.state.type = .file
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            Alert.defaultAlert(message: Localizations.sendFilePremiumRequired),
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and an unverified email shows a validation alert.
+    func test_perform_savePressed_add_file_noVerifiedEmail() async {
+        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(false)
+        subject.state.name = "Name"
+        subject.state.fileData = Data("example".utf8)
+        subject.state.fileName = "filename"
+        subject.state.type = .file
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            Alert.defaultAlert(message: Localizations.sendFileEmailVerificationRequired),
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and no file data shows a validation alert.
+    func test_perform_savePressed_add_file_noFileData() async {
+        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
+        subject.state.name = "Name"
+        subject.state.fileData = nil
+        subject.state.fileName = "filename"
+        subject.state.type = .file
+        subject.state.mode = .add
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.file),
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and no file name shows a validation alert.
+    func test_perform_savePressed_add_file_noFileName() async {
+        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
+        subject.state.name = "Name"
+        subject.state.fileData = Data("example".utf8)
+        subject.state.fileName = nil
+        subject.state.type = .file
+        subject.state.mode = .add
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.file),
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and file data that is too large shows a validation alert.
+    func test_perform_savePressed_add_file_fileDataTooLarge() async {
+        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
+        subject.state.name = "Name"
+        subject.state.fileData = Data(String(repeating: "a", count: Constants.maxFileSizeBytes + 1).utf8)
+        subject.state.fileName = "filename"
+        subject.state.type = .file
+        subject.state.mode = .add
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.maxFileSize
+            ),
         ])
     }
 

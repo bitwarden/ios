@@ -7,6 +7,9 @@ import SwiftUI
 struct SettingsListItem<Content: View>: View {
     // MARK: Properties
 
+    /// The accessibility ID for the list item.
+    let accessibilityIdentifier: String?
+
     /// The action to perform when the list item is tapped.
     let action: () -> Void
 
@@ -48,6 +51,7 @@ struct SettingsListItem<Content: View>: View {
                 }
             }
         }
+        .accessibilityIdentifier(accessibilityIdentifier ?? "")
         .background(Asset.Colors.backgroundTertiary.swiftUIColor)
     }
 
@@ -58,6 +62,7 @@ struct SettingsListItem<Content: View>: View {
     /// - Parameters:
     ///  - name: The name of the list item.
     ///  - hasDivider: Whether or not the list item should have a divider on the bottom.
+    ///  - accessibilityIdentifier: The accessibility ID for the list item.
     ///  - action: The action to perform when the list item is tapped.
     ///  - trailingContent: Content that appears on the trailing edge of the list item.
     ///
@@ -66,9 +71,11 @@ struct SettingsListItem<Content: View>: View {
     init(
         _ name: String,
         hasDivider: Bool = true,
+        accessibilityIdentifier: String? = nil,
         action: @escaping () -> Void,
         @ViewBuilder trailingContent: @escaping () -> Content? = { EmptyView() }
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.name = name
         self.hasDivider = hasDivider
         self.trailingContent = trailingContent

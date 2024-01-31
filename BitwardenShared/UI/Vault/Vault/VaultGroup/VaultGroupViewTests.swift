@@ -17,7 +17,12 @@ class VaultGroupViewTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: VaultGroupState(vaultFilterType: .allVaults))
+        processor = MockProcessor(
+            state: VaultGroupState(
+                searchVaultFilterType: .allVaults,
+                vaultFilterType: .allVaults
+            )
+        )
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2023, month: 12, day: 31)))
         subject = VaultGroupView(
             store: Store(processor: processor),
@@ -61,7 +66,15 @@ class VaultGroupViewTests: BitwardenTestCase {
 
     /// Tapping the vault item copy totp button dispatches the `.copyTOTPCode` action.
     func test_vaultItem_copyTOTPButton_tap() throws {
-        processor.state.loadingState = .data([.fixtureTOTP(totp: .fixture())])
+        processor.state.loadingState = .data(
+            [
+                .fixtureTOTP(
+                    totp: .fixture(
+                        timeProvider: timeProvider
+                    )
+                ),
+            ]
+        )
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyTotp)
         try button.tap()
         waitFor(!processor.dispatchedActions.isEmpty)
@@ -80,6 +93,18 @@ class VaultGroupViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     func test_snapshot_empty() {
+        processor.state.loadingState = .data([])
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_emptyCollection() {
+        processor.state.group = .collection(id: "id", name: "name", organizationId: "12345")
+        processor.state.loadingState = .data([])
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_emptyTrash() {
+        processor.state.group = .trash
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -126,6 +151,48 @@ class VaultGroupViewTests: BitwardenTestCase {
                 name: "Example"
             )),
         ])
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_search_oneItem() {
+        processor.state.isSearching = true
+        processor.state.searchResults = [
+            .fixture(cipherView: .fixture(
+                login: .fixture(username: "email@example.com"),
+                name: "Example"
+            )),
+        ]
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_search_oneTOTPItem() {
+        timeProvider.timeConfig = .mockTime(
+            .init(
+                year: 2023,
+                month: 5,
+                day: 19,
+                second: 33
+            )
+        )
+        processor.state.isSearching = true
+        processor.state.searchResults = [
+            .fixtureTOTP(
+                name: "Example",
+                totp: .fixture(
+                    loginView: .fixture(
+                        uris: [
+                            .init(uri: "www.example.com", match: nil),
+                        ],
+                        username: "email@example.com"
+                    ),
+                    totpCode: .init(
+                        code: "034543",
+                        codeGenerationDate: timeProvider.presentTime,
+                        period: 30
+                    )
+                )
+            ),
+        ]
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

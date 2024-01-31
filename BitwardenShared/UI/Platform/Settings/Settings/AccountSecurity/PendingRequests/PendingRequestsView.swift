@@ -109,17 +109,20 @@ struct PendingRequestsView: View {
                         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
+                        .accessibilityIdentifier("FingerprintValueLabel")
 
                     Text(pendingRequest.fingerprintPhrase ?? "")
                         .styleGuide(.caption2Monospaced)
                         .foregroundStyle(Asset.Colors.fingerprint.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
+                        .accessibilityIdentifier("FingerprintPhraseValue")
 
                     HStack {
                         Text(pendingRequest.requestDeviceType)
                             .styleGuide(.footnote)
                             .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .accessibilityIdentifier("DeviceTypeValueLabel")
 
                         Spacer()
 

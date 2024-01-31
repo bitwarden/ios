@@ -139,7 +139,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             }
 
             // Display an alert if the attachment is too large.
-            guard let fileSize = state.fileData?.count, fileSize < 104_857_600 else {
+            guard let fileSize = state.fileData?.count, fileSize < Constants.maxFileSize else {
                 return coordinator.showAlert(.defaultAlert(
                     title: Localizations.anErrorHasOccurred,
                     message: Localizations.maxFileSize

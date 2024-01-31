@@ -13,9 +13,13 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameters
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
-    ///   - uri: A URI string used to populate the add item screen.
+    ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
     ///
-    case addItem(allowTypeSelection: Bool = true, group: VaultListGroup? = nil, uri: String? = nil)
+    case addItem(
+        allowTypeSelection: Bool = true,
+        group: VaultListGroup? = nil,
+        newCipherOptions: NewCipherOptions? = nil
+    )
 
     /// A route to display the specified alert.
     ///
@@ -35,7 +39,7 @@ public enum VaultRoute: Equatable, Hashable {
     case dismiss
 
     /// A route to the vault item list screen for the specified group.
-    case group(_ group: VaultListGroup, filter: VaultFilterType)
+    case group(VaultGroupContent)
 
     /// A route to the vault list screen.
     case list
@@ -45,6 +49,12 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameter account: The user's account.
     ///
     case lockVault(account: Account)
+
+    /// A route to show a login request.
+    ///
+    /// - Parameter loginRequest: The login request to display.
+    ///
+    case loginRequest(_ loginRequest: LoginRequest)
 
     /// A route to log the user out.
     ///
@@ -63,4 +73,25 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameter id: The id of the item to display.
     ///
     case viewItem(id: String)
+}
+
+public struct VaultGroupContent: Equatable, Hashable {
+    var group: VaultListGroup
+
+    var filter: VaultFilterType
+
+    @AlwaysEqual var filterDelegate: VaultFilterDelegate?
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(group)
+        hasher.combine(filter)
+    }
+}
+
+@propertyWrapper
+struct AlwaysEqual<Value>: Equatable {
+    var wrappedValue: Value
+    static func == (lhs: AlwaysEqual<Value>, rhs: AlwaysEqual<Value>) -> Bool {
+        true
+    }
 }

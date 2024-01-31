@@ -35,33 +35,53 @@ public protocol Coordinator<Route>: AnyObject {
     ///
     func showLoadingOverlay(_ state: LoadingOverlayState)
 
+    /// Shows the toast.
+    ///
+    /// - Parameter text: The text of the toast to display.
+    ///
+    func showToast(_ text: String)
+
     /// Starts the coordinator, displaying its content.
     ///
     func start()
 }
 
+// swiftlint:disable weak_navigator
+
 /// A protocol for an object that has a `Navigator`.
 ///
+@MainActor
 protocol HasNavigator {
-    var navigator: Navigator { get }
+    /// A weak reference to this item's `Navigator`. This value should be `weak`, otherwise a retain
+    /// cycle might be introduced.
+    var navigator: Navigator? { get }
 }
 
 /// A protocol for an object that has a `StackNavigator`.
 ///
+@MainActor
 protocol HasStackNavigator: HasNavigator {
-    var stackNavigator: StackNavigator { get }
+    /// A weak reference to this item's `StackNavigator`. This value should be `weak`, otherwise a
+    /// retain cycle might be introduced.
+    var stackNavigator: StackNavigator? { get }
 }
 
 /// A protocol for an object that has a `TabNavigator`.
 ///
+@MainActor
 protocol HasTabNavigator: HasNavigator {
-    var tabNavigator: TabNavigator { get }
+    /// A weak reference to this item's `TabNavigator`. This value should be `weak`, otherwise a
+    /// retain cycle might be introduced.
+    var tabNavigator: TabNavigator? { get }
 }
 
 /// A protocol for an object that has a `RootNavigator`.
 ///
+@MainActor
 protocol HasRootNavigator: HasNavigator {
-    var rootNavigator: RootNavigator { get }
+    /// A weak reference to this item's `RootNavigator`. This value should be `weak`, otherwise a
+    /// retain cycle might be introduced.
+    var rootNavigator: RootNavigator? { get }
 }
 
 // MARK: Extensions
@@ -97,7 +117,7 @@ extension Coordinator where Self: HasNavigator {
     /// Hides the loading overlay view.
     ///
     func hideLoadingOverlay() {
-        navigator.hideLoadingOverlay()
+        navigator?.hideLoadingOverlay()
     }
 
     /// Shows the provided alert on the `stackNavigator`.
@@ -105,7 +125,7 @@ extension Coordinator where Self: HasNavigator {
     /// - Parameter alert: The alert to show.
     ///
     func showAlert(_ alert: Alert) {
-        navigator.present(alert)
+        navigator?.present(alert)
     }
 
     /// Shows the loading overlay view.
@@ -113,21 +133,31 @@ extension Coordinator where Self: HasNavigator {
     /// - Parameter state: The state for configuring the loading overlay.
     ///
     func showLoadingOverlay(_ state: LoadingOverlayState) {
-        navigator.showLoadingOverlay(state)
+        navigator?.showLoadingOverlay(state)
+    }
+
+    /// Shows the toast.
+    ///
+    /// - Parameter text: The text of the toast to display.
+    ///
+    func showToast(_ text: String) {
+        navigator?.showToast(Toast(text: text))
     }
 }
 
 extension HasStackNavigator {
     /// The stack navigator.
-    var navigator: Navigator { stackNavigator }
+    var navigator: Navigator? { stackNavigator }
 }
 
 extension HasTabNavigator {
     /// The tab navigator.
-    var navigator: Navigator { tabNavigator }
+    var navigator: Navigator? { tabNavigator }
 }
 
 extension HasRootNavigator {
     /// The root navigator.
-    var navigator: Navigator { rootNavigator }
+    var navigator: Navigator? { rootNavigator }
 }
+
+// swiftlint:enable weak_navigator

@@ -31,6 +31,9 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     /// The selection chosen from the menu.
     @Binding var selection: T
 
+    /// The accessibility identifier for the view.
+    let accessibilityIdentifier: String?
+
     /// The options displayed in the menu.
     let options: [T]
 
@@ -67,6 +70,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
             } label: {
                 Text("")
             }
+            .accessibilityIdentifier(accessibilityIdentifier ?? "")
         } label: {
             HStack {
                 Text(selection.localizedName)
@@ -90,15 +94,18 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     /// - Parameters:
     ///   - title: The title of the text field.
     ///   - footer: The footer text displayed below the menu field.
+    ///   - accessibilityIdentifier: The accessibility identifier for the view.
     ///   - options: The options that the user can choose between.
     ///   - selection: A `Binding` for the currently selected option.
     ///
     init(
         title: String? = nil,
         footer: String? = nil,
+        accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>
     ) where TrailingContent == EmptyView {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.footer = footer
         self.options = options
         _selection = selection
@@ -111,6 +118,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     /// - Parameters:
     ///   - title: The title of the text field.
     ///   - footer: The footer text displayed below the menu field.
+    ///   - accessibilityIdentifier: The accessibility identifier for the view.
     ///   - options: The options that the user can choose between.
     ///   - selection: A `Binding` for the currently selected option.
     ///   - trailingContent: Optional content view that is displayed to the right of the menu value.
@@ -118,10 +126,12 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     init(
         title: String? = nil,
         footer: String? = nil,
+        accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>,
         trailingContent: () -> TrailingContent
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.footer = footer
         self.options = options
         _selection = selection
