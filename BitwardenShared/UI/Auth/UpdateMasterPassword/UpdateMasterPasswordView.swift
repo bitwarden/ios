@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - UpdateMasterPasswordView
 
-/// A view that force the user to update their master password.
+/// A view that forces the user to update their master password.
 ///
 struct UpdateMasterPasswordView: View {
     // MARK: Properties

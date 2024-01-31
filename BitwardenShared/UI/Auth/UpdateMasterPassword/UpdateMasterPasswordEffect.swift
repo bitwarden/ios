@@ -1,6 +1,6 @@
 // MARK: - UpdateMasterPasswordEffect
 
-/// Effects that can be processed by a `UpdateMasterPasswordView`.
+/// Effects that can be processed by a `UpdateMasterPasswordProcessor`.
 enum UpdateMasterPasswordEffect: Equatable {
     /// The update master password view appeared on screen.
     case appeared

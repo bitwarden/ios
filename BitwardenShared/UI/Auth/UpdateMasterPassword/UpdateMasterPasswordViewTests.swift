@@ -73,15 +73,14 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordHintChanged("text"))
     }
 
-    /// Editing the text in the current master password text field dispatches the `.masterPasswordRetypeChanged` action.
+    /// Editing the text in the re-type master password text field dispatches the `.masterPasswordRetypeChanged` action.
     func test_masterPasswordRetype_change() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.retypeMasterPassword)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRetypeChanged("text"))
     }
 
-    /// Tapping the new master password retype visibility icon changes whether or not
-    /// new master passwords retype are visible.
+    /// Tapping the retype password visibility toggle changes whether the password retype is visible.
     func test_masterPasswordRetypeVisibility_tap() throws {
         processor.state.isMasterPasswordRetypeRevealed = false
         let visibilityIcon = try subject.inspect().find(

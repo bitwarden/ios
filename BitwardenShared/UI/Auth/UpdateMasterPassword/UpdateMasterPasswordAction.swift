@@ -1,6 +1,6 @@
 // MARK: - UpdateMasterPasswordAction
 
-/// Actions that can be processed by a `UpdateMasterPasswordView`.
+/// Actions that can be processed by a `UpdateMasterPasswordProcessor`.
 enum UpdateMasterPasswordAction: Equatable {
     /// The value for the current master password was changed.
     case currentMasterPasswordChanged(String)

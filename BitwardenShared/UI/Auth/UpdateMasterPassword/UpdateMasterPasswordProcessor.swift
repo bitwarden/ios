@@ -5,7 +5,11 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the update master password screen.
 ///
-class UpdateMasterPasswordProcessor: StateProcessor<UpdateMasterPasswordState, UpdateMasterPasswordAction, UpdateMasterPasswordEffect> { // swiftlint:disable:this line_length
+class UpdateMasterPasswordProcessor: StateProcessor<
+    UpdateMasterPasswordState,
+    UpdateMasterPasswordAction,
+    UpdateMasterPasswordEffect
+> {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -63,18 +67,18 @@ class UpdateMasterPasswordProcessor: StateProcessor<UpdateMasterPasswordState, U
             state.masterPasswordHint = newValue
         case let .masterPasswordRetypeChanged(newValue):
             state.masterPasswordRetype = newValue
-        case .revealCurrentMasterPasswordFieldPressed:
-            state.isCurrentMasterPasswordRevealed.toggle()
-        case .revealMasterPasswordFieldPressed:
-            state.isMasterPasswordRevealed.toggle()
-        case .revealMasterPasswordRetypeFieldPressed:
-            state.isMasterPasswordRetypeRevealed.toggle()
+        case let .revealCurrentMasterPasswordFieldPressed(isOn):
+            state.isCurrentMasterPasswordRevealed = isOn
+        case let .revealMasterPasswordFieldPressed(isOn):
+            state.isMasterPasswordRevealed = isOn
+        case let .revealMasterPasswordRetypeFieldPressed(isOn):
+            state.isMasterPasswordRetypeRevealed = isOn
         }
     }
 
     // MARK: Private Methods
 
-    /// updates the master password
+    /// Updates the master password
     ///
     private func updateMasterPassword() async {
         // TODO: BIT-789
