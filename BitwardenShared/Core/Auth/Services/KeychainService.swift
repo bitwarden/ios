@@ -58,6 +58,16 @@ protocol KeychainService: AnyObject {
     func setUserAuthKey(for item: KeychainItem, value: String) async throws
 }
 
+extension KeychainService {
+    /// The format for storing a `KeychainItem`'s `unformattedKey`.
+    ///  The first value should be a unique appID from the `appIdService`.
+    ///  The second value is the `unformattedKey`
+    ///
+    ///  example: `bwKeyChainStorage:1234567890:biometric_key_98765`
+    ///
+    var storageKeyFormat: String { "bwKeyChainStorage:%@:%@" }
+}
+
 // MARK: - KeychainServiceError
 
 enum KeychainServiceError: Error, Equatable {
@@ -97,14 +107,6 @@ class DefaultKeychainService: KeychainService {
         Bundle.main.groupIdentifier
     }
 
-    /// The format for storing a `KeychainItem`'s `unformattedKey`.
-    ///  The first value should be a unique appID from the `appIdService`.
-    ///  The second value is the `unformattedKey`
-    ///
-    ///  example: `bwKeyChainStorage:1234567890:biometric_key_98765`
-    ///
-    var storageKeyFormat: String { "bwKeyChainStorage:%@:%@" }
-
     // MARK: Initialization
 
     init(appIdService: AppIdService) {
@@ -122,7 +124,7 @@ class DefaultKeychainService: KeychainService {
         adding additionalPairs: [CFString: Any] = [:]
     ) async -> CFDictionary {
         // Prepare a formatted `kSecAttrAccount` value.
-        let formattedSecAttrAccount = await formattedKey(item.unformattedKey)
+        let formattedSecAttrAccount = await formattedKey(for: item)
 
         // Configure the base dictionary
         var result: [CFString: Any] = [
@@ -152,9 +154,9 @@ class DefaultKeychainService: KeychainService {
         }
     }
 
-    func formattedKey(_ key: String) async -> String {
+    func formattedKey(for item: KeychainItem) async -> String {
         let appId = await appIdService.getOrCreateAppId()
-        return String(format: storageKeyFormat, appId, key)
+        return String(format: storageKeyFormat, appId, item.unformattedKey)
     }
 
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {

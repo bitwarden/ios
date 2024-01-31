@@ -481,7 +481,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             active.profile.userId: .never,
         ]
         keychainService.mockStorage = [
-            KeychainItem.neverLock(userId: active.profile.userId).storageKey:
+            keychainService.formattedKey(
+                for: KeychainItem.neverLock(
+                    userId: active.profile.userId
+                )
+            ):
                 "pasta",
         ]
         keychainService.deleteResult = .success(())
@@ -499,7 +503,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             keychainService.mockStorage,
             [
-                KeychainItem.neverLock(userId: active.profile.userId).storageKey:
+                keychainService.formattedKey(
+                    for: KeychainItem.neverLock(userId: active.profile.userId)
+                ):
                     "pasta",
             ]
         )
@@ -509,7 +515,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithNeverlockKey_error() async throws {
         let active = Account.fixture()
         keychainService.mockStorage = [
-            KeychainItem.neverLock(userId: active.profile.userId).storageKey:
+            keychainService.formattedKey(
+                for: KeychainItem.neverLock(
+                    userId: active.profile.userId
+                )
+            ):
                 "pasta",
         ]
         stateService.accountEncryptionKeys = [
@@ -530,7 +540,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let active = Account.fixture()
         stateService.activeAccount = active
         keychainService.mockStorage = [
-            KeychainItem.neverLock(userId: active.profile.userId).storageKey:
+            keychainService.formattedKey(
+                for: KeychainItem.neverLock(
+                    userId: active.profile.userId
+                )
+            ):
                 "pasta",
         ]
         stateService.accountEncryptionKeys = [
@@ -670,7 +684,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVault_integrityRefresh() async throws {
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY"
+            ),
         ]
         biometricsRepository.biometricUnlockStatus = .success(
             .available(.faceID, enabled: true, hasValidIntegrity: false)
