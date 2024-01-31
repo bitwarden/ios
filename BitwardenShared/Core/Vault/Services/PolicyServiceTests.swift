@@ -60,6 +60,19 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     // MARK: Tests
 
     /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
+    /// options and if the existing option has a type set, the policies will override that.
+    func test_applyPasswordGenerationOptions_defaultType_existingOption() async throws {
+        stateService.activeAccount = .fixture()
+        policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
+
+        var options = PasswordGenerationOptions(type: .password)
+        let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
+
+        XCTAssertEqual(options.type, .passphrase)
+        XCTAssertTrue(appliedPolicy)
+    }
+
+    /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
     /// options when there's multiple policies.
     func test_applyPasswordGenerationOptions_multiplePolicies() async throws {
         stateService.activeAccount = .fixture()
@@ -98,6 +111,29 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 uppercase: nil
             )
         )
+    }
+
+    /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
+    /// options when there's multiple policies and the password generator type should take priority.
+    func test_applyPasswordGenerationOptions_multiplePolicies_differentTypes() async throws {
+        stateService.activeAccount = .fixture()
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [
+                        PolicyOptionType.defaultType.rawValue: .string("password"),
+                    ],
+                    type: .passwordGenerator
+                ),
+                passwordGeneratorPolicy,
+            ]
+        )
+
+        var options = PasswordGenerationOptions()
+        let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
+
+        XCTAssertEqual(options.type, .password)
+        XCTAssertTrue(appliedPolicy)
     }
 
     /// `applyPasswordGenerationOptions(options:)` doesn't modify the password generation options
@@ -171,7 +207,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 number: nil,
                 numWords: 4,
                 special: true,
-                type: .password,
+                type: .passphrase,
                 uppercase: true
             )
         )
@@ -368,4 +404,4 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
         XCTAssertTrue(policyApplies)
     }
-}
+} // swiftlint:disable:this file_length

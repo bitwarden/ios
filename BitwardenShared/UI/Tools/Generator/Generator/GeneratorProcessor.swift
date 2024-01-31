@@ -218,7 +218,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.isPolicyInEffect = try await services.policyService.applyPasswordGenerationPolicy(
                 options: &passwordOptions
             )
-            state.passwordState.update(with: passwordOptions)
+            state.passwordState.update(with: passwordOptions, shouldUpdateGeneratorType: true)
 
             let usernameOptions = try await services.generatorRepository.getUsernameGenerationOptions()
             state.usernameState.update(with: usernameOptions)
@@ -273,7 +273,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         var passwordOptions = state.passwordState.passwordGenerationOptions
         state.isPolicyInEffect = await (try? services.policyService
             .applyPasswordGenerationPolicy(options: &passwordOptions)) ?? false
-        state.passwordState.update(with: passwordOptions)
+        // When updating the state, don't update the password generator type or it can override the
+        // user's current selection.
+        state.passwordState.update(with: passwordOptions, shouldUpdateGeneratorType: false)
 
         var policyOptions = PasswordGenerationOptions()
         _ = try? await services.policyService.applyPasswordGenerationPolicy(options: &policyOptions)
