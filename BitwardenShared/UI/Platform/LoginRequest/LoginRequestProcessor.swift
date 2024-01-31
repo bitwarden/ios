@@ -26,7 +26,7 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<LoginRequestRoute>
+    private let coordinator: AnyCoordinator<LoginRequestRoute, Void>
 
     /// The delegate that is notified when login requests have been answered.
     private weak var delegate: LoginRequestDelegate?
@@ -48,7 +48,7 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<LoginRequestRoute>,
+        coordinator: AnyCoordinator<LoginRequestRoute, Void>,
         delegate: LoginRequestDelegate?,
         services: Services,
         state: LoginRequestState

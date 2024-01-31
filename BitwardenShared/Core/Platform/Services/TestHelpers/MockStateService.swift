@@ -64,7 +64,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func clearPins() async throws {
-        let userId = try getActiveAccount().profile.userId
+        let userId = try unwrapUserId(nil)
         accountVolatileData.removeValue(forKey: userId)
         pinProtectedUserKeyValue[userId] = nil
         pinKeyEncryptedUserKeyValue[userId] = nil
@@ -85,40 +85,44 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         if let error = getAccountEncryptionKeysError {
             throw error
         }
-        let userId = try userId ?? getActiveAccount().profile.userId
-        guard let encryptionKeys = accountEncryptionKeys[userId]
+        let id = try await getAccountIdOrActiveId(userId: userId)
+        guard let encryptionKeys = accountEncryptionKeys[id]
         else {
             throw StateServiceError.noActiveAccount
         }
         return encryptionKeys
     }
 
+    func getAccount(userId: String?) async throws -> BitwardenShared.Account {
+        let id = try await getAccountIdOrActiveId(userId: userId)
+        if let activeAccount,
+           activeAccount.profile.userId == id {
+            return activeAccount
+        }
+        guard let knownAccounts = accounts,
+              let match = knownAccounts.first(where: { $0.profile.userId == id }) else {
+            throw StateServiceError.noAccounts
+        }
+        return match
+    }
+
     func getAccounts() async throws -> [Account] {
-        guard let accounts else { throw StateServiceError.noAccounts }
+        guard let accounts else {
+            throw StateServiceError.noAccounts
+        }
         return accounts
     }
 
-    func getActiveAccount() throws -> Account {
-        guard let activeAccount else { throw StateServiceError.noActiveAccount }
-        return activeAccount
-    }
-
     func getAccountIdOrActiveId(userId: String?) async throws -> String {
-        guard let knownAccounts = accounts else {
-            throw StateServiceError.noAccounts
-        }
         if let userId {
-            guard knownAccounts.contains(where: { $0.profile.userId == userId }) else {
-                throw StateServiceError.noAccounts
-            }
             return userId
-        } else {
-            return try await getActiveAccountId()
         }
+        return try await getActiveAccountId()
     }
 
     func getActiveAccountId() async throws -> String {
-        try getActiveAccount().profile.userId
+        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+        return activeAccount.profile.userId
     }
 
     func getAddSitePromptShown() async -> Bool {
@@ -126,7 +130,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getApproveLoginRequests(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return approveLoginRequestsByUserId[userId] ?? false
     }
 
@@ -135,39 +139,39 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return allowSyncOnRefresh[userId] ?? false
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         try clearClipboardResult.get()
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return clearClipboardValues[userId] ?? .never
     }
 
     func getConnectToWatch(userId: String?) async throws -> Bool {
         try connectToWatchResult.get()
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return connectToWatchByUserId[userId] ?? false
     }
 
     func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return defaultUriMatchTypeByUserId[userId] ?? .domain
     }
 
     func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return disableAutoTotpCopyByUserId[userId] ?? false
     }
 
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return environmentUrls[userId]
     }
 
     func getLastActiveTime(userId: String?) async throws -> Date? {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return lastActiveTime[userId]
     }
 
@@ -176,17 +180,17 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return masterPasswordHashes[userId]
     }
 
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return notificationsLastRegistrationDates[userId]
     }
 
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions? {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return passwordGenerationOptions[userId]
     }
 
@@ -199,7 +203,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return timeoutAction[userId] ?? .lock
     }
 
@@ -208,37 +212,37 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return unsuccessfulUnlockAttempts[userId] ?? 0
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return usernameGenerationOptions[userId]
     }
 
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return vaultTimeout[userId] ?? .immediately
     }
 
     func logoutAccount(userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         accountsLoggedOut.append(userId)
     }
 
     func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return pinKeyEncryptedUserKeyValue[userId] ?? nil
     }
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return pinProtectedUserKeyValue[userId] ?? nil
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         accountEncryptionKeys[userId] = encryptionKeys
     }
 
@@ -246,7 +250,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         guard let accounts,
               let match = accounts.first(where: { account in
                   account.profile.userId == userId
-              }) else { throw StateServiceError.noAccounts }
+              }) else {
+            throw StateServiceError.noAccounts
+        }
         activeAccount = match
     }
 
@@ -255,12 +261,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
     }
 
     func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         approveLoginRequestsByUserId[userId] = approveLoginRequests
     }
 
@@ -270,33 +276,33 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         try clearClipboardResult.get()
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         clearClipboardValues[userId] = clearClipboardValue
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {
         try connectToWatchResult.get()
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         connectToWatchByUserId[userId] = connectToWatch
     }
 
     func setDefaultUriMatchType(_ defaultUriMatchType: UriMatchType?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         defaultUriMatchTypeByUserId[userId] = defaultUriMatchType
     }
 
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
     }
 
     func setEncryptedPin(_ pin: String) async throws {
-        let userId = try getActiveAccount().profile.userId
+        let userId = try unwrapUserId(nil)
         accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = pin
     }
 
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         self.environmentUrls[userId] = environmentUrls
     }
 
@@ -306,12 +312,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         lastActiveTime[userId] = timeProvider.presentTime
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         lastSyncTimeByUserId[userId] = date
     }
 
@@ -324,17 +330,17 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         masterPasswordHashes[userId] = hash
     }
 
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         notificationsLastRegistrationDates[userId] = date
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         passwordGenerationOptions[userId] = options
     }
 
@@ -343,7 +349,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         pinProtectedUserKey: String,
         requirePasswordAfterRestart: Bool
     ) async throws {
-        let userId = try getActiveAccount().profile.userId
+        let userId = try unwrapUserId(nil)
         pinProtectedUserKeyValue[userId] = pinProtectedUserKey
         pinKeyEncryptedUserKeyValue[userId] = pinKeyEncryptedUserKey
 
@@ -356,7 +362,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setPinProtectedUserKeyToMemory(_ pin: String) async throws {
-        let userId = try getActiveAccount().profile.userId
+        let userId = try unwrapUserId(nil)
         accountVolatileData[
             userId,
             default: AccountVolatileData()
@@ -372,7 +378,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         timeoutAction[userId] = action
     }
 
@@ -385,18 +391,52 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         unsuccessfulUnlockAttempts[userId] = attempts
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         usernameGenerationOptions[userId] = options
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         vaultTimeout[userId] = value
+    }
+
+    /// Attempts to convert a possible user id into an account, or returns the active account.
+    ///
+    /// - Parameter userId: If nil, the active account is returned. Otherwise, retrieve an account for the id.
+    ///
+    func unwrapAccount(_ userId: String?) throws -> Account {
+        if let userId,
+           let activeAccount,
+           activeAccount.profile.userId == userId {
+            return activeAccount
+        } else if let userId,
+                  let match = accounts?.first(where: { userId == $0.profile.userId }) {
+            return match
+        } else if let activeAccount,
+                  userId == nil {
+            return activeAccount
+        } else {
+            throw StateServiceError.noAccounts
+        }
+    }
+
+    /// Attempts to convert a possible user id into a known account id.
+    ///
+    /// - Parameter userId: If nil, the active account id is returned. Otherwise, validate the id.
+    ///
+    func unwrapUserId(_ userId: String?) throws -> String {
+        if let userId {
+            return userId
+        } else if let activeAccount {
+            return activeAccount.profile.userId
+        } else {
+            throw StateServiceError.noActiveAccount
+        }
     }
 
     func activeAccountIdPublisher() async -> AnyPublisher<String?, Never> {

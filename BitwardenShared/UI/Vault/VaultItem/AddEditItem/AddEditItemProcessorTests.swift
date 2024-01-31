@@ -14,7 +14,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var appExtensionDelegate: MockAppExtensionDelegate!
     var cameraService: MockCameraService!
     var client: MockHTTPClient!
-    var coordinator: MockCoordinator<VaultItemRoute>!
+    var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -31,7 +31,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         appExtensionDelegate = MockAppExtensionDelegate()
         cameraService = MockCameraService()
         client = MockHTTPClient()
-        coordinator = MockCoordinator<VaultItemRoute>()
+        coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
@@ -452,7 +452,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_didCompleteCapture_failure() {
         subject.state.loginState.totpState = .none
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
-        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: "1234")
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
@@ -481,7 +481,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let key = String.base32Key
         let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
         totpService.getTOTPConfigResult = .success(keyConfig)
-        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: key)
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
@@ -942,7 +942,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         cameraService.cameraAuthorizationStatus = .authorized
         await subject.perform(.setupTotpPressed)
 
-        XCTAssertEqual(coordinator.asyncRoutes.last, .scanCode)
+        XCTAssertEqual(coordinator.events.last, .showScanCode)
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the

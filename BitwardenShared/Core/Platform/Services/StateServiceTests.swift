@@ -184,8 +184,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(activeAccount, account)
     }
 
-    /// `getActiveAccount()` throws an error if there aren't any accounts.
-    func test_getActiveAccount_noAccounts() async throws {
+    /// `getActiveAccount()` throws an error if there aren't isn't an active account.
+    func test_getActiveAccount_noAccount() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.getActiveAccount()
         }

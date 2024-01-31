@@ -24,14 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 // If the app is running tests, show a testing view.
                 window = UIWindow(windowScene: windowScene)
                 window?.makeKeyAndVisible()
-                window?.rootViewController = UIHostingController(rootView: ZStack {
-                    Color("backgroundSplash").ignoresSafeArea()
-
-                    Image("logoBitwarden")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 238)
-                })
+                window?.rootViewController = UIHostingController(rootView: Splash())
             }
             return
         }

@@ -21,7 +21,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation for this processor.
-    let coordinator: any Coordinator<SendItemRoute>
+    let coordinator: any Coordinator<SendItemRoute, Void>
 
     /// The services required by this processor.
     let services: Services
@@ -36,7 +36,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<SendItemRoute>,
+        coordinator: any Coordinator<SendItemRoute, Void>,
         services: Services,
         state: AddEditSendItemState
     ) {

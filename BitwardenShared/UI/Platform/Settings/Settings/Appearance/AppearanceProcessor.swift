@@ -12,7 +12,7 @@ final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceActio
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The services for this processor.
     private var services: Services
@@ -27,7 +27,7 @@ final class AppearanceProcessor: StateProcessor<AppearanceState, AppearanceActio
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
         state: AppearanceState
     ) {

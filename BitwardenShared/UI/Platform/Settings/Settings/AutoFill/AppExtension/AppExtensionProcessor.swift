@@ -19,7 +19,7 @@ final class AppExtensionProcessor: StateProcessor<AppExtensionState, AppExtensio
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     // MARK: Initialization
 
@@ -30,7 +30,7 @@ final class AppExtensionProcessor: StateProcessor<AppExtensionState, AppExtensio
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         state: AppExtensionState
     ) {
         self.coordinator = coordinator

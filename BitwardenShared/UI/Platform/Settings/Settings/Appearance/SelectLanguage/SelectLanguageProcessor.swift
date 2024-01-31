@@ -18,7 +18,7 @@ final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectL
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The delegate for handling the selection flow.
     private weak var delegate: SelectLanguageDelegate?
@@ -37,7 +37,7 @@ final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectL
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         delegate: SelectLanguageDelegate?,
         services: Services,
         state: SelectLanguageState

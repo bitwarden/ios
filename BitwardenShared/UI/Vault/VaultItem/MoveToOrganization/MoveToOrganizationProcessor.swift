@@ -28,7 +28,7 @@ class MoveToOrganizationProcessor: StateProcessor<
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultItemRoute>
+    private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
     /// The delegate for the processor that is notified when the user moves the cipher to an organization.
     private weak var delegate: MoveToOrganizationProcessorDelegate?
@@ -46,7 +46,7 @@ class MoveToOrganizationProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultItemRoute>,
+        coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: MoveToOrganizationProcessorDelegate?,
         services: Services,
         state: MoveToOrganizationState

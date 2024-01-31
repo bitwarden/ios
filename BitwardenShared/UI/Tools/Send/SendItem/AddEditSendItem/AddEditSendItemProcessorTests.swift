@@ -8,7 +8,7 @@ import XCTest
 class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SendItemRoute>!
+    var coordinator: MockCoordinator<SendItemRoute, Void>!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!

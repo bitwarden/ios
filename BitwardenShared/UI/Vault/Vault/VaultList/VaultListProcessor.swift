@@ -22,7 +22,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<VaultRoute>
+    private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
     /// The services used by this processor.
     private let services: Services
@@ -37,7 +37,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultRoute>,
+        coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultListState
     ) {
@@ -184,14 +184,11 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
             do {
                 // Lock the vault of the selected account.
                 let activeAccount = try await self.services.stateService.getActiveAccount()
-                await self.services.authRepository.lockVault(userId: account.userId)
+                await self.coordinator.handleEvent(.lockVault(userId: account.userId))
 
-                // If the selected item was the currently active account, redirect the user
-                // to the unlock vault view.
-                if account.userId == activeAccount.profile.userId {
-                    self.coordinator.navigate(to: .lockVault(account: activeAccount))
-                } else {
-                    // Otherwise, show the toast that the account was locked successfully.
+                // If the selected item was not the currently active account,
+                //  show a toast that the account was locked successfully.
+                if account.userId != activeAccount.profile.userId {
                     self.state.toast = Toast(text: Localizations.accountLockedSuccessfully)
 
                     // Update the profile switcher view.
@@ -202,27 +199,23 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
             }
         }, logoutAction: {
             // Confirm logging out.
-            self.coordinator.showAlert(.logoutConfirmation {
+            self.coordinator.showAlert(.logoutConfirmation { [weak self] in
+                guard let self else { return }
                 do {
                     // Log out of the selected account.
-                    let activeAccountId = try await self.services.authRepository.getActiveAccount().userId
-                    try await self.services.authRepository.logout(
-                        userId: account.userId
-                    )
+                    let activeAccountId = try await services.authRepository.getActiveAccount().userId
+                    await coordinator.handleEvent(.logout(userId: account.userId, userInitiated: true))
 
-                    // If the selected item was the currently active account, redirect the user
-                    // to the landing page.
-                    if account.userId == activeAccountId {
-                        self.coordinator.navigate(to: .logout(userInitiated: true))
-                    } else {
-                        // Otherwise, show the toast that the account was logged out successfully.
-                        self.state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
+                    // If that account was not active,
+                    // show a toast that the account was logged out successfully.
+                    if account.userId != activeAccountId {
+                        state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
 
                         // Update the profile switcher view.
-                        await self.refreshProfileState()
+                        await refreshProfileState()
                     }
                 } catch {
-                    self.services.errorReporter.log(error: error)
+                    services.errorReporter.log(error: error)
                 }
             })
         }))
@@ -233,7 +226,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
     /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
     ///
     private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
-        defer { setProfileSwitcher(visible: false) }
+        defer { state.profileSwitcherState.isVisible = false }
         guard state.profileSwitcherState.activeAccountId != selectedAccount.userId else { return }
         coordinator.navigate(
             to: .switchAccount(userId: selectedAccount.userId)

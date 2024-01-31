@@ -6,7 +6,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authService: MockAuthService!
-    var coordinator: MockCoordinator<AuthRoute>!
+    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
     var subject: LoginWithDeviceProcessor!
 
@@ -16,7 +16,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         super.setUp()
 
         authService = MockAuthService()
-        coordinator = MockCoordinator<AuthRoute>()
+        coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         errorReporter = MockErrorReporter()
 
         subject = LoginWithDeviceProcessor(

@@ -65,12 +65,6 @@ public enum AuthRoute: Equatable {
     ///
     case singleSignOn(callbackUrlScheme: String, state: String, url: URL)
 
-    /// A route to switch accounts.
-    ///
-    /// - Parameter userId: The user Id of the selected account.
-    ///
-    case switchAccount(userId: String)
-
     /// A route to the two-factor authentication view.
     ///
     /// - Parameters:
@@ -95,8 +89,8 @@ public enum AuthRoute: Equatable {
     ///
     case vaultUnlock(
         Account,
-        animated: Bool = true,
-        attemptAutomaticBiometricUnlock: Bool = false,
+        animated: Bool,
+        attemptAutomaticBiometricUnlock: Bool,
         didSwitchAccountAutomatically: Bool
     )
 }
