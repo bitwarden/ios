@@ -22,6 +22,14 @@ class MockClientCrypto: ClientCryptoProtocol {
     var initializeUserCryptoRequest: InitUserCryptoRequest?
     var initializeUserCryptoResult: Result<Void, Error> = .success(())
 
+    var updatePasswordNewPassword: String?
+    var updatePasswordResult: Result<UpdatePasswordResponse, Error> = .success(
+        UpdatePasswordResponse(
+            passwordHash: "password hash",
+            newKey: "new key"
+        )
+    )
+
     func derivePinKey(pin: String) async throws -> DerivePinKeyResponse {
         derivePinKeyPin = pin
         return try derivePinKeyResult.get()
@@ -43,5 +51,10 @@ class MockClientCrypto: ClientCryptoProtocol {
     func initializeUserCrypto(req: InitUserCryptoRequest) async throws {
         initializeUserCryptoRequest = req
         return try initializeUserCryptoResult.get()
+    }
+
+    func updatePassword(newPassword: String) async throws -> BitwardenSdk.UpdatePasswordResponse {
+        updatePasswordNewPassword = newPassword
+        return try updatePasswordResult.get()
     }
 }
