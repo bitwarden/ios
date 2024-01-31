@@ -15,6 +15,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     var filterDelegate: MockVaultFilterDelegate!
     let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)
     var pasteboardService: MockPasteboardService!
+    var policyService: MockPolicyService!
     var stateService: MockStateService!
     var subject: VaultGroupProcessor!
     var timeProvider: MockTimeProvider!
@@ -29,6 +30,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         errorReporter = MockErrorReporter()
         filterDelegate = MockVaultFilterDelegate()
         pasteboardService = MockPasteboardService()
+        policyService = MockPolicyService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(fixedDate))
         vaultRepository = MockVaultRepository()
@@ -39,6 +41,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
+                policyService: policyService,
                 stateService: stateService,
                 timeProvider: timeProvider,
                 vaultRepository: vaultRepository
@@ -58,6 +61,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         errorReporter = nil
         filterDelegate = nil
         pasteboardService = nil
+        policyService = nil
         stateService = nil
         subject = nil
         vaultRepository = nil
@@ -119,6 +123,19 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
 
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.appeared` updates the state depending on if the
+    /// personal ownership policy is enabled.
+    func test_perform_appeared_personalOwnershipPolicy() {
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(subject.state.isPersonalOwnershipDisabled)
+
+        XCTAssertTrue(subject.state.isPersonalOwnershipDisabled)
     }
 
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.

@@ -16,6 +16,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
         & HasAuthService
         & HasErrorReporter
         & HasPasteboardService
+        & HasPolicyService
         & HasStateService
         & HasVaultRepository
 
@@ -54,6 +55,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
             await refreshVault(isManualRefresh: false)
             await requestNotificationPermissions()
             await checkPendingLoginRequests()
+            await checkPersonalOwnershipPolicy()
         case let .profileSwitcher(profileEffect):
             switch profileEffect {
             case let .rowAppeared(rowType):
@@ -172,6 +174,13 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Checks if the personal ownership policy is enabled.
+    ///
+    private func checkPersonalOwnershipPolicy() async {
+        let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
+        state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
     }
 
     /// Handles a long press of an account in the profile switcher.
