@@ -17,7 +17,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     // MARK: Properties
 
     var biometricsService: MockBiometricsService!
-    var keychainService: MockKeychainService!
+    var keychainService: MockKeychainRepository!
     var stateService: MockStateService!
     var subject: DefaultBiometricsRepository!
 
@@ -27,7 +27,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         super.setUp()
 
         biometricsService = MockBiometricsService()
-        keychainService = MockKeychainService()
+        keychainService = MockKeychainRepository()
         stateService = MockStateService()
 
         subject = DefaultBiometricsRepository(

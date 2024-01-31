@@ -2,41 +2,39 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockKeychainService: KeychainRepository {
-    var appId: String = "mockAppId"
-    var mockStorage = [String: String]()
-    var securityType: SecAccessControlCreateFlags?
-    var deleteResult: Result<Void, Error> = .success(())
-    var getResult: Result<String, Error>?
-    var setResult: Result<Void, Error> = .success(())
+class MockKeychainService {
+    // MARK: Properties
 
-    func deleteUserAuthKey(for item: KeychainItem) async throws {
+    var accessControlFlags: SecAccessControlCreateFlags?
+    var accessControlResult: Result<SecAccessControl, KeychainServiceError> = .failure(.accessControlFailed(nil))
+    var addAttributes: CFDictionary?
+    var addResult: Result<Void, KeychainServiceError> = .success(())
+    var deleteQuery: CFDictionary?
+    var deleteResult: Result<Void, KeychainServiceError> = .success(())
+    var searchQuery: CFDictionary?
+    var searchResult: Result<AnyObject?, KeychainServiceError> = .success(nil)
+}
+
+// MARK: KeychainService
+
+extension MockKeychainService: KeychainService {
+    func accessControl(for flags: SecAccessControlCreateFlags) throws -> SecAccessControl {
+        accessControlFlags = flags
+        return try accessControlResult.get()
+    }
+
+    func add(attributes: CFDictionary) throws {
+        addAttributes = attributes
+        try addResult.get()
+    }
+
+    func delete(query: CFDictionary) throws {
+        deleteQuery = query
         try deleteResult.get()
-        let formattedKey = formattedKey(for: item)
-        mockStorage = mockStorage.filter { $0.key != formattedKey }
     }
 
-    func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
-        let formattedKey = formattedKey(for: item)
-        if let result = getResult {
-            let value = try result.get()
-            mockStorage[formattedKey] = value
-            return value
-        } else if let value = mockStorage[formattedKey] {
-            return value
-        } else {
-            throw KeychainServiceError.keyNotFound(item)
-        }
-    }
-
-    func formattedKey(for item: KeychainItem) -> String {
-        String(format: storageKeyFormat, appId, item.unformattedKey)
-    }
-
-    func setUserAuthKey(for item: KeychainItem, value: String) async throws {
-        let formattedKey = formattedKey(for: item)
-        securityType = item.protection
-        try setResult.get()
-        mockStorage[formattedKey] = value
+    func search(query: CFDictionary) throws -> AnyObject? {
+        searchQuery = query
+        return try searchResult.get()
     }
 }

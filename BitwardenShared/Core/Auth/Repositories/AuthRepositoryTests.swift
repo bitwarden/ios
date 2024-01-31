@@ -14,7 +14,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var clientCrypto: MockClientCrypto!
     var clientPlatform: MockClientPlatform!
     var environmentService: MockEnvironmentService!
-    var keychainService: MockKeychainService!
+    var keychainService: MockKeychainRepository!
     var organizationService: MockOrganizationService!
     var subject: DefaultAuthRepository!
     var stateService: MockStateService!
@@ -83,7 +83,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientCrypto = MockClientCrypto()
         clientPlatform = MockClientPlatform()
         environmentService = MockEnvironmentService()
-        keychainService = MockKeychainService()
+        keychainService = MockKeychainRepository()
         organizationService = MockOrganizationService()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()

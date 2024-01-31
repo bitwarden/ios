@@ -51,7 +51,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     var biometricsService: BiometricsService
 
     /// A service used to store the UserAuthKey key/value pair.
-    var keychainService: KeychainRepository
+    var keychainRepository: KeychainRepository
 
     /// A service used to store the Biometric Integrity Source key/value pair.
     var stateService: StateService
@@ -71,7 +71,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
         stateService: StateService
     ) {
         self.biometricsService = biometricsService
-        self.keychainService = keychainService
+        keychainRepository = keychainService
         self.stateService = stateService
     }
 
@@ -124,7 +124,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
         let key = KeychainItem.biometrics(userId: id)
 
         do {
-            let string = try await keychainService.getUserAuthKeyValue(for: key)
+            let string = try await keychainRepository.getUserAuthKeyValue(for: key)
             guard !string.isEmpty else {
                 throw BiometricsServiceError.getAuthKeyFailed
             }
@@ -135,7 +135,8 @@ class DefaultBiometricsRepository: BiometricsRepository {
             return string
         } catch let error as KeychainServiceError {
             switch error {
-            case .keyNotFound:
+            case .accessControlFailed,
+                 .keyNotFound:
                 throw BiometricsServiceError.getAuthKeyFailed
             case let .osStatusError(status):
                 switch status {
@@ -168,7 +169,7 @@ extension DefaultBiometricsRepository {
         let id = try await stateService.getActiveAccountId()
         let key = KeychainItem.biometrics(userId: id)
         do {
-            try await keychainService.deleteUserAuthKey(for: key)
+            try await keychainRepository.deleteUserAuthKey(for: key)
         } catch {
             throw BiometricsServiceError.deleteAuthKeyFailed
         }
@@ -197,7 +198,7 @@ extension DefaultBiometricsRepository {
         let key = KeychainItem.biometrics(userId: id)
 
         do {
-            try await keychainService.setUserAuthKey(for: key, value: value)
+            try await keychainRepository.setUserAuthKey(for: key, value: value)
         } catch {
             throw BiometricsServiceError.setAuthKeyFailed
         }

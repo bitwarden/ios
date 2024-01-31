@@ -57,7 +57,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let generatorRepository: GeneratorRepository
 
     /// The service used to access & store data on the device keychain.
-    let keychainService: KeychainRepository
+    let keychainService: KeychainService
+
+    /// The repository used to manage keychain items.
+    let keychainRepository: KeychainRepository
 
     /// The service used by the application to access the system's notification center.
     let notificationCenterService: NotificationCenterService
@@ -126,6 +129,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
+    ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
     ///   - notificaitonCenterService: The service used by the application to access the system's notification center.
     ///   - notificationService: The service used by the application to handle notifications.
@@ -158,7 +162,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
-        keychainService: KeychainRepository,
+        keychainRepository: KeychainRepository,
+        keychainService: KeychainService,
         notificationCenterService: NotificationCenterService,
         notificationService: NotificationService,
         pasteboardService: PasteboardService,
@@ -190,6 +195,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
         self.keychainService = keychainService
+        self.keychainRepository = keychainRepository
         self.notificationCenterService = notificationCenterService
         self.notificationService = notificationService
         self.pasteboardService = pasteboardService
@@ -221,8 +227,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
 
-        let keychainService = DefaultKeychainRepository(
-            appIdService: appIdService
+        let keychainService = DefaultKeychainService()
+
+        let keychainRepository = DefaultKeychainRepository(
+            appIdService: appIdService,
+            keychainService: keychainService
         )
         let timeProvider = CurrentTime()
 
@@ -231,7 +240,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let biometricsService = DefaultBiometricsService()
         let biometricsRepository = DefaultBiometricsRepository(
             biometricsService: biometricsService,
-            keychainService: keychainService,
+            keychainService: keychainRepository,
             stateService: stateService
         )
 
@@ -336,7 +345,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientCrypto: clientService.clientCrypto(),
             clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
-            keychainService: keychainService,
+            keychainService: keychainRepository,
             organizationService: organizationService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
@@ -400,6 +409,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
+            keychainRepository: keychainRepository,
             keychainService: keychainService,
             notificationCenterService: notificationCenterService,
             notificationService: notificationService,

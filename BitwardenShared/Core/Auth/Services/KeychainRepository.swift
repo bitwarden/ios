@@ -68,22 +68,6 @@ extension KeychainRepository {
     var storageKeyFormat: String { "bwKeyChainStorage:%@:%@" }
 }
 
-// MARK: - KeychainServiceError
-
-enum KeychainServiceError: Error, Equatable {
-    /// When a `KeychainService` is unable to locate an auth key for a given storage key.
-    ///
-    /// - Parameter KeychainItem: The potential storage key for the auth key.
-    ///
-    case keyNotFound(KeychainItem)
-
-    /// A passthrough for OSService Error cases.
-    ///
-    /// - Parameter OSStatus: The `OSStatus` returned from a keychain operation.
-    ///
-    case osStatusError(OSStatus)
-}
-
 // MARK: - DefaultKeychainRepository
 
 class DefaultKeychainRepository: KeychainRepository {
@@ -107,24 +91,26 @@ class DefaultKeychainRepository: KeychainRepository {
         Bundle.main.groupIdentifier
     }
 
+    /// The keychain service used by the repository
+    ///
+    let keychainService: KeychainService
+
     // MARK: Initialization
 
-    init(appIdService: AppIdService) {
+    init(
+        appIdService: AppIdService,
+        keychainService: KeychainService
+    ) {
         self.appIdService = appIdService
+        self.keychainService = keychainService
     }
 
     // MARK: Methods
 
     func deleteUserAuthKey(for item: KeychainItem) async throws {
-        let queryDictionary = await keychainQueryValues(for: item)
-
-        let deleteStatus = SecItemDelete(queryDictionary)
-        if deleteStatus == errSecItemNotFound {
-            throw KeychainServiceError.keyNotFound(item)
-        }
-        if deleteStatus != errSecSuccess {
-            throw KeychainServiceError.osStatusError(deleteStatus)
-        }
+        try await keychainService.delete(
+            query: keychainQueryValues(for: item)
+        )
     }
 
     /// Generates a formated storage key for a keychain item.
@@ -138,29 +124,23 @@ class DefaultKeychainRepository: KeychainRepository {
     }
 
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
-        let searchQuery = await keychainQueryValues(
-            for: item,
-            adding: [
-                kSecMatchLimit: kSecMatchLimitOne,
-                kSecReturnData: true,
-                kSecReturnAttributes: true,
-            ]
+        let foundItem = try await keychainService.search(
+            query: keychainQueryValues(
+                for: item,
+                adding: [
+                    kSecMatchLimit: kSecMatchLimitOne,
+                    kSecReturnData: true,
+                    kSecReturnAttributes: true,
+                ]
+            )
         )
-
-        var foundItem: AnyObject?
-        let status = SecItemCopyMatching(searchQuery, &foundItem)
-
-        if status == errSecItemNotFound {
-            throw KeychainServiceError.keyNotFound(item)
-        }
-
-        if status != errSecSuccess {
-            throw KeychainServiceError.osStatusError(status)
-        }
 
         if let resultDictionary = foundItem as? [String: Any],
            let data = resultDictionary[kSecValueData as String] as? Data {
             let string = String(decoding: data, as: UTF8.self)
+            guard !string.isEmpty else {
+                throw KeychainServiceError.keyNotFound(item)
+            }
             return string
         }
 
@@ -195,20 +175,9 @@ class DefaultKeychainRepository: KeychainRepository {
     }
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {
-        var error: Unmanaged<CFError>?
-        let accessControl = SecAccessControlCreateWithFlags(
-            nil,
-            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-            item.protection ?? [],
-            &error
+        let accessControl = try keychainService.accessControl(
+            for: item.protection ?? []
         )
-
-        guard accessControl != nil,
-              error == nil
-        else {
-            throw BiometricsServiceError.setAuthKeyFailed
-        }
-
         let query = await keychainQueryValues(
             for: item,
             adding: [
@@ -217,13 +186,13 @@ class DefaultKeychainRepository: KeychainRepository {
             ]
         )
 
-        // Try to delete the previous secret, if it exists
-        // Otherwise we get `errSecDuplicateItem`
-        SecItemDelete(query)
+        // Delete the previous secret, if it exists,
+        //  otherwise we get `errSecDuplicateItem`.
+        try? keychainService.delete(query: query)
 
-        let status = SecItemAdd(query, nil)
-        guard status == errSecSuccess else {
-            throw BiometricsServiceError.setAuthKeyFailed
-        }
+        // Add the new key.
+        try keychainService.add(
+            attributes: query
+        )
     }
 }
