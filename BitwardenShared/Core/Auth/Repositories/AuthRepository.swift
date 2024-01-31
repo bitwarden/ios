@@ -97,9 +97,12 @@ protocol AuthRepository: AnyObject {
 
     /// Attempts to unlock the user's vault using information returned from the login with device method.
     ///
-    /// - Parameter privateKey: The private key from the login with device response.
+    /// - Parameters:
+    ///   - privateKey: The private key from the login with device response.
+    ///   - key: The returned key from the approved auth request.
+    ///   - masterPasswordHash: The master password hash from the approved auth request.
     ///
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws
 
     /// Attempts to unlock the user's vault with biometrics.
     ///
@@ -289,8 +292,11 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
-    func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
         try await unlockVault(method: .authRequest(requestPrivateKey: privateKey, protectedUserKey: key))
+        if let masterPasswordHash {
+            try await stateService.setMasterPasswordHash(masterPasswordHash)
+        }
     }
 
     func unlockVaultWithBiometrics() async throws {
@@ -395,4 +401,4 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()
     }
-}
+} // swiftlint:disable:this file_length

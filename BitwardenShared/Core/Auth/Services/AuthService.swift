@@ -13,6 +13,9 @@ enum AuthError: Error {
     /// The data that should have been cached for the login with device method was missing.
     case missingLoginWithDeviceData
 
+    /// The key used for login with device was missing.
+    case missingLoginWithDeviceKey
+
     /// The request that should have been cached for the two-factor authentication method was missing.
     case missingTwoFactorRequest
 
@@ -152,7 +155,7 @@ extension AuthService {
 
 /// The default implementation of `AuthService`.
 ///
-class DefaultAuthService: AuthService {
+class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The API service used to make calls related to the account process.
@@ -245,14 +248,16 @@ class DefaultAuthService: AuthService {
         let appID = await appIdService.getOrCreateAppId()
 
         // Encrypt the login request's public key.
-        let publicKey = try loginRequest.publicKey.urlDecoded()
+        let publicKey = loginRequest.publicKey
         let encodedKey = try await clientAuth.approveAuthRequest(publicKey: publicKey)
+
+        let masterPasswordHash = try await stateService.getMasterPasswordHash()
 
         // Send the API request.
         let requestModel = AnswerLoginRequestRequestModel(
             deviceIdentifier: appID,
             key: encodedKey,
-            masterPasswordHash: nil,
+            masterPasswordHash: masterPasswordHash,
             requestApproved: approve
         )
         _ = try await authAPIService.answerLoginRequest(loginRequest.id, requestModel: requestModel)
@@ -373,6 +378,7 @@ class DefaultAuthService: AuthService {
         captchaToken: String?
     ) async throws -> (String, String) {
         guard let loginWithDeviceData else { throw AuthError.missingLoginWithDeviceData }
+        guard let key = loginRequest.key else { throw AuthError.missingLoginWithDeviceKey }
 
         // Get the identity token to log in to Bitwarden.
         try await getIdentityTokenResponse(
@@ -386,7 +392,7 @@ class DefaultAuthService: AuthService {
         )
 
         // Return the information necessary to unlock the vault.
-        return (loginWithDeviceData.privateKey, loginRequest.key ?? "")
+        return (loginWithDeviceData.privateKey, key)
     }
 
     func loginWithMasterPassword(_ masterPassword: String, username: String, captchaToken: String?) async throws {

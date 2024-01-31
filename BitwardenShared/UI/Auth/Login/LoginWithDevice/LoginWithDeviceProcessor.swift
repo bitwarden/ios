@@ -86,7 +86,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
             // Start checking for a response every few seconds.
             setCheckTimer()
         } catch {
-            coordinator.showAlert(.networkResponseError(error) { await self.appeared() })
+            coordinator.showAlert(.networkResponseError(error) { await self.sendLoginWithDeviceRequest() })
             services.errorReporter.log(error: error)
         }
     }
@@ -100,14 +100,18 @@ final class LoginWithDeviceProcessor: StateProcessor<
             approvedRequest = request
 
             // Attempt to login.
-            let temp = try await services.authService.loginWithDevice(
+            let (privateKey, key) = try await services.authService.loginWithDevice(
                 request,
                 email: state.email,
                 captchaToken: captchaToken
             )
 
             // Attempt to unlock the vault.
-            try await services.authRepository.unlockVaultFromLoginWithDevice(privateKey: temp.0, key: temp.1)
+            try await services.authRepository.unlockVaultFromLoginWithDevice(
+                privateKey: privateKey,
+                key: key,
+                masterPasswordHash: request.masterPasswordHash
+            )
 
             // If login was successful, navigate to the vault.
             coordinator.hideLoadingOverlay()
@@ -200,7 +204,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
         checkTimer?.invalidate()
 
         // Set the timer to auto-check for a response every four seconds.
-        checkTimer = Timer.scheduledTimer(withTimeInterval: 4, repeats: true) { _ in
+        checkTimer = Timer.scheduledTimer(withTimeInterval: UI.duration(4), repeats: true) { _ in
             self.checkForResponse()
         }
     }

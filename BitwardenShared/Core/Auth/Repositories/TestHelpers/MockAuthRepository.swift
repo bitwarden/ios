@@ -22,6 +22,8 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
     var setActiveAccountResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var unlockVaultFromLoginWithDeviceKey: String?
+    var unlockVaultFromLoginWithDeviceMasterPasswordHash: String? // swiftlint:disable:this identifier_name
     var unlockVaultFromLoginWithDevicePrivateKey: String?
     var unlockVaultFromLoginWithDeviceResult: Result<Void, Error> = .success(())
     var unlockVaultPassword: String?
@@ -94,8 +96,10 @@ class MockAuthRepository: AuthRepository {
         pinProtectedUserKey = pin
     }
 
-    func unlockVaultFromLoginWithDevice(privateKey: String, key _: String) async throws {
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
+        unlockVaultFromLoginWithDeviceKey = key
         unlockVaultFromLoginWithDevicePrivateKey = privateKey
+        unlockVaultFromLoginWithDeviceMasterPasswordHash = masterPasswordHash
         try unlockVaultFromLoginWithDeviceResult.get()
     }
 

@@ -70,13 +70,14 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_answerLoginRequest() async throws {
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
+        stateService.activeAccount = .fixture()
         appSettingsStore.appId = "App id"
 
         // Test.
         try await subject.answerLoginRequest(.fixture(), approve: true)
 
         // Confirm the results.
-        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey=")
+        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey")
         XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
     }
 
@@ -122,13 +123,14 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_denyAllLoginRequests() async throws {
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
+        stateService.activeAccount = .fixture()
         appSettingsStore.appId = "App id"
 
         // Test.
         try await subject.denyAllLoginRequests([.fixture()])
 
         // Confirm the results.
-        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey=")
+        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey")
         XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
     }
 

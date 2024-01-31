@@ -680,6 +680,31 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `unlockVaultFromLoginWithDevice()` unlocks the vault using the key returned by an approved auth request.
+    func test_unlockVaultFromLoginWithDevice() async throws {
+        stateService.activeAccount = Account.fixture()
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        try await subject.unlockVaultFromLoginWithDevice(
+            privateKey: "AUTH_REQUEST_PRIVATE_KEY",
+            key: "KEY",
+            masterPasswordHash: "MASTER_PASSWORD_HASH"
+        )
+
+        XCTAssertEqual(
+            clientCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                method: .authRequest(requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY", protectedUserKey: "KEY")
+            )
+        )
+        XCTAssertEqual(stateService.masterPasswordHashes["1"], "MASTER_PASSWORD_HASH")
+    }
+
     /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN.
     func test_unlockVaultWithPIN() async throws {
         let account = Account.fixture()
