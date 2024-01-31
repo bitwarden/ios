@@ -30,6 +30,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasCameraService
         & HasErrorReporter
         & HasPasteboardService
+        & HasStateService
         & HasTOTPService
         & HasVaultRepository
 
@@ -77,6 +78,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
+        case .appeared:
+            await showPasswordAutofillAlertIfNeeded()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
@@ -496,6 +499,20 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Shows the password autofill information alert if it hasn't been shown before and the user
+    /// is adding a new login in the app.
+    ///
+    private func showPasswordAutofillAlertIfNeeded() async {
+        guard await !services.stateService.getAddSitePromptShown(),
+              state.configuration == .add,
+              state.type == .login,
+              !(appExtensionDelegate?.isInAppExtension ?? false) else {
+            return
+        }
+        coordinator.showAlert(.passwordAutofillInformation())
+        await services.stateService.setAddSitePromptShown(true)
     }
 
     /// Shows a soft delete cipher confirmation alert.

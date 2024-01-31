@@ -4,6 +4,9 @@ import Foundation
 
 /// Effects that can be processed by an `AddEditItemProcessor`.
 enum AddEditItemEffect {
+    /// The view appeared.
+    case appeared
+
     /// The check password button was pressed.
     case checkPasswordPressed
 
