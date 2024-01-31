@@ -55,8 +55,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         let cipher = CipherView.fixture(login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"))
         await subject.perform(.cipherTapped(cipher))
 
-        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.username, "user@bitwarden.com")
-        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.password, "PASSWORD")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
     }
 
     /// `cipherTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast
@@ -182,7 +182,10 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     func test_receive_addTapped() {
         subject.receive(.addTapped)
 
-        XCTAssertEqual(coordinator.routes.last, .addItem(allowTypeSelection: false, group: .login))
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addItem(allowTypeSelection: false, group: .login, newCipherOptions: NewCipherOptions())
+        )
     }
 
     /// `receive(_:)` with `.addTapped` hides the profile switcher if it's visible.

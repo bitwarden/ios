@@ -129,7 +129,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
-        case let .addItem(allowTypeSelection, group, uri):
+        case let .addItem(allowTypeSelection, group, newCipherOptions):
             Task {
                 let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
                 showVaultItem(
@@ -137,7 +137,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                         allowTypeSelection: allowTypeSelection,
                         group: group,
                         hasPremium: hasPremium ?? false,
-                        uri: uri
+                        newCipherOptions: newCipherOptions
                     )
                 )
             }

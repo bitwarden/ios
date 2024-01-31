@@ -13,9 +13,13 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameters
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
-    ///   - uri: A URI string used to populate the add item screen.
+    ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
     ///
-    case addItem(allowTypeSelection: Bool = true, group: VaultListGroup? = nil, uri: String? = nil)
+    case addItem(
+        allowTypeSelection: Bool = true,
+        group: VaultListGroup? = nil,
+        newCipherOptions: NewCipherOptions? = nil
+    )
 
     /// A route to display the specified alert.
     ///

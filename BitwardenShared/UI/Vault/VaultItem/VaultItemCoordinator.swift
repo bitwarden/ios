@@ -1,6 +1,8 @@
 import BitwardenSdk
 import SwiftUI
 
+// swiftlint:disable file_length
+
 // MARK: - VaultItemCoordinator
 
 /// A coordinator that manages navigation for displaying, editing, and adding individual vault items.
@@ -22,6 +24,9 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
     // MARK: - Private Properties
 
+    /// A delegate used to communicate with the app extension.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
     /// coordinator in memory.
     private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute, Void>?
@@ -42,15 +47,18 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// Creates a new `VaultCoordinator`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - module: The module used by this coordinator to create child coordinators.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        appExtensionDelegate: AppExtensionDelegate?,
         module: Module,
         services: Services,
         stackNavigator: StackNavigator
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
@@ -66,12 +74,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
-        case let .addItem(allowTypeSelection, group, hasPremium, uri):
+        case let .addItem(allowTypeSelection, group, hasPremium, newCipherOptions):
             showAddItem(
                 for: group,
                 allowTypeSelection: allowTypeSelection,
                 hasPremium: hasPremium,
-                uri: uri,
+                newCipherOptions: newCipherOptions,
                 delegate: context as? CipherItemOperationDelegate
             )
         case let .alert(alert):
@@ -134,7 +142,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///   - group: An optional `VaultListGroup` to initialize this view with.
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - hasPremium: Whether the user has premium,
-    ///   - uri: A URI string used to populate the add item screen.
+    ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
     ///
@@ -142,7 +150,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         for group: VaultListGroup?,
         allowTypeSelection: Bool,
         hasPremium: Bool,
-        uri: String?,
+        newCipherOptions: NewCipherOptions?,
         delegate: CipherItemOperationDelegate?
     ) {
         let state = CipherItemState(
@@ -151,10 +159,14 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             collectionIds: group?.collectionId.flatMap { [$0] } ?? [],
             folderId: group?.folderId,
             hasPremium: hasPremium,
+            name: newCipherOptions?.name,
             organizationId: group?.organizationId,
-            uri: uri
+            password: newCipherOptions?.password,
+            uri: newCipherOptions?.uri,
+            username: newCipherOptions?.username
         )
         let processor = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
@@ -214,6 +226,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             )
             if stackNavigator.isEmpty {
                 let processor = AddEditItemProcessor(
+                    appExtensionDelegate: appExtensionDelegate,
                     coordinator: asAnyCoordinator(),
                     delegate: delegate,
                     services: services,
@@ -258,6 +271,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             ) else { return }
 
             let processor = AddEditItemProcessor(
+                appExtensionDelegate: appExtensionDelegate,
                 coordinator: asAnyCoordinator(),
                 delegate: delegate,
                 services: services,

@@ -80,7 +80,7 @@ class VaultAutofillListProcessor: StateProcessor<
                 to: .addItem(
                     allowTypeSelection: false,
                     group: .login,
-                    uri: appExtensionDelegate?.uri
+                    newCipherOptions: NewCipherOptions(uri: appExtensionDelegate?.uri)
                 )
             )
         case .cancelTapped:

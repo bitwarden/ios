@@ -11,6 +11,7 @@ import XCTest
 class AddEditItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appExtensionDelegate: MockAppExtensionDelegate!
     var cameraService: MockCameraService!
     var client: MockHTTPClient!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
@@ -26,6 +27,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        appExtensionDelegate = MockAppExtensionDelegate()
         cameraService = MockCameraService()
         client = MockHTTPClient()
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
@@ -35,6 +37,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
@@ -60,6 +63,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        appExtensionDelegate = nil
         cameraService = nil
         client = nil
         coordinator = nil
@@ -807,6 +811,35 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ]
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `perform(_:)` with `.savePressed` in the app extension completes the autofill request if a
+    /// username and password was entered.
+    func test_perform_savePressed_appExtension() async {
+        appExtensionDelegate.isInAppExtensionSaveLoginFlow = true
+        subject.state.loginState.password = "PASSWORD"
+        subject.state.loginState.username = "user@bitwarden.com"
+        subject.state.name = "Login from App Extension"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(vaultRepository.addCipherCiphers.isEmpty)
+
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+    }
+
+    /// `perform(_:)` with `.savePressed` in the app extension cancels the autofill extension if no
+    /// username or password was entered.
+    func test_perform_savePressed_appExtension_cancel() async {
+        appExtensionDelegate.isInAppExtensionSaveLoginFlow = true
+        subject.state.name = "Login from App Extension"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(vaultRepository.addCipherCiphers.isEmpty)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
     }
 
     /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.

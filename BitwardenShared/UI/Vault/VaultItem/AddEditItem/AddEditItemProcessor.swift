@@ -35,6 +35,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     // MARK: Properties
 
+    /// A delegate used to communicate with the app extension.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
@@ -49,17 +52,20 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Creates a new `AddEditItemProcessor`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - coordinator: The `Coordinator` that handles navigation.
     ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - services: The services required by this processor.
     ///   - state: The initial state for the processor.
     ///
     init(
+        appExtensionDelegate: AppExtensionDelegate?,
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: CipherItemOperationDelegate?,
         services: Services,
         state: AddEditItemState
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
@@ -97,7 +103,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .customField(action):
             handleCustomFieldAction(action)
         case .dismissPressed:
-            coordinator.navigate(to: .dismiss())
+            handleDismiss()
         case let .favoriteChanged(newValue):
             state.isFavoriteOn = newValue
         case let .folderChanged(newValue):
@@ -159,6 +165,24 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     }
 
     // MARK: Private Methods
+
+    /// Handles dismissing the processor.
+    ///
+    /// - Parameter didAddItem: `true` if a new cipher was added or `false` if the user is
+    ///     dismissing the view without saving.
+    ///
+    private func handleDismiss(didAddItem: Bool = false) {
+        guard let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow else {
+            coordinator.navigate(to: .dismiss())
+            return
+        }
+
+        if didAddItem, let username = state.cipher.login?.username, let password = state.cipher.login?.password {
+            appExtensionDelegate.completeAutofillRequest(username: username, password: password, fields: nil)
+        } else {
+            appExtensionDelegate.didCancel()
+        }
+    }
 
     /// Fetches any additional data (e.g. organizations and folders) needed for adding or editing a cipher.
     private func fetchCipherOptions() async {
@@ -455,7 +479,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private func addItem() async throws {
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
-        coordinator.navigate(to: .dismiss())
+        handleDismiss(didAddItem: true)
     }
 
     /// Soft Deletes the item currently stored in `state`.
