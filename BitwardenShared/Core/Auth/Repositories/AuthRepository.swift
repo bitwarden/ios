@@ -543,7 +543,13 @@ extension DefaultAuthRepository: AuthRepository {
 
         switch reason {
         case .adminForcePasswordReset:
-            break
+            try await accountAPIService.updateTempPassword(
+                UpdateTempPasswordRequestModel(
+                    key: updatePasswordResponse.newKey,
+                    masterPasswordHint: passwordHint,
+                    newMasterPasswordHash: updatePasswordResponse.passwordHash
+                )
+            )
         case .weakMasterPasswordOnLogin:
             try await accountAPIService.updatePassword(
                 UpdatePasswordRequestModel(

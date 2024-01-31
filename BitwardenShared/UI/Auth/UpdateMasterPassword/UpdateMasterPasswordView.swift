@@ -13,40 +13,30 @@ struct UpdateMasterPasswordView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                Text(Localizations.updateMasterPasswordWarning)
-                    .styleGuide(.callout)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .padding(16)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Asset.Colors.primaryBitwarden.swiftUIColor, lineWidth: 1)
-                    }
+                if store.state.forcePasswordResetReason != nil {
+                    InfoContainer(store.state.updateMasterPasswordWarning)
 
-                Text(store.state.policySummary)
-                    .styleGuide(.callout)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .padding(16)
-                    .frame(maxWidth: .infinity)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Asset.Colors.primaryBitwarden.swiftUIColor, lineWidth: 1)
+                    if let policy = store.state.masterPasswordPolicy, policy.inEffect() {
+                        InfoContainer(store.state.policySummary, textAlignment: .leading)
                     }
+                }
 
-                BitwardenTextField(
-                    title: Localizations.currentMasterPassword,
-                    text: store.binding(
-                        get: \.currentMasterPassword,
-                        send: UpdateMasterPasswordAction.currentMasterPasswordChanged
-                    ),
-                    accessibilityIdentifier: "MasterPasswordField",
-                    passwordVisibilityAccessibilityId: "MasterPasswordVisibilityToggle",
-                    isPasswordVisible: store.binding(
-                        get: \.isCurrentMasterPasswordRevealed,
-                        send: UpdateMasterPasswordAction.revealCurrentMasterPasswordFieldPressed
+                if store.state.requireCurrentPassword {
+                    BitwardenTextField(
+                        title: Localizations.currentMasterPassword,
+                        text: store.binding(
+                            get: \.currentMasterPassword,
+                            send: UpdateMasterPasswordAction.currentMasterPasswordChanged
+                        ),
+                        accessibilityIdentifier: "MasterPasswordField",
+                        passwordVisibilityAccessibilityId: "MasterPasswordVisibilityToggle",
+                        isPasswordVisible: store.binding(
+                            get: \.isCurrentMasterPasswordRevealed,
+                            send: UpdateMasterPasswordAction.revealCurrentMasterPasswordFieldPressed
+                        )
                     )
-                )
-                .textFieldConfiguration(.password)
+                    .textFieldConfiguration(.password)
+                }
 
                 BitwardenTextField(
                     title: Localizations.masterPassword,

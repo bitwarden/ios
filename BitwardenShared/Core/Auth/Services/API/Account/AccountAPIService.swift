@@ -55,6 +55,12 @@ protocol AccountAPIService {
     /// - Parameter requestModel: The request model used to send the request.
     ///
     func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws
+
+    /// Performs  the API request to update the user's temporary password.
+    ///
+    /// - Parameter requestModel: The request model used to send the request.
+    ///
+    func updateTempPassword(_ requestModel: UpdateTempPasswordRequestModel) async throws
 }
 
 // MARK: - APIService
@@ -106,5 +112,9 @@ extension APIService: AccountAPIService {
 
     func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws {
         _ = try await apiService.send(UpdatePasswordRequest(requestModel: requestModel))
+    }
+
+    func updateTempPassword(_ requestModel: UpdateTempPasswordRequestModel) async throws {
+        _ = try await apiService.send(UpdateTempPasswordRequest(requestModel: requestModel))
     }
 }
