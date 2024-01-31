@@ -134,6 +134,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             await subject.perform(.appeared)
         }
         waitFor(subject.state.isPersonalOwnershipDisabled)
+        task.cancel()
 
         XCTAssertTrue(subject.state.isPersonalOwnershipDisabled)
     }

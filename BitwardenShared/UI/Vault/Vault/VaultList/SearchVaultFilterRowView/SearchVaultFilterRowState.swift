@@ -19,14 +19,14 @@ struct SearchVaultFilterRowState: Equatable {
     var vaultFilterOptions: [VaultFilterType] {
         guard !organizations.isEmpty else { return [] }
 
+        let sortedOrganizations = organizations
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            .map(VaultFilterType.organization)
+
         if isPersonalOwnershipDisabled {
-            return [.allVaults] + organizations
-                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-                .map(VaultFilterType.organization)
+            return [.allVaults] + sortedOrganizations
         } else {
-            return [.allVaults, .myVault] + organizations
-                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-                .map(VaultFilterType.organization)
+            return [.allVaults, .myVault] + sortedOrganizations
         }
     }
 }
