@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-	<dict>
-		<key>BitwardenAppGroupIdentifier</key>
-		<string>group.$(ORGANIZATION_IDENTIFIER).bitwarden</string>
 		<key>CFBundleDisplayName</key>
 		<string>Autofill with Bitwarden</string>
 		<key>CFBundleName</key>
@@ -53,6 +50,9 @@
 			<string>th</string>
 		</array>
 		<key>CFBundleDevelopmentRegion</key>
+<dict>
+	<key>BitwardenAppIdentifier</key>
+	<string>$(ORGANIZATION_IDENTIFIER).bitwarden</string>
 		<string>en</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>

@@ -221,7 +221,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
 
-        let keychainService = DefaultKeychainService()
+        let keychainService = DefaultKeychainService(
+            appIdService: appIdService
+        )
         let timeProvider = CurrentTime()
 
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)

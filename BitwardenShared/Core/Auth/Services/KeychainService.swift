@@ -23,18 +23,13 @@ enum KeychainItem: Equatable {
 
     /// The storage key for this keychain item.
     ///
-    var storageKey: String {
+    var unformattedKey: String {
         switch self {
         case let .biometrics(userId: id):
-            "biometric_key_\(id)"
+            "biometric_key_" + id
         case let .neverLock(userId: id):
-            "userKeyAutoUnlock_\(id)"
+            "userKeyAutoUnlock_" + id
         }
-    }
-
-    /// The value to provide for the `kSecAttrService` key.
-    var service: String {
-        "com.8bit.bitwarden.watch.kc"
     }
 }
 
@@ -82,14 +77,71 @@ enum KeychainServiceError: Error, Equatable {
 // MARK: - DefaultKeychainService
 
 class DefaultKeychainService: KeychainService {
+    // MARK: Properties
+
+    /// A service used to provide unique app ids.
+    ///
+    let appIdService: AppIdService
+
+    /// An identifier for this application and extensions.
+    ///   ie: "LTZ2PFU5D6.com.8bit.bitwarden"
+    ///
+    var appSecAttrService: String {
+        Bundle.main.appIdentifier
+    }
+
+    /// An identifier for this application group and extensions
+    ///   ie: "group.LTZ2PFU5D6.com.8bit.bitwarden"
+    ///
+    var appSecAttrAccessGroup: String {
+        Bundle.main.groupIdentifier
+    }
+
+    /// The format for storing a `KeychainItem`'s `unformattedKey`.
+    ///  The first value should be a unique appID from the `appIdService`.
+    ///  The second value is the `unformattedKey`
+    ///
+    ///  example: `bwKeyChainStorage:1234567890:biometric_key_98765`
+    ///
+    var storageKeyFormat: String { "bwKeyChainStorage:%@:%@" }
+
+    // MARK: Initialization
+
+    init(appIdService: AppIdService) {
+        self.appIdService = appIdService
+    }
+
     // MARK: Methods
 
-    func deleteUserAuthKey(for item: KeychainItem) async throws {
-        let queryDictionary = [
+    /// The core key/value pairs for Keychain operations
+    ///
+    /// - Parameter item: The `KeychainItem` to be queried.
+    ///
+    func keychainQueryValues(
+        for item: KeychainItem,
+        adding additionalPairs: [CFString: Any] = [:]
+    ) async -> CFDictionary {
+        // Prepare a formatted `kSecAttrAccount` value.
+        let formattedSecAttrAccount = await formattedKey(item.unformattedKey)
+
+        // Configure the base dictionary
+        var result: [CFString: Any] = [
+            kSecAttrAccount: formattedSecAttrAccount,
+            kSecAttrAccessGroup: appSecAttrAccessGroup,
+            kSecAttrService: appSecAttrService,
             kSecClass: kSecClassGenericPassword,
-            kSecAttrService: item.service,
-            kSecAttrAccount: item.storageKey,
-        ] as CFDictionary
+        ]
+
+        // Add the addional key value pairs.
+        additionalPairs.forEach { key, value in
+            result[key] = value
+        }
+
+        return result as CFDictionary
+    }
+
+    func deleteUserAuthKey(for item: KeychainItem) async throws {
+        let queryDictionary = await keychainQueryValues(for: item)
 
         let deleteStatus = SecItemDelete(queryDictionary)
         if deleteStatus == errSecItemNotFound {
@@ -100,15 +152,20 @@ class DefaultKeychainService: KeychainService {
         }
     }
 
+    func formattedKey(_ key: String) async -> String {
+        let appId = await appIdService.getOrCreateAppId()
+        return String(format: storageKeyFormat, appId, key)
+    }
+
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
-        let searchQuery = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: item.service,
-            kSecAttrAccount: item.storageKey,
-            kSecMatchLimit: kSecMatchLimitOne,
-            kSecReturnData: true,
-            kSecReturnAttributes: true,
-        ] as CFDictionary
+        var searchQuery = await keychainQueryValues(
+            for: item,
+            adding: [
+                kSecMatchLimit: kSecMatchLimitOne,
+                kSecReturnData: true,
+                kSecReturnAttributes: true,
+            ]
+        )
 
         var foundItem: AnyObject?
         let status = SecItemCopyMatching(searchQuery, &foundItem)
@@ -145,13 +202,13 @@ class DefaultKeychainService: KeychainService {
             throw BiometricsServiceError.setAuthKeyFailed
         }
 
-        let query = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: item.service,
-            kSecAttrAccount: item.storageKey,
-            kSecValueData: Data(value.utf8),
-            kSecAttrAccessControl: accessControl as Any,
-        ] as CFDictionary
+        let query = await keychainQueryValues(
+            for: item,
+            adding: [
+                kSecAttrAccessControl: accessControl as Any,
+                kSecValueData: Data(value.utf8),
+            ]
+        )
 
         // Try to delete the previous secret, if it exists
         // Otherwise we get `errSecDuplicateItem`
