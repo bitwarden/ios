@@ -25,7 +25,7 @@ extension Bundle {
     var appIdentifier: String {
         infoDictionary?["BitwardenAppIdentifier"] as? String
             ?? bundleIdentifier
-            ?? "om.x8bit.bitwarden"
+            ?? "com.x8bit.bitwarden"
     }
 
     /// Return's the app's app group identifier.
