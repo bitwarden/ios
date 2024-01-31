@@ -4,6 +4,7 @@ import XCTest
 
 import BitwardenSdk
 
+// swiftlint:disable:next type_body_length
 class SyncServiceTests: BitwardenTestCase {
     // MARK: Properties
 

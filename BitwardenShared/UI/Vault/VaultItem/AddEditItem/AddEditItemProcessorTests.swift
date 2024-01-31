@@ -17,6 +17,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var policyService: MockPolicyService!
     var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
     var vaultRepository: MockVaultRepository!
@@ -32,6 +33,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+        policyService = MockPolicyService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
@@ -42,6 +44,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter,
                 httpClient: client,
                 pasteboardService: pasteboardService,
+                policyService: policyService,
                 totpService: totpService,
                 vaultRepository: vaultRepository
             ),
@@ -638,6 +641,42 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository
+    /// when the personal ownership policy is in place.
+    func test_perform_fetchCipherOptions_personOwnershipPolicy() async throws {
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design"),
+            .fixture(id: "2", name: "Engineering"),
+        ]
+        let folders: [FolderView] = [
+            .fixture(id: "1", name: "Social"),
+            .fixture(id: "2", name: "Work"),
+        ]
+
+        vaultRepository.fetchCipherOwnershipOptions = [
+            .organization(id: "12345", name: "Test Org 1"),
+            .organization(id: "12345", name: "Test Org 2"),
+        ]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+        vaultRepository.fetchFoldersResult = .success(folders)
+
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(
+            subject.state.folders,
+            [.default] + folders.map { .custom($0) }
+        )
+        XCTAssertEqual(subject.state.ownershipOptions, [
+            .organization(id: "12345", name: "Test Org 1"),
+            .organization(id: "12345", name: "Test Org 2"),
+        ])
+        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCipherOwnershipOptionsIncludePersonal))
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
