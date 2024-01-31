@@ -2,6 +2,8 @@ import Foundation
 
 // MARK: - KeychainService
 
+/// A Service to provide a wrapper around the device Keychain.
+///
 protocol KeychainService: AnyObject {
     /// Creates an access control for a given set of flags.
     ///
