@@ -69,6 +69,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
 
         XCTAssertEqual(options.type, .passphrase)
+        XCTAssertTrue(appliedPolicy)
     }
 
     /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
@@ -132,6 +133,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
 
         XCTAssertEqual(options.type, .password)
+        XCTAssertTrue(appliedPolicy)
     }
 
     /// `applyPasswordGenerationOptions(options:)` doesn't modify the password generation options
