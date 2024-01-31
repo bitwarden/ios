@@ -385,7 +385,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
             "1": "SomeState",
         ]
         keychainService.mockStorage = [
-            "biometric_key_1": "storedKey",
+            keychainService.formattedKey(for: .biometrics(userId: "1")): "storedKey",
         ]
         biometricsService.evaluationResult = false
         stateService.setBiometricAuthenticationEnabledResult = .success(())
@@ -404,7 +404,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
             "1": "SomeState",
         ]
         keychainService.mockStorage = [
-            "biometric_key_1": "storedKey",
+            keychainService.formattedKey(for: .biometrics(userId: "1")): "storedKey",
         ]
         stateService.setBiometricAuthenticationEnabledResult = .success(())
         keychainService.deleteResult = .success(())
@@ -464,7 +464,14 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         keychainService.setResult = .success(())
         try await subject.setBiometricUnlockKey(authKey: "authKey")
         waitFor(!keychainService.mockStorage.isEmpty)
-        XCTAssertEqual("authKey", keychainService.mockStorage["biometric_key_1"])
+        XCTAssertEqual(
+            "authKey",
+            keychainService.mockStorage[keychainService.formattedKey(
+                for: .biometrics(
+                    userId: "1"
+                )
+            )]
+        )
         let result = try XCTUnwrap(stateService.biometricsEnabled["1"])
         XCTAssertTrue(result)
         XCTAssertEqual(keychainService.securityType, .biometryCurrentSet)

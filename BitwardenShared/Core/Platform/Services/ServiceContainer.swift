@@ -57,7 +57,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let generatorRepository: GeneratorRepository
 
     /// The service used to access & store data on the device keychain.
-    let keychainService: KeychainService
+    let keychainService: KeychainRepository
 
     /// The service used by the application to access the system's notification center.
     let notificationCenterService: NotificationCenterService
@@ -158,7 +158,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
-        keychainService: KeychainService,
+        keychainService: KeychainRepository,
         notificationCenterService: NotificationCenterService,
         notificationService: NotificationService,
         pasteboardService: PasteboardService,
@@ -221,7 +221,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
 
-        let keychainService = DefaultKeychainService(
+        let keychainService = DefaultKeychainRepository(
             appIdService: appIdService
         )
         let timeProvider = CurrentTime()

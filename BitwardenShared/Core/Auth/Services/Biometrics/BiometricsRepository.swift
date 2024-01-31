@@ -51,7 +51,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     var biometricsService: BiometricsService
 
     /// A service used to store the UserAuthKey key/value pair.
-    var keychainService: KeychainService
+    var keychainService: KeychainRepository
 
     /// A service used to store the Biometric Integrity Source key/value pair.
     var stateService: StateService
@@ -67,7 +67,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     ///
     init(
         biometricsService: BiometricsService,
-        keychainService: KeychainService,
+        keychainService: KeychainRepository,
         stateService: StateService
     ) {
         self.biometricsService = biometricsService

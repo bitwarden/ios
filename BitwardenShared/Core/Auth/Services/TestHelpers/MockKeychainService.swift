@@ -2,7 +2,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockKeychainService: KeychainService {
+class MockKeychainService: KeychainRepository {
     var appId: String = "mockAppId"
     var mockStorage = [String: String]()
     var securityType: SecAccessControlCreateFlags?

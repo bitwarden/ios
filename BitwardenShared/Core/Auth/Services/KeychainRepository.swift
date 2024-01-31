@@ -33,9 +33,9 @@ enum KeychainItem: Equatable {
     }
 }
 
-// MARK: - KeychainService
+// MARK: - KeychainRepository
 
-protocol KeychainService: AnyObject {
+protocol KeychainRepository: AnyObject {
     /// Attempts to delete the userAuthKey from the keychain.
     ///
     /// - Parameter item: The KeychainItem to be deleted.
@@ -58,7 +58,7 @@ protocol KeychainService: AnyObject {
     func setUserAuthKey(for item: KeychainItem, value: String) async throws
 }
 
-extension KeychainService {
+extension KeychainRepository {
     /// The format for storing a `KeychainItem`'s `unformattedKey`.
     ///  The first value should be a unique appID from the `appIdService`.
     ///  The second value is the `unformattedKey`
@@ -84,9 +84,9 @@ enum KeychainServiceError: Error, Equatable {
     case osStatusError(OSStatus)
 }
 
-// MARK: - DefaultKeychainService
+// MARK: - DefaultKeychainRepository
 
-class DefaultKeychainService: KeychainService {
+class DefaultKeychainRepository: KeychainRepository {
     // MARK: Properties
 
     /// A service used to provide unique app ids.
@@ -115,33 +115,6 @@ class DefaultKeychainService: KeychainService {
 
     // MARK: Methods
 
-    /// The core key/value pairs for Keychain operations
-    ///
-    /// - Parameter item: The `KeychainItem` to be queried.
-    ///
-    func keychainQueryValues(
-        for item: KeychainItem,
-        adding additionalPairs: [CFString: Any] = [:]
-    ) async -> CFDictionary {
-        // Prepare a formatted `kSecAttrAccount` value.
-        let formattedSecAttrAccount = await formattedKey(for: item)
-
-        // Configure the base dictionary
-        var result: [CFString: Any] = [
-            kSecAttrAccount: formattedSecAttrAccount,
-            kSecAttrAccessGroup: appSecAttrAccessGroup,
-            kSecAttrService: appSecAttrService,
-            kSecClass: kSecClassGenericPassword,
-        ]
-
-        // Add the addional key value pairs.
-        additionalPairs.forEach { key, value in
-            result[key] = value
-        }
-
-        return result as CFDictionary
-    }
-
     func deleteUserAuthKey(for item: KeychainItem) async throws {
         let queryDictionary = await keychainQueryValues(for: item)
 
@@ -154,6 +127,11 @@ class DefaultKeychainService: KeychainService {
         }
     }
 
+    /// Generates a formated storage key for a keychain item.
+    ///
+    /// - Parameter item: The keychain item that needs a formatted key.
+    /// - Returns: A formatted storage key.
+    ///
     func formattedKey(for item: KeychainItem) async -> String {
         let appId = await appIdService.getOrCreateAppId()
         return String(format: storageKeyFormat, appId, item.unformattedKey)
@@ -187,6 +165,33 @@ class DefaultKeychainService: KeychainService {
         }
 
         throw KeychainServiceError.keyNotFound(item)
+    }
+
+    /// The core key/value pairs for Keychain operations
+    ///
+    /// - Parameter item: The `KeychainItem` to be queried.
+    ///
+    func keychainQueryValues(
+        for item: KeychainItem,
+        adding additionalPairs: [CFString: Any] = [:]
+    ) async -> CFDictionary {
+        // Prepare a formatted `kSecAttrAccount` value.
+        let formattedSecAttrAccount = await formattedKey(for: item)
+
+        // Configure the base dictionary
+        var result: [CFString: Any] = [
+            kSecAttrAccount: formattedSecAttrAccount,
+            kSecAttrAccessGroup: appSecAttrAccessGroup,
+            kSecAttrService: appSecAttrService,
+            kSecClass: kSecClassGenericPassword,
+        ]
+
+        // Add the addional key value pairs.
+        additionalPairs.forEach { key, value in
+            result[key] = value
+        }
+
+        return result as CFDictionary
     }
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {

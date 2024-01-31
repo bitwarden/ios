@@ -193,7 +193,7 @@ class DefaultAuthRepository {
     private let environmentService: EnvironmentService
 
     /// The keychain service used by this repository.
-    private let keychainService: KeychainService
+    private let keychainService: KeychainRepository
 
     /// The service used to manage syncing and updates to the user's organizations.
     private let organizationService: OrganizationService
@@ -229,7 +229,7 @@ class DefaultAuthRepository {
         clientCrypto: ClientCryptoProtocol,
         clientPlatform: ClientPlatformProtocol,
         environmentService: EnvironmentService,
-        keychainService: KeychainService,
+        keychainService: KeychainRepository,
         organizationService: OrganizationService,
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService

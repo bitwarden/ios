@@ -17,7 +17,7 @@ extension ServiceContainer {
         errorReporter: ErrorReporter = MockErrorReporter(),
         generatorRepository: GeneratorRepository = MockGeneratorRepository(),
         httpClient: HTTPClient = MockHTTPClient(),
-        keychainService: KeychainService = MockKeychainService(),
+        keychainService: KeychainRepository = MockKeychainService(),
         notificationService: NotificationService = MockNotificationService(),
         pasteboardService: PasteboardService = MockPasteboardService(),
         policyService: PolicyService = MockPolicyService(),
