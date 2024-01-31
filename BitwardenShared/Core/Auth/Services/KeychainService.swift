@@ -158,7 +158,7 @@ class DefaultKeychainService: KeychainService {
     }
 
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
-        var searchQuery = await keychainQueryValues(
+        let searchQuery = await keychainQueryValues(
             for: item,
             adding: [
                 kSecMatchLimit: kSecMatchLimitOne,
