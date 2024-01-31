@@ -112,7 +112,7 @@ final class KeychainRepositoryTests: BitwardenTestCase {
         let searchError = KeychainServiceError.osStatusError(-1)
         keychainService.searchResult = .failure(searchError)
         await assertAsyncThrows(error: searchError) {
-            _ = try await subject.getUserAuthKeyValue(for: .biometrics(userId: "123"))
+            _ = try await subject.getUserAuthKeyValue(for: item)
         }
     }
 
@@ -160,7 +160,6 @@ final class KeychainRepositoryTests: BitwardenTestCase {
     func test_getUserAuthKeyValue_error_success() async throws {
         let item = KeychainItem.biometrics(userId: "123")
         let expectedKey = "1234"
-        let notFoundError = KeychainServiceError.keyNotFound(item)
         let results = [
             kSecValueData: Data("1234".utf8),
         ] as CFDictionary
@@ -218,7 +217,7 @@ final class KeychainRepositoryTests: BitwardenTestCase {
         keychainService.accessControlResult = .failure(accessError)
         keychainService.addResult = .success(())
         await assertAsyncThrows(error: accessError) {
-            _ = try await subject.setUserAuthKey(for: .biometrics(userId: "123"), value: newKey)
+            _ = try await subject.setUserAuthKey(for: item, value: newKey)
         }
     }
 

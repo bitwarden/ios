@@ -18,6 +18,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
         & HasAPIService
+        & HasStateService
         & HasTOTPService
         & HasTimeProvider
         & HasVaultRepository

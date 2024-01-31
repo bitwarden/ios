@@ -68,6 +68,12 @@ protocol StateService: AnyObject {
     ///
     func getActiveAccountId() async throws -> String
 
+    /// Gets whether the autofill info prompt has been shown.
+    ///
+    /// - Returns: Whether the autofill info prompt has been shown.
+    ///
+    func getAddSitePromptShown() async -> Bool
+
     /// Gets the allow sync on refresh value for an account.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -264,6 +270,12 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user Id of the account to set as active.
     ///
     func setActiveAccount(userId: String) async throws
+
+    /// Sets whether the autofill info prompt has been shown.
+    ///
+    /// - Parameter shown: Whether the autofill info prompt has been shown.
+    ///
+    func setAddSitePromptShown(_ shown: Bool) async
 
     /// Sets the allow sync on refresh value for an account.
     ///
@@ -964,6 +976,17 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return Array(accounts.values)
     }
 
+    func getActiveAccount() throws -> Account {
+        guard let activeAccount = appSettingsStore.state?.activeAccount else {
+            throw StateServiceError.noActiveAccount
+        }
+        return activeAccount
+    }
+
+    func getAddSitePromptShown() async -> Bool {
+        appSettingsStore.addSitePromptShown
+    }
+
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
@@ -1117,6 +1140,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         guard state.accounts
             .contains(where: { $0.key == userId }) else { throw StateServiceError.noAccounts }
         state.activeUserId = userId
+    }
+
+    func setAddSitePromptShown(_ shown: Bool) async {
+        appSettingsStore.addSitePromptShown = shown
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {

@@ -18,6 +18,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var stateService: MockStateService!
     var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
     var vaultRepository: MockVaultRepository!
@@ -34,6 +35,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+        stateService = MockStateService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
@@ -45,6 +47,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter,
                 httpClient: client,
                 pasteboardService: pasteboardService,
+                stateService: stateService,
                 totpService: totpService,
                 vaultRepository: vaultRepository
             ),
@@ -69,6 +72,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        stateService = nil
         subject = nil
         totpService = nil
         vaultRepository = nil
@@ -508,6 +512,34 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         waitFor { subject.state.toast != nil }
 
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
+    func test_perform_appeared_showPasswordAutofill_alreadyShown() async {
+        stateService.addSitePromptShown = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it's in the extension.
+    func test_perform_appeared_showPasswordAutofill_extension() async {
+        appExtensionDelegate.isInAppExtension = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if the user isn't adding a login.
+    func test_perform_appeared_showPasswordAutofill_nonLoginType() async {
+        subject.state.type = .card
+        await subject.perform(.appeared)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the password autofill alert.
+    func test_perform_appeared_showPasswordAutofill_notShown() async {
+        await subject.perform(.appeared)
+        XCTAssertEqual(coordinator.alertShown.last, .passwordAutofillInformation())
+        XCTAssertTrue(stateService.addSitePromptShown)
     }
 
     /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.

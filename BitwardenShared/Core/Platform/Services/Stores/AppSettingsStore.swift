@@ -9,6 +9,9 @@ import OSLog
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
+    /// Whether the autofill info prompt has been shown.
+    var addSitePromptShown: Bool { get set }
+
     /// The app's unique identifier.
     var appId: String? { get set }
 
@@ -503,6 +506,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
         case appId
         case appLocale
@@ -540,6 +544,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         var storageKey: String {
             let key: String
             switch self {
+            case .addSitePromptShown:
+                key = "addSitePromptShown"
             case let .allowSyncOnRefresh(userId):
                 key = "syncOnRefresh_\(userId)"
             case .appId:
@@ -607,6 +613,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             }
             return "bwPreferencesStorage:\(key)"
         }
+    }
+
+    var addSitePromptShown: Bool {
+        get { fetch(for: .addSitePromptShown) }
+        set { store(newValue, for: .addSitePromptShown) }
     }
 
     var appId: String? {

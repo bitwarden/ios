@@ -11,6 +11,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var accountsLoggedOut = [String]()
     var activeAccount: Account?
     var accounts: [Account]?
+    var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
     var appLanguage: LanguageOption = .default
     var approveLoginRequestsByUserId = [String: Bool]()
@@ -122,6 +123,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getActiveAccountId() async throws -> String {
         guard let activeAccount else { throw StateServiceError.noActiveAccount }
         return activeAccount.profile.userId
+    }
+
+    func getAddSitePromptShown() async -> Bool {
+        addSitePromptShown
     }
 
     func getApproveLoginRequests(userId: String?) async throws -> Bool {
@@ -249,6 +254,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
             throw StateServiceError.noAccounts
         }
         activeAccount = match
+    }
+
+    func setAddSitePromptShown(_ shown: Bool) async {
+        addSitePromptShown = shown
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
