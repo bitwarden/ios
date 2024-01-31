@@ -88,7 +88,6 @@ final class PendingRequestsProcessor: StateProcessor<
             coordinator.showLoadingOverlay(title: Localizations.loading)
             try await services.authService.denyAllLoginRequests(requests)
 
-            // TODO: BIT-441
             // Refresh the view.
             await loadData()
 

@@ -215,13 +215,11 @@ final class AccountSecurityProcessor: StateProcessor<
     /// Shows an alert asking the user to confirm that they want to logout.
     private func showLogoutConfirmation() {
         let alert = Alert.logoutConfirmation {
-            Task {
-                await self.coordinator.handleEvent(
-                    .authAction(
-                        .logout(userId: nil, userInitiated: true)
-                    )
+            await self.coordinator.handleEvent(
+                .authAction(
+                    .logout(userId: nil, userInitiated: true)
                 )
-            }
+            )
         }
         coordinator.navigate(to: .alert(alert))
     }

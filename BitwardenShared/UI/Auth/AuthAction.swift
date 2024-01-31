@@ -12,9 +12,8 @@ public enum AuthAction: Equatable {
     /// When the app should logout an account vault.
     ///
     /// - Parameters:
-    ///   - userId: The user Id of the selected account.
+    ///   - userId: The user Id of the selected account. Defaults to the active user id if nil.
     ///   - userInitiated: Did a user action trigger the logout.
-    ///     Defaults to the active user id if nil.
     ///
     case logout(userId: String?, userInitiated: Bool)
 
