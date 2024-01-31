@@ -160,6 +160,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             options.minNumber = 5
             options.minSpecial = 3
             options.special = true
+            options.type = .passphrase
             options.uppercase = true
         }
 
@@ -169,7 +170,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(
             subject.state.passwordState,
             GeneratorState.PasswordState(
-                passwordGeneratorType: .password,
+                passwordGeneratorType: .passphrase,
                 avoidAmbiguous: false,
                 containsLowercase: true,
                 containsNumbers: true,
@@ -247,6 +248,24 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(passwordGeneratorRequest.uppercase, true)
 
         XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
+    }
+
+    /// Generating a new password applies any policies to the options before generating the value,
+    /// but doesn't override the generator type.
+    func test_generatePassword_appliesPolicies_generatorTypeChange() throws {
+        waitFor(subject.didLoadGeneratorOptions)
+
+        policyService.applyPasswordGenerationOptionsTransform = { options in
+            options.type = .password
+        }
+
+        subject.state.generatorType = .password
+        subject.state.passwordState.passwordGeneratorType = .passphrase
+
+        subject.receive(.refreshGeneratedValue)
+        waitFor { generatorRepository.passphraseGeneratorRequest != nil }
+
+        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .passphrase)
     }
 
     /// If an error occurs generating an username, an alert is shown.

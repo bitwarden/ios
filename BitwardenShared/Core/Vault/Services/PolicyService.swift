@@ -154,11 +154,17 @@ extension DefaultPolicyService {
             return false
         }
 
+        // When determining the generator type, ignore the existing option's type to find the preferred
+        // default type based on the policies. Then set it on `options` below.
+        var generatorType: PasswordGeneratorType?
         for policy in policies {
             if let defaultTypeString = policy[.defaultType]?.stringValue,
                let defaultType = PasswordGeneratorType(rawValue: defaultTypeString),
-               options.type != .password {
-                options.type = defaultType
+               generatorType != .password {
+                // If there's multiple policies with different default types, the password type
+                // should take priority. Use `generateType` as opposed to `options.type` to ignore
+                // the existing type in the options.
+                generatorType = defaultType
             }
 
             if let minLength = policy[.minLength]?.intValue {
@@ -201,6 +207,9 @@ extension DefaultPolicyService {
                 options.setMinNumberWords(minNumberWords)
             }
         }
+
+        // A type determine by the policy should take priority over the option's existing type.
+        options.type = generatorType ?? options.type
 
         return true
     }

@@ -60,10 +60,15 @@ extension GeneratorState {
 
         /// Updates the state based on the user's persisted password generation options.
         ///
-        /// - Parameter options: The user's saved options.
+        /// - Parameters:
+        ///   - options: The user's saved options.
+        ///   - shouldUpdateGeneratorType: Whether the state's password generator type should be
+        ///     updated by the options.
         ///
-        mutating func update(with options: PasswordGenerationOptions) {
-            passwordGeneratorType = options.type ?? passwordGeneratorType
+        mutating func update(with options: PasswordGenerationOptions, shouldUpdateGeneratorType: Bool) {
+            if shouldUpdateGeneratorType {
+                passwordGeneratorType = options.type ?? passwordGeneratorType
+            }
 
             // Password Properties
             avoidAmbiguous = !(options.allowAmbiguousChar ?? !avoidAmbiguous)
