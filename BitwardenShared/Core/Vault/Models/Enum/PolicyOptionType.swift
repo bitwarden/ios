@@ -35,4 +35,24 @@ enum PolicyOptionType: String {
 
     /// A policy option for whether to include uppercase characters.
     case useUpper
+
+    // MARK: Master Password Policy Options
+
+    /// A policy option for whether to enforce this policy on login.
+    case enforceOnLogin
+
+    /// A policy option for the minimum number of complexity.
+    case minComplexity
+
+    /// A policy option for whether to require lowercase characters.
+    case requireLower
+
+    /// A policy option for whether to require number characters.
+    case requireNumbers
+
+    /// A policy option for whether to require special characters.
+    case requireSpecial
+
+    /// A policy option for whether to require uppercase characters.
+    case requireUpper
 }

@@ -32,6 +32,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         & HasCaptchaService
         & HasDeviceAPIService
         & HasErrorReporter
+        & HasPolicyService
 
     // MARK: Private Properties
 

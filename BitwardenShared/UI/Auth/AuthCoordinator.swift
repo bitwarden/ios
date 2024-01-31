@@ -32,6 +32,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasPolicyService
         & HasStateService
         & HasSystemDevice
         & HasVaultTimeoutService
