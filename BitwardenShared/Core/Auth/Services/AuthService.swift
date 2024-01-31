@@ -114,6 +114,14 @@ protocol AuthService {
         captchaToken: String?
     ) async throws -> Account
 
+    /// Evaluates the supplied master password against the master password policy provided by the Identity response.
+    /// - Parameters:
+    ///   - email: user email.
+    ///   - masterPassword: user master password.
+    /// - Returns: True if the master password does NOT meet any policy requirements, false otherwise (or if no policy present)
+    ///
+    func requirePasswordChange(email: String, masterPassword: String) async throws -> Bool
+
     /// Resend the email with the user's verification code.
     func resendVerificationCodeEmail() async throws
 }
@@ -160,6 +168,9 @@ class DefaultAuthService: AuthService {
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
+    /// The service used by the application to manage the policy.
+    private var policyService: PolicyService
+
     /// The request model to resend the email with the two-factor verification code.
     private var resendEmailModel: ResendEmailCodeRequestModel?
 
@@ -188,6 +199,7 @@ class DefaultAuthService: AuthService {
     ///   - clientGenerators: The client used for generating passwords and passphrases.
     ///   - clientPlatform: The client used by the application to handle account fingerprint phrase generation.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The object used by the application to retrieve information about this device.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///
@@ -199,6 +211,7 @@ class DefaultAuthService: AuthService {
         clientGenerators: ClientGeneratorsProtocol,
         clientPlatform: ClientPlatformProtocol,
         environmentService: EnvironmentService,
+        policyService: PolicyService,
         stateService: StateService,
         systemDevice: SystemDevice
     ) {
@@ -209,6 +222,7 @@ class DefaultAuthService: AuthService {
         self.clientGenerators = clientGenerators
         self.clientPlatform = clientPlatform
         self.environmentService = environmentService
+        self.policyService = policyService
         self.stateService = stateService
         self.systemDevice = systemDevice
     }
@@ -394,6 +408,23 @@ class DefaultAuthService: AuthService {
 
         // Return the account if the vault still needs to be unlocked.
         return try await stateService.getActiveAccount()
+    }
+
+    func requirePasswordChange(email: String, masterPassword: String) async throws -> Bool {
+        guard let masterPasswordPolicy = try await policyService.getMasterPasswordPolicyOptions(), masterPasswordPolicy.enforceOnLogin else {
+            return false
+        }
+        let strength = await clientAuth.passwordStrength(
+            password: masterPassword,
+            email: email,
+            additionalInputs: []
+        )
+
+        return await clientAuth.satisfiesPolicy(
+            password: masterPassword,
+            strength: strength,
+            policy: masterPasswordPolicy
+        ) == false
     }
 
     func resendVerificationCodeEmail() async throws {
