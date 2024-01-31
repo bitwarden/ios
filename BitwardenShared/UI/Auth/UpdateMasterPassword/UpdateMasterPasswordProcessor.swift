@@ -30,6 +30,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
+    ///   - services: The services used by the processor.
     ///   - state: The initial state of the processor.
     ///
     init(
