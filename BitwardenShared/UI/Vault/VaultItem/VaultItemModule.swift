@@ -20,6 +20,7 @@ extension DefaultAppModule: VaultItemModule {
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<VaultItemRoute> {
         VaultItemCoordinator(
+            appExtensionDelegate: appExtensionDelegate,
             module: self,
             services: services,
             stackNavigator: stackNavigator
