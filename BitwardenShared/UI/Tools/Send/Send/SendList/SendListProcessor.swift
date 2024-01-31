@@ -78,7 +78,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     override func receive(_ action: SendListAction) {
         switch action {
         case .addItemPressed:
-            coordinator.navigate(to: .addItem, context: self)
+            coordinator.navigate(to: .addItem(type: state.type), context: self)
         case .clearInfoUrl:
             state.infoUrl = nil
         case .infoButtonPressed:
@@ -93,9 +93,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                 switch item.itemType {
                 case let .send(sendView):
                     coordinator.navigate(to: .editItem(sendView), context: self)
-                case .group:
-                    // TODO: BIT-1412 Navigate to the group list screen
-                    break
+                case let .group(type, _):
+                    coordinator.navigate(to: .group(type))
                 }
             }
         case let .toastShown(toast):
@@ -166,6 +165,18 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     ///
     private func streamSendList() async {
         do {
+            if let type = state.type {
+                for try await sends in try await services.sendRepository.sendTypeListPublisher(type: type) {
+                    state.sections = [
+                        SendListSection(
+                            id: type.localizedName,
+                            isCountDisplayed: false,
+                            items: sends,
+                            name: nil
+                        ),
+                    ]
+                }
+            }
             for try await sections in try await services.sendRepository.sendListPublisher() {
                 state.sections = sections
             }
@@ -186,7 +197,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         }
 
         do {
-            let result = try await services.sendRepository.searchSendPublisher(searchText: searchText)
+            let result = try await services.sendRepository.searchSendPublisher(
+                searchText: searchText,
+                type: state.type
+            )
             for try await sends in result {
                 return sends
             }

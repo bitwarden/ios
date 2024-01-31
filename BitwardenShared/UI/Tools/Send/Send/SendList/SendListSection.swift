@@ -15,5 +15,5 @@ public struct SendListSection: Equatable, Identifiable {
     public let items: [SendListItem]
 
     /// The name of the section, displayed as section header.
-    public let name: String
+    public let name: String?
 }

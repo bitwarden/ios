@@ -199,17 +199,22 @@ struct SendListView: View {
                 prompt: Localizations.search
             )
             .refreshable { await store.perform(.refresh) }
-            .navigationBar(title: Localizations.send, titleDisplayMode: .large)
+            .navigationBar(
+                title: store.state.navigationTitle,
+                titleDisplayMode: store.state.type == nil ? .large : .inline
+            )
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        store.send(.infoButtonPressed)
-                    } label: {
-                        Image(asset: Asset.Images.infoRound, label: Text(Localizations.aboutSend))
-                            .resizable()
-                            .frame(width: 22, height: 22)
+                    if !store.state.isInfoButtonHidden {
+                        Button {
+                            store.send(.infoButtonPressed)
+                        } label: {
+                            Image(asset: Asset.Images.infoRound, label: Text(Localizations.aboutSend))
+                                .resizable()
+                                .frame(width: 22, height: 22)
+                        }
+                        .buttonStyle(.toolbar)
                     }
-                    .buttonStyle(.toolbar)
                 }
 
                 addToolbarItem {

@@ -48,7 +48,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
     func test_navigateTo_addItem_hasPremium_withDelegate() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
-        subject.navigate(to: .addItem, context: sendItemDelegate)
+        subject.navigate(to: .addItem(), context: sendItemDelegate)
 
         waitFor(!stackNavigator.actions.isEmpty)
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -63,7 +63,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     /// screen.
     func test_navigateTo_addItem_hasPremium_withoutDelegate() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
-        subject.navigate(to: .addItem, context: nil)
+        subject.navigate(to: .addItem(), context: nil)
 
         XCTAssertFalse(module.sendItemCoordinator.isStarted)
         XCTAssertTrue(module.sendItemCoordinator.routes.isEmpty)
@@ -72,7 +72,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
     func test_navigateTo_addItem_notHasPremium() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(false)
-        subject.navigate(to: .addItem, context: sendItemDelegate)
+        subject.navigate(to: .addItem(), context: sendItemDelegate)
 
         waitFor(!stackNavigator.actions.isEmpty)
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -86,7 +86,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
     func test_navigateTo_addItem_hasPremiumError() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .failure(BitwardenTestError.example)
-        subject.navigate(to: .addItem, context: sendItemDelegate)
+        subject.navigate(to: .addItem(), context: sendItemDelegate)
 
         waitFor(!stackNavigator.actions.isEmpty)
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -95,6 +95,58 @@ class SendCoordinatorTests: BitwardenTestCase {
 
         XCTAssertTrue(module.sendItemCoordinator.isStarted)
         XCTAssertEqual(module.sendItemCoordinator.routes.last, .add(content: nil, hasPremium: false))
+    }
+
+    /// `navigate(to:)` with `.addItem` presents the add send item screen.
+    func test_navigateTo_addItem_fileType_hasPremium_withDelegate() throws {
+        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        subject.navigate(to: .addItem(type: .file), context: sendItemDelegate)
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(module.sendItemCoordinator.isStarted)
+        XCTAssertEqual(module.sendItemCoordinator.routes.last, .add(content: .type(.file), hasPremium: true))
+    }
+
+    /// `navigate(to:)` with `.addItem` and without a delegate does not present the add send item
+    /// screen.
+    func test_navigateTo_addItem_fileType_hasPremium_withoutDelegate() throws {
+        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        subject.navigate(to: .addItem(type: .file), context: nil)
+
+        XCTAssertFalse(module.sendItemCoordinator.isStarted)
+        XCTAssertTrue(module.sendItemCoordinator.routes.isEmpty)
+    }
+
+    /// `navigate(to:)` with `.addItem` presents the add send item screen.
+    func test_navigateTo_addItem_fileType_notHasPremium() throws {
+        sendRepository.doesActivateAccountHavePremiumResult = .success(false)
+        subject.navigate(to: .addItem(type: .file), context: sendItemDelegate)
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(module.sendItemCoordinator.isStarted)
+        XCTAssertEqual(module.sendItemCoordinator.routes.last, .add(content: .type(.file), hasPremium: false))
+    }
+
+    /// `navigate(to:)` with `.addItem` presents the add send item screen.
+    func test_navigateTo_addItem_fileType_hasPremiumError() throws {
+        sendRepository.doesActivateAccountHavePremiumResult = .failure(BitwardenTestError.example)
+        subject.navigate(to: .addItem(type: .file), context: sendItemDelegate)
+
+        waitFor(!stackNavigator.actions.isEmpty)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(module.sendItemCoordinator.isStarted)
+        XCTAssertEqual(module.sendItemCoordinator.routes.last, .add(content: .type(.file), hasPremium: false))
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the current modally presented screen.
@@ -159,6 +211,17 @@ class SendCoordinatorTests: BitwardenTestCase {
 
         XCTAssertTrue(module.sendItemCoordinator.isStarted)
         XCTAssertEqual(module.sendItemCoordinator.routes.last, .edit(sendView, hasPremium: false))
+    }
+
+    /// `navigate(to:)` with `.group` pushes the send list screen for the type onto the stack.
+    func test_navigateTo_group() throws {
+        subject.navigate(to: .group(.file))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+
+        let view = try XCTUnwrap(action.view as? BitwardenShared.SendListView)
+        XCTAssertEqual(view.store.state.type, .file)
     }
 
     /// `navigate(to:)` with `.list` replaces the stack navigator's current stack with the send list

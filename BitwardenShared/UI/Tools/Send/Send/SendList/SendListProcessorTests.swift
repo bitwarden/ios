@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - SendListProcessorTests
 
-class SendListProcessorTests: BitwardenTestCase {
+class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var coordinator: MockCoordinator<SendRoute, Void>!
@@ -65,15 +65,43 @@ class SendListProcessorTests: BitwardenTestCase {
         XCTAssertTrue(sendRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `search(_:)` and an empty search query returns early.
+    func test_perform_search_empty() async {
+        subject.state.searchResults = []
+
+        await subject.perform(.search("  "))
+
+        XCTAssertNil(sendRepository.searchSendSearchText)
+        XCTAssertNil(sendRepository.searchSendType)
+    }
+
     /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and updates the
     /// state.
-    func test_perform_search() async {
+    func test_perform_search_nilType() async {
+        subject.state.type = nil
         subject.state.searchResults = []
         let sendListItem = SendListItem.fixture()
         sendRepository.searchSendSubject.send([sendListItem])
 
         await subject.perform(.search("for me"))
 
+        XCTAssertEqual(sendRepository.searchSendSearchText, "for me")
+        XCTAssertNil(sendRepository.searchSendType)
+        XCTAssertEqual(subject.state.searchResults, [sendListItem])
+    }
+
+    /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and updates the
+    /// state.
+    func test_perform_search_textType() async {
+        subject.state.type = .text
+        subject.state.searchResults = []
+        let sendListItem = SendListItem.fixture()
+        sendRepository.searchSendSubject.send([sendListItem])
+
+        await subject.perform(.search("for me"))
+
+        XCTAssertEqual(sendRepository.searchSendSearchText, "for me")
+        XCTAssertEqual(sendRepository.searchSendType, .text)
         XCTAssertEqual(subject.state.searchResults, [sendListItem])
     }
 
@@ -183,7 +211,7 @@ class SendListProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes.
-    func test_perform_streamSendList() {
+    func test_perform_streamSendList_nilType() {
         let sendListItem = SendListItem(id: "1", itemType: .group(.file, 42))
         sendRepository.sendListSubject.send([
             SendListSection(id: "1", isCountDisplayed: true, items: [sendListItem], name: "Name"),
@@ -201,7 +229,7 @@ class SendListProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.streamSendList` records any errors.
-    func test_perform_streamSendList_error() {
+    func test_perform_streamSendList_nilType_error() {
         sendRepository.sendListSubject.send(completion: .failure(BitwardenTestError.example))
 
         let task = Task {
@@ -214,11 +242,49 @@ class SendListProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes.
+    func test_perform_streamSendList_textType() {
+        let sendListItem = SendListItem.fixture()
+        sendRepository.sendTypeListSubject.send([
+            sendListItem,
+        ])
+
+        subject.state.type = .text
+
+        let task = Task {
+            await subject.perform(.streamSendList)
+        }
+
+        waitFor(!subject.state.sections.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(sendRepository.sendTypeListPublisherType, .text)
+        XCTAssertEqual(subject.state.sections.count, 1)
+        XCTAssertEqual(subject.state.sections[0].items, [sendListItem])
+    }
+
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
-    func test_receive_addItemPressed() {
+    func test_receive_addItemPressed_nilType() {
+        subject.state.type = nil
         subject.receive(.addItemPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .addItem)
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: nil))
+    }
+
+    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
+    func test_receive_addItemPressed_fileType() {
+        subject.state.type = .file
+        subject.receive(.addItemPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: .file))
+    }
+
+    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
+    func test_receive_addItemPressed_textType() {
+        subject.state.type = .text
+        subject.receive(.addItemPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: .text))
     }
 
     /// `receive(_:)` with `.clearInfoUrl` clears the info url.
@@ -264,10 +330,10 @@ class SendListProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the group send route.
     func test_receive_sendListItemRow_sendListItemPressed_withGroup() {
-        let item = SendListItem.groupFixture()
+        let item = SendListItem.groupFixture(sendType: .file)
         subject.receive(.sendListItemRow(.sendListItemPressed(item)))
 
-        // TODO: BIT-1412 Assert navigation to group send route
+        XCTAssertEqual(coordinator.routes.last, .group(.file))
     }
 
     /// `receive(_:)` with `.toastShown` updates the toast value in the state.
