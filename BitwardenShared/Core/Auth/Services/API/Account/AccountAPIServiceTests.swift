@@ -186,4 +186,21 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/password")
     }
+
+    /// `updateTempPassword()` doesn't throw an error when receiving the empty response.
+    func test_updateTempPassword() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        let requestModel = UpdateTempPasswordRequestModel(
+            key: "KEY",
+            masterPasswordHint: "MASTER_PASSWORD_HINT",
+            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH"
+        )
+        try await subject.updateTempPassword(requestModel)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .put)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/update-temp-password")
+    }
 }

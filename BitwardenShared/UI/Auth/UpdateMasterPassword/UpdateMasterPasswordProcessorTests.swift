@@ -60,6 +60,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
 
     /// `perform()` with `.appeared` fails to sync and move to main vault screen.
     func test_perform_appeared_fails() async throws {
+        authRepository.activeAccount = .fixture()
         struct CryptoError: Error, Equatable {}
         policyService.getMasterPasswordPolicyOptionsResult = .failure(CryptoError())
         XCTAssertNil(subject.state.masterPasswordPolicy)
@@ -72,6 +73,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     /// `perform()` with `.appeared` syncs vault and fetches `MasterPasswordPolicyOption`
     /// updates the state.
     func test_perform_appeared_success() async throws {
+        authRepository.activeAccount = .fixture()
         policyService.getMasterPasswordPolicyOptionsResult = .success(
             MasterPasswordPolicyOptions(
                 minComplexity: 3,
@@ -91,6 +93,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     /// `perform()` with `.appeared` succeeds to sync but master password policy fails to load,
     /// and move to main vault screen.
     func test_perform_appeared_succeeds_policyNil() async throws {
+        authRepository.activeAccount = .fixture()
         policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
         XCTAssertNil(subject.state.masterPasswordPolicy)
         await subject.perform(.appeared)
@@ -124,6 +127,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     func test_perform_submitPressed_error() async throws {
         authRepository.updateMasterPasswordResult = .failure(BitwardenTestError.example)
 
+        subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.currentMasterPassword = "PASSWORD"
         subject.state.masterPassword = "NEW_PASSWORD"
         subject.state.masterPasswordRetype = "NEW_PASSWORD"
@@ -137,6 +141,8 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
 
     /// `perform()` with `.submitPressed` shows an alert if the master password field is empty.
     func test_perform_submitPressed_emptyPassword() async throws {
+        subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
+
         await subject.perform(.submitPressed)
 
         XCTAssertEqual(
@@ -149,6 +155,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
 
     /// `perform()` with `.submitPressed` shows an alert if the password is invalid.
     func test_perform_submitPressed_passwordInvalid() async throws {
+        subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.masterPassword = "NEW_PASSWORD"
         subject.state.masterPasswordRetype = "OTHER"
 
@@ -161,6 +168,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     func test_perform_submitPressed_passwordMismatch() async throws {
         authService.requirePasswordChangeResult = .success(true)
         authRepository.activeAccount = .fixture()
+        subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.masterPasswordPolicy = MasterPasswordPolicyOptions(
             minComplexity: 3,
             minLength: 12,
@@ -181,6 +189,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
 
     /// `perform()` with `.submitPressed` shows an alert if the password is too short.
     func test_perform_submitPressed_passwordTooShort() async throws {
+        subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.masterPassword = "ABC"
         subject.state.masterPasswordRetype = "ABC"
 
@@ -191,6 +200,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
 
     /// `perform()` with `.submitPressed` submits the request for updating the master password.
     func test_perform_submitPressed_success() async throws {
+        subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.currentMasterPassword = "PASSWORD"
         subject.state.masterPassword = "NEW_PASSWORD"
         subject.state.masterPasswordRetype = "NEW_PASSWORD"

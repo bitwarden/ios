@@ -85,6 +85,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
         let alert = Alert.logoutConfirmation { [weak self] in
             guard let self else { return }
             await coordinator.handleEvent(.action(.logout(userId: nil, userInitiated: true)))
+            coordinator.navigate(to: .dismiss)
         }
         coordinator.navigate(to: .alert(alert))
     }
@@ -97,6 +98,9 @@ class UpdateMasterPasswordProcessor: StateProcessor<
 
         do {
             try await services.settingsRepository.fetchSync()
+            let account = try await services.authRepository.getAccount()
+            state.forcePasswordResetReason = account.profile.forcePasswordResetReason
+
             if let policy = try await services.policyService.getMasterPasswordPolicyOptions() {
                 state.masterPasswordPolicy = policy
             } else {
@@ -114,6 +118,11 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     /// Updates the master password.
     ///
     private func updateMasterPassword() async {
+        guard let forcePasswordResetReason = state.forcePasswordResetReason else {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            return
+        }
+
         do {
             try EmptyInputValidator(fieldName: Localizations.masterPassword)
                 .validate(input: state.masterPassword)
@@ -147,7 +156,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
                 currentPassword: state.currentMasterPassword,
                 newPassword: state.masterPassword,
                 passwordHint: state.masterPasswordHint,
-                reason: .weakMasterPasswordOnLogin
+                reason: forcePasswordResetReason
             )
 
             coordinator.hideLoadingOverlay()
