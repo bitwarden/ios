@@ -6,7 +6,7 @@ import XCTest
 class AppExtensionProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var subject: AppExtensionProcessor!
 
     // MARK: Setup & Teardown

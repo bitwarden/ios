@@ -12,6 +12,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
         color: .purple,
         email: "anne.account@bitwarden.com",
         isUnlocked: true,
+        userId: "1",
         userInitials: "AA"
     )
 
@@ -19,6 +20,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
         color: .purple,
         email: "anne.account@bitwarden.com",
         isUnlocked: false,
+        userId: "2",
         userInitials: "AA"
     )
 

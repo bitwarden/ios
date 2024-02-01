@@ -8,7 +8,7 @@ typealias Services = HasAPIService
     & HasAuthAPIService
     & HasAuthRepository
     & HasAuthService
-    & HasBiometricsService
+    & HasBiometricsRepository
     & HasCameraService
     & HasCaptchaService
     & HasClientAuth
@@ -83,9 +83,9 @@ protocol HasAuthService {
 
 /// Protocol for obtaining the device's biometric authentication type.
 ///
-protocol HasBiometricsService {
-    /// The service used to obtain the available authentication policies and access controls for the user's device.
-    var biometricsService: BiometricsService { get }
+protocol HasBiometricsRepository {
+    /// The repository used to obtain the available authentication policies and access controls for the user's device.
+    var biometricsRepository: BiometricsRepository { get }
 }
 
 /// Protocol for an object that provides a `CameraService`.

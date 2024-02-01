@@ -7,7 +7,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
     var authService: MockAuthService!
     var client: MockHTTPClient!
-    var coordinator: MockCoordinator<AuthRoute>!
+    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: SingleSignOnProcessor!
@@ -19,7 +19,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
         authService = MockAuthService()
         client = MockHTTPClient()
-        coordinator = MockCoordinator<AuthRoute>()
+        coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         let services = ServiceContainer.withMocks(

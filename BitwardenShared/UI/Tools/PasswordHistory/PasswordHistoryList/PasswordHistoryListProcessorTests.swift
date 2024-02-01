@@ -6,7 +6,7 @@ import XCTest
 class PasswordHistoryListProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<PasswordHistoryRoute>!
+    var coordinator: MockCoordinator<PasswordHistoryRoute, Void>!
     var errorReporter: MockErrorReporter!
     var generatorRepository: MockGeneratorRepository!
     var pasteboardService: MockPasteboardService!

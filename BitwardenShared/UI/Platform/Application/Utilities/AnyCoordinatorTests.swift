@@ -8,14 +8,14 @@ import XCTest
 class AnyCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<AppRoute>!
-    var subject: AnyCoordinator<AppRoute>!
+    var coordinator: MockCoordinator<AppRoute, AppEvent>!
+    var subject: AnyCoordinator<AppRoute, AppEvent>!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        coordinator = MockCoordinator<AppRoute>()
+        coordinator = MockCoordinator<AppRoute, AppEvent>()
         subject = AnyCoordinator(coordinator)
     }
 

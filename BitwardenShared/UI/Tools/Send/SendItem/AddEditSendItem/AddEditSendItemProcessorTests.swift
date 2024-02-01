@@ -8,7 +8,7 @@ import XCTest
 class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SendItemRoute>!
+    var coordinator: MockCoordinator<SendItemRoute, AuthAction>!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
@@ -338,7 +338,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and valid input in the share extension saves the item and
     /// copies the share link to the clipboard.
     func test_perform_savePressed_shareExtension_validated_success() async {
-        subject.state.mode = .shareExtension
+        subject.state.mode = .shareExtension(.empty())
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"

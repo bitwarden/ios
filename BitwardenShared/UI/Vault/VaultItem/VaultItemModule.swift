@@ -12,13 +12,13 @@ protocol VaultItemModule {
     ///
     func makeVaultItemCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<VaultItemRoute>
+    ) -> AnyCoordinator<VaultItemRoute, VaultItemEvent>
 }
 
 extension DefaultAppModule: VaultItemModule {
     func makeVaultItemCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<VaultItemRoute> {
+    ) -> AnyCoordinator<VaultItemRoute, VaultItemEvent> {
         VaultItemCoordinator(
             appExtensionDelegate: appExtensionDelegate,
             module: self,

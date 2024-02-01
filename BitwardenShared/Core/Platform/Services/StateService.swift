@@ -29,6 +29,13 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
+    /// Gets the account for an id.
+    ///
+    /// - Parameter userId: The id for an account. If nil, the active account will be returned.
+    /// - Returns: The account for the id.
+    ///
+    func getAccount(userId: String?) async throws -> Account
+
     /// Gets the account encryptions keys for an account.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -60,6 +67,12 @@ protocol StateService: AnyObject {
     /// - Returns: The active user account id.
     ///
     func getActiveAccountId() async throws -> String
+
+    /// Gets whether the autofill info prompt has been shown.
+    ///
+    /// - Returns: Whether the autofill info prompt has been shown.
+    ///
+    func getAddSitePromptShown() async -> Bool
 
     /// Gets the allow sync on refresh value for an account.
     ///
@@ -264,6 +277,12 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user Id of the account to set as active.
     ///
     func setActiveAccount(userId: String) async throws
+
+    /// Sets whether the autofill info prompt has been shown.
+    ///
+    /// - Parameter shown: Whether the autofill info prompt has been shown.
+    ///
+    func setAddSitePromptShown(_ shown: Bool) async
 
     /// Sets the allow sync on refresh value for an account.
     ///
@@ -506,6 +525,37 @@ extension StateService {
     ///
     func getAccountEncryptionKeys() async throws -> AccountEncryptionKeys {
         try await getAccountEncryptionKeys(userId: nil)
+    }
+
+    /// Gets either a valid account id or the active account id.
+    ///
+    /// - Parameter userId: The possible user id.
+    ///     If `nil`, this method will attempt to return the active account id.
+    ///     If non-nil, this method will validate the user id.
+    /// - Returns: A valid user id.
+    ///
+    func getAccountIdOrActiveId(userId: String?) async throws -> String {
+        try await getAccount(userId: userId).profile.userId
+    }
+
+    /// Gets the active account id.
+    ///
+    /// - Returns: The active user id.
+    ///
+    func getActiveAccountId() async throws -> String {
+        try await getActiveAccount().profile.userId
+    }
+
+    /// Gets the active account.
+    ///
+    /// - Returns: The active user account.
+    ///
+    func getActiveAccount() async throws -> Account {
+        do {
+            return try await getAccount(userId: nil)
+        } catch {
+            throw StateServiceError.noActiveAccount
+        }
     }
 
     /// Gets the allow sync on refresh value for the active account.
@@ -910,6 +960,18 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         try await logoutAccount()
     }
 
+    func getAccount(userId: String?) throws -> Account {
+        guard let accounts = appSettingsStore.state?.accounts else {
+            throw StateServiceError.noAccounts
+        }
+        let userId = try userId ?? getActiveAccountUserId()
+        guard let account = accounts
+            .first(where: { $0.value.profile.userId == userId })?.value else {
+            throw StateServiceError.noAccounts
+        }
+        return account
+    }
+
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
         guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId),
@@ -921,23 +983,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: encryptedUserKey
         )
-    }
-
-    func getAccountIdOrActiveId(userId: String?) throws -> String {
-        guard let accounts = appSettingsStore.state?.accounts else {
-            throw StateServiceError.noAccounts
-        }
-        if let userId {
-            guard accounts.contains(where: { $0.value.profile.userId == userId }) else {
-                throw StateServiceError.noAccounts
-            }
-            return userId
-        }
-        return try getActiveAccountId()
-    }
-
-    func getActiveAccountId() throws -> String {
-        try getActiveAccount().profile.userId
     }
 
     func getAccounts() throws -> [Account] {
@@ -952,6 +997,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             throw StateServiceError.noActiveAccount
         }
         return activeAccount
+    }
+
+    func getAddSitePromptShown() async -> Bool {
+        appSettingsStore.addSitePromptShown
     }
 
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
@@ -1058,7 +1107,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     }
 
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
-        let userId = try userId ?? getActiveAccountId()
+        let userId = try getAccount(userId: userId).profile.userId
         guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
             return .fifteenMinutes
         }
@@ -1112,6 +1161,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         guard state.accounts
             .contains(where: { $0.key == userId }) else { throw StateServiceError.noAccounts }
         state.activeUserId = userId
+    }
+
+    func setAddSitePromptShown(_ shown: Bool) async {
+        appSettingsStore.addSitePromptShown = shown
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {

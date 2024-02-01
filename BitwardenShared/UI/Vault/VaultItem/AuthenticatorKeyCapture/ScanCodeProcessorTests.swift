@@ -7,7 +7,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraService: MockCameraService!
-    var coordinator: MockCoordinator<AuthenticatorKeyCaptureRoute>!
+    var coordinator: MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>!
     var errorReporter: MockErrorReporter!
     var subject: ScanCodeProcessor!
 

@@ -36,7 +36,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<AuthRoute>
+    private var coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// A flag indicating if this is the first time that the view has appeared.
     ///
@@ -56,7 +56,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: LoginState
     ) {

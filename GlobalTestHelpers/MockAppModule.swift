@@ -16,25 +16,26 @@ class MockAppModule:
     TabModule,
     VaultModule,
     VaultItemModule {
-    var appCoordinator = MockCoordinator<AppRoute>()
-    var authCoordinator = MockCoordinator<AuthRoute>()
-    var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute>()
+    var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
+    var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
+    var authRouter = MockRouter<AuthEvent, AuthRoute>.init(routeForEvent: { _ in .landing })
+    var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
-    var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute>()
-    var generatorCoordinator = MockCoordinator<GeneratorRoute>()
-    var loginRequestCoordinator = MockCoordinator<LoginRequestRoute>()
-    var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute>()
-    var sendCoordinator = MockCoordinator<SendRoute>()
-    var sendItemCoordinator = MockCoordinator<SendItemRoute>()
-    var settingsCoordinator = MockCoordinator<SettingsRoute>()
-    var tabCoordinator = MockCoordinator<TabRoute>()
-    var vaultCoordinator = MockCoordinator<VaultRoute>()
-    var vaultItemCoordinator = MockCoordinator<VaultItemRoute>()
+    var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
+    var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
+    var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
+    var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
+    var sendCoordinator = MockCoordinator<SendRoute, Void>()
+    var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
+    var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
+    var tabCoordinator = MockCoordinator<TabRoute, Void>()
+    var vaultCoordinator = MockCoordinator<VaultRoute, AuthAction>()
+    var vaultItemCoordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
 
     func makeAppCoordinator(
         appContext _: AppContext,
         navigator _: RootNavigator
-    ) -> AnyCoordinator<AppRoute> {
+    ) -> AnyCoordinator<AppRoute, AppEvent> {
         appCoordinator.asAnyCoordinator()
     }
 
@@ -42,20 +43,24 @@ class MockAppModule:
         delegate _: AuthCoordinatorDelegate,
         rootNavigator _: RootNavigator,
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<AuthRoute> {
+    ) -> AnyCoordinator<AuthRoute, AuthEvent> {
         authCoordinator.asAnyCoordinator()
+    }
+
+    func makeAuthRouter() -> BitwardenShared.AnyRouter<BitwardenShared.AuthEvent, BitwardenShared.AuthRoute> {
+        authRouter.asAnyRouter()
     }
 
     func makeExtensionSetupCoordinator(
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<ExtensionSetupRoute> {
+    ) -> AnyCoordinator<ExtensionSetupRoute, Void> {
         extensionSetupCoordinator.asAnyCoordinator()
     }
 
     func makeFileSelectionCoordinator(
         delegate: FileSelectionDelegate,
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<FileSelectionRoute> {
+    ) -> AnyCoordinator<FileSelectionRoute, Void> {
         fileSelectionDelegate = delegate
         return fileSelectionCoordinator.asAnyCoordinator()
     }
@@ -63,39 +68,39 @@ class MockAppModule:
     func makeGeneratorCoordinator(
         delegate _: GeneratorCoordinatorDelegate?,
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<GeneratorRoute> {
+    ) -> AnyCoordinator<GeneratorRoute, Void> {
         generatorCoordinator.asAnyCoordinator()
     }
 
     func makeLoginRequestCoordinator(
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<LoginRequestRoute> {
+    ) -> AnyCoordinator<LoginRequestRoute, Void> {
         loginRequestCoordinator.asAnyCoordinator()
     }
 
     func makePasswordHistoryCoordinator(
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<PasswordHistoryRoute> {
+    ) -> AnyCoordinator<PasswordHistoryRoute, Void> {
         passwordHistoryCoordinator.asAnyCoordinator()
     }
 
     func makeSendCoordinator(
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<SendRoute> {
+    ) -> AnyCoordinator<SendRoute, Void> {
         sendCoordinator.asAnyCoordinator()
     }
 
     func makeSendItemCoordinator(
         delegate _: SendItemDelegate,
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<SendItemRoute> {
+    ) -> AnyCoordinator<SendItemRoute, AuthAction> {
         sendItemCoordinator.asAnyCoordinator()
     }
 
     func makeSettingsCoordinator(
         delegate _: SettingsCoordinatorDelegate,
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<SettingsRoute> {
+    ) -> AnyCoordinator<SettingsRoute, SettingsEvent> {
         settingsCoordinator.asAnyCoordinator()
     }
 
@@ -104,20 +109,20 @@ class MockAppModule:
         settingsDelegate _: BitwardenShared.SettingsCoordinatorDelegate,
         tabNavigator _: BitwardenShared.TabNavigator,
         vaultDelegate _: BitwardenShared.VaultCoordinatorDelegate
-    ) -> BitwardenShared.AnyCoordinator<BitwardenShared.TabRoute> {
+    ) -> BitwardenShared.AnyCoordinator<BitwardenShared.TabRoute, Void> {
         tabCoordinator.asAnyCoordinator()
     }
 
     func makeVaultCoordinator(
         delegate _: BitwardenShared.VaultCoordinatorDelegate,
         stackNavigator _: BitwardenShared.StackNavigator
-    ) -> BitwardenShared.AnyCoordinator<BitwardenShared.VaultRoute> {
+    ) -> BitwardenShared.AnyCoordinator<BitwardenShared.VaultRoute, AuthAction> {
         vaultCoordinator.asAnyCoordinator()
     }
 
     func makeVaultItemCoordinator(
         stackNavigator _: StackNavigator
-    ) -> AnyCoordinator<VaultItemRoute> {
+    ) -> AnyCoordinator<VaultItemRoute, VaultItemEvent> {
         vaultItemCoordinator.asAnyCoordinator()
     }
 }
