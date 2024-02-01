@@ -4,8 +4,11 @@
 ///
 struct LoginWithDeviceState: Equatable {
     /// The user's email.
-    var email: String = ""
+    var email = ""
 
     /// The fingerprint phrase.
-    var fingerprintPhrase: String? = ""
+    var fingerprintPhrase: String?
+
+    /// The id of the login request.
+    var requestId: String?
 }
