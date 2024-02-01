@@ -109,7 +109,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     func test_dismissButton_tap() throws {
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close)
+        let button = try subject.inspect().find(button: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
