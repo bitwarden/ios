@@ -334,27 +334,6 @@ extension AuthRouter {
                     didSwitchAccountAutomatically: didSwitchAccountAutomatically
                 )
             }
-        } catch let keychainError as KeychainServiceError {
-            switch keychainError {
-            case .keyNotFound,
-                 .osStatusError(errSecItemNotFound):
-                Logger.application.debug("Unable to find neverlock key")
-                return .vaultUnlock(
-                    activeAccount,
-                    animated: animated,
-                    attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
-                )
-            default:
-                // In case of an error, go to `.vaultUnlock` for the active user.
-                services.errorReporter.log(error: keychainError)
-                return .vaultUnlock(
-                    activeAccount,
-                    animated: animated,
-                    attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
-                )
-            }
         } catch {
             // In case of an error, go to `.vaultUnlock` for the active user.
             services.errorReporter.log(error: error)
