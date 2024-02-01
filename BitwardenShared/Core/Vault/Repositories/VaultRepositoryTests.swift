@@ -1307,7 +1307,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(vaultListItems, [.fixture(cipherView: .init(cipher: cipher))])
     }
 
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
+    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items for premium accounts.
     func test_vaultListPublisher_groups_totp_premium() async throws {
         stateService.activeAccount = premiumAccount
         let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
@@ -1324,7 +1324,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
+    /// `vaultListPublisher(group:filter:)` does not return TOTP items for non-premium accounts.
     func test_vaultListPublisher_groups_totp_notPremium() async throws {
         stateService.activeAccount = nonPremiumAccount
         let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
@@ -1435,7 +1435,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(vaultListSections, expectedResult)
     }
 
-    /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections.
+    /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections
+    ///   with no TOTP items for accounts without premium.
     func test_vaultListPublisher_section_nonPremium() async throws { // swiftlint:disable:this function_body_length
         stateService.activeAccount = nonPremiumAccount
         let ciphers: [Cipher] = [
