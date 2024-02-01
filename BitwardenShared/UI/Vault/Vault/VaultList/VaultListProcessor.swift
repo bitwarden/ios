@@ -373,7 +373,13 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
             }
         case let .edit(cipherView):
-            coordinator.navigate(to: .editItem(cipherView), context: self)
+            if cipherView.reprompt == .password {
+                presentMasterPasswordRepromptAlert {
+                    self.coordinator.navigate(to: .editItem(cipherView), context: self)
+                }
+            } else {
+                coordinator.navigate(to: .editItem(cipherView), context: self)
+            }
         case let .launch(url):
             state.url = url.sanitized
         case let .view(id):
