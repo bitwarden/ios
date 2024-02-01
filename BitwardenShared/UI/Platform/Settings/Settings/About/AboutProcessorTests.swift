@@ -5,7 +5,7 @@ import XCTest
 class AboutProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var subject: AboutProcessor!
@@ -15,7 +15,7 @@ class AboutProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        coordinator = MockCoordinator<SettingsRoute>()
+        coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
 

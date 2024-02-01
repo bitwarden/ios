@@ -13,13 +13,13 @@ protocol LoginRequestModule {
     ///
     func makeLoginRequestCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<LoginRequestRoute>
+    ) -> AnyCoordinator<LoginRequestRoute, Void>
 }
 
 extension DefaultAppModule: LoginRequestModule {
     func makeLoginRequestCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<LoginRequestRoute> {
+    ) -> AnyCoordinator<LoginRequestRoute, Void> {
         LoginRequestCoordinator(
             services: services,
             stackNavigator: stackNavigator

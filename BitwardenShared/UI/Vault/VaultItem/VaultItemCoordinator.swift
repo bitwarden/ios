@@ -1,6 +1,8 @@
 import BitwardenSdk
 import SwiftUI
 
+// swiftlint:disable file_length
+
 // MARK: - VaultItemCoordinator
 
 /// A coordinator that manages navigation for displaying, editing, and adding individual vault items.
@@ -16,6 +18,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
         & HasAPIService
+        & HasStateService
         & HasTOTPService
         & HasTimeProvider
         & HasVaultRepository
@@ -27,7 +30,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
     /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
     /// coordinator in memory.
-    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute>?
+    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute, Void>?
 
     /// The module used by this coordinator to create child coordinators.
     private let module: Module
@@ -60,6 +63,14 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
+    }
+
+    func handleEvent(_ event: VaultItemEvent, context: AnyObject?) async {
+        switch event {
+        case .showScanCode:
+            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
+            await showCamera(delegate: delegate)
+        }
     }
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
@@ -103,20 +114,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             showManualTotp(delegate: delegate)
         case let .viewItem(id):
             showViewItem(id: id, delegate: context as? CipherItemOperationDelegate)
-        case .scanCode:
-            Task {
-                await navigate(asyncTo: .scanCode, context: context)
-            }
         }
-    }
-
-    func navigate(asyncTo route: VaultItemRoute, context: AnyObject?) async {
-        guard case .scanCode = route else {
-            navigate(to: route, context: context)
-            return
-        }
-        guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
-        await showCamera(delegate: delegate)
     }
 
     func start() {}
@@ -205,7 +203,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             stackNavigator: navigationController
         )
         coordinator.start()
-        await coordinator.navigate(asyncTo: .scanCode)
+
+        await coordinator.handleEvent(.showScanCode, context: self)
         stackNavigator?.present(navigationController, overFullscreen: true)
     }
 
@@ -412,4 +411,4 @@ extension View {
                 .navigationViewStyle(.stack)
         }
     }
-} // swiftlint:disable:this file_length
+}

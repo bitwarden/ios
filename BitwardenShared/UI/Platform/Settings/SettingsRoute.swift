@@ -36,12 +36,6 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the delete account screen.
     case deleteAccount
 
-    /// A route to either the login view or vault unlock view upon account deletion.
-    ///
-    /// - Parameter otherAccounts: An optional array of the user's other accounts.
-    ///
-    case didDeleteAccount(otherAccounts: [Account]?)
-
     /// A route that dismisses the current view.
     case dismiss
 
@@ -51,25 +45,11 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to view the folders in the vault.
     case folders
 
-    /// A route to the login screen after the vault has been locked.
-    ///
-    /// - Parameters:
-    ///   - account: The user's account
-    ///   - userInitiated: Did a user action initiate the logout.
-    ///
-    case lockVault(account: Account, userInitiated: Bool)
-
     /// A route to view a login request.
     ///
     /// - Parameter loginRequest: The login request to display.
     ///
     case loginRequest(_ loginRequest: LoginRequest)
-
-    /// A route to log the user out.
-    ///
-    /// - Parameter userInitiated: Did a user action initiate the logout.
-    ///
-    case logout(userInitiated: Bool)
 
     /// A route to the other view.
     case other

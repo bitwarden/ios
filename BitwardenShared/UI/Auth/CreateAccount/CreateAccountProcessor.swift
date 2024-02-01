@@ -45,7 +45,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<AuthRoute>
+    private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// The services used by the processor.
     private let services: Services
@@ -60,7 +60,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: CreateAccountState
     ) {

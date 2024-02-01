@@ -11,7 +11,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var captchaService: MockCaptchaService!
-    var coordinator: MockCoordinator<AuthRoute>!
+    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
     var subject: TwoFactorAuthProcessor!
 
@@ -23,7 +23,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         captchaService = MockCaptchaService()
-        coordinator = MockCoordinator<AuthRoute>()
+        coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         errorReporter = MockErrorReporter()
 
         subject = TwoFactorAuthProcessor(

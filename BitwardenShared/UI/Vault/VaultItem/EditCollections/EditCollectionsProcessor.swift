@@ -26,7 +26,7 @@ class EditCollectionsProcessor: StateProcessor<
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultItemRoute>
+    private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
     /// The delegate for the processor that is notified when the user moves the cipher between collections.
     private weak var delegate: EditCollectionsProcessorDelegate?
@@ -46,7 +46,7 @@ class EditCollectionsProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultItemRoute>,
+        coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: EditCollectionsProcessorDelegate?,
         services: Services,
         state: EditCollectionsState

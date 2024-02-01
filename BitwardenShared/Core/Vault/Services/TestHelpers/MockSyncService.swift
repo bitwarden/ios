@@ -4,6 +4,7 @@ import Combine
 
 class MockSyncService: SyncService {
     var didFetchSync = false
+    var fetchSyncForceSync: Bool?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
     var deleteCipherData: SyncCipherNotification?
@@ -24,8 +25,9 @@ class MockSyncService: SyncService {
     var fetchUpsertSyncSendData: SyncSendNotification?
     var fetchUpsertSyncSendResult: Result<Void, Error> = .success(())
 
-    func fetchSync() async throws {
+    func fetchSync(forceSync: Bool) async throws {
         didFetchSync = true
+        fetchSyncForceSync = forceSync
         try fetchSyncResult.get()
     }
 

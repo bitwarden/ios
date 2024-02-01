@@ -174,6 +174,17 @@ extension Alert {
         )
     }
 
+    /// An alert that informs the user about password autofill.
+    ///
+    /// - Returns: An alert that informs the user about password autofill.
+    ///
+    static func passwordAutofillInformation() -> Alert {
+        Alert.defaultAlert(
+            title: Localizations.passwordAutofill,
+            message: Localizations.bitwardenAutofillAlert2
+        )
+    }
+
     /// An alert that informs the user about receiving push notifications.
     ///
     /// - Parameter action: The action to perform when the user clicks through.

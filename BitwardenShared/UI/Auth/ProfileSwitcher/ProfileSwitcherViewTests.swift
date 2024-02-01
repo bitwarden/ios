@@ -65,7 +65,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
 
     /// Long pressing an alternative profile row dispatches the `.accountLongPressed` action.
     func test_alternateAccountRow_longPress_alternateAccount() throws {
-        let alternate = ProfileSwitcherItem(
+        let alternate = ProfileSwitcherItem.fixture(
             email: "alternate@bitwarden.com",
             userInitials: "NA"
         )
@@ -86,7 +86,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
     func test_alternateAccountRow_tap_alternateAccount() throws {
-        let alternate = ProfileSwitcherItem(
+        let alternate = ProfileSwitcherItem.fixture(
             email: "alternate@bitwarden.com",
             userInitials: "NA"
         )
@@ -107,12 +107,12 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
     func test_alternateAccountRows_tap_alternateEmptyAccount() throws {
-        let alternate = ProfileSwitcherItem(
+        let alternate = ProfileSwitcherItem.fixture(
             email: "locked@bitwarden.com",
             isUnlocked: false,
             userInitials: "LA"
         )
-        let secondAlternate = ProfileSwitcherItem()
+        let secondAlternate = ProfileSwitcherItem.fixture()
         let alternateAccounts = [
             alternate,
             secondAlternate,
@@ -149,19 +149,19 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         let state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
                     isUnlocked: true,
                     userInitials: "BB"
                 ),
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .teal,
                     email: "concurrent.claim@bitarden.com",
                     isUnlocked: true,
                     userInitials: "CC"
                 ),
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .indigo,
                     email: "double.dip@bitwarde.com",
                     isUnlocked: true,
@@ -192,19 +192,19 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
                     isUnlocked: true,
                     userInitials: "BB"
                 ),
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .teal,
                     email: "concurrent.claim@bitarden.com",
                     isUnlocked: true,
                     userInitials: "CC"
                 ),
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .indigo,
                     email: "double.dip@bitwarde.com",
                     isUnlocked: true,
@@ -230,20 +230,20 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
     func test_snapshot_multiAccount_locked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
                     isUnlocked: false,
                     userInitials: "BB"
                 ),
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .teal,
                     email: "concurrent.claim@bitarden.com",
                     isUnlocked: false,
                     userInitials: "CC"
                 ),
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .indigo,
                     email: "double.dip@bitwarde.com",
                     isUnlocked: false,
@@ -259,26 +259,26 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
     func test_snapshot_multiAccount_locked_atMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
                     isUnlocked: false,
                     userInitials: "BB"
                 ),
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .teal,
                     email: "concurrent.claim@bitarden.com",
                     isUnlocked: false,
                     userInitials: "CC"
                 ),
                 .anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .indigo,
                     email: "double.dip@bitwarde.com",
                     isUnlocked: false,
                     userInitials: "DD"
                 ),
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .green,
                     email: "extra.edition@bitwarden.com",
                     isUnlocked: false,

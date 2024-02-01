@@ -12,6 +12,9 @@ enum SendListAction: Equatable {
     /// The info button was pressed.
     case infoButtonPressed
 
+    /// The user has started or stopped searching.
+    case searchStateChanged(isSearching: Bool)
+
     /// The text in the search bar was changed.
     case searchTextChanged(String)
 

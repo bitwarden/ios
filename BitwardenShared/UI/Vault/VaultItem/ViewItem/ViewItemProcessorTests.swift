@@ -9,7 +9,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     // MARK: Properties
 
     var client: MockHTTPClient!
-    var coordinator: MockCoordinator<VaultItemRoute>!
+    var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -21,7 +21,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     override func setUp() {
         super.setUp()
         client = MockHTTPClient()
-        coordinator = MockCoordinator<VaultItemRoute>()
+        coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()

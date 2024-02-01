@@ -19,7 +19,7 @@ public protocol TabModule: AnyObject {
         settingsDelegate: SettingsCoordinatorDelegate,
         tabNavigator: TabNavigator,
         vaultDelegate: VaultCoordinatorDelegate
-    ) -> AnyCoordinator<TabRoute>
+    ) -> AnyCoordinator<TabRoute, Void>
 }
 
 // MARK: - AppModule
@@ -30,7 +30,7 @@ extension DefaultAppModule: TabModule {
         settingsDelegate: SettingsCoordinatorDelegate,
         tabNavigator: TabNavigator,
         vaultDelegate: VaultCoordinatorDelegate
-    ) -> AnyCoordinator<TabRoute> {
+    ) -> AnyCoordinator<TabRoute, Void> {
         TabCoordinator(
             module: self,
             rootNavigator: rootNavigator,

@@ -181,9 +181,9 @@ class DefaultNotificationService: NotificationService {
             case .syncCiphers,
                  .syncSettings,
                  .syncVault:
-                try await syncService.fetchSync()
+                try await syncService.fetchSync(forceSync: false)
             case .syncOrgKeys:
-                try await syncService.fetchSync()
+                try await syncService.fetchSync(forceSync: true)
             case .logOut:
                 // no-op
                 break

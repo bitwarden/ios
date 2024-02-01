@@ -34,7 +34,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     // MARK: Properties
 
     /// The coordinator used to manage navigation.
-    private let coordinator: AnyCoordinator<AuthRoute>
+    private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// The services used by this processor.
     private let services: Services
@@ -49,7 +49,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: SingleSignOnState
     ) {

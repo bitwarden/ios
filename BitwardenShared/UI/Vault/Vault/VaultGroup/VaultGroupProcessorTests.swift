@@ -10,7 +10,7 @@ import XCTest
 class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var coordinator: MockCoordinator<VaultRoute>!
+    var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var filterDelegate: MockVaultFilterDelegate!
     let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)

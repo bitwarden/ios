@@ -170,7 +170,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.name = "Name"
         processor.state.fileName = "example_file.txt"
         processor.state.fileData = Data("example".utf8)
-        processor.state.mode = .shareExtension
+        processor.state.mode = .shareExtension(.empty())
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 

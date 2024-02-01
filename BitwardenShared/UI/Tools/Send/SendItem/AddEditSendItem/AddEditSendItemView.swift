@@ -12,37 +12,40 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     @ObservedObject var store: Store<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect>
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if store.state.isSendDisabled {
-                    InfoContainer(Localizations.sendDisabledWarning)
-                } else if store.state.isSendHideEmailDisabled {
-                    InfoContainer(Localizations.sendOptionsPolicyInEffect)
+        ZStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    if store.state.isSendDisabled {
+                        InfoContainer(Localizations.sendDisabledWarning)
+                    } else if store.state.isSendHideEmailDisabled {
+                        InfoContainer(Localizations.sendOptionsPolicyInEffect)
+                    }
+
+                    nameField
+
+                    if store.state.mode == .add {
+                        typePicker
+                    }
+
+                    switch store.state.type {
+                    case .text:
+                        textSendAttributes
+                    case .file:
+                        fileSendAttributes
+                    }
+
+                    optionsButton
+
+                    if store.state.isOptionsExpanded {
+                        options
+                    }
+
+                    saveButton
                 }
-
-                nameField
-
-                if store.state.mode == .add {
-                    typePicker
-                }
-
-                switch store.state.type {
-                case .text:
-                    textSendAttributes
-                case .file:
-                    fileSendAttributes
-                }
-
-                optionsButton
-
-                if store.state.isOptionsExpanded {
-                    options
-                }
-
-                saveButton
+                .padding(16)
+                .disabled(store.state.isSendDisabled)
             }
-            .disabled(store.state.isSendDisabled)
-            .padding(16)
+            profileSwitcher
         }
         .dismissKeyboardInteractively()
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
@@ -54,8 +57,28 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             await store.perform(.loadData)
         }
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                switch store.state.mode {
+                case .add,
+                     .edit:
+                    EmptyView()
+                case let .shareExtension(profileSwitcherState):
+                    ProfileSwitcherToolbarView(
+                        store: store.child(
+                            state: { _ in
+                                profileSwitcherState
+                            },
+                            mapAction: { action in
+                                .profileSwitcherAction(action)
+                            },
+                            mapEffect: nil
+                        )
+                    )
+                }
+            }
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                if store.state.mode == .edit {
+                switch store.state.mode {
+                case .edit:
                     Menu {
                         if !store.state.isSendDisabled {
                             AsyncButton(Localizations.shareLink) {
@@ -80,6 +103,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             .frame(width: 19, height: 19)
                             .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                     }
+                case .add,
+                     .shareExtension:
+                    EmptyView()
                 }
 
                 ToolbarButton(
@@ -98,6 +124,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         .animation(.easeInOut(duration: 0.2), value: store.state.deletionDate)
         .animation(.easeInOut(duration: 0.2), value: store.state.expirationDate)
         .animation(.default, value: store.state.isOptionsExpanded)
+        .task {
+            await store.perform(.loadData)
+        }
     }
 
     /// The access count stepper.
@@ -149,7 +178,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The deletion date field.
     @ViewBuilder private var deletionDate: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if store.state.mode == .add || store.state.mode == .shareExtension {
+            switch store.state.mode {
+            case .add,
+                 .shareExtension:
                 BitwardenMenuField(
                     title: Localizations.deletionDate,
                     accessibilityIdentifier: "SendDeletionOptionsPicker",
@@ -159,6 +190,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         send: AddEditSendItemAction.deletionDateChanged
                     )
                 )
+            case .edit:
+                EmptyView()
             }
 
             if store.state.deletionDate == .custom {
@@ -191,7 +224,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The expiration date field.
     @ViewBuilder private var expirationDate: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if store.state.mode == .add || store.state.mode == .shareExtension {
+            switch store.state.mode {
+            case .add,
+                 .shareExtension:
                 BitwardenMenuField(
                     title: Localizations.expirationDate,
                     accessibilityIdentifier: "SendExpirationOptionsPicker",
@@ -201,6 +236,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         send: AddEditSendItemAction.expirationDateChanged
                     )
                 )
+            case .edit:
+                EmptyView()
             }
 
             if store.state.expirationDate == .custom {
@@ -380,6 +417,27 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
         .accessibilityIdentifier("SendShowHideOptionsButton")
+    }
+
+    /// A view that displays the ability to add or switch between account profiles
+    @ViewBuilder private var profileSwitcher: some View {
+        switch store.state.mode {
+        case let .shareExtension(profileSwitcherState):
+            ProfileSwitcherView(
+                store: store.child(
+                    state: { _ in
+                        profileSwitcherState
+                    },
+                    mapAction: { action in
+                        .profileSwitcherAction(action)
+                    },
+                    mapEffect: { profileEffect in
+                        .profileSwitcher(profileEffect)
+                    }
+                )
+            )
+        default: EmptyView()
+        }
     }
 
     /// The save button.

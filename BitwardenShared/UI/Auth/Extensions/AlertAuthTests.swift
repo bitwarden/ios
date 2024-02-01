@@ -6,7 +6,7 @@ class AlertAuthTests: BitwardenTestCase {
     /// `accountOptions(_:lockAction:logoutAction:)`
     func test_accountOptions() {
         let subject = Alert.accountOptions(
-            .init(email: "test@example.com", isUnlocked: true),
+            .fixture(email: "test@example.com", isUnlocked: true),
             lockAction: {},
             logoutAction: {}
         )

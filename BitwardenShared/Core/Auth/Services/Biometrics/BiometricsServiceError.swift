@@ -1,8 +1,16 @@
 // MARK: - BiometricsServiceError
 
-/// An error thrown by a BiometricsService.
+/// An error thrown by a BiometricsRepository.
 ///
 enum BiometricsServiceError: Error, Equatable {
+    /// An error when the user, app, or system cancels a biometric unlock
+    ///
+    case biometryCancelled
+
+    /// An error for when biometry fails for a benign reason.
+    ///
+    case biometryFailed
+
     /// An error for when the user has passed the maximum failed attempts at biometric unlock.
     ///
     case biometryLocked
