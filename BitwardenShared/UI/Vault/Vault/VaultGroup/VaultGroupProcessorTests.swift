@@ -247,26 +247,16 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         waitFor(subject.state.searchResults.count == 2)
         task.cancel()
 
-        var didWait = false
-        let delay = Task {
-            try await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
-            didWait = true
-        }
-        waitFor(didWait)
-        delay.cancel()
-
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         XCTAssertEqual(
             vaultRepository.refreshedTOTPCodes,
             [expired]
         )
-        XCTAssertEqual(
-            subject.state.searchResults,
-            [
-                refreshed,
-                stable,
-            ]
-        )
+        let expectedRefresh = [
+            refreshed,
+            stable,
+        ]
+        waitFor(subject.state.searchResults == expectedRefresh)
     }
 
     /// `perform(.search)` with a keyword should update search results in state.
