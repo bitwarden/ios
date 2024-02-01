@@ -141,8 +141,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
             // Unlock the vault.
             try await services.authRepository.unlockVaultWithPassword(password: state.masterPassword)
-            let activeAccount = try await services.authRepository.getActiveAccount()
-            let account = try await services.authRepository.getAccount(for: activeAccount.userId)
+            let account = try await services.authRepository.getAccount()
             // Complete the login flow.
             coordinator.hideLoadingOverlay()
             if account.profile.forcePasswordResetReason != nil {

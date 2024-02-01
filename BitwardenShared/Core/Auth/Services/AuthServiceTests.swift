@@ -235,7 +235,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Set up the mock data.
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
-            .httpSuccess(testData: .IdentityTokenSuccessWithMasterPasswordPolicy),
+            .httpSuccess(testData: .IdentityTokenWithMasterPasswordPolicy),
         ]
         appSettingsStore.appId = "App id"
         clientAuth.hashPasswordResult = .success("hashed password")
