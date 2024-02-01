@@ -102,15 +102,14 @@ final class AccountSecurityProcessor: StateProcessor<
     private func appeared() async {
         do {
             if let policy = try await services.policyService.fetchTimeoutPolicyValues() {
-
                 // If the policy returns no timeout action, we present the user all timeout actions.
                 // If the policy returns a timeout action, it's the only one we show the user.
                 if policy.action != nil {
-                    state.timeoutPolicyAction = policy.action
+                    state.policyTimeoutAction = policy.action
                 }
 
+                state.policyTimeoutValue = policy.value
                 state.isTimeoutPolicyEnabled = true
-                state.timeoutPolicyValue = policy.value
             }
 
             state.sessionTimeoutValue = try await services.stateService.getVaultTimeout()
@@ -198,8 +197,8 @@ final class AccountSecurityProcessor: StateProcessor<
         } else {
             Task {
                 try await services.stateService.setTimeoutAction(action: action)
-                state.sessionTimeoutAction = action
             }
+            state.sessionTimeoutAction = action
         }
     }
 
@@ -213,12 +212,12 @@ final class AccountSecurityProcessor: StateProcessor<
                 if state.isTimeoutPolicyEnabled {
                     // If the user's selection exceeds the policy's limit,
                     // show an alert, and set their timeout value equal to the policy max.
-                    guard value.rawValue <= state.timeoutPolicyValue else {
+                    guard value.rawValue <= state.policyTimeoutValue else {
                         try await services.vaultTimeoutService.setVaultTimeout(
-                            value: SessionTimeoutValue(rawValue: state.timeoutPolicyValue),
+                            value: SessionTimeoutValue(rawValue: state.policyTimeoutValue),
                             userId: nil
                         )
-                        coordinator.showAlert(.timeoutExceedsPolicyLengthAlert())
+                        coordinator.navigate(to: .alert(.timeoutExceedsPolicyLengthAlert()))
                         return
                     }
                 }

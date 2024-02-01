@@ -15,6 +15,19 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         .fixture(id: "2"),
     ]
 
+    let maximumTimeoutPolicy = Policy.fixture(
+        data: [
+            PolicyOptionType.minutes.rawValue: .int(60),
+            PolicyOptionType.action.rawValue: .string("lock"),
+        ],
+        type: .maximumVaultTimeout
+    )
+
+    let maximumTimeoutPolicyNoAction = Policy.fixture(
+        data: [PolicyOptionType.minutes.rawValue: .int(60)],
+        type: .maximumVaultTimeout
+    )
+
     let passwordGeneratorPolicy = Policy.fixture(
         data: [
             PolicyOptionType.capitalize.rawValue: .bool(true),
@@ -265,6 +278,31 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
         XCTAssertFalse(isDisabled)
+    }
+
+    /// `fetchTimeoutPolicyValues()` fetches timeout values when the policy contains data.
+    func test_fetchTimeoutPolicyValues() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([maximumTimeoutPolicy])
+
+        let policyValues = try await subject.fetchTimeoutPolicyValues()
+
+        XCTAssertEqual(policyValues?.value, 60 * 60)
+        XCTAssertEqual(policyValues?.action, .lock)
+    }
+
+    /// `fetchTimeoutPolicyValues()` fetches timeout values
+    /// when the policy contains a value but no action.
+    func test_fetchTimeoutPolicyValues_noAction() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([maximumTimeoutPolicyNoAction])
+
+        let policyValues = try await subject.fetchTimeoutPolicyValues()
+
+        XCTAssertEqual(policyValues?.value, 60 * 60)
+        XCTAssertNil(policyValues?.action)
     }
 
     /// `policyAppliesToUser(_:)` returns whether the policy applies to the user.

@@ -205,35 +205,35 @@ struct AccountSecurityState: Equatable {
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
 
+    /// The maximum vault timeout policy action.
+    ///
+    /// When set, this is the only action option available to users.
+    var policyTimeoutAction: SessionTimeoutAction? = .lock {
+        didSet {
+            availableTimeoutActions = SessionTimeoutAction.allCases
+                .filter { $0 == policyTimeoutAction }
+        }
+    }
+
     /// The policy's timeout value in hours.
     var policyTimeoutHours: Int {
-        timeoutPolicyValue / (60 * 60)
+        policyTimeoutValue / (60 * 60)
     }
 
     /// The policy's timeout value in minutes.
     var policyTimeoutMinutes: Int {
-        timeoutPolicyValue / 60 % 60
-    }
-
-    /// The maximum vault timeout policy action.
-    ///
-    /// When set, this is the only action option available to users.
-    var timeoutPolicyAction: SessionTimeoutAction? = .lock {
-        didSet {
-            availableTimeoutActions = SessionTimeoutAction.allCases
-                .filter { $0 == timeoutPolicyAction }
-        }
+        policyTimeoutValue / 60 % 60
     }
 
     /// The policy's maximum vault timeout value.
     ///
     /// When set, all timeout values greater than this are no longer shown.
-    var timeoutPolicyValue: Int = 0 {
+    var policyTimeoutValue: Int = 0 {
         didSet {
             availableTimeoutOptions = SessionTimeoutValue.allCases
                 .filter { $0 != .never }
                 .filter { $0 != .onAppRestart }
-                .filter { $0.rawValue <= timeoutPolicyValue }
+                .filter { $0.rawValue <= policyTimeoutValue }
         }
     }
 

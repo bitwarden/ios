@@ -7,6 +7,10 @@ class MockPolicyService: PolicyService {
 
     var isSendHideEmailDisabledByPolicy = false
 
+    var fetchTimeoutPolicyValuesResult: Result<(SessionTimeoutAction?, Int), Error> = .success(
+        (SessionTimeoutAction.lock, 60)
+    )
+
     var policyAppliesToUserResult = [PolicyType: Bool]()
     var policyAppliesToUserPolicies = [PolicyType]()
 
@@ -22,6 +26,13 @@ class MockPolicyService: PolicyService {
 
     func isSendHideEmailDisabledByPolicy() async -> Bool {
         isSendHideEmailDisabledByPolicy
+    }
+
+    func fetchTimeoutPolicyValues() async throws -> (
+        action: SessionTimeoutAction?,
+        value: Int
+    )? {
+        try fetchTimeoutPolicyValuesResult.get()
     }
 
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {

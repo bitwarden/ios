@@ -189,7 +189,7 @@ extension Alert {
             title: Localizations.warning,
             message: Localizations.vaultTimeoutToLarge,
             alertActions: [
-                AlertAction(title: Localizations.ok, style: .cancel),
+                AlertAction(title: Localizations.ok, style: .default),
             ]
         )
     }
