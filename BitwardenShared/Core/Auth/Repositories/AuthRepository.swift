@@ -508,4 +508,4 @@ extension DefaultAuthRepository: AuthRepository {
         if let maybeId { return maybeId }
         return try await stateService.getActiveAccountId()
     }
-} // swiftlint:disable:this file_length
+}

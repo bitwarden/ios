@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 // MARK: - PolicyService
 
 /// A protocol for a `PolicyService` which manages syncing and updates to the user's policies.
@@ -9,6 +11,11 @@ protocol PolicyService: AnyObject {
     /// - Returns: Whether the password generation policy is in effect.
     ///
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool
+
+    /// Go through current users policy, filter them and build a master password policy options based on enabled policy.
+    /// - Returns: Optional `MasterPasswordPolicyOptions` if it exist.
+    ///
+    func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions?
 
     /// Returns whether the send hide email option is disabled because of a policy.
     ///
@@ -212,6 +219,73 @@ extension DefaultPolicyService {
         options.type = generatorType ?? options.type
 
         return true
+    }
+
+    // swiftlint:disable:next function_body_length
+    func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
+        guard let userId = try? await stateService.getActiveAccountId(),
+              let policies = try? await policiesForUser(
+                  userId: userId,
+                  type: .masterPassword
+              ).filter({ policy in
+                  policy.enabled && policy.data != nil
+              }),
+              !policies.isEmpty
+        else {
+            return nil
+        }
+
+        var minComplexity: UInt8 = 0
+        var minLength: UInt8 = 0
+        var requireUpper = false
+        var requireLower = false
+        var requireNumbers = false
+        var requireSpecial = false
+        var enforceOnLogin = false
+
+        for policy in policies {
+            if let minimumComplexity = policy[.minComplexity]?.intValue,
+               minimumComplexity > minComplexity,
+               let uint8Value = UInt8(exactly: minimumComplexity) {
+                minComplexity = uint8Value
+            }
+
+            if let minimumLength = policy[.minLength]?.intValue,
+               minimumLength > minLength,
+               let uint8Value = UInt8(exactly: minimumLength) {
+                minLength = uint8Value
+            }
+
+            if policy[.requireUpper]?.boolValue == true {
+                requireUpper = true
+            }
+
+            if policy[.requireLower]?.boolValue == true {
+                requireLower = true
+            }
+
+            if policy[.requireNumbers]?.boolValue == true {
+                requireNumbers = true
+            }
+
+            if policy[.requireSpecial]?.boolValue == true {
+                requireSpecial = true
+            }
+
+            if policy[.enforceOnLogin]?.boolValue == true {
+                enforceOnLogin = true
+            }
+        }
+
+        return MasterPasswordPolicyOptions(
+            minComplexity: minComplexity,
+            minLength: minLength,
+            requireUpper: requireUpper,
+            requireLower: requireLower,
+            requireNumbers: requireNumbers,
+            requireSpecial: requireSpecial,
+            enforceOnLogin: enforceOnLogin
+        )
     }
 
     func isSendHideEmailDisabledByPolicy() async -> Bool {

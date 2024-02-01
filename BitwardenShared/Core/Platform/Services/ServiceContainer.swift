@@ -325,6 +325,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientGenerators: clientService.clientGenerator(),
             clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
+            policyService: policyService,
             stateService: stateService,
             systemDevice: UIDevice.current
         )

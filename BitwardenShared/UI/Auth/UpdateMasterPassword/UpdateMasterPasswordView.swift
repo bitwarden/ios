@@ -22,18 +22,16 @@ struct UpdateMasterPasswordView: View {
                             .stroke(Asset.Colors.primaryBitwarden.swiftUIColor, lineWidth: 1)
                     }
 
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(Localizations.masterPasswordPolicyInEffect)
-                    Text(" • \(Localizations.policyInEffectMinLength(20))")
-                    Text(" • \(Localizations.policyInEffectUppercase)")
-                }
-                .styleGuide(.callout)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                .padding(16)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(Asset.Colors.primaryBitwarden.swiftUIColor, lineWidth: 1)
-                }
+                Text(store.state.policySummary)
+                    .styleGuide(.callout)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .multilineTextAlignment(.leading)
+                    .padding(16)
+                    .frame(maxWidth: .infinity)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Asset.Colors.primaryBitwarden.swiftUIColor, lineWidth: 1)
+                    }
 
                 BitwardenTextField(
                     title: Localizations.currentMasterPassword,
@@ -106,6 +104,9 @@ struct UpdateMasterPasswordView: View {
                     await store.perform(.logoutPressed)
                 }
             }
+        }
+        .task {
+            await store.perform(.appeared)
         }
     }
 }

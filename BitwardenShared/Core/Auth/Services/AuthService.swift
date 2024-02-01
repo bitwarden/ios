@@ -139,6 +139,20 @@ protocol AuthService {
         captchaToken: String?
     ) async throws -> Account
 
+    /// Evaluates the supplied master password against the master password policy provided by the Identity response.
+    /// - Parameters:
+    ///   - email: user email.
+    ///   - masterPassword: user master password.
+    ///   - policy: Optional `MasterPasswordPolicyOptions` to check against password.
+    /// - Returns: True if the master password does NOT meet any policy requirements, false otherwise
+    /// (or if no policy present)
+    ///
+    func requirePasswordChange(
+        email: String,
+        masterPassword: String,
+        policy: MasterPasswordPolicyOptions?
+    ) async throws -> Bool
+
     /// Resend the email with the user's verification code.
     func resendVerificationCodeEmail() async throws
 }
@@ -185,6 +199,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
+    /// The service used by the application to manage the policy.
+    private var policyService: PolicyService
+
     /// The request model to resend the email with the two-factor verification code.
     private var resendEmailModel: ResendEmailCodeRequestModel?
 
@@ -217,6 +234,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - clientGenerators: The client used for generating passwords and passphrases.
     ///   - clientPlatform: The client used by the application to handle account fingerprint phrase generation.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The object used by the application to retrieve information about this device.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///
@@ -228,6 +246,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         clientGenerators: ClientGeneratorsProtocol,
         clientPlatform: ClientPlatformProtocol,
         environmentService: EnvironmentService,
+        policyService: PolicyService,
         stateService: StateService,
         systemDevice: SystemDevice
     ) {
@@ -238,6 +257,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.clientGenerators = clientGenerators
         self.clientPlatform = clientPlatform
         self.environmentService = environmentService
+        self.policyService = policyService
         self.stateService = stateService
         self.systemDevice = systemDevice
     }
@@ -406,19 +426,33 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             kdfParams: response.sdkKdf,
             purpose: .serverAuthorization
         )
-        try await getIdentityTokenResponse(
-            authenticationMethod: .password(
-                username: username,
-                password: hashedPassword
-            ),
+        let token = try await getIdentityTokenResponse(
+            authenticationMethod: .password(username: username, password: hashedPassword),
             email: username,
             captchaToken: captchaToken
         )
+        var policy: MasterPasswordPolicyOptions?
+        if let model = token.masterPasswordPolicy {
+            policy = MasterPasswordPolicyOptions(
+                minComplexity: model.minComplexity ?? 0,
+                minLength: model.minLength ?? 0,
+                requireUpper: model.requireUpper ?? false,
+                requireLower: model.requireLower ?? false,
+                requireNumbers: model.requireNumbers ?? false,
+                requireSpecial: model.requireSpecial ?? false,
+                enforceOnLogin: model.enforceOnLogin ?? false
+            )
+        }
+        if try await requirePasswordChange(email: username, masterPassword: masterPassword, policy: policy) {
+            var account = try await stateService.getActiveAccount()
+            account.profile.forcePasswordResetReason = .adminForcePasswordReset
+            await stateService.addAccount(account)
+        }
     }
 
     func loginWithSingleSignOn(code: String, email: String) async throws -> Account? {
         // Get the identity token to log in to Bitwarden.
-        try await getIdentityTokenResponse(
+        _ = try await getIdentityTokenResponse(
             authenticationMethod: .authorizationCode(
                 code: code,
                 codeVerifier: codeVerifier,
@@ -450,7 +484,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         if let captchaToken { twoFactorRequest.captchaToken = captchaToken }
 
         // Get the identity token to log in to Bitwarden.
-        try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
+        _ = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
 
         // Remove the cached request after successfully logging in.
         self.twoFactorRequest = nil
@@ -458,6 +492,34 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         // Return the account if the vault still needs to be unlocked.
         return try await stateService.getActiveAccount()
+    }
+
+    func requirePasswordChange(
+        email: String,
+        masterPassword: String,
+        policy: MasterPasswordPolicyOptions?
+    ) async throws -> Bool {
+        // Check if we need to change password on login
+        guard let masterPasswordPolicy = try await policyService.getMasterPasswordPolicyOptions() ?? policy,
+              masterPasswordPolicy.enforceOnLogin else {
+            return false
+        }
+
+        // Calculate the strength of the user email and password
+        let strength = await clientAuth.passwordStrength(
+            password: masterPassword,
+            email: email,
+            additionalInputs: []
+        )
+
+        // Check if master password meets the master password policy.
+        let satisfyPolicy = await clientAuth.satisfiesPolicy(
+            password: masterPassword,
+            strength: strength,
+            policy: masterPasswordPolicy
+        )
+
+        return satisfyPolicy == false
     }
 
     func resendVerificationCodeEmail() async throws {
@@ -496,7 +558,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         captchaToken: String? = nil,
         loginRequestId: String? = nil,
         request: IdentityTokenRequestModel? = nil
-    ) async throws {
+    ) async throws -> IdentityTokenResponseModel {
         // Get the app's id.
         let appID = await appIdService.getOrCreateAppId()
 
@@ -549,6 +611,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                     purpose: .localAuthorization
                 ))
             }
+            return identityTokenResponse
         } catch let error as IdentityTokenRequestError {
             if case let .twoFactorRequired(_, ssoToken, captchaBypassToken) = error {
                 // If the token request require two-factor authentication, cache the request so that

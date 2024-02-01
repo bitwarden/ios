@@ -25,7 +25,10 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         )
 
         subjectPassword = IdentityTokenRequestModel(
-            authenticationMethod: .password(username: "user@example.com", password: "password"),
+            authenticationMethod: .password(
+                username: "ramen@delicious.com",
+                password: "password"
+            ),
             captchaToken: "captchaToken",
             deviceInfo: .fixture(),
             loginRequestId: nil
@@ -74,7 +77,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         XCTAssertEqual(valuesByKey["deviceType"], "1")
 
         XCTAssertEqual(valuesByKey["grant_type"], "password")
-        XCTAssertEqual(valuesByKey["username"], "user@example.com")
+        XCTAssertEqual(valuesByKey["username"], "ramen@delicious.com")
         XCTAssertEqual(valuesByKey["password"], "password")
 
         XCTAssertEqual(valuesByKey["captchaResponse"], "captchaToken")
@@ -96,7 +99,10 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
     /// `values` contains the two-factor information if it's provided.
     func test_values_withTwoFactorInformation() {
         let subject = IdentityTokenRequestModel(
-            authenticationMethod: .password(username: "user@example.com", password: "password"),
+            authenticationMethod: .password(
+                username: "user@example.com",
+                password: "password"
+            ),
             captchaToken: nil,
             deviceInfo: .fixture(),
             loginRequestId: nil,

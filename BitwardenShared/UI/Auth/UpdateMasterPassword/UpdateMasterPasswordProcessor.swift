@@ -15,11 +15,13 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     typealias Services = HasAuthRepository
         & HasAuthService
         & HasErrorReporter
+        & HasPolicyService
+        & HasSettingsRepository
 
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultRoute, Void>
+    private var coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// The services used by this processor.
     private var services: Services
@@ -34,7 +36,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultRoute, Void>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: UpdateMasterPasswordState
     ) {
@@ -48,8 +50,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     override func perform(_ effect: UpdateMasterPasswordEffect) async {
         switch effect {
         case .appeared:
-            // TODO: BIT-789
-            break
+            await syncVault()
         case .logoutPressed:
             // TODO: BIT-789
             break
@@ -83,5 +84,27 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     ///
     private func updateMasterPassword() async {
         // TODO: BIT-789
+    }
+
+    /// Syncs the user's vault with the API.
+    ///
+    private func syncVault() async {
+        coordinator.showLoadingOverlay(title: Localizations.syncing)
+        defer { coordinator.hideLoadingOverlay() }
+
+        do {
+            try await services.settingsRepository.fetchSync()
+            if let policy = try await services.policyService.getMasterPasswordPolicyOptions() {
+                state.masterPasswordPolicy = policy
+            } else {
+                coordinator.hideLoadingOverlay()
+                coordinator.navigate(to: .complete)
+            }
+        } catch {
+            coordinator.showAlert(.networkResponseError(error) {
+                await self.syncVault()
+            })
+            services.errorReporter.log(error: error)
+        }
     }
 }

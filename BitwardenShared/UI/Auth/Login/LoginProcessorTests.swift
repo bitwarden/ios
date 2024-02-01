@@ -30,6 +30,9 @@ class LoginProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
 
+        let account = Account.fixture()
+        authRepository.accountForItemResult = .success(account)
+
         subject = LoginProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
@@ -63,6 +66,8 @@ class LoginProcessorTests: BitwardenTestCase {
     func test_captchaCompleted() {
         subject.state.masterPassword = "Test"
         subject.captchaCompleted(token: "token")
+        authRepository.unlockWithPasswordResult = .success(())
+        authRepository.activeAccount = .fixture()
         waitFor(!coordinator.routes.isEmpty)
 
         XCTAssertEqual(authService.loginWithMasterPasswordCaptchaToken, "token")
@@ -137,6 +142,9 @@ class LoginProcessorTests: BitwardenTestCase {
         subject.state.username = "email@example.com"
         subject.state.masterPassword = "Password1234!"
 
+        authRepository.unlockWithPasswordResult = .success(())
+        authRepository.activeAccount = .fixture()
+
         await subject.perform(.loginWithMasterPasswordPressed)
 
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
@@ -144,6 +152,30 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
 
         XCTAssertEqual(coordinator.routes.last, .complete)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
+
+        XCTAssertEqual(authRepository.unlockVaultPassword, "Password1234!")
+    }
+
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password,
+    /// presents update master password view if user's password needs to be updated.
+    func test_perform_loginWithMasterPasswordPressed_updateMasterPassword() async throws {
+        var account = Account.fixture()
+        account.profile.forcePasswordResetReason = .adminForcePasswordReset
+        authRepository.accountForItemResult = .success(account)
+        subject.state.username = "email@example.com"
+        subject.state.masterPassword = "Password1234!"
+        authRepository.unlockWithPasswordResult = .success(())
+        authRepository.activeAccount = account
+        authService.requirePasswordChangeResult = .success(true)
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Password1234!")
+        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
+
+        XCTAssertEqual(coordinator.routes.last, .updateMasterPassword)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
 

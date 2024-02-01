@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -8,16 +9,29 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var httpClient: MockHTTPClient!
-    var coordinator: MockCoordinator<VaultRoute, Void>!
+    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var subject: UpdateMasterPasswordProcessor!
+
+    var errorReporter: MockErrorReporter!
+    var policyService: MockPolicyService!
+    var settingsRepository: MockSettingsRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         httpClient = MockHTTPClient()
-        let services = ServiceContainer.withMocks(httpClient: httpClient)
+        policyService = MockPolicyService()
+        settingsRepository = MockSettingsRepository()
+
+        let services = ServiceContainer.withMocks(
+            errorReporter: errorReporter,
+            httpClient: httpClient,
+            policyService: policyService,
+            settingsRepository: settingsRepository
+        )
         let state = UpdateMasterPasswordState()
         subject = UpdateMasterPasswordProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -34,6 +48,46 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `perform()` with `.appeared` fails to sync and move to main vault screen.
+    func test_perform_appeared_fails() async throws {
+        struct CryptoError: Error, Equatable {}
+        policyService.getMasterPasswordPolicyOptionsResult = .failure(CryptoError())
+        XCTAssertNil(subject.state.masterPasswordPolicy)
+        await subject.perform(.appeared)
+        XCTAssertNil(subject.state.masterPasswordPolicy)
+        XCTAssertNil(coordinator.routes.last)
+        XCTAssertEqual(errorReporter.errors.last as? CryptoError, CryptoError())
+    }
+
+    /// `perform()` with `.appeared` syncs vault and fetches `MasterPasswordPolicyOption`
+    /// updates the state.
+    func test_perform_appeared_success() async throws {
+        policyService.getMasterPasswordPolicyOptionsResult = .success(
+            MasterPasswordPolicyOptions(
+                minComplexity: 3,
+                minLength: 4,
+                requireUpper: true,
+                requireLower: true,
+                requireNumbers: true,
+                requireSpecial: true,
+                enforceOnLogin: true
+            )
+        )
+        XCTAssertNil(subject.state.masterPasswordPolicy)
+        await subject.perform(.appeared)
+        XCTAssertNotNil(subject.state.masterPasswordPolicy)
+    }
+
+    /// `perform()` with `.appeared` succeeds to sync but master password policy fails to load,
+    /// and move to main vault screen.
+    func test_perform_appeared_succeeds_policyNil() async throws {
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        XCTAssertNil(subject.state.masterPasswordPolicy)
+        await subject.perform(.appeared)
+        XCTAssertNil(subject.state.masterPasswordPolicy)
+        XCTAssertEqual(coordinator.routes.last, .complete)
+    }
 
     /// `perform()` with `.submitPressed` submits the request for updating the master password.
     func test_perform_submitPressed_success() async throws {
