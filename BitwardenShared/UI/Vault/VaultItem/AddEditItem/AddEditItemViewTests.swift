@@ -586,6 +586,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
+    func test_snapshot_add_personalOwnershipPolicy() {
+        processor.state.isPersonalOwnershipDisabled = true
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     func test_snapshot_add_secureNote_full_fieldsVisible() {
         processor.state.type = .secureNote
         processor.state.name = "Secure Note Name"

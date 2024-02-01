@@ -30,6 +30,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasCameraService
         & HasErrorReporter
         & HasPasteboardService
+        & HasPolicyService
         & HasStateService
         & HasTOTPService
         & HasVaultRepository
@@ -190,9 +191,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Fetches any additional data (e.g. organizations and folders) needed for adding or editing a cipher.
     private func fetchCipherOptions() async {
         do {
+            let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
+            let ownershipOptions = try await services.vaultRepository
+                .fetchCipherOwnershipOptions(includePersonal: !isPersonalOwnershipDisabled)
+
             state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
-            state.ownershipOptions = try await services.vaultRepository
-                .fetchCipherOwnershipOptions(includePersonal: true)
+            state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
+            state.ownershipOptions = ownershipOptions
+            state.owner = ownershipOptions.first
 
             let folders = try await services.vaultRepository.fetchFolders()
                 .map { DefaultableType<FolderView>.custom($0) }

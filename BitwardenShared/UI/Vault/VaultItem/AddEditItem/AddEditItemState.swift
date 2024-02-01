@@ -48,6 +48,9 @@ protocol AddEditItemState: Sendable {
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool { get set }
 
+    /// Whether the policy is enforced to disable personal vault ownership.
+    var isPersonalOwnershipDisabled: Bool { get set }
+
     /// The state for a login type item.
     var loginState: LoginItemState { get set }
 

@@ -131,7 +131,8 @@ private struct SearchableVaultListView: View {
                 state: { state in
                     SearchVaultFilterRowState(
                         organizations: state.organizations,
-                        searchVaultFilterType: state.searchVaultFilterType
+                        searchVaultFilterType: state.searchVaultFilterType,
+                        isPersonalOwnershipDisabled: state.isPersonalOwnershipDisabled
                     )
                 },
                 mapAction: { action in
@@ -165,7 +166,8 @@ private struct SearchableVaultListView: View {
                 state: { state in
                     SearchVaultFilterRowState(
                         organizations: state.organizations,
-                        searchVaultFilterType: state.vaultFilterType
+                        searchVaultFilterType: state.vaultFilterType,
+                        isPersonalOwnershipDisabled: state.isPersonalOwnershipDisabled
                     )
                 },
                 mapAction: { action in
