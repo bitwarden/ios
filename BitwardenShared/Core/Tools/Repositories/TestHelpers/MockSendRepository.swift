@@ -17,9 +17,14 @@ class MockSendRepository: SendRepository {
     var fetchSyncIsManualRefresh: Bool?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
+    var searchSendSearchText: String?
+    var searchSendType: BitwardenShared.SendType?
     var searchSendSubject = CurrentValueSubject<[SendListItem], Error>([])
 
     var sendListSubject = CurrentValueSubject<[SendListSection], Error>([])
+
+    var sendTypeListPublisherType: BitwardenShared.SendType?
+    var sendTypeListSubject = CurrentValueSubject<[SendListItem], Error>([])
 
     var addFileSendResult: Result<SendView, Error> = .success(.fixture())
     var addFileSendData: Data?
@@ -83,13 +88,25 @@ class MockSendRepository: SendRepository {
     }
 
     func searchSendPublisher(
-        searchText: String
+        searchText: String,
+        type: BitwardenShared.SendType?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
-        searchSendSubject.eraseToAnyPublisher().values
+        searchSendSearchText = searchText
+        searchSendType = type
+        return searchSendSubject.eraseToAnyPublisher().values
     }
 
     func sendListPublisher() -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
         sendListSubject
+            .eraseToAnyPublisher()
+            .values
+    }
+
+    func sendTypeListPublisher(
+        type: BitwardenShared.SendType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
+        sendTypeListPublisherType = type
+        return sendTypeListSubject
             .eraseToAnyPublisher()
             .values
     }
