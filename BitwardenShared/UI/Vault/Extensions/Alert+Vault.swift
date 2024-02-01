@@ -111,7 +111,7 @@ extension Alert {
                     action(.copy(
                         toast: Localizations.number,
                         value: number,
-                        requiresMasterPasswordReprompt: false
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password
                     ))
                 })
             }
@@ -120,7 +120,7 @@ extension Alert {
                     action(.copy(
                         toast: Localizations.securityCode,
                         value: code,
-                        requiresMasterPasswordReprompt: false
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password
                     ))
                 })
             }
