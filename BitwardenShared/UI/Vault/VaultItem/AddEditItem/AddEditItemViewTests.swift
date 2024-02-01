@@ -63,7 +63,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             existing: CipherView.loginFixture(),
             hasPremium: true
         )!
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close)
+        let button = try subject.inspect().find(button: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
