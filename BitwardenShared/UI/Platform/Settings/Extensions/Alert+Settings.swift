@@ -180,6 +180,16 @@ extension Alert {
         )
     }
 
+    static var timeoutExceedsPolicyLengthAlert: Alert {
+        Alert(
+            title: Localizations.warning,
+            message: Localizations.vaultTimeoutToLarge,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .cancel),
+            ]
+        )
+    }
+
     /// An alert notifying the user that they will be navigated to the web app to set up two step login.
     ///
     /// - Parameter action: The action to perform when the user confirms that they want to be navigated to the

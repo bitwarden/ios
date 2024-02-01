@@ -160,6 +160,12 @@ public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuabl
 /// An object that defines the current state of the `AccountSecurityView`.
 ///
 struct AccountSecurityState: Equatable {
+    /// The timeout action to show when the maximum vault timeout policy is in effect.
+    var availableTimeoutActions: [SessionTimeoutAction] = SessionTimeoutAction.allCases
+
+    /// The timeout options to show when the maximum vault timeout policy is in effect.
+    var availableTimeoutOptions: [SessionTimeoutValue] = SessionTimeoutValue.allCases
+
     /// The biometric auth status for the user.
     var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
 
@@ -187,6 +193,9 @@ struct AccountSecurityState: Equatable {
     /// Whether the approve login requests toggle is on.
     var isApproveLoginRequestsToggleOn: Bool = false
 
+    /// Whether the maximum vault timeout policy is in effect.
+    var isTimeoutPolicyEnabled: Bool = false
+
     /// Whether or not the custom session timeout field is shown.
     var isShowingCustomTimeout: Bool {
         guard case .custom = sessionTimeoutValue else { return false }
@@ -195,6 +204,33 @@ struct AccountSecurityState: Equatable {
 
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
+
+    /// The policy timeout in hours.
+    var policyTimeoutHours: Int = 0
+
+    /// The policy timeout in minutes.
+    var policyTimeoutMinutes: Int = 0
+
+    /// The maximum vault timeout policy action.
+    var timeoutPolicyAction: SessionTimeoutAction? = .lock {
+        didSet {
+            availableTimeoutActions = SessionTimeoutAction.allCases
+                .filter { $0 == timeoutPolicyAction }
+        }
+    }
+
+    /// The maximum vault timeout policy value.
+    var timeoutPolicyValue: Int = 0 {
+        didSet {
+            availableTimeoutOptions = SessionTimeoutValue.allCases
+                .filter { $0 != .never }
+                .filter { $0 != .onAppRestart }
+                .filter { $0.rawValue <= timeoutPolicyValue }
+
+            policyTimeoutHours = timeoutPolicyValue / (60 * 60)
+            policyTimeoutMinutes = timeoutPolicyValue / 60 % 60
+        }
+    }
 
     /// The action taken when a session timeout occurs.
     var sessionTimeoutAction: SessionTimeoutAction = .lock

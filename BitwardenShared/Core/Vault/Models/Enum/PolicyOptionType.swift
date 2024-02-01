@@ -3,6 +3,8 @@
 enum PolicyOptionType: String {
     // MARK: Password Generation Options
 
+    case action
+
     /// A policy option for whether to capitalize the passphrase words.
     case capitalize
 
@@ -11,6 +13,8 @@ enum PolicyOptionType: String {
 
     /// A policy option for whether to include a number in a passphrase.
     case includeNumber
+
+    case minutes
 
     /// A policy option for the minimum length.
     case minLength

@@ -10,6 +10,12 @@ protocol PolicyService: AnyObject {
     ///
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool
 
+    /// If the maximum vault timeout policy is enabled, return the policy values.
+    ///
+    /// - Returns: The action to take upon a timeout, and the timeout value in minutes.
+    ///
+    func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, value: Int)?
+
     /// Returns whether the send hide email option is disabled because of a policy.
     ///
     /// - Returns: Whether the send hide email option is disabled.
@@ -212,6 +218,29 @@ extension DefaultPolicyService {
         options.type = generatorType ?? options.type
 
         return true
+    }
+
+    func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, value: Int)? {
+        guard let userId = try? await stateService.getActiveAccountId(),
+              let policies = try? await policiesForUser(userId: userId, type: .maximumVaultTimeout),
+              !policies.isEmpty
+        else {
+            return nil
+        }
+
+        var timeoutAction: SessionTimeoutAction?
+        var timeoutValue = 0
+
+        for policy in policies {
+            guard let policyTimeoutValue = policy[.minutes]?.intValue else { return nil }
+            timeoutValue = policyTimeoutValue
+
+            guard let action = policy[.action]?.stringValue, action == "lock" || action == "logOut" else {
+                return (nil, timeoutValue)
+            }
+            timeoutAction = action == "lock" ? .lock : .logout
+        }
+        return (timeoutAction, timeoutValue * 60)
     }
 
     func isSendHideEmailDisabledByPolicy() async -> Bool {
