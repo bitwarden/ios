@@ -16,6 +16,11 @@ struct AddEditItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
 
+    /// Whether to show that a policy is in effect.
+    var isPolicyEnabled: Bool {
+        store.state.isPersonalOwnershipDisabled && store.state.configuration == .add
+    }
+
     // MARK: View
 
     var body: some View {
@@ -47,7 +52,7 @@ struct AddEditItemView: View {
     private var content: some View {
         ScrollView {
             VStack(spacing: 20) {
-                if store.state.isPersonalOwnershipDisabled && store.state.configuration == .add {
+                if isPolicyEnabled {
                     InfoContainer(Localizations.personalOwnershipPolicyInEffect)
                 }
 
