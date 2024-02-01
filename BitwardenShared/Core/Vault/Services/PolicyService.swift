@@ -232,15 +232,15 @@ extension DefaultPolicyService {
         var timeoutValue = 0
 
         for policy in policies {
-            guard let policyTimeoutValue = policy[.minutes]?.intValue else { return nil }
-            timeoutValue = policyTimeoutValue
+            guard let policyTimeoutValue = policy[.minutes]?.intValue else { continue }
+            timeoutValue = policyTimeoutValue * 60
 
             guard let action = policy[.action]?.stringValue, action == "lock" || action == "logOut" else {
                 return (nil, timeoutValue)
             }
             timeoutAction = action == "lock" ? .lock : .logout
         }
-        return (timeoutAction, timeoutValue * 60)
+        return (timeoutAction, timeoutValue)
     }
 
     func isSendHideEmailDisabledByPolicy() async -> Bool {

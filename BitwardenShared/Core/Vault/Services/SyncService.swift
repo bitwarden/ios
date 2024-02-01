@@ -115,7 +115,7 @@ extension DefaultSyncService {
 
     // MARK: Private Methods
 
-    /// Checks if the maximum vault timeout policy is enabled. If it is, 
+    /// Checks if the maximum vault timeout policy is enabled. If it is,
     /// update the vault timeout values stored on device.
     ///
     private func checkVaultTimeoutPolicy() async throws {

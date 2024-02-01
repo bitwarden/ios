@@ -108,11 +108,9 @@ final class AccountSecurityProcessor: StateProcessor<
 
                 state.isTimeoutPolicyEnabled = true
                 state.timeoutPolicyValue = policy.value
-                state.sessionTimeoutValue = .immediately
-            } else {
-                state.sessionTimeoutValue = try await services.stateService.getVaultTimeout()
             }
 
+            state.sessionTimeoutValue = try await services.stateService.getVaultTimeout()
             state.sessionTimeoutAction = try await services.stateService.getTimeoutAction()
         } catch {
             coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
@@ -215,8 +213,8 @@ final class AccountSecurityProcessor: StateProcessor<
                         return
                     }
                 }
-                state.sessionTimeoutValue = value
                 try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: nil)
+                state.sessionTimeoutValue = value
             } catch {
                 self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
                 self.services.errorReporter.log(error: error)
