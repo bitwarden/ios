@@ -27,7 +27,7 @@ protocol SendDataStore: AnyObject {
     ///   - id: The id of the `Send` to fetch.
     ///   - userId: The id of the user associated with the send to retrieve.
     ///
-    func fetchSend(id: String, userId: String) async throws ->Send?
+    func fetchSend(id: String, userId: String) async throws -> Send?
 
     /// A publisher for a user's send objects.
     ///

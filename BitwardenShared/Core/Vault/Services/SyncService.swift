@@ -222,6 +222,12 @@ extension DefaultSyncService {
             return
         }
 
-        try await sendService.syncSendWithServer(id: data.id)
+        do {
+            try await sendService.syncSendWithServer(id: data.id)
+        } catch let error as URLError {
+            if (error as NSError).code == 404 {
+                try await sendService.deleteSendWithLocalStorage(id: data.id)
+            }
+        }
     }
 }

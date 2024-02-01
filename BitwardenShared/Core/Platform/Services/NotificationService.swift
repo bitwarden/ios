@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import UserNotifications
 
 // MARK: - NotificationService
@@ -154,7 +155,7 @@ class DefaultNotificationService: NotificationService {
             else { return }
             let userId = try await stateService.getActiveAccountId()
 
-            print("notification received: \(notificationData)")
+            Logger.application.debug("Notification received: \(message)")
 
             // Handle the notification according to the type of data.
             switch type {
