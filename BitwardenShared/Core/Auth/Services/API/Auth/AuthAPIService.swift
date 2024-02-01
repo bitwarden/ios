@@ -11,6 +11,16 @@ protocol AuthAPIService {
     ///
     func answerLoginRequest(_ id: String, requestModel: AnswerLoginRequestRequestModel) async throws -> LoginRequest
 
+    /// Check the status of the pending login request for the unauthenticated user.
+    ///
+    /// - Parameters:
+    ///   - id: The id of the login request.
+    ///   - accessCode: The access code generated when creating the request.
+    ///
+    /// - Returns: The pending login request.
+    ///
+    func checkPendingLoginRequest(withId id: String, accessCode: String) async throws -> LoginRequest
+
     /// Performs the identity token request and returns the response.
     ///
     /// - Parameter request: The user's authentication details.
@@ -85,6 +95,10 @@ extension APIService: AuthAPIService {
         try await apiService.send(AnswerLoginRequestRequest(id: id, requestModel: requestModel))
     }
 
+    func checkPendingLoginRequest(withId id: String, accessCode: String) async throws -> LoginRequest {
+        try await apiUnauthenticatedService.send(CheckLoginRequestRequest(accessCode: accessCode, id: id))
+    }
+
     func getIdentityToken(_ request: IdentityTokenRequestModel) async throws -> IdentityTokenResponseModel {
         try await identityService.send(IdentityTokenRequest(requestModel: request))
     }
@@ -95,11 +109,7 @@ extension APIService: AuthAPIService {
 
     func getPendingLoginRequests() async throws -> [LoginRequest] {
         // Filter the response to only show the non-expired, non-answered requests.
-        try await apiService.send(PendingLoginsRequest())
-            .data
-            .filter { request in
-                !request.isAnswered && !request.isExpired
-            }
+        try await apiService.send(PendingLoginsRequest()).data.filter { !$0.isAnswered && !$0.isExpired }
     }
 
     func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse {

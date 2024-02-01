@@ -26,6 +26,9 @@ struct IdentityTokenRequestModel {
     /// The device's details.
     let deviceInfo: DeviceInfo
 
+    /// The id of the associated login with device request, if applicable.
+    let loginRequestId: String?
+
     /// The two-factor authentication code.
     var twoFactorCode: String?
 
@@ -67,6 +70,10 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
 
         if let captchaToken {
             queryItems.append(URLQueryItem(name: "captchaResponse", value: captchaToken))
+        }
+
+        if let loginRequestId {
+            queryItems.append(URLQueryItem(name: "authRequest", value: loginRequestId))
         }
 
         if let twoFactorCode, let twoFactorMethod, let twoFactorRemember {

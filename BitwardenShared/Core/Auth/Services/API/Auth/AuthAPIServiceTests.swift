@@ -44,6 +44,15 @@ class AuthAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(response, .fixture())
     }
 
+    /// `checkPendingLoginRequest(withId:accessCode:)` successfully decodes the login request response.
+    func test_checkPendingLoginRequest() async throws {
+        client.result = .httpSuccess(testData: .authRequestSuccess)
+
+        let response = try await subject.checkPendingLoginRequest(withId: "10", accessCode: "no")
+
+        XCTAssertEqual(response, .fixture())
+    }
+
     /// `getIdentityToken()` successfully decodes the identity token response.
     func test_getIdentityToken() async throws {
         client.result = .httpSuccess(testData: .identityTokenSuccess)
@@ -52,7 +61,8 @@ class AuthAPIServiceTests: BitwardenTestCase {
             IdentityTokenRequestModel(
                 authenticationMethod: .password(username: "username", password: "password"),
                 captchaToken: nil,
-                deviceInfo: .fixture()
+                deviceInfo: .fixture(),
+                loginRequestId: nil
             )
         )
 
@@ -75,7 +85,8 @@ class AuthAPIServiceTests: BitwardenTestCase {
                 IdentityTokenRequestModel(
                     authenticationMethod: .password(username: "username", password: "password"),
                     captchaToken: nil,
-                    deviceInfo: .fixture()
+                    deviceInfo: .fixture(),
+                    loginRequestId: nil
                 )
             )
         }

@@ -7,7 +7,7 @@ import Foundation
 ///
 public enum SendRoute: Equatable {
     /// A route to the add item screen.
-    case addItem
+    case addItem(type: SendType? = nil)
 
     /// A route that dismisses a presented sheet.
     ///
@@ -21,6 +21,9 @@ public enum SendRoute: Equatable {
     /// - Parameter sendView: The `SendView` to edit.
     ///
     case editItem(_ sendView: SendView)
+
+    /// A route to the send group screen.
+    case group(_ type: SendType)
 
     /// A route to the send screen.
     case list

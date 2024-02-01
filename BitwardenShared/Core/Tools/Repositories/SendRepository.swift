@@ -70,11 +70,14 @@ public protocol SendRepository: AnyObject {
 
     /// A publisher for a user's send objects based on the specified search text.
     ///
-    /// - Parameter searchText:  The search text to filter the send list.
+    /// - Parameters:
+    ///   - searchText: The search text to filter the send list.
+    ///   - type: An optional `SendType` to use to filter the search results.
     /// - Returns: A publisher for the user's sends.
     ///
     func searchSendPublisher(
-        searchText: String
+        searchText: String,
+        type: SendType?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>>
 
     /// A publisher for all the sends in the user's account.
@@ -82,6 +85,28 @@ public protocol SendRepository: AnyObject {
     /// - Returns: A publisher for the list of sends in the user's account.
     ///
     func sendListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>>
+
+    /// A publisher for all the sends in the user's account.
+    ///
+    /// - Parameter: The `SendType` to use to filter the sends.
+    /// - Returns: A publisher for the list of sends in the user's account.
+    ///
+    func sendTypeListPublisher(
+        type: SendType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>>
+}
+
+extension SendRepository {
+    /// A publisher for a user's send objects based on the specified search text.
+    ///
+    /// - Parameter searchText:  The search text to filter the send list.
+    /// - Returns: A publisher for the user's sends.
+    ///
+    func searchSendPublisher(
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
+        try await searchSendPublisher(searchText: searchText, type: nil)
+    }
 }
 
 // MARK: - DefaultSendRepository
@@ -206,7 +231,8 @@ class DefaultSendRepository: SendRepository {
     // MARK: Publishers
 
     func searchSendPublisher(
-        searchText: String
+        searchText: String,
+        type: SendType?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased()
@@ -214,8 +240,13 @@ class DefaultSendRepository: SendRepository {
 
         return try await sendService.sendsPublisher().asyncTryMap { sends -> [SendListItem] in
             // Convert the Sends to SendViews and filter appropriately.
-            let activeSends = try await sends.asyncMap { send in
+            var activeSends = try await sends.asyncMap { send in
                 try await self.clientVault.sends().decrypt(send: send)
+            }
+
+            if let type {
+                let sendType = BitwardenSdk.SendType(type: type)
+                activeSends = activeSends.filter { $0.type == sendType }
             }
 
             var matchedSends: [SendView] = []
@@ -246,6 +277,17 @@ class DefaultSendRepository: SendRepository {
         try await sendService.sendsPublisher()
             .asyncTryMap { sends in
                 try await self.sendListSections(from: sends)
+            }
+            .eraseToAnyPublisher()
+            .values
+    }
+
+    func sendTypeListPublisher(
+        type: SendType
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
+        try await sendService.sendsPublisher()
+            .asyncTryMap { sends in
+                try await self.sendListItems(type: type, from: sends)
             }
             .eraseToAnyPublisher()
             .values
@@ -295,5 +337,28 @@ class DefaultSendRepository: SendRepository {
                 name: Localizations.allSends
             ),
         ]
+    }
+
+    /// Returns a list of items that are grouped together in the send list from a list of encrypted
+    /// sends.
+    ///
+    /// - Parameters:
+    ///   - type: The type of sends to get.
+    ///   - ciphers: The ciphers to build the list of items.
+    /// - Returns: A list of items for the group in the vault list.
+    ///
+    private func sendListItems(
+        type: SendType,
+        from sends: [Send]
+    ) async throws -> [SendListItem] {
+        let sendType = BitwardenSdk.SendType(type: type)
+        let sends = try await sends.asyncMap { send in
+            try await self.clientVault.sends().decrypt(send: send)
+        }
+        .filter { $0.type == sendType }
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        .compactMap(SendListItem.init)
+
+        return sends
     }
 }

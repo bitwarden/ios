@@ -444,7 +444,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// Returns a string containing a description of the send list sections.
     private func dumpSendListSections(_ sections: [SendListSection]) -> String {
         sections.reduce(into: "") { result, section in
-            result.append("Section: \(section.name)\n")
+            result.append("Section: \(section.name ?? "--")\n")
             result.append(dumpSendListItems(section.items, indent: "  "))
             if section != sections.last {
                 result.append("\n")

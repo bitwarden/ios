@@ -11,6 +11,9 @@ public enum AddSendContentType: Equatable, Hashable {
 
     /// A text type, with the provided string value.
     case text(String)
+
+    /// A send type, without pre-filled send content.
+    case type(SendType)
 }
 
 // MARK: - SendItemRoute
