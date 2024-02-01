@@ -28,11 +28,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
 
         subjectPassword = IdentityTokenRequest(
             requestModel: IdentityTokenRequestModel(
-                authenticationMethod: .password(
-                    username: "user@example.com",
-                    password: "password",
-                    plainPassword: "plain password"
-                ),
+                authenticationMethod: .password(username: "user@example.com", password: "password"),
                 captchaToken: "captchaToken",
                 deviceInfo: .fixture()
             )

@@ -30,6 +30,7 @@ struct UpdateMasterPasswordState: Equatable {
     /// The retype of new master password provided by the user.
     var masterPasswordRetype: String = ""
 
+    /// The policy summary based on the `MasterPasswordPolicyOptions`.
     var policySummary: String {
         guard let masterPasswordPolicy, masterPasswordPolicy.inEffect() else {
             return Localizations.masterPasswordPolicyInEffect

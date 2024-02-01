@@ -362,20 +362,33 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             kdfParams: response.sdkKdf,
             purpose: .serverAuthorization
         )
-        try await getIdentityTokenResponse(
-            authenticationMethod: .password(
-                username: username,
-                password: hashedPassword,
-                plainPassword: masterPassword
-            ),
+        let token = try await getIdentityTokenResponse(
+            authenticationMethod: .password(username: username, password: hashedPassword),
             email: username,
             captchaToken: captchaToken
         )
+        var policy: MasterPasswordPolicyOptions?
+        if let model = token.masterPasswordPolicy {
+            policy = MasterPasswordPolicyOptions(
+                minComplexity: model.minComplexity ?? 0,
+                minLength: model.minLength ?? 0,
+                requireUpper: model.requireUpper ?? false,
+                requireLower: model.requireLower ?? false,
+                requireNumbers: model.requireNumbers ?? false,
+                requireSpecial: model.requireSpecial ?? false,
+                enforceOnLogin: model.enforceOnLogin ?? false
+            )
+        }
+        if try await requirePasswordChange(email: username, masterPassword: masterPassword, policy: policy) {
+            var account = try await stateService.getActiveAccount()
+            account.profile.forcePasswordResetReason = .adminForcePasswordReset
+            await stateService.addAccount(account)
+        }
     }
 
     func loginWithSingleSignOn(code: String, email: String) async throws -> Account? {
         // Get the identity token to log in to Bitwarden.
-        try await getIdentityTokenResponse(
+        _ = try await getIdentityTokenResponse(
             authenticationMethod: .authorizationCode(
                 code: code,
                 codeVerifier: codeVerifier,
@@ -407,7 +420,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         if let captchaToken { twoFactorRequest.captchaToken = captchaToken }
 
         // Get the identity token to log in to Bitwarden.
-        try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
+        _ = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
 
         // Remove the cached request after successfully logging in.
         self.twoFactorRequest = nil
@@ -480,7 +493,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         email: String,
         captchaToken: String? = nil,
         request: IdentityTokenRequestModel? = nil
-    ) async throws {
+    ) async throws -> IdentityTokenResponseModel {
         // Get the app's id.
         let appID = await appIdService.getOrCreateAppId()
 
@@ -518,24 +531,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
             // Create the account.
             let urls = await stateService.getPreAuthEnvironmentUrls()
-            var account = try Account(identityTokenResponseModel: identityTokenResponse, environmentUrls: urls)
-            if case let .password(_, _, plainPassword) = request.authenticationMethod {
-                var policy: MasterPasswordPolicyOptions?
-                if let model = identityTokenResponse.masterPasswordPolicy {
-                    policy = MasterPasswordPolicyOptions(
-                        minComplexity: model.minComplexity ?? 0,
-                        minLength: model.minLength ?? 0,
-                        requireUpper: model.requireUpper ?? false,
-                        requireLower: model.requireLower ?? false,
-                        requireNumbers: model.requireNumbers ?? false,
-                        requireSpecial: model.requireSpecial ?? false,
-                        enforceOnLogin: model.enforceOnLogin ?? false
-                    )
-                }
-                if try await requirePasswordChange(email: email, masterPassword: plainPassword, policy: policy) {
-                    account.profile.forcePasswordResetReason = .adminForcePasswordReset
-                }
-            }
+            let account = try Account(identityTokenResponseModel: identityTokenResponse, environmentUrls: urls)
             await stateService.addAccount(account)
 
             // Save the encryption keys.
@@ -543,12 +539,13 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             try await stateService.setAccountEncryptionKeys(encryptionKeys)
 
             // Save the master password, if applicable.
-            if case let .password(_, password, _) = request.authenticationMethod {
+            if case let .password(_, password) = request.authenticationMethod {
                 try await stateService.setMasterPasswordHash(hashPassword(
                     password: password,
                     purpose: .localAuthorization
                 ))
             }
+            return identityTokenResponse
         } catch let error as IdentityTokenRequestError {
             if case let .twoFactorRequired(_, ssoToken, captchaBypassToken) = error {
                 // If the token request require two-factor authentication, cache the request so that
@@ -558,7 +555,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
                 // Form the resend email request in case the user needs to resend the verification code email.
                 var passwordHash: String?
-                if case let .password(_, password, _) = request?.authenticationMethod { passwordHash = password }
+                if case let .password(_, password) = request?.authenticationMethod { passwordHash = password }
                 resendEmailModel = .init(
                     deviceIdentifier: appID,
                     email: email,

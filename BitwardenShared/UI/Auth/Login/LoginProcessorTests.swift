@@ -158,7 +158,6 @@ class LoginProcessorTests: BitwardenTestCase {
     func test_perform_loginWithMasterPasswordPressed_updateMasterPassword() async throws {
         var account = Account.fixture()
         account.profile.forcePasswordResetReason = .adminForcePasswordReset
-//        authRepository.activeAccountResult = .success(.anneAccount)
         authRepository.accountForItemResult = .success(account)
         subject.state.username = "email@example.com"
         subject.state.masterPassword = "Password1234!"

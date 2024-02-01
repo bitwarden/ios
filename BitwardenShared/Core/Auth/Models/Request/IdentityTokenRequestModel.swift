@@ -12,7 +12,7 @@ struct IdentityTokenRequestModel {
         case authorizationCode(code: String, codeVerifier: String, redirectUri: String)
 
         /// The user is authenticating with a username and password.
-        case password(username: String, password: String, plainPassword: String)
+        case password(username: String, password: String)
     }
 
     // MARK: Properties
@@ -57,7 +57,7 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
                 URLQueryItem(name: "code_verifier", value: codeVerifier),
                 URLQueryItem(name: "redirect_uri", value: redirectUri),
             ])
-        case let .password(username, password, _):
+        case let .password(username, password):
             queryItems.append(contentsOf: [
                 URLQueryItem(name: "grant_type", value: "password"),
                 URLQueryItem(name: "username", value: username),

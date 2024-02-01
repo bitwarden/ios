@@ -50,11 +50,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
 
         let response = try await subject.getIdentityToken(
             IdentityTokenRequestModel(
-                authenticationMethod: .password(
-                    username: "username",
-                    password: "password",
-                    plainPassword: "plain password"
-                ),
+                authenticationMethod: .password(username: "username", password: "password"),
                 captchaToken: nil,
                 deviceInfo: .fixture()
             )
@@ -77,11 +73,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
         await assertAsyncThrows(error: IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "1234")) {
             _ = try await subject.getIdentityToken(
                 IdentityTokenRequestModel(
-                    authenticationMethod: .password(
-                        username: "username",
-                        password: "password",
-                        plainPassword: "plain password"
-                    ),
+                    authenticationMethod: .password(username: "username", password: "password"),
                     captchaToken: nil,
                     deviceInfo: .fixture()
                 )

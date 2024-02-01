@@ -24,11 +24,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         )
 
         subjectPassword = IdentityTokenRequestModel(
-            authenticationMethod: .password(
-                username: "user@example.com",
-                password: "password",
-                plainPassword: "plain password"
-            ),
+            authenticationMethod: .password(username: "username", password: "password"),
             captchaToken: "captchaToken",
             deviceInfo: .fixture()
         )
@@ -85,11 +81,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
     /// `values` doesn't contain the captcha token if it's `nil`.
     func test_values_withoutCaptcha() {
         let subject = IdentityTokenRequestModel(
-            authenticationMethod: .password(
-                username: "user@example.com",
-                password: "password",
-                plainPassword: "plain password"
-            ),
+            authenticationMethod: .password(username: "user@example.com", password: "password"),
             captchaToken: nil,
             deviceInfo: .fixture()
         )
@@ -101,11 +93,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
     /// `values` contains the two-factor information if it's provided.
     func test_values_withTwoFactorInformation() {
         let subject = IdentityTokenRequestModel(
-            authenticationMethod: .password(
-                username: "user@example.com",
-                password: "password",
-                plainPassword: "plain password"
-            ),
+            authenticationMethod: .password(username: "user@example.com", password: "password"),
             captchaToken: nil,
             deviceInfo: .fixture(),
             twoFactorCode: "hi_im_a_lil_code",
